@@ -1,34 +1,32 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Defines 1C:Enterprise application version required for the standalone
-// workstation. Application of this version must be installed on the user's local computer.
-// If a function return value is not specified,
-// the default value will be used as a required application version: the first three numbers of the current
-// online application version, for example, 8.3.3.
-// It is used in the Standalone workstation generation wizard.
+// Determines the version of the 1C application:The company that is required to operate
+// an Autonomous workplace. This version of the application must be installed on the user's local computer.
+// If the return value of the function is not set, the
+// default value will be used as the required application version: the first three digits of the version of the current application
+// located on the Internet, for example, "8.3.3".
+// Used in the offline workplace creation assistant.
 //
 // Parameters:
-//  Version - String - version of the required 1C:Enterprise application in the format of
-//	                  "<main version>.<earlier version>.<release>.<additional release number>."
+//  Version - String -  version of the required 1C application:Enterprises in the format
+//	                  " < main version>.<younger version>.<release>.<additional release number>".
 //	                  For example, "8.3.3.715".
 //
 Procedure OnDefineRequiredApplicationVersion(Version) Export
 	
 EndProcedure
 
-// It is called when a user initiates standalone workstation creation.
-// Additional checks before standalone workstation creation
-//  be implemented in event handlers (and if it is impossible, an exception is thrown).
+// Called when the user starts creating an offline workplace.
+// Event handlers can implement additional checks for the possibility
+// of creating an Autonomous workplace (if it is not possible, an exception is generated).
 //
 Procedure OnCreateStandaloneWorkstation() Export
 	

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -41,31 +39,24 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.SeparatorDecoration.Visible = TwoMistakes;
 	
-	If TwoMistakes
-	   And IsBlankString(ErrorAnchorClient)
-	   And IsBlankString(ErrorAnchorServer) Then
-		
-		Items.InstructionClient.Visible = False;
-	EndIf;
-	
 	Items.FooterGroup.Visible = Parameters.ShowNeedHelp;
 	Items.SeparatorDecoration2.Visible = Parameters.ShowNeedHelp;
 	
-	GuideRefVisibility =
-		DigitalSignatureInternal.VisibilityOfRefToAppsTroubleshootingGuide();
+	URL = "";
+	DigitalSignatureClientServerLocalization.OnDefineRefToSearchByErrorsWhenManagingDigitalSignature(
+		URL);
+	
+	GuideRefVisibility = URL <> "";
 	
 	If Parameters.ShowNeedHelp Then
 		Items.Help.Visible                     = Parameters.ShowInstruction;
 		Items.FormOpenApplicationsSettings.Visible = Parameters.ShowOpenApplicationsSettings;
 		Items.FormInstallExtension.Visible      = Parameters.ShowExtensionInstallation;
-		Items.InstructionClient.Visible = Items.InstructionClient.Visible And GuideRefVisibility 
-			And ValueIsFilled(ErrorAnchorClient);
-		Items.InstructionServer.Visible = GuideRefVisibility And ValueIsFilled(ErrorAnchorServer);
 		ErrorDescription = Parameters.ErrorDescription;
-	Else
-		Items.InstructionClient.Visible = Items.InstructionClient.Visible And GuideRefVisibility;
-		Items.InstructionServer.Visible = GuideRefVisibility;
 	EndIf;
+	
+	Items.InstructionClient.Visible = GuideRefVisibility And Not IsBlankString(ErrorTextClient);
+	Items.InstructionServer.Visible = GuideRefVisibility And Not IsBlankString(ErrorTextServer);
 	
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
@@ -91,24 +82,14 @@ Procedure InstructionClick(Item)
 	
 	ErrorAnchor = ""; SearchText = "";
 	If Item.Name = "InstructionClient" Then
-		If Not IsBlankString(ErrorAnchorClient) Then
-			ErrorAnchor = ErrorAnchorClient;
-		Else
-			SearchText = ErrorTextClient;
-		EndIf;
+		SearchText = ErrorTextClient;
+		
 	ElsIf Item.Name = "InstructionServer" Then
-		If Not IsBlankString(ErrorAnchorServer) Then
-			ErrorAnchor = ErrorAnchorServer;
-		Else
-			SearchText = ErrorTextServer;
-		EndIf;
+		SearchText = ErrorTextServer;
+		
 	EndIf;
 	
-	If ValueIsFilled(SearchText) Then
-		DigitalSignatureClient.OpenSearchByErrorsWhenManagingDigitalSignature(SearchText);
-	Else
-		DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications(ErrorAnchor);
-	EndIf;
+	DigitalSignatureClient.OpenSearchByErrorsWhenManagingDigitalSignature(SearchText);
 	
 EndProcedure
 
@@ -274,6 +255,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		ReasonItemText = Items.ReasonsClientText;
 		ItemDecisionText = Items.DecisionsClientText;
 		ReasonsAndDecisionsGroup = Items.PossibleReasonsAndSolutionsClient;
+		Items.TitleClient.Visible = TwoMistakes;
 	Else
 		ItemError = Items.Error;
 		ErrorTextElement = Items.ErrorText;
@@ -312,7 +294,10 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		IsKnownError = ClassifierError <> Undefined;
 		
 		ReasonsAndDecisionsGroup.Visible = IsKnownError;
+			
 		If IsKnownError Then
+			
+			ErrorTextElement.TitleLocation = FormItemTitleLocation.Top;
 			
 			If ValueIsFilled(ClassifierError.RemedyActions) Then
 				If ClassifierErrorSolutionTextSupplementOptions = Undefined Then
@@ -325,9 +310,6 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 				ClassifierError = AddOn.ClassifierError;
 				ClassifierErrorSolutionTextSupplementOptions = AddOn.ClassifierErrorSolutionTextSupplementOptionsAtClient;
 			EndIf;
-				
-			CommonClientServer.SetFormItemProperty(Items,
-				InstructionItem.Name, "Title", NStr("en = 'Details';"));
 			
 			If ValueIsFilled(ClassifierError.Cause) Then
 				If TypeOf(ReasonItemText) = Type("FormDecoration") Then
@@ -356,11 +338,12 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 			Else
 				ErrorAnchor = ClassifierError.Ref;
 			EndIf;
-		
+		Else
+			ErrorTextElement.TitleLocation = FormItemTitleLocation.None;
 		EndIf;
 		
 		CommonClientServer.SetFormItemProperty(Items,
-				InstructionItem.Name, "Title", NStr("en = 'Details';"));
+				InstructionItem.Name, "Title", NStr("en = 'Поиск решения...';"));
 		
 		RequiredNumberOfRows = 0;
 		MarginWidth = Int(?(Width < 20, 20, Width) * 1.4);

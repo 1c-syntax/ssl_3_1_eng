@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -218,7 +216,7 @@ EndProcedure
 &AtClient
 Procedure FillList()
 	
-	// Saving the current session data that will be used to restore the row position.
+	// 
 	CurrentSession = Undefined;
 	CurrentData = Items.UsersList.CurrentData;
 	
@@ -228,7 +226,7 @@ Procedure FillList()
 	
 	FillUserList();
 	
-	// Restoring the current row position based on the saved session data.
+	// 
 	If CurrentSession <> Undefined Then
 		TheStructureOfTheSearch = New Structure;
 		TheStructureOfTheSearch.Insert("Session", CurrentSession);
@@ -392,13 +390,13 @@ EndFunction
 //  UsersRefs - Map of KeyAndValue:
 //    * Key - UUID
 //    * Value - FormDataCollectionItem:
-//      ** UserRef - CatalogRef.Users, CatalogRef.ExternalUsers
+//      ** UserRef - 
 //  UsersIDs - Array of UUID
 //
 &AtServerNoContext
 Procedure PopulateRefsByIDs(UsersRefs, UsersIDs)
 
-	// Cannot access the separated catalog from a shared session.
+	// 
 	If Common.DataSeparationEnabled() 
 		And Not Common.SeparatedDataUsageAvailable() Then
 		Return;

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -25,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not IsBlankString(MonitoringCenterID) Then
 		Id = MonitoringCenterID;
 	Else
-		// There is no ID for some reason, get it again.
+		// 
 		Items.IDGroup.CurrentPage = Items.GetIDPage;
 	EndIf;
 	
@@ -83,7 +81,7 @@ Procedure GetID(Command)
 	JobID = RunResult.JobID;
 	JobResultAddress = RunResult.ResultAddress;
 	GetIDJobState = "Running";
-	// Outputs the status of getting ID.
+	// 
 	VisibilityParameters = New Structure("Status, ResultAddress", GetIDJobState, JobResultAddress);
 	SetItemsVisibility(VisibilityParameters);
 	Notification = New NotifyDescription("AfterUpdateID", MonitoringCenterClient);
@@ -131,7 +129,7 @@ EndFunction
 
 &AtServerNoContext
 Function DiscoveryPackageSending()
-	// Send a discovery package.
+	// 
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.WaitCompletion = 0;
 	ProcedureParameters = New Structure("Iterator_SSLy, TestPackageSending, GetID", 0, False, True);

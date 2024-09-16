@@ -106,7 +106,7 @@
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Node states group find</v8:content>
+								<v8:content>Node states find group</v8:content>
 							</v8:item>
 						</Title>
 						<ExtendedTooltip name="NodesStateListFindGroupExtendedTooltip" id="61"/>
@@ -129,7 +129,7 @@
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Node states group refresh monitor</v8:content>
+								<v8:content>Node states refresh monitor group</v8:content>
 							</v8:item>
 						</Title>
 						<ExtendedTooltip name="NodesStateListRefreshMonitorGroupExtendedTooltip" id="64"/>
@@ -163,7 +163,7 @@
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Node nodes group display list</v8:content>
+								<v8:content>Node states output list group</v8:content>
 							</v8:item>
 						</Title>
 						<ExtendedTooltip name="NodesStateListOutputListGroupExtendedTooltip" id="67"/>

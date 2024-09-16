@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -82,7 +80,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	ChangeFormItemsVisibility(ThisObject);
 		
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	AttachableCommands.OnCreateAtServer(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 
@@ -91,11 +89,11 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 		
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	AttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 	// End StandardSubsystems.AttachableCommands
 	
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -115,7 +113,7 @@ Procedure OnOpen(Cancel)
 		AvailabilityControlSubordinateQuestions(False);
 	EndIf;
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	AttachableCommandsClient.StartCommandUpdate(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 
@@ -334,7 +332,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Setting form attributes values.
+// 
 
 &AtServer
 Procedure SetSectionFillingFormAttributesValues()
@@ -390,11 +388,11 @@ Procedure SetSectionFillingFormAttributesValues()
 EndProcedure
 
 // Parameters:
-//  TemplateQuestion  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
-//                 for which attributes values are set.
-//  SelectionQuestion  - QueryResultSelection - a selection containing values of answers 
-//                 to the questionnaire template question.
-//  QuestionnaireTreeServer - ValueTree - a value tree containing the questionnaire template.
+//  TemplateQuestion  - CatalogRef.QuestionnaireTemplateQuestions -  the question of the questionnaire template, 
+//                 for which the values of the details are set.
+//  SelectionQuestion  - QueryResultSelection -  a sample containing the values of responses 
+//                 to a question in the questionnaire template.
+//  Yerevankentron of Perevoznoy - the value tree that contains the template of the questionnaire.
 //
 &AtServer
 Procedure SetAttributeValue(TemplateQuestion, SelectionQuestion)
@@ -416,11 +414,11 @@ Procedure SetAttributeValue(TemplateQuestion, SelectionQuestion)
 EndProcedure
 
 // Parameters:
-//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
-//                 for which attributes values are set.
-//  SelectionQuestion  - QueryResultSelection - a selection containing values of answers 
-//                 to the questionnaire template question.
-//  TreeRow  - ValueTreeRow - a value tree row containing the questionnaire template question data.
+//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions -  the question of the questionnaire template, 
+//                 for which the values of the details are set.
+//  SelectionQuestion  - QueryResultSelection -  a sample containing the values of responses 
+//                 to a question in the questionnaire template.
+//  TreeRow  - ValueTreeRow -  a value tree string containing data from the questionnaire template question.
 //
 &AtServer
 Procedure SetSimpleQuestionAttributeValue(DoQueryBox, SelectionQuestion, TreeRow)
@@ -499,11 +497,11 @@ Procedure SetSimpleQuestionAttributeValue(DoQueryBox, SelectionQuestion, TreeRow
 EndProcedure
 
 // Parameters:
-//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
-//                 for which attributes values are set.
-//  SelectionQuestion  - QueryResultSelection - a selection containing values of answers 
-//                 to the questionnaire template question.
-//  TreeRow  - ValueTreeRow - a value tree row containing the questionnaire template question data.
+//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions -  the question of the questionnaire template, 
+//                 for which the values of the details are set.
+//  SelectionQuestion  - QueryResultSelection -  a sample containing the values of responses 
+//                 to a question in the questionnaire template.
+//  TreeRow  - ValueTreeRow -  a value tree string containing data from the questionnaire template question.
 //
 &AtServer
 Procedure SetTabularQuestionAttributeValue(DoQueryBox, SelectionQuestion, TreeRow)
@@ -529,11 +527,11 @@ Procedure SetTabularQuestionAttributeValue(DoQueryBox, SelectionQuestion, TreeRo
 EndProcedure
 
 // Parameters:
-//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
-//                 for which attributes values are set.
-//  SelectionQuestion  - QueryResultSelection - a selection containing values of answers 
-//                 to the questionnaire template question.
-//  TreeRow  - ValueTreeRow - a value tree row containing the questionnaire template question data.
+//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions -  the question of the questionnaire template, 
+//                 for which the values of the details are set.
+//  SelectionQuestion  - QueryResultSelection -  a sample containing the values of responses 
+//                 to a question in the questionnaire template.
+//  TreeRow  - ValueTreeRow -  a value tree string containing data from the questionnaire template question.
 //
 &AtServer
 Procedure SetAttributeValuesCompositeTabularQuestion(DoQueryBox, SelectionQuestion, TreeRow)
@@ -568,11 +566,11 @@ Procedure SetAttributeValuesCompositeTabularQuestion(DoQueryBox, SelectionQuesti
 EndProcedure
 
 // Parameters:
-//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
-//                 for which attributes values are set.
-//  SelectionQuestion  - QueryResultSelection - a selection containing values of answers 
-//                 to the questionnaire template question.
-//  TreeRow  - ValueTreeRow - a value tree row containing the questionnaire template question data.
+//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions -  the question of the questionnaire template, 
+//                 for which the values of the details are set.
+//  SelectionQuestion  - QueryResultSelection -  a sample containing the values of responses 
+//                 to a question in the questionnaire template.
+//  TreeRow  - ValueTreeRow -  a value tree string containing data from the questionnaire template question.
 //
 &AtServer
 Procedure SetAttributeValuesTabularQuestionAnswersInRows(DoQueryBox, SelectionQuestion, TreeRow)
@@ -597,11 +595,11 @@ Procedure SetAttributeValuesTabularQuestionAnswersInRows(DoQueryBox, SelectionQu
 EndProcedure
 
 // Parameters:
-//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
-//                 for which attributes values are set.
-//  SelectionQuestion  - QueryResultSelection - a selection containing values of answers 
-//                 to the questionnaire template question.
-//  TreeRow  - ValueTreeRow - a value tree row containing the questionnaire template question data.
+//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions -  the question of the questionnaire template, 
+//                 for which the values of the details are set.
+//  SelectionQuestion  - QueryResultSelection -  a sample containing the values of responses 
+//                 to a question in the questionnaire template.
+//  TreeRow  - ValueTreeRow -  a value tree string containing data from the questionnaire template question.
 //
 &AtServer
 Procedure SetAttributeValuesTabularQuestionAnswersInColumns(DoQueryBox, SelectionQuestion, TreeRow)
@@ -630,11 +628,11 @@ Procedure SetAttributeValuesTabularQuestionAnswersInColumns(DoQueryBox, Selectio
 EndProcedure
 
 // Parameters:
-//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
-//            for which attributes values are set.
-//  SelectionQuestion - QueryResultSelection - a selection containing values of answers 
-//                  to the questionnaire template question.
-//  TreeRow - ValueTreeRow - a value tree row containing the questionnaire template question data.
+//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions -  the question of the questionnaire template, 
+//            for which the values of the details are set.
+//  SelectionQuestion - QueryResultSelection -  a sample containing the values of responses 
+//                  to a question in the questionnaire template.
+//  TreeRow - ValueTreeRow -  a value tree string containing data from the questionnaire template question.
 //
 &AtServer
 Procedure SetAttributeValuesTabularQuestionAnswersInRowsAndColumns(DoQueryBox, SelectionQuestion, TreeRow)
@@ -661,11 +659,11 @@ Procedure SetAttributeValuesTabularQuestionAnswersInRowsAndColumns(DoQueryBox, S
 EndProcedure
 
 // Parameters:
-//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions - a questionnaire template question, 
-//                 for which attributes values are set.
-//  SelectionQuestion  - QueryResultSelection - a selection containing values of answers 
-//                 to the questionnaire template question.
-//  TreeRow  - ValueTreeRow - a value tree row containing the questionnaire template question data.
+//  DoQueryBox  - CatalogRef.QuestionnaireTemplateQuestions -  the question of the questionnaire template, 
+//                 for which the values of the details are set.
+//  SelectionQuestion  - QueryResultSelection -  a sample containing the values of responses 
+//                 to a question in the questionnaire template.
+//  TreeRow  - ValueTreeRow -  a value tree string containing data from the questionnaire template question.
 //
 &AtServer
 Procedure SetAttributeValuesComplexQuestion(DoQueryBox, SelectionQuestion, TreeRow)
@@ -713,7 +711,7 @@ Procedure SetAttributeValuesComplexQuestion(DoQueryBox, SelectionQuestion, TreeR
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Convert questionnaire entry data into a document table.
+// 
 
 &AtServer
 Function EndEditFillingForm(WriteMode)
@@ -759,7 +757,7 @@ Procedure ConvertSectionFillingResultsToTabularSection()
 
 	For Each TableRow In SectionQuestionsTable Do
 		
-		// Removes the existing data from the table.
+		// 
 		FoundRows = Object.Content.FindRows(New Structure("DoQueryBox", TableRow.TemplateQuestion));
 		For Each FoundRow In FoundRows Do
 			Object.Content.Delete(FoundRow);
@@ -789,7 +787,7 @@ Procedure ConvertSectionFillingResultsToTabularSection()
 EndProcedure
 
 // Parameters:
-//   TreeRow - ValueTreeRow - Questionnaire template tree row.
+//   TreeRow - ValueTreeRow -  string of the questionnaire template tree.
 //
 &AtServer
 Procedure FillAnswersTableTabularQuestion(TreeRow)
@@ -822,12 +820,12 @@ Procedure FillAnswersTableTabularQuestion(TreeRow)
 
 EndProcedure
 
-// Gets answers to a composite question chart and appends them to the main
+// Gets the answers given by the Respondent to a composite table question and accumulates them in the General
 // table of answers.
 //
 // Parameters:
-//  TreeRow - ValueTreeRow - Questionnaire template tree row.
-//  Table      - ValueTable - Chart the question belongs to.
+//  TreeRow - ValueTreeRow -  string of the questionnaire template tree.
+//  Table      - ValueTable -  table of the table question.
 //
 &AtServer
 Procedure FillAnswersCompositeTabularQuestion(TreeRow, Table)
@@ -851,12 +849,12 @@ Procedure FillAnswersCompositeTabularQuestion(TreeRow, Table)
 
 EndProcedure
 
-// Gets answers to a question chart with predefined answers in rows, and appends them to the main table of answers. 
-// 
+// Gets the answers given by the Respondent to a table question with predefined answers in rows and 
+// accumulates them in the General table of answers.
 //
 // Parameters:
-//  TreeRow - ValueTreeRow - Questionnaire template tree row.
-//  Table      - ValueTable - Chart the question belongs to.
+//  TreeRow - ValueTreeRow -  string of the questionnaire template tree.
+//  Table      - ValueTable -  table of the table question.
 //
 &AtServer
 Procedure FillAnswersTabularQuestionAnswersInRows(TreeRow, Table)
@@ -905,12 +903,12 @@ Procedure FillAnswersTabularQuestionAnswersInRows(TreeRow, Table)
 
 EndProcedure
 
-// Gets answers to a question chart with predefined answers in rows and columns, and appends them to the main table of answers. 
-// 
+// Gets the answers given by the Respondent to a table question with predefined answers in rows and columns and 
+// accumulates them in the General table of answers.
 //
 // Parameters:
-//  TreeRow - ValueTreeRow - Questionnaire template tree row.
-//  Table      - ValueTable - Chart the question belongs to.
+//  TreeRow - ValueTreeRow -  string of the questionnaire template tree.
+//  Table      - ValueTable -  table of the table question.
 //
 &AtServer
 Procedure FillAnswersTabularQuestionAnswersInRowsAndColumns(TreeRow, Table)
@@ -959,12 +957,12 @@ Procedure FillAnswersTabularQuestionAnswersInRowsAndColumns(TreeRow, Table)
 
 EndProcedure
 
-// Gets answers to a question chart with predefined answers in columns, and appends them to the main table of answers. 
-// 
+// Gets the answers given by the Respondent to a tabular question with predefined answers in columns and 
+// accumulates them in the General table of answers.
 //
 // Parameters:
-//  TreeRow - ValueTreeRow - Questionnaire template tree row.
-//  Table      - ValueTable - Chart the question belongs to.
+//  TreeRow - ValueTreeRow -  string of the questionnaire template tree.
+//  Table      - ValueTable -  table of the table question.
 //
 &AtServer
 Procedure FillAnswersTabularQuestionAnswersInColumns(TreeRow, Table)
@@ -1008,11 +1006,11 @@ Procedure FillAnswersTabularQuestionAnswersInColumns(TreeRow, Table)
 
 EndProcedure
 
-// Gets answers to a basic question and appends them to the main table of answers. 
-// 
+// Gets the answers given by the Respondent to a simple question and 
+// accumulates them in a General table of answers.
 //
 // Parameters:
-//  TreeRow   - ValueTreeRow - Questionnaire template tree row.
+//  TreeRow   - ValueTreeRow -  string of the questionnaire template tree.
 //
 &AtServer
 Procedure FillAnswerSimpleQuestion(TreeRow)
@@ -1171,7 +1169,7 @@ Procedure FillAnswersComplexQuestion(TreeRow)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+// Other
 
 &AtServer
 Procedure CreateFormAccordingToSection()
@@ -1333,8 +1331,8 @@ Function CheckQuestionnaireFilling()
 EndFunction
 
 // Parameters:
-//  Response         - Characteristic.QuestionsForSurvey - an answer we are looking for.
-//  AnswersArray - Array - an array of value table rows.
+//  Response         - Characteristic.QuestionsForSurvey -  the answer we're looking for.
+//  AnswersArray - Array -  array of rows in the value table.
 //
 // Returns:
 //   Structure:
@@ -1455,7 +1453,7 @@ Procedure AvailabilityControlSubordinateQuestions(SetModification = True)
 				Try
 					ItemOfSubordinateQuestion.AutoMarkIncomplete = ValueAutoMarkUnfilled;
 				Except
-					// ACC:280 The check box and radio buttons do not have the AutoMarkIncomplete property.
+					// 
 				EndTry;
 			EndIf;
 		EndDo;
@@ -1739,7 +1737,7 @@ Procedure ChangeFormItemsVisibility(Form)
 
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	AttachableCommandsClient.StartCommandExecution(ThisObject, Command, Object);
@@ -1763,7 +1761,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);

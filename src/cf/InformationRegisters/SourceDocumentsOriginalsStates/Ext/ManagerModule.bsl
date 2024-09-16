@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-// Records states of print form originals to the register after printing the form.
+// Records the States of the original printed forms in the register after printing the form.
 //
 //	Parameters:
-//  PrintObjects - ValueList - a document list.
-//  PrintForms - ValueList - a description of templates and a presentation of print forms.
-//  Written1 - Boolean - indicates that the document state is written to the register.
+//  PrintObjects - ValueList -  list of documents.
+//  PrintForms - ValueList -  the name of the layout and presentation of printed forms.
+//  Written1 - Boolean -  indicates that the status of the document is recorded in the register.
 //
 Procedure WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintForms, Written1 = False) Export
 	
@@ -70,16 +68,16 @@ Procedure WriteDocumentOriginalsStatesAfterPrintForm(PrintObjects, PrintForms, W
 	
 EndProcedure
 
-// Records the print form original state to the register after printing the form.
+// Records the status of the original printed form in the register after printing the form.
 //
 //	Parameters:
-//  Document - DocumentRef - document reference.
-//  PrintForm - String - a print form template name.
-//  Presentation - String - a print form description.
-//  State - String - a description of the print form original state
-//            - CatalogRef - a reference to the print form original state.
-//  FromOutside - Boolean - indicates whether the form belongs to 1C:Enterprise.
-//  Employee - CatalogRef - A reference to an employee if the source document contains employees information.
+//  Document - DocumentRef -  link to the document.
+//  PrintForm - String -  name of the print form layout.
+//  Presentation - String -  name of the printed form.
+//  State - String -  name of the state of the original printed form
+//            - CatalogRef - 
+//  FromOutside - Boolean -  indicates whether the form belongs to the 1C system.
+//  Employee - CatalogRef - 
 //
 Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentation, State, 
 	FromOutside, Employee = Undefined) Export
@@ -112,11 +110,11 @@ Procedure WriteDocumentOriginalStateByPrintForms(Document, PrintForm, Presentati
 
 EndProcedure
 
-// Records the source document's aggregated state to the register.
+// Records the General state of the original document in the register.
 //
 //	Parameters:
-//  Document - DocumentRef - document reference.
-//  State - String - a description of the original state.
+//  Document - DocumentRef -  link to the document.
+//  State - String -  name of the original state.
 //
 Procedure WriteCommonDocumentOriginalState(Document, State) Export
 

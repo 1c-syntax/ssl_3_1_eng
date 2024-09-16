@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Adds a command of creation of the specified object to the list of commands of creation on basis.
+// Adds a command to create the specified object to the list of creation commands based on.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
-//  MetadataObject - MetadataObject - an object, for which the command is being added.
+//  MetadataObject - MetadataObject -  the object for which the command is added.
 // 
 // Returns:
-//  ValueTableRow, Undefined - Details of the added command.
+//  ValueTableRow, Undefined - 
 //
 Function AddGenerationCommand(GenerationCommands, MetadataObject) Export
 	If AccessRight("Insert", MetadataObject) Then
@@ -37,7 +35,7 @@ EndFunction
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See AttachableCommandsOverridable.OnDefineAttachableObjectsSettingsComposition
 Procedure OnDefineAttachableObjectsSettingsComposition(InterfaceSettings4) Export
@@ -108,7 +106,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	EndIf;
 	
 	If AllowedTypes.Count() = 0 Then
-		Return; // Everything is closed and there will be no extension commands with allowed types.
+		Return; // 
 	EndIf;
 	
 	FoundItems = AttachedReportsAndDataProcessors.FindRows(New Structure("AddGenerationCommands", True));
@@ -139,10 +137,10 @@ EndProcedure
 
 #Region Private
 
-// List of objects that use commands of creation on basis.
+// The list of objects that use the creation command on the basis.
 //
 // Returns:
-//   Array of String - names of metadata objects attached to the subsystem.
+//   Array of String - 
 //
 Function ObjectsWithCreationBasedOnCommands()
 	
@@ -238,7 +236,7 @@ EndFunction
 
 // Parameters:
 //  Form - ClientApplicationForm
-//  CommandsKind - ValueTableRow of See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.AttachableCommandsKinds
+//   See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.AttachableCommandsKinds
 //  SubmenuInfoByDefault - ValueTableRow:
 //   * Popup - FormGroup 
 //   * CommandsCount - Number

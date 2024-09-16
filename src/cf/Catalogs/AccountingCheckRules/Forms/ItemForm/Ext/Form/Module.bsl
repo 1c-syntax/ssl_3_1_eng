@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -37,7 +35,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ScheduleGroup.Visible = False;
 	EndIf;
 		
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	AttachableCommands.OnCreateAtServer(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -46,7 +44,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	AttachableCommandsClient.StartCommandUpdate(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -55,7 +53,7 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	AttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -501,7 +499,7 @@ Procedure SetInitialScheduleSettings()
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	AttachableCommandsClient.StartCommandExecution(ThisObject, Command, Object);

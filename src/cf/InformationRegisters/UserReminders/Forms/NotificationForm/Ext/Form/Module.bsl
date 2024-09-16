@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -64,7 +62,7 @@ Procedure OnClose(Exit)
 	DeferActiveReminders();
 	UserRemindersClient.ResetCurrentNotificationsCheckTimer();
 	
-	// Forced disabling of handlers is necessary as the form is not exported from the memory.
+	// 
 	DetachIdleHandler("UpdateRemindersTable");
 	DetachIdleHandler("UpdateTimeInRemindersTable");
 EndProcedure
@@ -230,7 +228,7 @@ Procedure UpdateRemindersTable()
 	
 	SetVisibility1();
 	
-	Interval = 15; // Update the table at least once every 15 seconds.
+	Interval = 15; // 
 	If TimeOfClosest <> Undefined Then 
 		Interval = Max(Min(Interval, TimeOfClosest - CommonClient.SessionDate()), 1); 
 	EndIf;
@@ -269,7 +267,7 @@ Procedure UpdateTimeInRemindersTable()
 		If ValueIsFilled(TableRow.EventTime) Then
 			CurrentDate = CommonClient.SessionDate();
 			Time = CurrentDate - TableRow.EventTime;
-			If TableRow.EventTime - BegOfDay(TableRow.EventTime) < 60 // Events for the whole day.
+			If TableRow.EventTime - BegOfDay(TableRow.EventTime) < 60 // 
 				And BegOfDay(TableRow.EventTime) = BegOfDay(CurrentDate) Then
 					TimePresentation = NStr("en = 'today';");
 			Else
@@ -293,7 +291,7 @@ EndProcedure
 Procedure DeferActiveReminders()
 	TimeInterval = UserRemindersClient.GetTimeIntervalFromString(RepeatedNotificationPeriod);
 	If TimeInterval = 0 Then
-		TimeInterval = 5*60; // 5 minutes.
+		TimeInterval = 5*60; // 
 	EndIf;
 	For Each TableRow In Reminders Do
 		TableRow.ReminderTime = CommonClient.SessionDate() + TimeInterval;

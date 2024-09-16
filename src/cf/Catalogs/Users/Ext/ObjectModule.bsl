@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -16,7 +14,7 @@
 
 // 
 Var IsNew;
-Var IBUserProcessingParameters; // Parameters to be populated when processing a user.
+Var IBUserProcessingParameters; // 
 
 #EndRegion
 
@@ -87,22 +85,15 @@ Var IBUserProcessingParameters; // Parameters to be populated when processing a 
 
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - A "DataExchange" check. Import should start on demand after the infobase user is handled.
+	// 
 	UsersInternal.UserObjectBeforeWrite(ThisObject, IBUserProcessingParameters);
-	// ACC:75-on
+	// 
 	
-	// ACC:75-off - The check "DataExchange.Import" should run after the register is locked.
+	// 
 	If Common.FileInfobase() Then
-		// Set an exclusive lock on the registers right away
-		// instead of automatically setting a shared lock when reading.
-		// The latter leads to a deadlock upon updating the membership of user groups.
-		Block = New DataLock;
-		Block.Add("InformationRegister.UserGroupsHierarchy");
-		Block.Add("InformationRegister.UserGroupCompositions");
-		Block.Add("InformationRegister.UsersInfo");
-		Block.Lock();
+		UsersInternal.LockRegistersBeforeWritingToFileInformationSystem(False);
 	EndIf;
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;
@@ -114,12 +105,12 @@ EndProcedure
 
 Procedure OnWrite(Cancel)
 	
-	// ACC:75-off - A "DataExchange" check. Import should start on demand after the infobase user is handled.
+	// 
 	If DataExchange.Load And IBUserProcessingParameters <> Undefined Then
 		UsersInternal.EndIBUserProcessing(
 			ThisObject, IBUserProcessingParameters);
 	EndIf;
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;
@@ -138,7 +129,7 @@ Procedure OnWrite(Cancel)
 		GroupObject1.Write();
 	EndIf;
 	
-	// Updating the content of "All users" auto group.
+	// 
 	ChangesInComposition = UsersInternal.GroupsCompositionNewChanges();
 	UsersInternal.UpdateUserGroupCompositionUsage(Ref, ChangesInComposition);
 	UsersInternal.UpdateAllUsersGroupComposition(Ref, ChangesInComposition);
@@ -154,9 +145,9 @@ EndProcedure
 
 Procedure BeforeDelete(Cancel)
 	
-	// ACC:75-off - A "DataExchange" check. Import should start on demand after the infobase user is handled.
+	// 
 	UsersInternal.UserObjectBeforeDelete(ThisObject);
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;

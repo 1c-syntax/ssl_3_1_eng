@@ -1,51 +1,49 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Opens a report on all issues of the passed issue type.
+// Opens a report on all problems of the transmitted type of problems.
 //
 // Parameters:
-//   ChecksKind - CatalogRef.ChecksKinds - a reference to a check kind.
-//               - String - The string id of the check kind.
-//               - Array of String - The string ids of the check kind.
-//   ExactMap - Boolean - If True, filter only by the given check kind.
-//                 If False, select all check kinds related to the passed kind.
+//   ChecksKind - CatalogRef.ChecksKinds -  link to the type of check.
+//               - String - 
+//               - Array of String - 
+//   ExactMap - Boolean - 
+//                 
 //
 // Example:
-//   OpenIssuesReport("SystemChecks");
+//   Open a Problem report ("System Checks");
 //
 Procedure OpenIssuesReport(ChecksKind, ExactMap = True) Export
 	
-	// The passed parameter "ChecksKind" is validated in the procedure "OnCreateAtServer"
-	// of the report module "AccountingCheckResults".
+	// 
+	// 
 	
 	AccountingAuditInternalClient.OpenIssuesReport(ChecksKind, ExactMap);
 	
 EndProcedure
 
-// Open the report form when clicking the hyperlink that informs of having issues.
+// Opens the report form when clicking on the hyperlink signaling the presence of problems.
 //
 //  Parameters:
-//     Form                - ClientApplicationForm - a form of an object with issues.
-//     ObjectWithIssue     - AnyRef - a reference to an object with issues.
-//     StandardProcessing - Boolean - a flag indicating whether
-//                            the standard (system) event processing is executed is passed to this parameter.
+//     Form                - ClientApplicationForm -  the shape of the problem object.
+//     ObjectWithIssue     - AnyRef -  a reference to the problem object.
+//     StandardProcessing - Boolean -  a sign of
+//                            standard (system) event processing is passed to this parameter.
 //
 // Example:
-//    AccountingAuditClient.OpenObjectProblemsReport(ThisObject, Object.Ref, StandardProcessing);
+//    Monitoring of the accounting of the client.Open Reportproblemobject(This is an object, an object.Link, standard processing);
 //
 Procedure OpenObjectIssuesReport(Form, ObjectWithIssue, StandardProcessing) Export
 	
-	// The passed parameters "Form", "ObjectWithIssue", and "StandardProcessing" are validated in
-	// the procedure "OnCreateAtServer" of the report module "AccountingCheckResults".
+	// 
+	// 
 	
 	StandardProcessing = False;
 	
@@ -56,22 +54,22 @@ Procedure OpenObjectIssuesReport(Form, ObjectWithIssue, StandardProcessing) Expo
 	
 EndProcedure
 
-// Open the report form, double clicking the cell of the list form table with a picture,
-// which informs that the selected object has some issues.
+// Opens the report form by double-clicking on the table cell of the list form with an image
+// indicating the presence of problems with the selected object.
 //
 //  Parameters:
-//     Form                   - ClientApplicationForm - a form of an object with issues.
-//     ListName               - String - the name of the target dynamic list as the form attribute.
-//     Field                    - FormField - a column containing picture
-//                               that informs of existing issues.
-//     StandardProcessing    - Boolean - a flag indicating whether
-//                               the standard (system) event processing is executed is passed to this parameter.
+//     Form                   - ClientApplicationForm -  the shape of the problem object.
+//     ListName               - String -  the name of the target dynamic list as the form's props.
+//     Field                    - FormField -  the column in which the picture is located,
+//                               signaling the presence of problems.
+//     StandardProcessing    - Boolean -  a sign of
+//                               standard (system) event processing is passed to this parameter.
 //     AdditionalParameters - Structure
-//                             - Undefined - contains additional properties in case
-//                               you need to use them.
+//                             - Undefined - 
+//                               
 //
 // Example:
-//    AccountingAuditClient.OpenListedIssuesReport("ThisObject", "List", Field, StandardProcessing);
+//    Monitoring of the accounting of the client.Open the reportproblem of the list (this is an object, a "List", a field, standard processing);
 //
 Procedure OpenListedIssuesReport(Form, ListName, Field, StandardProcessing, AdditionalParameters = Undefined) Export
 	
@@ -100,7 +98,7 @@ Procedure OpenListedIssuesReport(Form, ListName, Field, StandardProcessing, Addi
 		Else
 			CurrentData = Form.Items[ListName].CurrentData;
 			If CurrentData[Field.Name] = 0 Then
-				Return; // No errors by object.
+				Return; // 
 			EndIf;
 			
 			StandardProcessing = False;

@@ -111,6 +111,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.ForwardEmailAsAttachment</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.InteractionsClientServerInternalCached</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.DenyDisplayingUnsafeContentInEmails</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.InteractionsLocalization</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Enum.PredefinedEmailsFoldersTypes</xr:Item>
 			</Content>
 		</Properties>

@@ -1,20 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// Management of AccessKinds and AccessValues tables in edit forms.
+// 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Table event handlers of the AccessValues form.
+// 
+
+// For internal use only.
+// 
+// Parameters:
+//  Form - See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
+//
+Procedure SelectAccessValues(Form) Export
+	
+	AccessValueStartChoice(Form, Undefined, Undefined, Null);
+	
+EndProcedure
 
 // For internal use only.
 // 
@@ -78,15 +87,55 @@ Procedure AccessValuesOnStartEdit(Form, Item, NewRow, Copy) Export
 EndProcedure
 
 // For internal use only.
+// 
+// Parameters:
+//  Form - See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
+//  Item - FormTable
+//  ValueSelected - Arbitrary
+//  StandardProcessing - Boolean
+//
+Procedure AccessValuesChoiceProcessing(Form, Item, ValueSelected, StandardProcessing) Export
+	
+	Values = ?(TypeOf(ValueSelected) = Type("Array"),
+		ValueSelected, CommonClientServer.ValueInArray(ValueSelected));
+	
+	Parameters = AllowedValuesEditFormParameters(Form);
+	
+	CurrentTypes = New Array;
+	For Each ListItem In Form.CurrentTypesOfValuesToSelect Do
+		CurrentTypes.Add(TypeOf(ListItem.Value));
+	EndDo;
+	
+	Filter = AccessManagementInternalClientServer.FilterInAllowedValuesEditFormTables(
+		Form, Form.CurrentAccessKind);
+	
+	For Each Value In Values Do
+		If CurrentTypes.Find(TypeOf(Value)) = Undefined Then
+			Continue;
+		EndIf;
+		Filter.Insert("AccessValue", Value);
+		If Not ValueIsFilled(Parameters.AccessValues.FindRows(Filter)) Then
+			NewRow = Parameters.AccessValues.Add();
+			FillPropertyValues(NewRow, Filter);
+		EndIf;
+	EndDo;
+	
+	AccessManagementInternalClientServer.FillNumbersOfAccessValuesRowsByKind(Form,
+		Form.Items.AccessKinds.CurrentData);
+	
+EndProcedure
+
+// For internal use only.
 Procedure AccessValueStartChoice(Form, Item, ChoiceData, StandardProcessing) Export
 	
+	Context = New Structure("Form, IsPick", Form, StandardProcessing = Null);
 	StandardProcessing = False;
 	
 	If Form.CurrentTypesOfValuesToSelect.Count() = 1 Then
 		
 		Form.CurrentTypeOfValuesToSelect = Form.CurrentTypesOfValuesToSelect[0].Value;
 		
-		AccessValueStartChoiceCompletion(Form);
+		AccessValueStartChoiceCompletion(Context);
 		Return;
 		
 	ElsIf Form.CurrentTypesOfValuesToSelect.Count() > 0 Then
@@ -97,7 +146,7 @@ Procedure AccessValueStartChoice(Form, Item, ChoiceData, StandardProcessing) Exp
 				Form.CurrentTypeOfValuesToSelect = PredefinedValue(
 					"Catalog.Users.EmptyRef");
 				
-				AccessValueStartChoiceCompletion(Form);
+				AccessValueStartChoiceCompletion(Context);
 				Return;
 			EndIf;
 			
@@ -105,54 +154,15 @@ Procedure AccessValueStartChoice(Form, Item, ChoiceData, StandardProcessing) Exp
 				Form.CurrentTypeOfValuesToSelect = PredefinedValue(
 					"Catalog.ExternalUsers.EmptyRef");
 				
-				AccessValueStartChoiceCompletion(Form);
+				AccessValueStartChoiceCompletion(Context);
 				Return;
 			EndIf;
 		EndIf;
 		
 		Form.CurrentTypesOfValuesToSelect.ShowChooseItem(
-			New NotifyDescription("AccessValueStartChoiceFollowUp", ThisObject, Form),
+			New NotifyDescription("AccessValueStartChoiceFollowUp", ThisObject, Context),
 			NStr("en = 'Select data type';"),
 			Form.CurrentTypesOfValuesToSelect[0]);
-	EndIf;
-	
-EndProcedure
-
-// For internal use only.
-// 
-// Parameters:
-//  Form - See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
-//  Item - FormTable
-//  ValueSelected - Arbitrary
-//  StandardProcessing - Boolean
-//
-Procedure AccessValueChoiceProcessing(Form, Item, ValueSelected, StandardProcessing) Export
-	
-	CurrentData = Form.Items.AccessValues.CurrentData;
-	
-	If ValueSelected = Type("CatalogRef.Users")
-	 Or ValueSelected = Type("CatalogRef.UserGroups") Then
-	
-		StandardProcessing = False;
-		
-		FormParameters = New Structure;
-		FormParameters.Insert("ChoiceMode", True);
-		FormParameters.Insert("CurrentRow", CurrentData.AccessValue);
-		FormParameters.Insert("UsersGroupsSelection", True);
-		
-		OpenForm("Catalog.Users.ChoiceForm", FormParameters, Item);
-		
-	ElsIf ValueSelected = Type("CatalogRef.ExternalUsers")
-	      Or ValueSelected = Type("CatalogRef.ExternalUsersGroups") Then
-	
-		StandardProcessing = False;
-		
-		FormParameters = New Structure;
-		FormParameters.Insert("ChoiceMode", True);
-		FormParameters.Insert("CurrentRow", CurrentData.AccessValue);
-		FormParameters.Insert("SelectExternalUsersGroups", True);
-		
-		OpenForm("Catalog.ExternalUsers.ChoiceForm", FormParameters, Item);
 	EndIf;
 	
 EndProcedure
@@ -223,7 +233,7 @@ Procedure AccessValueTextInputCompletion(Form, Item, Text, ChoiceData, StandardP
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Table event handlers of the AccessKinds form.
+// 
 
 // For internal use only.
 Procedure AccessKindsOnActivateRow(Form, Item) Export
@@ -417,16 +427,16 @@ Procedure AccessKindsAllAllowedPresentationChoiceProcessing(Form, Item, ValueSel
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Event handlers for the ReportForm common form.
+// 
 
-// Handles mouse double-click, "Enter" key, and hyperlink activation in report spreadsheets.
-// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
-//   ReportForm          - ClientApplicationForm - a report form.
-//   Item              - FormField        - Spreadsheet document.
-//   Area              - SpreadsheetDocumentRange - a selected value.
-//   StandardProcessing - Boolean - indicates whether standard event processing is executed.
+//   ReportForm          - ClientApplicationForm -  report form.
+//   Item              - FormField        -  table document.
+//   Area              - SpreadsheetDocumentRange -  selected value.
+//   StandardProcessing - Boolean -  indicates whether standard event processing is being performed.
 //
 Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardProcessing) Export
 	
@@ -519,7 +529,7 @@ Procedure ShowReportUsersRights(Report, TablesToUse) Export
 	
 EndProcedure
 
-// Opens the "AccessUpdateOnRecordsLevel" form.
+// 
 //
 // Parameters:
 //  DisableProgressAutoUpdate - Boolean
@@ -541,42 +551,54 @@ EndProcedure
 
 #Region Private
 
-// Continue running the AccessValueStartChoice event handler.
-Procedure AccessValueStartChoiceFollowUp(SelectedElement, Form) Export
+// Continuation of the event handler for the value of accessoryselection.
+Procedure AccessValueStartChoiceFollowUp(SelectedElement, Context) Export
 	
 	If SelectedElement <> Undefined Then
-		Form.CurrentTypeOfValuesToSelect = SelectedElement.Value;
-		AccessValueStartChoiceCompletion(Form);
+		Context.Form.CurrentTypeOfValuesToSelect = SelectedElement.Value;
+		AccessValueStartChoiceCompletion(Context);
 	EndIf;
 	
 EndProcedure
 
-// Completes the AccessValueStartChoice event handler.
+// Completion of the event handler for the value of accessoryselection.
 // 
 // Parameters:
-//  Form - See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
+//   See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
 //
-Procedure AccessValueStartChoiceCompletion(Form)
+Procedure AccessValueStartChoiceCompletion(Context)
 	
+	Form    = Context.Form;
 	Items = Form.Items;
-	Item  = Items.AccessValuesAccessValue;
 	CurrentData = Items.AccessValues.CurrentData;
 	
-	If Not ValueIsFilled(CurrentData.AccessValue)
-	   And CurrentData.AccessValue <> Form.CurrentTypeOfValuesToSelect Then
+	If Context.IsPick Then
+		Item = Items.AccessValues;
+		CurrentRow = ?(CurrentData = Undefined, Undefined, CurrentData.AccessValue);
+	Else
+		Item = Items.AccessValuesAccessValue;
 		
-		CurrentData.AccessValue = Form.CurrentTypeOfValuesToSelect;
+		If Not ValueIsFilled(CurrentData.AccessValue)
+		   And CurrentData.AccessValue <> Form.CurrentTypeOfValuesToSelect Then
+			
+			CurrentData.AccessValue = Form.CurrentTypeOfValuesToSelect;
+		EndIf;
+		CurrentRow = CurrentData.AccessValue;
+		
+		Items.AccessValuesAccessValue.ChoiceButton = Undefined;
+		Items.AccessValuesAccessValue.ClearButton
+			= Form.CurrentTypeOfValuesToSelect <> Undefined
+			And Form.CurrentTypesOfValuesToSelect.Count() > 1;
 	EndIf;
-	
-	Items.AccessValuesAccessValue.ChoiceButton = Undefined;
-	Items.AccessValuesAccessValue.ClearButton
-		= Form.CurrentTypeOfValuesToSelect <> Undefined
-		And Form.CurrentTypesOfValuesToSelect.Count() > 1;
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("ChoiceMode", True);
-	FormParameters.Insert("CurrentRow", CurrentData.AccessValue);
+	FormParameters.Insert("CurrentRow", CurrentRow);
 	FormParameters.Insert("IsAccessValueSelection");
+	If Context.IsPick Then
+		FormParameters.Insert("CloseOnChoice", False);
+		FormParameters.Insert("MultipleChoice", True);
+	EndIf;
 	
 	If Form.CurrentAccessKind = Form.AccessKindUsers Then
 		FormParameters.Insert("UsersGroupsSelection", True);
@@ -604,7 +626,7 @@ Procedure AccessValueStartChoiceCompletion(Form)
 	
 EndProcedure
 
-// Management of AccessKinds and AccessValues tables in edit forms.
+// 
 
 Function AllowedValuesEditFormParameters(Form, CurrentObject = Undefined)
 	
@@ -633,9 +655,9 @@ Procedure GenerateAccessValuesChoiceData(Form, Text, ChoiceData, StandardProcess
 	
 EndProcedure
 
-// Process report details.
+// 
 
-// Intended for procedure "OnProcessDetails".
+// 
 Procedure WhenProcessingReportDecryptionAccessPermissionAnalysis(ReportForm, Item, Details, StandardProcessing)
 	
 	StandardProcessing = False;
@@ -841,7 +863,7 @@ Procedure WhenProcessingReportDecryptionAccessPermissionAnalysis(ReportForm, Ite
 	
 EndProcedure
 
-// Intended for procedure "OnProcessDetails".
+// 
 Procedure WhenProcessingDecodingReportRightsRoles(ReportForm, Item, Details, StandardProcessing)
 	
 	StandardProcessing = False;
@@ -1017,8 +1039,8 @@ Procedure WhenProcessingDecodingReportRightsRoles(ReportForm, Item, Details, Sta
 	
 EndProcedure
 
-// Intended for procedures "OnProcessAccessRightsAnalysisReportDrillDown"
-// and "OnProcessRolesRightsReportDrillDown".
+// 
+// 
 //
 Function ParameterValue(SettingsComposer, ParameterName, UsedAlways = False)
 	
@@ -1061,8 +1083,8 @@ Function InitialFilterValue(ReportForm, ParameterName)
 	
 EndFunction
 
-// Intended for procedures "OnProcessAccessRightsAnalysisReportDrillDown"
-// and "OnProcessRolesRightsReportDrillDown".
+// 
+// 
 //
 Procedure RefineUseDestinationKey(Var_Key, Filter, PropertyName)
 	
@@ -1091,8 +1113,8 @@ Procedure RefineUseDestinationKey(Var_Key, Filter, PropertyName)
 	
 EndProcedure
 
-// Intended for procedures "OnProcessAccessRightsAnalysisReportDrillDown"
-// and "OnProcessRolesRightsReportDrillDown".
+// 
+// 
 //
 Procedure ShortenUseDestinationKey(PurposeUseKey)
 	
@@ -1106,7 +1128,7 @@ Procedure ShortenUseDestinationKey(PurposeUseKey)
 	
 EndProcedure
 
-// Intended for procedure "OnProcessAccessRightsAnalysisReportDrillDown".
+// 
 Function GroupByReportsEnabled1(SettingsComposer)
 	
 	Result = False;
@@ -1123,7 +1145,7 @@ Function GroupByReportsEnabled1(SettingsComposer)
 	
 EndFunction
 
-// For function GroupByMasterReportsEnabled.
+// 
 Function FindGroupItemByName(ItemsCollection, Name)
 	
 	Result = Undefined;
@@ -1148,7 +1170,7 @@ Function FindGroupItemByName(ItemsCollection, Name)
 	
 EndFunction
 
-// Intended for procedure "OnProcessRolesRightsReportDrillDown".
+// 
 Procedure SetParameterValue(Filter, ParameterName, ReportForm, UsedAlways = False)
 	
 	ParameterValue = ParameterValue(ReportForm.Report.SettingsComposer, ParameterName, UsedAlways);
@@ -1159,7 +1181,7 @@ Procedure SetParameterValue(Filter, ParameterName, ReportForm, UsedAlways = Fals
 EndProcedure
 
 
-// Intended for procedure "OnValueChoiceStart".
+// 
 Procedure AttheStartofSelectingReportValuesAnalysisAccessPermissions(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing)
 	
 	If SelectionConditions.FieldName <> "MetadataObject" Then
@@ -1201,7 +1223,7 @@ Procedure AttheStartofSelectingReportValuesAnalysisAccessPermissions(ReportForm,
 	
 EndProcedure
 
-// Intended for procedure "OnValueChoiceStart".
+// 
 Procedure AttheStartofSelectingReportValuesRoleRights(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing)
 	
 	If SelectionConditions.FieldName <> "Role"
@@ -1242,7 +1264,7 @@ Procedure AttheStartofSelectingReportValuesRoleRights(ReportForm, SelectionCondi
 	
 EndProcedure
 
-// Intended for procedure "OnValueChoiceStart".
+// 
 Procedure AfterSelectingMetadataObjects(SelectedValues, Context) Export
 	
 	If Context.SelectionConditions.FieldName = "Role"
@@ -1257,7 +1279,7 @@ Procedure AfterSelectingMetadataObjects(SelectedValues, Context) Export
 	
 EndProcedure
 
-// Intended for procedure "OnValueChoiceStart".
+// 
 Procedure DeleteDisabledValues(MarkedValues)
 	
 	IndexOf = MarkedValues.Count() - 1;
@@ -1273,7 +1295,7 @@ Procedure DeleteDisabledValues(MarkedValues)
 	
 EndProcedure
 
-// Intended for procedure "OnValueChoiceStart".
+// 
 Procedure AddMetadataObjectCollectionWithRights(Collections)
 	
 	Collections.Add("Subsystems");

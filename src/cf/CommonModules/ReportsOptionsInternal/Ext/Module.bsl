@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -19,7 +17,7 @@ Procedure OnDefineScheduledJobSettings(Settings) Export
 
 EndProcedure
 
-// Properties of the report (spreadsheet document and settings) result for context setup.
+// Properties of the report result (table document and settings) for contextual configuration.
 //
 // Returns:
 //   Structure:
@@ -28,9 +26,9 @@ EndProcedure
 //     * FieldRoles - See ReportFieldRoles
 //     * FieldsIndex - See IndexOfFieldsInTheReportStructure
 //     * MainField - Array of See MainReportFields
-//     * FinalSettings - DataCompositionSettings - See "DataCompositionSettingsComposer" in Syntax Assistant.
-//     * SettingsComposer - DataCompositionSettingsComposer - Without executing the ExpandAutoFields method.
-//     * SettingsComposerWithoutAutoFields - DataCompositionSettingsComposer - After executing the ExpandAutoFields method.
+//     * FinalSettings - DataCompositionSettings - 
+//     * SettingsComposer - DataCompositionSettingsComposer - 
+//     * SettingsComposerWithoutAutoFields - DataCompositionSettingsComposer - 
 //     * LayoutsAreDescribed - Boolean
 //     * FormationTime - Number
 //
@@ -362,8 +360,8 @@ Function SortingView(Sort) Export
 EndFunction
 
 // Parameters:
-//  Item - DataCompositionOrderItem, DataCompositionAutoOrderItem
-//  Sort - Undefined, DataCompositionOrder
+//  Item - 
+//  Sort - 
 // 
 // Returns:
 //  String
@@ -405,7 +403,7 @@ Function ReportOptionEmptyAssignment() Export
 	
 EndFunction
 
-// Determines the default report option assignment.
+// 
 // Returns:
 //  EnumRef.ReportOptionPurposes
 //
@@ -553,7 +551,7 @@ Procedure IndexReportSections(FinalSettings, Settings, IndexOfTheReportStructure
 EndProcedure
 
 // Parameters:
-//  ReportsSectionsIndex See NewReportStructureIndex
+//   See NewReportStructureIndex
 // 
 // Returns:
 //  Structure:
@@ -1334,7 +1332,7 @@ Function MainReportFields(Form)
 	
 	ReportsOverridable.WhenDefiningTheMainFields(Form, MainField);
 	
-	// A local report overriding.
+	// 
 	If Form.ReportSettings.Events.WhenDefiningTheMainFields Then 
 		
 		Report = ReportsServer.ReportObject(Form.ReportSettings.FullName);

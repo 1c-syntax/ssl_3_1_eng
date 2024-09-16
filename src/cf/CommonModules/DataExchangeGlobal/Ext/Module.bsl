@@ -1,39 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Checks whether infobase configuration update in the subordinate node is required.
+// Checks whether the database configuration needs to be updated on the subordinate node.
 //
 Procedure CheckSubordinateNodeConfigurationUpdateRequired() Export
-	
-#If MobileClient Then
-	If MainServerAvailable() = False Then
-		Return;
-	EndIf;
-#EndIf
 	
 	UpdateRequired = StandardSubsystemsClient.ClientRunParameters().DIBNodeConfigurationUpdateRequired;
 	CheckUpdateRequired(UpdateRequired);
 	
 EndProcedure
 
-// Checks whether infobase configuration update in the subordinate node is required. The check is performed on application startup.
+// Checks whether the database configuration in the slave node needs to be updated at startup.
 //
 Procedure CheckSubordinateNodeConfigurationUpdateRequiredOnStart() Export
-	
-#If MobileClient Then
-	If MainServerAvailable() = False Then
-		Return;
-	EndIf;
-#EndIf
 	
 	UpdateRequired = StandardSubsystemsClient.ClientParametersOnStart().DIBNodeConfigurationUpdateRequired;
 	CheckUpdateRequired(UpdateRequired);
@@ -51,7 +37,7 @@ Procedure CheckUpdateRequired(DIBNodeConfigurationUpdateRequired)
 		Notify("DataExchangeCompleted");
 	EndIf;
 	
-	AttachIdleHandler("CheckSubordinateNodeConfigurationUpdateRequired", 60 * 60, True); // Once an hour.
+	AttachIdleHandler("CheckSubordinateNodeConfigurationUpdateRequired", 60 * 60, True); // 
 	
 EndProcedure
 

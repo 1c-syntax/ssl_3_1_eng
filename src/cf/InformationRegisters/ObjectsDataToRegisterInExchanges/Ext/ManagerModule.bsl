@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -72,7 +70,7 @@ EndProcedure
 
 #Region Private
 
-// Adds a record to the register by the passed structure values.
+// The procedure adds an entry to the register based on the passed structure values.
 Procedure AddRecord(RecordStructure, Load = False)
 	
 	DataExchangeInternal.AddRecordToInformationRegister(RecordStructure, "ObjectsDataToRegisterInExchanges", Load);
@@ -90,7 +88,7 @@ Procedure DeleteRecord(RecordStructure, Load = False)
 		LockItem.SetValue("InfobaseNode", RecordStructure.InfobaseNode);
 		Block.Lock();
 		
-		// Use the set to support DataExchange.Import.
+		// 
 		RecordSet = InformationRegisters.ObjectsDataToRegisterInExchanges.CreateRecordSet();
 		RecordSet.Filter.Ref.Set(RecordStructure.Ref, True);
 		RecordSet.Filter.InfobaseNode.Set(RecordStructure.InfobaseNode, True);

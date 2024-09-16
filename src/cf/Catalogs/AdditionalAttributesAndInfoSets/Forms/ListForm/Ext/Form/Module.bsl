@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -83,12 +81,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	 Or EventName = "Write_ObjectsPropertiesValues"
 	 Or EventName = "Write_ObjectPropertyValueHierarchy" Then
 		
-		// When writing a property, move it to the matching group.
-		// When writing a value, update the first 3 values in the list.
+		// 
+		// 
 		OnChangeCurrentSetAtServer();
 		
 	ElsIf EventName = "GoAdditionalDataAndAttributeSets" Then
-		// When opening a metadata object property editor, open the object's set (group of sets).
+		// 
 		// 
 		If TypeOf(Parameter) = Type("Structure") Then
 			SelectSpecifiedRows(Parameter);
@@ -295,8 +293,8 @@ EndProcedure
 
 &AtClient
 Procedure PropertiesDragStart(Item, DragParameters, Perform)
-	// Properties and attributes cannot be moved, only copied.
-	// Make sure the cursor icon reflects this.
+	// 
+	// 
 	DragParameters.AllowedActions = DragAllowedActions.Copy;
 	DragParameters.Action           = DragAction.Copy;
 EndProcedure
@@ -347,7 +345,7 @@ EndProcedure
 Procedure Change(Command = Undefined)
 	
 	If Items.Properties.CurrentData <> Undefined Then
-		// Open the property form.
+		// 
 		FormParameters = New Structure;
 		FormParameters.Insert("Key", Items.Properties.CurrentData.Property);
 		FormParameters.Insert("CurrentPropertiesSet", Current_Set);
@@ -449,7 +447,7 @@ Procedure ApplySetsAndPropertiesAppearance()
 	
 	PropertiesSets.ConditionalAppearance.Items.Clear();
 	
-	// Appearance of the sets root.
+	// 
 	ConditionalAppearanceItem = PropertiesSets.ConditionalAppearance.Items.Add();
 	
 	AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("Text");
@@ -465,7 +463,7 @@ Procedure ApplySetsAndPropertiesAppearance()
 	AppearanceFieldItem.Field = New DataCompositionField("Presentation");
 	AppearanceFieldItem.Use = True;
 	
-	// Appearance of unavailable set groups that by default are displayed by the platform as a part of group tree.
+	// 
 	ConditionalAppearanceItem = PropertiesSets.ConditionalAppearance.Items.Add();
 	
 	VisibilityItem = ConditionalAppearanceItem.Appearance.Items.Find("Visible");
@@ -499,7 +497,7 @@ Procedure ApplySetsAndPropertiesAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// Configuring required properties.
+	// 
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	
 	AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("Font");
@@ -516,7 +514,7 @@ Procedure ApplySetsAndPropertiesAppearance()
 	AppearanceFieldItem.Field = New DataCompositionField("PropertiesTitle");
 	AppearanceFieldItem.Use = True;
 	
-	// Configuring required properties.
+	// 
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	VisibilityItem = ConditionalAppearanceItem.Appearance.Items.Find("Visible");
 	VisibilityItem.Value = False;
@@ -904,7 +902,7 @@ Procedure PropertiesSetCommandAvailability(Context)
 	
 	CommonAvailability = CommonAvailability And Not ShowUnusedAttributes;
 	
-	// Customizing commands of command bar.
+	// 
 	Items.AddFromSet.Enabled           = CommonAvailability;
 	Items.PropertiesCreate.Enabled            = CommonAvailability;
 	
@@ -918,7 +916,7 @@ Procedure PropertiesSetCommandAvailability(Context)
 	Items.CopyAttribute.Enabled         = AvailabilityForString;
 	Items.PasteAttribute.Enabled           = InsertAvailability And Not ShowUnusedAttributes;
 	
-	// Customizing commands of context menu.
+	// 
 	Items.PropertiesContextMenuCreate.Enabled            = CommonAvailability;
 	Items.PropertiesContextMenuAddFromSet.Enabled   = CommonAvailability;
 	
@@ -1126,8 +1124,8 @@ EndProcedure
 &AtServer
 Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark)
 	
-	// ACC:1328-off - A lock is set higher up in the stack.
-	// ACC:1327-off - A lock is set higher up in the stack.
+	// 
+	// 
 	OldValuesOwner = CurrentProperty;
 	
 	NewValuesMark   = Undefined;
@@ -1140,11 +1138,11 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 	EndIf;
 	
 	If PropertyDeletionMark Then
-		// When marking a unique property for deletion:
-		// - Mark the property itself.
-		// - If there are clones not marked for deletion,
-		//   set a new value owner and assign a new original property to the clones.
-		//   Alternatively, mark the original and the cloned properties for deletion.
+		// 
+		// 
+		// 
+		//   
+		//   
 		//   
 		ObjectProperty.DeletionMark = True;
 		
@@ -1183,12 +1181,12 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 			ObjectProperty.DeletionMark = False;
 			ObjectProperty.Write();
 		EndIf;
-		// When clearing the deletion mark from a unique property:
-		// - Clear the deletion mark from the property itself.
-		// - If it was cloned and the clones are marked for deletion,
-		//   set a new (current) value owner for all properties
-		//     and clear the deletion mark from the values.
-		//     Alternatively, clear the deletion mark from the values.
+		// 
+		// 
+		// 
+		//   
+		//     
+		//     
 		//   
 		If Not ValueIsFilled(ObjectProperty.AdditionalValuesOwner) Then
 			NewValuesMark = False;
@@ -1267,8 +1265,8 @@ Procedure ChangeDeletionMarkAndValuesOwner(CurrentProperty, PropertyDeletionMark
 		EndIf;
 	EndDo;
 	
-	// ACC:1327-on
-	// ACC:1328-on
+	// 
+	// 
 	
 EndProcedure
 

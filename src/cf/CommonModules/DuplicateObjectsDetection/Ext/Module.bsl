@@ -1,33 +1,31 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Search for duplicates for the specified SampleObject value.
+// 
 //
 // Parameters:
-//     SearchArea - String - Data table name (full metadata name) of the search location.
-//                              For example, "Catalog.Products". 
-//                              Supports search in catalogs, charts of characteristic types, calculation types, and charts of accounts.
-//     SampleObject - AnyRef, CatalogObject - Item whose duplicates are to be found.
-//     AdditionalParameters - Arbitrary - Parameter to pass to event handlers.
+//     SearchArea - String -  name of the data table (full metadata name) of the search area.
+//                              For Example, " Directory.Nomenclature". Search is supported in reference books, 
+//                              plans for types of characteristics, types of calculations, and plans of accounts.
+//     SampleObject - AnyRef, CatalogObject - 
+//     AdditionalParameters - Arbitrary -  parameter to pass to the Manager's event handlers.
 //
 // Returns:
 //     ValueTable:
-//       * Ref       - AnyRef - Item reference.
+//       * Ref       - AnyRef -  the link of the item.
 //       * Code          - String
-//                      - Number - Item code.
-//       * Description - String - Item description.
-//       * Parent     - AnyRef - Parent to the group of duplicates.
-//                                      If Parent is empty, the item is the parent to the group.
-//       * OtherFields - Arbitrary - a value of the corresponding filter fields and criteria for comparing duplicates.
+//                      - Number - 
+//       * Description - String -  name of the element.
+//       * Parent     - AnyRef -  parent of the duplicate group. If the Parent is empty, the element is
+//                                      the parent of the duplicate group.
+//       * OtherFields - Arbitrary -  the value of the corresponding selection fields and criteria for comparing duplicates.
 // 
 Function FindItemDuplicates(Val SearchArea, Val SampleObject, Val AdditionalParameters) Export
 	
@@ -36,7 +34,7 @@ Function FindItemDuplicates(Val SearchArea, Val SampleObject, Val AdditionalPara
 	DuplicatesSearchParameters.Insert("DuplicatesSearchArea", SearchArea);
 	DuplicatesSearchParameters.Insert("TakeAppliedRulesIntoAccount", True);
 	
-	// From parameters.
+	// 
 	DuplicatesSearchParameters.Insert("SearchRules", New ValueTable);
 	DuplicatesSearchParameters.SearchRules.Columns.Add("Attribute", New TypeDescription("String"));
 	DuplicatesSearchParameters.SearchRules.Columns.Add("Rule",  New TypeDescription("String"));
@@ -87,7 +85,7 @@ Function FindItemDuplicates(Val SearchArea, Val SampleObject, Val AdditionalPara
 	Return Result; 
 EndFunction
 
-// Adds related subordinate objects to a duplicate collection.
+// 
 //
 // Parameters:
 //  ReplacementPairs		 - See Common.ReplaceReferences.ReplacementPairs
@@ -131,7 +129,7 @@ Procedure SupplementDuplicatesWithLinkedSubordinateObjects(ReplacementPairs, Rep
 		SubordinateObjectLinks = SubordinateObjectsLinks.FindRows(Filter);
 		PackageParts.Add(ObjectsForReplacementQueryText( SubordinateObjectDetails, SubordinateObjectLinks));
 		
-		FoundDuplicatesTables.Insert(SubordinateObjectDetails.Key, PackageParts.Count() * 3 - 1); // 3 - Number of packages to add. 
+		FoundDuplicatesTables.Insert(SubordinateObjectDetails.Key, PackageParts.Count() * 3 - 1); //  
 		Position = Position + SubordinateObjectLinks.Count();
 	
 	EndDo;
@@ -159,24 +157,24 @@ Procedure SupplementDuplicatesWithLinkedSubordinateObjects(ReplacementPairs, Rep
 	
 EndProcedure
 
-// Searches for all instances of the given string in the passed string array.
+// 
 //
 // Parameters:
-//  InitialString - String - A list of strings beings searched, which are separated by the character
-//                            passed in the "Separator" parameter.
-//  SearchString   - String - String to be found.
-//  Separator    - String - A character that delimits the string into substrings.
-//                            It is required if the passed strings is an array of strings.
+//  InitialString - String - 
+//                            
+//  SearchString   - String - 
+//  Separator    - String - 
+//                            
 //  SearchParameters - See ParametersOfSearchForSimilarStrings.
 //
 // Example:
-//  SourceString = "Turning lathe~Desk lamp~Food container~Wood container";
-//  IndexesOfFuzzyMatches = DuplicateObjectsDetection.FindSimilarStrings(SourceString, "Food container");
-//  The function will return "2,3", which are the indexes of the items "Food container" and "Wood container".
+//  
+//  
+//  
 //  
 //
 // Returns:
-//  String - Comma-delimited list of duplicate indexes (indexing starts with "0").
+//  String - 
 //
 Function FindSimilarStrings(InitialString, SearchString, Separator = "~", SearchParameters = Undefined) Export
 	
@@ -200,18 +198,18 @@ Function FindSimilarStrings(InitialString, SearchString, Separator = "~", Search
 	
 EndFunction
 
-// Returns parameters for the "FindSimilarStrings" function.
+// 
 // 
 // Parameters:
-//  AttachAddInSSL - Boolean - If set to "True", the string search add-in will be attached.
-//                                  Intended for optimization in cases where searching for similar strings is expected.
+//  AttachAddInSSL - Boolean - 
+//                                  
 //                                  
 // 
 // Returns:
 //  Structure:
-//     * StringsMatchPercentage          - Number - The default value is "90".
-//     * SmallStringsMatchPercentage - Number - The default value is "80".
-//     * SmallStringsLength             - Number - The default value is "30".
+//     * StringsMatchPercentage          - Number - 
+//     * SmallStringsMatchPercentage - Number - 
+//     * SmallStringsLength             - Number - 
 //     * ExceptionWords - Array of String
 //     * SearchAddIn - AddInObject
 //
@@ -242,8 +240,8 @@ EndFunction
 
 #Region Internal
 
-// Called
-// in the duplicate search standalone workstation at the final assistant step. Use it upon searching for possible duplicates to filter locations where possible duplicates might be
+// Called when searching for possible duplicates to filter where possible duplicates appear
+// in the duplicate search workplace at the last step of the assistant
 //
 // Returns:
 //   Array of Type
@@ -295,7 +293,7 @@ Function CheckCanReplaceItems(ReplacementPairs, ReplacementParameters) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Subsystem event handlers.
+// 
 
 // See ReportsOptionsOverridable.CustomizeReportsOptions.
 Procedure OnSetUpReportsOptions(Settings) Export
@@ -399,30 +397,30 @@ Procedure DefineUsageInstances(Val RefSet, Val ResultAddress) Export
 	PutToTempStorage(Result, ResultAddress);
 EndProcedure
 
-// Replaces references in all infobase data. 
+// Replaces links in all data in the information database. 
 //
 // Parameters:
 //     Parameters - Structure:
 //       * ReplacementPairs - Map of KeyAndValue:
-//           * Key     - AnyRef - a reference to be replaced.
-//           * Value - AnyRef - a reference to use as a replacement.
-//           Self-references and empty search references are ignored.
-//       * DeletionMethod - String - optional. What to do with the duplicate after a successful replacement.
-//           ""                - default. Do nothing.
-//           "Mark"         - mark for deletion.
-//           "Directly" - delete directly.
-//     ResultAddress - String - address of a temporary storage where the result of replacement is saved - ValueTable:
-//       * Ref - AnyRef - a reference that was replaced.
-//       * ErrorObject - Arbitrary - object - error cause.
-//       * ErrorObjectPresentation - String - string representation of an error object.
-//       * ErrorType - String - error type marker. Possible options:
-//                              "LockError" - some objects were locked during reference processing
-//                              "DataChanged" - data was changed by another user during processing
-//                              "WritingError" - cannot write the object
-//                              "UnknownData" - data not planned for analysis was found during processing.
-//                                                    The replacement is not completed
-//                              "CannotReplace"   - the CanReplaceItems handler returned a failure.
-//       * ErrorText - String - detailed error description.
+//           * Key     - AnyRef -  what we are looking for (double).
+//           * Value - AnyRef -  what we replace (the original).
+//           Links to themselves and empty search links will be ignored.
+//       * DeletionMethod - String -  optional. What to do with the duplicate after a successful replacement.
+//           ""- By default. Do not take any action.
+//           "Mark" - Mark for deletion.
+//           "Directly" - Delete directly.
+//     ResultAddress - String - :
+//       * Ref - AnyRef -  the link that was replaced.
+//       * ErrorObject - Arbitrary - 
+//       * ErrorObjectPresentation - String -  string representation of the error object.
+//       * ErrorType - String - :
+//                              
+//                              
+//                              
+//                              
+//                                                    
+//                              
+//       * ErrorText - String -  detailed description of the error.
 //
 Procedure ReplaceReferences(Parameters, Val ResultAddress) Export
 	
@@ -436,17 +434,17 @@ Procedure ReplaceReferences(Parameters, Val ResultAddress) Export
 	
 EndProcedure
 
-// Generates a table of managed metadata objects and their common settings.
+// Generates a table of served metadata objects and their General settings.
 //
 // Returns:
 //   ValueTable:
-//       * FullName             - String   - Full name of the metadata table.
-//       * ItemPresentation - String   - User-readable item presentation.
-//       * ListPresentation   - String   - User-readable list presentation.
-//       * Removed                - Boolean   - Metadata object has the "Delete" prefix.
-//       * EventDuplicateSearchParameters      - Boolean - Handler CanReplaceItems is defined in the manager module.
-//       * EventOnDuplicatesSearch            - Boolean - Handler DuplicatesSearchParameters is defined in the manager module.
-//       * EventCanReplaceItems - Boolean - Handler OnDuplicatesSearch is defined in the manager module.
+//       * FullName             - String   -  full name of the metadata of the table object.
+//       * ItemPresentation - String   -  representation of the element for the user.
+//       * ListPresentation   - String   -  list view for the user.
+//       * Removed                - Boolean   -  this is a metadata object with the "Delete" prefix.
+//       * EventDuplicateSearchParameters      - Boolean -  the Manager module defines a handler for element Substitutionability.
+//       * EventOnDuplicatesSearch            - Boolean -  the Manager module defines a handler for searchable Parameters.
+//       * EventCanReplaceItems - Boolean -  in the module Manager defined handler Preposterously.
 //
 Function MetadataObjectsSettings() Export
 	Settings = New ValueTable;
@@ -486,7 +484,7 @@ Procedure RegisterMetadataCollection(Settings, ListOfObjects, MetadataCollection
 	For Each MetadataObject In MetadataCollection Do
 		If Not AccessRight("View", MetadataObject)
 			Or Not Common.MetadataObjectAvailableByFunctionalOptions(MetadataObject) Then
-			Continue; // Access denied. Do not display in the list.
+			Continue; // 
 		EndIf;
 		
 		TableRow = Settings.Add();
@@ -511,7 +509,7 @@ Procedure RegisterMetadataCollection(Settings, ListOfObjects, MetadataCollection
 	EndDo;
 EndProcedure
 
-// Subsystem presentation. It is used for writing to the event log and in other places.
+// Representation of the subsystem. Used when writing to the log and in other places.
 Function SubsystemDescription(ForUser) Export
 	LanguageCode = ?(ForUser, Common.DefaultLanguageCode(), "");
 	Return NStr("en = 'Duplicate cleaner';", LanguageCode);

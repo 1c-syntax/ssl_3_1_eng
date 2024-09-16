@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -53,7 +51,7 @@ Procedure WebContentOnClick(Item, EventData, StandardProcessing)
 		PageNameToOpen = TrimAll(EventData.href);
 		Protocol = Upper(StrLeftBeforeChar(PageNameToOpen, ":"));
 		If Protocol <> "HTTP" And Protocol <> "HTTPS" And Protocol <> "E1C" Then
-			Return; // Not a reference.
+			Return; // 
 		EndIf;
 		
 		PageNameToOpen = DecodedString(PageNameToOpen);
@@ -217,12 +215,12 @@ Function PrepareFormData()
 	
 	Items.MainPage.Visible = MainLocked;
 	
-	// Determine a package for display.
+	// 
 	RNG = New RandomNumberGenerator;
 	LineNumber = RNG.RandomNumber(1, PackagesWithMinimumPriority.Count());
 	StartPagesPackage = PackagesWithMinimumPriority[LineNumber-1];
 	
-	// Read package from the register.
+	// 
 	If UseRegisterCache Then
 		Filter = New Structure("Number", StartPagesPackage.NumberInRegister);
 		SetPrivilegedMode(True);
@@ -240,10 +238,10 @@ Function PrepareFormData()
 		Return False;
 	EndIf;
 	
-	// Prepare a package for display.
+	// 
 	PlacePackagePages(StartPagesPackage, PackageFiles);
 	
-	// Display the first page.
+	// 
 	If Not ViewPage("CommandFromAddedItemsTable", StartPagesPackage) Then
 		Return False;
 	EndIf;
@@ -298,18 +296,18 @@ Function ViewPage(ActionType, Parameter = Undefined)
 		
 	EndIf;
 	
-	// Add to the temporary storage.
+	// 
 	If PagesPackage.HomePageURL = "" Then
 		PackageFiles = InformationOnStart.ExtractPackageFiles(FormAttributeToValue("Object"), PagesPackage.TemplateName);
 		PlacePackagePages(PagesPackage, PackageFiles);
 	EndIf;
 	
-	// Get the address of page placement in the temporary storage.
+	// 
 	If PageAddress = Undefined Then
 		PageAddress = PagesPackage.HomePageURL;
 	EndIf;
 	
-	// Register in view history.
+	// 
 	If NewHistoryRow = Undefined Then
 		
 		NewHistoryRowStructure = New Structure("IDOfPackage, PageAddress");
@@ -339,11 +337,11 @@ Function ViewPage(ActionType, Parameter = Undefined)
 	
 	CurrentLineIndex = NewRowIndex;
 	
-	// Visibility and availability.
+	// 
 	Items.FormBack.Enabled = (CurrentLineIndex > 0);
 	Items.FormGoForward.Enabled = (CurrentLineIndex < BrowseHistory.Count() - 1);
 	
-	// Set web content and form header.
+	// 
 	WebContent = GetFromTempStorage(PageAddress);
 	Title = PagesPackage.FormCaption;
 	
@@ -356,40 +354,40 @@ Procedure PlacePackagePages(PagesPackage, PackageFiles)
 	Columns = PackageFiles.Images.Columns; // ValueTableColumnCollection
 	Columns.Add("Address", New TypeDescription("String"));
 	
-	// Register pictures and references to the online help page.
+	// 
 	For Each WebPage In PackageFiles.WebPages Do
 		HTMLText = WebPage.Data;
 		
-		// Register pictures.
+		// 
 		Length = StrLen(WebPage.RelativeDirectory);
 		For Each Picture In PackageFiles.Images Do
-			// Store pictures to a temporary storage.
+			// 
 			If IsBlankString(Picture.Address) Then
 				Picture.Address = PutToTempStorage(Picture.Data, UUID);
 			EndIf;
-			// Calculate the relative path from the page to the image.
-			// For example, for page "/1/a.htm", the path to the image "/1/2/b.png" is "2/b.png".
+			// 
+			// 
 			PathToPicture = Picture.RelativeName;
 			If Length > 0 And StrStartsWith(PathToPicture, WebPage.RelativeDirectory) Then
 				PathToPicture = Mid(PathToPicture, Length + 1);
 			EndIf;
-			// Replace relative paths of the picture to addresses in temporary storage.
+			// 
 			HTMLText = StrReplace(HTMLText, PathToPicture, Picture.Address);
 		EndDo;
 		
-		// Replace relative embedded references to absolute ones for this infobase.
+		// 
 		HTMLText = StrReplace(HTMLText, "v8config://", StandardPrefix + "e1cib/helpservice/topics/v8config/");
 		
-		// Register online help hyperlinks.
+		// 
 		AddOnlineHelpURLs(HTMLText, PagesPackage.WebPages);
 		
-		// Add HTML content to temporary storage.
+		// 
 		WebPageRegistration = PagesPackage.WebPages.Add();
 		WebPageRegistration.RelativeName     = WebPage.RelativeName;
 		WebPageRegistration.RelativeDirectory = WebPage.RelativeDirectory;
 		WebPageRegistration.Address                = PutToTempStorage(HTMLText, UUID);
 		
-		// Register home page.
+		// 
 		If WebPageRegistration.RelativeName = PagesPackage.HomePageFileName Then
 			PagesPackage.HomePageURL = WebPageRegistration.Address;
 		EndIf;

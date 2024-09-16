@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -23,7 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetConditionalAppearance();
 	
 	SearchAreas = Parameters.SearchAreas;
-	RadioButtonsEverywhereInSections = Number(Parameters.SearchInSections); // Convert from Boolean to Number.
+	RadioButtonsEverywhereInSections = Number(Parameters.SearchInSections); // 
 	
 	LoadCurrentSectionPath();
 	OnFillSearchSectionsTree();
@@ -156,7 +154,7 @@ Procedure OnSetSearchArea(SearchSectionsTree)
 		CurrentSection = Undefined;
 		NestedItems = SearchSectionsTree.GetItems();
 		
-		// Search for a tree item by a path to the data.
+		// 
 		
 		DataPath = SearchArea.Presentation;
 		Sections = StrSplit(DataPath, ",", False);
@@ -171,7 +169,7 @@ Procedure OnSetSearchArea(SearchSectionsTree)
 			EndDo;
 		EndDo;
 		
-		// If the tree item is found, the check mark is set.
+		// 
 		
 		If TreeItem <> Undefined
 			And TreeItem.Section = CurrentSection Then
@@ -186,8 +184,8 @@ EndProcedure
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Procedure OnMarkTreeItem(TreeItem)
@@ -431,7 +429,7 @@ EndProcedure
 &AtClient
 Procedure ExpandCurrentSectionsTreeSection(Item)
 	
-	// Go to the section, with which you worked at previous settings.
+	// 
 	If Not IsBlankString(CurrentSection) And RowID <> 0 Then
 		
 		SearchSection = SearchSectionsTree.FindByID(RowID);
@@ -454,76 +452,76 @@ EndProcedure
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Function NextItemCheckMarkValue(TreeItem)
 	
-	// 0 - Cleared Flag.
-	// 1 - Raised Flag.
-	// 2 - Raised Square.
+	// 
+	// 
+	// 
 	//
-	// Override the graph of a finite-state machine.
+	// 
 	//
-	// 1C:Enterprise runs a closed cycle when a mark is changed.
-	// That is, it has a strong connectivity component:
-	// 0-1-2-0-1-2-0-1...
+	// 
+	// 
+	// 
 	//
-	//    0
-	//   / \
-	//  2 - 1
+	//    
+	//   
+	//  
 	//
-	// Cycle: Cleared Flag - Raised Flag - Raised Square - Cleared Flag.
+	// 
 	//
-	// The required behavior is a nondeterministic finite automaton with a strong connectivity component:
-	// 0-1-0-1-0...
+	// 
+	// 
 	//
-	// That is, a Cleared Flag should transit into a Raised Flag, which transits into a Cleared Flag.
+	// 
 	//
-	// Also:
+	// 
 	//
-	// Cycles for sections:
-	// a) 1-0-1-0-1...
-	// b) 2-0-1-0-1-0-...
+	// 
+	// 
+	// 
 	//
-	//      /\
-	// 2 - 0 -1
+	//      
+	// 
 	//
-	// That is a Raised Square transits into a Cleared Flag.
+	// 
 	//
-	// Cycles for metadata objects:
-	// a) 1-0-1-0-1-0...
-	// b) 2-1-0-1-0-1-0...
+	// 
+	// 
+	// 
 	//
-	//      /\
-	// 2 - 1 -0
+	//      
+	// 
 	//
-	// That is, a Raised Square transits into a Raised Flag.
+	// 
 	
-	// At the time of checking, the platform has already changed the check box value.
+	// 
 	
 	If TreeItem.IsMetadataObject Then
-		// Previous check box value = 2: Square is selected.
+		// 
 		If TreeItem.Check = 0 Then
 			Return MarkCheckBoxIsSelected();
 		EndIf;
 	EndIf;
 	
-	// Previous check box value = 1: Check box is selected.
+	// 
 	If TreeItem.Check = 2 Then 
 		Return MarkCheckBoxIsNotSelected();
 	EndIf;
 	
-	// In all other cases, the platform sets a value.
+	// 
 	Return TreeItem.Check;
 	
 EndFunction
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Procedure MarkParentsItemsRecursively(TreeItem)
@@ -549,8 +547,8 @@ EndProcedure
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Function CheckMarkValueRelativeToNestedItems(TreeItem)
@@ -562,12 +560,12 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		// Since the object should be returned, its status matters.
-		// Do not reset the current flag.
+		// 
+		// 
 		// 
 		
 		If TreeItem.Check = MarkCheckBoxIsSelected() Then 
-			// Leave the check box selected, regardless of nested items.
+			// 
 			Return MarkCheckBoxIsSelected();
 		EndIf;
 		
@@ -583,7 +581,7 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 		
 	Else 
 		
-		// Sections' status is ignored as they depend on their children. 
+		//  
 		// 
 		
 		If HasMarkedItems Then
@@ -604,8 +602,8 @@ EndFunction
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Function NestedItemsState(TreeItem)
@@ -627,9 +625,9 @@ Function NestedItemsState(TreeItem)
 			
 			If NestedItem.IsMetadataObject Then 
 				
-				// Metadata objects marked for deletion can have
-				// child items that are not marked for deletion.
-				// To deal with this, elevate the child items to the parent's level.
+				// 
+				// 
+				// 
 				
 				State = NestedItemsState(NestedItem);
 				HasMarkedItems   = HasMarkedItems   Or State.HasMarkedItems;
@@ -657,16 +655,16 @@ EndFunction
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Function RequiredToMarkNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		// If not all of the object's child items are selected, that indicates a user's choice.
-		// Skip these items to avoid affecting the user's choice.
+		// 
+		// 
 		
 		NestedItemsState = NestedItemsState(TreeItem);
 		
@@ -684,8 +682,8 @@ EndFunction
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Procedure MarkNestedItemsRecursively(TreeItem)
@@ -704,9 +702,9 @@ EndProcedure
 // Parameters:
 //  ItemSearchSectionsTree - FormDataTree
 //                              - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
-//  CheckMarkValue - Number - a value being set.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
+//  CheckMarkValue - Number -  set value.
 //
 &AtClientAtServerNoContext
 Procedure MarkAllTreeItemsRecursively(ItemSearchSectionsTree, CheckMarkValue)
@@ -741,14 +739,14 @@ Function MetadataObjectAvailable(MetadataObject)
 	FillPropertyValues(MetadataProperties, MetadataObject);
 	
 	If MetadataProperties.FullTextSearch = Undefined Then 
-		FullTextSearchUsing = True; // Ignore if the property is missing.
+		FullTextSearchUsing = True; // 
 	Else 
 		FullTextSearchUsing = (MetadataProperties.FullTextSearch = 
 			Metadata.ObjectProperties.FullTextSearchUsing.Use);
 	EndIf;
 	
 	If MetadataProperties.IncludeInCommandInterface = Undefined Then 
-		IncludeInCommandInterface = True; // Ignore if the property is missing.
+		IncludeInCommandInterface = True; // 
 	Else 
 		IncludeInCommandInterface = MetadataProperties.IncludeInCommandInterface;
 	EndIf;

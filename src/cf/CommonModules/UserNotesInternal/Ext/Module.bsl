@@ -1,17 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See BatchEditObjectsOverridable.OnDefineObjectsWithEditableAttributes.
 Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
@@ -41,8 +39,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.Notes.FullName());
 	
 	NumberOfNotes = NumberOfNotes();
@@ -171,7 +169,7 @@ Procedure SetClearNotesDeletionMark(Source, Cancel) Export
 	
 EndProcedure
 
-// Adds a flag of changing object deletion mark.
+// Adds a flag for changing the object's delete mark.
 Procedure SetDeletionMarkChangeStatus(Source) Export
 	
 	If Source.DataExchange.Load Then

@@ -3,12 +3,7 @@
 	<CommonModule uuid="84f05fe4-51d3-49a8-83e7-1cae2028147e">
 		<Properties>
 			<Name>ObjectAttributesLockInternal</Name>
-			<Synonym>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Object attribute lock internal</v8:content>
-				</v8:item>
-			</Synonym>
+			<Synonym/>
 			<Comment/>
 			<Global>false</Global>
 			<ClientManagedApplication>false</ClientManagedApplication>

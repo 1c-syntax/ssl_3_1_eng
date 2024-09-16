@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -22,12 +20,12 @@ EndFunction
 
 #Region Private
 
-// Determines the availability of the AddressClassifier subsystem and the availability of records about states in the
-// AddressObjects information register.
+// Determines whether the address Classifier subsystem exists and whether there are records about regions in the information register
+// Addressable objects.
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String - "ClassifierAvailable", "UseImportedItems", "AddressClassifierUsed"
+//    * Key - String - 
 //    * Value - Boolean
 //
 Function AddressClassifierAvailabilityInfo() Export
@@ -52,11 +50,11 @@ Function AddressClassifierAvailabilityInfo() Export
 	
 EndFunction
 
-// Returns an enumeration value of contact information kind type.
+// Returns the value of the contact information type enumeration.
 //
 //  Parameters:
 //    InformationKind - CatalogRef.ContactInformationKinds
-//                  - Structure - data source.
+//                  - Structure -  data source.
 //
 Function ContactInformationKindType(Val InformationKind) Export
 	Result = Undefined;
@@ -88,12 +86,12 @@ Function ContactInformationKindsDescriptions() Export
 	
 EndFunction
 
-// Returns a list of predefined contact information kinds.
+// Returns a list of predefined types of contact information.
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//   * Key - String - name of predefined kind.
-//   * Value - CatalogRef.ContactInformationKinds - a reference to an item of the ContactInformationKinds catalog.
+//   * Key - String -  name of the predefined view.
+//   * Value - CatalogRef.ContactInformationKinds - 
 //
 Function ContactInformationKindsByName() Export
 	

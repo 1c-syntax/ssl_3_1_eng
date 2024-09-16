@@ -1,255 +1,240 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Additional settings of a default report that determine:
-//  * Indicates whether the report is generated upon opening.
-//  * Attachable event handlers.
-//  * Print settings
-//  * Using the estimates function.
+// Additional default report settings that define:
+//  * Whether the report is generated when opened;
+//  * Plug-in event handlers;
+//  * Print setting;
+//  * Using the calculated indicators function;
 //  * Rights.
 //
 // Returns:
-//   Structure - Report settings (additional properties) that are stored in the form data::
+//   Structure - :
 //       
-//       * GenerateImmediately - Boolean - Default value of the "Generate on open" checkbox.
-//           If the checkbox is selected, the report is generated when it is opened,
-//           when user settings are selected, or when another report option is selected.
+//       * GenerateImmediately - Boolean -  the default value for the "Generate immediately" checkbox.
+//           When this option is enabled, the report will be generated after opening,
+//           after selecting user settings, or after selecting a different report option.
 //       
-//       * OutputSelectedCellsTotal - Boolean - If True, the report will contain the autosum field.
+//       * OutputSelectedCellsTotal - Boolean -  if True, the auto-sum field will be displayed in the report.
 //       
-//       * EditStructureAllowed - Boolean - If False, the Structure tab will be hidden in the report settings.
-//           If True, the Structure tab is shown for reports on DCS: in the extended mode,
-//           but also in the simple mode, if flags of using groups are output in user settings.
+//       * EditStructureAllowed - Boolean -  if False, the "Structure" tab will be hidden in the report settings.
+//           If True, the "Structure" tab is displayed for reports on the SKD: in advanced mode,
+//           as well as in simple mode, if the use of groupings check boxes are displayed in the user settings.
 //       
-//       * EditOptionsAllowed - Boolean - If False, buttons of changing options of this report are locked. 
-//           If the current user does not have rights "SaveUserData" and "Add" 
-//           of the ReportOptions catalog, False is force-set.
+//       * EditOptionsAllowed - Boolean -  if False, the buttons for changing the report options are blocked. 
+//           If the current user does not have the rights to "save user Data" and "Add" 
+//           the reference list of report Options, it is forcibly set to False.
 //
-//       * SelectAndEditOptionsWithoutSavingAllowed - Boolean - If True,
-//           you can select and set up predefined report options without being able to save 
-//           settings you made. For example, it can be specified for context reports (open with parameters) 
+//       * SelectAndEditOptionsWithoutSavingAllowed - Boolean -  if True,
+//           you can select and configure predefined report options, but you can't save 
+//           your settings. For example, it can be set for contextual reports (opened with parameters) 
 //           that have several options.
 //
 //       * ControlItemsPlacementParameters - Structure
-//                                                  - Undefined - Options:
-//           - Undefined - Default common report form management item parameters.
-//           - Structure - Contains setting names in the DataCompositionSettings collection of the Settings property
-//                         of the DataCompositionSettingsComposer type:
-//               ** Filter           - Array - Same as the next property.
-//               ** DataParameters - Structure - Contains form field properties.:
-//                    *** Field                     - String - Field name whose presentation is being set.
-//                    *** HorizontalStretch - Boolean - Form field property value.
-//                    *** AutoMaxWidth   - Boolean - Form field property value.
-//                    *** Width                   - Number  - Form field property value.
+//                                                  - Undefined - Variants:
+//           - Undefined - 
+//           - Structure - 
+//                         :
+//               ** Filter           - Array -  like the next property.
+//               ** DataParameters - Structure - :
+//                    *** Field                     - String -  name of the field to display.
+//                    *** HorizontalStretch - Boolean -  value of the form field property.
+//                    *** AutoMaxWidth   - Boolean -  value of the form field property.
+//                    *** Width                   - Number  - 
 //
-//            An example of determining the described parameter::
+//            :
 //
-//               SettingsArray = New Array;
-//               ControlItemSettings = New Structure;
-//               ControlItemSettings.Insert("Field", "RegistersList");
-//               ControlItemSettings.Insert("HorizontalStretch", False);
-//               ControlItemSettings.Insert("AutoMaxWidth", True);
-//               ControlItemSettings.Insert("Width", 40);
+//               
+//               
+//               
+//               
+//               
+//               
 //
-//               SettingsArray.Add(ControlItemSettings);
+//               
 //
-//               ControlItemsSettings = New Structure();
-//               ControlItemsSettings.Insert("DataParameters", SettingsArray);
+//               
+//               
 //
-//               Return ControlItemSettings;
+//               
 //
-//       * ImportSettingsOnChangeParameters - Array - Collection of data composition parameters
-//                                                    which, if modified, trigger the re-generation
-//                                                    of the Data composition schema.
+//       * ImportSettingsOnChangeParameters - Array - 
+//                                                    
+//                                                    
 //
-//               Example::
-//               1. Initialization:
-//               	Procedure DefineFormSettings(Form, OptionKey, Settings) Export
-//               		Settings.ImportSettingsOnChangeParameters = Reports.UniversalReport.ImportSettingsOnChangeParameters();
-//               	EndProcedure
+//               :
+//               
+//               
+//               
+//               
 //
-//               	Function ImportSettingsOnChangeParameters() Export 
-//               		Parameters = New Array;
-//               		Parameters.Add(New DataCompositionParameter("MetadataObjectType"));
-//               		Parameters.Add(New DataCompositionParameter("MetadataObjectName"));
-//               		Parameters.Add(New DataCompositionParameter("TableName"));
+//                
+//               
+//               
+//               
+//               
 //               //		
 //               
-//               		Return Parameters;
+//               
 //
-//               	EndFunction
-//                2. Use:
-//               	Procedure Attachable_SettingItem_OnChange(Item)
-//               		…
-//               		If TypeOf(UserSettingItem) = Type("DataCompositionSettingsParameterValue") 
-//               			And ReportSettings.ImportSettingsOnChangeParameters.Find(UserSettingItem.Parameter) <> Undefined Then
-//               			// Call the DCS re-generation method.
-//                                                             		EndIf;
+//               
+//               
+//               
+//               
+//                
+//               
+//               
 //
-//       * SearchFields - Array of String - Collection of the data composition field names where the data is used in the universal search.
-//       * PeriodRepresentationOption - EnumRef.PeriodPresentationOptions - Determines the period presentation
-//           on the report form.
-//       * PeriodVariant - EnumRef.PeriodOptions - Determines an option of the period choice form.
-//       * DisableStandardContextMenu - Boolean - Flag indicating whether context menu and column settings are enabled.
+//       * SearchFields - Array of String -  a collection of names of data layout fields that participate in universal search.
+//       * PeriodRepresentationOption - EnumRef.PeriodPresentationOptions -  defines a variant
+//           of the period representation on the report form.
+//       * PeriodVariant - EnumRef.PeriodOptions -  defines a variant of the period selection form.
+//       * DisableStandardContextMenu - Boolean - 
 //           
-//       * HideBulkEmailCommands - Boolean - Flag indicating whether to hide email distribution commands to those reports, for which email distribution is irrelevant.
+//       * HideBulkEmailCommands - Boolean - 
 //           
-//       * Print - Structure - Default settings for printing spreadsheets:
-//           ** TopMargin - Number - Top margin (mm).
-//           ** LeftMargin  - Number - Left margin (mm).
-//           ** BottomMargin  - Number - Bottom margin (mm).
-//           ** RightMargin - Number - Right margin (mm).
-//           ** PageOrientation - PageOrientation - "Portrait" or "Landscape".
-//           ** FitToPage - Boolean - Automatically scale to the page size.
-//           ** PrintScale - Number - Image scale (percentage).
-//       * Events - Structure - Events that have handlers defined in the report object module:
-//           ** OnCreateAtServer - Boolean - If True, then the event handler must be defined
-//               in the report object module according to the following template::
+//       * Print - Structure - :
+//           ** TopMargin - Number -  top indent when printing (in millimeters).
+//           ** LeftMargin  - Number -  left margin when printing (in millimeters).
+//           ** BottomMargin  - Number -  bottom indent when printing (in millimeters).
+//           ** RightMargin - Number -  indent to the right when printing (in millimeters).
+//           ** PageOrientation - PageOrientation -  "Portrait" or "Landscape".
+//           ** FitToPage - Boolean -  automatically adjust the zoom to the page size.
+//           ** PrintScale - Number -  scale of the image (in percent).
+//       * Events - Structure - :
+//           ** OnCreateAtServer - Boolean - 
+//               :
 //               
 //               // See ReportsOverridable.OnCreateAtServer.
 //               
 //               	
-//               Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
-//                                              EndProcedure
+//               
 //           
-//           ** BeforeImportSettingsToComposer - Boolean - If True, then the event handler must be defined
-//               in the report object module according to the following template::
+//           ** BeforeImportSettingsToComposer - Boolean - 
+//               :
 //               
-//               Parameters:
-//               Context - Arbitrary
-//               SchemaKey - String, Undefined
-//               NewDCSettings - DataCompositionSettings, Undefined
-//               NewDCUserSettings - DataCompositionUserSettings, Undefined
 //               
-//               //
-//               Procedure BeforeImportSettingsToComposer(Context, SchemaKey, OptionKey, NewDCSettings, NewDCUserSettings) Export
-//               	
-//               EndProcedure
-//           
-//           ** AfterLoadSettingsInLinker - Boolean - If True, then the event handler must be defined
-//               in the report object module using the following template::
 //               
-//               Parameters:
-//               AdditionalParameters - Structure
+//               
+//               
+//               
+//               
 //               //
 //               
 //               	
 //               
-//                                                           Procedure AfterImportSettingsToComposer(AdditionalParameters) Export
-//                                                           EndProcedure
 //           
-//           ** BeforeLoadVariantAtServer - Boolean - If True, then the event handler must be defined
-//               in the report object module according to the following template::
+//           ** AfterLoadSettingsInLinker - Boolean - 
+//               :
+//               
+//               
+//               
+//               //
+//               
+//               	
+//               
+//           
+//           ** BeforeLoadVariantAtServer - Boolean - 
+//               :
 //               
 //               // See ReportsOverridable.BeforeLoadVariantAtServer.
 //               
 //               	
-//               Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
-//                                                         EndProcedure
-//           
-//           ** OnLoadVariantAtServer - Boolean - If True, then the event handler must be defined
-//               in the report object module using the following template::
 //               
-//               Parameters:
-//               Form - ClientApplicationForm
-//               - ManagedFormExtensionForReport:
-//               * Report - FormDataStructure
-//               - ReportObject
-//               NewDCSettings - DataCompositionSettings
+//           
+//           ** OnLoadVariantAtServer - Boolean - 
+//               :
+//               
+//               
+//               
+//               
+//               
+//               
+//               
 //               //
 //               
 //               	
-//               Procedure FillParameters(Form, NewDCSettings) Export
-//                                                      EndProcedure
-//           
-//           ** OnLoadUserSettingsAtServer - Boolean - If True, then the event handler must be defined
-//               in the report object module using the following template::
 //               
-//               Parameters:
-//               Form - ClientApplicationForm
-//               NewDCUserSettings - DataCompositionUserSettings
+//           
+//           ** OnLoadUserSettingsAtServer - Boolean - 
+//               :
+//               
+//               
+//               
+//               
 //               //
 //               
 //               	
-//               Procedure OnLoadUserSettingsAtServer(Form, NewDCUserSettings) Export
-//                                                                      EndProcedure
-//           
-//           ** BeforeFillQuickSettingsBar - Boolean - If True, then the event handler must be defined
-//               in the report object module using the following template::
 //               
-//               Parameters:
-//               Form - ClientApplicationForm
-//               FillParameters - Structure
+//           
+//           ** BeforeFillQuickSettingsBar - Boolean - 
+//               :
+//               
+//               
+//               
+//               
 //               //
 //               
 //               	
-//               Procedure BeforeFillQuickSettingsBar(Form, FillParameters) Export
-//                                                               EndProcedure
-//           
-//           ** AfterQuickSettingsBarFilled - Boolean - If True, then the event handler must be defined
-//               in the report object module using the following template::
 //               
-//               Parameters:
-//               Form - ClientApplicationForm
-//               FillParameters - Structure
+//           
+//           ** AfterQuickSettingsBarFilled - Boolean - 
+//               :
+//               
+//               
+//               
+//               
 //               //
 //               
 //               	
-//               Procedure AfterQuickSettingsBarFilled(Form, FillParameters) Export
-//                                                              EndProcedure
+//               
 //           
-//           ** OnDefineSelectionParameters - Boolean - If True, then the event handler must be defined
-//               in the report object module according to the following template::
+//           ** OnDefineSelectionParameters - Boolean - 
+//               :
 //               
 //               // See ReportsOverridable.OnDefineSelectionParameters.
 //               
 //               	
-//               Procedure OnDefineSelectionParameters(Form, SettingProperties) Export
-//                                                        EndProcedure
-//           
-//           ** OnDefineUsedTables - Boolean - If True, then the event handler must be defined
-//               in the report object module using the following template::
 //               
-//               Parameters:
-//               VariantKey - String, Undefined
-//               TablesToUse - Array of String
+//           
+//           ** OnDefineUsedTables - Boolean - 
+//               :
+//               
+//               
+//               
+//               
 //               //
 //               
 //               	
-//               Procedure OnDefineUsedTables(VariantKey, TablesToUse) Export
-//                                                          EndProcedure
+//               
 //           
-//           ** WhenDefiningTheMainFields - Boolean - If True, then the event handler must be defined
-//               in the report object module according to the following template::
+//           ** WhenDefiningTheMainFields - Boolean - 
+//               :
 //               
 //               // See ReportsOverridable.WhenDefiningTheMainFields.
 //                
 //               	
-//               Procedure WhenDefiningTheMainFields(Form, MainField) Export
-//                                                     EndProcedure
-//           
-//           ** BeforeFormationReport - Boolean - If True, then the event handler must be defined
-//               in the report object module using the following template::
 //               
-//               Parameters:
-//               ReportForm - ClientApplicationForm
-//               AdditionalParameters - Structure:
-//               * WarningText - String
-//               * MuteWarningsParameterName - String
+//           
+//           ** BeforeFormationReport - Boolean - 
+//               :
+//               
+//               
+//               
+//               
+//               
+//               
 //               //
 //               
 //               	
-//               Procedure BeforeGenerateReport(ReportForm, AdditionalParameters) Export
-//                                                  EndProcedure
+//               
 //
 Function DefaultReportSettings() Export
 	Settings = New Structure;
@@ -302,8 +287,8 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Instead, use ReportsClientServer.DefaultReportSettings.
-// Default report form settings.
+// Deprecated.
+// 
 //
 // Returns:
 //   Structure:
@@ -327,35 +312,35 @@ Function CommandNamePrefixWithReportOptionPreSave() Export
 	
 EndFunction
 
-// Finds a parameter in the composition settings by its name.
-// If user setting is not found (for example, if the parameter is not output in user settings),
-// it searches the parameter value in option settings.
+// Finds a parameter in the layout settings by its name.
+// If the user setting does not exist (for example, if the parameter is not displayed in the user settings),
+// it searches for the parameter value in the option settings.
 //
 // Parameters:
 //   DCSettings - DataCompositionSettings
 //               - Undefined -
-//       Report option settings in which the second iteration of the value search will run.
+//       
 //   DCUserSettings - DataCompositionUserSettings
 //                               - Undefined -
-//       User settings in which the first iteration of the value search will run.
-//   ParameterName - String - Parameter name. Names must comply with the variable naming conventions.
+//       
+//   ParameterName - String -  parameter name. Must meet the requirements for forming variable names.
 //
 // Returns:
-//   Structure - Found parameter values::
-//       Key - Parameter name.
-//       Value - Parameter value. Undefined if the parameter does not exist.
+//   Structure - :
+//       
+//       
 //
 Function FindParameter(DCSettings, DCUserSettings, ParameterName) Export
 	Return FindParameters(DCSettings, DCUserSettings, ParameterName)[ParameterName];
 EndFunction
 
-// The function searches for a common setting by a user setting ID.
+// Finds the General setting by the user setting ID.
 //
 // Parameters:
-//   Settings - DataCompositionSettings - Collections of settings.
-//   Id - String - Custom setting ID.
-//   Hierarchy - Array - Collection of data composition structure settings.
-//   UserSettings - DataCompositionUserSettings - Collection of user settings.
+//   Settings - DataCompositionSettings -  collections of settings.
+//   Id - String -  ID of the user setting.
+//   Hierarchy - Array -  collection of data layout structure settings.
+//   UserSettings - DataCompositionUserSettings -  collection of user settings.
 //
 Function GetObjectByUserID(Settings, Id, Hierarchy = Undefined, UserSettings = Undefined) Export
 	If Hierarchy = Undefined
@@ -479,18 +464,18 @@ Function GetObjectByUserID(Settings, Id, Hierarchy = Undefined, UserSettings = U
 	Return Undefined;
 EndFunction
 
-// Finds an available setting for a filter or a parameter.
+// Finds an available setting for a selection or parameter.
 //
 // Parameters:
-//   Settings - DataCompositionSettings - Collections of settings.
+//   Settings - DataCompositionSettings -  collections of settings.
 //   SettingItem - DataCompositionFilterItem
 //                    - DataCompositionSettingsParameterValue
-//                    - DataCompositionNestedObjectSettings - Setting item value.
+//                    - DataCompositionNestedObjectSettings - 
 //
 // Returns:
-//   DataCompositionAvailableField, DataCompositionAvailableParameter,
-//       DataCompositionAvailableSettingsObject - found available setting.
-//   Undefined - if an available setting does not exist.
+//   Availablepolecomponsedata, availableparameterscomponsedata,
+//       Available objectconfigurationcomposedata-Found available setting.
+//   Undefined - if the available setting does not exist.
 //
 Function FindAvailableSetting(Settings, SettingItem) Export
 	Type = TypeOf(SettingItem);
@@ -518,25 +503,25 @@ Function FindAvailableSetting(Settings, SettingItem) Export
 	Return Undefined;
 EndFunction
 
-// Finds parameters and filters by values.
+// Finds parameters and selections by value.
 //
 // Parameters:
 //   Settings - DataCompositionUserSettings
-//             - Array - Settings whose items must be selected
-//               according to the given criteria.
+//             - Array - 
+//               
 //   Filter               - Structure:
-//       * Use - Boolean - Setting usage.
-//       * Value      - Undefined - Setting value.
+//       * Use - Boolean -  using the settings.
+//       * Value      - Undefined -  setting value.
 //   SettingsItems    - Undefined
 //                       - DataCompositionUserSettingsItemCollection
-//                       - DataCompositionFilterItemCollection - Setting items
-//                         compared with the criteria and placed in the result
-//                         if the criteria are met.
+//                       - DataCompositionFilterItemCollection - 
+//                         
+//                         
 //   Result           - Array
-//                       - Undefined - See the return value.
+//                       - Undefined - see the return value.
 //
 // Returns:
-//   Array - Found user settings.
+//   Array - 
 //
 Function SettingsItemsFiltered(Settings, Filter, SettingsItems = Undefined, Result = Undefined) Export
 	IsUserSettings = (TypeOf(Settings) = Type("DataCompositionUserSettings"));
@@ -684,7 +669,7 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Instead, use CommonClientServer.SupplementList.
+// Deprecated.
 Function SupplementList(DestinationList, SourceList, ToControlType = Undefined, AddNewItems = True) Export
 	
 	If DestinationList = Undefined Or SourceList = Undefined Then
@@ -701,23 +686,23 @@ EndFunction
 
 #Region Private
 
-// Finds parameters in the composition settings by its name.
-// If the parameter does not exist in the custom settings, it is searched for in the option settings.
+// Finds parameters in the layout settings by its name.
+// If the parameter does not exist in the user settings, it is searched in the option settings.
 //
 // Parameters:
 //   DCSettings - DataCompositionSettings
 //               - Undefined -
-//       Report option settings in which the second iteration of the value search will run.
+//       
 //   DCUserSettings - DataCompositionUserSettings
 //                               - Undefined -
-//       User settings in which the first iteration of the value search will run.
-//   ParameterNames - String - Comma-delimited parameter names.
-//       Names must comply with the variable naming conventions.
+//       
+//   ParameterNames - String -  the names of the parameters separated by commas.
+//       The name of each parameter must meet the requirements for creating variable names.
 //
 // Returns:
-//   Structure - Found parameter values::
-//       Key - Parameter name.
-//       Value - Found parameter. Undefined if the parameter does not exist.
+//   Structure - :
+//       
+//       
 //
 Function FindParameters(DCSettings, DCUserSettings, ParameterNames)
 	Result = New Structure;
@@ -759,17 +744,17 @@ Function FindParameters(DCSettings, DCUserSettings, ParameterNames)
 	Return Result;
 EndFunction
 
-// Finds an available data composition field setting.
+// Finds the available setting for the data layout field.
 //
 // Parameters:
 //   DCSettings - DataCompositionSettings
-//               - DataCompositionGroup - Settings collections.
-//   Field - String
-//        - DataCompositionField - Field name.
+//               - DataCompositionGroup - 
+//   
+//        - DataCompositionField -  field name.
 //
 // Returns:
 //   DataCompositionAvailableField
-//   Undefined - when the available field setting does not exist.
+//   Undefined - when an available field setting does not exist.
 //
 Function FindAvailableDCField(DCSettings, DCField)
 	If DCField = Undefined Then
@@ -825,14 +810,14 @@ Function FindAvailableDCField(DCSettings, DCField)
 	Return Undefined;
 EndFunction
 
-// Finds an available data composition parameter setting.
+// Finds an available setting for the data layout parameter.
 //
 // Parameters:
-//   DCSettings - DataCompositionSettings - Collections of settings.
-//   DCParameter - DataCompositionParameter - Parameter name.
+//   DCSettings - DataCompositionSettings -  collections of settings.
+//   DCParameter - DataCompositionParameter -  parameter name.
 //
 // Returns:
-//   DataCompositionAvailableParameter, Undefined - Available setting for the parameter.
+//   DataCompositionAvailableParameter, Undefined - 
 //
 Function FindAvailableDCParameter(DCSettings, DCParameter)
 	If DCParameter = Undefined Then
@@ -840,7 +825,7 @@ Function FindAvailableDCParameter(DCSettings, DCParameter)
 	EndIf;
 	
 	If DCSettings.DataParameters.AvailableParameters <> Undefined Then
-		// Settings that own the data parameters are connected to the source of the available settings.
+		// 
 		AvailableSetting = DCSettings.DataParameters.AvailableParameters.FindParameter(DCParameter);
 		If AvailableSetting <> Undefined Then
 			Return AvailableSetting;
@@ -859,7 +844,7 @@ Function FindAvailableDCParameter(DCSettings, DCParameter)
 			If TypeOf(DCStructureItem) = Type("DataCompositionNestedObjectSettings") Then
 				
 				If DCStructureItem.Settings.DataParameters.AvailableParameters <> Undefined Then
-					// Settings that own the data parameters are connected to the source of the available settings.
+					// 
 					AvailableSetting = DCStructureItem.Settings.DataParameters.AvailableParameters.FindParameter(DCParameter);
 					If AvailableSetting <> Undefined Then
 						Return AvailableSetting;
@@ -881,17 +866,17 @@ Function FindAvailableDCParameter(DCSettings, DCParameter)
 	Return Undefined;
 EndFunction
 
-// Defines the FoldersAndItems type value depending on the comparison type (preferably) or the source value.
+// Defines values of the Groupelements type depending on the type of comparison (priority) or the original value.
 //
 // Parameters:
 //  Condition - DataCompositionComparisonType
-//          - Undefined - Current comparison kind value.
-//  SourceValue - FoldersAndItemsUse
-//                   - FoldersAndItems - Current value of the
-//                     ChoiceFoldersAndItems property.
+//          - Undefined - 
+//  
+//                   - FoldersAndItems - 
+//                     
 //
 // Returns:
-//   FoldersAndItems - Value of the FoldersAndItems enumeration member.
+//   FoldersAndItems - 
 //
 Function GroupsAndItemsTypeValue(SourceValue, Condition = Undefined) Export
 	If Condition <> Undefined Then 
@@ -922,17 +907,17 @@ Function GroupsAndItemsTypeValue(SourceValue, Condition = Undefined) Export
 	Return FoldersAndItems.Auto;
 EndFunction
 
-// Imports new settings to the composer without resetting user settings.
+// Loads new settings to the linker without resetting user settings.
 //
 // Parameters:
-//  SettingsComposer - DataCompositionSettingsComposer - Destination to import the settings to.
-//  Settings - DataCompositionSettings - Report option settings to be imported.
+//  SettingsComposer - DataCompositionSettingsComposer -  where to upload the settings.
+//  Settings - DataCompositionSettings -  downloadable option settings.
 //  UserSettings - DataCompositionUserSettings
-//                            - Undefined - User settings to be imported.
-//                              If not specified, user settings are not imported.
+//                            - Undefined - 
+//                              
 //  FixedSettings - DataCompositionSettings
-//                         - Undefined - Fixed settings to be imported.
-//                           If not specified, fixed settings are not imported.
+//                         - Undefined - 
+//                           
 //
 Function LoadSettings(SettingsComposer, Settings, UserSettings = Undefined, FixedSettings = Undefined) Export
 	SettingsImported = (TypeOf(Settings) = Type("DataCompositionSettings")
@@ -1012,11 +997,11 @@ Procedure DisplayReportState(Form, Val StateText = "", Val PictureStateValue = U
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+// 
 
-// Finds a common data composition setting by ID.
+// Finds the General configuration of the layout data by ID.
 Function FindSettingItem(SettingItem, UserSettingID)
-	// Searching an item with the specified value of the UserSettingID (USID) property.
+	// 
 	
 	Groups = New Array;
 	Groups.Add(SettingItem.Items);
@@ -1028,15 +1013,15 @@ Function FindSettingItem(SettingItem, UserSettingID)
 		IndexOf = IndexOf + 1;
 		For Each SubordinateItem In ItemsCollection Do
 			If TypeOf(SubordinateItem) = Type("DataCompositionSelectedFieldGroup") Then
-				// It does not contain USID; The collection of nested items does not contain USID.
+				// 
 			ElsIf TypeOf(SubordinateItem) = Type("DataCompositionParameterValue") Then
-				// It does not contain USID; The collection of nested items can contain USID.
+				// 
 				Groups.Add(SubordinateItem.NestedParameterValues);
 			ElsIf SubordinateItem.UserSettingID = UserSettingID Then
-				// The required item is found.
+				// 
 				Return SubordinateItem;
 			Else
-				// It contains USID; The collection of nested items can contain USID.
+				// 
 				If TypeOf(SubordinateItem) = Type("DataCompositionFilterItemGroup") Then
 					Groups.Add(SubordinateItem.Items);
 				ElsIf TypeOf(SubordinateItem) = Type("DataCompositionSettingsParameterValue") Then
@@ -1050,16 +1035,16 @@ Function FindSettingItem(SettingItem, UserSettingID)
 	Return Undefined;
 EndFunction
 
-// Returns a data parameter value by a data composition field.
+// Returns the value of the data parameter for the data layout field.
 //
 // Parameters:
-//  Settings - DataCompositionSettings - Current report settings.
-//  UserSettings - DataCompositionUserSettingsItemCollection  - User's current report settings.
-//                              
-//  Field - DataCompositionField - Field that is a search criterion.
+//  Settings - DataCompositionSettings -  the current report settings.
+//  UserSettings - DataCompositionUserSettingsItemCollection  -  current user
+//                              settings for the report.
+//  Field - DataCompositionField -  the field that is the search criteria.
 //
 // Returns:
-//   DataCompositionParameterValue, Undefined - Data parameter value by the data composition field.
+//   DataCompositionParameterValue, Undefined - 
 //
 Function ChoiceParameterValue(Settings, UserSettings, Field, OptionChangeMode)
 	Value = DataParameterValueByField(Settings, UserSettings, Field, OptionChangeMode);
@@ -1080,16 +1065,16 @@ Function ChoiceParameterValue(Settings, UserSettings, Field, OptionChangeMode)
 	Return Value;
 EndFunction
 
-// Returns a data composition parameter value found by a data composition field.
+// Returns the value of the data layout parameter found in the data layout field.
 //
 // Parameters:
-//  Settings - DataCompositionSettings - Settings to search in.
-//  UserSettings - DataCompositionUserSettingsItemCollection - Collection
-//                              of the current user settings.
+//  Settings - DataCompositionSettings -  settings in which the search is performed.
+//  UserSettings - DataCompositionUserSettingsItemCollection -  collection of current
+//                              user settings.
 //
 // Returns:
-//   DataCompositionParameterValue, Undefined - Data composition parameter value
-//                                                     found by the data composition field.
+//   DataCompositionParameterValue, Undefined - 
+//                                                     
 //
 Function DataParameterValueByField(Settings, UserSettings, Field, OptionChangeMode)
 	If TypeOf(Settings) <> Type("DataCompositionSettings") Then 
@@ -1142,16 +1127,16 @@ Procedure FindFilterItemsFieldValues(Field, FilterItems1, UserSettings, Value, O
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Unifying the report form and report setting form.
+// 
 
-// Returns a presentation of a conditional appearance item.
+// Returns a representation of the conditional design element.
 //
 // Parameters:
-//  DCItem - DataCompositionConditionalAppearanceItem  - Appearance item whose presentation must be determined.
-//  DCOptionSetting - DataCompositionSettings - Current settings of the report option.
+//  DCItem - DataCompositionConditionalAppearanceItem  -  the design element whose representation you want to define.
+//  DCOptionSetting - DataCompositionSettings -  current report option settings.
 //
 // Returns:
-//   String - Presentation of the conditional appearance element.
+//   String - 
 //
 Function ConditionalAppearanceItemPresentation(DCItem, DCOptionSetting, State) Export
 	AppearancePresentation = AppearancePresentation(DCItem.Appearance);
@@ -1381,7 +1366,7 @@ Function FilterPresentation(DCNode, DCRowSet, State)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+// Other
 
 Function CopyRecursive(Val Node, Val WhatToCopy, Val WhereToInsert, Val IndexOf, Map = Undefined, WithoutStructure = False) Export
 	If Map = Undefined Then
@@ -1469,7 +1454,7 @@ Function CopyingParameters(ElementType, Collection, WithoutStructure = False)
 		CollectionType = TypeOf(Collection);
 		If CollectionType = Type("DataCompositionSettingStructureItemCollection") Then
 			Result.ItemTypeMustBeSpecified = True;
-			ElementType = Type("DataCompositionGroup"); // Replace the type with the supported type.
+			ElementType = Type("DataCompositionGroup"); // 
 		EndIf;
 		
 		Result.HasSelection = True;
@@ -1524,33 +1509,33 @@ Function CopyingParameters(ElementType, Collection, WithoutStructure = False)
 	
 EndFunction
 
-// Returns a setting item that is filled in based on the item of the same type.
+// Returns the configuration element that is filled in based on the same type of element.
 //
 // Parameters:
-//  Node - DataCompositionSettings - Report settings.
+//  Node - DataCompositionSettings -  the report settings.
 //  WhatToFill - DataCompositionSettings
 //               - DataCompositionSelectedFields
 //               - DataCompositionFilter
 //               - DataCompositionGroup
 //               - DataCompositionTable
 //               - DataCompositionChart
-//               - DataCompositionConditionalAppearanceItem - Setting item to fill.
+//               - DataCompositionConditionalAppearanceItem - 
 //  FillWithWhat - DataCompositionSettings
 //               - DataCompositionSelectedFields
 //               - DataCompositionFilter
 //               - DataCompositionGroup
 //               - DataCompositionTable
 //               - DataCompositionChart
-//               - DataCompositionConditionalAppearanceItem - Parent setting item.
+//               - DataCompositionConditionalAppearanceItem - 
 //
 // Returns:
 //   DataCompositionSettings,
-//   DataCompositionSelectedFields,
-//   DataCompositionFilter,
-//   DataCompositionGroup,
-//   DataCompositionTable,
-//   DataCompositionChart,
-//   DataCompositionConditionalAppearanceItem - Setting item being filled in.
+//   Selected polesreferences,
+//   Oberkommandierenden,
+//   Grouping
+//   Of Data Sets, Tables Of Data Sets,
+//   For a chart of data templates,
+//   the wordformationcomposition Element is the setting element that is being filled in.
 //
 Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefined, CopyingParameters = Undefined, WithoutStructure = False) Export
 	If Map = Undefined Then
@@ -1586,8 +1571,8 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	
 	If CopyingParameters.HasSettings Then
 		WhatToFill.SetIdentifier(FillWithWhat.ObjectID);
-		WhatToFill = WhatToFill.Settings; // DataCompositionSettings,  SelectedDataCompositionFields, DataCompositionFilter, DataCompositionGroup, DataCompositionTable, DataCompositionChart, DataCompositionConditionalAppearanceItem
-		FillWithWhat = FillWithWhat.Settings; // DataCompositionSettings,  SelectedDataCompositionFields, DataCompositionFilter, DataCompositionGroup, DataCompositionTable, DataCompositionChart, DataCompositionConditionalAppearanceItem
+		WhatToFill = WhatToFill.Settings; // 
+		FillWithWhat = FillWithWhat.Settings; // 
 	EndIf;
 	
 	If CopyingParameters.HasItems Then
@@ -1601,9 +1586,9 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasSelection Then
-		//   Choice (DataCompositionSelectedFields).
+		//   
 		FillPropertyValues(WhatToFill.Selection, FillWithWhat.Selection, , "SelectionAvailableFields, Items");
-		//   Choice.Items (DataCompositionSelectedFieldCollection).
+		//   
 		NestedItemsCollection = FillWithWhat.Selection.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NewNestedItemsCollection = WhatToFill.Selection.Items;
@@ -1614,9 +1599,9 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasFilter Then
-		//   Filter (DataCompositionFilter).
+		//   
 		FillPropertyValues(WhatToFill.Filter, FillWithWhat.Filter, , "FilterAvailableFields, Items");
-		//   Filter.Items (DataCompositionFilterItemCollection).
+		//   
 		NestedItemsCollection = FillWithWhat.Filter.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NewNestedItemsCollection = WhatToFill.Filter.Items;
@@ -1627,13 +1612,13 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasOutputParameters Then
-		//   OutputParameters (DataCompositionOutputParameterValues,
-		//       DataCompositionGroupOutputParameterValues,
-		//       DataCompositionTableGroupOutputParameterValues,
-		//       DataCompositionChartGroupOutputParameterValues,
-		//       DataCompositionTableOutputParameterValues,
-		//       DataCompositionChartOutputParameterValues).
-		//   OutputParameters.Items (DataCompositionParameterValueCollection).
+		//   
+		//       
+		//       
+		//       
+		//       
+		//       
+		//   
 		NestedItemsCollection = FillWithWhat.OutputParameters.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NestedItemsNode = WhatToFill.OutputParameters;
@@ -1647,8 +1632,8 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasDataParameters Then
-		//   DataParameters (DataCompositionDataParameterValues).
-		//   DataParameters.Items (DataCompositionParameterValueCollection).
+		//   
+		//   
 		NestedItemsCollection = FillWithWhat.DataParameters.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NestedItemsNode = WhatToFill.DataParameters;
@@ -1662,8 +1647,8 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasUserFields Then
-		//   UserFields (DataCompositionUserFields).
-		//   UserFields.Items (DataCompositionUserFieldCollection).
+		//   
+		//   
 		NestedItemsCollection = FillWithWhat.UserFields.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NewNestedItemsCollection = WhatToFill.UserFields.Items;
@@ -1674,8 +1659,8 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasGroupFields Then
-		//   GroupFields (DataCompositionGroupFields).
-		//   GroupFields.Items (DataCompositionGroupFieldCollection).
+		//   
+		//   
 		NestedItemsCollection = FillWithWhat.GroupFields.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NewNestedItemsCollection = WhatToFill.GroupFields.Items;
@@ -1686,9 +1671,9 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasOrder Then
-		//   Order (DataCompositionOrder).
+		//   
 		FillPropertyValues(WhatToFill.Order, FillWithWhat.Order, , "OrderAvailableFields, Items");
-		//   Order.Items (DataCompositionOrderItemCollection).
+		//   
 		NestedItemsCollection = FillWithWhat.Order.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NewNestedItemsCollection = WhatToFill.Order.Items;
@@ -1699,9 +1684,9 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasStructure Then
-		//   Structure (DataCompositionSettingStructureItemCollection,
-		//       DataCompositionChartStructureItemCollection,
-		//       DataCompositionTableStructureItemCollection).
+		//   
+		//       
+		//       
 		FillPropertyValues(WhatToFill.Structure, FillWithWhat.Structure);
 		NestedItemsCollection = FillWithWhat.Structure;
 		If NestedItemsCollection.Count() > 0 Then
@@ -1713,9 +1698,9 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasConditionalAppearance Then
-		//   ConditionalAppearance (DataCompositionConditionalAppearance).
+		//   
 		FillPropertyValues(WhatToFill.ConditionalAppearance, FillWithWhat.ConditionalAppearance, , "FilterAvailableFields, FieldsAvailableFields, Items");
-		//   ConditionalAppearance.Items (DataCompositionConditionalAppearanceItemCollection).
+		//   
 		NestedItemsCollection = FillWithWhat.ConditionalAppearance.Items;
 		If NestedItemsCollection.Count() > 0 Then
 			NewNestedItemsCollection = WhatToFill.ConditionalAppearance.Items;
@@ -1726,7 +1711,7 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasColumnsAndRows Then
-		//   Columns (DataCompositionTableStructureItemCollection).
+		//   
 		NestedItemsCollection = FillWithWhat.Columns;
 		NewNestedItemsCollection = WhatToFill.Columns;
 		OldID = Node.GetIDByObject(NestedItemsCollection);
@@ -1735,7 +1720,7 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 		For Each SubordinateRow In NestedItemsCollection Do
 			CopyRecursive(Node, SubordinateRow, NewNestedItemsCollection, Undefined, Map);
 		EndDo;
-		//   Rows (DataCompositionTableStructureItemCollection).
+		//   
 		NestedItemsCollection = FillWithWhat.Rows;
 		NewNestedItemsCollection = WhatToFill.Rows;
 		OldID = Node.GetIDByObject(NestedItemsCollection);
@@ -1747,7 +1732,7 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasSeriesAndDots Then
-		//   Series (DataCompositionChartStructureItemCollection).
+		//   
 		NestedItemsCollection = FillWithWhat.Series;
 		NewNestedItemsCollection = WhatToFill.Series;
 		OldID = Node.GetIDByObject(NestedItemsCollection);
@@ -1756,7 +1741,7 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 		For Each SubordinateRow In NestedItemsCollection Do
 			CopyRecursive(Node, SubordinateRow, NewNestedItemsCollection, Undefined, Map);
 		EndDo;
-		//   Dots (DataCompositionChartStructureItemCollection).
+		//   
 		NestedItemsCollection = FillWithWhat.Points;
 		NewNestedItemsCollection = WhatToFill.Points;
 		OldID = Node.GetIDByObject(NestedItemsCollection);
@@ -1768,7 +1753,7 @@ Function FillPropertiesRecursively(Node, WhatToFill, FillWithWhat, Map = Undefin
 	EndIf;
 	
 	If CopyingParameters.HasNestedParametersValues Then
-		//   NestedParameterValues (DataCompositionParameterValueCollection).
+		//   
 		For Each SubordinateRow In FillWithWhat.NestedParameterValues Do
 			CopyRecursive(Node, SubordinateRow, WhatToFill.NestedParameterValues, Undefined, Map);
 		EndDo;
@@ -1862,9 +1847,9 @@ Function StrLeftBeforeChar(String, Separator, Balance = Undefined)
 EndFunction
 
 Function FindTableRows(TableAttribute1, RowData) Export
-	If TypeOf(TableAttribute1) = Type("FormDataCollection") Then // Value table.
+	If TypeOf(TableAttribute1) = Type("FormDataCollection") Then // 
 		Return TableAttribute1.FindRows(RowData);
-	ElsIf TypeOf(TableAttribute1) = Type("FormDataTree") Then // Value tree.
+	ElsIf TypeOf(TableAttribute1) = Type("FormDataTree") Then // 
 		Return FindRecursively(TableAttribute1.GetItems(), RowData);
 	Else
 		Return Undefined;
@@ -1905,7 +1890,7 @@ Procedure CastValueToType(Value, TypeDescription) Export
 	EndIf;
 EndProcedure
 
-// Picture name in the ReportSettingsIcons collection.
+// The index of the image in the collection of Piktogramredaktilo.
 Function PictureIndex(Type, State = Undefined) Export
 	If Type = "Group" Then
 		IndexOf = 1;
@@ -2034,7 +2019,7 @@ EndFunction
 Function ReportFormUpdateParameters(Val EventName = "") Export
 	
 	Result = New Structure;
-	// OnCreateAtServer, AfterGenerate, OnUpdateUserSettingSetAtServer, etc.
+	// 
 	Result.Insert("EventName", EventName);
 	Result.Insert("VariantModified", False);
 	Result.Insert("UserSettingsModified", False);
@@ -2049,7 +2034,7 @@ Function ReportFormUpdateParameters(Val EventName = "") Export
 	Result.Insert("ReportObjectOrFullName", "");
 	Result.Insert("Regenerate", False);
 	Result.Insert("Directly", False);
-	// Intended for the "SettingsForm" event
+	// 
 	Result.Insert("SettingsFormAdvancedMode", 0);
 	Result.Insert("SettingsFormPageName", "");
 	// ReportSettingsForm

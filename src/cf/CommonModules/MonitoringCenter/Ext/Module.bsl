@@ -1,20 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 #Region Common
 
-// Check the subsystem state.
+// Checks the subsystem status.
 // Returns:
-//  Boolean - — enabled if set to True, disabled if set to False.
+//  Boolean - 
 //
 Function MonitoringCenterEnabled() Export
 	MonitoringCenterParameters = New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter");
@@ -24,7 +22,7 @@ Function MonitoringCenterEnabled() Export
 		Or MonitoringCenterParameters.ApplicationInformationProcessingCenter;
 EndFunction
 
-// Enables the MonitoringCenter subsystem.
+// It includes the Central Monitoring subsystem.
 //
 Procedure EnableSubsystem() Export
 
@@ -39,7 +37,7 @@ Procedure EnableSubsystem() Export
 
 EndProcedure
 
-// Disables the MonitoringCenter subsystem.
+// Disables the Monitoring Center subsystem.
 //
 Procedure DisableSubsystem() Export
 
@@ -53,9 +51,9 @@ Procedure DisableSubsystem() Export
 
 EndProcedure
 
-// Returns a string presentation of infobase ID in the Monitoring center.
+// Returns a string representation of the ID of the information base in the monitoring center.
 // Returns:
-//  String - an UUID of the infobase in the monitoring center.
+//  String - 
 //
 Function InfoBaseID() Export
 
@@ -73,7 +71,7 @@ Function InfoBaseID() Export
 		Return String(MonitoringCenterParameters.InfoBaseID);
 	EndIf;
 	
-	// If the data was never sent, an empty string returns.
+	// 
 	Return "";
 
 EndFunction
@@ -82,13 +80,13 @@ EndFunction
 
 #Region BusinessStatistics
 
-// Writes a business statistics operation.
+// Records a business statistics operation.
 //
 // Parameters:
-//  OperationName	- String	- a statistics operation name, if it is missing, a new one is created.
-//  Value	- Number		- a quantitative value of the statistics operation.
-//  Comment	- String	- an arbitrary comment.
-//  Separator	- String	- a value separator in OperationName if separator is not a point.
+//  OperationName	- String	-  the name of the statistics operation, in case of absence, a new one is created.
+//  Value	- Number		-  the quantitative value of the statistics operation.
+//  Comment	- String	-  arbitrary comment.
+//  Separator	- String	-  the value separator in the operation name, if the separator is not a dot.
 //
 Procedure WriteBusinessStatisticsOperation(OperationName, Value, Comment = Undefined, Separator = ".") Export
 	If WriteBusinessStatisticsOperations() Then
@@ -97,17 +95,17 @@ Procedure WriteBusinessStatisticsOperation(OperationName, Value, Comment = Undef
 	EndIf;
 EndProcedure
 
-// Writes a unique business statistics operation by hours.
-// Uniqueness is checked upon writing.
+// Records a unique operation of business statistics in the context of an hour.
+// Checks uniqueness when recording.
 //
 // Parameters:
-//  OperationName      - String - a statistics operation name, if it is missing, a new one is created.
-//  UniqueKey - String - a key used to check whether a record is unique. Its maximum length is 100.
-//  Value         - Number  - a quantitative value of the statistics operation.
-//  Replace         - Boolean - determines a replacement mode of an existing record.
-//                              True - an existing record will be deleted before writing.
-//                              False - if a record already exists, new data is ignored.
-//                              The default value is False.
+//  OperationName      - String -  the name of the statistics operation, in case of absence, a new one is created.
+//  UniqueKey - String -  the key to control the uniqueness of the record, the maximum length is 100.
+//  Value         - Number  -  the quantitative value of the statistics operation.
+//  Replace         - Boolean -  defines the replacement mode of an existing record.
+//                              True - before recording, the existing record will be deleted.
+//                              False - if the record already exists, the new data is ignored.
+//                              Default value: False.
 //
 Procedure WriteBusinessStatisticsOperationHour(OperationName, UniqueKey, Value, Replace = False) Export
 
@@ -123,17 +121,17 @@ Procedure WriteBusinessStatisticsOperationHour(OperationName, UniqueKey, Value, 
 
 EndProcedure
 
-// Writes a unique business statistics operation by days.
-// Uniqueness is checked upon writing.
+// Records a unique operation of business statistics in the context of the day.
+// Checks uniqueness when recording.
 //
 // Parameters:
-//  OperationName      - String - a statistics operation name, if it is missing, a new one is created.
-//  UniqueKey - String - a key used to check whether a record is unique. Its maximum length is 100.
-//  Value         - Number  - a quantitative value of the statistics operation.
-//  Replace         - Boolean - determines a replacement mode of an existing record.
-//                              True - an existing record will be deleted before writing.
-//                              False - if a record already exists, new data is ignored.
-//                              The default value is False.
+//  OperationName      - String -  the name of the statistics operation, in case of absence, a new one is created.
+//  UniqueKey - String -  the key to control the uniqueness of the record, the maximum length is 100.
+//  Value         - Number  -  the quantitative value of the statistics operation.
+//  Replace         - Boolean -  defines the replacement mode of an existing record.
+//                              True - before recording, the existing record will be deleted.
+//                              False - if the record already exists, the new data is ignored.
+//                              Default value: False.
 //
 Procedure WriteBusinessStatisticsOperationDay(OperationName, UniqueKey, Value, Replace = False) Export
 
@@ -150,9 +148,9 @@ Procedure WriteBusinessStatisticsOperationDay(OperationName, UniqueKey, Value, R
 EndProcedure
 
 
-// Returns a business statistics registration status.
+// Returns the registration status of business statistics.
 // Returns:
-//  Boolean - register business statistics.
+//  Boolean - 
 //
 Function WriteBusinessStatisticsOperations() Export
 	MonitoringCenterParameters = New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter, RegisterBusinessStatistics");
@@ -168,14 +166,14 @@ EndFunction
 
 #Region ConfigurationStatistics
 
-// Writes statistics by configuration objects.
+// Records statistics on configuration objects.
 //
 // Parameters:
 //  MetadataNamesMap - Structure:
-//   * Key		- String - 	metadata object name.
-//   * Value	- String - 	Query text. Must contain a "Quantity" field.
-//							If "Quantity" is set to "0", it won't be recorded.
-//                          
+//   * Key		- String - 	 	the name of the metadata object.
+//   * Value	- String - 	 	the text of the data sampling request
+//							, the Quantity field must be present. If the Quantity is zero,
+//                          then no recording occurs.
 //
 Procedure WriteConfigurationStatistics(MetadataNamesMap) Export
 	Parameters = New Map;
@@ -196,12 +194,12 @@ Procedure WriteConfigurationStatistics(MetadataNamesMap) Export
 	InformationRegisters.ConfigurationStatistics.Write(Parameters, DataAreaRef);
 EndProcedure
 
-// Writes statistics by a configuration object.
+// Records statistics on the configuration object.
 //
 // Parameters:
-//  ObjectName -	String	- a statistics operation name, if it is missing, a new one is created.
-//  Value - 		Number	- a quantitative value of the statistics operation. If the value
-//                            is equal to zero, it is not recorded.
+//  ObjectName -	String	-  the name of the statistics operation, in case of absence, a new one is created.
+//  Value - 		Number	-  the quantitative value of the statistics operation. If the value
+//                            is zero, then no recording occurs.
 //
 Procedure WriteConfigurationObjectStatistics(ObjectName, Value) Export
 

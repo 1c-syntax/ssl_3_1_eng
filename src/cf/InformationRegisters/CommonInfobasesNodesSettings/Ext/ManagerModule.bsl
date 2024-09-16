@@ -1,20 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 ////////////////////////////////////////////////////////////////////////////////
-// Only the Record Manager can access this information register.
-// Intended to update the existing records.
-// NOTE: Adding record sets to the register is forbidden.
-// It might lead to the loss of settings that were not included in the set.
+// 
+// 
+// 
+// 
 
 #Region Internal
 
@@ -485,7 +483,7 @@ Function CorrespondentExchangePlanName (ExchangeNode) Export
 		
 EndFunction
 
-// Updates a register record by the passed structure values.
+// The procedure updates the register entry based on the passed structure values.
 //
 Procedure UpdateRecord(RecordStructure)
 	

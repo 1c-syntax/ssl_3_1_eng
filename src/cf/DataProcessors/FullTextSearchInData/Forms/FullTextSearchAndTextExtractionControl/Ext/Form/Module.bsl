@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -25,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations")
 	   And Users.IsFullUser() Then
 		
-		// Visibility settings at startup.
+		// 
 		Items.AutomaticTextsExtractionGroup.Visible =
 			  Users.IsFullUser(, True)
 			And Not Common.DataSeparationEnabled()
@@ -45,7 +43,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ChoiceList[0].Presentation = NStr("en = 'One or more workstations run on Linux.';");
 		EndIf;
 		
-		// Form attributes values.
+		// 
 		ExtractTextFilesOnServer = ?(ConstantsSet.ExtractTextFilesOnServer, 1, 0);
 	
 		ScheduledJobsInfo = New Structure;
@@ -57,7 +55,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			NStr("en = 'Full-text search toggle, search index update.';");
 	EndIf;
 	
-	// Update items states.
+	// 
 	SetAvailability();
 	
 EndProcedure
@@ -160,7 +158,7 @@ Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
 	RefreshReusableValues();
 	
 	If Result.Property("CannotEnableFullTextSearchMode") Then
-		// Display a warning message.
+		// 
 		QueryText = NStr("en = 'To change the full-text search mode, close all sessions, except for the current user session.';");
 		
 		Buttons = New ValueList;
@@ -242,7 +240,7 @@ Procedure ClearTheIndexAfterAnsweringTheQuestion(Result, AdditionalParameters) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server call.
+// 
 
 &AtServer
 Procedure UpdateIndexServer()
@@ -305,7 +303,7 @@ EndProcedure
 Function SaveAttributeValue(DataPathAttribute)
 	Result = New Structure("ConstantName", "");
 	
-	// Saving values of attributes not directly related to constants (in ratio one to one).
+	// 
 	If DataPathAttribute = "" Then
 		Return Result;
 	EndIf;
@@ -321,7 +319,7 @@ Function SaveAttributeValue(DataPathAttribute)
 			Or DataPathAttribute = "LimitMaxIndexedDataSize" Then
 			Try
 				If LimitMaxIndexedDataSize Then
-					// When you enable the restriction for the first time, the default value of the platform 1 MB is set.
+					// 
 					If IndexedDataMaxSize = 0 Then
 						IndexedDataMaxSize = 1;
 					EndIf;

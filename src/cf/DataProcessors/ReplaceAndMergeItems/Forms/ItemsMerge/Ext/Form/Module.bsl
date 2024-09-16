@@ -1,15 +1,13 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
-// Form parameters are:
-//     RefSet - Array of AnyRef - Items to be replaced with another Ref-type item.
+// 
+//     
 //
 
 #Region Variables
@@ -34,17 +32,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	CurrentDeletionOption = "Check";
 	
-	// Initialize the step-by-step wizard.
+	// 
 	InitializeStepByStepWizardSettings();
 	
-	// 1. Search for occurrences by parameter.
+	// 
 	SearchStep = AddWizardStep(Items.SearchForUsageInstancesStep);
 	SearchStep.BackButton.Visible = False;
 	SearchStep.NextButton.Visible = False;
 	SearchStep.CancelButton.Title = NStr("en = 'Cancel';");
 	SearchStep.CancelButton.ToolTip = NStr("en = 'Cancel merging.';");
 	
-	// 2. Select main item.
+	// 
 	Step = AddWizardStep(Items.MainItemSelectionStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.DefaultButton = True;
@@ -53,14 +51,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.CancelButton.Title = NStr("en = 'Cancel';");
 	Step.CancelButton.ToolTip = NStr("en = 'Cancel merging.';");
 	
-	// 3. Waiting for process.
+	// 
 	Step = AddWizardStep(Items.MergeStep);
 	Step.CancelButton.Visible = False;
 	Step.NextButton.Visible = False;
 	Step.BackButton.Title = NStr("en = 'Cancel';");
 	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.';");
 	
-	// 4. Merged successfully.
+	// 
 	Step = AddWizardStep(Items.SuccessfulCompletionStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
@@ -68,7 +66,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	Step.CancelButton.ToolTip = NStr("en = 'Close merge results.';");
 	
-	// 5. Reference replacement issues.
+	// 
 	Step = AddWizardStep(Items.RetryMergeStep);
 	Step.BackButton.Title = NStr("en = '< To Beginning';");
 	Step.BackButton.ToolTip = NStr("en = 'Return to selection of the main item.';");
@@ -78,13 +76,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Step.CancelButton.Title = NStr("en = 'Cancel';");
 	Step.CancelButton.ToolTip = NStr("en = 'Close merge results.';");
 	
-	// 6 Runtime errors.
+	// 
 	Step = AddWizardStep(Items.ErrorOccurredStep);
 	Step.BackButton.Visible = False;
 	Step.NextButton.Visible = False;
 	Step.CancelButton.Title = NStr("en = 'Close';");
 	
-	// Update form items.
+	// 
 	WizardSettings.CurrentStep = SearchStep;
 	SetVisibilityAvailability(ThisObject);
 EndProcedure
@@ -98,7 +96,7 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	// References replacement is a critical step that requires confirmation of cancellation.
+	// 
 	If WizardSettings.ShowDialogBeforeClose
 		And Items.WizardSteps.CurrentPage = Items.MergeStep Then
 		
@@ -192,7 +190,7 @@ Procedure UsageInstancesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 		Return;
 	EndIf;
 	
-	// Always add an item of the same type as the main one.
+	// 
 	ChoiceFormName = SelectionFormNameByReference(MainItem);
 	If Not IsBlankString(ChoiceFormName) Then
 		FormParameters = New Structure("MultipleChoice", True);
@@ -379,7 +377,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Wizard API
+// 
 
 &AtServer
 Procedure InitializeStepByStepWizardSettings()
@@ -387,47 +385,47 @@ Procedure InitializeStepByStepWizardSettings()
 	WizardSettings.Insert("Steps", New Array);
 	WizardSettings.Insert("CurrentStep", Undefined);
 	
-	// Interface part IDs.
+	// 
 	WizardSettings.Insert("PagesGroup", Items.WizardSteps.Name);
 	WizardSettings.Insert("NextButton",   Items.WizardStepNext.Name);
 	WizardSettings.Insert("BackButton",   Items.WizardStepBack.Name);
 	WizardSettings.Insert("CancelButton",  Items.WizardStepCancel.Name);
 	
-	// To process long-running operations.
+	// 
 	WizardSettings.Insert("ShowDialogBeforeClose", False);
 	
-	// Everything is disabled by default.
+	// 
 	Items.WizardStepNext.Visible  = False;
 	Items.WizardStepBack.Visible  = False;
 	Items.WizardStepCancel.Visible = False;
 EndProcedure
 
-// Adds a wizard step. Navigation between pages is performed according to the order the pages are added.
+// Adds a wizard step. Transitions between pages will occur according to the order of addition.
 //
 // Parameters:
-//   Page - FormGroup - a page that contains step items.
+//   Page - FormGroup -  the page that contains the elements of the step.
 //
 // Returns:
-//   Structure - Describes page settings, where:
-//       * PageName - String - a page name.
-//       * NextButton - Structure - description of "Next" button, where:
-//           ** Title - String - a button title. The default value is "Next >".
-//           ** ToolTip - String - button tooltip. Corresponds to the button title by default.
-//           ** Visible - Boolean - if True, the button is visible. Default value is True.
-//           ** Enabled - Boolean - if True, the button is clickable. Default value is True.
-//           ** DefaultButton - Boolean - if True, the button is the main button of the form. Default value is True.
-//       * BackButton - Structure - description of the "Back" button, where:
-//           ** Title - String - a button title. Default value - "< Back".
-//           ** ToolTip - String - button tooltip. Corresponds to the button title by default.
-//           ** Visible - Boolean - if True, the button is visible. Default value is True.
-//           ** Enabled - Boolean - if True, the button is clickable. Default value is True.
-//           ** DefaultButton - Boolean - if True, the button is the main button of the form. Default value is False.
-//       * CancelButton - Structure - description of the "Cancel" button, where:
-//           ** Title - String - a button title. The default value is "Cancel".
-//           ** ToolTip - String - button tooltip. Corresponds to the button title by default.
-//           ** Visible - Boolean - if True, the button is visible. The default value is True.
-//           ** Enabled - Boolean - if True, the button is clickable. Default value is True.
-//           ** DefaultButton - Boolean - if True, the button is the main button of the form. Default value is False.
+//   Structure - :
+//       * PageName - String -  page name.
+//       * NextButton - Structure - :
+//           ** Title - String -  the title of the button. By default, " Next >".
+//           ** ToolTip - String -  hint for the button. By default, it corresponds to the button title.
+//           ** Visible - Boolean -  when True, the button is visible. The default value is True.
+//           ** Enabled - Boolean -  when True, the button can be pressed. The default value is True.
+//           ** DefaultButton - Boolean -  when True, the button will be the main button of the form. The default value is True.
+//       * BackButton - Structure - :
+//           ** Title - String -  the title of the button. By default, "< Back".
+//           ** ToolTip - String -  hint for the button. By default, it corresponds to the button title.
+//           ** Visible - Boolean -  when True, the button is visible. The default value is True.
+//           ** Enabled - Boolean -  when True, the button can be pressed. The default value is True.
+//           ** DefaultButton - Boolean -  when True, the button will be the main button of the form. By default, it is False.
+//       * CancelButton - Structure - :
+//           ** Title - String -  the title of the button. Default: "Cancel".
+//           ** ToolTip - String -  hint for the button. By default, it corresponds to the button title.
+//           ** Visible - Boolean -  when True, the button is visible. Default: True.
+//           ** Enabled - Boolean -  when True, the button can be pressed. The default value is True.
+//           ** DefaultButton - Boolean -  when True, the button will be the main button of the form. By default, it is False.
 //
 &AtServer
 Function AddWizardStep(Val Page)
@@ -459,27 +457,27 @@ Procedure SetVisibilityAvailability(Form)
 	WizardSettings = Form.WizardSettings;
 	CurrentStep = WizardSettings.CurrentStep;
 	
-	// Navigate to the page.
+	// 
 	Items[WizardSettings.PagesGroup].CurrentPage = Items[CurrentStep.PageName];
 	
-	// Update buttons.
+	// 
 	UpdateWizardButtonProperties(Items[WizardSettings.NextButton],  CurrentStep.NextButton);
 	UpdateWizardButtonProperties(Items[WizardSettings.BackButton],  CurrentStep.BackButton);
 	UpdateWizardButtonProperties(Items[WizardSettings.CancelButton], CurrentStep.CancelButton);
 	
 EndProcedure
 
-// Navigates to the specified page.
+// Navigates the wizard to the specified page.
 //
 // Parameters:
 //   StepOrIndexOrFormGroup - Structure
 //                              - Number
-//                              - FormGroup - a page to navigate to.
+//                              - FormGroup - 
 //
 &AtClient
 Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 	
-	// Search for step.
+	// 
 	Type = TypeOf(StepOrIndexOrFormGroup);
 	If Type = Type("Structure") Then
 		StepDescription = StepOrIndexOrFormGroup;
@@ -507,17 +505,17 @@ Procedure GoToWizardStep1(Val StepOrIndexOrFormGroup)
 		EndIf;
 	EndIf;
 	
-	// Step switch.
+	// 
 	WizardSettings.CurrentStep = StepDescription;
 	
-	// Update visibility.
+	// 
 	SetVisibilityAvailability(ThisObject);
 	OnActivateWizardStep();
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Wizard events
+// 
 
 &AtClient
 Procedure OnActivateWizardStep()
@@ -603,7 +601,7 @@ Procedure WizardStepCancel()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Internal procedures for item merging
+// 
 
 &AtServer
 Procedure SetConditionalAppearance()
@@ -795,7 +793,7 @@ Procedure UsageInstancesBeforeDeleteRowCompletion(Val QuestionResult, Val Additi
 		Return;
 	EndIf;
 	
-	// Actual deletion from the table.
+	// 
 	String = UsageInstances.FindByID(AdditionalParameters.CurrentRow);
 	If String = Undefined Then
 		Return;
@@ -903,8 +901,8 @@ Procedure AddUsageInstancesRows(Val ReferencesArrray)
 EndProcedure
 
 // Returns:
-//   String - Catalog code if specified, 
-//   Undefined if there is no code.
+//   String -  
+//   
 //
 &AtServerNoContext
 Function ObjectCode(Val Ref, MetadataCache)
@@ -913,8 +911,8 @@ Function ObjectCode(Val Ref, MetadataCache)
 EndFunction
 
 // Returns:
-//   CatalogRef - Catalog owner if specified, 
-//   Undefined if there is no owner.
+//   CatalogRef -  
+//   
 //
 &AtServerNoContext
 Function ObjectOfOwner(Val Ref, MetadataCache)
@@ -986,7 +984,7 @@ Function CheckCanReplaceReferences()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Long-running operation management
+// 
 
 &AtClient
 Procedure StartDeterminingUseLocations()
@@ -1159,7 +1157,7 @@ Procedure FillUsageInstances(Val ResultAddress)
 		MainItem = MaxReference;
 	EndIf;
 	
-	// Refresh headers.
+	// 
 	Presentation = ?(MainItem = Undefined, "", MainItem.Metadata().Presentation());
 	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Merge %1 items into one item';"), Presentation);
 EndProcedure
@@ -1234,17 +1232,17 @@ Procedure AfterConfirmCancelJob(Response, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Wizard's internal procedures and functions
+// 
 
-// Description of wizard button settings.
+// Description of the settings button in the wizard.
 //
 // Returns:
-//  Structure - Form's button settings, where:
-//    * Title         - String - a button title.
-//    * ToolTip         - String - button tooltip.
-//    * Visible         - Boolean - if True, the button is visible. The default value is True.
-//    * Enabled       - Boolean - if True, the button is clickable. The default value is True.
-//    * DefaultButton - Boolean - if True, the button is the main button of the form. Default value is False.
+//  Structure - :
+//    * Title         - String -  the title of the button.
+//    * ToolTip         - String -  hint for the button.
+//    * Visible         - Boolean -  when True, the button is visible. The default value is: True.
+//    * Enabled       - Boolean -  when True, the button can be pressed. The default value is: True.
+//    * DefaultButton - Boolean -  when True, the button will be the main button of the form. The default value is False.
 //    * ExtendedTooltip - Structure:
 //    ** Title - String
 //

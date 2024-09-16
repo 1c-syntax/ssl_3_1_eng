@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -304,8 +302,8 @@ Procedure CheckLooping(ExchangePlanName, Mode = "CircuitImport") Export
 			
 	If Mode = "CircuitImport" Then
 		
-		// If looping was defined in another infobase and the current infobase is part of it, 
-		// do not set the loop flag in the current node.
+		//  
+		// 
 
 		Query.Text = 
 			"SELECT TOP 1
@@ -477,7 +475,7 @@ Function CheckLoopRecursively(SynchronizationCircuit, InitialNode, CurrentNode =
 	For Each Node In Nodes Do
 		For Each PeerNode In Node.Rows Do
 			
-			If PeerNode.CorrespondentNodeCode = Parent Then // Exchange between two peer nodes 
+			If PeerNode.CorrespondentNodeCode = Parent Then //  
 				Continue;
 			EndIf;
 			
@@ -520,7 +518,7 @@ Procedure UpdateCircuitFromTree(Tree, ExchangePlanName)
 	
 	For Each TreeNode In Tree.Rows Do
 		
-		// Do not update data in the current node
+		// 
 		If TreeNode.NodeCode = ThisNode.Code Then
 			Continue;
 		EndIf;
@@ -528,7 +526,7 @@ Procedure UpdateCircuitFromTree(Tree, ExchangePlanName)
 		Filter = New Structure("NodeCode", TreeNode.NodeCode);
 		CircuitNodes = SynchronizationCircuit.Rows.FindRows(Filter);
 
-		// Delete obsolete records
+		// 
 		If CircuitNodes.Count() > 0 
 			And CircuitNodes[0].LatestUpdate < TreeNode.LatestUpdate
 			And CircuitNodes[0].RecordsCount > 0 Then

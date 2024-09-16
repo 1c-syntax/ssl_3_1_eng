@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// It is called to get contacts (members) by the specified interaction subject.
-// It is used if at least one interaction subject is determined in the configuration.
+// Called to get contacts (participants) for the specified interaction subject.
+// Used if at least one interaction item is defined in the configuration.
 //
 // Parameters:
-//  ContactsTableName   - String - an interaction subject table name, where search is required.
-//                                   For example, "Documents.CustomerOrder".
-//  QueryTextForSearch - String - a query fragment for the search is specified to this parameter. When performing 
-//                                   a query, a reference to an interaction subject is inserted in the &Subject query parameter.
+//  ContactsTableName   - String -  the name of the table object interactions in which you want to search.
+//                                   For Example, " Documents.Customer's order".
+//  QueryTextForSearch - String -  this parameter to specify the fragment query to search for. When executing 
+//                                   a request, a link to the interaction object is inserted in the request parameter &Subject.
 //
 Procedure OnSearchForContacts(Val ContactsTableName, QueryTextForSearch) Export
 	
@@ -25,25 +23,25 @@ Procedure OnSearchForContacts(Val ContactsTableName, QueryTextForSearch) Export
 	
 EndProcedure	
 
-// Allows to override an attachment owner for writing.
-// This can be required, for example, in case of bulk mail, when it makes sense 
-// to store all attachments together and not to replicate them to all bulk emails.
+// Allows you to redefine the owner of attached files for a message.
+// This may be necessary, for example, for mass mailings, when it makes sense 
+// to store the same attached files in one place, rather than replicating them to all mailing messages.
 //
 // Parameters:
 //  MailMessage - DocumentRef.IncomingEmail
-//         - DocumentRef.OutgoingEmail - Email message whose attachments must be received. 
+//         - DocumentRef.OutgoingEmail -  
 //           
-//  AttachedFiles - Structure - specify information on files attached to an email:
-//    * FilesOwner                     - DefinedType.AttachedFile - Attachment owner.
-//    * AttachedFilesCatalogName - String - an attached file metadata object name.
+//  AttachedFiles - Structure - :
+//    * FilesOwner                     - DefinedType.AttachedFile -  owner of the attached files.
+//    * AttachedFilesCatalogName - String -  name of the attached file metadata object.
 //
 Procedure OnReceiveAttachedFiles(MailMessage, AttachedFiles) Export
 
 EndProcedure
 
-// It is called to set logic of interaction access restriction.
-// For the example of filling access value sets, see comments
-// to AccessManagement.FillAccessValuesSets.
+// Called to configure the logic of restricting access to interactions.
+// For an example of filling in access value sets, see in the comments
+// to the Access control procedure.Fill in the set of access values.
 //
 // Parameters:
 //  Object - DocumentObject.Meeting
@@ -51,7 +49,7 @@ EndProcedure
 //         - DocumentObject.SMSMessage
 //         - DocumentObject.PhoneCall
 //         - DocumentObject.IncomingEmail
-//         - DocumentObject.OutgoingEmail - Object whose sets must be populated.
+//         - DocumentObject.OutgoingEmail -  the object for which you need to fill sets.
 //  Table - See AccessManagement.AccessValuesSetsTable
 //
 Procedure OnFillingAccessValuesSets(Object, Table) Export
@@ -62,17 +60,17 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use InteractionsOverridable.OnSearchForContacts.
-// Returns a query text that filters interaction subject contacts (members).
-// It is used if at least one interaction subject is determined in the configuration.
+// Deprecated.
+// 
+// 
 //
 // Parameters:
-//  DeletePutInTempTable - Boolean - always False.
-//  TableName                        - String - an interaction subject table name, where search will be performed.
-//  DeleteMerge                 - Boolean - always True.
+//  DeletePutInTempTable - Boolean -  always a Lie.
+//  TableName                        - String -  the name of the table object interactions in which a search will be performed.
+//  DeleteMerge                 - Boolean -  always the Truth.
 //
 // Returns:
-//  String - Query text.
+//  String -  query text.
 //
 Function QueryTextContactsSearchBySubject(DeletePutInTempTable, TableName, DeleteMerge = False) Export
 	
@@ -80,20 +78,20 @@ Function QueryTextContactsSearchBySubject(DeletePutInTempTable, TableName, Delet
 	
 EndFunction
 
-// Deprecated. Obsolete. Use InteractionsOverridable.OnGetAttachedFiles.
-// The ability to override an attachment owner for writing.
-// This can be required, for example, in case of bulk mail. Here it makes sense 
-// to store all attachments together and not to replicate them to all bulk emails.
+// Deprecated.
+// 
+//  
+// 
 //
 // Parameters:
 //  MailMessage  - DocumentRef
-//          - DocumentObject - Email message whose attachments must be received.
+//          - DocumentObject - 
 //
 // Returns:
-//  Structure, Undefined  - - Undefined if the attachments are stored in the message.
-//                             Otherwise, Structure:
-//                              * Owner - DefinedType.AttachedFile - Attachment owner.
-//                              * CatalogNameAttachedFiles - String - an attached file metadata object name.
+//  Structure, Undefined  - 
+//                             :
+//                              * Owner - DefinedType.AttachedFile -  owner of the attached files.
+//                              * CatalogNameAttachedFiles - String -  name of the attached file metadata object.
 //
 Function AttachedEmailFilesMetadataObjectData(MailMessage) Export
 	

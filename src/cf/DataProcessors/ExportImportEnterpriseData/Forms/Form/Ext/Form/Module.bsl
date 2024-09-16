@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -19,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DataExchangeOverridable.OnGetAvailableFormatVersions(AvailableVersionsArray);
 		DataExchangeOverridable.OnGetAvailableFormatExtensions(ExtensionsCollection);
 	Except
-		// Cannot get available format versions.
+		// 
 		Raise NStr("en = 'The infobase does not support universal data synchronization format.';");
 	EndTry;
 	
@@ -86,7 +84,7 @@ Procedure OnOpen(Cancel)
 	If Not ValueIsFilled(OperationKind) Then
 		OperationKind = "Load";
 	EndIf;
-	// value saved by default appears only when the form is opened.
+	// 
 	If ValueIsFilled(Object.PathToExportExchangeManager) Then
 		RefreshExportRulesAtServer();
 	EndIf;
@@ -215,7 +213,7 @@ Procedure ExecuteOperation(Command)
 	JobID = Undefined;
 	
 	If OperationKind = "Load" Then
-		If ImportSource = 1 Then // A text field.
+		If ImportSource = 1 Then // 
 			If Not ValueIsFilled(DataForXDTOImport) Then
 				CommonClient.MessageToUser(NStr("en = 'Please specify the data to import.';"));
 				Return;
@@ -424,7 +422,7 @@ Procedure ProcessExportResult()
 		ReportOperationEnd(False);
 	Else
 		If Not ValueIsFilled(ExportFilePath) Then
-			// After the file is selected, the export result will be written to it.
+			// 
 			SelectFileForExportAtClient(True, ResultStorageAddress);
 		Else
 			WriteExportResultToFile(ResultStorageAddress);
@@ -448,8 +446,8 @@ EndProcedure
 
 // Parameters:
 //   ObtainedFiles - Array of TransferredFileDescription
-//                   - Undefined - a result of receiving a file.
-//   AdditionalParameters - Arbitrary - arbitrary additional parameters.
+//                   - Undefined - 
+//   AdditionalParameters - Arbitrary -  custom additional parameters.
 // 
 &AtClient
 Procedure WriteExportResultToFileCompletion(ObtainedFiles, AdditionalParameters) Export
@@ -578,8 +576,8 @@ Function ImportDataAtServer()
 		Else
 			
 			AddressOnServer = GetTempFileName("xml");
-			// The temp file is deleted using "DeleteFiles(AddressOnServer)" in the
-			// "MessageImport" handler module procedure (not in this function).
+			// 
+			// 
 			
 		EndIf;
 		
@@ -783,9 +781,9 @@ EndProcedure
 &AtClient
 Procedure SetVisibility1()
 	Items.FormAbort.Visible = False;
-	// Operation type.
+	// 
 	Items.ExportImport.CurrentPage = ?(OperationKind = "Load", Items.Load, Items.Upload0);
-	// A limited option of using the data processor.
+	// 
 	If ValueIsFilled(FormOpenOption) Then
 		Items.FormEnableAdvancedFeatures.Visible = False;
 		Items.OperationKind.Visible = False;
@@ -899,7 +897,7 @@ Procedure FileSelected(SelectedFiles, AdditionalParameters) Export
 	If AdditionalParameters.Property("ForImport") Then
 		If AdditionalParameters.ForImport Then
 			PathToImportFile = SelectedFiles[0];
-			// Check whether the file exists.
+			// 
 			If AdditionalParameters.ImportAfterChoice Then
 				AttachIdleHandler("ImportMessage", 0.1, True);
 			EndIf;

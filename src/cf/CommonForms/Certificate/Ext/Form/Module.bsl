@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -34,7 +32,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				           |not found in the certificate catalog.';"), Parameters.Ref));
 			Return;
 		EndIf;
-	Else // Thumbprint.
+	Else // Thumbprint
 		CertificateAddress = CertificateAddress(Parameters.Thumbprint, UUID);
 		
 		If Not ValueIsFilled(CertificateAddress) Then
@@ -297,7 +295,7 @@ EndProcedure
 
 #Region Private
 
-// Continues the Check procedure.
+// Continue the Check procedure.
 &AtClient
 Procedure ValidateCompletion(Result, Context) Export
 	
@@ -504,15 +502,15 @@ Procedure AddProperty(PropertiesValues, Property, Presentation, Lowercase = Unde
 	
 EndProcedure
 
-// Transforms certificate purposes into purpose codes.
+// Converts certificate assignments to destination codes.
 //
 // Parameters:
-//  Purpose    - String - Multiline certificate purpose. For example:
-//                           "Microsoft Encrypted File System (1.3.6.1.4.1.311.10.3.4)
-//                           |E-mail Protection (1.3.6.1.5.5.7.3.4)
-//                           |TLS Web Client Authentication (1.3.6.1.5.5.7.3.2)".
+//  Purpose    - String - :
+//                           
+//                           
+//                           
 //  
-//  PurposeCodes - String - purpose codes "1.3.6.1.4.1.311.10.3.4, 1.3.6.1.5.5.7.3.4, 1.3.6.1.5.5.7.3.2".
+//  PurposeCodes - String -  destination codes "1.3.6.1.4.1.311.10.3.4, 1.3.6.1.5.5.7.3.4, 1.3.6.1.5.5.7.3.2".
 //
 &AtServer
 Procedure FillCertificatePurposeCodes(Purpose, PurposeCodes)

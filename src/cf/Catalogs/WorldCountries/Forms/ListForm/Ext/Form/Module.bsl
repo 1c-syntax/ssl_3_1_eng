@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Initialize internal flags.
+	// 
 	CanAddToCatalog = ContactsManagerInternal.HasRightToAdd();
 	
 	If Metadata.CommonModules.Find("AddressManager") = Undefined Then
@@ -28,15 +26,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	OnlyClassifierData = Parameters.OnlyClassifierData;
 	ChoiceMode = Parameters.ChoiceMode;
 	
-	// Allow elements.
+	// 
 	Items.List.ChoiceMode = ChoiceMode;
 	CommonClientServer.SetFormItemProperty(Items, "ListChoose", "DefaultButton", ChoiceMode);
 	Items.Create.Visible  = CanAddToCatalog;
 	
 	If Not ClassifierDataAvailable Then
-		// Showing catalog items only.
+		// 
 		Items.ListClassifier.Visible = False;
-		// Hide classifier's buttons.
+		// 
 		Items.ListSelectFromClassifier.Visible = False;
 		Items.ListClassifier.Visible           = False;
 		
@@ -52,22 +50,22 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ChoiceMode Then
 		If OnlyClassifierData Then
 			If CanAddToCatalog Then
-				// Selecting only countries listed in the classifier.
+				// 
 				OpenClassifierForm = True
 				
 			Else
-				// Showing only items present both in the catalog and in the classifier.
+				// 
 				SetCatalogAndClassifierIntersectionFilter();
-				// Hide classifier's buttons.
+				// 
 				Items.ListSelectFromClassifier.Visible = False;
 				Items.ListClassifier.Visible           = False;
 			EndIf;
 			
 		Else
 			If CanAddToCatalog Then 
-				// Showing classifier and classifier selection button. These are the default settings.
+				// 
 			Else
-				// Hide classifier's buttons.
+				// 
 				Items.ListSelectFromClassifier.Visible = False;
 				Items.ListClassifier.Visible           = False;
 			EndIf;
@@ -81,7 +79,7 @@ EndProcedure
 Procedure OnOpen(Cancel)
 	
 	If OpenClassifierForm Then
-		// Selecting only countries listed in the classifier; opening classifier form for selection.
+		// 
 		OpeningParameters = New Structure;
 		OpeningParameters.Insert("ChoiceMode",        True);
 		OpeningParameters.Insert("CloseOnChoice", CloseOnChoice);
@@ -110,7 +108,7 @@ EndProcedure
 Procedure ListChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 	If ChoiceMode Then
-		NotifyChoice(ValueSelected); // Select from the classifier.
+		NotifyChoice(ValueSelected); // 
 	EndIf;
 	
 EndProcedure
@@ -127,7 +125,7 @@ EndProcedure
 &AtClient
 Procedure OpenClassifier(Command)
 	
-	// Open for viewing.
+	// 
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("CurrentRow", Items.List.CurrentRow);
 	
@@ -138,7 +136,7 @@ EndProcedure
 &AtClient
 Procedure SelectFromClassifier(Command)
 	
-	// Open for selection.
+	// 
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("ChoiceMode", True);
 	OpeningParameters.Insert("CloseOnChoice", CloseOnChoice);
@@ -171,7 +169,7 @@ EndProcedure
 Procedure RefreshCountriesListDisplay()
 	
 	If RefFilterItemID <> Undefined Then
-		// An additional filter is set and it is to be updated.
+		// 
 		SetCatalogAndClassifierIntersectionFilter();
 	EndIf;
 	

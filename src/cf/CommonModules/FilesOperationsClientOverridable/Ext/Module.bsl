@@ -1,20 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Called when an error occurs when capturing a file.
+// Called when a file capture error occurs.
 //
 // Parameters:
 //  FileData          - See FilesOperations.FileData.
-//  StandardProcessing - Boolean - indicates a standard event processing.
+//  StandardProcessing - Boolean -  indicates standard event handling.
 //
 Procedure OnFileCaptureError(FileData, StandardProcessing) Export
 

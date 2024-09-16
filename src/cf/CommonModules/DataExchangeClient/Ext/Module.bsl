@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Handler procedure intended to close the exchange plan node settings form.
+// 
 //
 // Parameters:
-//  Form - ClientApplicationForm - a form the procedure is called from.
+//  Form - ClientApplicationForm -  the form from which the procedure is called.
 // 
 Procedure NodesSetupFormCloseFormCommand(Form) Export
 	
@@ -27,10 +25,10 @@ Procedure NodesSetupFormCloseFormCommand(Form) Export
 	
 EndProcedure
 
-// Handler procedure intended to close the exchange plan node settings form.
+// Procedure-handler for closing the exchange plan node configuration form.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a form the procedure is called from.
+//  Form - ClientApplicationForm -  the form from which the procedure is called.
 // 
 Procedure NodeSettingsFormCloseFormCommand(Form) Export
 	
@@ -38,10 +36,10 @@ Procedure NodeSettingsFormCloseFormCommand(Form) Export
 	
 EndProcedure
 
-// Handler procedure intended to close the form for setting default exchange plan node values.
+// Procedure-handler for closing the exchange plan node default settings form.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a form the procedure is called from.
+//  Form - ClientApplicationForm -  the form from which the procedure is called.
 // 
 Procedure DefaultValueSetupFormCloseFormCommand(Form) Export
 	
@@ -49,19 +47,19 @@ Procedure DefaultValueSetupFormCloseFormCommand(Form) Export
 	
 EndProcedure
 
-// Handler procedure intended to close the exchange plan node settings form.
+// Procedure-handler for closing the exchange plan node configuration form.
 //
 // Parameters:
-//  Cancel            - Boolean           - a flag showing whether form closing is canceled.
-//  Form            - ClientApplicationForm - a form the procedure is called from.
-//  Exit - Boolean           - indicates whether the form closes when a user exits the application.
+//  Cancel            - Boolean           -  indicates whether the form is not closed.
+//  Form            - ClientApplicationForm -  the form from which the procedure is called.
+//  Exit - Boolean           -  indicates that the form is being closed while the application is shutting down.
 // 
 // Example:
 //
-//	&AtClient
-//	Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
-//		DataExchangeClient.SetupFormBeforeClose(Cancel,ThisObject,WorkCompletion);
-//	EndProcedure
+//	&Naciente
+//	Procedure Prezcription(Denial, Superseniority, Textpageprivate, Standartnaya)
+//		Abendanimation.Formanastruction Before Closing(Failure, This Object, Completion Of Work);
+//	End of procedure
 //
 Procedure SetupFormBeforeClose(Cancel, Form, Exit) Export
 	
@@ -86,12 +84,12 @@ Procedure SetupFormBeforeClose(Cancel, Form, Exit) Export
 	
 EndProcedure
 
-// Opens the form of data exchange settings wizard for the specified exchange plan.
+// Opens the form assistant to set up communication for a given exchange.
 //
 // Parameters:
-//  ExchangePlanName         - String - a name of the exchange plan (as a metadata object)
-//                                    for which the wizard is to be opened.
-//  SettingID - String - ID of data exchange settings option.
+//  ExchangePlanName         - String -  name of the exchange plan as the metadata object
+//                                    to open the assistant for.
+//  SettingID - String -  ID of the data exchange configuration option.
 // 
 Procedure OpenDataExchangeSetupWizard(Val ExchangePlanName, Val SettingID) Export
 	
@@ -106,16 +104,16 @@ Procedure OpenDataExchangeSetupWizard(Val ExchangePlanName, Val SettingID) Expor
 	
 EndProcedure
 
-// Handler of item choice start for correspondent base node settings form on setting exchange through
-// external connection.
+// Handler for starting the selection of an element for the form for setting up the correspondent database node settings when setting up an exchange via
+// an external connection.
 //
 // Parameters:
-//  AttributeName - String - a form attribute name.
-//  TableName - String - Full name of a metadata object.
-//  Owner - ClientApplicationForm - a form to select the correspondent base items.
-//  StandardProcessing - Boolean - indicates whether standard (system) event processing is executed.
+//  AttributeName - String -  name of the form's details.
+//  TableName - String -  full name of the metadata object.
+//  Owner - ClientApplicationForm -  form for selecting elements of the corresponding database.
+//  StandardProcessing - Boolean -  indicates whether standard (system) event processing is performed.
 //  ExternalConnectionParameters - Structure
-//  ChoiceParameters - Structure - a structure of choice parameters.
+//  ChoiceParameters - Structure -  structure of selection parameters.
 //
 Procedure CorrespondentInfobaseItemSelectionHandlerStartChoice(Val AttributeName, Val TableName, Val Owner,
 	Val StandardProcessing, Val ExternalConnectionParameters, Val ChoiceParameters=Undefined) Export
@@ -156,15 +154,15 @@ Procedure CorrespondentInfobaseItemSelectionHandlerStartChoice(Val AttributeName
 	
 EndProcedure
 
-// Handler of picking up items for correspondent base node settings form on setting exchange through external
+// Handler for selecting elements for the form for setting up the corresponding database node settings when setting up exchange via an external
 // connection.
 //
 // Parameters:
-//  AttributeName - String - a form attribute name.
-//  TableName - String - Full name of a metadata object.
-//  Owner - ClientApplicationForm - a form to select the correspondent base items.
+//  AttributeName - String -  name of the form's details.
+//  TableName - String -  full name of the metadata object.
+//  Owner - ClientApplicationForm -  form for selecting elements of the corresponding database.
 //  ExternalConnectionParameters - Structure
-//  ChoiceParameters - Structure - a structure of choice parameters.
+//  ChoiceParameters - Structure -  structure of selection parameters.
 //
 Procedure CorrespondentInfobaseItemSelectionHandlerPick(Val AttributeName, Val TableName, Val Owner,
 	Val ExternalConnectionParameters, Val ChoiceParameters=Undefined) Export
@@ -196,14 +194,14 @@ Procedure CorrespondentInfobaseItemSelectionHandlerPick(Val AttributeName, Val T
 	OpenForm("CommonForm.SelectCorrespondentInfobaseObjects", FormParameters, Owner);
 EndProcedure
 
-// Handler of item choice processing for correspondent base node settings form on setting exchange through
-// external connection.
+// Handler for processing the element selection for the form for setting up the correspondent database node settings when setting up an exchange via
+// an external connection.
 //
 // Parameters:
 //  Item - ClientApplicationForm
-//          - FormTable - an item to process selection.
-//  ValueSelected - Arbitrary - see the SelectedValue parameter description of the ChoiceProcessing event.
-//  FormDataCollection - FormDataCollection - for picking from list.
+//          - FormTable - 
+//  ValueSelected - Arbitrary - see the description of the parameter Selected Value of the Selection Processing event.
+//  FormDataCollection - FormDataCollection -  for the selection mode from the list.
 //
 Procedure CorrespondentInfobaseItemsSelectionHandlerChoiceProcessing(Val Item, Val ValueSelected, Val FormDataCollection=Undefined) Export
 	
@@ -243,13 +241,13 @@ Procedure CorrespondentInfobaseItemsSelectionHandlerChoiceProcessing(Val Item, V
 	
 EndProcedure
 
-// Checks whether the Use flag is set for all table rows.
+// Checks whether the "Use" flag is set for all rows in the table.
 //
 // Parameters:
-//  Table - ValueTable - a table to be checked.
+//  Table - ValueTable -  the table being checked.
 //
 // Returns:
-//  Boolean - the flag that indicates using all items.
+//  Boolean - 
 //
 Function AllRowsMarkedInTable(Table) Export
 	
@@ -266,10 +264,10 @@ Function AllRowsMarkedInTable(Table) Export
 	Return True;
 EndFunction
 
-// Deletes data synchronization settings item.
+// Deletes the data synchronization setting.
 //
 // Parameters:
-//   InfobaseNode - ExchangePlanRef - an exchange plan node corresponding to the exchange to be disabled.
+//   InfobaseNode - ExchangePlanRef -  the exchange plan node that corresponds to the exchange that is being disabled.
 //
 Procedure DeleteSynchronizationSetting(Val InfobaseNode) Export
 	
@@ -286,12 +284,12 @@ Procedure DeleteSynchronizationSetting(Val InfobaseNode) Export
 	
 EndProcedure
 
-// Handler of the exchange plan node save. If required, saves the node by a long-running operation
+// The procedure is the handler of the exchange plan node entry. If necessary, performs node recording using a long operation
 //
 // Parameters:
-//  Form - ClientApplicationForm - an exchange plan node.
-//  Cancel - Boolean - indicates whether the exchange plan node save is canceled.
-//  WriteParameters - Structure - arbitrary save parameters. See the AfterWrite event details in Syntax Assistant.
+//  Form - ClientApplicationForm -  the site plan of exchange.
+//  Cancel - Boolean -  a sign of refusal to record the exchange plan node.
+//  WriteParameters - Structure -  arbitrary recording parameters. See the description of the post-recording event in the syntax Assistant.
 //
 Procedure BeforeWrite(Form, Cancel, WriteParameters) Export
 	
@@ -329,13 +327,13 @@ Procedure BeforeWrite(Form, Cancel, WriteParameters) Export
 	
 EndProcedure
 
-// A URL handler of the node form. Applies to the elements that were created programmatically.
-// Supports only SaaS infobases.
+// 
+// 
 //
 // Parameters:
-//  Form - ClientApplicationForm - an exchange plan node.
+//  Form - ClientApplicationForm -  the site plan of exchange.
 //  Item - FormItems
-//  URL -  String - The generated URL.
+//  URL -  String - 
 //  StandardProcessing - Boolean
 //
 Procedure HandleURLInNodeForm(Form, Item, URL, StandardProcessing) Export
@@ -350,7 +348,7 @@ Procedure HandleURLInNodeForm(Form, Item, URL, StandardProcessing) Export
 	
 EndProcedure
 
-// Opens the data synchronization settings panel.
+// 
 //
 // Parameters:
 //  CommandParameter - Structure
@@ -400,22 +398,22 @@ EndProcedure
 
 #Region Internal
 
-// Modally opens the event log with filter by data export or import events for the specified exchange plan
-// node.
+// Opens the log modally with selection based on data upload or download events for the specified
+// exchange plan node.
 //
 Procedure GoToDataEventLogModally(InfobaseNode, Owner, ActionOnExchange) Export
 	
-	// Server call.
+	// 
 	FormParameters = DataExchangeServerCall.EventLogFilterData(InfobaseNode, ActionOnExchange);
 	
 	OpenForm("DataProcessor.EventLog.Form", FormParameters, Owner);
 	
 EndProcedure
 
-// Returns the name of the message form that contains a notification about an infobase update error that occurs due to an ORR error.
+// Returns the name of the failed update message form for an error in the PRO when updating the information database.
 // 
 // Returns:
-//  String - a name of failed update message form.
+//  String - 
 //
 Function FailedUpdateMessageFormName() Export
 	
@@ -423,7 +421,7 @@ Function FailedUpdateMessageFormName() Export
 	
 EndFunction
 
-// Updates database configuration.
+// Updates the database configuration.
 //
 Procedure InstallConfigurationUpdate(ShouldExitApp = False) Export
 	
@@ -437,7 +435,7 @@ Procedure InstallConfigurationUpdate(ShouldExitApp = False) Export
 	
 EndProcedure
 
-// Opens the form of monitor for data registered for sending.
+// Opens the form for the monitor of registered data to be sent.
 //
 Procedure OpenCompositionOfDataToSend(Val InfobaseNode) Export
 	
@@ -445,7 +443,7 @@ Procedure OpenCompositionOfDataToSend(Val InfobaseNode) Export
 	FormParameters.Insert("ExchangeNode", InfobaseNode);
 	FormParameters.Insert("SelectExchangeNodeProhibited", True);
 	
-	// Internal data that cannot be modified if the data processor is called from a command.
+	// 
 	FormParameters.Insert("NamesOfMetadataToHide", New ValueList);
 	FormParameters.NamesOfMetadataToHide.Add("InformationRegister.InfobaseObjectsMaps");
 	
@@ -458,7 +456,7 @@ Procedure OpenCompositionOfDataToSend(Val InfobaseNode) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
@@ -470,8 +468,8 @@ Procedure BeforeStart(Parameters) Export
 				
 	EndIf;
 	
-	// When launching the infobase on a child node and reimporting exchange messages
-	// is required, let the user decide if the import starts or skip it and resume.
+	// 
+	// 
 	// 
 	// 
 	
@@ -528,7 +526,7 @@ Procedure AfterStart() Export
 	
 EndProcedure
 
-// Opens a form for writing information register by a given filter.
+// Opens the data register entry form for the specified selection.
 Procedure OpenInformationRegisterWriteFormByFilter(
 		Filter,
 		FillingValues,
@@ -543,7 +541,7 @@ Procedure OpenInformationRegisterWriteFormByFilter(
 	EmptyRecordSet = DataExchangeServerCall.RegisterRecordSetIsEmpty(Filter, RegisterName);
 	
 	If Not EmptyRecordSet Then
-		// Filling value type using the Type operator because other methods are not available at client.
+		// 
 		
 		ValueType = Type("InformationRegisterRecordKey." + RegisterName);
 		Parameters = New Array(1);
@@ -579,7 +577,7 @@ Procedure OpenInformationRegisterWriteFormByFilter(
 		
 	EndIf;
 	
-	// Opening the information register record form.
+	// 
 	If ClosingNotification1 <> Undefined Then
 		OpenForm(FullFormName, WriteParameters, OwnerForm, , , , ClosingNotification1);
 	Else
@@ -605,11 +603,11 @@ Procedure UpdateIdleHandlerParameters(IdleHandlerParameters) Export
 		
 EndProcedure
 
-// Opens the form of data exchange execution for the specified exchange plan node.
+// Opens the data exchange execution form for the specified exchange plan node.
 //
 // Parameters:
-//  InfobaseNode - ExchangePlanRef - an exchange plan node for which the form is to open;
-//  Owner               - Form-an owner of the form being opened;
+//  InfobaseNode - ExchangePlanRef -  exchange plan node to open the form for;
+//  Owner               - Form-owner for the form to open;
 // 
 Procedure ExecuteDataExchangeCommandProcessing(InfobaseNode, Owner,
 		AccountPasswordRecoveryAddress = "", Val AutoSynchronization = Undefined, AdditionalParameters = Undefined) Export
@@ -650,11 +648,11 @@ Procedure ExecuteDataExchangeCommandProcessing(InfobaseNode, Owner,
 	
 EndProcedure
 
-// Starts receiving a file from the server interactively without using 1C:Enterprise Extension.
+// Starts getting a file from the server interactively, without an extension for working with files.
 //
 // Parameters:
-//     FileToReceive   - Structure - details of the file to be received. It contains the Name and Location properties.
-//     DialogParameters - Structure - optional additional parameters of file selection dialog.
+//     FileToReceive   - Structure -  description of the file to get. Contains the Name and Storage properties.
+//     DialogParameters - Structure -  optional additional parameters of the file selection dialog.
 //
 Procedure SelectAndSaveFileAtClient(Val FileToReceive, Val DialogParameters = Undefined) Export
 	
@@ -683,13 +681,13 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Internal export functions for retrieving properties.
+// 
 
-// Returns the maximum number of fields
-// to be displayed in the infobase object mapping wizard.
+// Returns the maximum allowed number of fields
+// that are displayed in the information security object mapping assistant.
 //
 // Returns:
-//     Number - maximum number of fields for mapping.
+//     Number - 
 //
 Function MaxObjectsMappingFieldsCount() Export
 	
@@ -697,7 +695,7 @@ Function MaxObjectsMappingFieldsCount() Export
 	
 EndFunction
 
-// Returns the structure of data import execution statuses.
+// Returns the structure of data loading progress statuses.
 //
 Function DataImportStatusPages() Export
 	
@@ -714,7 +712,7 @@ Function DataImportStatusPages() Export
 	Return Structure;
 EndFunction
 
-// Returns the structure of data export execution statuses.
+// Returns the structure status of implementation of discharge data.
 //
 Function DataExportStatusPages() Export
 	
@@ -731,7 +729,7 @@ Function DataExportStatusPages() Export
 	Return Structure;
 EndFunction
 
-// Returns a structure with name of data import field hyperlink.
+// Returns a structure with the hyperlink name of the data loading field.
 //
 Function DataImportHyperlinksHeaders() Export
 	
@@ -748,7 +746,7 @@ Function DataImportHyperlinksHeaders() Export
 	Return Structure;
 EndFunction
 
-// Returns a structure with name of data export field hyperlink.
+// Returns a structure with the hyperlink name of the data upload field.
 //
 Function DataExportHyperlinksHeaders() Export
 	
@@ -781,7 +779,7 @@ Procedure OpenSynchronizationDetails(RefToDetails) Export
 	
 EndProcedure
 
-// Opens a proxy server parameters form.
+// Opens a form to enter the parameters of the proxy server.
 //
 Procedure OpenProxyServerParametersForm() Export
 	
@@ -799,7 +797,7 @@ Procedure OpenProxyServerParametersForm() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+// 
 
 // For internal use only.
 //
@@ -817,7 +815,7 @@ Procedure RetryDataExchangeMessageImportBeforeStartInteractiveHandler(Parameters
 EndProcedure
 
 // For internal use only. Continuation of the procedure.
-// InteractiveHandlerRetryDataExchangeMessageImportBeforeStart.
+// Interactive processing re-booting the message exchange before starting.
 //
 Procedure AfterCloseFormDataResynchronizationBeforeStart(Result, Parameters) Export
 	
@@ -833,7 +831,7 @@ Procedure AfterCloseFormDataResynchronizationBeforeStart(Result, Parameters) Exp
 EndProcedure
 
 // For internal use only. Continuation of the procedure.
-// SetupFormBeforeClose.
+// Permanentrepresentative.
 //
 Procedure SetupFormBeforeCloseCompletion(Response, Form) Export
 	
@@ -844,16 +842,16 @@ Procedure SetupFormBeforeCloseCompletion(Response, Form) Export
 	Form.Modified = False;
 	Form.Close();
 	
-	// Clearing cached values to reset COM connections.
+	// 
 	RefreshReusableValues();
 EndProcedure
 
-// Opens a file in the operating system's associated application.
+// Opens a file in the associated operating system application.
 //
 // Parameters:
-//     Object               - Arbitrary - an object from which the name of the file to open is retrieved by property name.
-//     PropertyName          - String       - a name of the object property that contains the name of the file to open.
-//     StandardProcessing - Boolean       - the flag of standard processing, it is set to False.
+//     Object               - Arbitrary -  object from which the name of the property will be used to get the name of the file to open.
+//     PropertyName          - String       -  name of the object property from which the file name to open will be obtained.
+//     StandardProcessing - Boolean       -  the standard processing flag is set to False.
 //
 Procedure FileOrDirectoryOpenHandler(Object, PropertyName, StandardProcessing = False) Export
 	StandardProcessing = False;
@@ -867,19 +865,19 @@ Procedure FileOrDirectoryOpenHandler(Object, PropertyName, StandardProcessing = 
 	
 EndProcedure
 
-// Opens a dialog box to select a file directory and prompts to install 1C:Enterprise Extension.
+// Opens a dialog for selecting a file directory, requesting the installation of an extension for working with files.
 //
 // Parameters:
-//     Object                - Arbitrary       - an object to set the property being selected in.
-//     PropertyName           - String             - a name of the property that contains the name of the file being set in the object. Source of
-//                                                  the initial value.
-//     StandardProcessing  - Boolean             - the flag of standard processing, it is set to False.
-//     DialogParameters      - Structure          - optional additional parameters of the directory selection dialog.
-//     CompletionNotification  - NotifyDescription - an optional notification that is called with the following
-//                                                  parameters:
-//                                 Result               - String - the selected value (array of strings if
-//                                                                    multiple selection is used);
-//                                 AdditionalParameters - Undefined.
+//     Object                - Arbitrary       -  the object where the selected property will be set.
+//     PropertyName           - String             -  name of the property with the name of the file to set in the object. Source
+//                                                  of the initial value.
+//     StandardProcessing  - Boolean             -  the standard processing flag is set to False.
+//     DialogParameters      - Structure          -  optional additional parameters of the folder selection dialog.
+//     CompletionNotification  - NotifyDescription - 
+//                                                  :
+//                                 
+//                                                                    
+//                                 
 //
 Procedure FileDirectoryChoiceHandler(Object, Val PropertyName, StandardProcessing = False, Val DialogParameters = Undefined, CompletionNotification = Undefined) Export
 	StandardProcessing = False;
@@ -901,7 +899,7 @@ Procedure FileDirectoryChoiceHandler(Object, Val PropertyName, StandardProcessin
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 // 
 Procedure FileDirectoryChoiceHandlerCompletionAfterChoiceInDialog(PathToDirectory, AdditionalParameters) Export
 	
@@ -918,21 +916,21 @@ Procedure FileDirectoryChoiceHandlerCompletionAfterChoiceInDialog(PathToDirector
 	
 EndProcedure
 
-// Opens a file selection dialog box and prompts to install 1C:Enterprise Extension.
+// Opens a dialog for selecting a file, requesting the installation of an extension for working with files.
 //
 // Parameters:
-//     Object                - Arbitrary       - an object to set the property being selected in.
-//     PropertyName           - String             - a name of the property that contains the name of the file being set in the object. Source of
-//                                                  the initial value.
-//     StandardProcessing  - Boolean             - the flag of standard processing, it is set to False.
-//     DialogParameters      - Structure          - optional additional parameters of the file selection dialog.
-//     CompletionNotification  - NotifyDescription - an optional notification that is called with the following
-//                                                  parameters:
-//                                 Result               - String
-//                                                         - Undefined - the selected value (array of strings
-//                                                                          if multiple selection is used), or
-//                                                                          Undefined if nothing was selected;
-//                                 AdditionalParameters - Undefined.
+//     Object                - Arbitrary       -  the object where the selected property will be set.
+//     PropertyName           - String             -  name of the property with the name of the file to set in the object. Source
+//                                                  of the initial value.
+//     StandardProcessing  - Boolean             -  the standard processing flag is set to False.
+//     DialogParameters      - Structure          - 
+//     CompletionNotification  - NotifyDescription - 
+//                                                  :
+//                                 
+//                                                         - Undefined - 
+//                                                                          
+//                                                                          
+//                                 
 //
 //
 Procedure FileSelectionHandler(Object, Val PropertyName, StandardProcessing = False, Val DialogParameters = Undefined, CompletionNotification = Undefined) Export
@@ -963,7 +961,7 @@ Procedure FileSelectionHandler(Object, Val PropertyName, StandardProcessing = Fa
 	
 EndProcedure
 
-// Handler of asynchronous file selection dialog (completion).
+// Handler for the asynchronous file selection dialog (completion).
 //
 Procedure FileSelectionHandlerCompletion(SelectedFiles, AdditionalParameters) Export
 	
@@ -990,18 +988,18 @@ Procedure FileSelectionHandlerCompletion(SelectedFiles, AdditionalParameters) Ex
 	
 EndProcedure
 
-// Sends a file to the server interactively without using 1C:Enterprise Extension.
+// Sends the file to the server interactively, without an extension for working with files.
 //
 // Parameters:
-//     CompletionNotification - NotifyDescription - an export procedure that is called with the following
-//                                                 parameters:
-//                                Result               - Structure - with the following fields: Name, Storage, and ErrorDetails.
-//                                AdditionalParameters - Undefined.
+//     CompletionNotification - NotifyDescription - 
+//                                                 :
+//                                
+//                                
 //
-//     DialogParameters     - Structure                       - optional additional parameters of file selection
-//                                                              dialog.
+//     DialogParameters     - Structure                       -  optional additional parameters
+//                                                              of the file selection dialog.
 //     FormIdentifier   - String
-//                          - UUID - a parameter for the storage.
+//                          - UUID - 
 //
 Procedure SelectAndSendFileToServer(CompletionNotification, Val DialogParameters = Undefined, Val FormIdentifier = Undefined) Export
 	
@@ -1026,7 +1024,7 @@ Procedure SelectAndSendFileToServer(CompletionNotification, Val DialogParameters
 
 EndProcedure
 
-// Handler of completing non-modal choice and transferring files to the server.
+// Handler for non-modal completion of file selection and transfer to the server.
 //
 Procedure SelectAndSendFileToServerAfterChoiceInDialogCompletion(FileThatWasPut, AdditionalParameters) Export
 	
@@ -1038,7 +1036,7 @@ Procedure SelectAndSendFileToServerAfterChoiceInDialogCompletion(FileThatWasPut,
 	Result.Name      = FileThatWasPut.Name;
 	Result.Location = FileThatWasPut.Location;
 	
-	// Notify the caller.
+	// 
 	ExecuteNotifyProcessing(AdditionalParameters.CompletionNotification, Result);
 	
 EndProcedure
@@ -1046,7 +1044,7 @@ EndProcedure
 // Adds fields to the target structure if they are not there.
 //
 // Parameters:
-//     Result           - Structure - a target structure.
+//     Result           - Structure -  target structure.
 //     DefaultValues - Structure
 //
 Procedure SetDefaultStructureValues(Result, Val DefaultValues)
@@ -1064,7 +1062,7 @@ Procedure SetDefaultStructureValues(Result, Val DefaultValues)
 	
 EndProcedure
 
-// Opens the form for importing conversion and registration rules as a single file.
+// Opens the form for uploading conversion and registration rules as a single file.
 //
 Procedure ImportDataSyncRules(Val ExchangePlanName) Export
 	
@@ -1075,7 +1073,7 @@ Procedure ImportDataSyncRules(Val ExchangePlanName) Export
 	
 EndProcedure
 
-// Opens the event log filtered by export or import events for the specified exchange plan node.
+// Opens the log with selection based on data upload or download events for the specified exchange plan node.
 // 
 Procedure GoToDataEventLog(InfobaseNode, CommandExecuteParameters, ActionOnStringExchange) Export
 	
@@ -1094,19 +1092,19 @@ Function DataExchangeEventLogEvent() Export
 	
 EndFunction
 
-// Opens the form of interactive data exchange execution for the specified exchange plan node.
+// Opens the interactive data exchange execution form for the specified exchange plan node.
 //
 // Parameters:
-//  InfobaseNode  - ExchangePlanRef - an exchange plan node for which the form is to open;
-//  Owner                - Form-an owner of the form being opened;
-//  AdditionalParameters - Structure - a structure of additional opening parameters of the wizard:
-//    * WizardParameters  - Structure - an arbitrary structure to be passed to the wizard form that is being opened;
-//    * ClosingNotification1 - NotifyDescription - description of a notification to be called upon closing the wizard form.
+//  InfobaseNode  - ExchangePlanRef -  exchange plan node to open the form for;
+//  Owner                - Form-owner for the form to open;
+//  AdditionalParameters - Structure - :
+//    * WizardParameters  - Structure -  custom structure that will be passed to the helper form that opens;
+//    * ClosingNotification1 - NotifyDescription -  description of the alert that will be triggered when the assistant form is closed.
 //
 Procedure OpenObjectsMappingWizardCommandProcessing(InfobaseNode,
 		Owner, AdditionalParameters = Undefined) Export
 	
-	// Open the object mapping form and pass the node as the form parameter.
+	// 
 	// 
 	FormParameters = New Structure("InfobaseNode", InfobaseNode);
 	FormParameters.Insert("AdvancedExportAdditionMode", True);
@@ -1130,7 +1128,7 @@ Procedure OpenObjectsMappingWizardCommandProcessing(InfobaseNode,
 	
 EndProcedure
 
-// Opens a form for setting a new data synchronization.
+// Opens the new data synchronization settings form.
 //
 Procedure OpenNewDataSynchronizationSettingForm(NewDataSynchronizationForm = "", AdditionalParameters = Undefined) Export
 	
@@ -1142,11 +1140,11 @@ Procedure OpenNewDataSynchronizationSettingForm(NewDataSynchronizationForm = "",
 	
 EndProcedure
 
-// Opens the form of data exchange execution scenarios for the specified exchange plan node.
+// Opens the list of data exchange scenarios form for the specified exchange plan node.
 //
 // Parameters:
-//  InfobaseNode - ExchangePlanRef - an exchange plan node for which the form is to open;
-//  Owner               - Form-an owner of the form being opened;
+//  InfobaseNode - ExchangePlanRef -  exchange plan node to open the form for;
+//  Owner               - Form-owner for the form to open;
 //
 Procedure SetExchangeExecutionScheduleCommandProcessing(InfobaseNode, Owner) Export
 	
@@ -1156,7 +1154,7 @@ Procedure SetExchangeExecutionScheduleCommandProcessing(InfobaseNode, Owner) Exp
 	
 EndProcedure
 
-// Notifies all opened dynamic lists that data that is being displayed must be refreshed.
+// Notifies all open dynamic lists to update the displayed data.
 //
 Procedure RefreshAllOpenDynamicLists() Export
 	
@@ -1170,7 +1168,7 @@ Procedure RefreshAllOpenDynamicLists() Export
 	
 EndProcedure
 
-// Registers a handler for opening a new form right after closing the current one.
+// Registers a handler for opening a new form immediately after closing the current one.
 // 
 Procedure OpenFormAfterCloseCurrentOne(CurrentForm, Val FormName, Val Parameters = Undefined, Val OpeningParameters = Undefined) Export
 	
@@ -1184,7 +1182,7 @@ Procedure OpenFormAfterCloseCurrentOne(CurrentForm, Val FormName, Val Parameters
 	CurrentForm.OnCloseNotifyDescription = New NotifyDescription("FormOpeningHandlerAfterCloseCurrentOne", ThisObject, AdditionalParameters);
 EndProcedure
 
-// Deferred opening
+// Delayed opening
 Procedure FormOpeningHandlerAfterCloseCurrentOne(Val ClosingResult, Val AdditionalParameters) Export
 	
 	OpeningParameters = New Structure("Owner, Uniqueness, Window, URL, OnCloseNotifyDescription, WindowOpeningMode");
@@ -1199,8 +1197,8 @@ Procedure FormOpeningHandlerAfterCloseCurrentOne(Val ClosingResult, Val Addition
 	
 EndProcedure
 
-// Opens the instruction for restoring or changing the password for data synchronization
-// with a standalone workstation.
+// Opens instructions for restoring / changing the password for syncing data
+// with an offline workplace.
 //
 Procedure OpenInstructionHowToChangeDataSynchronizationPassword(Val AccountPasswordRecoveryAddress) Export
 	
@@ -1217,7 +1215,7 @@ Procedure OpenInstructionHowToChangeDataSynchronizationPassword(Val AccountPassw
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+// 
 
 Procedure OnCloseExchangePlanNodeSettingsForm(Form, FormAttributeName)
 	
@@ -1257,18 +1255,18 @@ Procedure OnCloseExchangePlanNodeSettingsForm(Form, FormAttributeName)
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-// INTERNAL API FOR INTERACTIVE EXPORT ADDITION
+// 
 //
 
-// Processing interactive addition dialog boxes.
+// Processing interactive extension dialogs.
 //
 // Parameters:
 //     ExportAddition           - Structure
-//                                  - FormDataStructure - export settings.
-//     Owner, Uniqueness, Window - parameters for opening the form window.
+//                                  - FormDataStructure - 
+//     Owner, Uniqueness, Window-parameters for opening the form window.
 //
 // Returns:
-//     Opened form
+//     Open form
 //
 Function OpenExportAdditionFormNodeScenario(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	
@@ -1281,15 +1279,15 @@ Function OpenExportAdditionFormNodeScenario(Val ExportAddition, Val Owner=Undefi
 		FormParameters, Owner, Uniqueness, Window);
 EndFunction
 
-// Processing interactive addition dialog boxes.
+// Processing interactive extension dialogs.
 //
 // Parameters:
 //     ExportAddition           - Structure
-//                                  - FormDataStructure - export settings.
-//     Owner, Uniqueness, Window - parameters for opening the form window.
+//                                  - FormDataStructure - 
+//     Owner, Uniqueness, Window-parameters for opening the form window.
 //
 // Returns:
-//     Opened form
+//     Open form
 //
 Function OpenExportAdditionFormAllDocuments(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	FormParameters = New Structure;
@@ -1308,15 +1306,15 @@ Function OpenExportAdditionFormAllDocuments(Val ExportAddition, Val Owner=Undefi
 		FormParameters, Owner, Uniqueness, Window);
 EndFunction
 
-// Processing interactive addition dialog boxes.
+// Processing interactive extension dialogs.
 //
 // Parameters:
 //     ExportAddition           - Structure
-//                                  - FormDataStructure - export settings.
-//     Owner, Uniqueness, Window - parameters for opening the form window.
+//                                  - FormDataStructure - 
+//     Owner, Uniqueness, Window-parameters for opening the form window.
 //
 // Returns:
-//     Opened form
+//     Open form
 //
 Function OpenExportAdditionFormDetailedFilter(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	FormParameters = New Structure;
@@ -1329,15 +1327,15 @@ Function OpenExportAdditionFormDetailedFilter(Val ExportAddition, Val Owner=Unde
 		FormParameters, Owner, Uniqueness, Window);
 EndFunction
 
-// Processing interactive addition dialog boxes.
+// Processing interactive extension dialogs.
 //
 // Parameters:
 //     ExportAddition           - Structure
-//                                  - FormDataStructure - export settings.
-//     Owner, Uniqueness, Window - parameters for opening the form window.
+//                                  - FormDataStructure - 
+//     Owner, Uniqueness, Window-parameters for opening the form window.
 //
 // Returns:
-//     Opened form
+//     Open form
 //
 Function OpenExportAdditionFormDataComposition(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	FormParameters = New Structure;
@@ -1351,20 +1349,20 @@ Function OpenExportAdditionFormDataComposition(Val ExportAddition, Val Owner=Und
 		FormParameters, Owner, Uniqueness, Window);
 EndFunction
 
-// Processing interactive addition dialog boxes.
+// Processing interactive extension dialogs.
 //
 // Parameters:
 //     ExportAddition           - Structure
-//                                  - FormDataStructure - export settings.
-//     Owner, Uniqueness, Window - parameters for opening the form window.
+//                                  - FormDataStructure - 
+//     Owner, Uniqueness, Window-parameters for opening the form window.
 //
 // Returns:
-//     Opened form
+//     Open form
 //
 Function OpenExportAdditionFormSaveSettings(Val ExportAddition, Val Owner=Undefined, Val Uniqueness=Undefined, Val Window=Undefined) Export
 	FormParameters = New Structure("CloseOnChoice, ChoiceAction", True, 3);
 	
-	// Composer is not passed to the form being opened.
+	// 
 	ExportAddition.AllDocumentsFilterComposer = Undefined;
 	
 	FormParameters.Insert("CurrentSettingsItemPresentation", ExportAddition.CurrentSettingsItemPresentation);
@@ -1374,34 +1372,34 @@ Function OpenExportAdditionFormSaveSettings(Val ExportAddition, Val Owner=Undefi
 		FormParameters, Owner, Uniqueness, Window);
 EndFunction
 
-// Selection handler for the export addition wizard form.
-// The function determines whether the source is called from the export addition and operates with the ExportAddition data.
+// Selection handler for the upload extension helpers form.
+// The function analyzes the source for a call from the upload add-on and operates with the data of the upload Add-on.
 //
 // Parameters:
-//     ValueSelected  - Arbitrary                    - selection result.
-//     ChoiceSource     - ClientApplicationForm                - a form that made the selection.
+//     ValueSelected  - Arbitrary                    -  election result.
+//     ChoiceSource     - ClientApplicationForm                -  the form that made the selection.
 //     ExportAddition - Structure
-//                        - FormDataCollection - selection addition settings that are being changed.
+//                        - FormDataCollection - 
 //
 // Returns:
-//     Boolean - True if the selection is called from one of the export addition forms, otherwise it is False.
+//     Boolean - 
 //
 Function ExportAdditionChoiceProcessing(Val ValueSelected, Val ChoiceSource, ExportAddition) Export
 	
 	If ChoiceSource.FormName="DataProcessor.InteractiveExportChange.Form.PeriodAndFilterEdit" Then
-		// Changing the "All documents" predefined filter. The action is determined by SelectedValue.
+		// 
 		Return ExportAdditionStandardOptionChoiceProcessing(ValueSelected, ExportAddition);
 		
 	ElsIf ChoiceSource.FormName="DataProcessor.InteractiveExportChange.Form.Form" Then
-		// Changing the "In detail" predefined filter. The effect is determined by SelectedValue.
+		// 
 		Return ExportAdditionStandardOptionChoiceProcessing(ValueSelected, ExportAddition);
 		
 	ElsIf ChoiceSource.FormName="DataProcessor.InteractiveExportChange.Form.SettingsCompositionEdit" Then
-		// Settings whose effect is determined by SelectedValue.
+		// 
 		Return ExportAdditionStandardOptionChoiceProcessing(ValueSelected, ExportAddition);
 		
 	ElsIf ChoiceSource.FormName=ExportAddition.AdditionScenarioParameters.AdditionalOption.FilterFormName Then
-		// Changing settings according to the node scenario.
+		// 
 		Return ExportAdditionNodeScenarioChoiceProcessing(ValueSelected, ExportAddition);
 		
 	EndIf;
@@ -1411,7 +1409,7 @@ EndFunction
 
 Procedure FillStructureData(Form)
 	
-	// Saving the values entered in this application.
+	// 
 	SettingsStructure_ = Form.Context.NodeFiltersSetting;
 	MatchingAttributes = Form.AttributesNames;
 	
@@ -1457,7 +1455,7 @@ Procedure FillStructureData(Form)
 	
 	Form.Context.NodeFiltersSetting = SettingsStructure_;
 	
-	// Saving values entered in another application.
+	// 
 	SettingsStructure_ = Form.Context.CorrespondentInfobaseNodeFilterSetup;
 	MatchingAttributes = Form.NamesOfCorrespondentsDatabaseDetails;
 	
@@ -1508,7 +1506,7 @@ Procedure FillStructureData(Form)
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-// INTERNAL PROCEDURES AND FUNCTIONS FOR INTERACTIVE EXPORT ADDITION
+// 
 //
 
 Function ExportAdditionStandardOptionChoiceProcessing(Val ValueSelected, ExportAddition)
@@ -1517,14 +1515,14 @@ Function ExportAdditionStandardOptionChoiceProcessing(Val ValueSelected, ExportA
 	If TypeOf(ValueSelected)=Type("Structure") Then 
 		
 		If ValueSelected.ChoiceAction=1 Then
-			// FIlter and period for all documents.
+			// 
 			ExportAddition.AllDocumentsFilterComposer = Undefined;
 			ExportAddition.AllDocumentsComposerAddress = ValueSelected.SettingsComposerAddress;
 			ExportAddition.AllDocumentsFilterPeriod      = ValueSelected.DataPeriod;
 			Result = True;
 			
 		ElsIf ValueSelected.ChoiceAction=2 Then
-			// Detailed setting.
+			// 
 			SelectionObject = GetFromTempStorage(ValueSelected.ObjectAddress);
 			FillPropertyValues(ExportAddition, SelectionObject, , "AdditionalRegistration");
 			ExportAddition.AdditionalRegistration.Clear();
@@ -1534,7 +1532,7 @@ Function ExportAdditionStandardOptionChoiceProcessing(Val ValueSelected, ExportA
 			Result = True;
 			
 		ElsIf ValueSelected.ChoiceAction=3 Then
-			// Settings are saved, saving the current name.
+			// 
 			ExportAddition.CurrentSettingsItemPresentation = ValueSelected.SettingPresentation;
 			Result = True;
 			
@@ -1560,13 +1558,13 @@ Function ExportAdditionNodeScenarioChoiceProcessing(Val ValueSelected, ExportAdd
 	Return True;
 EndFunction
 
-Function CheckAndRegisterCOMConnector(Val StructureOfSettings, Notification = Undefined) Export
+Function CheckAndRegisterCOMConnector(Val SettingsStructure_, Notification = Undefined) Export
 	
 	If Not CommonClient.FileInfobase() Then
 		Return True;
 	EndIf;
 	
-	If Not DataExchangeServerCall.CheckAndRegisterCOMConnector(StructureOfSettings) Then
+	If Not DataExchangeServerCall.CheckAndRegisterCOMConnector(SettingsStructure_) Then
 		CommonClient.RegisterCOMConnector(False, Notification);
 	EndIf;
 	

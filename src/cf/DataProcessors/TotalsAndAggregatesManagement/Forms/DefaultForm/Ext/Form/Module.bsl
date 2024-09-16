@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -743,7 +741,7 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Asynchronous dialog box handlers.
+// 
 
 &AtClient
 Procedure ClearAggregatesByRegistersCompletion(Response, AdditionalParameters) Export
@@ -1050,7 +1048,7 @@ Procedure GetOptimalAggregatesClientCompletion(ObtainedFiles, ExecutionResult) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client, Server.
+// 
 
 &AtClientAtServerNoContext
 Function EndOfPeriod(Val Date)
@@ -1067,7 +1065,7 @@ Function Prefix()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server call, Server.
+// 
 
 &AtServer
 Function GetOptimalAggregatesServer()
@@ -1096,7 +1094,7 @@ Function GetOptimalAggregatesServer()
 	
 	FilesToArchive = New ValueList;
 	
-	// Get aggregates.
+	// 
 	For LineNumber = 1 To Total Do
 		
 		AccumulationRegisterName = Collection[LineNumber - 1].NameOfMetadataObject;
@@ -1126,7 +1124,7 @@ Function GetOptimalAggregatesServer()
 		
 	EndDo;
 	
-	// Preparing result to be passed to client.
+	// 
 	If Success > 0 Then
 		
 		If Success = 1 Then
@@ -1153,13 +1151,13 @@ Function GetOptimalAggregatesServer()
 		
 	EndIf;
 	
-	// Clean up garbage.
+	// 
 	DeleteFiles(TempFilesDir);
 	
-	// Prepare message texts.
+	// 
 	If Total = 1 Then
 		
-		// If there is only one register.
+		// 
 		ListItem = Collection[0];
 		RegisterName = ListItem.Description;
 		If Result.HasErrors Then
@@ -1173,7 +1171,7 @@ Function GetOptimalAggregatesServer()
 		
 	ElsIf Success = 0 Then
 		
-		// That did not work.
+		// 
 		Result.HasErrors = True;
 		Result.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot receive ideal aggregates of accumulation registers due to:
@@ -1181,7 +1179,7 @@ Function GetOptimalAggregatesServer()
 		
 	ElsIf Result.HasErrors Then
 		
-		// Partially succeeded.
+		// 
 		Result.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Aggregates are successfully received for %1 of %2 registers.
 				|Not received for %3 due to:
@@ -1193,7 +1191,7 @@ Function GetOptimalAggregatesServer()
 		
 	Else
 		
-		// Successfully completed.
+		// 
 		Result.MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Accumulation registers (%1)';"), Success);
 			
@@ -1301,7 +1299,7 @@ Function SetRegisterParametersAtServer(Val RegisterType,
                                              Val RegisterName,
                                              Val Action,
                                              Val Value1,
-                                             Val Value2, // The default value is Undefined.
+                                             Val Value2, // 
                                              Val ErrorField,
                                              Val ErrorMessage)
 	

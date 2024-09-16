@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// To call from the AccountingCheckResults report command.
+// To call from the report command the result of the accounting.
 //
 // Parameters:
 //  ReportDetailsData -  DataCompositionDetailsData
@@ -76,7 +74,7 @@ Function IgnoreIssue(ReportDetailsData, SpreadsheetDocument, DetailsIndex) Expor
 	Return True;
 EndFunction
 
-// To call from the AccountingCheckResults report command.
+// To call from the report command the result of the accounting.
 //
 Function DataForObjectChangeHistory(ReportDetailsData, SpreadsheetDocument, DetailsIndex) Export
 	Details = SelectedCellDetails(ReportDetailsData, SpreadsheetDocument, DetailsIndex);
@@ -96,7 +94,7 @@ Function DataForObjectChangeHistory(ReportDetailsData, SpreadsheetDocument, Deta
 	Return Result;
 EndFunction
 
-// To call from the AccountingCheckResults report.
+// To call the accounting result from the report.
 //
 Function SelectedCellDetails(ReportDetailsData, SpreadsheetDocument, DetailsIndex) Export
 	If DetailsIndex = Undefined Then

@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Deletes one record or all records from the register.
+// Deletes either one or all entries from the register.
 //
 // Parameters:
 //  Contact  - CatalogRef
-//           - Undefined - Contact whose record is being deleted.
-//             If Undefined, the entire register will be cleared.
+//           - Undefined - 
+//             
 //
 Procedure DeleteRecordFromRegister(Contact = Undefined) Export
 	
@@ -32,12 +30,12 @@ Procedure DeleteRecordFromRegister(Contact = Undefined) Export
 	
 EndProcedure
 
-// Writes to the information register for the specified subject.
+// Writes information to the register for the specified item.
 //
 // Parameters:
-//  Contact  - CatalogRef - a contact to be recorded.
-//  NotReviewedInteractionsCount       - Number - a number of unreviewed interactions for the contact.
-//  LastInteractionDate  - Date  - a date of last interaction on the contact.
+//  Contact  - CatalogRef -  the contact that is being recorded.
+//  NotReviewedInteractionsCount       - Number -  the number of interactions not considered for the contact.
+//  LastInteractionDate  - Date  -  date of the last interaction on the contact.
 //
 Procedure ExecuteRecordToRegister(Contact, NotReviewedInteractionsCount = Undefined,
 	LastInteractionDate = Undefined) Export
@@ -91,12 +89,12 @@ Procedure ExecuteRecordToRegister(Contact, NotReviewedInteractionsCount = Undefi
 
 EndProcedure
 
-// Locks the InteractionsContactStates information register.
+// Blocks the PC state of Contactsinteractions.
 // 
 // Parameters:
-//  Block       - DataLock - a set lock.
-//  DataSource   - ValueTable - a data source to be locked.
-//  NameSourceField - String - the source field name that will be used to set the lock by contact.
+//  Block       - DataLock -  lock to be set.
+//  DataSource   - ValueTable -  the data source for the lock.
+//  NameSourceField - String -  name of the source field that will be used to set the contact lock.
 //
 Procedure BlockInteractionContactsStates(Block, DataSource, NameSourceField) Export
 	

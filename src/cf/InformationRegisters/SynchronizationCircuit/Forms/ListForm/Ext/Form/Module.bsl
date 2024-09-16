@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -46,7 +44,7 @@ Procedure SetConditionalAppearance()
 
 	ConditionalAppearance.Items.Clear();
 	
-	// Font used on this node
+	// 
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -59,7 +57,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Font", New Font(,,True));
 		
-	// Background color
+	// 
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -99,12 +97,12 @@ Procedure UpdateCircuit()
 		|ORDER BY
 		|	Order
 		|TOTALS
-		|	MAX(NodeName),
+		|	MAX(Name),
 		|	MAX(LatestUpdate),
 		|	MAX(Looping),
 		|	MAX(Order)
 		|BY
-		|	NodeCode";
+		|	Code";
 	
 	SelectionByNodes = Query.Execute().Select(QueryResultIteration.ByGroups);
 	
@@ -117,10 +115,10 @@ Procedure UpdateCircuit()
 		SelectionByPeerNodes = SelectionByNodes.Select();
 		
 		While SelectionByPeerNodes.Next() Do
-			NewRootNode = NewNode.GetItems().Add();
-			FillPropertyValues(NewRootNode, SelectionByNodes);
-			NewRootNode.Code = SelectionByPeerNodes.CorrespondentNodeCode;
-			NewRootNode.Name = SelectionByPeerNodes.PeerInfobaseNodeName;
+			NewPeerrNode = NewNode.GetItems().Add();
+			FillPropertyValues(NewPeerrNode, SelectionByNodes);
+			NewPeerrNode.Code = SelectionByPeerNodes.CorrespondentNodeCode;
+			NewPeerrNode.Name = SelectionByPeerNodes.PeerInfobaseNodeName;
 		EndDo;
 			
 	EndDo;

@@ -42,19 +42,37 @@
 							<ContextMenu name="InformationPictureContextMenu" id="63"/>
 							<ExtendedTooltip name="InformationPictureExtendedTooltip" id="64"/>
 						</PictureDecoration>
-						<LabelDecoration name="InformationDetails" id="67">
-							<AutoMaxWidth>false</AutoMaxWidth>
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>The changes that you make will take effect next time you log in to the application.</v8:content>
-								</v8:item>
-							</Title>
-							<VerticalAlign>Center</VerticalAlign>
-							<TitleHeight>2</TitleHeight>
-							<ContextMenu name="InformationDetailsContextMenu" id="68"/>
-							<ExtendedTooltip name="InformationDetailsExtendedTooltip" id="69"/>
-						</LabelDecoration>
+						<UsualGroup name="GroupUpdateInformation" id="132">
+							<GroupVerticalAlign>Center</GroupVerticalAlign>
+							<Group>Vertical</Group>
+							<VerticalAlign>Top</VerticalAlign>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupUpdateInformationExtendedTooltip" id="133"/>
+							<ChildItems>
+								<LabelDecoration name="InformationDetails" id="67">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>The changes that you make will take effect next time you log in to the application.</v8:content>
+										</v8:item>
+									</Title>
+									<GroupVerticalAlign>Center</GroupVerticalAlign>
+									<VerticalAlign>Center</VerticalAlign>
+									<TitleHeight>1</TitleHeight>
+									<ContextMenu name="InformationDetailsContextMenu" id="68"/>
+									<ExtendedTooltip name="InformationDetailsExtendedTooltip" id="69"/>
+								</LabelDecoration>
+								<Button name="FindAndInstallUpdates" id="130">
+									<Type>Hyperlink</Type>
+									<GroupVerticalAlign>Bottom</GroupVerticalAlign>
+									<CommandName>Form.Command.FindAndInstallUpdates</CommandName>
+									<ToolTipRepresentation>ShowRight</ToolTipRepresentation>
+									<ExtendedTooltip name="FindAndInstallUpdatesExtendedTooltip" id="131"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</Page>
 				<Page name="TimeConsumingOperationPage" id="117">
@@ -161,7 +179,7 @@
 								<v8:content>Delete patch</v8:content>
 							</v8:item>
 						</Title>
-						<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormDeletePatchExtendedTooltip" id="49"/>
 					</Button>
 					<Button name="InstalledPatchesExportAttachedPatches" id="125">
@@ -173,17 +191,14 @@
 								<v8:content>Export attached patches</v8:content>
 							</v8:item>
 						</Title>
+						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="InstalledPatchesExportAttachedPatchesExtendedTooltip" id="126"/>
 					</Button>
 					<Button name="InstalledPatchesClose" id="110">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.StandardCommand.Close</CommandName>
+						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="InstalledPatchesCloseExtendedTooltip" id="111"/>
-					</Button>
-					<Button name="InstalledPatchesHelp" id="72">
-						<Type>CommandBarButton</Type>
-						<CommandName>Form.StandardCommand.Help</CommandName>
-						<ExtendedTooltip name="InstalledPatchesHelpExtendedTooltip" id="73"/>
 					</Button>
 					<Button name="InstalledPatchesCustomizeForm" id="70">
 						<Type>CommandBarButton</Type>
@@ -221,6 +236,11 @@
 						<ContextMenu name="SearchStringContextMenu" id="128"/>
 						<ExtendedTooltip name="SearchStringExtendedTooltip" id="129"/>
 					</SearchStringAddition>
+					<Button name="InstalledPatchesHelp" id="72">
+						<Type>CommandBarButton</Type>
+						<CommandName>Form.StandardCommand.Help</CommandName>
+						<ExtendedTooltip name="InstalledPatchesHelpExtendedTooltip" id="73"/>
+					</Button>
 				</ChildItems>
 			</AutoCommandBar>
 			<ExtendedTooltip name="InstalledPatchesExtendedTooltip" id="4"/>
@@ -359,141 +379,6 @@
 				</LabelField>
 			</ChildItems>
 		</Table>
-		<UsualGroup name="LegendGroup" id="78">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Legend</v8:content>
-				</v8:item>
-			</Title>
-			<Group>Vertical</Group>
-			<Behavior>Usual</Behavior>
-			<Representation>None</Representation>
-			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="LegendGroupExtendedTooltip" id="79"/>
-			<ChildItems>
-				<UsualGroup name="AttachedLegendGroup" id="80">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Legend: attached</v8:content>
-						</v8:item>
-					</Title>
-					<Group>AlwaysHorizontal</Group>
-					<Behavior>Usual</Behavior>
-					<Representation>None</Representation>
-					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="AttachedLegendGroupExtendedTooltip" id="81"/>
-					<ChildItems>
-						<PictureDecoration name="AttachedPicture" id="82">
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Attached</v8:content>
-								</v8:item>
-							</Title>
-							<Picture>
-								<xr:Ref>CommonPicture.ExtensionStatesAttached</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</Picture>
-							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="AttachedPictureContextMenu" id="83"/>
-							<ExtendedTooltip name="AttachedPictureExtendedTooltip" id="84"/>
-						</PictureDecoration>
-						<LabelDecoration name="AttachedLegend" id="85">
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Extension is attached</v8:content>
-								</v8:item>
-							</Title>
-							<ContextMenu name="AttachedLegendContextMenu" id="86"/>
-							<ExtendedTooltip name="AttachedLegendExtendedTooltip" id="87"/>
-						</LabelDecoration>
-					</ChildItems>
-				</UsualGroup>
-				<UsualGroup name="WillBeAttachedLegendGroup" id="88">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Legend: will be attached</v8:content>
-						</v8:item>
-					</Title>
-					<Group>AlwaysHorizontal</Group>
-					<Behavior>Usual</Behavior>
-					<Representation>None</Representation>
-					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="WillBeAttachedLegendGroupExtendedTooltip" id="89"/>
-					<ChildItems>
-						<PictureDecoration name="WillBeAttachedPicture" id="90">
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Will be attached</v8:content>
-								</v8:item>
-							</Title>
-							<Picture>
-								<xr:Ref>CommonPicture.ExtensionStatesWillBeConnected</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</Picture>
-							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="WillBeAttachedPictureContextMenu" id="91"/>
-							<ExtendedTooltip name="WillBeAttachedPictureExtendedTooltip" id="92"/>
-						</PictureDecoration>
-						<LabelDecoration name="WillBeAttachedLegend" id="93">
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Extension will be attached after app restart</v8:content>
-								</v8:item>
-							</Title>
-							<ContextMenu name="WillBeAttachedLegendContextMenu" id="94"/>
-							<ExtendedTooltip name="WillBeAttachedLegendExtendedTooltip" id="95"/>
-						</LabelDecoration>
-					</ChildItems>
-				</UsualGroup>
-				<UsualGroup name="AttachmentErrorLegendGroup" id="96">
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Legend: attachment error</v8:content>
-						</v8:item>
-					</Title>
-					<Group>AlwaysHorizontal</Group>
-					<Behavior>Usual</Behavior>
-					<Representation>None</Representation>
-					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="AttachmentErrorLegendGroupExtendedTooltip" id="97"/>
-					<ChildItems>
-						<PictureDecoration name="AttachmentErrorPicture" id="98">
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Connection error</v8:content>
-								</v8:item>
-							</Title>
-							<Picture>
-								<xr:Ref>CommonPicture.ExtensionStatesError</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</Picture>
-							<FileDragMode>AsFile</FileDragMode>
-							<ContextMenu name="AttachmentErrorPictureContextMenu" id="99"/>
-							<ExtendedTooltip name="AttachmentErrorPictureExtendedTooltip" id="100"/>
-						</PictureDecoration>
-						<LabelDecoration name="AttachmentErrorLegend" id="101">
-							<Title formatted="false">
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Failed to attach on app start</v8:content>
-								</v8:item>
-							</Title>
-							<ContextMenu name="AttachmentErrorLegendContextMenu" id="102"/>
-							<ExtendedTooltip name="AttachmentErrorLegendExtendedTooltip" id="103"/>
-						</LabelDecoration>
-					</ChildItems>
-				</UsualGroup>
-			</ChildItems>
-		</UsualGroup>
 		<UsualGroup name="HorizontalGroupGroup" id="46">
 			<Title>
 				<v8:item>
@@ -501,11 +386,151 @@
 					<v8:content>Horizontal group</v8:content>
 				</v8:item>
 			</Title>
+			<HorizontalStretch>true</HorizontalStretch>
+			<Group>AlwaysHorizontal</Group>
+			<HorizontalAlign>Right</HorizontalAlign>
 			<Behavior>Usual</Behavior>
 			<Representation>NormalSeparation</Representation>
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="HorizontalGroupGroupExtendedTooltip" id="47"/>
 			<ChildItems>
+				<UsualGroup name="LegendGroup" id="78">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Legend</v8:content>
+						</v8:item>
+					</Title>
+					<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+					<Group>Vertical</Group>
+					<HorizontalAlign>Left</HorizontalAlign>
+					<Behavior>Usual</Behavior>
+					<Representation>None</Representation>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="LegendGroupExtendedTooltip" id="79"/>
+					<ChildItems>
+						<UsualGroup name="AttachedLegendGroup" id="80">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Legend: attached</v8:content>
+								</v8:item>
+							</Title>
+							<Group>AlwaysHorizontal</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="AttachedLegendGroupExtendedTooltip" id="81"/>
+							<ChildItems>
+								<PictureDecoration name="AttachedPicture" id="82">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Attached</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.ExtensionStatesAttached</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="AttachedPictureContextMenu" id="83"/>
+									<ExtendedTooltip name="AttachedPictureExtendedTooltip" id="84"/>
+								</PictureDecoration>
+								<LabelDecoration name="AttachedLegend" id="85">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Extension is attached</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="AttachedLegendContextMenu" id="86"/>
+									<ExtendedTooltip name="AttachedLegendExtendedTooltip" id="87"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="WillBeAttachedLegendGroup" id="88">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Legend: will be attached</v8:content>
+								</v8:item>
+							</Title>
+							<Group>AlwaysHorizontal</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="WillBeAttachedLegendGroupExtendedTooltip" id="89"/>
+							<ChildItems>
+								<PictureDecoration name="WillBeAttachedPicture" id="90">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Will be attached</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.ExtensionStatesWillBeConnected</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="WillBeAttachedPictureContextMenu" id="91"/>
+									<ExtendedTooltip name="WillBeAttachedPictureExtendedTooltip" id="92"/>
+								</PictureDecoration>
+								<LabelDecoration name="WillBeAttachedLegend" id="93">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Extension will be attached after app restart</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="WillBeAttachedLegendContextMenu" id="94"/>
+									<ExtendedTooltip name="WillBeAttachedLegendExtendedTooltip" id="95"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="AttachmentErrorLegendGroup" id="96">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Legend: attachment error</v8:content>
+								</v8:item>
+							</Title>
+							<Group>AlwaysHorizontal</Group>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="AttachmentErrorLegendGroupExtendedTooltip" id="97"/>
+							<ChildItems>
+								<PictureDecoration name="AttachmentErrorPicture" id="98">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Connection error</v8:content>
+										</v8:item>
+									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.ExtensionStatesError</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<FileDragMode>AsFile</FileDragMode>
+									<ContextMenu name="AttachmentErrorPictureContextMenu" id="99"/>
+									<ExtendedTooltip name="AttachmentErrorPictureExtendedTooltip" id="100"/>
+								</PictureDecoration>
+								<LabelDecoration name="AttachmentErrorLegend" id="101">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Failed to attach on app start</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="AttachmentErrorLegendContextMenu" id="102"/>
+									<ExtendedTooltip name="AttachmentErrorLegendExtendedTooltip" id="103"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</UsualGroup>
 				<LabelDecoration name="DecorationEventLog" id="40">
 					<Title formatted="false">
 						<v8:item>
@@ -514,6 +539,7 @@
 						</v8:item>
 					</Title>
 					<Hyperlink>true</Hyperlink>
+					<HorizontalAlign>Right</HorizontalAlign>
 					<ContextMenu name="DecorationEventLogContextMenu" id="41"/>
 					<ExtendedTooltip name="DecorationEventLogExtendedTooltip" id="42"/>
 					<Events>
@@ -662,11 +688,6 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="IsSubordinateDIBNode" id="10">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
-			</Type>
-		</Attribute>
 		<Attribute name="OnUpdate" id="11">
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
@@ -705,6 +726,10 @@
 				</v8:item>
 			</Title>
 			<Action>ExportAttachedPatches</Action>
+		</Command>
+		<Command name="FindAndInstallUpdates" id="3">
+			<Action>FindAndInstallUpdates</Action>
+			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
 	<Parameters>

@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Determine information display settings on startup.
+// Define settings for displaying information at startup.
 //
 // Parameters:
 //   Settings - Structure:
-//       * Show - Boolean - Flag indicating whether to show information in the current session.
-//           If True, information will be shown after logging in.
-//           If False, information will be hidden.
+//       * Show - Boolean -  whether to show information in the current session.
+//           True-the Information will be displayed after logging in to the program.
+//           False-the Information will not be shown.
 //
 Procedure DefineSettings(Settings) Export
 	

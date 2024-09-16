@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -57,7 +55,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Not Users.IsFullUser() Then
-		// Hiding the Administrators access group.
+		// 
 		CommonClientServer.SetDynamicListFilterItem(
 			List, "Ref", AccessManagement.AdministratorsAccessGroup(),
 			DataCompositionComparisonType.NotEqual, , True);
@@ -72,7 +70,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		AutoTitle = False;
 		If Parameters.CloseOnChoice = False Then
-			// Pick mode.
+			// 
 			Items.List.SelectionMode = TableSelectionMode.MultiRow;
 			
 			Title = NStr("en = 'Pick access groups';");
@@ -86,7 +84,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ReadOnly = True;
 	EndIf;
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -109,7 +107,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -252,7 +250,7 @@ EndFunction
 
 #Region Private
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

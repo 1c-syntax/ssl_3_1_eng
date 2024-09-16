@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -103,7 +101,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ClearObsoleteData.Visible = False;
 	EndIf;
 	
-	// Update items states.
+	// 
 	SetAvailability();
 
 	ApplicationSettingsOverridable.ServiceOnCreateAtServer(ThisObject);
@@ -144,7 +142,7 @@ EndProcedure
 &AtClient
 Procedure BackupRetentionOnChange(Item)
 	
-	// Output the proper page depending on the given storage option.
+	// 
 	If CommonClient.SubsystemExists("OnlineUserSupport.CloudArchive20") Then
 		ModuleCloudArchive20Client = CommonClient.CommonModule("CloudArchive20Client");
 		ModuleCloudArchive20Client.Maintenance_BackupRetentionOnChange(ThisObject, BackupRetention);
@@ -262,7 +260,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client.
+// Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, InterfaceUpdateIsRequired = True)
@@ -292,7 +290,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server call.
+// 
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -306,7 +304,7 @@ Function OnChangeAttributeServer(TagName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server.
+// Server
 
 &AtServer
 Procedure SetDeferredProcessingPriority(TagName)

@@ -1,32 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Parameters for the call of the AddInsServer.AttachAddInSSL procedure.
+// Parameters for calling an external Componentserver.Connect a component.
 //
 // Returns:
 //  Structure:
-//    * ObjectsCreationIDs - Array of String - IDs of object module instances.
-//              Use it only for add-ins with several object creation IDs.
-//              When specified, the ID parameter is used only to determine an add-in.
-//    * Isolated - Boolean  - If set to "True", the add-in is attached isolatedly. 
-//                               That is, it runs in a separate OS process.
-//                               If set to "False", the add-in runs in the same OS process that runs 1C:Enterprise scripts. 
+//    * ObjectsCreationIDs - Array of String -  instance IDs of the object module,
+//              used only for components that have multiple object creation IDs.
+//              When setting the ID parameter, It will only be used to define the component.
+//    * Isolated - Boolean  -  
+//                               
 //                                
-//              - Undefined - Defines the 1C:Enterprise behavior.:
-//                               Non-isolatedly if the add-in supports only this mode. 
-//                               Isolatedly, in other cases. By default, "Undefined".
+//                                
+//              - Undefined - :
+//                                
+//                               
 //                               See https://its.1c.eu/db/v83doc
-//                               #bookmark:dev:TI000001866
-//    * FullTemplateName - String - Full name of the template with a ZIP archive containing the add-in.
+//    * FullTemplateName - String - 
 //
 Function ConnectionParameters() Export
 	
@@ -39,24 +36,24 @@ Function ConnectionParameters() Export
 	
 EndFunction
 
-// Attaches the add-in from the add-in storage
-// based on Native API or COM technologies on 1C:Enterprise server.
-// In SaaS mode, you can only attach common add-ins approved by the service administrator.
+// Connects on the 1C server:Create an external component from the external component store
+// using the Native API or COM technology.
+// The service model only allows connecting shared external components that are approved by the service administrator.
 //
 // Parameters:
-//  Id - String - the add-in identification code.
-//  Version        - String - an add-in version.
+//  Id - String - 
+//  Version        - String -  version of the component.
 //  ConnectionParameters - See ConnectionParameters.
 //
 // Returns:
-//   Structure - Add-in attachment result:
-//     * Attached - Boolean - attachment flag.
-//     * Attachable_Module - AddInObject - an instance of the add-in;
-//                          - FixedMap of KeyAndValue - Add-in object instances stored in
-//                            AttachmentParameters.ObjectsCreationIDs:
-//                            ** Key - String - ID.
-//                            ** Value - AddInObject - an instance of the add-in.
-//     * ErrorDescription - String - brief error message. 
+//   Structure - :
+//     * Attached - Boolean -  the sign connection;
+//     * Attachable_Module - AddInObject -  instance of an external component object;
+//                          - FixedMap of KeyAndValue - 
+//                            :
+//                            ** Key - String -  ID,
+//                            ** Value - AddInObject -  an instance of an external component object.
+//     * ErrorDescription - String -  brief description of the error. 
 //
 Function AttachAddInSSL(Val Id, Version = Undefined, ConnectionParameters = Undefined) Export
 	
@@ -83,25 +80,25 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// OnlineUserSupport.GetAddIns
+// 
 
-// Returns a table of add-in details.
+// 
 //
 // Parameters:
-//  Variant - String - Valid values::
-//    ForUpdate - Add-ins from a catalog with the UpdateFrom1CITSPortal flag set.
-//    ForImport - Add-ins used in the configuration.
-//    Supplied1 - For determining 1C-supplied add-ins in the SaaS mode.
+//  Variant - String - :
+//    
+//    
+//    
 //
 // Returns:
 //   - ValueTable:
-//     * Id - String - The add-in UUID manually specified in the publication base.
-//                    
-//     * Version        - String - The add-in version.
-//     * Description  - String - The add-in description.
-//     * VersionDate    - Date - The date the add-in version (build) was released.
-//     * AutoUpdate - Boolean - The add-in auto-update flag.
-//   - Array - "Option" is set to "Supplied1", the ids of 1C-supplied add-ins.
+//     * Id - String -  contains a unique identifier of the external
+//                    component, which is specified by the user in the publication database;
+//     * Version        - String - 
+//     * Description  - String - 
+//     * VersionDate    - Date - 
+//     * AutoUpdate - Boolean - 
+//   - Array - 
 //
 Function ComponentsToUse(Variant) Export
 	
@@ -129,27 +126,27 @@ Function ComponentsToUse(Variant) Export
 	
 EndFunction
 
-// Updates add-ins.
+// Performs the update of the external component.
 //
 // Parameters:
-//  AddInsData - ValueTable - info on the add-ins to be updated:
-//    * Id - String - ID.
-//    * Version - String - version.
-//    * VersionDate - String - version date.
-//    * Description - String - description.
-//    * FileName - String - file name.
-//    * FileAddress - String - file address.
-//    * ErrorCode - String - error code.
-//  ResultAddress - String - Temp storage address.
-//      If specified, the operation result will be put to the storage.
-//      Structure:
-//       # Result - Boolean - If False, errors occur.
-//       # Errors - Map:
-//         ## Key - String - UUID.
-//         ## Value - String - ErrorMessage.
-//       # Success - Map:
-//         ## Key - String - UUID.
-//         ## Value - String - ErrorMessage.
+//  AddInsData - ValueTable - :
+//    * Id - String -  ID.
+//    * Version - String -  version.
+//    * VersionDate - String -  the date of release.
+//    * Description - String -  name.
+//    * FileName - String -  file name.
+//    * FileAddress - String -  file address.
+//    * ErrorCode - String -  error code.
+//  ResultAddress - String - 
+//      
+//      :
+//       
+//       
+//         
+//         
+//       
+//         
+//         
 //
 Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 	
@@ -179,7 +176,7 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 		
 		UsedAddIns = Undefined;
 		
-		// Loop through the query result.
+		// 
 		For Each ResultString1 In AddInsData Do
 			
 			AddInPresentation = AddInsInternal.AddInPresentation(
@@ -231,11 +228,11 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 				Continue;
 			EndIf;
 			
-			// Find the ref.
+			// 
 			Filter = New Structure("Id", ResultString1.Id);
 			Selection.Reset();
 			If Selection.FindNext(Filter) Then 
-				// If the earlier add-in than on 1C:ITS Portal is imported, it should not be updated.
+				// 
 				If Selection.VersionDate > ResultString1.VersionDate Then 
 					AddInPresentation = AddInsInternal.AddInPresentation(
 						ResultString1.Id, Selection.Version);
@@ -280,8 +277,8 @@ Procedure UpdateAddIns(AddInsData, ResultAddress = Undefined) Export
 					Object.Use = Enums.AddInUsageOptions.Used;
 				EndIf;
 				
-				FillPropertyValues(Object, Information.Attributes); // According to manifest data.
-				FillPropertyValues(Object, ResultString1);     // By data from the website.
+				FillPropertyValues(Object, Information.Attributes); // 
+				FillPropertyValues(Object, ResultString1);     // 
 				
 				Object.TargetPlatforms = New ValueStorage(Information.Attributes.TargetPlatforms);
 				Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
@@ -345,7 +342,7 @@ Function SuppliedSharedAddInDetails() Export
 	
 EndFunction
 
-// Updates add-ins shares.
+// Performs the update of a common external component.
 //
 // Parameters:
 //  ComponentDetails - See SuppliedSharedAddInDetails.
@@ -359,17 +356,17 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 	
 EndProcedure
 
-// For OSL versions 2.7.2.0 and later, use ComponentsToUse("ForUpdate").
-// Returns a table containing the details of the add-ins that must be auto-updated from 1C:ITS Portal.
+// 
+// 
 //
 // Returns:
 //  ValueTable:
-//    * Id - String - The add-in UUID manually specified in the publication base.
-//                   
-//    * Version        - String - The add-in version.
-//    * Description  - String - The add-in description.
-//    * VersionDate    - Date - The date the add-in version (build) was released.
-//    * AutoUpdate - Boolean - The add-in auto-update flag.
+//    * Id - String -  contains a unique identifier of the external
+//                   component, which is specified by the user in the publication database;
+//    * Version        - String - 
+//    * Description  - String - 
+//    * VersionDate    - Date - 
+//    * AutoUpdate - Boolean - 
 //
 Function AutomaticallyUpdatedAddIns() Export
 	

@@ -419,7 +419,7 @@ and set the Availability to "Available."</v8:content>
 														<Title>
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Search and display list group</v8:content>
+																<v8:content>Search and output list group</v8:content>
 															</v8:item>
 														</Title>
 														<ExtendedTooltip name="AdditionalReportOptionsSearchAndOutputListExtendedTooltip" id="199"/>

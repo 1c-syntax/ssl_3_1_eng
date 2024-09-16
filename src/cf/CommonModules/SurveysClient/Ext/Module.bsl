@@ -1,17 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Creates a filter structure for its further transfer to the server
-// and usage as filter parameters in dynamic lists of forms to be called.
+// Creates a selection structure for further transmission to the server
+// and use dynamic lists of called forms as selection parameters.
 //
 Function CreateFilterParameterStructure(FilterType, LeftValue, Var_ComparisonType, RightValue) Export
 
@@ -26,9 +24,9 @@ Function CreateFilterParameterStructure(FilterType, LeftValue, Var_ComparisonTyp
 EndFunction
 
 // Parameters:
-//  Respondent   - DefinedType.Respondent - an interviewee.
-//  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates - a template used for interview.
-//               - Undefined - a user selects a template from the catalog.
+//  Respondent   - DefinedType.Respondent -  the Respondent being interviewed.
+//  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates -  the template used for the interview.
+//               - Undefined - 
 //
 Procedure StartInterview(Respondent, QuestionnaireTemplate = Undefined) Export
 
@@ -66,7 +64,7 @@ Procedure OpenInterviewForm(Respondent, QuestionnaireTemplate)
 
 EndProcedure
 
-// StartInterviewWithTemplateChoice procedure execution result handler.
+// Handler for the result of the start interviewselection of the Template procedure.
 //
 Procedure StartInterviewWithTemplateChoiceCompletion(SelectedTemplate, Respondent) Export
 

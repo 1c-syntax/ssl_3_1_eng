@@ -1,30 +1,27 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 ////////////////////////////////////////////////////////////////////////////////
-// Print using OpenDocument Text (ODT) templates on the client side. Intended for backward compatibility.
+// 
 //
-// The details of the reference to a print form and template.
-// Structure with the following fields:
-// ServiceManager - An  Open Office service manager.
-// Desktop - Open Office app (the UNO service).
-// Document - A document (print form).
-// Type - The print form type ("ODT").
+// 
+// 
+// 
+// 
+// 
+// 
 //
 ////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region Private
 
-// Print form initialization: create a COM object and set properties.
-// 
+// Print form initialization: a COM object
+// is created and its properties are set.
 //
 Function InitializeOOWriterPrintForm(Val Template = Undefined) Export
 	
@@ -94,12 +91,12 @@ Function InitializeOOWriterPrintForm(Val Template = Undefined) Export
 	
 EndFunction
 
-// Returns a structure with a print form template.
+// Returns a structure with the layout of the printed form.
 //
 // Parameters:
-//   BinaryTemplateData1 - BinaryData - Binary template data.
+//   BinaryTemplateData1 - BinaryData -  binary layout data.
 // Returns:
-//   Structure - Template reference.
+//   Structure - 
 //
 Function GetOOWriterTemplate(Val BinaryTemplateData1, TempFileName) Export
 	
@@ -137,7 +134,7 @@ Function GetOOWriterTemplate(Val BinaryTemplateData1, TempFileName) Export
 	FilesDetails1 = New Array;
 	FilesDetails1.Add(New TransferableFileDescription(TempFileName, PutToTempStorage(BinaryTemplateData1)));
 	TempDirectory = PrintManagementInternalClient.CreateTemporaryDirectory("OOWriter");
-	If Not GetFiles(FilesDetails1, , TempDirectory, False) Then // ACC:1348 - For backward compatibility purposes.
+	If Not GetFiles(FilesDetails1, , TempDirectory, False) Then // 
 		Return Undefined;
 	EndIf;
 	TempFileName = CommonClientServer.AddLastPathSeparator(TempDirectory) + TempFileName;
@@ -151,7 +148,7 @@ Function GetOOWriterTemplate(Val BinaryTemplateData1, TempFileName) Export
 	DocumentParameters.SetValue(0, PropertyValue1(ServiceManager, "Hidden", True));
 #EndIf
 	
-	// Opening parameters: Disable macros.
+	// 
 	RunMode = PropertyValue1(ServiceManager,
 		"MacroExecutionMode",
 		0); // const short NEVER_EXECUTE = 0
@@ -174,7 +171,7 @@ Function GetOOWriterTemplate(Val BinaryTemplateData1, TempFileName) Export
 	
 EndFunction
 
-// Closes a print form template and deletes references to the COM object.
+// Closes the layout of the printed form and overwrites references to the COM object.
 //
 Procedure CloseConnection(Handler, Val CloseApplication) Export
 	
@@ -194,10 +191,10 @@ Procedure CloseConnection(Handler, Val CloseApplication) Export
 	
 EndProcedure
 
-// Sets a visibility property for OpenOffice Writer.
+// Sets the visibility property of the OO Writer application.
 // 
 // Parameters:
-//  Handler - Structure - Print form reference.
+//  Handler - Structure -  link to the printed form.
 //
 Procedure ShowOOWriterDocument(Val Handler) Export
 	
@@ -208,16 +205,16 @@ Procedure ShowOOWriterDocument(Val Handler) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Template management.
+// 
 
-// Gets a template area.
+// Gets the area from the layout.
 // Parameters:
-//   Handler - Template reference.
-//   AreaName - Area name.
-//   OffsetStart - Offset from the area start. The default offset:
-//					1 - The area is taken without a newline character, after the area's opening statement parenthesis.
-//					OffsetEnd - Offset from the area end. The default offset:
-//   11 - Area is taken without a newline character, before the area's closing statement parenthesis.
+//   Handler - 
+//   AreaName - 
+//   
+//					
+//					
+//   
 //					
 //					
 //
@@ -233,7 +230,7 @@ Function GetTemplateArea(Val Handler, Val AreaName) Export
 	
 EndFunction
 
-// Gets a header area.
+// Gets the header area.
 //
 Function GetHeaderArea(Val TemplateRef) Export
 	
@@ -241,7 +238,7 @@ Function GetHeaderArea(Val TemplateRef) Export
 	
 EndFunction
 
-// Gets a footer area.
+// Gets the footer area.
 //
 Function GetFooterArea(TemplateRef) Export
 	
@@ -250,11 +247,11 @@ Function GetFooterArea(TemplateRef) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Print form operations
+// 
 
-// Inserts a line break to the next row.
+// Inserts a break on the next line.
 // Parameters:
-//   Handler - Reference to the Microsoft Word document where the line break is to be inserted.
+//   Handler - 
 //
 Procedure InsertBreakAtNewLine(Val Handler) Export
 	
@@ -265,7 +262,7 @@ Procedure InsertBreakAtNewLine(Val Handler) Export
 	
 EndProcedure
 
-// Adds a header to a print form.
+// Adds a header to the printed form.
 //
 Procedure AddHeader(Val PrintForm,
 									Val Area) Export
@@ -280,7 +277,7 @@ Procedure AddHeader(Val PrintForm,
 	
 EndProcedure
 
-// Adds a footer to a print form.
+// Adds a footer to the printed form.
 //
 Procedure AddFooter(Val PrintForm,
 									Val Area) Export
@@ -295,14 +292,14 @@ Procedure AddFooter(Val PrintForm,
 	
 EndProcedure
 
-// Adds an area from a template to a print form, replacing
-// the area parameters with the object data values.
-// The procedure is used upon output of a single area.
+// Adds an area to the print form from the layout, while replacing
+// the parameters in the area with values from the object data.
+// Used for single output of an area.
 //
 // Parameters:
-//   PrintForm - Print form reference.
-//   HandlerArea - Area reference.
-//   GoToNextRow - Boolean - Flag indicating whether to insert a newline character after the area.
+//   PrintForm - link to the printed form.
+//   HandlerArea - link to the area in the layout.
+//   GoToNextRow - Boolean -  whether to insert a break after the area is displayed.
 //
 Procedure AttachArea(Val HandlerPrintForm,
 							Val HandlerArea,
@@ -331,7 +328,7 @@ Procedure AttachArea(Val HandlerPrintForm,
 	
 EndProcedure
 
-// Populates parameters in a print form's table.
+// Fills in parameters in the table field of the printed form.
 //
 Procedure FillParameters_(PrintForm, Data) Export
 	
@@ -374,7 +371,7 @@ Procedure FillParameters_(PrintForm, Data) Export
 	
 EndProcedure
 
-// Adds a collection area to a print form.
+// Adds the collection area to the printed form.
 //
 Procedure JoinAndFillCollection(Val HandlerPrintForm,
 										  Val HandlerArea,
@@ -406,7 +403,7 @@ Procedure JoinAndFillCollection(Val HandlerPrintForm,
 	
 EndProcedure
 
-// Moves the pointer to the end of DocumentRef.
+// Sets the cursor to the end of the document document Link.
 //
 Procedure SetMainCursorToDocumentBody(Val DocumentRef) Export
 	
@@ -418,7 +415,7 @@ Procedure SetMainCursorToDocumentBody(Val DocumentRef) Export
 	
 EndProcedure
 
-// Moves the pointer to the header.
+// Sets the cursor to the header.
 //
 Function SetMainCursorToHeader(Val DocumentRef) Export
 	
@@ -432,7 +429,7 @@ Function SetMainCursorToHeader(Val DocumentRef) Export
 	
 EndFunction
 
-// Moves the pointer to the footer.
+// Sets the cursor to the footer.
 //
 Function SetMainCursorToFooter(Val DocumentRef) Export
 	
@@ -447,10 +444,10 @@ Function SetMainCursorToFooter(Val DocumentRef) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions
-
-// Gets a structure used to set UNO object parameters.
 // 
+
+// Gets a special structure through which parameters are set for UNO objects
+// .
 //
 Function PropertyValue1(Val ServiceManager, Val Property, Val Value)
 	

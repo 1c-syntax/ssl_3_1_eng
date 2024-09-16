@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -86,7 +84,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.PersonalDataProtectionGroup.Visible = False;
 	EndIf;
 	
-	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+	If Not Common.SubsystemExists("StandardSubsystems.ReportsOptions")
+	 Or Metadata.Subsystems.Find("Administration") = Undefined Then
 		Items.UserMonitoring.Visible = False;
 	EndIf;
 	
@@ -110,7 +109,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.PasswordsRecovery.Visible = False;
 	EndIf;
 	
-	// Update items states.
+	// 
 	SetAvailability();
 	
 	ApplicationSettingsOverridable.UsersAndRightsSettingsOnCreateAtServer(ThisObject);
@@ -321,7 +320,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client.
+// Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -409,7 +408,7 @@ Procedure UseExternalUsersOnChangeCompletion(Response, Item) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server call.
+// 
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -447,7 +446,7 @@ Procedure RegisterDataAccessOnChangeAtServer(Val ShouldRegisterDataAccess)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server.
+// Server
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)

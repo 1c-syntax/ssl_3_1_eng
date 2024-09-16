@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 //
@@ -55,13 +53,13 @@ EndProcedure
 #Region FormCommandsEventHandlers
 //
 
-// Opens the object form that is specified in the configuration for the exchange plan where the node belongs.
+// Selects a node and passes the selected values to the calling form.
 &AtClient
 Procedure SelectNode(Command)
 	PerformNodeChoice(MultipleChoice);
 EndProcedure
 
-// Opens node form that specified as an object form.
+// Opens the node form specified in the configuration.
 &AtClient
 Procedure ChangeNode(Command)
 	KeyRef = Items.ExchangeNodesTree.CurrentData.Ref;
@@ -130,13 +128,13 @@ EndProcedure
 Function SelectedNodes(NewData = Undefined)
 	
 	If NewData <> Undefined Then
-		// Install.
+		// Set
 		Marked = New Array;
 		InternalMarkSelectedNodes(ThisObject(), ExchangeNodesTree, NewData, Marked);
 		Return Marked;
 	EndIf;
 	
-	// Receive.
+	// Receive
 	Result = New Array;
 	For Each CurPlan In ExchangeNodesTree.GetItems() Do
 		For Each CurRow In CurPlan.GetItems() Do
@@ -192,9 +190,9 @@ Function SetFormParameters()
 	
 	Result = New Structure("CurrentRow, Marked");
 	
-	// Multiple item selection.
+	// 
 	Items.ExchangeNodesTreeCheck.Visible = Parameters.MultipleChoice;
-	// Clearing marks if selection type is changed.
+	// 
 	If Parameters.MultipleChoice <> MultipleChoice Then
 		CurrentObject = ThisObject();
 		For Each CurRow In ExchangeNodesTree.GetItems() Do
@@ -204,7 +202,7 @@ Function SetFormParameters()
 	EndIf;
 	MultipleChoice = Parameters.MultipleChoice;
 	
-	// Positioning.
+	// 
 	If MultipleChoice And TypeOf(Parameters.ChoiceInitialValue) = Type("Array") Then 
 		Marked = SelectedNodes(Parameters.ChoiceInitialValue);
 		Result.Marked = Marked;
@@ -213,7 +211,7 @@ Function SetFormParameters()
 		EndIf;
 			
 	ElsIf Parameters.ChoiceInitialValue <> Undefined Then
-		// Single item selection.
+		// 
 		Result.CurrentRow = RowIDByNode(ExchangeNodesTree, Parameters.ChoiceInitialValue);
 		
 	EndIf;

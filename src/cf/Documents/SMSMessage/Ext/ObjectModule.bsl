@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,12 +12,12 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.Interactions
+// 
 
-// The procedure generates participant list rows.
+// The procedure generates rows in the list of participants.
 //
 // Parameters:
-//  Contacts  - Array - an array of structures describing interaction participants.
+//  Contacts  - Array -  array of structures that describe the interaction participants.
 //
 Procedure FillContacts(Contacts) Export
 	
@@ -29,7 +27,7 @@ EndProcedure
 
 // End StandardSubsystems.Interactions
 
-// StandardSubsystems.AccessManagement
+// 
 
 // Parameters:
 //   Table - See AccessManagement.AccessValuesSetsTable

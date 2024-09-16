@@ -1,34 +1,32 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions related to getting form settings.
+// 
 
-// Gets a form settings list for the specified user.
+// Get a list of form settings for the specified user User.
 //
 // Parameters:
-//   UserName - String - name of an infobase user, for whom form
-//                              settings are received.
+//   UserName - String -  the name of the user information database for which you want
+//                              to customize forms.
 // 
-// Returns
-//   ValueList - list of forms where the passed user has settings.
+// Returned value
+//   List of values - a list of forms for which the passed user has settings.
 //
 Function AllFormSettings(UserName)
 	
 	FormsList = MetadataObjectForms1();
 	
-	// Adding standard forms to the list.
+	// 
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventsJournal", 
 		PrefixOfStandardForms() + "." + NStr("en = 'Event log';") , False, PictureLib.Form);
 	FormsList.Add("ExternalDataProcessor.StandardEventLog.Form.EventForm", 
@@ -60,16 +58,16 @@ Function PrefixOfStandardForms()
 	
 EndFunction
 
-// Gets the list of configuration forms and populates the following fields:
-// Value - form name that serves as a unique ID.
-// Presentation - form synonym.
-// Picture - a picture that matches the related object.
+// Gets a list of forms in the configuration, and the following fields are filled in:
+// Value - the name of the form that identifies it.
+// A view is a synonym for a form.
+// Image - the image corresponding to the object to which the form is related.
 //
 // Parameters:
-//   List - ValueList - value list to which form details are to be added.
+//   List-list of Values - a list of values to add form descriptions to.
 //
-// Returns
-//   ValueList - list of all metadata object forms.
+// Returned value
+//   List of values - a list of all forms of metadata objects.
 //
 Function MetadataObjectForms1()
 	
@@ -194,7 +192,7 @@ Function MetadataObjectForms1()
 	Return FormsList;
 EndFunction
 
-// Returns a settings list for the forms specified in the FormList parameter and for the user specified in the UserName parameter. 
+// Returns a list of settings for the specified Listform forms and the specified user User. 
 //
 Function FormSettingsList(FormsList, UserName)
 	
@@ -244,7 +242,7 @@ Function FormSettingsList(FormsList, UserName)
 	
 EndFunction
 
-// The constructor of a form settings collection.
+// Constructor for a collection of form settings.
 // 
 // Returns:
 //  ValueTable:
@@ -345,15 +343,15 @@ Procedure FillExternalDataSourceForms(Object, MetadataObjectType,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions needed to copy and delete all user settings.
+// 
 
-// Deletes user settings from the storage.
+// Removes the user settings from the repository.
 //
 // Parameters:
-//   SettingsToClear - Array - where an array element is a type of settings
-//                      to clear. For example, ReportSettings or AppearanceSettings.
-//   Sources - Array - where an array element is Catalog.UserRef. An array of users
-//             whose settings have to be cleared.
+//   SettingsToClear - Array -  where the array element is the type of settings to
+//                      clear. For example, the report Settings or the external view Settings.
+//   Sources - Array -  where the array element is a reference.User link. An array of users
+//             from which you want to clear the settings.
 //   UserReportOptionTable - ValueTable
 //   ClearAll - Boolean
 //
@@ -374,7 +372,7 @@ Procedure DeleteUserSettings(SettingsToClear, Sources,
 		For Each Source In Sources Do
 			
 			If SettingsItemToClear = "OtherUserSettings" Then
-				// Get user settings.
+				// 
 				UserInfo = New Structure;
 				UserInfo.Insert("UserRef", Source);
 				UserInfo.Insert("InfobaseUserName", IBUserName(Source));
@@ -431,7 +429,7 @@ Procedure DeleteUserSettings(SettingsToClear, Sources,
 				
 			EndIf;
 			
-			// Clearing dynamic list settings.
+			// 
 			If SettingsItemToClear = "InterfaceSettings2" Then
 				SettingsFromStorage = ReadSettingsFromStorage(DynamicListsUserSettingsStorage, IBUser);
 				DeleteSettings(DynamicListsUserSettingsStorage, SettingsFromStorage, IBUser);
@@ -462,11 +460,11 @@ Procedure DeleteSettings(SettingsManager, SettingsFromStorage, UserName)
 	
 EndProcedure
 
-// Deletes user settings from the storage.
+// Removes the user settings from the repository.
 //
 // Parameters:
-//   Sources - Array - where an array element is Catalog.UserRef. An array of users
-//             whose settings have to be cleared.
+//   Sources - Array -  where the array element is a reference.User link. An array of users
+//             from which you want to clear the settings.
 //
 Procedure DeleteOutdatedUserSettings(Sources = Undefined) Export
 	
@@ -504,7 +502,7 @@ Procedure DeleteOutdatedUserSettings(Sources = Undefined) Export
 	
 EndProcedure
 
-// This method is required for the DeleteObsoleteUserSettings procedure.
+// For the procedure, delete the old user settings.
 Function NamesOfObjectTypes()
 	
 	TypeNamesRussian = "ПланОбмена,КритерийОтбора,Константа,Справочник,
@@ -529,7 +527,7 @@ Function NamesOfObjectTypes()
 	
 EndFunction
 
-// This method is required for the ObjectsTypesNames function.
+// For the function of naming the types of objects.
 Procedure AddObjectTypeNames(Names, StringOfNames, Value)
 	
 	NamesFromTheString = StrSplit(StringOfNames, ",", False);
@@ -539,7 +537,7 @@ Procedure AddObjectTypeNames(Names, StringOfNames, Value)
 	
 EndProcedure
 
-// This method is required for the DeleteObsoleteUserSettings procedure.
+// For the procedure, delete the old user settings.
 Procedure DeleteAnOutdatedSetting(Selection, Store, Context)
 	
 	FullObjectName = StrSplit(Selection.ObjectKey, "/")[0];
@@ -579,7 +577,7 @@ Procedure DeleteAnOutdatedSetting(Selection, Store, Context)
 	
 EndProcedure
 
-// Copies user settings and returns the flag of the settings availability.
+// Copies the user's settings and returns a flag indicating that the settings are available.
 //
 // Parameters:
 //  UserSourceRef - CatalogRef.Users
@@ -613,7 +611,7 @@ Function CopyUsersSettings(UserSourceRef, UsersDestination, SettingsToCopy,
 		SettingsRecipients.Add(IBUserName(Item));
 	EndDo;
 	
-	// Get user settings.
+	// 
 	UserInfo = New Structure;
 	UserInfo.Insert("UserRef", UserSourceRef);
 	UserInfo.Insert("InfobaseUserName", SourceUser);
@@ -691,7 +689,7 @@ Function CopyUsersSettings(UserSourceRef, UsersDestination, SettingsToCopy,
 	
 EndFunction
 
-// Returns the list of user settings.
+// Returns a list of user settings.
 //
 // Parameters:
 //  UserName - Undefined
@@ -889,17 +887,17 @@ Procedure CopySettings(SettingsManager, SettingsTable, SourceUser,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions needed to copy and delete the selected setting settings.
+// 
 
-// Copies user report settings.
+// Copies custom report settings.
 // 
 // Parameters:
 //   SettingsManager - StandardSettingsStorageManager
 //                    - SettingsStorageManager.ReportsVariantsStorage
-//   SourceUser - String - infobase source user for copying the settings.
-//   UsersDestination - Array of CatalogRef.Users - users that need to copy
+//   SourceUser - String -  name of the user of the information database from which the settings for copying are taken.
+//   UsersDestination - Array of CatalogRef.Users -  users who need to copy
 //                          the selected settings.
-//   SettingsToCopyArray - Array of ValueList - a list that contains keys of selected settings.
+//   SettingsToCopyArray - Array of ValueList -  a list containing the keys of the selected settings.
 //   NotCopiedReportSettings - ValueTable:
 //     * User - CatalogRef.Users
 //     * ReportsList - ValueList
@@ -958,13 +956,13 @@ Procedure CopyReportAndPersonalSettings(SettingsManager, SourceUser,
 	
 EndProcedure
 
-// Copies the interface settings.
+// Copies the appearance settings.
 // 
 // Parameters:
-//   SourceUser - String - infobase source user for copying the settings.
-//   UsersDestination - Array of CatalogRef.Users - an array of UserRef elements - users that need to copy the selected
+//   SourceUser - String -  name of the user of the information database from which the settings for copying are taken.
+//   UsersDestination - Array of CatalogRef.Users -  users who need to copy the selected
 //                          settings.
-//   SettingsToCopyArray - Array of ValueList - keys of selected settings.
+//   SettingsToCopyArray - Array of ValueList -  keys of the selected settings.
 //
 Procedure CopyInterfaceSettings(SourceUser, UsersDestination, SettingsToCopyArray) Export
 	
@@ -992,7 +990,7 @@ Procedure CopyInterfaceSettings(SourceUser, UsersDestination, SettingsToCopyArra
 				Continue;
 			EndIf;
 			
-			// Copying dynamic list settings.
+			// 
 			ObjectKeyParts = StrSplit(ObjectKey, "/");
 			ObjectName = ObjectKeyParts[0];
 			If ProcessedKeys[ObjectName] = Undefined Then
@@ -1003,7 +1001,7 @@ Procedure CopyInterfaceSettings(SourceUser, UsersDestination, SettingsToCopyArra
 				ProcessedKeys.Insert(ObjectName, True);
 			EndIf;
 			
-			// Copy settings.
+			// 
 			Setting = SystemSettingsStorage.Load(ObjectKey, SettingsKey, , SourceUser);
 			If Setting <> Undefined Then
 				
@@ -1131,7 +1129,7 @@ Procedure DeleteSelectedSettings(UserInfo, SettingsForDeletionArray, StorageName
 					EndIf;
 					
 				Else
-					// Deleting dynamic list settings.
+					// 
 					ObjectKeyParts = StrSplit(Setting.Value, "/");
 					ObjectName = ObjectKeyParts[0];
 					If ProcessedKeys[ObjectName] = Undefined Then
@@ -1227,15 +1225,15 @@ Procedure CopyReportOptions(ReportOptionArray, UserReportOptionTable,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for getting a list of users and user groups.
+// 
 
-// Gets the list of users from the Users catalog, filtering out inactive users,
-// shared users with an enabled separator, and users with blank IDs.
+// Retrieves a list of users from the Users directory, filtering out invalid users, undivided
+// users with the separator enabled, and users with an empty ID.
 // 
 // Parameters:
-//   SourceUser - CatalogRef - a user to be removed from the resulting user table.
-//   UsersTable - ValueTable - / a table to which filtered users are written.
-//   ExternalUser1 - Boolean - If True, users are selected from the ExternalUsers catalog.
+//   SourceUser - CatalogRef -  the user to remove from the final user table.
+//   UsersTable - ValueTable -  a table where selected users are recorded.
+//   ExternalUser1 - Boolean -  if True, users are selected from the external Users directory.
 //   Clearing - Boolean
 //
 // Returns:
@@ -1329,11 +1327,11 @@ Function ExternalUsersListQueryText(Clearing)
 EndFunction
 
 
-// Generates a user group value tree.
+// Creates a tree of user group values.
 // 
 // Parameters:
-//   GroupsTree - ValueTree - a tree that is populated with user groups.
-//   ExternalUser1 - Boolean - If True, users are selected from the ExternalUsersGroups catalog.
+//   GroupsTree - ValueTree -  a tree that is populated by user groups.
+//   ExternalUser1 - Boolean -  if True, users are selected from the directory of groups of external Users.
 //
 Procedure FillGroupTree(GroupsTree, ExternalUser1) Export
 	
@@ -1483,28 +1481,29 @@ Function UserGroupFullComposition(GroupsAndCompositionTable, GroupRef)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
-// Generates an array of reports that are available to the specified user.
+// Generates an array of reports available to the transmitted user.
 //
 // Parameters:
-//  InfobaseUser - String - name of the infobase user
-//                                   whose report access rights are checked.
+//  Information database user-String - name of the information database user whose
+//                                   access rights to the report are checked.
 //
 // Returns:
-//   Array - Result - Array - keys of reports available to the passed user.
+//   Array - 
 //
 Function ReportsAvailableToUser(IBUserName, UserRef)
 	Result = New Array;
 	
 	SetPrivilegedMode(True);
-	IBUser = InfoBaseUsers.FindByName(IBUserName);
+	IBUser = ?(UserRef = Users.AuthorizedUser(),
+		InfoBaseUsers.CurrentUser(),
+		InfoBaseUsers.FindByName(IBUserName));
+	
 	For Each ReportMetadata In Metadata.Reports Do
-		
 		If AccessRight("View", ReportMetadata, IBUser) Then
 			Result.Add("Report." + ReportMetadata.Name);
 		EndIf;
-		
 	EndDo;
 	
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
@@ -1517,16 +1516,16 @@ Function ReportsAvailableToUser(IBUserName, UserRef)
 	
 EndFunction
 
-// Gets the name of an infobase user by a catalog
-// reference.
+// Gets the user name of the information database from the passed
+// reference list.
 //
 // Parameters:
-//   UserRef - CatalogRef.Users - user that requires the name
-//                        of an infobase user.
+//   UserRef - CatalogRef.Users -  for which you need to get
+//                        the user name of the information database.
 //
 // Returns:
-//   String, Undefined - a name of an infobase user or Undefined
-//                          if the Infobase user is not found.
+//   String, Undefined - 
+//                          
 // 
 Function IBUserName(UserRef) Export
 	
@@ -1653,7 +1652,7 @@ Function FormPresentation(Object, Form, MetadataObjectType)
 			FormName = Form.Synonym;
 		EndIf;
 		
-	Else // Getting form presentation for Document, Chart of accounts, Chart of calculation types, Business process, and Task.
+	Else // 
 		
 		If Form = Object.DefaultListForm
 			Or Form = Object.DefaultChoiceForm Then
@@ -1753,7 +1752,7 @@ Function AutogeneratedFormPresentation(Object, Form, MetadataObjectType)
 			Common.ObjectPresentation(Object);
 		EndIf;
 		
-	Else // Getting form presentation for Document, Chart of accounts, Chart of calculation types, Business process, and Task.
+	Else // 
 		
 		If Form = "ListForm"
 			Or Form = "ChoiceForm_" Then
@@ -2039,7 +2038,7 @@ Function SkipSettingsItem(ObjectKey, SettingsKey)
 	ExceptionsByObjectKey = New Array;
 	ExceptionsBySettingsKey = New Array;
 	
-	// Exceptions. Non-copyable settings.
+	// 
 	ExceptionsByObjectKey.Add("LocalFileCache");
 	ExceptionsBySettingsKey.Add("PathToLocalFileCache");
 	
@@ -2053,7 +2052,7 @@ Function SkipSettingsItem(ObjectKey, SettingsKey)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for UsersSettings and SelectSettings forms.
+// 
 
 Procedure FillSettingsLists(Parameters) Export
 	FillReportSettingsList(Parameters);
@@ -2061,7 +2060,7 @@ Procedure FillSettingsLists(Parameters) Export
 	FillOtherSettingsList(Parameters);
 EndProcedure
 
-// Fills in a collection of report settings.
+// Populates the collection of report settings.
 // 
 // Parameters:
 //  Parameters - Structure:
@@ -2090,27 +2089,27 @@ Procedure FillReportSettingsList(Parameters)
 		
 		ReportOptionName = StrSplit(SettingObject, "/", False);
 		If ReportOptionName.Count() < 2 Then
-			Continue; // Invalid setting.
+			Continue; // 
 		EndIf;
 		
 		ReportOptionPresentation = ReportOptionPresentation(SettingsItemKey, ReportOptionName);
 		
-		// If a report option (report) has been deleted, but the setting remains, it is not displayed to the user.
+		// 
 		If ReportOptionPresentation = ""
 			Or ReportOptionPresentation = Undefined Then
 			Continue;
 		EndIf;
 		
-		// Checking whether the report option is a user-defined one.
+		// 
 		FoundReportOption = ReportOptionTable.Find(ReportOptionName[1], "VariantKey");
-		// If the settings selection form is opened, hide the settings that cannot be copied
+		// 
 		If FormName[3] = "SettingsChoice"
 			And FoundReportOption <> Undefined
 			And Not FoundReportOption.StandardProcessing Then
 			Continue;
 		EndIf;
 		
-		// Filling a report option row.
+		// 
 		If CurrentObject <> ReportOptionPresentation Then
 			NewRowReportOption = Parameters.ReportSettingsTree.Rows.Add();
 			NewRowReportOption.Setting = ReportOptionPresentation;
@@ -2120,7 +2119,7 @@ Procedure FillReportSettingsList(Parameters)
 					?(Not FoundReportOption.StandardProcessing, "PersonalOption", "StandardOptionPersonal"), "StandardReportOption");
 			NewRowReportOption.RowType = "Report" + ReportOptionPresentation;
 		EndIf;
-		// Populate setting string.
+		// 
 		NewRowSettingsItem = NewRowReportOption.Rows.Add();
 		NewRowSettingsItem.Setting = ?(Not IsBlankString(SettingName1), SettingName1, ReportOptionPresentation);
 		NewRowSettingsItem.Picture = PictureForm;
@@ -2129,12 +2128,12 @@ Procedure FillReportSettingsList(Parameters)
 				?(Not FoundReportOption.StandardProcessing, "SettingsItemPersonal", "StandardSettingsItemPersonal"), "StandardReportSettings");
 		NewRowSettingsItem.RowType = ReportOptionPresentation + SettingName1;
 		NewRowSettingsItem.Keys.Add(SettingObject, SettingsItemKey);
-		// Filling object key and settings item key for a report option.
+		// 
 		NewRowReportOption.Keys.Add(SettingObject, SettingsItemKey);
 		
 		CurrentObject = ReportOptionPresentation;
 		
-		// Deleting reports that have settings from the list of user-defined report options.
+		// 
 		If FoundReportOption <> Undefined Then
 			ReportOptionTable.Delete(FoundReportOption);
 		EndIf;
@@ -2198,7 +2197,7 @@ Procedure FillInterfaceSettingsList(Parameters)
 				MetadataObjectPresentation = StrSplit(FormSettingsItem.Presentation, ".", False);
 			EndIf;
 			
-			// Settings tree group.
+			// 
 			If CurrentObject <> MetadataObjectPresentation[0] Then
 				NewRowMetadataObject = Parameters.InterfaceSettings2.Rows.Add(); // ValueTreeRow
 				NewRowMetadataObject.Setting = MetadataObjectPresentation[0];
@@ -2207,7 +2206,7 @@ Procedure FillInterfaceSettingsList(Parameters)
 				NewRowMetadataObject.Type = "InterfaceSettings1";
 			EndIf;
 			
-			// Settings tree item.
+			// 
 			NewFormInterfaceRow = NewRowMetadataObject.Rows.Add();
 			NewFormInterfaceRow.Setting = MetadataObjectPresentation[1];
 			NewFormInterfaceRow.Picture = PictureForm;
@@ -2220,7 +2219,7 @@ Procedure FillInterfaceSettingsList(Parameters)
 			
 		Else
 			
-			// Settings tree group.
+			// 
 			If CurrentObject <> MetadataObjectName[1] Then
 				NewRowMetadataObject = Parameters.InterfaceSettings2.Rows.Add();
 				NewRowMetadataObject.Setting = MetadataObjectPresentation[0];
@@ -2229,7 +2228,7 @@ Procedure FillInterfaceSettingsList(Parameters)
 				NewRowMetadataObject.Type = "InterfaceSettings1";
 			EndIf;
 			
-			// Settings tree item.
+			// 
 			If MetadataObjectName.Count() = 3 Then
 				FormName = MetadataObjectName[2];
 			Else
@@ -2271,14 +2270,14 @@ EndProcedure
 
 Procedure FillOtherSettingsList(Parameters)
 	
-	// ACC:1391-off Search by setting presentation described in the code.
+	// 
 	
 	Parameters.OtherSettingsTree.Rows.Clear();
 	Settings = ReadSettingsFromStorage(CommonSettingsStorage, Parameters.InfoBaseUser);
 	Keys = New ValueList;
 	OtherKeys = New ValueList;
 	
-	// Populate personal settings.
+	// 
 	For Each Setting In Settings Do
 		Keys.Add(Setting.ObjectKey, Setting.SettingsKey);
 	EndDo;
@@ -2294,7 +2293,7 @@ Procedure FillOtherSettingsList(Parameters)
 		AddTreeRow(Parameters.OtherSettingsTree, Setting, Picture, Keys, SettingType);
 	EndIf;
 	
-	// Filling print settings and favorites settings.
+	// 
 	Settings = ReadSettingsFromStorage(SystemSettingsStorage, Parameters.InfoBaseUser);
 	
 	Keys.Clear();
@@ -2321,7 +2320,7 @@ Procedure FillOtherSettingsList(Parameters)
 		
 	EndDo;
 	
-	// Adding print settings tree row.
+	// 
 	If HasPrintSettings Then
 		Setting = NStr("en = 'Spreadsheet document print settings';");
 		Picture = PictureLib.Print;
@@ -2329,7 +2328,7 @@ Procedure FillOtherSettingsList(Parameters)
 		AddTreeRow(Parameters.OtherSettingsTree, Setting, Picture, Keys, SettingType);
 	EndIf;
 	
-	// Adding "Favorites" tree row.
+	// 
 	If HasFavorites Then
 		
 		Setting = NStr("en = 'Favorites';");
@@ -2341,7 +2340,7 @@ Procedure FillOtherSettingsList(Parameters)
 		
 	EndIf;
 	
-	// Adding other settings supported by the configuration.
+	// 
 	OtherSettings = New Structure;
 	UserInfo = New Structure;
 	UserInfo.Insert("UserRef", Parameters.UserRef);
@@ -2384,7 +2383,7 @@ Procedure FillOtherSettingsList(Parameters)
 		
 	EndIf;
 	
-	// Other settings that are not included in other sections.
+	// 
 	If OtherKeys.Count() <> 0 Then
 		Setting = NStr("en = 'Other settings';");
 		Picture = PictureLib.OtherUserSettings;
@@ -2392,11 +2391,11 @@ Procedure FillOtherSettingsList(Parameters)
 		AddTreeRow(Parameters.OtherSettingsTree, Setting, Picture, OtherKeys, SettingType);
 	EndIf;
 	
-	// ACC:1391-on
+	// 
 		
 EndProcedure
 
-// Adds the settings.
+// Adds settings.
 //
 // Parameters:
 //  Parameters - Structure
@@ -2448,7 +2447,7 @@ Procedure AddDesktopAndCommandInterfaceSettings(Parameters, SettingsTree)
 			
 		ElsIf SettingName[0] = "HomePage" Then
 			
-			// Dialog settings.
+			// 
 			DesktopSettingsKeys.Add(Setting.ObjectKey, "Interface");
 			AllSettingsKeys.Add(Setting.ObjectKey, "Interface");
 			
@@ -2462,7 +2461,7 @@ Procedure AddDesktopAndCommandInterfaceSettings(Parameters, SettingsTree)
 	EndDo;
 	
 	If AllSettingsKeys.Count() > 0 Then
-		// Adding top-level groups for desktop settings and command-interface settings.
+		// 
 		NewInterfaceRow = SettingsTree.Rows.Add();
 		NewInterfaceRow.Setting = NStr("en = 'Command interface and home page';");
 		NewInterfaceRow.Picture = PictureLib.Picture;
@@ -2472,7 +2471,7 @@ Procedure AddDesktopAndCommandInterfaceSettings(Parameters, SettingsTree)
 	EndIf;
 	
 	If DesktopSettingsKeys.Count() > 0 Then
-		// Creating a desktop settings row.
+		// 
 		NewSubordinateInterfaceRow = NewInterfaceRow.Rows.Add();
 		NewSubordinateInterfaceRow.Setting = StandardSubsystemsServer.HomePagePresentation();
 		NewSubordinateInterfaceRow.Picture = PictureLib.Picture;
@@ -2482,7 +2481,7 @@ Procedure AddDesktopAndCommandInterfaceSettings(Parameters, SettingsTree)
 	EndIf;
 	
 	If InterfaceSettingsKeys.Count() > 0 Then
-		// Creating a command interface settings row.
+		// 
 		NewSubordinateInterfaceRow = NewInterfaceRow.Rows.Add();
 		NewSubordinateInterfaceRow.Setting = NStr("en = 'Command interface';");
 		NewSubordinateInterfaceRow.Picture = PictureLib.Picture;
@@ -2493,7 +2492,7 @@ Procedure AddDesktopAndCommandInterfaceSettings(Parameters, SettingsTree)
 	
 EndProcedure
 
-// Merges value lists.
+// Combines lists of values.
 // 
 // Parameters:
 //  DestinationList - ValueList

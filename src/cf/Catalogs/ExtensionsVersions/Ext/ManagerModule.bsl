@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
 // Parameters:
-//  ParameterName - String
+//  Parameter Name-String
 //  SpecifiedParameters - Array of String
 //
 Procedure SessionParametersSetting(SessionParametersNames, SpecifiedParameters) Export
@@ -44,21 +42,21 @@ Procedure SessionParametersSetting(SessionParametersNames, SpecifiedParameters) 
 
 EndProcedure
 
-// Returns checksums for the main extensions
-// and patches required for setting the InstalledExtensions session parameter
-// and making further checks for changes.
 // 
-// It is called at the startup to set the InstalledExtensions session parameter,
-// which is required to perform the extension availability check and to manage dynamic updates,
-// and also from the configuration extensions setup form in 1C:Enterprise mode.
+// 
+// 
+// 
+// 
+// 
+// 
 //
-// Sessions without separators don't support extensions designed for shared sessions
-// (service administrator tools).
+// 
+// 
 //
 // Returns:
 //  FixedStructure:
-//   * Main_    - String - a checksum of all extensions except for patch extensions.
-//   * Corrections - String - a checksum of all patch extensions.
+//   * Main_    - String -  checksum of all extensions, except for corrective extensions.
+//   * Corrections - String -  checksum of all corrective extensions.
 //
 Function InstalledExtensions(OnStart = False) Export
 
@@ -73,21 +71,18 @@ Function InstalledExtensions(OnStart = False) Export
 		For Each Extension In UnattachedExtensions Do
 			ExtensionsOnStart.Insert(ExtensionChecksum(Extension), Extension);
 		EndDo;
+		AllApplicationProblems = ConfigurationExtensions.GetSessionApplicationIssuesInformation();
+		For Each ProblemOfApplication In AllApplicationProblems Do
+			Checksum = ExtensionChecksum(ProblemOfApplication.Extension);
+			If ExtensionsOnStart.Get(Checksum) = Undefined Then
+				ExtensionsOnStart.Insert(Checksum, ProblemOfApplication.Extension);
+			EndIf;
+		EndDo;
 		AddedExtensions = New Map;
 		Extensions = New Array;
 		For Each Extension In DatabaseExtensions Do
 			Checksum = ExtensionChecksum(Extension);
 			ExtensionOnStart = ExtensionsOnStart.Get(Checksum);
-			If ExtensionOnStart = Undefined Then
-				Errors = Extension.CheckCanApply();
-				For Each Error In Errors Do
-					If Error.Severity = ConfigurationExtensionApplicationIssueSeverity.Critical Then
-						ExtensionsOnStart.Insert(Checksum, Extension);
-						ExtensionOnStart = Extension;
-						Break;
-					EndIf;
-				EndDo;
-			EndIf;
 			If ExtensionOnStart <> Undefined Then
 				AddedExtensions.Insert(Checksum, True);
 				Extensions.Add(ExtensionOnStart);
@@ -120,8 +115,8 @@ Function InstalledExtensions(OnStart = False) Export
 		ModuleConfigurationUpdate = Undefined;
 	EndIf;
 	
-	// Exclude the extensions for shared mode users as they are not attached in data areas
-	// and cannot amend the configuration code (which is possible only by using the service administrator tools).
+	// 
+	// 
 	// 
 	SharedMode = Common.DataSeparationEnabled()
 		And Not Common.SeparatedDataUsageAvailable();
@@ -157,7 +152,7 @@ Function InstalledExtensions(OnStart = False) Export
 
 EndFunction
 
-// For the TimeConsumingOperations.RunBackgroundJobWithClientContext function.
+// For the long-term operation function.Run the client's background taskcontext.
 Procedure InsertARegisteredSetOfInstalledExtensions(Parameters) Export
 
 	ExtensionsChangedDynamically();
@@ -174,7 +169,7 @@ Procedure InsertARegisteredSetOfInstalledExtensions(Parameters) Export
 
 EndProcedure
 
-// For the TimeConsumingOperations.ExecuteWithClientContext procedure.
+// For a long-term surgery procedure.Execute the client's context.
 Procedure RestoreTheRegisteredCompositionOfInstalledExtensions(Parameters) Export
 
 	If Parameters.Property("RegisteredCompositionOfInstalledExtensions") Then
@@ -201,7 +196,7 @@ Function InstalledExtensionsOnStartup() Export
 
 EndFunction
 
-// Returns a flag that shows whether the extension content was changed after the session start.
+// Returns a flag for changing the composition of extensions after starting the session.
 // 
 // Returns:
 //  Boolean
@@ -224,13 +219,13 @@ Function ExtensionsChangedDynamically() Export
 
 EndFunction
 
-// Returns information on changed extensions and corrections.
+// Returns information about modified extensions and fixes.
 //
 // Parameters:
 //  InstalledExtensionsOnStartup - See InstalledExtensionsOnStartup
-//                                    - Undefined - Get for the current session.
-//  IsCheckInCurrentSession - Boolean - Set to True if InstalledExtensionsOnStartup
-//                                    are obtained in the current session.
+//                                    
+//  IsCheckInCurrentSession - Boolean - 
+//                                    
 //
 // Returns:
 //  Structure:
@@ -325,8 +320,8 @@ Procedure RegisterExtensionsVersionUsage(OnFirstSetSessionParameters = False) Ex
 	|	AND ExtensionsVersions.Ref = &ExtensionsVersion
 	|	AND ExtensionsVersions.DateOfLastUse < &DateOfLastUse";
 	
-	// If another user is updating the last use date,
-	// wait till the it's finished to avoid exclusive locks.
+	// 
+	// 
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.SetValue("Ref", ExtensionsVersion);
@@ -402,7 +397,7 @@ Function LastExtensionsVersion() Export
 	
 EndFunction
 
-// Deletes obsolete metadata versions.
+// Deletes outdated versions of metadata.
 Procedure DeleteObsoleteParametersVersions() Export
 
 	OtherVersion = OtherExtensionsVersion();
@@ -433,7 +428,7 @@ Procedure DeleteObsoleteParametersVersions() Export
 	EndDo;
 	MinSessionStartDate = RoundedSessionStartDate(MinSessionStartDate);
 	
-	// Obsolete extension version mark.
+	// 
 	While True Do
 		OtherVersion = OtherExtensionsVersion(MinSessionStartDate);
 		If Not ValueIsFilled(OtherVersion) Then
@@ -465,7 +460,7 @@ Procedure DeleteObsoleteParametersVersions() Export
 
 EndProcedure
 
-// Enables and disables the DeleteObsoleteExtensionsVersionsParameters scheduled job.
+// Includes/Disables the routine task of deleting the old parameters of the extension Versionsreferences.
 Procedure EnableDeleteObsoleteExtensionsVersionsParametersJob(Enable) Export
 
 	ScheduledJobsServer.SetPredefinedScheduledJobUsage(
@@ -473,7 +468,7 @@ Procedure EnableDeleteObsoleteExtensionsVersionsParametersJob(Enable) Export
 
 EndProcedure
 
-// For common forms Extensions and InstalledPatches.
+// For General Extension forms, set Corrections.
 //
 Procedure ToggleExtensionUsage(ExtensionID, CurrentUsage) Export
 
@@ -532,7 +527,7 @@ Procedure ToggleExtensionUsage(ExtensionID, CurrentUsage) Export
 
 EndProcedure
 
-// For common forms Extensions and InstalledPatches.
+// For General Extension forms, set Corrections.
 //
 // Returns:
 //  ConfigurationExtension
@@ -554,7 +549,7 @@ Function FindExtension(ExtensionID) Export
 
 EndFunction
 
-// For common forms Extensions and InstalledPatches.
+// For General Extension forms, set Corrections.
 // 
 // Parameters:
 //  Extension - ConfigurationExtension
@@ -565,14 +560,14 @@ Procedure DisableSecurityWarnings(Extension) Export
 
 EndProcedure
 
-// For common forms Extensions and InstalledPatches.
+// For General Extension forms, set Corrections.
 Procedure DisableMainRolesUsageForAllUsers(Extension) Export
 
 	Extension.UseDefaultRolesForAllUsers = False;
 
 EndProcedure
 
-// For common forms Extensions and InstalledPatches.
+// For General Extension forms, set Corrections.
 Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
 
 	ExtensionsToDelete = New Array;
@@ -663,7 +658,7 @@ Procedure DeleteExtensions(ExtensionsIDs, ErrorText) Export
 
 EndProcedure
 
-// For common forms Extensions and InstalledPatches.
+// For General Extension forms, set Corrections.
 //
 // Returns:
 //  Array of UUID
@@ -708,8 +703,8 @@ Function AllExtensionsConnected() Export
 EndFunction
 
 // Returns:
-//  Date - Universal timestamp received at the first function call in this session.
-//         Different machines have different timestamps, which affects the result.
+//  Date - 
+//         
 //         
 //
 Function SessionRealtimeTimestamp() Export
@@ -736,14 +731,14 @@ EndFunction
 
 #Region Private
 
-// Returns the checksums of the specified extensions.
+// Returns checksums of the specified extensions.
 //
 // Parameters:
-//  Extensions - Array - the extensions.
-//  ConsiderExtencionsState - Boolean - consider the Active and SafeMode flags.
+//  Extensions - Array -  to obtain the checksum of the specified extensions.
+//  Acetylacetonate - Boolean - take into account the signs of Active and Bezopasnyi.
 //
 // Returns:
-//  String - Strings in the following format: "<Extension name> (<Version>) <Hashsum>".
+//  String - 
 //
 Function ExtensionsChecksums(Extensions, AttachmentProperties1 = "", IncludingConfiguration = True)
 
@@ -767,7 +762,7 @@ Function ExtensionsChecksums(Extensions, AttachmentProperties1 = "", IncludingCo
 
 EndFunction
 
-// For functions ExtensionsChecksums and InstalledExtensions.
+// For the functions of Controlmeasurement and Ustanovlyuvalysya.
 Function ExtensionChecksum(Extension, AttachmentProperties1 = "")
 
 	Checksum = Extension.Name + " (" + Extension.Version + ") " + Base64String(Extension.HashSum);
@@ -789,8 +784,8 @@ Function ExtensionChecksum(Extension, AttachmentProperties1 = "")
 
 EndFunction
 
-// Returns the current extension version.
-// The search for a version is based on details of the attached extensions.
+// Returns the current version of extensions.
+// To search for the version, use the description of the enabled extensions.
 //
 Function ExtensionsVersion()
 
@@ -813,8 +808,8 @@ Function ExtensionsVersion()
 	|WHERE
 	|	NOT ExtensionsVersions.DeletionMark";
 	
-	// If another user is creating an extension version,
-	// wait till they finish to avoid exclusive locks.
+	// 
+	// 
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.SetValue("Ref", FlagOfAddingNewVersion());
@@ -832,7 +827,7 @@ Function ExtensionsVersion()
 	If VersionFound(Selection, ExtensionsDetails) Then
 		ExtensionsVersion = Selection.Ref;
 	Else
-		// Create an extensions version.
+		// 
 		RoundedSessionStartDate = RoundedSessionStartDate();
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.ExtensionsVersions");
@@ -840,8 +835,8 @@ Function ExtensionsVersion()
 		BeginTransaction();
 		Try
 			Block.Lock();
-			// Double check that the version is not yet created
-			// (which is unlikely but possible in between transactions).
+			// 
+			// 
 			QueryResult = Query.Execute();
 			Selection = QueryResult.Select();
 			If VersionFound(Selection, ExtensionsDetails) Then
@@ -868,7 +863,7 @@ Function ExtensionsVersion()
 
 EndFunction
 
-// For function ExtensionsVersion.
+// For the version Extensions function.
 Function VersionFound(Selection, ExtensionsDetails)
 
 	While Selection.Next() Do
@@ -881,7 +876,7 @@ Function VersionFound(Selection, ExtensionsDetails)
 
 EndFunction
 
-// This method is required by ExtensionsVersion function.
+// For the version Extensions function.
 Function FlagOfAddingNewVersion()
 
 	Return Catalogs.ExtensionsVersions.GetRef(
@@ -889,8 +884,8 @@ Function FlagOfAddingNewVersion()
 
 EndFunction
 
-// For the ExtensionsVersion function and DeleteObsoleteParametersVersions,
-// RegisterExtensionsVersionUsage procedures.
+// For the function Versionsextensions and procedures, delete the old versions of the Parameters,
+// Register the use of versionsextensions.
 //
 Function RoundedSessionStartDate(SessionStarted = '00010101')
 
@@ -902,8 +897,8 @@ Function RoundedSessionStartDate(SessionStarted = '00010101')
 
 EndFunction
 
-// For the ExtensionsVersion function and DeleteObsoleteParametersVersions,
-// RegisterExtensionsVersionUsage procedures.
+// For the function Versionsextensions and procedures, delete the old versions of the Parameters,
+// Register the use of versionsextensions.
 //
 Function ServiceItem(Ref = Undefined)
 
@@ -933,7 +928,7 @@ Function ServiceItem(Ref = Undefined)
 
 EndFunction
 
-// This method is required by DeleteObsoleteParametersVersions procedure.
+// For the procedure, delete the old version of the Parameters.
 Function OtherExtensionsVersion(MinSessionStartDate = '39991231')
 
 	Query = New Query;
@@ -949,8 +944,8 @@ Function OtherExtensionsVersion(MinSessionStartDate = '39991231')
 	|	AND ExtensionsVersions.DateOfLastUse < &MinSessionStartDate
 	|	AND NOT ExtensionsVersions.DeletionMark";
 	
-	// If another user is editing the "ExtensionsVersions" catalog,
-	// wait till it's finished.
+	// 
+	// 
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.Mode = DataLockMode.Shared;
@@ -973,10 +968,10 @@ Function OtherExtensionsVersion(MinSessionStartDate = '39991231')
 
 EndFunction
 
-// This method is required by DeleteObsoleteParametersVersions procedure.
+// For the procedure, delete the old version of the Parameters.
 Procedure DisableScheduledJobIfRequired()
 
-	// Disabling the scheduled job if only one extension version is left.
+	// 
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.ExtensionsVersions");
 	LockItem.Mode = DataLockMode.Shared;
@@ -1007,7 +1002,7 @@ Procedure DisableScheduledJobIfRequired()
 
 EndProcedure
 
-// Intended for function "LastExtensionsVersion".
+// 
 //
 // Returns:
 //  Structure:
@@ -1027,7 +1022,7 @@ Function NewStoredPropertiesOfExtensionsVersion()
 	
 EndFunction
 
-// This method is required by RegisterExtensionsVersionUsage procedure.
+// For the procedure, register the use of a version of Extensions.
 Procedure UpdateLatestExtensionsVersion(ExtensionsVersion)
 
 	If DataBaseConfigurationChangedDynamically() Or ExtensionsChangedDynamically() Then
@@ -1049,7 +1044,7 @@ Procedure UpdateLatestExtensionsVersion(ExtensionsVersion)
 
 EndProcedure
 
-// For the DynamicallyChangedExtensions function.
+// For the dynamically changed Extension function.
 Function ChangesInExtensionsComposition(CurrentComposition, NewContent)
 	NewMap1 = New Map;
 	For Each Extension In StrSplit(NewContent, Chars.LF) Do
@@ -1095,7 +1090,7 @@ Function ChangesInExtensionsComposition(CurrentComposition, NewContent)
 	Return Result;
 EndFunction
 
-// For the InstalledExtensions function and RestoreRegisteredInstalledExtensionsComposition procedure.
+// For the function setextensions and the procedure restore the registered setextensions.
 Procedure SetTheInitialRegisteredState(Source, Receiver = Undefined)
 
 	If Receiver = Undefined Then
@@ -1107,7 +1102,7 @@ Procedure SetTheInitialRegisteredState(Source, Receiver = Undefined)
 
 EndProcedure
 
-// For the ExtensionsChangedDynamically and DynamicallyChangedExtensions functions.
+// For the extension functions, the dynamic and dynamically changed extensions are changed.
 Procedure RegisterChangesToInstalledExtensions(InstalledExtensions, Unchanged)
 
 	If SessionParameters.InstalledExtensions.BasicRegisteredStatus = InstalledExtensions.MainState
@@ -1141,8 +1136,8 @@ Procedure RegisterChangesToInstalledExtensions(InstalledExtensions, Unchanged)
 
 EndProcedure
 
-// For the RegisterExtensionsCompositionChange,
-// SetInitialRegisteredState procedures.
+// For procedures to register changesextensionsreferences,
+// Set the initial unregistered state.
 //
 Procedure UpdateTheRegisteredStateInTheSessionParameter(InstalledExtensions)
 
@@ -1154,14 +1149,14 @@ Procedure UpdateTheRegisteredStateInTheSessionParameter(InstalledExtensions)
 
 EndProcedure
 
-// For procedure AddAdditionalInformationRecords of the manager module of information register ExtensionVersionParameters.
+// 
 // 
 //
 // Returns:
 //  Structure:
-//   * ConnectedNow - String - Enabled session extensions including patches.
-//   * Disabled1  - String - Disabled session extensions including patches.
-//   * All          - String - All database extensions including patches.
+//   * ConnectedNow - String - 
+//   * Disabled1  - String - 
+//   * All          - String - 
 //
 Function DescriptionExtensionsForJournal() Export
 

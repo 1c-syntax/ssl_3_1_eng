@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -17,14 +15,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Interactions.ProcessUserGroupsDisplayNecessity(ThisObject);
 	Interactions.AddContactsPickupFormPages(ThisObject);
 	
-	// Filling in contacts by the subject.
+	// 
 	Interactions.FillContactsBySubject(Items, Parameters.SubjectOf, ContactsBySubject, False);
 	
-	// Filling in a search option list and performing the first search.
+	// 
 	AllSearchLists = Interactions.AvailableSearchesList(FTSEnabled, Parameters, Items, False);
 	ExecuteFirstSearch();
 	
-	// If a contact is filled in, set the current page as appropriate one and position for the contact.
+	// 
 	If ValueIsFilled(Parameters.Contact) Then
 		SetContactAsCurrent(Parameters.Contact)
 	EndIf;
@@ -182,10 +180,10 @@ Procedure FindInListFromSubjectsListExecute()
 
 EndProcedure
 
-// Returns the string data of the Contacts table by subject.
+// Returns data for a row in the Contacts table by subject.
 // 
 // Parameters:
-//  SelectedRow  - FormDataCollectionItem - the string whose data is being received.
+//  SelectedRow  - FormDataCollectionItem -  the string whose data is received.
 //
 // Returns:
 //  Structure:
@@ -291,12 +289,12 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// SEARCH PROCEDURES AND FUNCTIONS
+// 
 
-// Generates a value list of strings to be searched using the current search option.
+// Generates a list of string values that will be searched for in the current search option.
 //
 // Returns:
-//   ValueList   - List of strings to be searched by.
+//   ValueList   - 
 //
 &AtServer
 Function SearchStringsListByOption()
@@ -318,7 +316,7 @@ Function SearchStringsListByOption()
 
 EndFunction
 
-// Performs the first search by all possible search options according to the passed parameters.
+// Performs the first search for all possible search options according to the passed parameters.
 //
 &AtServer
 Procedure ExecuteFirstSearch()
@@ -328,7 +326,7 @@ Procedure ExecuteFirstSearch()
 		Return;
 	EndIf;
 
-	// Searching by email.
+	// 
 	SearchOptions = "ByEmail";
 	For Each Variant In SearchStringsListByOption() Do
 		SearchString = Variant.Value;
@@ -340,7 +338,7 @@ Procedure ExecuteFirstSearch()
 		EndIf;
 	EndDo;
 	
-	// Searching by phone number.
+	// 
 	SearchOptions = "ByPhone";
 	For Each Variant In SearchStringsListByOption() Do
 		SearchString = Variant.Value;
@@ -352,13 +350,13 @@ Procedure ExecuteFirstSearch()
 		EndIf;
 	EndDo;
 
-	// If a full-text search index is not enabled, cancel search.
+	// 
 	If Not FTSEnabled Then
 		SearchOptions = "ByEmail";
 		Return;
 	EndIf;
 
-	// Searching by an address and a presentation.
+	// 
 	SearchOptions = "ByLine";
 	For Each Variant In SearchStringsListByOption() Do
 		SearchString = Variant.Value;
@@ -382,7 +380,7 @@ Function FindByEmail(ByDomain)
 
 EndFunction
 
-// Searches for contacts by phone number.
+// Searches for contacts by phone.
 //
 &AtServer
 Function FindByPhone()
@@ -391,7 +389,7 @@ Function FindByPhone()
 	
 EndFunction
 
-// Searches for contacts by string.
+// Searches for contacts by line.
 //
 &AtServer
 Function FindByString()
@@ -400,7 +398,7 @@ Function FindByString()
 	
 EndFunction
 
-// Searches for contacts by description beginning.
+// Searches for contacts at the beginning of the name.
 //
 &AtServer
 Function FindByDescriptionBeginning()
@@ -417,12 +415,12 @@ Function FindByDescriptionBeginning()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// COMMON PROCEDURES AND FUNCTIONS.
+// 
 
-// Sets a contact as the current contact in the dynamic list.
+// Sets the current contact in the corresponding dynamic list.
 //
 // Parameters:
-//  Contact  - CatalogRef - a contact to be positioned on.
+//  Contact  - CatalogRef -  the contact to be positioned on.
 // 
 &AtServer
 Procedure SetContactAsCurrent(Contact)

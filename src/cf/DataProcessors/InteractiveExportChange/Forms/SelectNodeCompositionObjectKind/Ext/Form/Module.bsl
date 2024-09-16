@@ -1,17 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	
+	If Parameters.InfobaseNode = Undefined Then
+		
+		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		
+	EndIf;
 	
 	CloseOnOwnerClose = True;
 	CloseOnChoice = False;
@@ -24,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	AllData = DataExchangeCached.ExchangePlanContent(Object.InfobaseNode.Metadata().Name);
 
-	// Hiding items with DoNotExport set.
+	// 
 	NotExportMode = Enums.ExchangeObjectExportModes.NotExport;
 	ExportModes   = DataExchangeCached.UserExchangePlanComposition(Object.InfobaseNode);
 	Position = AllData.Count() - 1;
@@ -36,7 +40,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Position = Position - 1;
 	EndDo;
 	
-	// Removing standard metadata picture.
+	// 
 	AllData.FillValues(-1, "PictureIndex");
 	
 	AddAllObjects(AllData, SelectionTreeRows);
@@ -140,7 +144,7 @@ Procedure AddAllObjects(AllRefNodeData, DestinationRows)
 		EndIf;
 	EndDo;
 	
-	// Delete empty items.
+	// 
 	If DocumentsGroup.Rows.Count() = 0 Then
 		DestinationRows.Delete(DocumentsGroup);
 	EndIf;

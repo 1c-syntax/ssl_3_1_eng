@@ -1,36 +1,34 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Handler of the StartChoice event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Event handler for the Initial selection of the contact information form field.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//     Form                - ClientApplicationForm - a form of a contact information owner.
-//     Item              - FormField        - a form item containing contact information presentation.
-//     Modified   - Boolean           - a flag indicating that the form was modified.
-//     StandardProcessing - Boolean           - a flag indicating that standard processing is required for the form event.
-//     OpeningParameters    - Structure        - opening parameters of the contact information input form.
+//     Form                - ClientApplicationForm -  form of owner contact information.
+//     Item              - FormField        -  a form element that contains a view of contact information.
+//     Modified   - Boolean           -  set the form modification flag.
+//     StandardProcessing - Boolean           -  flag to set for standard form event processing.
+//     OpeningParameters    - Structure        -  parameters for opening the contact information entry form.
 //
 Procedure StartSelection(Form, Item, Modified = True, StandardProcessing = False, OpeningParameters = Undefined) Export
 	OnStartChoice(Form, Item, Modified, StandardProcessing, OpeningParameters, True);
 EndProcedure
 
-// Handler of the OnChange event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Event handler for Changing the contact information form field.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//     Form             - ClientApplicationForm - a form of a contact information owner.
-//     Item           - FormField        - a form item containing contact information presentation.
-//     IsTabularSection - Boolean           - a flag specifying that the item is part of a form table.
+//     Form             - ClientApplicationForm -  form of owner contact information.
+//     Item           - FormField        -  a form element that contains a view of contact information.
+//     IsTabularSection - Boolean           -  flag that the element is part of the form table.
 //
 Procedure StartChanging(Form, Item, IsTabularSection = False) Export
 	
@@ -38,40 +36,40 @@ Procedure StartChanging(Form, Item, IsTabularSection = False) Export
 	
 EndProcedure
 
-// Handler of the Clearing event for a contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Event handler for Clearing the form fields with the contact information.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//     Form        - ClientApplicationForm - a form of a contact information owner.
-//     AttributeName - String           - a name of a form attribute related to contact information presentation.
+//     Form        - ClientApplicationForm -  form of owner contact information.
+//     AttributeName - String           -  name of the form detail associated with the contact information submission.
 //
 Procedure StartClearing(Val Form, Val AttributeName) Export
 	OnClear(Form, AttributeName, True);
 EndProcedure
 
-// Handler of the command related to contact information (write an email, open an address, and so on).
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler for the command associated with contact information (write an email, open an address, etc.).
+// Called from the connected actions when implementing the "Contact information"subsystem.
 //
 // Parameters:
-//     Form      - ClientApplicationForm - a form of a contact information owner.
-//     CommandName - String           - a name of the automatically generated action command.
+//     Form      - ClientApplicationForm -  form of owner contact information.
+//     CommandName - String           -  name of the automatically generated action command.
 //
 Procedure StartCommandExecution(Val Form, Val CommandName) Export
 	OnExecuteCommand(Form, CommandName, True);
 EndProcedure
 
-// URL handler for opening a web page.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler for a navigation link to open a web page.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//   Form                - ClientApplicationForm - a form of a contact information owner.
-//   Item              - FormField - a form item containing contact information presentation.
-//   FormattedStringURL - String - a value of the formatted string URL. The parameter
-//                                                       is passed by the link.
-//   StandardProcessing  - Boolean - this parameter stores the flag of whether the standard
-//                                (system) event processing is executed. If this parameter
-//                                is set to False in the processing procedure, standard processing
-//                                is skipped.
+//   Form                - ClientApplicationForm -  form of owner contact information.
+//   Item              - FormField -  a form element that contains a view of contact information.
+//   FormattedStringURL - String -  value of the formatted string hyperlink. The parameter
+//                                                       is passed by reference.
+//   StandardProcessing  - Boolean -  this parameter is passed to indicate that standard
+//                                system processing of the event is performed. If
+//                                this parameter is set to False in the body of the handler procedure, standard event processing
+//                                will not be performed.
 //
 Procedure StartURLProcessing(Form, Item, FormattedStringURL, StandardProcessing) Export
 	
@@ -79,42 +77,42 @@ Procedure StartURLProcessing(Form, Item, FormattedStringURL, StandardProcessing)
 	
 EndProcedure
 
-// URL handler for opening a web page.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler for a navigation link to open a web page.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//   Form                - ClientApplicationForm - a form of a contact information owner.
-//   Item              - FormField - a form item containing contact information presentation.
-//   FormattedStringURL - String - a value of the formatted string URL. The parameter
-//                                                       is passed by the link.
-//   StandardProcessing  - Boolean - this parameter stores the flag of whether the standard
-//                                (system) event processing is executed. If this parameter
-//                                is set to False in the processing procedure, standard processing
-//                                is skipped.
+//   Form                - ClientApplicationForm -  form of owner contact information.
+//   Item              - FormField -  a form element that contains a view of contact information.
+//   FormattedStringURL - String -  value of the formatted string hyperlink. The parameter
+//                                                       is passed by reference.
+//   StandardProcessing  - Boolean -  this parameter is passed to indicate that standard
+//                                system processing of the event is performed. If
+//                                this parameter is set to False in the body of the handler procedure, standard event processing
+//                                will not be performed.
 //
 Procedure URLProcessing(Form, Item, FormattedStringURL, StandardProcessing) Export
 	OnURLProcessing(Form, Item, FormattedStringURL, StandardProcessing, False);
 EndProcedure
 
-// Handler of the AutoComplete event of a contact information form field for selecting address options by the entered string.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// The event handler automatically selects fields in the contact information form for selecting address options based on the entered line.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//     Item                  - FormField      - a form item containing contact information presentation.
-//     Text                    - String         - a text string entered by the user in the contact information field.
-//     ChoiceData             - ValueList - contains a value list that will be used for standard
+//     Item                  - FormField      -  a form element that contains a view of contact information.
+//     Text                    - String         -  a string of text entered by the user in the contact information field.
+//     ChoiceData             - ValueList -  contains a list of values that will be used for standard
 //                                                 event processing.
 //     DataGetParameters - Structure
-//                              - Undefined - contains search parameters that will be passed
-//                                to the GetChoiceData method. For more information, see details of the form field extension for
-//                                the AutoComplete input field in Syntax Assistant.
-//     Waiting -   Number       - an interval in seconds between text input and an event.
-//                                If 0, the event was not triggered by text input
-//                                but it was called to generate a quick selection list. 
-//     StandardProcessing     - Boolean         - this parameter stores the flag of whether the standard
-//                                (system) event processing is executed. If this parameter
-//                                is set to False in the processing procedure, standard processing
-//                                is skipped.
+//                              - Undefined - 
+//                                
+//                                
+//     Waiting -   Number       -  the interval in seconds after entering the text after which the event occurred.
+//                                If 0, it means that the event was called not for text input,
+//                                but for forming a quick selection list. 
+//     StandardProcessing     - Boolean         -  this parameter is passed to indicate that standard
+//                                system processing of the event is performed. If
+//                                this parameter is set to False in the body of the handler procedure, standard event processing
+//                                will not be performed.
 //
 Procedure AutoCompleteAddress(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing) Export
 	
@@ -135,18 +133,18 @@ Procedure AutoCompleteAddress(Item, Text, ChoiceData, DataGetParameters, Waiting
 	
 EndProcedure
 
-// Handler of the ChoiceProcessing event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Event handler for processing the contact information form field Selection.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//     Form   - ClientApplicationForm - a form of a contact information owner.
-//     ValueSelected    - String        - a selected value that will be set as a value of
-//                                            the contact information input field.
-//     AttributeName         - String        - a name of a form attribute related to contact information presentation.
-//     StandardProcessing - Boolean        - this parameter stores the flag of whether the standard
-//                                            (system) event processing is executed. If this parameter is
-//                                            set to False in the processing procedure, standard processing
-//                                            is skipped.
+//     Form   - ClientApplicationForm -  form of owner contact information.
+//     ValueSelected    - String        -  the selected value that will be set as the value
+//                                            of the contact information input field.
+//     AttributeName         - String        -  name of the form detail associated with the contact information submission.
+//     StandardProcessing - Boolean        -  this parameter is passed to indicate that standard
+//                                            (system) event processing is performed. If
+//                                            this parameter is set to False in the body of the handler procedure, standard event processing
+//                                            will not be performed.
 //
 Procedure ChoiceProcessing(Val Form, Val ValueSelected, Val AttributeName, StandardProcessing = False) Export
 	
@@ -161,12 +159,12 @@ Procedure ChoiceProcessing(Val Form, Val ValueSelected, Val AttributeName, Stand
 	
 EndProcedure
 
-// Opens the address input form for the contact information form.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Opening the address form of the contact information form.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//     Form     - ClientApplicationForm - a form of a contact information owner.
-//     Result - Arbitrary     - data provided by the command handler.
+//     Form     - ClientApplicationForm -  form of owner contact information.
+//     Result - Arbitrary     -  data passed by the command handler.
 //
 Procedure OpenAddressInputForm(Form, Result) Export
 	
@@ -178,27 +176,27 @@ Procedure OpenAddressInputForm(Form, Result) Export
 	
 EndProcedure
 
-// Handler of the refresh operation for the contact information form.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler for possible updates to the contact information form.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//     Form     - ClientApplicationForm - a form of a contact information owner.
-//     Result - Arbitrary     - data provided by the command handler.
+//     Form     - ClientApplicationForm -  form of owner contact information.
+//     Result - Arbitrary     -  data passed by the command handler.
 //
 Procedure FormRefreshControl(Form, Result) Export
 	
-	// Address input form callback analysis.
+	// 
 	OpenAddressInputForm(Form, Result);
 	
 EndProcedure
 
-// Handler of the ChoiceProcessing event for a world country. 
-// Implements functionality for automated creation of WorldCountries catalog item based on user choice.
+// Event handler for processing the world country Selection. 
+// Implements the functionality of automatically adding an element of the world country reference list after selection.
 //
 // Parameters:
-//     Item              - FormField    - an item containing the world country to be edited.
-//     ValueSelected    - Arbitrary - a selection value.
-//     StandardProcessing - Boolean       - a flag indicating that standard processing is required for the form event.
+//     Item              - FormField    -  the element containing the editable country in the world.
+//     ValueSelected    - Arbitrary -  the value of the selection.
+//     StandardProcessing - Boolean       -  flag to set for standard form event processing.
 //
 Procedure WorldCountryChoiceProcessing(Item, ValueSelected, StandardProcessing) Export
 	If Not StandardProcessing Then 
@@ -229,41 +227,41 @@ Procedure WorldCountryChoiceProcessing(Item, ValueSelected, StandardProcessing) 
 	
 EndProcedure
 
-// Constructor used to create a structure with contact information form opening parameters.
-// The set of fields can be expanded with national-specific properties in the AddressManagerClient common module.
+// Constructor for the structure of parameters for opening the contact information form.
+// The composition fields can be expanded in a General module Rabotadatelya properties with national characteristics.
 //
 // Parameters:
-//  ContactInformationKind  - CatalogRef.ContactInformationKinds - a contact information kind.
+//  ContactInformationKind  - CatalogRef.ContactInformationKinds -  type of contact information to edit.
 //                           - Structure - See ContactsManager.ContactInformationKindParameters
-//  Value                 - String - a serialized value of contact information fields in JSON or XML format.
-//  Presentation            - String - a contact information presentation.
-//  Comment              - String - contact information comment.
-//  ContactInformationType  - EnumRef.ContactInformationTypes - a contact information type.
-//                             If specified, the fields matching the type are added to the returned structure.
+//  Value                 - String -  serialized value of contact information fields in JSON or XML format.
+//  Presentation            - String -  presentation of contact information.
+//  Comment              - String -  comment on contact information.
+//  ContactInformationType  - EnumRef.ContactInformationTypes -  type of contact information.
+//                             If specified, fields corresponding to the type are added to the returned structure.
 // 
 // Returns:
 //  Structure:
 //   * ContactInformationKind - See ContactsManager.ContactInformationKindParameters
-//   * ReadOnly          - Boolean - if True, the form will be opened in view-only mode.
-//   * Value                - String - A contact information field value in JSON or XML format.
-//   * Presentation           - String - a contact information presentation.
-//   * ContactInformationType - EnumRef.ContactInformationTypes - a contact information type if it was specified
+//   * ReadOnly          - Boolean -  if True, the form will be opened in view-only mode.
+//   * Value                - String - 
+//   * Presentation           - String -  presentation of contact information.
+//   * ContactInformationType - EnumRef.ContactInformationTypes -  type of contact information, if specified
 //                                                                            in the parameters.
-//   * Country                  - String - a world country (only if Address is specified as a contact information type).
-//   * State                  - String - a value of the state field (only if Address is specified as a contact information type).
-//                                       It is relevant for EAEU countries.
-//   * IndexOf                  - String - a postal code (only if Address is specified as a contact information type).
-//   * PremiseType            - String - a premise type in the address input form (only if Address is specified as a contact
-//                                       information type).
-//   * CountryCode               - String - a phone code of a world country (only if Phone is specified as a contact information type).
-//   * CityCode               - String - a phone code of a city (only if Phone is specified as a contact information type).
-//   * PhoneNumber           - String - a phone number (only if Phone is specified as a contact information type).
-//   * PhoneExtension              - String - an additional phone number (only if Phone is specified as a contact information type).
-//   * Title               - String - a form title. Default title is presentation of a contact information kind.
-//   * AddressType               - String - options: An empty string (the default value), FreeForm, and EEU;
-//                                       For Russian Federation: Municipal or AdministrativeAndTerritorial.
-//                                       If not specified (an empty string), it is the address
-//                                       selected by a user in the address input form (for existing addresses) or "Municipal" (for new addresses).
+//   * Country                  - String -  country of the world, only if the contact information type Address is specified.
+//   * State                  - String -  the value of the region field only if the contact information type Address is specified.
+//                                       Relevant for the EAEU countries.
+//   * IndexOf                  - String -  postal code, only if the contact information type Address is specified.
+//   * PremiseType            - String -  type of room in the new address entry form, only if the contact
+//                                       information type Address is specified.
+//   * CountryCode               - String -  telephone country code in the world, only if you specify the type of contact information Phone.
+//   * CityCode               - String -  phone area code, only if the contact information type Phone is specified.
+//   * PhoneNumber           - String -  the phone number only if you specify the type of contact information Phone.
+//   * PhoneExtension              - String -  an extension phone number, only if the contact information type Phone is specified.
+//   * Title               - String -  the form header. By default, the contact information view.
+//   * AddressType               - String -  options: an Empty string (the default), "Svobodnoye", "EEU";
+//                                       For the Russian Federation: "Municipal" or"administrative-Territorial".
+//                                       If not specified (empty string), the existing address will be set to the address
+//                                       selected by the user in the address entry form, and the new address will be set to the Municipal address."
 //
 Function ContactInformationFormParameters(ContactInformationKind, Value,
 	Presentation = Undefined, Comment = Undefined, ContactInformationType = Undefined) Export
@@ -300,34 +298,34 @@ Function ContactInformationFormParameters(ContactInformationKind, Value,
 	
 EndFunction
 
-// Opens an appropriate contact information form for editing or viewing.
+// Opens the appropriate contact information form for editing or viewing.
 //
 //  Parameters:
-//      Parameters    - Arbitrary - the ContactInformationFormParameters function result.
-//      Owner     - Arbitrary - a form parameter.
-//      Notification   - NotifyDescription - used to process form closing.
+//      Parameters    - Arbitrary -  result of the contact information form Parameterform function.
+//      Owner     - Arbitrary -  parameter for the form to open.
+//      Notification   - NotifyDescription -  to process the closing of the form.
 //
 //  Returns:
-//   ClientApplicationForm - a requested form.
+//   ClientApplicationForm - 
 //
 Function OpenContactInformationForm(Parameters, Owner = Undefined, Notification = Undefined) Export
 	Parameters.Insert("OpenByScenario", True);
 	Return OpenForm("DataProcessor.ContactInformationInput.Form", Parameters, Owner,,,, Notification);
 EndFunction
 
-// Creates a contact information email.
+// Creates a message based on contact information.
 //
 // Parameters:
 //  FieldValues   - String
 //                  - Structure
 //                  - Map
-//                  - ValueList - a contact information value.
+//                  - ValueList -  value of contact information.
 //  EmailParameters - See SMSAndEmailParameters
 //  DeleteExpectedKind  - CatalogRef.ContactInformationKinds
 //                       - EnumRef.ContactInformationTypes
-//                       - Structure - Obsolete. Instead, use "EmailParameters".
-//  ObsoleteContactInformationSource - AnyRef - Obsolete. Instead, use "EmailParameters".
-//  ObsoleteAttributeName  - String - Obsolete. Instead, use "EmailParameters".
+//                       - Structure - 
+//  ObsoleteContactInformationSource - AnyRef - 
+//  ObsoleteAttributeName  - String - 
 //
 Procedure CreateEmailMessage(Val FieldValues, Val EmailParameters = Undefined,
 	DeleteExpectedKind = Undefined, ObsoleteContactInformationSource = Undefined, 
@@ -409,18 +407,18 @@ Procedure CreateEmailMessage(Val FieldValues, Val EmailParameters = Undefined,
 	
 EndProcedure
 
-// Creates a text message based on the contact information.
+// 
 //
 // Parameters:
 //  FieldValues - String
 //                - Structure
 //                - Map
-//                - ValueList - contact information.
+//                - ValueList -  contact information.
 //  SMSParameters  - See SMSAndEmailParameters
 //  DeleteExpectedKind  - CatalogRef.ContactInformationKinds
 //                       - EnumRef.ContactInformationTypes
-//                       - Structure - Obsolete. Instead, use "SMSParameters".
-//  ObsoleteContactInformationSource - AnyRef - Obsolete. Instead, use "SMSParameters".
+//                       - Structure - 
+//  ObsoleteContactInformationSource - AnyRef - 
 //
 Procedure CreateSMSMessage(Val FieldValues, Val SMSParameters = Undefined,
 	Val DeleteExpectedKind = Undefined, ObsoleteContactInformationSource = "") Export
@@ -496,18 +494,18 @@ Procedure CreateSMSMessage(Val FieldValues, Val SMSParameters = Undefined,
 	
 EndProcedure
 
-// A parameter constructor for procedures "CreateEmailMessage" and "CreateSMS".
+// 
 // 
 // Returns:
 //  Structure:
-//    * Presentation - String - The contact information presentation. 
-//                                Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
+//    * Presentation - String -  presentation of contact information. Used if 
+//                                the view cannot be defined from the parameter. Field values (no View field).
 //    * ExpectedKind  - CatalogRef.ContactInformationKinds
 //                    - EnumRef.ContactInformationTypes
-//                    - Structure - Intended for identifying contact information type in cases where it cannot be done using the "FieldsValues" field.
-//    * ContactInformationSource - AnyRef - an owner object of contact information.
-//    * AttributeName  - String - The name of the attribute of the calling form that should be associated with the error message.
-//                               If not provided, the message will be shown as a warning dialog.
+//                    - Structure - 
+//    * ContactInformationSource - AnyRef -  object-owner of contact information.
+//    * AttributeName  - String - 
+//                               
 //
 Function SMSAndEmailParameters() Export
 	Result = New Structure;
@@ -518,17 +516,17 @@ Function SMSAndEmailParameters() Export
 	Return Result;
 EndFunction	
 
-// Makes a call to the passed phone number via SIP telephony
-// or via Skype if SIP telephony is not available.
+// Makes a call to the transmitted phone number via SIP telephony,
+// or if it is not available, then using Skype.
 //
 // Parameters:
-//  PhoneNumber -String - a phone number to which the call will be made.
+//  PhoneNumber -String -  the phone number that the call will be made to.
 //
 Procedure Telephone(PhoneNumber) Export
 	
 	PhoneNumber = StringFunctionsClientServer.ReplaceCharsWithOther("()_- ", PhoneNumber, "");
 	
-	ProtocolName = "tel"; // By default, "tel".
+	ProtocolName = "tel"; // 
 	
 	#If MobileClient Then
 		TelephonyTools.DialNumber(PhoneNumber, True);
@@ -555,10 +553,10 @@ Procedure Telephone(PhoneNumber) Export
 	
 EndProcedure
 
-// Calls via Skype.
+// Makes a call in Skype.
 //
 // Parameters:
-//  SkypeUsername - String - a Skype username.
+//  SkypeUsername - String -  Skype username.
 //
 Procedure CallSkype(SkypeUsername) Export
 	
@@ -566,10 +564,10 @@ Procedure CallSkype(SkypeUsername) Export
 
 EndProcedure
 
-// Open conversation window (chat) in Skype
+// Open a conversation window(chat) in Skype
 //
 // Parameters:
-//  SkypeUsername - String - a Skype username.
+//  SkypeUsername - String -  Skype username.
 //
 Procedure StartCoversationInSkype(SkypeUsername) Export
 	
@@ -577,19 +575,19 @@ Procedure StartCoversationInSkype(SkypeUsername) Export
 	
 EndProcedure
 
-// Opens a contact information reference.
+// Opens the link for contact information.
 //
 // Parameters:
 //  FieldValues - String
 //                - Structure
 //                - Map
-//                - ValueList - contact information.
-//  Presentation - String - A presentation.
-//                            Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
+//                - ValueList -  contact information.
+//  Presentation - String -  performance. Used if the view cannot be defined from the parameter.
+//                            Field values (no "View" field).
 //  ExpectedKind  - CatalogRef.ContactInformationKinds
 //                - EnumRef.ContactInformationTypes
 //                - Structure -
-//                      Intended for identifying contact information type in cases where it cannot be done using the "FieldsValues" field.
+//                      
 //
 Procedure GoToWebLink(Val FieldValues, Val Presentation = "", ExpectedKind = Undefined) Export
 	
@@ -619,12 +617,12 @@ Procedure GoToWebLink(Val FieldValues, Val Presentation = "", ExpectedKind = Und
 	EndIf;
 EndProcedure
 
-// Shows Yandex.Maps or Google Maps address in a browser.
+// Shows the address in the browser on maps Yandex or Google.
 //
 // Parameters:
-//  Address                       - String - a text presentation of an address.
-//  MapServiceName - String - a name of a map service where the address should be shown:
-//                                         Yandex.Maps or GoogleMaps.
+//  Address                       - String -  text representation of the address.
+//  MapServiceName - String - :
+//                                         
 //
 Procedure ShowAddressOnMap(Address, MapServiceName) Export
 	CodedAddress = StringDecoding(Address);
@@ -638,12 +636,12 @@ Procedure ShowAddressOnMap(Address, MapServiceName) Export
 	
 EndProcedure
 
-// Displays a form with a history of changes to contact information.
+// Displays a form with the history of contact information changes.
 //
 // Parameters:
-//  Form                         - ClientApplicationForm - a form with contact information.
-//  ContactInformationParameters - Structure - information about a contact information item.
-//  AsynchronousCall              - Boolean - an internal parameter.
+//  Form                         - ClientApplicationForm -  contact information form.
+//  ContactInformationParameters - Structure -  information about the contact information element.
+//  AsynchronousCall              - Boolean -  the service parameter.
 //
 Procedure OpenHistoryChangeForm(Form, ContactInformationParameters, AsynchronousCall = False) Export
 	
@@ -669,51 +667,51 @@ Procedure OpenHistoryChangeForm(Form, ContactInformationParameters, Asynchronous
 	
 EndProcedure
 
-// Synchronous handlers.
+// 
 
-// Handler of the StartChoice event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Event handler for the Initial selection of the contact information form field.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//     Form                - ClientApplicationForm - a form of a contact information owner.
-//     Item              - FormField        - a form item containing contact information presentation.
-//     Modified   - Boolean           - a flag indicating that the form was modified.
-//     StandardProcessing - Boolean           - a flag indicating that standard processing is required for the form event.
-//     OpeningParameters    - Structure        - opening parameters of the contact information input form.
+//     Form                - ClientApplicationForm -  form of owner contact information.
+//     Item              - FormField        -  a form element that contains a view of contact information.
+//     Modified   - Boolean           -  set the form modification flag.
+//     StandardProcessing - Boolean           -  flag to set for standard form event processing.
+//     OpeningParameters    - Structure        -  parameters for opening the contact information entry form.
 //
 Procedure StartChoice(Form, Item, Modified = True, StandardProcessing = False, OpeningParameters = Undefined) Export
 	OnStartChoice(Form, Item, Modified, StandardProcessing, OpeningParameters, False);
 EndProcedure
 
-// Handler of the Clearing event for a contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Event handler for Clearing the form fields with the contact information.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//     Form        - ClientApplicationForm - a form of a contact information owner.
-//     AttributeName - String           - a name of a form attribute related to contact information presentation.
+//     Form        - ClientApplicationForm -  form of owner contact information.
+//     AttributeName - String           -  name of the form detail associated with the contact information submission.
 //
 Procedure Clearing(Val Form, Val AttributeName) Export
 	OnClear(Form, AttributeName, False);
 EndProcedure
 
-// Handler of the command related to contact information (write an email, open an address, and so on).
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Handler for the command associated with contact information (write an email, open an address, etc.).
+// Called from the connected actions when implementing the "Contact information"subsystem.
 //
 // Parameters:
-//     Form      - ClientApplicationForm - a form of a contact information owner.
-//     CommandName - String           - a name of the automatically generated action command.
+//     Form      - ClientApplicationForm -  form of owner contact information.
+//     CommandName - String           -  name of the automatically generated action command.
 //
 Procedure ExecuteCommand(Val Form, Val CommandName) Export
 	OnExecuteCommand(Form, CommandName, False);
 EndProcedure
 
-// Handler of the OnChange event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Event handler for Changing the contact information form field.
+// Called from plug-in actions when implementing the "Contact information" subsystem.
 //
 // Parameters:
-//     Form             - ClientApplicationForm - a form of a contact information owner.
-//     Item           - FormField        - a form item containing contact information presentation.
-//     IsTabularSection - Boolean           - a flag specifying that the item is part of a form table.
+//     Form             - ClientApplicationForm -  form of owner contact information.
+//     Item           - FormField        -  a form element that contains a view of contact information.
+//     IsTabularSection - Boolean           -  flag that the element is part of the form table.
 //
 Procedure OnChange(Form, Item, IsTabularSection = False) Export
 	
@@ -723,18 +721,18 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use AddressAutoComplete instead.
-// Handler of the AutoComplete event of the contact information form field.
-// It is called from the attachable actions when deploying the Contacts subsystem.
+// Deprecated.
+// 
+// 
 //
 // Parameters:
-//     Text                - String         - a text string entered by the user in the contact information field.
-//     ChoiceData         - ValueList - contains a value list that will be used for standard
+//     Text                - String         -  a string of text entered by the user in the contact information field.
+//     ChoiceData         - ValueList -  contains a list of values that will be used for standard
 //                                             event processing.
-//     StandardProcessing - Boolean         - this parameter stores the flag of whether the standard
-//                                             (system) event processing is executed. If this parameter is
-//                                             set to False in the processing procedure, standard processing
-//                                             is skipped.
+//     StandardProcessing - Boolean         -  this parameter is passed to indicate that standard
+//                                             (system) event processing is performed. If
+//                                             this parameter is set to False in the body of the handler procedure, standard event processing
+//                                             will not be performed.
 //
 Procedure AutoComplete(Val Text, ChoiceData, StandardProcessing = False) Export
 	
@@ -744,55 +742,55 @@ Procedure AutoComplete(Val Text, ChoiceData, StandardProcessing = False) Export
 	
 EndProcedure
 
-// Deprecated. Instead, use OnChange.
+// Deprecated.
 //
 // Parameters:
-//     Form             - ClientApplicationForm - a form of a contact information owner.
-//     Item           - FormField        - a form item containing contact information presentation.
-//     IsTabularSection - Boolean           - a flag specifying that the item is part of a form table.
+//     Form             - ClientApplicationForm -  form of owner contact information.
+//     Item           - FormField        -  a form element that contains a view of contact information.
+//     IsTabularSection - Boolean           -  flag that the element is part of the form table.
 //
 Procedure PresentationOnChange(Form, Item, IsTabularSection = False) Export
 	OnChange(Form, Item, IsTabularSection);
 EndProcedure
 
-// Deprecated. Instead, use StartChoice.
+// Deprecated.
 //
 // Parameters:
-//     Form                - ClientApplicationForm - a form of a contact information owner.
-//     Item              - FormField        - a form item containing contact information presentation.
-//     Modified   - Boolean           - a flag indicating that the form was modified.
-//     StandardProcessing - Boolean           - a flag indicating that standard processing is required for the form event.
+//     Form                - ClientApplicationForm -  form of owner contact information.
+//     Item              - FormField        -  a form element that contains a view of contact information.
+//     Modified   - Boolean           -  set the form modification flag.
+//     StandardProcessing - Boolean           -  flag to set for standard form event processing.
 //
 // Returns:
-//  Undefined - not used, backward compatibility.
+//  Undefined -  not used, backward compatible.
 //
 Function PresentationStartChoice(Form, Item, Modified = True, StandardProcessing = False) Export
 	StartChoice(Form, Item, Modified, StandardProcessing);
 	Return Undefined;
 EndFunction
 
-// Deprecated. Instead, use Clearing.
+// Deprecated.
 //
 // Parameters:
-//     Form        - ClientApplicationForm - a form of a contact information owner.
-//     AttributeName - String           - a name of a form attribute related to contact information presentation.
+//     Form        - ClientApplicationForm -  form of owner contact information.
+//     AttributeName - String           -  name of the form detail associated with the contact information submission.
 //
 // Returns:
-//  Undefined - not used, backward compatibility.
+//  Undefined -  not used, backward compatible.
 //
 Function ClearingPresentation(Form, AttributeName) Export
 	Clearing(Form, AttributeName);
 	Return Undefined;
 EndFunction
 
-// Deprecated. Instead, use ExecuteCommand.
+// Deprecated.
 //
 // Parameters:
-//     Form      - ClientApplicationForm - a form of a contact information owner.
-//     CommandName - String           - a name of the automatically generated action command.
+//     Form      - ClientApplicationForm -  form of owner contact information.
+//     CommandName - String           -  name of the automatically generated action command.
 //
 // Returns:
-//  Undefined - not used, backward compatibility.
+//  Undefined -  not used, backward compatible.
 //
 Function AttachableCommand(Form, CommandName) Export
 	ExecuteCommand(Form, CommandName);
@@ -805,9 +803,9 @@ EndFunction
 
 #Region Internal
 
-// Complete nonmodal dialogs.
+// 
 
-// The handler after closing the history form 
+// Handler when the form is closed the history 
 // 
 // Parameters:
 //   Result - Structure
@@ -862,7 +860,7 @@ Procedure AfterClosingHistoryForm(Result, AdditionalParameters) Export
 	EndIf;
 EndProcedure
 
-// A handler of closing a list form of the "ContactInformationKinds" catalog with the applied contact information owner filter.
+// 
 // 
 // Parameters:
 //   Result - Structure
@@ -882,7 +880,7 @@ Procedure AfterCloseListFormContactInfoKinds(Result, AdditionalParameters) Expor
 	
 EndProcedure
 
-// Continues the call of PresentationStartChoice 
+// The continuation of call of Predstavlennaya 
 // 
 // Parameters:
 //   ClosingResult - Structure
@@ -943,7 +941,7 @@ Procedure PresentationStartChoiceCompletion(Val ClosingResult, Val AdditionalPar
 				
 			EndDo;
 			
-			// Correcting invalid addresses without the original fill date
+			// 
 			If ValueIsFilled(MinDate) Then
 				Filter = New Structure("ValidFrom", MinDate);
 				RowsWithMinDate = ContactInformationAdditionalAttributesDetails.FindRows(Filter);
@@ -1014,7 +1012,7 @@ EndProcedure
 
 Procedure ContactInformationAddInputFieldCompletion(Val SelectedElement, Val AdditionalParameters) Export
 	If SelectedElement = Undefined Then
-		// Cancel selection.
+		// 
 		Return;
 	EndIf;
 	
@@ -1065,7 +1063,7 @@ EndProcedure
 
 #Region Private
 
-// Event handlers.
+// 
 
 Procedure OnStartChoice(Form, Item, Modified, StandardProcessing, OpeningParameters, AsynchronousCall)
 	
@@ -1087,7 +1085,7 @@ Procedure OnStartChoice(Form, Item, Modified, StandardProcessing, OpeningParamet
 	
 	RowData = GetAdditionalValueString(Form, Item, IsTabularSection);
 	
-	// Setting presentation equal to the attribute if the presentation was modified directly in the form field and no longer matches the attribute.
+	// 
 	UpdateConextMenu = False;
 	If Item.Type = FormFieldType.InputField Then
 		If FillingData[Item.Name] <> Item.EditText Then
@@ -1262,7 +1260,7 @@ Procedure OnExecuteCommand(Val Form, Val CommandName, AsynchronousCall)
 		EndIf;
 	
 		ConsumerRow = FoundRows[0];
-		Comment = ConsumerRow.Comment; // Save the old comment.
+		Comment = ConsumerRow.Comment; // 
 		If ConsumerRow.Property("InternationalAddressFormat") And ConsumerRow.InternationalAddressFormat Then
 
 			FillPropertyValues(ConsumerRow, FoundRow, "Comment");
@@ -1353,9 +1351,9 @@ Procedure OnURLProcessing(Form, Item, FormattedStringURL, StandardProcessing, As
 	
 EndProcedure
 
-// Miscellaneous.
+// OtherItems
 
-// Processes entering a comment using the context menu.
+// Enter a comment from the context menu.
 Procedure EnterAComment(Val Form, Val AttributeName, Val FoundRow, Val Result, AsynchronousCall)
 	Comment = FoundRow.Comment;
 	
@@ -1374,10 +1372,10 @@ Procedure EnterAComment(Val Form, Val AttributeName, Val FoundRow, Val Result, A
 		NStr("en = 'Comment';"));
 EndProcedure
 
-// Completes a nonmodal dialog.
+// End of the non-modal dialog.
 Procedure EnterACommentCompletion(Val Comment, Val AdditionalParameters) Export
 	If Comment = Undefined Or Comment = AdditionalParameters.PreviousComment Then
-		// Canceling entry or no changes.
+		// 
 		Return;
 	EndIf;
 	
@@ -1436,7 +1434,7 @@ Procedure OnContactInformationChange(Form, Item, IsTabularSection, UpdateForm, A
 		FillingData = Form;
 	EndIf;
 	
-	// Clearing presentation if clearing is required.
+	// 
 	RowData = GetAdditionalValueString(Form, Item, IsTabularSection);
 	If RowData = Undefined Then 
 		Return;
@@ -1487,7 +1485,7 @@ Procedure OnContactInformationChange(Form, Item, IsTabularSection, UpdateForm, A
 
 EndProcedure
 
-// Context call
+// The shortcut challenge
 Procedure UpdateFormContactInformation(Form, Result, AsynchronousCall)
 	
 	If AsynchronousCall Then
@@ -1499,15 +1497,15 @@ Procedure UpdateFormContactInformation(Form, Result, AsynchronousCall)
 	
 EndProcedure
 
-// Returns a string of additional values by attribute name.
+// Returns a string of additional values by the name of the prop.
 //
 // Parameters:
-//    Form   - ClientApplicationForm - a form to be passed.
-//    Item - FormDataStructureAndCollection - form data.
+//    Form   - ClientApplicationForm -  transmitted form.
+//    Item - FormDataStructureAndCollection -  form data.
 //
 // Returns:
 //    See ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm
-//    Undefined    - if no data is available.
+//    Undefined - in the absence of data.
 //
 Function GetAdditionalValueString(Form, Item, IsTabularSection = False)
 	
@@ -1546,7 +1544,7 @@ Function IsTabularSection(Item)
 	
 EndFunction
 
-// determining a context menu command.
+// defining a context menu command.
 Function ContextMenuCommand(CommandName)
 	
 	Result = New Structure("Command, MovementDirection, AttributeName", Undefined, 0, Undefined);
@@ -1568,16 +1566,16 @@ Function ContextMenuCommand(CommandName)
 	
 EndFunction
 
-// Checks whether the telephony application is installed on the computer.
-//  Check is available only in thin client for Windows.
+// Checks whether the telephony program is installed on the computer.
+//  Verification is only possible in the thin client for Windows.
 //
 // Parameters:
-//  ProtocolName - String - a name of an URI protocol to be checked. Available options are "skype", "tel", and "sip".
-//                          If the parameter is not specified, all protocols are checked. 
+//  ProtocolName - String -  name of the Protocol URI being checked, possible options "skype", "tel", "sip".
+//                          If this parameter is omitted, all protocols are checked. 
 // 
 // Returns:
-//  String - The name of the available URI protocol is saved to the register. If empty, the protocol is unavailable.
-//    If "Undefined", the check cannot be run.
+//  String - 
+//    
 //
 Function TelephonyApplicationInstalled(ProtocolName = Undefined)
 	
@@ -1598,8 +1596,8 @@ Function TelephonyApplicationInstalled(ProtocolName = Undefined)
 		EndIf;
 	EndIf;
 	
-	// Assume MacOS and Linux have a VoIP app.
-	// Errors  will handled at the startup.
+	// 
+	// 
 	Return ProtocolName;
 EndFunction
 
@@ -1641,7 +1639,7 @@ Procedure OpenSkype(CommandLine1)
 	
 EndProcedure
 
-// Constructor of additional parameters for the history form
+// Constructor for additional parameters for the history form
 // 
 // Parameters:
 //   Form - ClientApplicationForm
@@ -1705,10 +1703,10 @@ Function PresentationStartChoiceCompletionAdditionalParameters()
 EndFunction 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Returns a string in which all special characters (except for the hyphen, underscore, and dot)
-// are replaced with the percent sign ( % ) followed by 2 hexadecimal digits
-// and whitespaces encoded as the plus sign.
-// That is, the string is encoded as POST data in the content type "application/x-www-form-urlencoded."
+// 
+// 
+// 
+// 
 
 Function StringDecoding(String)
 	Result = "";
@@ -1716,8 +1714,8 @@ Function StringDecoding(String)
 		CharCode = CharCode(String, CharacterNumber);
 		Char = Mid(String, CharacterNumber, 1);
 		
-		// ignoring A...Z, a...z, 0...9
-		If StrFind("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", Char) > 0 Then // Encode the following as safe characters: - _ . ! ~ *  ( )  
+		// 
+		If StrFind("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", Char) > 0 Then //   
 			Result = Result + Char;
 			Continue;
 		EndIf;
@@ -1822,7 +1820,7 @@ EndFunction
 
 Procedure UpdateConextMenu(Form, ItemForPlacementName)
 	
-	ContactInformationParameters = Form.ContactInformationParameters[ItemForPlacementName]; // FormDataCollection
+	ContactInformationParameters = Form.ContactInformationParameters[ItemForPlacementName]; // 
 	AllRows = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form);
 	FoundRows = AllRows.FindRows( 
 		New Structure("Type, IsTabularSectionAttribute", PredefinedValue("Enum.ContactInformationTypes.Address"), False));
@@ -1830,7 +1828,7 @@ Procedure UpdateConextMenu(Form, ItemForPlacementName)
 	TotalCommands = 0;
 	For Each CIRow In AllRows Do
 		
-		If TotalCommands > 50 Then // Restriction for a large number of addresses on the form
+		If TotalCommands > 50 Then // 
 			Break;
 		EndIf;
 		
@@ -1850,7 +1848,7 @@ Procedure UpdateConextMenu(Form, ItemForPlacementName)
 		
 		For Each Address In FoundRows Do
 			
-			If CommandsCountInSubmenu > 7 Then // Restriction for a large number of addresses on the form
+			If CommandsCountInSubmenu > 7 Then // 
 				Break;
 			EndIf;
 			
@@ -1918,18 +1916,18 @@ Procedure AddButtonCopyAddress(Form, CommandName, ItemTitle, ContactInformationP
 
 EndProcedure
 
-// "ContactInformation" parameter constructor required for running contact information commands
+// 
 // 
 // Parameters:
-//   Presentation - String - a contact information presentation.
-//   Value      - String - A contact information field value in JSON or XML format.
+//   Presentation - String -  presentation of contact information.
+//   Value      - String - 
 //   Type           - EnumRef.ContactInformationTypes
 //   Kind           - CatalogRef.ContactInformationKinds
 //
 // Returns:
 //   Structure:
-//     * Presentation - String - a contact information presentation.
-//     * Value      - String - A contact information field value in JSON or XML format.
+//     * Presentation - String -  presentation of contact information.
+//     * Value      - String - 
 //     * Type           - EnumRef.ContactInformationTypes
 //     * Kind           - CatalogRef.ContactInformationKinds
 //
@@ -1945,7 +1943,7 @@ Function ParameterContactInfoForCommandExecution(Presentation, Value, Type, Kind
 	
 EndFunction
 
-// Additional parameters constructor required for running contact information commands
+// 
 // 
 // Parameters:
 //   ContactInformationOwner - DefinedType.ContactInformationOwner
@@ -1956,15 +1954,15 @@ EndFunction
 //   Structure:
 //   * ContactInformationOwner - DefinedType.ContactInformationOwner
 //   * Form - ClientApplicationForm
-//   * AttributeName     - String - For internal use only.
-//   * AsynchronousCall - Boolean - For internal use only.
+//   * AttributeName     - String - 
+//   * AsynchronousCall - Boolean - 
 //
 Function CommandRuntimeAdditionalParameters(ContactInformationOwner, Form, AttributeName = "", AsynchronousCall = False)
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("ContactInformationOwner", ContactInformationOwner);
 	AdditionalParameters.Insert("Form", Form);
-	// For internal use.
+	// 
 	AdditionalParameters.Insert("AttributeName", AttributeName);
 	AdditionalParameters.Insert("AsynchronousCall", AsynchronousCall);
 
@@ -1973,8 +1971,8 @@ Function CommandRuntimeAdditionalParameters(ContactInformationOwner, Form, Attri
 EndFunction
 
 // Parameters:
-//   HandlerName - String - The full path to the function to be executed.
-//                             For example, "StandardSubsystemsClient.OpenMeetingDocForm".
+//   HandlerName - String - 
+//                             
 //   Parameters - Structure:
 //     * ContactInformation    - See ParameterContactInfoForCommandExecution
 //     * AdditionalParameters - See CommandRuntimeAdditionalParameters
@@ -2140,7 +2138,7 @@ Procedure BeforeRunCommandFromAddressExtendedTooltip(Form, Item, AttributeName, 
 
 EndProcedure
 
-// Deletes the prefix from a string. 
+//  
 //
 // Parameters:
 //  InitialString - String
@@ -2162,7 +2160,7 @@ Function DeleteStringPrefix(InitialString, Prefix)
 
 EndFunction
 
-// Deletes the postfix from a string. 
+//  
 //
 // Parameters:
 //  InitialString - String

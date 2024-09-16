@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -56,7 +54,7 @@ Function GenerateMailingRecipientsList(Val RecipientsParameters) Export
 	Return ExecutionResult;
 EndFunction
 
-// Runs background job.
+// Starts a background task.
 Function RunBackgroundJob1(Val MethodParameters, Val UUID) Export
 	MethodName = "ReportMailing.SendBulkEmailsInBackgroundJob";
 	
@@ -66,7 +64,7 @@ Function RunBackgroundJob1(Val MethodParameters, Val UUID) Export
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction
 
-// Starts the background job that sends out text messages with archive passwords (required for opening the attachments).
+// 
 Function RunBackgroundJobToSendSMSWithPasswords(Val MethodParameters, Val UUID) Export
 	MethodName = "ReportMailing.SendBulkSMSMessagesWithReportDistributionArchivePasswordsInBackgroundJob";
 	                             
@@ -78,7 +76,7 @@ Function RunBackgroundJobToSendSMSWithPasswords(Val MethodParameters, Val UUID) 
 	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
 EndFunction  
 
-// Starts the background job that purges the report distribution history.
+// 
 Function RunBackgroundJobToClearUpReportDistributionHistory(Val MethodParameters, Val UUID) Export
 	MethodName = "ReportMailing.ClearUpReportDistributionHistoryInBackgroundJob";
 	

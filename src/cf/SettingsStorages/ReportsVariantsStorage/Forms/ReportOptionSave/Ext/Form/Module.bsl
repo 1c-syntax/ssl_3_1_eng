@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -280,7 +278,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client.
+// Client
 
 &AtClient
 Procedure ExecuteBatch(Result, Package) Export
@@ -293,16 +291,16 @@ Procedure ExecuteBatch(Result, Package) Export
 		Return;
 	EndIf;
 	
-	// Perform the next step.
+	// 
 	If Package.CheckPage1 = True Then
-		// Description is missing.
+		// 
 		If Not ValueIsFilled(Object.Description) Then
 			ErrorText = NStr("en = 'Description is not populated';");
 			CommonClient.MessageToUser(ErrorText, , "Object.Description");
 			Return;
 		EndIf;
 		
-		// Description of the existing report option is entered.
+		// 
 		If Not Package.OptionIsNew Then
 			FoundItems = ReportOptions.FindRows(New Structure("Ref", OptionRef));
 			Variant = FoundItems[0];
@@ -318,7 +316,7 @@ Procedure ExecuteBatch(Result, Package) Export
 			EndIf;
 		EndIf;
 		
-		// Check is completed.
+		// 
 		Package.CheckPage1 = False;
 	EndIf;
 	
@@ -327,14 +325,14 @@ Procedure ExecuteBatch(Result, Package) Export
 	EndIf;
 	
 	If Package.GoToPage32 = True Then
-		// For external reports, only fill checks are executed without switching the page.
+		// 
 		If Not Context.IsExternal Then
 			Items.Pages.CurrentPage = Items.More;
 			Items.Back.Enabled        = True;
 			Items.Next.Enabled        = False;
 		EndIf;
 		
-		// Switch is completed.
+		// 
 		Package.GoToPage32 = False;
 	EndIf;
 	
@@ -483,9 +481,9 @@ Procedure LongDescStartChoiceCompletion(Val EnteredText, Val AdditionalParameter
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client and server.
+// 
 
-// Returns the flag of the available report option change rights.
+// Returns whether you have the right to change the report version.
 //
 // Parameters:
 //   Variant - FormDataCollection:
@@ -509,7 +507,7 @@ Function RightToWriteOption(Variant, FullRightsToOptions)
 	
 EndFunction
 
-// Returns a unique report option name.
+// Returns a unique name for the report variant.
 // 
 // Parameters:
 //   Variant - FormDataCollection:
@@ -555,7 +553,7 @@ Procedure FillOptionsListDeferred()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server call.
+// 
 
 &AtServerNoContext
 Function NumberOfUsersReportOption(OptionUsers)
@@ -712,7 +710,7 @@ Procedure CheckAndWriteReportOption(Package)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server.
+// Server
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
@@ -747,7 +745,7 @@ Procedure FillOptionsList()
 	
 	ReportsServer.AddContextOptions(Context.ReportRef, VariantsTable, ContextOptions);
 	
-	// Populate autocalculated columns.
+	// 
 	ReportOptions.Load(VariantsTable);
 	For Each Variant In ReportOptions Do
 		Variant.CurrentUserIsAuthor = (Variant.Author = Context.CurrentUser);

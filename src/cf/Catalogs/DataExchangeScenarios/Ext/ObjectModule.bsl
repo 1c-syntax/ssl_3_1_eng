@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -24,16 +22,22 @@ Procedure BeforeWrite(Cancel)
 		
 	EndIf;
 	
-	DataSeparationEnabled = Common.DataSeparationEnabled();
+	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 	
-	If DataSeparationEnabled 
-		And UseScheduledJob 
-		And IsAutoDisabled Then
+		ModuleDataExchangeInternalPublication = Common.CommonModule("DataExchangeInternalPublication");
 		
-		IsAutoDisabled = False;
+		DataSeparationEnabled = Common.DataSeparationEnabled();
 		
-		DataExchangeInternalPublication.DeleteTasksAccordingToScriptWithError(Ref);
-		
+		If DataSeparationEnabled 
+			And UseScheduledJob 
+			And IsAutoDisabled Then
+			
+			IsAutoDisabled = False;
+			
+			ModuleDataExchangeInternalPublication.DeleteTasksAccordingToScriptWithError(Ref);
+			
+		EndIf;
+	
 	EndIf;
 	
 EndProcedure
@@ -44,15 +48,15 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	// Deleting a scheduled job if necessary.
+	// 
 	If DeletionMark Then
 		
 		DeleteScheduledJob(Cancel);
 		
 	EndIf;
 	
-	// Update 1C:Enterprise cache so that the "DataExchangeCached.DataExchangeSettings"
-	// procedure could read up-to-date data exchange settings.
+	// 
+	// 
 	RefreshReusableValues();
 	
 EndProcedure
@@ -77,18 +81,18 @@ EndProcedure
 
 #Region Private
 
-// Deletes a scheduled job.
+// Deletes a scheduled task.
 //
 // Parameters:
-//  Cancel                     - Boolean - a cancellation flag. It is set to True if errors
-//                                       occur upon the procedure execution.
-//  ScheduledJobObject - a scheduled job object to be deleted.
+//  Cancel                     - Boolean -  flag of failure. If errors were detected during the procedure
+//                                       , the failure flag is set to True.
+//  Scheduled taskobject - the object of the scheduled task that needs to be deleted.
 // 
 Procedure DeleteScheduledJob(Cancel)
 	
 	SetPrivilegedMode(True);
 			
-	// Define a scheduled job.
+	// 
 	ScheduledJobObject = Catalogs.DataExchangeScenarios.ScheduledJobByID(GUIDScheduledJob);
 	
 	If ScheduledJobObject <> Undefined Then

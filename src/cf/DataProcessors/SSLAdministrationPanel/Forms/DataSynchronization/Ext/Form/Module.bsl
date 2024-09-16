@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -109,14 +107,14 @@ EndProcedure
 // Processing notifications from other open forms.
 //
 // Parameters:
-//   EventName - String - an event name. It can be used for forms to identify messages they accept.
-//   Parameter - Arbitrary - a message parameter. You can pass any data.
-//   Source - Arbitrary - an event source. For example, another form can be specified as a source.
+//   EventName - String -  event name. It can be used to identify messages by the forms that accept them.
+//   Parameter - Arbitrary -  the parameter of the message. Any necessary data can be transmitted.
+//   Source - Arbitrary -  event source. For example, a different form may be specified as the source.
 //
 // Example:
-//   If EventName = "ConstantsSet.DistributedInfobaseNodePrefix" Then
-//     ConstantsSet.DistributedInfobaseNodePrefix = Parameter;
-//   EndIf;
+//   If EventName = " Setconstant.Prefix Of The Distributed Information Database " Then
+//     Setconstant.Prefix Of The Distributed Information Database = Parameter;
+//   Conicelli;
 //
 &AtClient
 Procedure NotificationsHandler(EventName, Parameter, Source)
@@ -144,7 +142,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client.
+// Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -254,7 +252,7 @@ Procedure RefreshSecurityProfilesPermissionsCompletion(Result, Item) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server call.
+// 
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -268,7 +266,7 @@ Function OnChangeAttributeServer(TagName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server.
+// Server
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)

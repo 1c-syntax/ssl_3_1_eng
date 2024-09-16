@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Opens the formula editor.
+// Opens the formula constructor.
 //
 // Parameters:
 //  Parameters - See FormulaEditingOptions
@@ -22,34 +20,34 @@ Procedure StartEditingTheFormula(Parameters, CompletionHandler) Export
 	
 EndProcedure
 
-// The FormulaParameters parameter constructor for the FormulaPresentation function.
+// Constructor of the ParameterFormula parameter for the Formula representation function.
 // 
 // Returns:
 //  Structure:
 //   * Formula - String
-//   * Operands - String - an address in the temporary operand collection storage. The collection type can be: 
-//                         ValueTable - see FieldsTable
-//                         ValueTree - see FieldsTree
-//                         DataCompositionSchema - the operand list is taken from the FilterAvailableFields collection
-//                                                  of the Settings Composer. You can override the collection name
-//                                                  in the DCSCollectionName parameter.
-//   * Operators - String - an address in the temporary operator collection storage. The collection type can be: 
-//                         ValueTable - see FieldsTable
-//                         ValueTree - see FieldsTree
-//                         DataCompositionSchema - the operand list is taken from the FilterAvailableFields collection
-//                                                  of the Settings Composer. You can override the collection name
-//                                                  in the DCSCollectionName parameter.
-//   * OperandsDCSCollectionName  - String - a field collection name in the Settings Composer. Use the parameter
-//                                          if a data composition schema is passed in the Operands parameter.
-//                                          The default value is FilterAvailableFields.
-//   * OperatorsDCSCollectionName - String - a field collection name in the Settings Composer. Use the parameter
-//                                          if a data composition schema is passed in the Operators parameter.
-//                                          The default value is FilterAvailableFields.
-//   * Description - Undefined - the description is not used for the formula and the field is not available.
-//                  - String       - a formula description. If it is filled in or empty, the field is displayed
-//                                   on the constructor form.
-//   * ForQuery   - Boolean - the formula is for inserting in a query. This parameter affects the default operator list
-//                             and the selection of the formula check algorithm.
+//   * Operands - String - : 
+//                         
+//                         
+//                         
+//                                                  
+//                                                  
+//   * Operators - String - : 
+//                         
+//                         
+//                         
+//                                                  
+//                                                  
+//   * OperandsDCSCollectionName  - String -  the name of the collection of fields in the settings builder. The parameter must
+//                                          be used if the data layout scheme is passed in the Operands parameter.
+//                                          The default value is available selection fields.
+//   * OperatorsDCSCollectionName - String -  the name of the collection of fields in the settings builder. The parameter must
+//                                          be used if the data layout scheme is passed in the Operators parameter.
+//                                          The default value is available selection fields.
+//   * Description - Undefined -  the name is not used for the formula, the corresponding field is not displayed.
+//                  - String       - 
+//                                   
+//   * ForQuery   - Boolean -  the formula is intended to be inserted into the query. This parameter affects the composition
+//                             of the default operators, as well as the choice of the algorithm for checking the formula.
 //
 Function FormulaEditingOptions() Export
 	
@@ -57,13 +55,13 @@ Function FormulaEditingOptions() Export
 	
 EndFunction
 
-// Handler of expanding the list being connected.
+// The handler for expanding the connected list.
 // 
 // Parameters:
-//  Form   - ClientApplicationForm - List owner.
-//  Item - FormTable - a list where string expansion is executed.
-//  String  - Number - List row ID.
-//  Cancel   - Boolean - indicates that expansion is canceled.
+//  Form   - ClientApplicationForm -  the owner of the list.
+//  Item - FormTable -  the list in which the line is being expanded.
+//  String  - Number -  id of the list row.
+//  Cancel   - Boolean -  a sign of refusal to expand.
 //
 Procedure ListOfFieldsBeforeExpanding(Form, Item, String, Cancel) Export
 	
@@ -77,7 +75,7 @@ Procedure ListOfFieldsBeforeExpanding(Form, Item, String, Cancel) Export
 	
 EndProcedure
 
-// Handler of expanding the list being connected.
+// The handler for expanding the connected list.
 // Expands the current list item.
 //
 // Parameters:
@@ -102,14 +100,14 @@ Procedure ExpandTheCurrentFieldListItem(Form) Export
 	
 EndProcedure
 
-// Handler of dragging the list being connected
+// Handler for dragging a connected list
 // 
 // Parameters:
-//  Form   - ClientApplicationForm - List owner.
-//  Item - FormTable - a list where dragging is executed.
-//  DragParameters - DragParameters - contains a dragged value, an action type, 
-//                                                      and possible values when dragging.
-//  Perform - Boolean - if False, cannot start dragging.
+//  Form   - ClientApplicationForm -  the owner of the list.
+//  Item - FormTable -  the list in which the dragging is performed.
+//  DragParameters - DragParameters -  contains the value to be dragged, the type of action 
+//                                                      , and possible actions when dragging.
+//  Perform - Boolean -  if False, dragging will not start.
 //
 Procedure ListOfFieldsStartDragging(Form, Item, DragParameters, Perform) Export
 	
@@ -125,11 +123,11 @@ Procedure ListOfFieldsStartDragging(Form, Item, DragParameters, Perform) Export
 	
 EndProcedure
 
-// Returns details of the current selected field of the list being connected.
+// Returns a description of the currently selected field of the connected list.
 //
 // Parameters:
-//  Form - ClientApplicationForm - List owner.
-//  NameOfTheFieldList - String - a list name set upon calling FormulasConstructor.AddFieldsListToForm.
+//  Form - ClientApplicationForm -  the owner of the list.
+//  NameOfTheFieldList - String -  the name of the list set when calling the Formula constructor.Add a Field form list.
 //  
 // Returns:
 //  Structure:
@@ -165,13 +163,13 @@ Function TheSelectedFieldInTheFieldList(Form, NameOfTheFieldList = Undefined) Ex
 	
 EndFunction
 
-// Handler of the event of the string searching the list being connected.
+// Event handler for the search string of the connected list.
 // 
 // Parameters:
-//  Form   - ClientApplicationForm - List owner.
-//  Item - FormField - Search bar.
-//  Text - String - Text in the search bar.
-//  StandardProcessing - Boolean - if False, cannot execute the standard action.
+//  Form   - ClientApplicationForm -  the owner of the list.
+//  Item - FormField -  search bar.
+//  Text - String -  text in the search bar.
+//  StandardProcessing - Boolean -  if False, the standard action will not be performed.
 //
 Procedure SearchStringEditTextChange(Form, Item, Text, StandardProcessing) Export
 	
@@ -190,12 +188,12 @@ Procedure SearchStringEditTextChange(Form, Item, Text, StandardProcessing) Expor
 	
 EndProcedure
 
-// Handler of the event of the string searching the list being connected.
+// Event handler for the search string of the connected list.
 // 
 // Parameters:
-//  Form   - ClientApplicationForm - List owner.
-//  Item - FormButton - A clean-up button.
-//  DeleteStandardDataProcessor - Boolean - Obsolete
+//  Form   - ClientApplicationForm -  the owner of the list.
+//  Item - FormButton - 
+//  DeleteStandardDataProcessor - Boolean - 
 //
 Procedure SearchStringClearing(Form, Item, DeleteStandardDataProcessor = Undefined) Export
 
@@ -261,9 +259,9 @@ Function ExpressionToInsert(Operator) Export
 	
 EndFunction
 
-// Runs a background search.
+// 
 // Parameters:
-//  Form   - ClientApplicationForm - The searchable form.
+//  Form   - ClientApplicationForm - 
 //
 Procedure StartSearchInFieldsList(Form) Export
 	
@@ -346,13 +344,13 @@ Procedure StartSearchInFieldsList(Form) Export
 	EndIf;
 EndProcedure
 
-// A search completion handler for field lists.
+// 
 // 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.NewResultLongOperation
 //  CompletionParameters - Structure:
 //    * Form - ClientApplicationForm
-//    * JobID - UUID - a background job ID.
+//    * JobID - UUID -  ID of the background task.
 //
 Procedure CompletionChangeBorderColor(Result, CompletionParameters) Export
 	
@@ -390,11 +388,11 @@ Procedure CompletionChangeBorderColor(Result, CompletionParameters) Export
 			
 EndProcedure
 
-// A search handler for field lists.
+// 
 // 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.LongRunningOperationNewState
-//  Form - ClientApplicationForm - The searchable form.
+//  Form - ClientApplicationForm - 
 //
 Procedure HandleSearchInFieldsList(Result, Form) Export
 		
@@ -433,7 +431,7 @@ Procedure HandleSearchInFieldsList(Result, Form) Export
 	
 EndProcedure
 
-// A universal handler of Formula Editor.
+// 
 // 
 // Parameters:
 //  Form - ClientApplicationForm
@@ -462,11 +460,11 @@ Procedure FormulaEditorHandler(Form, Parameter, AdditionalParameters) Export
 	
 EndProcedure
 
-// An additional parameters constructor for universal handlers of Formula Editor.
+// 
 // 
 // Returns:
 //  Structure:
-//   * RunAtServer - Boolean - Run the universal server handler.
+//   * RunAtServer - Boolean - 
 //   * OperationKey - String 
 //
 Function HandlerParameters() Export

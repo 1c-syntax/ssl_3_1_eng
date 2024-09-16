@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -48,11 +46,11 @@ Var ClearingPermissionsBeforeApply; // Boolean
 
 #Region Internal
 
-// Adds a permission ID to the list of permissions to be processed. Once the permissions are applied, the
-// requests with added IDs are cleared.
+// Adds the request ID to the list of processed requests. After successful application, cleaning will be performed
+// queries, whose identifiers have been added.
 //
 // Parameters:
-//  QueryID - UUID - an ID of the request to use
+//  QueryID - UUID -  ID of the request to use
 //    external resources.
 //
 Procedure AddRequestID(Val QueryID) Export
@@ -61,13 +59,13 @@ Procedure AddRequestID(Val QueryID) Export
 	
 EndProcedure
 
-// Adds a security profile administration operation to the request application plan.
+// Adds a security profile administration operation to the query plan.
 //
 // Parameters:
 //  ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //  ModuleID - UUID,
 //  Operation - EnumRef.SecurityProfileAdministrativeOperations,
-//  Name - String - a security profile name.
+//  Name - String -  name of the security profile.
 //
 Procedure AddAdministrationOperation(Val ProgramModuleType, Val ModuleID, Val Operation, Val Name) Export
 	
@@ -88,7 +86,7 @@ Procedure AddAdministrationOperation(Val ProgramModuleType, Val ModuleID, Val Op
 	
 EndProcedure
 
-// Adds properties of the request for permissions to use external resources to the request application plan.
+// Adds properties for requesting permissions to use external resources to the query application plan.
 //
 // Parameters:
 //  ProgramModuleType - CatalogRef.MetadataObjectIDs,
@@ -208,8 +206,8 @@ Procedure AddRequestForPermissionsToUseExternalResources(
 	
 EndProcedure
 
-// Adds a flag whether to clear permission data from the registers to the request application plan.
-// Used to restore profiles.
+// Adds clearing permission information from registers to the query application plan.
+// Used in the profile recovery mechanism.
 //
 Procedure AddClearingPermissionsBeforeApplying() Export
 	
@@ -217,13 +215,13 @@ Procedure AddClearingPermissionsBeforeApplying() Export
 	
 EndProcedure
 
-// Calculates a result of application of requests to use external resources.
+// Calculates the result of applying requests to use external resources.
 //
 Procedure CalculateRequestsApplication() Export
 	
 	ExternalTransaction = TransactionActive();
 	If Not ExternalTransaction Then
-		BeginTransaction(); // CAC:326 there in no paired CommitTransaction for StartTransaction since the action is being canceled.
+		BeginTransaction(); // 
 	EndIf;
 	
 	Try
@@ -286,7 +284,7 @@ Function MustApplyPermissionsInServersCluster() Export
 	
 EndFunction
 
-// Checks whether the permissions must be written to registers.
+// Checks whether permissions need to be written to registers.
 //
 // Returns:
 //   Boolean
@@ -311,11 +309,11 @@ Function RecordPermissionsToRegisterRequired() Export
 	
 EndFunction
 
-// Returns a presentation of requests for permissions to use external resources.
+// Returns a view of requests for permissions to use external resources.
 //
 // Parameters:
-//  AsRequired - Boolean - a presentation is generated as a list of permissions, not as a list of operations
-//    upon changing permissions.
+//  AsRequired - Boolean -  the view is formed as a list of permissions, not as a list of operations
+//    when permissions are changed.
 //
 // Returns:
 //   SpreadsheetDocument
@@ -330,12 +328,12 @@ Function Presentation(Val AsRequired = False) Export
 	
 EndFunction
 
-// Returns a scenario of applying requests for permissions to use external resources.
+// Returns the scenario for the use of permission requests for the use of external resources.
 //
 // Returns:
 //   Array of Structure:
 //                        * Operation - EnumRef.SecurityProfileAdministrativeOperations,
-//                        * Profile - String - a security profile name,
+//                        * Profile - String -  the name of the security profile,
 //                        * Permissions - See ClusterAdministration.SecurityProfileProperties
 //
 Function ApplyingScenario() Export
@@ -388,7 +386,7 @@ Function ApplyingScenario() Export
 	
 EndFunction
 
-// Serializes an internal state of the object.
+// Serializes the internal state of an object.
 //
 // Returns:
 //   String
@@ -411,10 +409,10 @@ Function WriteStateToXMLString() Export
 	
 EndFunction
 
-// Deserializes an internal object state.
+// Deserializes the internal state of the object.
 //
 // Parameters:
-//  XMLLine - String - a result returned by the WriteStateToXMLString() function.
+//  XMLLine - String -  the result returned by the write state function in the XML () String.
 //
 Procedure ReadStateFromXMLString(Val XMLLine) Export
 	
@@ -432,7 +430,7 @@ Procedure ReadStateFromXMLString(Val XMLLine) Export
 	
 EndProcedure
 
-// Saves in the infobase the fact that requests to use external resource are applied.
+// Registers the fact of applying requests to use external resources in the information security system.
 //
 Procedure CompleteApplyRequestsToUseExternalResources() Export
 	
@@ -546,7 +544,7 @@ EndProcedure
 
 #Region Private
 
-// Calculates a request application result by owners.
+// Calculates the result of applying queries by owner.
 //
 Procedure CalculateRequestsApplicationResultByOwners()
 	
@@ -561,9 +559,9 @@ Procedure CalculateRequestsApplicationResultByOwners()
 		FillPropertyValues(NewRow, InitialString);
 	EndDo;
 	
-	// Apply the plan.
+	// 
 	
-	// Overwrite
+	// Replacing
 	For Each ReplacementTableRow In RequestsApplicationPlan.PermissionsToReplace Do
 		
 		Filter = New Structure();
@@ -580,7 +578,7 @@ Procedure CalculateRequestsApplicationResultByOwners()
 		
 	EndDo;
 	
-	// Add permissions.
+	// 
 	For Each AddedItemsRow In RequestsApplicationPlan.ItemsToAdd Do
 		
 		Filter = New Structure();
@@ -605,7 +603,7 @@ Procedure CalculateRequestsApplicationResultByOwners()
 		
 	EndDo;
 	
-	// Delete permissions
+	// 
 	For Each ItemsToDeleteRow In RequestsApplicationPlan.ItemsToDelete Do
 		
 		Filter = New Structure();
@@ -634,7 +632,7 @@ Procedure CalculateRequestsApplicationResultByOwners()
 	
 EndProcedure
 
-// Calculates a request application result ignoring owners.
+// Calculates the result of applying queries without taking owners into account.
 //
 Procedure CalculateRequestsApplicationResultIgnoringOwners()
 	
@@ -657,7 +655,7 @@ Procedure CalculateRequestsApplicationResultIgnoringOwners()
 		For Each KeyAndValue In ResultString1.Permissions Do
 			
 			SourcePermission = Common.XDTODataObjectFromXMLString(KeyAndValue.Value);
-			// Details must not affect hash sums for an option without owners.
+			// 
 			PermissionDetails = SourcePermission.Description;
 			SourcePermission.Description = ""; 
 			PermissionKey = InformationRegisters.PermissionsToUseExternalResources.PermissionKey(SourcePermission);
@@ -667,19 +665,19 @@ Procedure CalculateRequestsApplicationResultIgnoringOwners()
 				
 				If ResultString1.Type = "FileSystemAccess" Then
 					
-					// Search for nested or parent permissions in order to use the file system directory.
+					// 
 					// 
 					
 					If SourcePermission.AllowedRead Then
 						
 						If SourcePermission.AllowedWrite Then
 							
-							// Searching for the read permission for the same catalog.
+							// 
 							PermissionCopy = Common.XDTODataObjectFromXMLString(Common.XDTODataObjectToXMLString(SourcePermission));
 							PermissionCopy.AllowedWrite = False;
 							CopyKey = InformationRegisters.PermissionsToUseExternalResources.PermissionKey(PermissionCopy);
 							
-							// Deleting the nested permission. It becomes useless once the current one is added.
+							// 
 							NestedPermission = String.Permissions.Get(CopyKey);
 							If NestedPermission <> Undefined Then
 								String.Permissions.Delete(CopyKey);
@@ -687,12 +685,12 @@ Procedure CalculateRequestsApplicationResultIgnoringOwners()
 							
 						Else
 							
-							// Searching for a permission to read and write to the same catalog.
+							// 
 							PermissionCopy = Common.XDTODataObjectFromXMLString(Common.XDTODataObjectToXMLString(SourcePermission));
 							PermissionCopy.AllowedWrite = True;
 							CopyKey = InformationRegisters.PermissionsToUseExternalResources.PermissionKey(PermissionCopy);
 							
-							// No need to process the permission, the catalog is available by the parent permission.
+							// 
 							ParentPermission = String.Permissions.Get(CopyKey);
 							If ParentPermission <> Undefined Then
 								Continue;
@@ -722,27 +720,27 @@ EndProcedure
 
 // Returns:
 //  Structure:
-//   * ItemsToAdd - ValueTable - Details of the permissions being added. Columns are:
+//   * ItemsToAdd - ValueTable - :
 //    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //    ** ModuleID - UUID,
 //    ** OwnerType - CatalogRef.MetadataObjectIDs,
 //    ** OwnerID - UUID,
-//    ** Type - String - Name of the XDTO type that describes permissions.
+//    ** Type - String -  name of the XDTO type that describes permissions,
 //    ** Permissions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//      *** Value - XDTODataObject - Permission details in XDTO format.
-//    ** PermissionsAdditions - Map of KeyAndValue - Describes permission additions:
+//      *** Value - XDTODataObject - 
+//    ** PermissionsAdditions - Map of KeyAndValue - :
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
-//   * ItemsToDelete - ValueTable - Details of the permissions being deleted. Contains the following columns:
+//   * ItemsToDelete - ValueTable - :
 //    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //    ** ModuleID - UUID,
 //    ** OwnerType - CatalogRef.MetadataObjectIDs,
 //    ** OwnerID - UUID,
-//    ** Type - String - Name of the XDTO type that describes permissions.
+//    ** Type - String -  name of the XDTO type that describes permissions,
 //    ** Permissions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//      *** Value - XDTODataObject - Permission details in XDTO format.
+//      *** Value - XDTODataObject - 
 //    ** PermissionsAdditions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
@@ -773,13 +771,13 @@ Function DeltaByOwners()
 	
 EndFunction
 
-// Calculates a delta between two permission slices by owners.
+// Calculates the Delta of the two sections of permissions in the context of permit-holders.
 //
 Procedure CalculateDeltaByOwners()
 	
 	DeltaByOwners = DeltaByOwners();
 	
-	// Comparing source permissions with the resulting ones.
+	// 
 	
 	For Each String In SourcePermissionSliceByOwners Do
 		
@@ -801,7 +799,7 @@ Procedure CalculateDeltaByOwners()
 			
 			If ResultString1 = Undefined Or ResultString1.Permissions.Get(KeyAndValue.Key) = Undefined Then
 				
-				// The permission was in the source ones  but it is absent in the resulting ones, it is a permission being deleted.
+				// 
 				
 				ItemsToDeleteRow = DataProcessors.ExternalResourcesPermissionsSetup.PermissionsTableRow(
 					DeltaByOwners.ItemsToDelete, Filter);
@@ -822,7 +820,7 @@ Procedure CalculateDeltaByOwners()
 		
 	EndDo;
 	
-	// Comparing the resulting permissions with the source ones.
+	// 
 	
 	For Each String In RequestsApplicationResultByOwners Do
 		
@@ -844,7 +842,7 @@ Procedure CalculateDeltaByOwners()
 			
 			If InitialString = Undefined Or InitialString.Permissions.Get(KeyAndValue.Key) = Undefined Then
 				
-				// The permission is in resulting ones but it is absent in the source ones, it is a permission being added.
+				// 
 				
 				PermissionsToAddRow = DataProcessors.ExternalResourcesPermissionsSetup.PermissionsTableRow(
 					DeltaByOwners.ItemsToAdd, Filter);
@@ -869,23 +867,23 @@ EndProcedure
 
 // Returns:
 //  Structure:
-//   * ItemsToAdd - ValueTable - Details of the permissions being added. Columns are:
+//   * ItemsToAdd - ValueTable - :
 //    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //    ** ModuleID - UUID,
-//    ** Type - String - Name of the XDTO type that describes permissions.
+//    ** Type - String -  name of the XDTO type that describes permissions,
 //    ** Permissions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//      *** Value - XDTODataObject - Permission details in XDTO format.
+//      *** Value - XDTODataObject - 
 //    ** PermissionsAdditions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
-//   * ItemsToDelete - ValueTable - Details of the permissions being deleted. Contains the following columns:
+//   * ItemsToDelete - ValueTable - :
 //    ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //    ** ModuleID - UUID,
-//    ** Type - String - Name of the XDTO type that describes permissions.
+//    ** Type - String -  name of the XDTO type that describes permissions,
 //    ** Permissions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//      *** Value - XDTODataObject - Permission details in XDTO format.
+//      *** Value - XDTODataObject - 
 //    ** PermissionsAdditions - Map of KeyAndValue:
 //      *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //      *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
@@ -912,13 +910,13 @@ Function DeltaIgnoringOwners()
 	
 EndFunction 
 
-// Calculates a delta between two permission slices ignoring owners.
+// Calculates the Delta of the two sections of the permits without the account holders permission.
 //
 Procedure CalculateDeltaIgnoringOwners()
 	
 	DeltaIgnoringOwners = DeltaIgnoringOwners();
 	
-	// Comparing source permissions with the resulting ones.
+	// 
 	
 	For Each String In SourcePermissionSliceIgnoringOwners Do
 		
@@ -938,7 +936,7 @@ Procedure CalculateDeltaIgnoringOwners()
 			
 			If ResultString1 = Undefined Or ResultString1.Permissions.Get(KeyAndValue.Key) = Undefined Then
 				
-				// The permission was in the source ones  but it is absent in the resulting ones, it is a permission being deleted.
+				// 
 				
 				ItemsToDeleteRow = DataProcessors.ExternalResourcesPermissionsSetup.PermissionsTableRow(
 					DeltaIgnoringOwners.ItemsToDelete, Filter);
@@ -959,7 +957,7 @@ Procedure CalculateDeltaIgnoringOwners()
 		
 	EndDo;
 	
-	// Comparing the resulting permissions with the source ones.
+	// 
 	
 	For Each String In RequestsApplicationResultIgnoringOwners Do
 		
@@ -979,7 +977,7 @@ Procedure CalculateDeltaIgnoringOwners()
 			
 			If InitialString = Undefined Or InitialString.Permissions.Get(KeyAndValue.Key) = Undefined Then
 				
-				// The permission is in resulting ones but it is absent in the source ones, it is a permission being added.
+				// 
 				
 				PermissionsToAddRow = DataProcessors.ExternalResourcesPermissionsSetup.PermissionsTableRow(
 					DeltaIgnoringOwners.ItemsToAdd, Filter);
@@ -1002,11 +1000,11 @@ Procedure CalculateDeltaIgnoringOwners()
 	
 EndProcedure
 
-// Creates security profile details in the
-// cluster server administration interface notation.
+// Generates a description of the security profile in the notation
+// of the server cluster administration software interface.
 //
 // Parameters:
-//  ProfileName - String - a security profile name,
+//  ProfileName - String -  the name of the security profile,
 //  ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //  ModuleID - UUID
 //
@@ -1128,14 +1126,14 @@ Function ProfileInClusterAdministrationInterfaceNotation(Val ProfileName, Val Pr
 	
 EndFunction
 
-// Generates security profile details for the infobase or the external module.
+// Generates a description of the security profile for the information base or external module.
 //
 // Parameters:
-//  ExternalModule - AnyRef - a reference to the catalog item used
+//  Externalmodule-any Link - a link to a reference list element that is used
 //    as an external module.
 //
 // Returns: 
-//   String - details of the security profile.
+//   String - 
 //
 Function NewSecurityProfileDetails(Val ProgramModuleType, Val ModuleID)
 	
@@ -1165,12 +1163,12 @@ Function NewSecurityProfileDetails(Val ProgramModuleType, Val ModuleID)
 	
 EndFunction
 
-// Returns physical paths of standard virtual directories.
+// Returns the physical path of the default virtual directories.
 //
 // Returns:
 //   Map of KeyAndValue:
-//                         * Key - String - a virtual directory alias,
-//                         * Value - String - a physical path.
+//                         * Key - String -  alias of the virtual directory,
+//                         * Value - String -  the physical path.
 //
 Function StandardVirtualDirectories()
 	
@@ -1183,10 +1181,10 @@ Function StandardVirtualDirectories()
 	
 EndFunction
 
-// Escapes the percent character in the physical path of the virtual directory.
+// Escapes the percent symbol in the physical path of the virtual directory.
 //
 // Parameters:
-//  InitialString - String - a source physical path of the virtual directory.
+//  InitialString - String -  the source physical path of the virtual directory.
 //
 // Returns:
 //   String
@@ -1197,7 +1195,7 @@ Function EscapePercentChar(Val InitialString)
 	
 EndFunction
 
-// Returns a semaphore to be used when applying requests to use external resources.
+// Returns the semaphore for applying requests to use external resources.
 //
 // Returns:
 //   InformationRegisterRecordKey.RequestsForPermissionsToUseExternalResources
@@ -1216,7 +1214,7 @@ EndFunction
 //   * ProgramModuleType - CatalogRef.MetadataObjectIDs
 //   * ModuleID - UUID
 //   * Operation - EnumRef.SecurityProfileAdministrativeOperations
-//   * Name - String - Security profile name.
+//   * Name - String - 
 //
 Function AdministrationOperations()
 	
@@ -1232,33 +1230,33 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * PermissionsToReplace - ValueTable - Operations that replace the existing permissions with permissions to use external resources.:
+//   * PermissionsToReplace - ValueTable - :
 //      ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //      ** ModuleID - UUID,
 //      ** OwnerType - CatalogRef.MetadataObjectIDs,
 //      ** OwnerID - UUID,
-//   * ItemsToAdd - ValueTable - Operations that add permissions to use external resources.:
+//   * ItemsToAdd - ValueTable - :
 //      ** ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //      ** ModuleID - UUID,
 //      ** OwnerType - CatalogRef.MetadataObjectIDs,
 //      ** OwnerID - UUID,
-//      ** Type - String - Name of the XDTO type that describes permissions.
-//      ** Permissions - Map of KeyAndValue - Describes the permissions being added:
+//      ** Type - String -  name of the XDTO type that describes permissions,
+//      ** Permissions - Map of KeyAndValue - :
 //         *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//         *** Value - XDTODataObject - XDTO details of the permission being added
-//      ** PermissionsAdditions - Map of KeyAndValue - Describes the additions of the permissions being added:
+//         *** Value - XDTODataObject - 
+//      ** PermissionsAdditions - Map of KeyAndValue - :
 //         *** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //         *** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
-//   * ItemsToDelete - ValueTable - Operations that remove permissions on external resources:
+//   * ItemsToDelete - ValueTable - :
 //      * ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //      * ModuleID - UUID,
 //      * OwnerType - CatalogRef.MetadataObjectIDs,
 //      * OwnerID - UUID,
-//      * Type - String - Name of the XDTO type that describes permissions.
-//      * Permissions - Map of KeyAndValue - Describes the permissions being removed:
+//      * Type - String -  name of the XDTO type that describes permissions,
+//      * Permissions - Map of KeyAndValue - :
 //         * Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//         * Value - XDTODataObject - XDTP details of the permission being removed.
-//      * PermissionsAdditions - Map of KeyAndValue - Describes the additions of the permissions being removed:
+//         * Value - XDTODataObject - 
+//      * PermissionsAdditions - Map of KeyAndValue - :
 //         * Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //         * Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
 //

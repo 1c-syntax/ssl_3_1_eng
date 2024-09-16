@@ -1,35 +1,33 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Adds a record to the register by the passed structure values.
+// The procedure adds an entry to the register based on the passed structure values.
 Procedure AddRecord(RecordStructure, Load = False) Export
 	
 	DataExchangeInternal.AddRecordToInformationRegister(RecordStructure, "SynchronizedObjectPublicIDs", Load);
 	
 EndProcedure
 
-// Returns the flag indicating that the register contains a record by the passed filter.
+// Returns whether there is an entry in the register for the passed selection.
 //
 // Parameters:
 //   RecordStructure - Structure:
-//     * InfobaseNode - ExchangePlanRef - an exchange plan node.
+//     * InfobaseNode - ExchangePlanRef -  the site plan of exchange.
 //     * Ref - DocumentRef
 //              - ChartOfCharacteristicTypesRef
-//              - CatalogRef - a reference to an object.
+//              - CatalogRef -  object reference.
 //
 // Returns:
-//   Boolean - True if the register contains records for the specified filter.
+//   Boolean - 
 //
 Function RecordIsInRegister(RecordStructure) Export
 	
@@ -50,29 +48,29 @@ Function RecordIsInRegister(RecordStructure) Export
 	
 EndFunction
 
-// Deletes a register record set based on the passed structure values.
+// The procedure deletes a set of entries in the register based on the passed structure values.
 Procedure DeleteRecord(RecordStructure, Load = False) Export
 	
 	DataExchangeInternal.DeleteRecordSetFromInformationRegister(RecordStructure, "SynchronizedObjectPublicIDs", Load);
 	
 EndProcedure
 
-// Converts a reference to the current infobase object to string UUID presentation.
-// If the SynchronizedObjectPublicIDs register has such a reference, UID from the register is returned.
-// Otherwise UID of the passed reference is returned.
+// Converts a reference to the current database object to a string representation of the UID.
+// If there is such a reference in the register of public identifiers of synchronized Objects, the UID from the register is returned.
+// Otherwise, the UID of the passed link is returned.
 // 
 // Parameters:
-//  InfobaseNode - ExchangePlanRef - a reference to the exchange plan node to which data is exported.
-//  ObjectReference - AnyRef - a reference to an infobase object, that requires
-//                   a XDTO object UUID.
+//  InfobaseNode - ExchangePlanRef - 
+//  ObjectReference - AnyRef - 
+//                   
 //
 // Returns:
-//  String - object UUID.
+//  String - 
 //
 Function PublicIDByObjectRef(InfobaseNode, ObjectReference) Export
 	
-	// Intended for cases where the external UID is stored separately. Use cases:
-	// - For a document string in this infobase, generate a whole document in a peer infobase.
+	// 
+	// 
 	//  
 	If TypeOf(ObjectReference) = Type("UUID") Then
 		
@@ -82,7 +80,7 @@ Function PublicIDByObjectRef(InfobaseNode, ObjectReference) Export
 	
 	SetPrivilegedMode(True);
 	
-	// Defining a public reference through an object reference.
+	// 
 	Query = New Query(
 	"SELECT
 	|	PIR.Id AS Id

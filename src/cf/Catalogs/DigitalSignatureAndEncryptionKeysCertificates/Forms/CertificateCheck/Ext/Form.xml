@@ -421,6 +421,9 @@ It is recommended that you use signature key qualified certificates (SKQS) that 
 											</Title>
 											<ContextMenu name="CertificateExistsErrorClientLabelContextMenu" id="348"/>
 											<ExtendedTooltip name="CertificateExistsErrorClientLabelExtendedTooltip" id="349"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -479,6 +482,9 @@ It is recommended that you use signature key qualified certificates (SKQS) that 
 											</Title>
 											<ContextMenu name="CertificateExistsErrorServerLabelContextMenu" id="364"/>
 											<ExtendedTooltip name="CertificateExistsErrorServerLabelExtendedTooltip" id="365"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -635,6 +641,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="CertificateDataErrorClientLabelContextMenu" id="401"/>
 											<ExtendedTooltip name="CertificateDataErrorClientLabelExtendedTooltip" id="402"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -693,6 +702,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="CertificateDataErrorServerLabelContextMenu" id="404"/>
 											<ExtendedTooltip name="CertificateDataErrorServerLabelExtendedTooltip" id="405"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -844,6 +856,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="ProgramExistsErrorClientLabelContextMenu" id="407"/>
 											<ExtendedTooltip name="ProgramExistsErrorClientLabelExtendedTooltip" id="408"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -902,6 +917,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="ProgramExistsErrorServerLabelContextMenu" id="410"/>
 											<ExtendedTooltip name="ProgramExistsErrorServerLabelExtendedTooltip" id="411"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -1070,6 +1088,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="SigningErrorClientLabelContextMenu" id="413"/>
 											<ExtendedTooltip name="SigningErrorClientLabelExtendedTooltip" id="414"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -1128,6 +1149,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="SigningErrorServerLabelContextMenu" id="416"/>
 											<ExtendedTooltip name="SigningErrorServerLabelExtendedTooltip" id="417"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -1280,6 +1304,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="CheckSignatureErrorClientSignatureContextMenu" id="419"/>
 											<ExtendedTooltip name="CheckSignatureErrorClientSignatureExtendedTooltip" id="420"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -1338,6 +1365,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="CheckSignatureErrorServerSignatureContextMenu" id="422"/>
 											<ExtendedTooltip name="CheckSignatureErrorServerSignatureExtendedTooltip" id="423"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -1506,6 +1536,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="EncryptionErrorClientLabelContextMenu" id="425"/>
 											<ExtendedTooltip name="EncryptionErrorClientLabelExtendedTooltip" id="426"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -1564,6 +1597,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="EncryptionErrorServerLabelContextMenu" id="428"/>
 											<ExtendedTooltip name="EncryptionErrorServerLabelExtendedTooltip" id="429"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -1715,6 +1751,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="DetailsErrorClientLabelContextMenu" id="431"/>
 											<ExtendedTooltip name="DetailsErrorClientLabelExtendedTooltip" id="432"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>
@@ -1773,6 +1812,9 @@ Certificate data imported from a certificate file or using another method might 
 											</Title>
 											<ContextMenu name="DetailsErrorServerLabelContextMenu" id="434"/>
 											<ExtendedTooltip name="DetailsErrorServerLabelExtendedTooltip" id="435"/>
+											<Events>
+												<Event name="URLProcessing">Attachable_LabelURLProcessing</Event>
+											</Events>
 										</LabelDecoration>
 									</ChildItems>
 								</UsualGroup>

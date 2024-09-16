@@ -1,27 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Update register data upon changes in properties of an infobase user associated with
-// a member of either the "Users" or "ExternalUsers" catalog.
+// 
+// 
 //
 // Parameters:
 //  User - CatalogRef.Users
 //               - CatalogRef.ExternalUsers
-//               - Undefined - For all users.
+//               - Undefined - 
 //
-//  HasChanges - Boolean - (return value) - if recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  (return value) - if a record was made,
+//                  it is set to True, otherwise it is not changed.
 //
 Procedure UpdateRegisterData(User = Undefined, HasChanges = Undefined) Export
 	
@@ -37,7 +35,7 @@ Procedure UpdateRegisterData(User = Undefined, HasChanges = Undefined) Export
 		If Properties = Undefined Then
 			Continue;
 		EndIf;
-		// @skip-check query-in-loop - Batch-wise data processing within a transaction
+		// 
 		UpdateUserInfoRecords(Selection.Ref, Undefined,,, HasChanges);
 	EndDo;
 	
@@ -47,7 +45,7 @@ EndProcedure
 
 #Region Private
 
-// For the Users and ExternalUsers document item forms.
+// For forms of directory elements, Users and external Users.
 //
 // Parameters:
 //  Form - ClientApplicationForm:
@@ -94,7 +92,7 @@ Procedure ReadUserInfo(Form) Export
 	
 EndProcedure
 
-// For the Users and ExternalUsers document item forms.
+// For forms of directory elements, Users and external Users.
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -122,7 +120,7 @@ EndProcedure
 
 // Parameters:
 //  UserDetails - InfoBaseUser
-//                       - UUID - infobase user ID.
+//                       - UUID -  ID of the IB user.
 //
 // Returns:
 //  Structure:
@@ -166,7 +164,7 @@ EndFunction
 
 // Parameters:
 //  UserObject - CatalogObject.Users
-//                     - CatalogObject.ExternalUsers - Or the "FormDataStructure" of these objects.
+//                     - CatalogObject.ExternalUsers - 
 //
 Function AreSavedInfobaseUserPropertiesMismatch(UserObject) Export
 	
@@ -225,7 +223,7 @@ EndProcedure
 //                 - Undefined
 //
 //  CurrentProperties - Undefined
-//                  - Structure - Return value
+//                  - Structure -  returned value
 //
 Function UserNewProperties(User, Selection, UserObject = Undefined,
 			IBUser = Undefined, CurrentProperties = Undefined) Export
@@ -385,10 +383,10 @@ EndFunction
 //  IBUser - InfoBaseUser
 //                 - Undefined
 //
-//  ShouldLogChanges - Boolean - Write Event log changes as one of the following properties were modified:
-//    "DeletionMark", "Invalid", "IBUserID".
+//  ShouldLogChanges - Boolean - 
+//    
 //
-//  HasChanges - Boolean - a return value.
+//  HasChanges - Boolean -  the return value.
 //
 Procedure UpdateUserInfoRecords(User, UserObject,
 			IBUser = Undefined, ShouldLogChanges = False, HasChanges = False) Export
@@ -596,9 +594,9 @@ Procedure DeleteInfoRecordsOnDeletedUsers(User, HasChanges = False)
 		Query.SetParameter("User", User);
 	EndIf;
 	
-	// ACC:1328-off - No.648.1.1 Data lock is not required during a redundant record cleanup.
+	// 
 	Selection = Query.Execute().Select();
-	// ACC:1328-on
+	// 
 	While Selection.Next() Do
 		RecordSet = InformationRegisters.UsersInfo.CreateRecordSet();
 		RecordSet.Filter.User.Set(Selection.Ref);
@@ -608,7 +606,7 @@ Procedure DeleteInfoRecordsOnDeletedUsers(User, HasChanges = False)
 	
 EndProcedure
 
-// Creates a catalog service item that does not subscribe to events.
+// Creates a service element of the directory that does not participate in event subscriptions.
 //
 // Parameters:
 //   Ref - CatalogRef
@@ -629,7 +627,7 @@ Function ServiceItem(Ref)
 	
 EndFunction
 
-// Creates a record set of a service register that does subscribe to events.
+// Creates a set of service register entries that does not participate in event subscriptions.
 Function ServiceRecordSet(RegisterManager)
 	
 	RecordSet = RegisterManager.CreateRecordSet();
@@ -691,7 +689,7 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 		Try
 			Block.Lock();
 			HasChanges = False;
-			// @skip-check query-in-loop - Batch-wise data processing within a transaction
+			// 
 			DeleteInfoRecordsOnDeletedUsers(User, HasChanges);
 			If Not HasChanges Then
 				UserObject = ServiceItem(User);
@@ -706,12 +704,12 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 								UsersInternal.StoredIBUserProperties(PreviousProperties));
 						EndIf;
 					EndIf;
-					// @skip-check query-in-loop - Batch-wise data processing within a transaction
+					// 
 					UpdateUserInfoRecords(User, UserObject);
 					If UserObject.Modified() Then
-						// ACC:1363-off - Cleanup of stored authentication properties that do not participate in data exchange.
+						// 
 						UserObject.Write();
-						// ACC:1363-on
+						// 
 					EndIf;
 				EndIf;
 			EndIf;
@@ -842,7 +840,7 @@ Procedure ResetOpenIDConnectAuthenticationForAllUsers()
 		Try
 			IBUser.Write();
 			If String <> Undefined Then
-				// @skip-check query-in-loop - Batch-wise data processing within a transaction
+				// 
 				UpdateUserInfoRecords(String.Ref, Undefined);
 			EndIf;
 			CommitTransaction();

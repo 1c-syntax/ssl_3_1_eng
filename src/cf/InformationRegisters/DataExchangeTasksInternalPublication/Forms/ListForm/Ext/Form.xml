@@ -157,6 +157,33 @@
 					<ContextMenu name="ErrorContextMenu" id="41"/>
 					<ExtendedTooltip name="ErrorExtendedTooltip" id="42"/>
 				</LabelField>
+				<LabelField name="TaskCheckTime" id="49">
+					<DataPath>List.TaskCheckTime</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Check time</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="TaskCheckTimeContextMenu" id="50"/>
+					<ExtendedTooltip name="TaskCheckTimeExtendedTooltip" id="51"/>
+				</LabelField>
+				<LabelField name="CorrespondentDataArea" id="52">
+					<DataPath>List.CorrespondentDataArea</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Data area</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="CorrespondentDataAreaContextMenu" id="53"/>
+					<ExtendedTooltip name="CorrespondentDataAreaExtendedTooltip" id="54"/>
+				</LabelField>
+				<LabelField name="Mode" id="55">
+					<DataPath>List.Mode</DataPath>
+					<ContextMenu name="ModeContextMenu" id="56"/>
+					<ExtendedTooltip name="ModeExtendedTooltip" id="57"/>
+				</LabelField>
 			</ChildItems>
 		</Table>
 	</ChildItems>

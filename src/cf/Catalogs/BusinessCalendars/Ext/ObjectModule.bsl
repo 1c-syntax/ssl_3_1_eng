@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -36,15 +34,15 @@ Procedure CheckBasicCalendarUse(Cancel)
 		Return;
 	EndIf;
 	
-	// The reference to itself is prohibited.
+	// 
 	If Ref = BasicCalendar Then
 		MessageText = NStr("en = 'Cannot select a calendar as a source for itself.';");
 		Common.MessageToUser(MessageText, , , "Object.BasicCalendar", Cancel);
 		Return;
 	EndIf;
 	
-	// If another calendar is based on this one, forbid populating it 
-	// to avoid circular dependencies.
+	//  
+	// 
 	
 	Query = New Query;
 	Query.SetParameter("Calendar", Ref);

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -55,29 +53,29 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Or Parameters.User = Users.AuthorizedUser();
 	EndIf;
 	
-	// Configuring commands for a limited user.
+	// 
 	Items.FormAddToGroup.Visible   = IBUserEmployeeResponsible;
 	Items.FormRemoveFromGroup.Visible = IBUserEmployeeResponsible;
 	Items.FormChangeGroup.Visible    = IBUserEmployeeResponsible;
 	
-	// Configuring commands for a full access user.
+	// 
 	Items.AccessGroupsAddToGroup.Visible   = IBUserFull;
 	Items.AccessGroupsRemoveFromGroup.Visible = IBUserFull;
 	Items.AccessGroupsChangeGroup.Visible    = IBUserFull;
 	
-	// Setting the page tab display.
+	// 
 	Items.AccessGroupsAndRoles.PagesRepresentation =
 		?(IBUserFull,
 		  FormPagesRepresentation.TabsOnTop,
 		  FormPagesRepresentation.None);
 	
-	// Configuring the command bar view for a full access user.
+	// 
 	Items.AccessGroups.CommandBarLocation =
 		?(IBUserFull,
 		  FormItemCommandBarLabelLocation.Top,
 		  FormItemCommandBarLabelLocation.None);
 	
-	// Configuring roles view for a full access user.
+	// 
 	Items.RolesRepresentation.Visible = IBUserFull;
 	
 	If IBUserFull
@@ -86,7 +84,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		OutputAccessGroups();
 	Else
-		// Regular users cannot view other user access settings.
+		// 
 		Items.AccessGroupsAddToGroup.Visible   = False;
 		Items.AccessGroupsRemoveFromGroup.Visible = False;
 		
@@ -253,7 +251,7 @@ Procedure AccessRightsReport(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+// 
 
 &AtClient
 Procedure RolesBySubsystemsGroup(Command)
@@ -387,8 +385,6 @@ Procedure OutputAccessGroups()
 	
 	AllAccessGroups = Query.Execute().Unload();
 	
-	// Set a presentation for the access group.
-	// Remove the current user from the group if they are a direct member.
 	HasProhibitedGroups = False;
 	IndexOf = AllAccessGroups.Count()-1;
 	
@@ -585,7 +581,7 @@ Procedure FillRoles()
 		|		ON Roles.Ref = AccessGroups_Users.Ref.Profile
 		|			AND (NOT Roles.Ref.DeletionMark)";
 	Else
-		// User group or External user group.
+		// 
 		Query.Text =
 		"SELECT DISTINCT
 		|	Roles.Role AS Role
@@ -625,7 +621,7 @@ Procedure FillRoles()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Required by a role interface.
+// 
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

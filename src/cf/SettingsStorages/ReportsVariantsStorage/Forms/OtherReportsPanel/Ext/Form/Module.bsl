@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -39,7 +37,7 @@ Procedure CloseThisWindowAfterMoveToReportOnChange(Item)
 	SaveThisFormSettings();
 EndProcedure
 
-// Hyperlink click handler.
+// Handler for clicking on a hyperlink.
 //
 // Parameters:
 //   Item - FormDecoration
@@ -69,7 +67,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server call, Server.
+// 
 
 &AtServer
 Procedure SaveThisFormSettings()
@@ -82,7 +80,7 @@ Procedure SaveThisFormSettings()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server.
+// Server
 
 &AtServer
 Procedure ReadThisFormSettings()
@@ -114,7 +112,7 @@ Procedure FillReportPanel()
 	
 	VariantsTable = AvailableReportsOptions();
 	For Each TableRow In VariantsTable Do
-		// Other options only.
+		// 
 		If TableRow.Ref = OptionRef Then
 			Continue;
 		EndIf;
@@ -136,7 +134,7 @@ Procedure FillReportPanel()
 		
 		VariantsTable.Sort("Description");
 		
-		// Deleting rows that correspond to the current (currently open) option.
+		// 
 		FoundItems = VariantsTable.FindRows(New Structure("Ref", OptionRef));
 		For Each TableRow In FoundItems Do
 			VariantsTable.Delete(TableRow);
@@ -145,7 +143,7 @@ Procedure FillReportPanel()
 		AllSubsystems = ReportsOptionsCached.CurrentUserSubsystems().Tree;
 		AllSections = AllSubsystems.Rows[0].Rows;
 		
-		// Subsystem iteration and found options output.
+		// 
 		For Each CurrentSubsystem In Subsystems Do
 			FoundItems = VariantsTable.FindRows(New Structure("Subsystem", CurrentSubsystem));
 			If FoundItems.Count() = 0 Then
@@ -272,7 +270,7 @@ Function AvailableReportsOptions()
 	
 EndFunction
 
-// Creates form items referring to the report option.
+// Creates form elements that link to a report variant.
 // 
 // Parameters:
 //   OutputTable - ValueTable:
@@ -314,7 +312,7 @@ Procedure OutputHyperlinkToPanel(OutputTable, Variant, Var_Group, ShowTooltips)
 	
 	StyleItems = Metadata.StyleItems;
 	
-	// Add a report option hyperlink title.
+	// 
 	Label = Items.Insert(OutputRow.LabelName, Type("FormDecoration"), OutputRow.Group); // FormDecoration, FormDecorationExtensionForALabel
 	Label.Type = FormDecorationType.Label;
 	Label.Hyperlink = True;

@@ -1,21 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 // Updates the list of commands depending on the current context.
 //
 // Parameters:
-//   Form - ClientApplicationForm - a form that requires update of commands.
+//   Form - ClientApplicationForm -  a form that requires updating commands.
 //   Source - FormDataStructure
-//            - FormTable - a context to check conditions (Form.Object or Form.Items.List).
+//            - FormTable - 
 //
 Procedure UpdateCommands(Form, Val Source = Undefined) Export
 	
@@ -50,20 +48,20 @@ EndProcedure
 
 #Region Private
 
-// Properties of the second handler parameter of the attachable command shared both by client and server handlers.
+// Properties of the second parameter of the attached command handler that are common to client and server handlers.
 //
 // Returns:
 //  Structure:
-//   * CommandDetails - Structure - properties match the value table columns of the Commands parameter
-///of the AttachableCommandsOverridable.OnDefineCommandsAttachedToObject procedure.
-//                                   Key properties:
-//      ** Id - String - Command ID.
-//      ** Presentation - String - Command presentation in a form.
-//      ** Name - String - a command name on a form.
-//   * Form - ClientApplicationForm - a form the command is called from.
-//   * IsObjectForm - Boolean - True if the command is called from the object form.
+//   * CommandDetails - Structure - 
+//
+//                                   :
+//      ** Id - String -  command ID.
+//      ** Presentation - String -  representation of the team in the form.
+//      ** Name - String -  name of the team in the form.
+//   * Form - ClientApplicationForm -  the form from which the command is called.
+//   * IsObjectForm - Boolean -  True if the command is called from an object form.
 //   * Source - FormTable
-//              - FormDataStructure - an object or a form list with the Reference field.
+//              - FormDataStructure - 
 //
 Function CommandExecuteParameters() Export
 	Result = New Structure;
@@ -257,7 +255,7 @@ Procedure RefreshSourceCommands(Val Form, Val Source, Val SourceName = "")
 				TheExpressionComputingTheValueOfTheNotes = CommandDetails.CheckMarkValue;
 			EndIf;
 			
-			Form.Items[CommandDetails.NameOnForm].Check = Eval(TheExpressionComputingTheValueOfTheNotes); // ACC:488 The code being executed is safe.
+			Form.Items[CommandDetails.NameOnForm].Check = Eval(TheExpressionComputingTheValueOfTheNotes); // 
 		EndIf;
 	EndDo;
 	

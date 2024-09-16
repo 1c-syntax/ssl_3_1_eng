@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region Private
 
@@ -62,32 +61,32 @@ Procedure CheckObjectReferenceAfterValidationConfirm(Response, Parameters) Expor
 		
 		If Parameters.ReferencesArrray.Count() = 1 Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 is used elsewhere in the app.
-				           |Editing this object might lead to data inconsistency.';"),
+				NStr("en = 'Элемент ""%1"" уже используется в других местах в приложении.
+				           |Не рекомендуется разрешать редактирование из-за риска рассогласования данных.';"),
 				Parameters.ReferencesArrray[0]);
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 selected items are used elsewhere in the app.
-				           |Editing these items might lead to data inconsistency.';"),
+				NStr("en = 'Выбранные элементы (%1) уже используются в других местах в приложении.
+				           |Не рекомендуется разрешать редактирование из-за риска рассогласования данных.';"),
 				Parameters.ReferencesArrray.Count());
 		EndIf;
 		
 		Buttons = New ValueList;
-		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Allow editing';"));
-		Buttons.Add(DialogReturnCode.No, NStr("en = 'Cancel';"));
+		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Разрешить редактирование';"));
+		Buttons.Add(DialogReturnCode.No, NStr("en = 'Отмена';"));
 		ShowQueryBox(
 			New NotifyDescription(
 				"CheckObjectRefsAfterEditConfirmation", ThisObject, Parameters),
 			MessageText, Buttons, , DialogReturnCode.No, Parameters.DialogTitle);
 	Else
 		If Parameters.ReferencesArrray.Count() = 1 Then
-			ShowUserNotification(NStr("en = 'Attribute editing allowed';"),
+			ShowUserNotification(NStr("en = 'Редактирование реквизитов разрешено';"),
 				GetURL(Parameters.ReferencesArrray[0]), Parameters.ReferencesArrray[0]);
 		Else
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Allowed to edit attributes of %1 objects';"),
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Разрешено редактирование реквизитов объектов (%1)';"),
 				Parameters.ReferencesArrray.Count());
 			
-			ShowUserNotification(NStr("en = 'Attribute editing allowed';"),,
+			ShowUserNotification(NStr("en = 'Редактирование реквизитов разрешено';"),,
 				MessageText);
 		EndIf;
 		ExecuteNotifyProcessing(Parameters.ContinuationHandler, True);

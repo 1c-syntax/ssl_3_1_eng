@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -303,7 +301,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Document actions
+// 
 
 &AtClient
 Procedure WriteAndClose(Command)
@@ -376,7 +374,7 @@ Procedure ChangeFont(Command)
 	
 EndProcedure
 
-// Formatting
+// 
 
 &AtClient
 Procedure IncreaseFontSize(Command)
@@ -384,7 +382,7 @@ Procedure IncreaseFontSize(Command)
 	For Each Area In AreaListForChangingFont() Do
 		Size = Area.Font.Size;
 		Size = Size + IncreaseFontSizeChangeStep(Size);
-		Area.Font = New Font(Area.Font,,Size); // ACC:1345 - Don't apply styles.
+		Area.Font = New Font(Area.Font,,Size); // 
 	EndDo;
 	
 EndProcedure
@@ -398,7 +396,7 @@ Procedure DecreaseFontSize(Command)
 		If Size < 1 Then
 			Size = 1;
 		EndIf;
-		Area.Font = New Font(Area.Font,,Size); // ACC:1345 - Don't apply styles.
+		Area.Font = New Font(Area.Font,,Size); // 
 	EndDo;
 	
 EndProcedure
@@ -411,7 +409,7 @@ Procedure Strikeout(Command)
 		If ValueToSet = Undefined Then
 			ValueToSet = Not Area.Font.Strikeout = True;
 		EndIf;
-		Area.Font = New Font(Area.Font,,,,,,ValueToSet); // ACC:1345 - Don't apply styles.
+		Area.Font = New Font(Area.Font,,,,,,ValueToSet); // 
 	EndDo;
 	
 	UpdateCommandBarButtonMarks();
@@ -613,7 +611,7 @@ Procedure UpdateCommandBarButtonMarks();
 		Return;
 	EndIf;
 	
-	// Font.
+	// Font
 	Font = Area.Font;
 	Items.SpreadsheetDocumentBold.Check = Font <> Undefined And Font.Bold = True;
 	Items.SpreadsheetDocumentItalic.Check = Font <> Undefined And Font.Italic = True;
@@ -624,7 +622,7 @@ Procedure UpdateCommandBarButtonMarks();
 	Items.SpreadsheetUnderlineAllActions.Check = Items.SpreadsheetDocumentUnderline.Check;
 	Items.StrikethroughAllActions.Check = Font <> Undefined And Font.Strikeout = True;
 	
-	// Horizontal orientation.
+	// 
 	Items.SpreadsheetDocumentAlignLeft.Check = Area.HorizontalAlign = HorizontalAlign.Left;
 	Items.SpreadsheetDocumentAlignCenter.Check = Area.HorizontalAlign = HorizontalAlign.Center;
 	Items.SpreadsheetDocumentAlignRight.Check = Area.HorizontalAlign = HorizontalAlign.Right;
@@ -635,7 +633,7 @@ Procedure UpdateCommandBarButtonMarks();
 	Items.SpreadsheetAlignRightAllActions.Check = Items.SpreadsheetDocumentAlignRight.Check;
 	Items.SpreadsheetJustifyAllActions.Check = Items.SpreadsheetDocumentJustify.Check;
 	
-	// Vertical orientation.
+	// 
 	Items.AlignTop.Check = Area.VerticalAlign = VerticalAlign.Top;
 	Items.AlignMiddle.Check = Area.VerticalAlign = VerticalAlign.Center;
 	Items.AlignBottom.Check = Area.VerticalAlign = VerticalAlign.Bottom;
@@ -1319,7 +1317,7 @@ Procedure SpreadsheetDocumentDrag(Item, DragParameters, StandardProcessing, Area
 		
 		If StandardProcessing Then
 			StandardProcessing = False;
-			Area = SpreadsheetDocument.Area(Area.Top, Area.Left); // Get the area of the merged cells.
+			Area = SpreadsheetDocument.Area(Area.Top, Area.Left); // 
 			Area.Text = ?(ValueIsFilled(Area.Text), TrimR(Area.Text) + " ", "") + DragParameters.Value;
 		EndIf;
 	EndIf;
@@ -1868,7 +1866,7 @@ Procedure Attachable_ExpandTheCurrentFieldListItem()
 EndProcedure
 
 &AtClient
-Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - Called from FormulaConstructorClient.
+Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // 
 	
 	FillInTheListOfAvailableFields(FillParameters);
 	
@@ -1956,7 +1954,7 @@ Procedure Attachable_SearchStringClearing(Item, StandardProcessing)
 EndProcedure
 
 &AtServer
-Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters) // ACC:1412 - The parameters return to the client.
+Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters) // 
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
 		ModuleConstructorFormula.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
@@ -1969,7 +1967,7 @@ Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export // ACC:78 - Procedure is called from FormulaConstructorClient.StartSearchInFieldsList.
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export // 
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		ModuleConstructorFormulaClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
@@ -2632,7 +2630,7 @@ Procedure ExpandFieldList()
 		EndDo;
 	EndDo;
 	
-	// Color of the fields that are not common for the selected objects.
+	// 
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -2845,7 +2843,7 @@ Procedure DeleteStampEP(Command)
 		If StrStartsWith(Area.Name, "DSStamp") Then
 			Area.Name = "";
 			#If WebClient Then
-				// It is required for the display update
+				// 
 				Area.Protection = Area.Protection;
 			#EndIf
 		EndIf;

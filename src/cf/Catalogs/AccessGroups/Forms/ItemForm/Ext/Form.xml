@@ -507,7 +507,57 @@
 									</CommandSet>
 									<RowFilter xsi:nil="true"/>
 									<ContextMenu name="AccessValuesContextMenu" id="67"/>
-									<AutoCommandBar name="AccessValuesCommandBar" id="68"/>
+									<AutoCommandBar name="AccessValuesCommandBar" id="68">
+										<Autofill>false</Autofill>
+										<ChildItems>
+											<Button name="AccessValuesSelectAccessValues_" id="457">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.SelectAccessValues_</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Pick</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="AccessValuesSelectAccessValues_ExtendedTooltip" id="458"/>
+											</Button>
+											<Button name="AccessValuesAdd" id="461">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.AccessValues.StandardCommand.Add</CommandName>
+												<ExtendedTooltip name="AccessValuesAddExtendedTooltip" id="462"/>
+											</Button>
+											<Button name="AccessValuesDelete" id="466">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.AccessValues.StandardCommand.Delete</CommandName>
+												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="AccessValuesDeleteExtendedTooltip" id="467"/>
+											</Button>
+											<ButtonGroup name="AccessValuesStandardCommands" id="459">
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Access value standard commands</v8:content>
+													</v8:item>
+												</Title>
+												<CommandSource>Item.AccessValues</CommandSource>
+												<ExtendedTooltip name="AccessValuesStandardCommandsExtendedTooltip" id="460"/>
+											</ButtonGroup>
+											<SearchStringAddition name="AccessValuesSearch" id="463">
+												<AdditionSource>
+													<Item>AccessValues</Item>
+													<Type>SearchStringRepresentation</Type>
+												</AdditionSource>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Search</v8:content>
+													</v8:item>
+												</Title>
+												<ContextMenu name="AccessValuesSearchContextMenu" id="464"/>
+												<ExtendedTooltip name="AccessValuesSearchExtendedTooltip" id="465"/>
+											</SearchStringAddition>
+										</ChildItems>
+									</AutoCommandBar>
 									<ExtendedTooltip name="AccessValuesExtendedTooltip" id="392"/>
 									<SearchStringAddition name="AccessValuesSearchString" id="429">
 										<AdditionSource>
@@ -535,7 +585,7 @@
 									</SearchControlAddition>
 									<Events>
 										<Event name="OnEditEnd">AccessValuesOnEditEnd</Event>
-										<Event name="ChoiceProcessing">AccessValueChoiceProcessing</Event>
+										<Event name="ChoiceProcessing">AccessValuesChoiceProcessing</Event>
 										<Event name="OnStartEdit">AccessValuesOnStartEdit</Event>
 										<Event name="OnChange">AccessValuesOnChange</Event>
 									</Events>
@@ -563,7 +613,6 @@
 												<Event name="StartChoice">AccessValueStartChoice</Event>
 												<Event name="Clearing">AccessValueClearing</Event>
 												<Event name="TextEditEnd">AccessValueTextInputCompletion</Event>
-												<Event name="ChoiceProcessing">AccessValueChoiceProcessing</Event>
 											</Events>
 										</InputField>
 										<CheckBoxField name="AccessValuesIncludeSubordinateAccessValues" id="448">
@@ -974,6 +1023,21 @@
 			</ToolTip>
 			<Action>WriteAndClose</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="SelectAccessValues_" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Pick</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Pick</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>SelectAccessValues_</Action>
 		</Command>
 	</Commands>
 </Form>

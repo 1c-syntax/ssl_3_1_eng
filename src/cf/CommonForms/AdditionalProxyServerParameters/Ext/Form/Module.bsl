@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Populate form data.
+	// 
 	Server      = Parameters.Server;
 	Port        = Parameters.Port;
 	
@@ -51,7 +49,7 @@ EndProcedure
 &AtClient
 Procedure HTTPServerOnChange(Item)
 	
-	// If the server is not specified, then reset the corresponding port.
+	// 
 	If IsBlankString(ThisObject[Item.Name]) Then
 		ThisObject[StrReplace(Item.Name, "Server", "Port")] = 0;
 	EndIf;
@@ -66,7 +64,7 @@ EndProcedure
 Procedure OKButton(Command)
 	
 	If Not Modified Then
-		// If the form's data is not modified, don't return it.
+		// 
 		// 
 		NotifyChoice(Undefined);
 		Return;
@@ -76,7 +74,7 @@ Procedure OKButton(Command)
 		Return;
 	EndIf;
 	
-	// If the check is passed, return the additional proxy settings as a structure.
+	// 
 	// 
 	ReturnValueStructure = New Structure;
 	
@@ -107,7 +105,7 @@ EndProcedure
 
 #Region Private
 
-// Generates form items in accordance with
+// Initializes form elements depending on
 // the proxy server settings.
 //
 &AtClientAtServerNoContext
@@ -129,12 +127,12 @@ Procedure InitializeFormItems(Form)
 	
 EndProcedure
 
-// Validates the addresses of exception servers.
-// Notifies a user about invalid addresses.
+// Checks whether the addresses of exception servers are correct.
+// It also notifies the user about incorrectly filled in addresses.
 //
 // Returns:
-//   Boolean - True if the addresses are valid,
-//						  otherwise False.
+//   Boolean - 
+//						  
 //
 &AtClient
 Function ValidateExceptionServerAddresses()
@@ -162,11 +160,11 @@ Function ValidateExceptionServerAddresses()
 	
 EndFunction
 
-// Finds illegal characters and returns them as a comma-separated string.
+// Finds and returns invalid characters in a string, separated by commas.
 //
 // Parameters:
-//  RowToValidate - String - to check for illegal characters.
-//  AllowedChars - String - allowed characters.
+//  RowToValidate - String -  check for the presence of invalid characters.
+//  AllowedChars - String -  valid characters.
 //
 // Returns:
 //   String

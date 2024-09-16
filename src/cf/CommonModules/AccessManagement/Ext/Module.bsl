@@ -1,45 +1,43 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used to check rights.
+// 
 
-// Checks whether the user has a role in one of the profiles of the access groups, to which they belong. 
-// For example, the ViewEventLog role, the UnpostedDocumentsPrint role.
+// Verifies that the user has a role in one of the profiles of the access groups in which they participate,
+// for example: the role of viewing the log of Registration, the role of printingneeded Documents.
 //
-// If an object (or access value sets) is specified, it is required to check
-// whether the access group provides the Read right for the specified object (or the specified access value set is allowed).
+// If an object (or sets of access values) is specified, then it is additionally checked
+// that the access group grants Read access to the specified object (or the set of access values is allowed).
 //
 // Parameters:
-//  Role           - String - a role name.
+//  Role           - String -  role name.
 //
-//  ObjectReference - AnyRef - a reference to the object, for which the access value sets are filled
-//                   to check the Read right.
-//                 - ValueTable - A table of arbitrary access value sets. Columns are:
-//                     * SetNumber     - Number  - a number grouping multiple rows in a separate set.
-//                     * AccessKind      - String - an access kind name specified in the overridable module.
-//                     * AccessValue - DefinedType.AccessValue - a reference to the access value type
-//                       specified in the overridable module.
-//                       You can receive a blank prepared table using the
-//                       AccessValuesSetsTable function of the AccessManagement common module
-//                       (do not fill in the Read and Update columns).
+//  ObjectReference - AnyRef -  to the object for which sets of access values are being filled
+//                   for checking Read rights.
+//                 - ValueTable - :
+//                     * SetNumber     - Number  -  a number that groups several rows into a separate set.
+//                     * AccessKind      - String -  name of the access type specified in the module to be overridden.
+//                     * AccessValue - DefinedType.AccessValue -  type of the access value
+//                       specified in the module to be overridden.
+//                       You can get an empty prepared table using the function
+//                       Access value table for the General access control module
+//                       (do not fill in the Read, Change columns).
 //
 //  User   - CatalogRef.Users
 //                 - CatalogRef.ExternalUsers
-//                 - Undefined - if the parameter is not specified,
-//                     the right is checked for the current user.
+//                 - Undefined - 
+//                     
 //
 // Returns:
-//  Boolean - if True, the user has a role with restrictions.
+//  Boolean - 
 //
 Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined) Export
 	
@@ -52,7 +50,7 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 	SetPrivilegedMode(True);
 	
 	If ObjectReference = Undefined Or Not LimitAccessAtRecordLevel() Then
-		// Checking that the role is assigned to the user using an access group profile.
+		// 
 		Query = New Query;
 		Query.SetParameter("AuthorizedUser", User);
 		Query.SetParameter("Role", Role);
@@ -78,7 +76,7 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 	Else
 		AccessValuesSets = AccessValuesSetsTable();
 		ObjectReference.GetObject().FillAccessValuesSets(AccessValuesSets);
-		// Selecting the access value sets used to check the Read right.
+		// 
 		ReadSetsRows = AccessValuesSets.FindRows(New Structure("Read", True));
 		SetsNumbers = New Map;
 		For Each String In ReadSetsRows Do
@@ -94,7 +92,7 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 		AccessValuesSets.FillValues(False, "Read, Update");
 	EndIf;
 	
-	// Adjusting access value sets.
+	// 
 	AccessKindsNames = AccessManagementInternal.AccessKindsProperties().ByNames;
 	
 	For Each String In AccessValuesSets Do
@@ -157,10 +155,10 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 		String.AccessKind = "";
 	EndDo;
 	
-	// Adding internal fields to an access value set.
+	// 
 	AccessManagementInternal.PrepareAccessValuesSetsForWrite(Undefined, AccessValuesSets, True);
 	
-	// Check that the user is assigned the role via the access group by a profile with an allowed access value set.
+	// 
 	// 
 	
 	Query = New Query;
@@ -358,27 +356,27 @@ Function HasRole(Val Role, Val ObjectReference = Undefined, Val User = Undefined
 	
 EndFunction
 
-// Checks whether object right permissions are set for the user.
-//  For example, you can set the RightsManagement, Read, and FoldersChange rights to a file folder,
-// the Read right is both the right to the file folder and the right to the files.
+// Verifies that the user is configured to allow permissions for the object.
+//  For example, a file folder can have the rights "manage Rights", "Read", "change Folders",
+// and the "Read" right is both a right for the file folder and a right for files.
 //
 // Parameters:
-//  Right          - String - a right name as it is specified in the OnFillAvailableRightsForObjectsRightsSettings procedure
-//                   of the AccessManagementOverridable common module.
+//  Right          - String -  the name of the right, as specified in the procedure for filling in the possibilty rights to configure the rights Of objects in the
+//                   General access control module Undefined.
 //
 //  ObjectReference - CatalogRef
-//                 - ChartOfCharacteristicTypesRef - a reference to one of the right owners
-//                   specified in the OnFillAvailableRightsForObjectsRightsSettings procedure
-//                   of the AccessManagementOverridable common module, for example, a reference to a file folder.
+//                 - ChartOfCharacteristicTypesRef - 
+//                   
+//                   
 //
 //  User   - CatalogRef.Users
 //                 - CatalogRef.ExternalUsers
-//                 - Undefined - if the parameter is not specified,
-//                     the right is checked for the current user.
+//                 - Undefined - 
+//                     
 //
 // Returns:
-//  Boolean - if True, the right permission is set up according to all allowed and
-//           prohibited settings in the hierarchy.
+//  Boolean - 
+//           
 //
 Function HasRight(Right, ObjectReference, Val User = Undefined) Export
 	
@@ -465,14 +463,14 @@ Function HasRight(Right, ObjectReference, Val User = Undefined) Export
 	
 EndFunction
 
-// Checks whether the specified user is allowed
-// to read an object from the database at the level of rights and record.
-// When a record set is specified, the database records
-// corresponding to the Filter property are checked.
+// Verifies that at the record level (and at the rights level), the specified user
+// is allowed to read the object from the database.
+// When a set of records is specified, all records in the database
+// that match the Selection property are checked.
 //
-// Warning: if the subsystem operates in standard restriction mode, and
-// a user is specified, but not the current one,
-// an exception will be raised (for checking, use the HighPerformanceMode function).
+// Important: if the subsystem is running in the standard constraint mode and
+// the user is specified, but not the current user,
+// an exception will be raised (the Performance Option function is provided for checking).
 //
 // Parameters:
 //  DataDetails - CatalogRef
@@ -482,11 +480,11 @@ EndFunction
 //                 - ChartOfCalculationTypesRef
 //                 - BusinessProcessRef
 //                 - TaskRef
-//                 - ExchangePlanRef - a reference to the object to be checked.
+//                 - ExchangePlanRef - 
 //                 - InformationRegisterRecordKey
 //                 - AccumulationRegisterRecordKey
 //                 - AccountingRegisterRecordKey
-//                 - CalculationRegisterRecordKey - a record key to be checked.
+//                 - CalculationRegisterRecordKey - 
 //                 - CatalogObject
 //                 - DocumentObject
 //                 - ChartOfCharacteristicTypesObject
@@ -494,18 +492,18 @@ EndFunction
 //                 - ChartOfCalculationTypesObject
 //                 - BusinessProcessObject
 //                 - TaskObject
-//                 - ExchangePlanObject - — the object in memory and database to be checked.
+//                 - ExchangePlanObject - 
 //                 - InformationRegisterRecordSet
 //                 - AccumulationRegisterRecordSet
 //                 - AccountingRegisterRecordSet
-//                 - CalculationRegisterRecordSet - — a record set with the configured Filter property
-//                     used to determine the database records to be checked.
+//                 - CalculationRegisterRecordSet - 
+//                     
 //
 //  User   - CatalogRef.Users
 //                 - CatalogRef.ExternalUsers
-//                 - Undefined - — a current user.
-//                   When the parameter is specified, privileged mode is not considered.
-//                   Checking the rights of a non-current user requires administrative rights.
+//                 - Undefined - 
+//                   
+//                   
 //
 // Returns:
 //  Boolean
@@ -516,16 +514,16 @@ Function ReadingAllowed(DataDetails, User = Undefined) Export
 	
 EndFunction
 
-// Checks whether the specified user is allowed
-// to change an object in the database to an object in memory at the level of rights and record.
-// For a new object, the object in memory is checked only.
-// If a reference or a record key is specified, the object in the database is checked only.
+// Verifies that at the record level (and at the rights level), the specified user
+// is allowed to change an object in the database to an object in memory.
+// For a new object, only the object in memory is checked.
+// If a reference or record key is specified, only the object in the database is checked.
 //
-// Warning: if the subsystem operates in standard restriction mode,
-// and not in universal restriction mode,
-// the Edit right to the table is checked; at the record level only the Read right is checked.
-// If a user is specified, but not the current one,
-// an exception will be raised (for checking, use the HighPerformanceMode function).
+// Important: if the subsystem operates in the standard constraint mode,
+// and not in the universal constraint mode, then the right is checked.
+// Change to a table, and at the record level, only the Read right is checked.
+// If a user is specified, but not the current user,
+// an exception will be raised (for checking, the function productionvariant is provided).
 //
 // Parameters:
 //  DataDetails - CatalogRef
@@ -535,11 +533,11 @@ EndFunction
 //                 - ChartOfCalculationTypesRef
 //                 - BusinessProcessRef
 //                 - TaskRef
-//                 - ExchangePlanRef - — a reference to the object in the database to be checked.
+//                 - ExchangePlanRef - 
 //                 - InformationRegisterRecordKey
 //                 - AccumulationRegisterRecordKey
 //                 - AccountingRegisterRecordKey
-//                 - CalculationRegisterRecordKey - — a record key in the database to be checked.
+//                 - CalculationRegisterRecordKey - 
 //                 - CatalogObject
 //                 - DocumentObject
 //                 - ChartOfCharacteristicTypesObject
@@ -547,18 +545,18 @@ EndFunction
 //                 - ChartOfCalculationTypesObject
 //                 - BusinessProcessObject
 //                 - TaskObject
-//                 - ExchangePlanObject - — the object in memory and database to be checked.
+//                 - ExchangePlanObject - 
 //                 - InformationRegisterRecordSet
 //                 - AccumulationRegisterRecordSet
 //                 - AccountingRegisterRecordSet
-//                 - CalculationRegisterRecordSet - — the record set in memory and database
-//                                                to be checked.
+//                 - CalculationRegisterRecordSet - 
+//                                                
 //
 //  User   - CatalogRef.Users
 //                 - CatalogRef.ExternalUsers
-//                 - Undefined - — a current user.
-//                   When the parameter is specified, privileged mode is not considered.
-//                   Checking the rights of a non-current user requires administrative rights.
+//                 - Undefined - 
+//                   
+//                   
 //
 // Returns:
 //  Boolean
@@ -569,7 +567,7 @@ Function EditionAllowed(DataDetails, User = Undefined) Export
 	
 EndFunction
 
-// Same as the ReadingAllowed function but if not allowed an exception is raised.
+// Does the same thing that the read function is Allowed, but if not allowed, an exception is thrown.
 // 
 // Parameters:
 //  DataDetails - See ReadingAllowed.DataDetails
@@ -580,7 +578,7 @@ Procedure CheckReadAllowed(DataDetails) Export
 	
 EndProcedure
 
-// Same as the EditionAllowed function but if not allowed an exception is raised.
+// Does the same thing that the change function is Allowed, but if not allowed, an exception is thrown.
 // 
 // Parameters:
 //  DataDetails - See EditionAllowed.DataDetails
@@ -592,50 +590,50 @@ Procedure CheckChangeAllowed(DataDetails) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures for including and excluding a user in access group profile.
+// 
 
-// Assigning an access group profile to a user by including
-// them in a personal access group (only for simplified setting of rights).
+// Assign access groups to a user profile by including
+// them in a personal access group (only for simplified rights settings).
 //
 // Parameters:
 //  User - CatalogRef.Users
-//               - CatalogRef.ExternalUsers - a required user.
-//  Profile      - CatalogRef.AccessGroupProfiles - a profile, for which you need to find or create a personal
-//                   access group and include a user in it.
-//               - UUID - UUID of a built-in profile,
-//                   using which you need to find an access group profile.
-//               - String - a built-in profile name, 
-//                   using which you need to find an access group profile.
+//               - CatalogRef.ExternalUsers - 
+//  Profile      - CatalogRef.AccessGroupProfiles -  the profile for which you want to find or create a personal
+//                   access group and include the user in it.
+//               - UUID - 
+//                   
+//               - String -  
+//                   
 //
 Procedure EnableProfileForUser(User, Profile) Export
 	EnableDisableUserProfile(User, Profile, True);
 EndProcedure
 
-// Canceling assignment of an access group profile to a user by excluding them
-// from a personal access group (only for simplified setting of rights).
+// Canceling the assignment of access groups to the user profile by excluding
+// them from the personal access group (only for simplified rights settings).
 //
 // Parameters:
 //  User - CatalogRef.Users
-//               - CatalogRef.ExternalUsers - a required user.
-//  Profile      - CatalogRef.AccessGroupProfiles - a profile, for which you need to find or create a personal
-//                    access group and include a user in it.
-//               - UUID - UUID of a built-in profile,
-//                    using which you need to find an access group profile.
-//               - String - a built-in profile name,
-//                    using which you need to find an access group profile.
-//               - Undefined - disable all user profiles.
+//               - CatalogRef.ExternalUsers - 
+//  Profile      - CatalogRef.AccessGroupProfiles -  the profile for which you want to find or create a personal
+//                    access group and include the user in it.
+//               - UUID - 
+//                    
+//               - String - 
+//                    
+//               - Undefined - 
 //
 Procedure DisableUserProfile(User, Profile = Undefined) Export
 	EnableDisableUserProfile(User, Profile, False);
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used to get common subsystem settings.
+// 
 
-// Checks whether access restriction is used at the record level.
+// Checks whether a record-level access restriction is used.
 //
 // Returns:
-//  Boolean - if True, access is restricted at the record level.
+//  Boolean - 
 //
 Function LimitAccessAtRecordLevel() Export
 	
@@ -651,13 +649,13 @@ Function LimitAccessAtRecordLevel() Export
 	
 EndFunction
 
-// Returns access restriction operation mode at the record level.
+// Returns a variant of how access restrictions work at the record level.
 //
-// It is required when using the extended
-// ReadingAllowed and EditingAllowed functions in high-performance mode.
+// Required for extended use of functions
+// Canadatrust and Ismaningerstr in productive option.
 //
 // Returns:
-//  Boolean - — if False, the standard option, otherwise high-performance.
+//  Boolean - 
 //
 Function ProductiveOption() Export
 	
@@ -666,13 +664,13 @@ Function ProductiveOption() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used for setting managed form interface.
+// 
 
-// The OnReadAtServer form event handler, which is embedded into item forms of catalogs, documents, register records,
-// and other objects to lock the form if data changes are denied.
+// Event handler for the account form in the Server, which is embedded in the forms of reference items,
+// documents, register entries, etc.to block the form if the change is prohibited.
 //
 // Parameters:
-//  Form               - ClientApplicationForm - an item form of an object or a register record form.
+//  Form               - ClientApplicationForm -  form of an object element or register entry.
 //
 //  CurrentObject       - CatalogObject
 //                      - DocumentObject
@@ -681,12 +679,12 @@ EndFunction
 //                      - ChartOfCalculationTypesObject
 //                      - BusinessProcessObject
 //                      - TaskObject
-//                      - ExchangePlanObject - Object being checked.
-//                      - InformationRegisterRecordManager - The manager of the record being checked.
+//                      - ExchangePlanObject -  the object being checked.
+//                      - InformationRegisterRecordManager - 
 //                      - InformationRegisterRecordSet
 //                      - AccumulationRegisterRecordSet
 //                      - AccountingRegisterRecordSet
-//                      - CalculationRegisterRecordSet - — the set of the records being checked.
+//                      - CalculationRegisterRecordSet - 
 //
 Procedure OnReadAtServer(Form, CurrentObject) Export
 	
@@ -698,12 +696,12 @@ Procedure OnReadAtServer(Form, CurrentObject) Export
 	
 EndProcedure
 
-// The AfterWriteAtServer form event handler that is embedded in the forms
-// of items of catalog, documents, register records and so on to speed up
-// the access update start for dependent objects when the update is scheduled.
+// Event handler for the post-write form in the Server, which is embedded in the forms
+// of reference items, documents, register entries, etc.to speed
+// up the launch of access updates for dependent objects when an update is scheduled.
 //
 // Parameters:
-//  Form           - ClientApplicationForm - an item form of an object or a register record form.
+//  Form           - ClientApplicationForm -  form of an object element or register entry.
 //
 //  CurrentObject   - CatalogObject
 //                  - DocumentObject
@@ -712,10 +710,10 @@ EndProcedure
 //                  - ChartOfCalculationTypesObject
 //                  - BusinessProcessObject
 //                  - TaskObject
-//                  - ExchangePlanObject - The object being checked.
-//                  - InformationRegisterRecordManager - The manager of the record being checked.
+//                  - ExchangePlanObject -  the object being checked.
+//                  - InformationRegisterRecordManager - 
 //
-//  WriteParameters - Structure - a standard parameter passed to the event handler.
+//  WriteParameters - Structure -  standard parameter passed to the event handler.
 //
 Procedure AfterWriteAtServer(Form, CurrentObject, WriteParameters) Export
 	
@@ -723,36 +721,36 @@ Procedure AfterWriteAtServer(Form, CurrentObject, WriteParameters) Export
 	
 EndProcedure
 
-// ACC:142-off #640.5 Optional parameters are more than 3 for backward compatibility.
+// 
 
-// Configures a form of access value, which uses access value groups
+// Configures the access value form, which uses groups of access values
 // to select allowed values in user access groups.
 //
-// Supported only when a
-// single access value group is selected for an access value.
+// It is only supported if the access value has one group of access values selected,
+// rather than several.
 //
-// For the AccessGroup form item related to the AccessGroup attribute, it sets
-// the access value group list to the selection parameter that provide access to change the access values.
+// For the access Group form element associated with the access group detail, sets
+// the list of access value groups in the selection parameter that grant access to change the access value.
 //
-// When creating a new access value, if the number of access value groups, which provide access
-// to change the access value, is zero, an exception will be raised.
+// When creating a new access value, if the number of access value groups that grant access
+// to change the access value is zero, an exception is thrown.
 //
-// If the database already contains an access value group that does not provide access to change the access value
-// or the number of access value groups, which provide access to change the access values, is zero,
-// the ReadOnly form parameter is set to True.
+// If the database already has a group of access values that does not allow access to change the access value,
+// or the number of access value groups that allow access to change the access value is zero,
+// then the only View form property is set to True.
 //
-// If neither a restriction at the record level or restriction by access kind is used,
-// the form item is hidden.
+// If the record-level restriction is not used or the access type restriction is not used,
+// then the form element is hidden.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a form of an access value
+//  Form - ClientApplicationForm -  form of an access value
 //            that uses groups to select allowed values.
 //
 //  AdditionalParameters - See ParametersOnCreateAccessValueForm
 //
-//  DeleteItems       - Undefined - obsolete, use AdditionalParameters instead.
-//  DeleteValueType    - Undefined - obsolete, use AdditionalParameters instead.
-//  DeleteCreateNewAccessValue - Undefined - obsolete, use AdditionalParameters instead.
+//  DeleteItems       - Undefined -  deprecated, additional Parameters should be used.
+//  DeleteValueType    - Undefined -  deprecated, additional Parameters should be used.
+//  DeleteCreateNewAccessValue - Undefined -  deprecated, additional Parameters should be used.
 //
 Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 			DeleteItems = Undefined, DeleteValueType = Undefined, DeleteCreateNewAccessValue = Undefined) Export
@@ -777,7 +775,7 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 	
 	If TypeOf(CreateNewAccessValue) <> Type("Boolean") Then
 		Try
-			FormObject = Form.Object; // DefinedType.AccessValue - Object's actual "FormDataStructure".
+			FormObject = Form.Object; // DefinedType.AccessValue - 
 			CreateNewAccessValue = Not ValueIsFilled(FormObject.Ref);
 		Except
 			ErrorInfo = ErrorInfo();
@@ -948,25 +946,25 @@ Procedure OnCreateAccessValueForm(Form, AdditionalParameters = Undefined,
 	
 EndProcedure
 
-// ACC:142-on
+// 
 
-// Details of the additional parameters used in the OnCreateAccessValueForm procedure.
+// Description of additional parameters used in the procedure for creating the access value Form.
 // 
 // Returns:
 //  Structure:
-//    * Attribute       - Undefined - Name of the Object.AccessGroup form attribute.
-//                     - String - a form attribute name containing the access group.
+//    * Attribute       - Undefined -  means the name of the form's props " Object.Access group".
+//                     - String - 
 //
-//    * Items       - Undefined - the AccessGroup form item name.
-//                     - String - Form item name.
-//                     - Array - Form item names.
+//    * Items       - Undefined -  indicates the name of the "access Group" form element.
+//                     - String - 
+//                     - Array - 
 //
-//    * ValueType    - Undefined - getting a type from the Object.Ref form attribute.
-//                     - Type - an access value reference type.
+//    * ValueType    - Undefined -  means: get the type from the form's "Object.Link".
+//                     - Type - 
 //
-//    * CreateNewAccessValue - Undefined - getting the NOT ValueFilled(Form.Object.Ref) value
+//    * CreateNewAccessValue - Undefined -  means: get the value " not Value_filled(Form.An object.Link)"
 //                       to determine whether a new access value is being created or not.
-//                     - Boolean - the specified value is used.
+//                     - Boolean - 
 //
 Function ParametersOnCreateAccessValueForm() Export
 	
@@ -974,18 +972,18 @@ Function ParametersOnCreateAccessValueForm() Export
 	
 EndFunction
 
-// Returns an array of access value groups allowing to change access values.
+// Returns an array of groups of access values that allow changing access values.
 //
-// Supported only when a single access value group is selected.
+// It is only supported when a single group of access values is selected, rather than multiple ones.
 //
 // Parameters:
-//  AccessValuesType - Type - an access value reference type.
-//  ReturnAll1      - Boolean - if True, when no restrictions are set
-//                       , an array of all groups will be returned instead of Undefined.
+//  AccessValuesType - Type -  type of access value reference.
+//  ReturnAll1      - Boolean -  if True, if there are no restrictions
+//                       (all are available), an array of all will be returned instead of Undefined.
 //
 // Returns:
-//  Undefined - access values can be changed in all access value groups.
-//  Array - an array of found access value groups.
+//  Undefined - 
+//  
 //
 Function AccessValuesGroupsAllowingAccessValuesChange(AccessValuesType, ReturnAll1 = False) Export
 	
@@ -1100,27 +1098,27 @@ Function AccessValuesGroupsAllowingAccessValuesChange(AccessValuesType, ReturnAl
 	
 EndFunction
 
-// Sets the condition WHERE of the dynamic list to permanent filters
-// based on the allowed access values of the specified types within all access groups.
-// This helps to speed up opening of the dynamic list.
-// If the total number of allowed values is over 100, the filter is not set.
+// Sets constant selections
+// based on the allowed access values of the specified types within all access groups to the condition where the dynamic list is CREATED.
+// This allows you to speed up the opening of a dynamic list in some cases.
+// If the total number of allowed values is more than 100, the selection is not set.
 //
-// For the procedure to operate, a dynamic list must have a main table,
-// an arbitrary query, and it must support a conversion of this kind:
-//   QuerySchema - New QuerySchema;
-//   QuerySchema.SetQueryText(List.QueryText);
-//   List.QueryText = QuerySchema.GetQueryText();
-// If you cannot fulfill this condition, add the filters yourself
-// using the AllowedDynamicListValues function as in this procedure.
+// For the procedure to work, the dynamic list must have the main table
+// installed, an arbitrary query installed, and a conversion of the form must be supported:
+//   Query schemas = New Query Schemas;
+//   Schema of the query.Set The Query Text(List.Query text);
+//   List.Query text = Schema of the query.Get the query text();
+// If this condition cannot be met, then you should add selections yourself
+// using the resolved values function for dynamic search, as in this procedure.
 //
 // Parameters:
-//  List          - DynamicList - a dynamic list that requires setting of filters.
+//  List          - DynamicList -  dynamic list in which you want to set the selection.
 //  FiltersDetails - Map of KeyAndValue:
-//    * Key     - String - a field name of the main table of the dynamic list,
-//                          which requires setting the <Field> value IN (&AllowedValues).
-//    * Value - Type    - a type of access values to be included in the
-//                          &AllowedValues parameter.
-//               - Array - array of the types specified above.
+//    * Key     - String -  name of the field in the main table of the dynamic list
+//                          to set the <Field> condition To (&allowed Values).
+//    * Value - Type    -  type of access values to include in the
+//                          "&allowed Values " parameter.
+//               - Array - 
 //
 Procedure SetDynamicListFilters(List, FiltersDetails) Export
 	
@@ -1207,23 +1205,23 @@ Procedure SetDynamicListFilters(List, FiltersDetails) Export
 EndProcedure
 
 // Returns an array of allowed values of the specified types within all access groups.
-// Used in the SetDynamicListFilters procedure to speed up the opening of dynamic lists.
+// Used in the configure dynamic list Selection procedure to speed up the opening of dynamic lists.
 // 
 // Parameters:
-//  Table      - String - a full name of the metadata object, for example, Document.PurchaseInvoice.
-//  ValuesType  - Type    - a type of access values whose allowed values are to be returned.
-//               - Array - array of the types specified above.
-//  User - Undefined - return allowed values for the authorized user.
+//  Table      - String -  the full name of the metadata object, such as " Document.Expense account".
+//  ValuesType  - Type    -  type of access values to return the allowed values for.
+//               - Array - 
+//  User - Undefined -  returns the allowed values for the authorized user.
 //               - CatalogRef.Users
-//               - CatalogRef.ExternalUsers - return
-//                   allowed values for the specified user.
-//  ReturnAll   - Boolean - if set to True, all values will be returned, even
-//                   if there are more than 100 values.
+//               - CatalogRef.ExternalUsers - 
+//                   
+//  ReturnAll   - Boolean -  if set to True, then all values will be returned - even
+//                   if there are more than 100 of them.
 //
 // Returns:
-//  Undefined - either all values are allowed for the types specified in the ValuesType parameter,
-//                 or (when ReturnAll = False) the number of the allowed values exceeds 100.
-//  Array - references of allowed values of the specified types.
+//  Undefined - 
+//                 
+//  
 //
 Function AllowedDynamicListValues(Table, ValuesType, User = Undefined, ReturnAll = False) Export
 	
@@ -1236,18 +1234,18 @@ Function AllowedDynamicListValues(Table, ValuesType, User = Undefined, ReturnAll
 	
 EndFunction
 
-// Returns access rights to metadata objects of reference type by specified IDs.
+// Returns the access rights to the metadata objects of a reference type for the specified identifiers.
 //
 // Parameters:
-//  IDs - Array - values of the CatalogRef.MetadataObjectIDs,
-//                            reference type metadata objects, for which rights are to be returned.
+//  IDs - Array -  value Spravochnike.IDs
+//                            of metadown objects, reference-type objects to return permissions to.
 //
 // Returns:
 //  Map of KeyAndValue:
-//    * Key     - CatalogRef.MetadataObjectIDs - an access right name (Read, Update, or Insert).
+//    * Key     - CatalogRef.MetadataObjectIDs - 
 //    * Value - Structure:
-//        ** Key     - String - Name of the access right ("Read", "Update", "Insert").
-//        ** Value - Boolean - if True, there is the right, otherwise, there is not.
+//        ** Key     - String -  name of the access right ("Read", "Change", " Add");
+//        ** Value - Boolean -  if it is True, then it is right, otherwise it is not.
 //
 Function RightsByIDs(IDs = Undefined) Export
 	
@@ -1269,15 +1267,15 @@ Function RightsByIDs(IDs = Undefined) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for access value set management.
+// 
 
-// Checks whether the procedure of filling in access value sets is provided for the metadata object.
+// Checks whether the metadata object has a procedure for filling in access value sets.
 // 
 // Parameters:
-//  Ref - AnyRef - a reference to any object.
+//  Ref - AnyRef -  a reference to any object.
 //
 // Returns:
-//  Boolean - if True, you can fill in access value sets.
+//  Boolean - 
 //
 Function CanFillAccessValuesSets(Ref) Export
 	
@@ -1291,17 +1289,17 @@ Function CanFillAccessValuesSets(Ref) Export
 	
 EndFunction
 
-// Returns a blank table to be filled and passed to the HasRole function and
-// to FillAccessValuesSets(Table) procedures defined by an applied developer.
+// Returns an empty table that is filled in for passing to the Isrole function and
+// to the populate access value Sets(table) procedures defined by the application developer.
 //
 // Returns:
 //  ValueTable:
-//    * SetNumber     - Number  - optional if there is only one set.
-//    * AccessKind      - String - optional, except for special kinds: ReadRight and UpdateRight.
-//    * AccessValue - DefinedType.AccessValue - an access value type specified for the access kind
-//                        in the OnFillAccessKinds procedure of the AccessManagementOverridable common module.
-//    * Read          - Boolean - optional if a set for all rights is only set for one line of the set.
-//    * Update       - Boolean - optional if a set for all rights is only set for one line of the set.
+//    * SetNumber     - Number  -  optional if there is only one set.
+//    * AccessKind      - String -  optional, except for special ones: right-Reading, right-Changing.
+//    * AccessValue - DefinedType.AccessValue -  the type of access value specified for the type of access
+//                        in the procedure for filling in the shared access control module Accessidentifiable.
+//    * Read          - Boolean -  optional, if the set for all rights is set for a single row of the set.
+//    * Update       - Boolean -  optional, if the set for all rights is set for a single row of the set.
 //
 Function AccessValuesSetsTable() Export
 	
@@ -1313,7 +1311,7 @@ Function AccessValuesSetsTable() Export
 	Table.Columns.Add("AccessValue", Metadata.DefinedTypes.AccessValue.Type);
 	Table.Columns.Add("Read",          New TypeDescription("Boolean"));
 	Table.Columns.Add("Update",       New TypeDescription("Boolean"));
-	// Service field cannot be filled in or changed manually (it is filled in automatically).
+	// 
 	Table.Columns.Add("Refinement",       New TypeDescription("CatalogRef.MetadataObjectIDs"));
 	
 	Return Table;
@@ -1321,64 +1319,62 @@ Function AccessValuesSetsTable() Export
 EndFunction
 
 // 
-// Populates access value sets for the passed Object value by calling
-// the FillAccessValuesSets procedure defined in the module of this object,
+// 
+// 
 //
-// and returns them in the Table parameter.
-// Objects are to be included in the event subscription WriteAccessValuesSets
+// 
+// 
 //
-// or WriteDependentAccessValuesSets.
-//  In the object modules, place a handler procedure with the following parameters:
+// 
+//  
 //
-// Table - ValueTable - Returned by the AccessValuesSetsTable function.
+// 
 //
 //// See AccessManagement.FillAccessValuesSets.
-//Here is an example of a handler procedure for copying to object modules.
+//
 //	
-//	// 
-//	Procedure FillAccessValuesSets(Table) Export
-//	// Restriction logic:
 //	
-//	// Read: Organization.
-//	// Update: Organization And EmployeeResponsible.
-//	// Read: Set #1.
-//	String = Table.Add();
-//	String.SetNumber = 1;
 //	
-//	String.Read = True;
-//	String.AccessValue = Organization;
-//	// Update: Set #2.
-//	String = Table.Add();
-//	String.SetNumber = 2;
 //	
-//	String.Update = True;
-//	String.AccessValue = Organization;
-//	String = Table.Add();
 //	
-//String.SetNumber = 2;
-// String.AccessValue = EmployeeResponsible;
-// EndProcedure
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//
 //
 // Parameters:
 //  Object  - AnyRef
-//          - DefinedType.AccessValuesSetsOwnerObject - a reference or an object
-//            (catalog item, document, business process, task, chart of characteristic types, etc.),
-//            for which you want to fill in access value sets.
+//          - DefinedType.AccessValuesSetsOwnerObject - 
+//            
+//            
 //
 //  Table - See AccessValuesSetsTable
-//          - Undefined - returns prepared sets of access values in this parameter. 
-//            If Undefined is passed, a new table of access value sets will be created and filled in.
+//          - Undefined-returns the prepared sets of access values in this parameter. 
+//            If passed Undefined, a new table of access value sets will be created and populated.
 //
-//  SubordinateObjectRef - AnyRef - Intended for populating owner access value sets for the given subordinate object.
-//            For details, see AccessManagementOverridable.OnFillAccessRightsDependencies.
+//  SubordinateObjectRef - AnyRef - 
+//            
 //            
 //
 Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Undefined) Export
 	
 	SetPrivilegedMode(True);
 	
-	// Get the object if a Ref is passed.
-	// The object is not modified. It is used to call "FillAccessValuesSets".
+	// 
+	// 
 	Object = ?(Object = Object.Ref, Object.GetObject(), Object);
 	ObjectReference = Object.Ref;
 	ValueTypeObject = TypeOf(Object);
@@ -1414,8 +1410,8 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 	EndTry;
 	
 	If Table.Count() = 0 Then
-		// If this condition is disabled, the scheduled job that populates data
-		// for access restriction will get stuck in a loop.
+		// 
+		// 
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '%1 ""%2""
 			           |generated a blank access value set.';"),
@@ -1430,17 +1426,17 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 		Return;
 	EndIf;
 	
-	// Add sets to check the "Read" and "Update" rights on the main owner object
-	// when generating child value sets in procedures prepared by the developer.
-	// This doesn't apply to cases where the end-set is being filled, even if it has child sets.
+	// 
+	// 
+	// 
 	//
-	// The reason is that standard templates have access right checks embedded into the "Object" access logic.
+	// 
 	// 
 	
-	// Adding a blank set to set all rights check boxes and arrange set rows.
+	// 
 	AddAccessValuesSets(Table, AccessValuesSetsTable());
 	
-	// Preparing object sets for some rights.
+	// 
 	ReadingSets     = AccessValuesSetsTable();
 	ChangeSets  = AccessValuesSetsTable();
 	For Each String In Table Do
@@ -1485,36 +1481,36 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 	
 	If RightsDependencies.Count() = 0 Then
 		
-		// Adding sets by a standard rule.
+		// 
 		
-		// Check if the user has the "Read" right on the set's parent object when
-		// checking the "Read" right on a child object.
+		// 
+		// 
 		String = Table.Add();
 		String.SetNumber     = 1;
 		String.AccessKind      = "ReadRight1";
 		String.AccessValue = Id;
 		String.Read          = True;
 		
-		// Check if the user has the "Update" right on the set's parent object when
-		// checking the "Insert", "Update" and "Delete" rights on a child object.
+		// 
+		// 
 		String = Table.Add();
 		String.SetNumber     = 2;
 		String.AccessKind      = "EditRight";
 		String.AccessValue = Id;
 		String.Update       = True;
 		
-		// Marking the rights that require checking the read right restriction sets for the leading owner object.
+		// 
 		ReadingSets.FillValues(True, "Read");
-		// Marking the rights that require checking the update right restriction sets for the leading owner object.
+		// 
 		ChangeSets.FillValues(True, "Update");
 		
 		AddAccessValuesSets(ReadingSets, ChangeSets);
 		AddAccessValuesSets(Table, ReadingSets, True);
 	Else
-		// Adding sets by a nonstandard rule: check the read rights instead of update rights.
+		// 
 		
-		// Check if the user has the "Read" right on the set's parent object when
-		// checking the "Read" right on a child object.
+		// 
+		// 
 		String = Table.Add();
 		String.SetNumber     = 1;
 		String.AccessKind      = "ReadRight1";
@@ -1522,7 +1518,7 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 		String.Read          = True;
 		String.Update       = True;
 		
-		// Marking the rights that require checking the read right restriction sets for the leading owner object.
+		// 
 		ReadingSets.FillValues(True, "Read");
 		ReadingSets.FillValues(True, "Update");
 		AddAccessValuesSets(Table, ReadingSets, True);
@@ -1530,17 +1526,17 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 	
 EndProcedure
 
-// Adds an access value set table to another access value set
-// table, either by logical addition or by logical multiplication.
+// Allows you to add another table of access value sets to one table
+// by either logical addition or logical multiplication.
 //
-// The result is returned in the Destination parameter.
+// The result is placed in the Receiver parameter.
 //
 // Parameters:
-//  Receiver - ValueTable - with columns identical to the table returned by the AccessValuesSetsTable function.
-//  Source - ValueTable - with columns identical to the table returned by the AccessValuesSetsTable function.
+//  Receiver - ValueTable -  with columns as the table returned by the function Tablecolorizingrenderer.
+//  Source - ValueTable -  with columns as the table returned by the function Tablecolorizingrenderer.
 //
-//  Multiplication - Boolean - determines a method to logically join sets of destination and source.
-//  Simplify - Boolean - determines whether the sets must be simplified after addition.
+//  Multiplication - Boolean -  defines how the receiver and source sets are logically combined.
+//  Simplify - Boolean -  determines whether sets need to be simplified after they are added.
 //
 Procedure AddAccessValuesSets(Receiver, Val Source, Val Multiplication = False, Val Simplify = False) Export
 	
@@ -1561,44 +1557,44 @@ Procedure AddAccessValuesSets(Receiver, Val Source, Val Multiplication = False, 
 	
 	If Simplify Then
 		
-		// Determine duplicates of sets and their rows within access rights caused by additions and multiplications.
-		// Duplication happens due to removed parentheses in logical expressions:
+		// 
+		// 
 		//
-		// For sets within a right and sets that belong to different rights:
-		//  X AND X = X,
-		//     X OR X = X, where X is a set or argument rows.
-		//     Only for sets within an access right:
-		//  (a AND b AND c) OR (a AND b) = (a AND b), where a, b, c are set rows.
-		//     Based on these rules, you can delete duplicate rights within a set and duplicate sets.
+		// 
+		//  
+		//     
+		//     
+		//  
+		//     
 		// 
 		
 		If Multiplication Then
 			MultiplySetsAndSimplify(Receiver, Source);
-		Else // Add.
+		Else // Create
 			AddSetsAndSimplify(Receiver, Source);
 		EndIf;
 	Else
 		
 		If Multiplication Then
 			MultiplySets(Receiver, Source);
-		Else // Add.
+		Else // Create
 			AddSets(Receiver, Source);
 		EndIf;
 	EndIf;
 	
 EndProcedure
 
-// Updates object access value sets if they are changed.
-// The sets are updated both in the tabular section (if used) and
-// in the AccessValuesSets information register.
+// Updates the object's access value sets if they have changed.
+// Sets are updated in the table part (if used) and
+// in the data register of the access value Set.
 //
 // Parameters:
 //  ReferenceOrObject - AnyRef
-//                  - DefinedType.AccessValuesSetsOwnerObject - a reference or an object,
-//                    for which access value sets are populated.
+//                  - DefinedType.AccessValuesSetsOwnerObject - 
+//                    
 //  
-//  IBUpdate    - Boolean - if True, write data 
-//                             without performing unnecessary and redundant actions with the data.
+//  IBUpdate    - Boolean -  if True, then you need to write data 
+//                             without performing unnecessary, redundant actions with the data.
 //                             See InfobaseUpdate.WriteData.
 //
 Procedure UpdateAccessValuesSets(ReferenceOrObject, IBUpdate = False) Export
@@ -1608,84 +1604,84 @@ Procedure UpdateAccessValuesSets(ReferenceOrObject, IBUpdate = False) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used in the overridable module.
+// 
 
-// Returns a structure used for easier description of built-in profiles.
+// Returns a structure, for convenience of description of the supplied profiles.
 //
 // Returns:
 //  Structure:
-//   * Name           - String - can be used in the API,
-//                        for example in the EnableProfileForUser procedure.
-//   * Parent      - String - the name of a profile folder that contains the profile.
-//   * Id - String - a UUID string of the built-in
-//                       profile used to search in the database.
-//                       To receive the ID, create a profile in 1C:Enterprise mode and
-//                       get the reference UUID.Do not specify IDs
-//                       received using an arbitrary method as this may violate the uniqueness of the references.
-//   * Description  - String - a built-in profile description.
-//   * LongDesc      - String - a built-in profile details.
-//   * Roles          - Array of String - names of the built-in profile roles.
-//   * Purpose    - Array of Type - Types of user references and external
-//                       user authorization objects. If empty, then it is intended for users.
-//                       They must be part of the User type collection.
+//   * Name           - String -  it can be used in the program interface,
+//                        for example, in the procedure to enable the user profile.
+//   * Parent      - String -  the name of the profile folder that the profile is included in.
+//   * Id - String -  a string of the unique identifier of the supplied
+//                       profile that is used for searching the database.
+//                       To get the ID, you need to create a profile in 1C mode:Enter and
+//                       get a unique link ID. You should not specify identifiers
+//                       obtained in any arbitrary way, as this may violate the uniqueness of links.
+//   * Description  - String -  name of the supplied profile.
+//   * LongDesc      - String -  description of the supplied profile.
+//   * Roles          - Array of String -  role names of the supplied profile.
+//   * Purpose    - Array of Type -  types of user links and external
+//                       user authorization objects. If empty, it means that the destination is for users.
+//                       Must be within the composition of the user type being defined.
 //   * AccessKinds   - ValueList:
-//                     ** Value      - String - Access kind name specified in procedure
-//                          OnFillAccessKinds of overridable module AccessManagementOverridable.
-//                     ** Presentation - String - a predefined item name, for example,
-//                          "Catalog.UserGroups.AllUsers".
+//                     ** Value      - String - 
+//                          
+//                     ** Presentation - String - 
+//                          
 //
 //   * AccessValues - ValueList:
-//                     ** Value      - String - Name of the access kind passed in the "AccessKinds" parameter.
-//                     ** Presentation - String - Name of a predefined item.
-//                          For example, "Catalog.UserGroups.AllUsers".
+//                     ** Value      - String -  name of the access type specified in the access View parameter.
+//                     ** Presentation - String -  name of the predefined element, such
+//                          as " reference.User groups.All users".
 //
-//   * Is_Directory - Boolean - Always set to "False". Must not be modified.
+//   * Is_Directory - Boolean - 
 //
 // Example:
 // 
-//	// User profile.
-//	ProfileDetails = AccessManagement.NewAccessGroupProfileDetails(),
-//	ProfileDetails.Name = User;
-//	ProfileDetails.ID = 09e56dbf-90a0-11de-862c-001d600d9ad2;
-//	ProfileDetails.Description = NStr("en = 'User'", Common.DefaultLanguageCode());
-//	// Redefining an assignment.
-//	CommonClientServer.SupplementArray(ProfileDetails.Assignment,
-//		Metadata.DefinedTypes.ExternalUser.Type.Types());
-//	ProfileDetails.Details =
-//		NStr("en = 'Common actions allowed for most users.
-//		           |As a rule, these are rights to view the infobase data.'");
-//	// Using 1C: Enterprise.
-//	ProfileDetails.Roles.Add("StartThinClient");
-//	ProfileDetails.Roles.Add("OutputToPrinterFileClipboard");
-//	ProfileDetails.Roles.Add("SaveUserData");
-//	// …
-//	// Using the application.
-//	ProfileDetails.Roles.Add("BasicAccessSSL");
-//	ProfileDetails.Roles.Add("ViewApplicationChangeLog");
-//	ProfileDetails.Roles.Add("EditCurrentUser");
-//	// …
-//	// Using master data.
-//	ProfileDetails.Roles.Add("ReadBasicMasterData");
-//	ProfileDetails.Roles.Add("ReadCommonBasicMasterData");
-//	// …
-//	// Standard features.
-//	ProfileDetails.Roles.Add("AddEditPersonalReportsOptions");
-//	ProfileDetails.Roles.Add("ViewRelatedDocuments");
-//	// …
-//	// Basic profile features.
-//	ProfileDetails.Roles.Add("AddEditNotes");
-//	ProfileDetails.Roles.Add("AddEditNotifications");
-//	ProfileDetails.Roles.Add("AddEditJobs");
-//	ProfileDetails.Roles.Add("EditCompleteTask");
-//	// …
-//	// Profile access restriction kinds.
-//	ProfileDetails.AccessKinds.Add("Companies");
-//	ProfileDetails.AccessKinds.Add("Users", "Preset");
-//	ProfileDetails.AccessKinds.Add("BusinessTransactions", "Preset");
-//	ProfileDetails.AccessValues.Add("BusinessTransactions",
-//		"Enumeration.BusinessTransactions.IssueCashToAdvanceHolder");
-//	/ …
-//	ProfilesDetails.Add(ProfileDetails);
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//		
+//	
+//		
+//		           
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//		
+//	
+//	
 //
 Function NewAccessGroupProfileDescription() Export
 	
@@ -1705,28 +1701,28 @@ Function NewAccessGroupProfileDescription() Export
 	
 EndFunction
 
-// Returns a structure used for easier description of the built-in profile folders (item groups).
+// Returns the structure for the convenience of describing the supplied profile folders (groups of elements).
 //
 // Returns:
 //  Structure:
-//   * Name           - String - used in the Parent field for profile and profile folders.
-//   * Parent      - String - the name of another profile folder that contains this folder.
-//   * Id - String - the string of the built-in profile folder UUID
-//                       which is used for searching in the database.
-//                       To receive an ID, you need to create a profile folder in 1C:Enterprise mode
-//                       and to get a reference UUID. Do not specify IDs
-//                       received using an arbitrary method as this might violate the uniqueness of the references.
-//   * Description  - String - a built-in profile folder description.
-//   * Is_Directory      - Boolean - Always set to "True". Must not be modified.
+//   * Name           - String -  used in the Parent field for the profile and profile folder.
+//   * Parent      - String -  the name of the other profile folder that this folder belongs to.
+//   * Id - String -  the string of the unique identifier of the supplied
+//                       profile folder, which is used for searching in the database.
+//                       To get the ID, you need to create a profile folder in 1C mode:Enterprise and
+//                       get a unique link ID. You should not specify identifiers
+//                       obtained in an arbitrary way, because this may violate the uniqueness of links.
+//   * Description  - String -  the name of the supplied profile folder.
+//   * Is_Directory      - Boolean - 
 //
 // Example:
-//	// The "Additional profiles" profile folder.
-//	FolderDetails = AccessManagement.NewAccessGroupsProfilesFolderDetails();
-//	FolderDetails.Name = "Additional profiles";
-//	FolderDetails.ID = "";
-//	FolderDetails.Description = NStr("en = 'Additional profiles'", Common.DefaultLanguageCode());
-//	//…
-//	ProfilesDetails.Add(ProfileDetails);
+//	
+//	
+//	
+//	
+//	
+//	
+//	
 //
 Function NewDescriptionOfTheAccessGroupProfilesFolder() Export
 	
@@ -1741,16 +1737,16 @@ Function NewDescriptionOfTheAccessGroupProfilesFolder() Export
 	
 EndFunction
 
-// Adds additional types to the OnFillAccessKinds procedure
-// of the AccessManagementOverridable common module.
+// Adds additional types in the procedure for filling in the
+// General access control module's accessdeterminable.
 //
 // Parameters:
-//  AccessKind             - ValueTableRow - added to the AccessKinds parameter.
-//  ValuesType            - Type - an additional type of access values.
-//  ValuesGroupsType       - Type - an additional access value group type, it can match
-//                           the type of the previously specified value groups for the same access kind.
-//  MultipleValuesGroups - Boolean - - True if you can specify multiple value groups
-//                           for an additional access value type (the AccessGroups tabular section exists).
+//  AccessKind             - ValueTableRow -  added to the access View parameter.
+//  ValuesType            - Type -  additional type of access values.
+//  ValuesGroupsType       - Type -  an additional type of access value groups can match
+//                           the type of value groups specified earlier for the same type of access.
+//  MultipleValuesGroups - Boolean -  True if
+//                           you can specify multiple groups of values for an additional type of access values (there is a table part of access Groups).
 // 
 Procedure AddExtraAccessKindTypes(AccessKind, ValuesType,
 		ValuesGroupsType = Undefined, MultipleValuesGroups = False) Export
@@ -1772,18 +1768,18 @@ Procedure AddExtraAccessKindTypes(AccessKind, ValuesType,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used for infobase update.
+// 
 
-// Replaces roles in profiles, except for built-in profiles updated automatically.
-// It is called from the exclusive update handler.
+// Replaces roles in profiles, except for the supplied profiles, which are updated automatically.
+// It is intended for calling from an online update handler.
 //
 // Parameters:
 //  RolesToReplace - Map of KeyAndValue:
-//    * Key     - String - a name of the role to be replaced, for example, ReadBasicMasterData. If the role is deleted,
-//                          add the prefix "?" to the name, for example, "? ReadBasicMasterData".
+//    * Key     - String -  name model role, for example, "Changebaselayer". If the role was deleted,
+//                          then add the prefix"? "for example "? Changebaselayer".
 //
-//    * Value - Array - names of roles for replacing the specified one (an empty array, in order to delete the specified role,
-//                          you can specify the role to be replaced, for example, when divided it into several).
+//    * Value - Array -  names of roles to replace the specified one (an empty array to delete the specified role,
+//                          you can specify the role to replace, for example, when splitting into several roles).
 //
 Procedure ReplaceRolesInProfiles(RolesToReplace) Export
 	
@@ -1808,7 +1804,7 @@ Procedure ReplaceRolesInProfiles(RolesToReplace) Export
 		EndDo;
 	EndDo;
 	
-	// Find profiles that use the roles being replaced.
+	// 
 	Query = New Query;
 	Query.SetParameter("RolesToReplaceArray", RolesToReplaceArray);
 	Query.SetParameter("BlankID",
@@ -1843,14 +1839,14 @@ Procedure ReplaceRolesInProfiles(RolesToReplace) Export
 		
 			For Each RoleRow In ProfileRow.Rows Do
 				
-				// Deleting the role being replaced from the profile.
+				// 
 				Filter = New Structure("Role", RoleRow.Role);
 				FoundRows = ProfileRoles.FindRows(Filter);
 				For Each FoundRow In FoundRows Do
 					ProfileRoles.Delete(FoundRow);
 				EndDo;
 				
-				// Adding new roles to the profile instead of the role being replaced.
+				// 
 				RolesToAdd = RolesRefsToReplace.Get(RoleRow.Role);
 				
 				For Each RoleToAdd In RolesToAdd Do
@@ -1876,16 +1872,16 @@ Procedure ReplaceRolesInProfiles(RolesToReplace) Export
 	
 EndProcedure
 
-// Returns a reference to the built-in profile or profile folder by ID.
+// Returns a link to the supplied profile or profile folder by ID.
 //
 // Parameters:
-//  Id - String - Name or UUID of a built-in profile or profile folder.
-//                  In the same form as specified in the OnFillSuppliedAccessGroupProfiles procedure of the AccessManagementOverridable common module.
-//                  
+//  Id - String -  the name or unique identifier of the supplied profile or profile folder,
+//                  as specified in the procedure for filling in the supplied profiles of the Access group of the
+//                  general Access Management module is undetectable.
 //
 // Returns:
-//  CatalogRef.AccessGroupProfiles - — if the built-in profile or profile folder is found in the catalog.
-//  Undefined — if the built-in profile or profile folder does not exist in the catalog.
+//  CatalogRef.AccessGroupProfiles - 
+//  
 //
 Function SuppliedProfileByID(Id) Export
 	
@@ -1893,7 +1889,7 @@ Function SuppliedProfileByID(Id) Export
 	
 EndFunction
 
-// Returns the reference to the standard built-in Administrator profile.
+// Returns a link to the standard supplied Administrator profile.
 //
 // Returns:
 //  CatalogRef.AccessGroupProfiles
@@ -1904,7 +1900,7 @@ Function ProfileAdministrator() Export
 	
 EndFunction
 
-// Returns the reference to the standard built-in Administrators access group.
+// Returns a reference to the standard supplied Administrators access group.
 //
 // Returns:
 //  CatalogRef.AccessGroups
@@ -1915,15 +1911,15 @@ Function AdministratorsAccessGroup() Export
 	
 EndFunction
 
-// Returns a blank table to be filled in and
-// passed to the ReplaceRightsInObjectsRightsSettings procedure.
+// Returns an empty table to fill in and
+// pass to the replace rightconfigure Rightobjects procedure.
 //
 // Returns:
 //  ValueTable:
-//    * OwnersType - DefinedType.RightsSettingsOwner - a blank reference of the rights owner type,
-//                      for example a blank reference of the FilesFolders catalog.
-//    * OldName     - String - a previous right name.
-//    * NewName      - String - a new right name.
+//    * OwnersType - DefinedType.RightsSettingsOwner -  an empty link of the rights owner type,
+//                      such as an empty link in the Folder directory.
+//    * OldName     - String -  old name of the right.
+//    * NewName      - String -  new name of the right.
 //
 Function TableOfRightsReplacementInObjectsRightsSettings() Export
 	
@@ -1938,25 +1934,25 @@ Function TableOfRightsReplacementInObjectsRightsSettings() Export
 	
 EndFunction
 
-// Replaces rights used in the object rights settings.
-// After the replacement, service data is updated in
-// the ObjectsRightsSettings information register, so the procedure is to be called
-// only once to avoid performance decrease.
+// Replaces the rights used in the object rights settings.
+// After the replacement is completed, the auxiliary data
+// of the object Configuration information register will be updated, so you should call
+// the procedure once to avoid performance degradation.
 // 
 // Parameters:
 //  RenamedTable - ValueTable:
-//    * OwnersType - DefinedType.RightsSettingsOwner - a blank reference of the rights owner type,
-//                      for example a blank reference of the FilesFolders catalog.
-//    * OldName     - String - a previous right name related to the specified owner type.
-//    * NewName      - String - a new right name related to the specified owner type.
-//                      If a blank string is specified, the old right setting will be deleted.
-//                      If two new names are mapped to the previous name,
-//                      the previous right setting will be duplicated.
+//    * OwnersType - DefinedType.RightsSettingsOwner -  an empty link of the rights owner type,
+//                      such as an empty link in the Folder directory.
+//    * OldName     - String -  the old name of the right that belongs to the specified owner type.
+//    * NewName      - String -  new name of the right that belongs to the specified owner type.
+//                      If an empty string is specified, the old permission setting will be deleted.
+//                      If two new names are assigned to the old name,
+//                      then one old setting will be multiplied into two new ones.
 //  
 Procedure ReplaceRightsInObjectsRightsSettings(RenamedTable) Export
 	
-	// ACC:96-off - No.434. Using JOIN is acceptable as the rows should be unique and
-	// this is a one-time operation in an update handler.
+	// 
+	// 
 	Query = New Query;
 	Query.Parameters.Insert("RenamedTable", RenamedTable);
 	Query.Text =
@@ -2044,7 +2040,7 @@ Procedure ReplaceRightsInObjectsRightsSettings(RenamedTable) Export
 	|	RightsSettings.SettingsOrder
 	|FROM
 	|	RightsSettings AS RightsSettings";
-	// ACC:96-on
+	// 
 	
 	Block = New DataLock;
 	Block.Add("InformationRegister.ObjectsRightsSettings");
@@ -2124,21 +2120,21 @@ Procedure ReplaceRightsInObjectsRightsSettings(RenamedTable) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions used to update internal data.
+// 
 
-// Updates a role list of infobase users by their current
-// access groups. Infobase users with the FullAccess role are skipped.
+// Updates the list of database user roles by their current
+// access group membership. IB users with the "full Rights" role are skipped.
 // 
 // Parameters:
 //  UsersArray - Array
 //                      - Undefined
-//                      - Type - an array
-//     of the CatalogRef.Users or CatalogRef.ExternalUsers items.
-//     If Undefined, update all user roles.
-//     If Type = Catalog.ExternalUsers, all external user roles are updated,
-//     otherwise, all user roles are updated.
+//                      - Type - 
+//     
+//     
+//     
+//     
 //
-//  ServiceUserPassword - String - Password used to log in to Service Manager.
+//  ServiceUserPassword - String -  password for authorization in the service Manager.
 //
 Procedure UpdateUserRoles(Val UsersArray = Undefined, Val ServiceUserPassword = Undefined) Export
 	
@@ -2146,8 +2142,8 @@ Procedure UpdateUserRoles(Val UsersArray = Undefined, Val ServiceUserPassword = 
 	
 EndProcedure
 
-// Updates the AccessGroupsValues and DefaultAccessGroupsValues registers
-// that are filled in on the basis of the access group settings and access kind use.
+// Updates the contents of the access group And silence access Group values registers,
+// which are filled in based on the settings in access groups and the use of access types.
 //
 Procedure UpdateAllowedValuesOnChangeAccessKindsUsage() Export
 	
@@ -2155,26 +2151,26 @@ Procedure UpdateAllowedValuesOnChangeAccessKindsUsage() Export
 	
 EndProcedure
 
-// Sequentially fills in and partially updates data required by the AccessManagement
-// subsystem in access restriction mode at the record level.
+// Performs sequential filling in and partial updating of data required for the
+// Access management subsystem to operate in record-level access restriction mode.
 // 
-// Fills in access value sets when the access restriction mode is enabled
-// at the record level. The sets are filled in by portions during each run, until all
-// access value sets are filled in.
+// When the record-level access restriction mode is enabled, it fills in sets
+// of access values. Filling is performed in parts at each start, until all
+// sets of access values are filled in.
 //
-// When the restriction access mode at the record level is disabled, the access value sets
-// filled in earlier are removed upon rewriting the objects, not immediately.
+// If you disable the record-level access restriction mode, the sets of access values
+// (previously filled in) are deleted when objects are overwritten, not all at once.
 //
-// Updates secondary data
-// (access value groups and additional fields in the existing access value sets) regardless of the access restriction mode at the record level.
-// Disables the scheduled job after all updates are completed and data is filled.
+// Regardless of the record-level access restriction mode, updates secondary data -
+// groups of access values and additional fields in existing sets of access values.
+// After all updates and fillings are completed, disables the use of the scheduled task.
 //
-// The progress information is written to the event log.
-// The procedure can be called from the application, for example, when updating the infobase.
+// Information about the operation status is recorded in the log.
+// It can be called programmatically, for example, when updating an information database.
 //
 // Parameters:
-//  DataVolume - Number - a return value. Contains the number of data objects 
-//                             that were filled.
+//  DataVolume - Number -  the return value. The number of data objects 
+//                             for which the filling was performed.
 //
 Procedure DataFillingForAccessRestriction(DataVolume = 0) Export
 	
@@ -2182,67 +2178,67 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0) Export
 	
 EndProcedure
 
-// To speed up batch processing in the current session (full-access user),
-// it toggles the calculation of rights when recording an object or a record set
-// (update of access keys to objects and register records, as well as the rights
-//  to access groups, users, and external users to new access keys).
+// To speed up batch processing of data in the current session (a full user)
+// disables and enables the calculation of rights when writing an object or set of records
+// (updating access keys to objects and register entries, as well as the rights
+//  of access groups, users, and external users to new access keys).
 //
-// Use cases:
-// - When restoring from XML backup.
-// - When bulk importing from a file.
-// - When bulk importing during data exchange.
-// - During bulk object modification.
+// Recommended:
+// - when restoring from an XML backup;
+// - bulk loading of data from a file;
+// - bulk data loading during data exchange;
+// - group changes to objects.
 //
 // Parameters:
-//  Disconnect - Boolean - True - disables the update of access keys and enables the mode
-//                         of collecting components of tables (lists), for which access keys will be
-//                         updated while continuing update of access keys.
-//                       False - schedules update of the table access keys collected in the disable
-//                         mode and enables the standard mode of access keys update.
+//  Disconnect - Boolean -  True-disables updating access keys and enables the mode
+//                         for collecting the composition of tables (lists) that will be scheduled
+//                         for updating access keys when the access key update continues.
+//                       False-plans to update access keys for tables collected in
+//                         disable mode, and enables the standard access key update mode.
 //
-//  ScheduleUpdate1 - Boolean - scheduling an update when disabling and continuing.
-//                            When Disable = True, determines whether to collect
-//                              the table components, for which an update will be scheduled.
-//                              False - it is only required in the import mode from the XML backup when
-//                              all the infobase data is imported, including all service data.
-//                            When Disable = False, it determines whether an
-//                              update for the collected tables are to be scheduled.
-//                              False is required in the processing of an exception after a transaction is canceled
-//                              if there is an external transaction, since any record
-//                              to the database in this state will result in an error, and besides,
-//                              there is no need to schedule an update after canceling the transaction.
+//  ScheduleUpdate1 - Boolean -  schedule updates when they are disabled and continue.
+//                            When Disable = True, then determines whether to collect
+//                              the list of tables that will be updated.
+//                              False - required only when loading from an XML backup, when
+//                              all data in the information database is loaded, including all service data.
+//                            When Disable = False, then determines whether to schedule
+//                              updates for the collected tables.
+//                              False is required in handling an exception after a transaction is canceled
+//                              if there is an external transaction, since any entry
+//                              to the database in this state will result in an error.in addition,
+//                              you do not need to schedule an update after the transaction is canceled.
 // Example:
 //
-//  Option 1. Recording an object set out of a transaction (TransactionActive() = False).
+//  
 //
-//	AccessManagement.DisableAccessKeysUpdate(True);
-//	Try
-//		// Recording a set of objects.
-//		// …
-//		AccessManagement.DisableAccessKeysUpdate(False);
-//	Except
-//		AccessManagement.DisableAccessKeysUpdate(False);
-//		//…
-//		RaiseException
-//	EndTry;
+//	
+//	
+//		
+//		
+//		
+//	
+//		
+//		
+//		
+//	
 //
-//  Option 2. Recording an object set in the transaction (TransactionActive() = True).
+//  
 //
-//	AccessManagement.DisableAccessKeysUpdate(True);
-//	StartTransaction();
-//	Try
-//		DataLock.Lock();
-//		// …
-//		// Recording a set of objects.
-//		// …
-//		AccessManagement.DisableAccessKeysUpdate(False);
-//		CommitTransaction();
-//	Except
-//		CancelTransaction();
-//		AccessManagement.DisableAccessKeysUpdate(False, False);
-//		//…
-//		RaiseException;
-//	EndTry;
+//	
+//	
+//	
+//		
+//		
+//		
+//		
+//		
+//		
+//	
+//		
+//		
+//		
+//		
+//	
 //
 Procedure DisableAccessKeysUpdate(Disconnect, ScheduleUpdate1 = True) Export
 	
@@ -2331,31 +2327,31 @@ Procedure DisableAccessKeysUpdate(Disconnect, ScheduleUpdate1 = True) Export
 	
 EndProcedure
 
-// Adds deferred update handler that enables the universal restriction of access
-// (enables the LimitAccessAtRecordLevelUniversally constant).
-// Use only in final standard solutions, not in the library distributions.
+// 
+// 
+// 
 //
-// For the file infobase, a handler is not added (except for the initial filling).
-// Accordingly, in client server bases with DIB, a handler is also not added,
-// as DIB might contain file infobases (if case the opposite is true, the behavior can be overridden).
+// 
+// 
+// 
 //
 // Parameters:
-//  Version      - String - Version to be used in "InfobaseUpdate.NewUpdateHandlersTable".
-//                  Pass an empty string if "IsInitialPopulationOnly" is set to "True".
+//  Version      - String - 
+//                  
 //  Handlers - See InfobaseUpdate.NewUpdateHandlerTable
-//  IsInitialPopulationOnly - Boolean - Indicates whether only an initial population handler should be added.
-//                  It is intended for cases where only newly created infobases are planned to
-//                  be switched to the high-performance mode.
-//  ExclusiveOfDIB - Boolean - Indicates whether an update handler should be added ignoring the DIB presence.
-//                  It is required in cases where you need to switch client/server infobases to high-performance mode
-//                  as it is assumed that a DIB does not include file infobases, at least ones with many active users
-//                  that modify RLS data concurrently.
+//  IsInitialPopulationOnly - Boolean - 
+//                  
+//                  
+//  ExclusiveOfDIB - Boolean - 
+//                  
+//                  
+//                  
 //                  
 //
 // Example:
-//	Procedure OnAddUpdateHandlers(Handlers) Export
-//		AccessManagement.AddUpdateHandlerToEnableUniversalRestriction(3.0.3.7, Handlers);
-//	EndProcedure
+//	Procedure For Adding Update Handlers(Handlers) Export
+//		Access control.Add An Update Handler To Enable Universal Restrictions ("3.0.3.7", Handlers);
+//	End of procedure
 //
 Procedure AddUpdateHandlerToEnableUniversalRestriction(Version, Handlers,
 			IsInitialPopulationOnly = False, ExclusiveOfDIB = False) Export
@@ -2418,27 +2414,27 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// ServiceSubsystems.TMPAMEMObjects
+// 
 
-// Assignment: for a universal document journal in the register (ERP).
-// Used to hide a duplicate journal entry for transfer records
-// when it is known that there will be two entries at once.
+// Purpose: for the universal document log on the register (ERP).
+// Used to hide a duplicate entry in the log for moving documents,
+// in cases where it is known that there will be two entries at once.
 //
-// Checks whether there is a table restriction by the specified access kind.
+// Checks whether the table is restricted by the specified access type.
 //
-// If for all table access kinds in at least one access group that grants rights to
-// the specified table the restriction is not configured (all values are allowed for all access kinds),
-// there is no restriction by the specified access kind. Otherwise, there is no restriction
-// by the specified access kind unless it is present in all the access groups for the specified table.
+// If all of the access table, at least one of the access group, providing the right to
+// the specified table does not have a limit (all values allowed for all types of access),
+// then there is no restriction on the specified type of access, otherwise, no restrictions
+// specified type of access, unless it is not in all the access groups for the specified table.
 // 
 // Parameters:
-//  Table        - String - a full name of the metadata object, for example, Document.PurchaseInvoice.
-//  AccessKind     - String - an access kind name, for example, Companies.
-//  AllAccessKinds - String - names of all access kinds used in table restrictions,
-//                            for example, Companies,PartnersGroups,Warehouses.
+//  Table        - String -  the full name of the metadata object, for example, " Document.Expense account".
+//  AccessKind     - String -  name of the access type, for example, "Companies".
+//  AllAccessKinds - String -  names of all access types that are used in the table constraint,
+//                            for example, "Companies, partner Groups, Warehouses".
 //
 // Returns:
-//  Boolean - if True, there is a table restriction by a specified access kind.
+//  Boolean - 
 // 
 Function HasTableRestrictionByAccessKind(Table, AccessKind, AllAccessKinds) Export
 	
@@ -2447,62 +2443,62 @@ Function HasTableRestrictionByAccessKind(Table, AccessKind, AllAccessKinds) Expo
 	
 EndFunction
 
-// End ServiceSubsystems.TMPAMEM
+// 
 
-// Development.RightsAndAccessRestrictionsDevelopment
+// 
 
-// Assignment: to call ASDS restrictions from the constructor.
+// Purpose: to call from the constructor of a DSS restrictions.
 // 
 // Parameters:
-//  MainTable  - String - a full name of the main table of the metadata object, for example, Document.SalesOrder.
-//  RestrictionText - String - a restriction text specified in the metadata object
-//    manager module to restrict users or external users.
+//  MainTable  - String -  full name of the main table of the metadata object, for example, " Document.Customer's order".
+//  RestrictionText - String -  the restriction text that is specified in
+//    the metadata object Manager module to restrict users or restrict external users.
 //
 // Returns:
 //  Structure:
-//   * InternalData - Structure - data to pass to the RestrictionStructure function.
+//   * InternalData - Structure -  data to pass to the structure Constraint function.
 //   * TablesFields       - Map of KeyAndValue:
-//     ** Key     - String - a name of the metadata object collection, for example, Catalogs.
+//     ** Key     - String -  name of the collection of metadata objects, such as Directories.
 //     ** Value - Map of KeyAndValue:
-//       *** Key     - String - a table (metadata object) name in uppercase.
+//       *** Key     - String -  the name of the table (object metadata) to upper case.
 //       *** Value - Structure:
-//         **** TableExists - Boolean - False (True to fill in, if exists).
+//         **** TableExists - Boolean -  False (to fill in True, if it exists).
 //         **** Fields - Map of KeyAndValue:
-//           ***** Key - String - an attribute name in uppercase, including dot-separated,
-//                                 for example, OWNER.COMPANY, GOODS.PRODUCTS.
+//           ***** Key - String -  the name of the property in uppercase, including dots,
+//                                 for example, " OWNER.ORGANIZATION", " PRODUCTS.NOMENCLATURE".
 //           ***** Value - Structure:
-//             ****** FieldWithError - Number - 0 (for filling, if the field has an error.
-//                       If 1, then there is an error in the name of the first part of the field.
-//                       If 2, then an error is in the name of the second part of the field, i.e. after the first dot).
-//             ****** ErrorKind - String - NotFound, TabularSectionWithoutField,
-//                       TabularSectionAfterDot.
-//             ****** Collection - String - a blank row (for filling, if the first part
-//                       of the field exists, i.e. a field part before the first dot). Options: Attributes,
-//                      TabularSections, StandardAttributes, StandardTabularSections,
-//                      Dimensions, Resources, Graphs, AccountingFlags, ExtDimensionAccountingFlags,
-//                      AddressingAttributes, SpecialFields. Special fields are
-//                      Value - for the Constant.* tables,
-//                      Recorder and Period - for the Sequence.* tables,
-//                      RecalculationObject, CalculationType for the CalculationRegister.<Name>.<RecalculationName> tables.
-//                      Fields after the first dot can be related only to the following collections: Attributes,
-//                      StandardAttributes, AccountingFlags, and AddressingAttributes. You do not need to specify a collection
-//                      for these parts of the field name.
+//             ****** FieldWithError - Number -  0 (to fill in if the field contains an error,
+//                       if 1, then an error in the name of the first part of the field,
+//                       if 2, then an error in the name of the second part of the field, i.e. after the first dot).
+//             ****** ErrorKind - String -  "Not Found", "Tabular Part Of The Field",
+//                       "Tabular Part Of The Message".
+//             ****** Collection - String -  empty string (to be filled in if the first part
+//                       of the field exists, i.e. the part of the field up to the first point). Options: "Details",
+//                      "Tablecreate", "Standartizaciisa", "Standartneftegaz",
+//                      "Measurements", "Resources", "Graphs", "Priznayutsya, Prizmaticheskoj",
+//                      "Requisitionists", "SPETSIALNAYA". Special fields are
+//                      "Value" - tables have " Constant.* ",
+//                      "Logger" and "Period" - for tables " Sequence.* ",
+//                      "Object of calculation", "type of Calculation" in the tables " register of Calculation.<Name>.<Recalculation name>".
+//                      Fields after the first dot can only apply to collections: "Banking Details",
+//                      "Standard Requirements", "Accounting Attributes", "Forwarding Details". 
+//                      You don't need to Refine the collection for these parts of the field name.
 //             ****** ContainsTypes - Map of KeyAndValue:
-//               ******* Key - String - a full name of the reference table in uppercase.
+//               ******* Key - String -  full name of the reference table in uppercase.
 //               ******* Value - Structure:
-//                 ******** TypeName     - String - a type name whose presence you need to check.
-//                 ******** ContainsType - Boolean - False (True for filling in,
+//                 ******** TypeName     - String -  the name of the type whose presence we need to check.
+//                 ******** ContainsType - Boolean -  False (to fill in True
 //                                                         if the field of the last field has a type).
 //         **** Predefined - Map of KeyAndValue:
-//           ***** Key - String - a predefined item name.
+//           ***** Key - String -  name of the predefined element.
 //           ***** Value - Structure:
-//             ****** NameExists - Boolean - False (True to fill in, if there is a predefined item).
+//             ****** NameExists - Boolean -  False (for filling in True, if there is a predefined one).
 //
 //         **** Extensions - Map of KeyAndValue:
-//           ***** Key - String - a name of the third table name, for example, a tabular section name.
+//           ***** Key - String -  name of the third table name, for example, the name of the table part.
 //           ***** Value - Structure:
-//             ****** TableExists - Boolean - False (True to fill in, if exists).
-//             ****** Fields - Map - Same properties as in the main table (see above).
+//             ****** TableExists - Boolean -  False (to fill in True, if it exists).
+//             ****** Fields - Map - 
 //
 Function ParsedRestriction(MainTable, RestrictionText) Export
 	
@@ -2510,9 +2506,9 @@ Function ParsedRestriction(MainTable, RestrictionText) Export
 	
 EndFunction
 
-// Assignment: to call ASDS restrictions from the constructor.
-// Before transferring the ParsedRestriction parameter, in the TablesFields property, fill in
-// the TableExists, FieldWithError, ContainsType, NameExists attachment properties.
+// Purpose: to call from the constructor of a DSS restrictions.
+// Before passing the parsed Constraint parameter in the table Field property
+// , the nested table properties exist, field Error, Containtype, and name Exist must be filled in.
 // 
 // Parameters:
 //  ParsedRestriction - See ParsedRestriction
@@ -2520,108 +2516,106 @@ EndFunction
 // Returns:
 //  Structure:
 //   * ErrorsDescription - Structure:
-//      ** HasErrors  - Boolean - if True, one or more errors are found.
-//      ** ErrorsText - String - a text of all errors.
-//      ** Restriction - String - a numbered text of the restriction with the <<?>> symbols.
-//      ** Errors      - Array of Structure - the descriptions of separate errors:
-//         *** LineNumber    - Number -  a line in the multiline text, in which an error was found.
-//         *** PositionInRow - Number -  a number of the character, from which the error was found.
-//                                       It can be outside the line (line length + 1).
-//         *** ErrorText    - String - an error text without describing the position.
-//         *** ErrorString   - String - a line, in which an error with the added <<?>> was found.
-//      ** AddOn - String - description of options of the first restriction part keywords.
+//      ** HasErrors  - Boolean -  if True, then one or more errors were found.
+//      ** ErrorsText - String -  text of all errors.
+//      ** Restriction - String -  numbered constraint text with"<<? >> " inserts.
+//      ** Errors      - Array of Structure - :
+//         *** LineNumber    - Number -    the string in the multiline text where the error was found.
+//         *** PositionInRow - Number -    the number of the character from which the error was detected
+//                                       may be outside the string (string length + 1).
+//         *** ErrorText    - String -  the text of the error without a description of the position.
+//         *** ErrorString   - String -  the string where the error was found with the insertion "<<?>>".
+//      ** AddOn - String -  description of variants of the first keywords of the restriction parts.
 //
 //   * AdditionalTables - Array of Structure:
-//      ** Table           - String - Full name of a metadata object.
-//      ** Alias         - String - a table alias name.
-//      ** ConnectionCondition - Structure - as in the ChangeRestriction property, but the
-//                                     nodes are: "Field", "Value", "Constant", "AND", "=".
-//   * MainTableAlias - String - filled in if additional tables are specified.
-//   * ReadRestriction    - Structure - as in the ChangeRestriction property.
+//      ** Table           - String -  full name of the metadata object.
+//      ** Alias         - String -  name of the table alias.
+//      ** ConnectionCondition - Structure -  like the constraint property, But only
+//                                     nodes: "Field", "Value", "Constant", "And","=".
+//   * MainTableAlias - String -  filled in if additional tables are specified.
+//   * ReadRestriction    - Structure -  like the constraint property.
 //   * UpdateRestriction - Structure:
 //
-//      ** Node - String - One of the lines:
-//           Field, Value, Constant, And, Or, Not, =, <>, In, IsNull,
-//           Type, ValueType, Choice, ValueAllowed, IsAuthorizedUser, ReadObjectAllowed,
-//           EditObjectAllowed, ReadListAllowed, EditListAllowed, ForAllLines, ForOneOfLines.
-//           Properties of the Field node:
+//      ** Node - String - 
+//           
+//           
+//           
+//           
 //           
 //
 //     
-//       ** Name       - String - Table name. For example, "Catalog.Companies".
-//                               Properties of the ValueType node:
-//       ** Table   - String - a table name of this field (or a blank row for the main table).
-//       ** Alias - String - an attached table alias name (or a blank row for the main table),
-//                        for example, "SettingInformationRegister" for the "MainCompany" field.
-//       ** Cast  - String - a table name (if used), for example, to describe a field as:
-//                       CAST(CAST(Owner AS Catalog.Files).FileOwner AS Catalog.Companies).Ref".
-//       ** Attachment  - Structure - the Field node that contains the CAST nested action (with or without IsNull).
-//                    - Undefined - there is no nested field.
-//       ** IsNull  - Structure - the Value Or Constant node, for example, to describe an expression of the following type:
-//                        "IsNULL(Owner, Value(Catalog.Files.BlankRef))".
-//                    - Undefined - If IsNull is not used (including cases when the Attachment property is assigned a value).
+//       ** Name       - String - 
+//       ** Table   - String -  the table name of this field (or an empty string for the main table).
+//       ** Alias - String -  the name of the alias of the attached table in this field (or an empty string for the main table),
+//                        for example, "add-in register" for the "main Company"field.
+//       ** Cast  - String - :
+//                       
+//       ** Attachment  - Structure -  node Field containing the nested EXPRESS action (with or without IsNull).
+//                    - Undefined - 
+//       ** IsNull  - Structure -  a value or Constant node, for example, to describe an expression
+//                        like " IsNull(Owner, Value (Reference.Files.Empty link))".
+//                    - Undefined - 
 //
-//     Properties of the Value node:
-//       ** Name - String - Table name. For example, "Catalog.Companies".
-//                                                 Properties of the ValueType node:
+//     
+//       ** Name - String - 
+//                                                 
 //
 //     
 //       ** Value - Boolean
-//                   - Number  - an arbitrary integer number up to 16 digits
-//                   - String - an arbitrary string up to 150 characters.
+//                   - Number  - 
+//                   - String - 
 //                   - Undefined
 //
-//     Properties of the And & Or nodes:
-//       ** Arguments - Array - with the following elements:
-//            *** Value - Structure - Any node except for Value or Constant.
+//     
+//       ** Arguments - Array - :
+//            *** Value - Structure - 
 //
-//     Properties of the Not node:
-//       ** Argument - Structure - Any node except for "Value" or "Constant".
+//     
+//       ** Argument - Structure - 
 //
-//     Properties of the "=" and "<>" nodes:
-//       ** FirstArgument - Structure - the Field node.
-//       ** SecondArgument - Structure - Nodes Value and Constant. The Field node is only for the connection condition.
+//     
+//       ** FirstArgument - Structure -  node Field.
+//       ** SecondArgument - Structure - 
 //
-//     Properties of the In node:
-//       ** SearchFor  - Structure - the Field node.
-//       ** Values - Array - with the following elements:
-//            *** Value - Structure - Value or Constant nodes.
+//     
+//       ** SearchFor  - Structure -  node Field.
+//       ** Values - Array - :
+//            *** Value - Structure - 
 //
-//     Properties of the IsNull node:
-//       ** Argument - Structure - Any node except for "Value" or "Constant".
+//     
+//       ** Argument - Structure - 
 //
-//     Properties of the "=" and "<>" nodes:
-//       ** Name - String - Table name. For example, "Catalog.Companies".
+//     
+//       ** Name - String - 
 //
-//     Properties of the ValueType node:
-//       ** Argument - Structure - Any node except for "Value" or "Constant".
+//     
+//       ** Argument - Structure - 
 //
-//     Properties of the "=" and "<>" nodes:
-//       ** Case - Structure - the Field node.
-//                - Undefined - the conditions contain an expression, not the Value node.
-//       ** When - Array - with the following elements:
+//     
+//       ** Case - Structure -  node Field.
+//                - Undefined - 
+//       ** When - Array - :
 //            *** Value - Structure:
-//                  **** Condition  - Structure - the Value node if the Case property is specified, otherwise,
-//                                              nodes And, Or, Not, =, <>, In (applied to the nested content).
-//                  **** Value - Structure - any node, except for Case.
-//       ** Else - Structure - Any node, except for CASE and Value (the Field and Constant nodes can be only of the Boolean type).
+//                  **** Condition  - Structure -  node Value if the Select property is specified, otherwise
+//                                              nodes And, Or, Not,=,<>, In (applies to nested content).
+//                  **** Value - Structure -  node other than Select.
+//       ** Else - Structure - 
 //
-//     Properties of the ValueAllowed, IsAuthorizedUser,
-//                    "ReadObjectAllowed", "EditObjectAllowed",
-//                    "ReadListAllowed", "EditListAllowed":
-//       ** Field - Structure - the Field node.
-//       ** Types - Array - with the following elements:
-//            *** Value - String - a full table name.
-//       ** CheckTypesExceptListed - Boolean - if True, all types of the Field property,
-//                                                 except for those specified in the Types property.
+//     
+//                    
+//                    
+//       ** Field - Structure -  node Field.
+//       ** Types - Array - :
+//            *** Value - String -  full name of the table
+//       ** CheckTypesExceptListed - Boolean -  if True, all types of the Field property
+//                                                 except those specified in the Types property.
 //       ** ComparisonClarifications - Map of KeyAndValue:
-//            *** Key     - String - a clarified value is Undefined, Null, or BlankRef,
-//                                    <a full table name>, "Number", "String", "Date", and "Boolean".
-//            *** Value - String - Result False or True.
+//            *** Key     - String -  the specified value is "Undefined", "Null", "empty link",
+//                                    <full table name>, "Number", "String", "date", "Boolean".
+//            *** Value - String - 
 //
-//     Properties of the ForAllLines, ForOneOfLines nodes:
-//       ** Argument - Structure - Any node except for "Value" or "Constant".
-//                                 Properties of the "=" and "<>" nodes:
+//     
+//       ** Argument - Structure -  any node.
 //
 Function RestrictionStructure(ParsedRestriction) Export
 	
@@ -2629,7 +2623,7 @@ Function RestrictionStructure(ParsedRestriction) Export
 	
 EndFunction
 
-// End Development.RightsAndAccessRestrictionsDevelopment
+// 
 
 #EndRegion
 
@@ -2637,15 +2631,15 @@ EndFunction
 
 #Region Private
 
-// Addition to the FillAccessValuesSets procedure.
+// 
 
-// Casts a value set table to the tabular section or record set format.
-//  It is executed before writing to the AccessValuesSets register or
-// before writing an object with the AccessValuesSets tabular section.
+// Converts a table of value sets to the format of a table part or record set.
+//  Executed before writing to the access value Set register or
+// before writing an object with the table part of the access value Set.
 //
 // Parameters:
-//  ObjectReference - AnyRef - a reference to the object from TypeToDefine.AccessValuesSetsOwnerObject
-//                                 for which the access value sets are filled.
+//  ObjectReference - AnyRef -  a reference to an object from the definable Type.Owner
+//                                 of access value sets an object for which access value sets are populated.
 //
 //  Table - See AccessValuesSetsTable
 //
@@ -2710,7 +2704,7 @@ Procedure SpecifyAccessValuesSets(ObjectReference, Table)
 	
 EndProcedure
 
-// For the AddAccessValuesSets procedure.
+// 
 
 Function TablesSets(Table, RightsNormalization = False)
 	
@@ -2960,11 +2954,11 @@ Procedure FillTypesCodesAndSetStringsTable(TypesCodes, EnumerationsCodes, SetRow
 	EndDo;
 	
 	RowIDLength =
-		20 // String of the access kind name
+		20 // 
 		+ TypeCodeLength
-		+ 36 // Length of the string presentation of a UUID (access value).
-		+ 36 // Length of the string presentation of a UUID (adjustment).
-		+ 6; // Space for separators
+		+ 36 // 
+		+ 36 // 
+		+ 6; // 
 	
 	SetRowsTable = New ValueTable;
 	SetRowsTable.Columns.Add("RowID", New TypeDescription("String", , New StringQualifiers(RowIDLength)));
@@ -3070,7 +3064,7 @@ Procedure FillDestinationByResultSets(Receiver, ResultSets)
 	
 EndProcedure
 
-// For the OnCreateAccessValueForm and AccessValuesGroupsAllowingAccessValuesChange procedures.
+// For procedures for adding a form of access Value, group of access value, and resolving access value Changes.
 Function AccessValueGroupsProperties(AccessValueType, ErrorTitle)
 	
 	SetPrivilegedMode(True);
@@ -3101,7 +3095,7 @@ Function AccessValueGroupsProperties(AccessValueType, ErrorTitle)
 	
 EndFunction
 
-// For the ConfigureDynamicListFilters function.
+// For the function set up a dynamic disk Selection.
 Procedure UpdateDataCompositionParameterValue(Val ParametersOwner,
                                                     Val ParameterName,
                                                     Val ParameterValue)
@@ -3122,7 +3116,7 @@ Procedure UpdateDataCompositionParameterValue(Val ParametersOwner,
 	
 EndProcedure
 
-// For the EnableProfileForUser and DisableProfileForUser procedures.
+// For the procedures enable user Profile and disable user Profile.
 Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Export
 	
 	If Not AccessManagementInternal.SimplifiedAccessRightsSetupInterface() Then
@@ -3138,7 +3132,7 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 		NameOfAProcedureOrAFunction = "DisableUserProfile";
 	EndIf;
 	
-	// Checking value types of the User parameter.
+	// 
 	If TypeOf(User) <> Type("CatalogRef.Users")
 	   And TypeOf(User) <> Type("CatalogRef.ExternalUsers") Then
 		
@@ -3159,7 +3153,7 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 		Raise ErrorText;
 	EndIf;
 	
-	// Checking value types of the Profile parameter.
+	// 
 	If TypeOf(Profile) <> Type("CatalogRef.AccessGroupProfiles")
 	   And TypeOf(Profile) <> Type("String")
 	   And TypeOf(Profile) <> Type("UUID")
@@ -3240,7 +3234,7 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 				AccessGroupObject.DeletionMark = False;
 				
 			ElsIf CurrentProfile <> Undefined Then
-				// Creating a personal access group.
+				// 
 				AccessGroupObject = Catalogs.AccessGroups.CreateItem();
 				AccessGroupObject.Parent     = Catalogs.AccessGroups.PersonalAccessGroupsParent();
 				AccessGroupObject.Description = ProfileProperties.Description;
@@ -3263,7 +3257,7 @@ Procedure EnableDisableUserProfile(User, Profile, Enable, Source = Undefined) Ex
 				EndIf;
 				
 				If Not Common.DataSeparationEnabled() Then
-					// Checking a blank list of infobase users in the Administrators access group.
+					// 
 					ErrorDescription = "";
 					AccessManagementInternal.CheckAdministratorsAccessGroupForIBUser(
 						AccessGroupObject.Users, ErrorDescription);

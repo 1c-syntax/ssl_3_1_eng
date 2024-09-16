@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -25,9 +23,9 @@ Var Remarks; // See NotesPropertiesPalette
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.ReportsOptions
+// 
 
-// Set report form settings.
+// To set up a report form.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -49,7 +47,7 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	
 EndProcedure
 
-// Called before importing new settings. Used for modifying DCS reports.
+// 
 //
 // Parameters:
 //   Context - Arbitrary
@@ -1117,7 +1115,7 @@ Procedure PrepareHorizontalOptionOfAccountingRegisters(DCSettings, DCDataSet, Da
 	
 EndProcedure
 
-// Adds the data set field.
+// Adds a dataset field.
 // 
 // Parameters:
 //   DataSet - DataCompositionSchemaDataSetUnion,
@@ -1130,7 +1128,7 @@ EndProcedure
 //               - String
 //
 // Returns:
-//   DataCompositionSchemaDataSetField, DataCompositionSchemaDataSetFieldFolder - Details
+//   DataCompositionSchemaDataSetField, DataCompositionSchemaDataSetFieldFolder - LongDesc
 //
 Function AddDataSetField(DataSet, Field, Title, DataPath = Undefined)
 	
@@ -1373,7 +1371,7 @@ Procedure RegisterResult(Settings, ResultDocument, DocumentRecorder)
 	
 	For LineNumber = 1 To ResultDocument.TableHeight Do
 		
-		For ColumnNumber = 1 To 2 Do // table header search in the first two columns
+		For ColumnNumber = 1 To 2 Do // 
 	
 			Area = ResultDocument.Area(LineNumber, ColumnNumber);
 			
@@ -1733,8 +1731,8 @@ Procedure CacheRegistersProperties(RegistersProperties, Context)
 	
 EndProcedure
 
-// The constructor of a document register record collection, each element of which stores information on the register
-//  whose recorder is an owner document.
+// Constructor of a document movement collection, each element of which stores information about the register
+//  that the owner document is a Registrar for.
 //
 // Returns:
 //   ValueTable:
@@ -1899,8 +1897,8 @@ Procedure FillNotes(Settings)
 	
 EndProcedure
 
-// The constructor of a note collection, each element of which stores a note text,
-//   for numbered rows of the vertical report option.
+// Constructor of the notes collection, each element of which stores the text of the note,
+//   for numbered rows of the vertical version of the report.
 //
 // Returns:
 //   ValueTable:
@@ -2002,7 +2000,7 @@ Function PredefinedOptionKey(VariantKey)
 	
 EndFunction
 
-// Returns a collection of registers for which the current user has the access right.
+// Returns a collection of registers that the current user has access to.
 //
 // Parameters:
 //   Recorder - DocumentRef
@@ -2083,7 +2081,7 @@ Function RecordsCountByRecorder(Recorder, DocumentRegisterRecords)
 		If ValueIsFilled(QueryText) Then
 			
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); // @query-part-2 @query-part-3 for this case.
+				"%1 UNION ALL  %2", QueryText, StrReplace(QueryTextTemplate, "SELECT ALLOWED", "SELECT")); // 
 			
 		Else
 			QueryText = QueryTextTemplate;
@@ -2290,7 +2288,7 @@ EndFunction
 //  StructureItems - DataCompositionSettingStructureItemCollection
 //                    - DataCompositionTableStructureItemCollection
 //                    - DataCompositionChartStructureItemCollection
-//  SelectedGroupingsFields - an Array from DataCompositionSelectedField
+//  Selected grouping fields - an Array of selected Polecomposedata
 //  SearchValue - String
 //
 Procedure FindSelectedFieldsGroups(StructureItems, SelectedFieldsGroups, SearchValue)
@@ -2309,7 +2307,7 @@ EndProcedure
 //  StructureItems - DataCompositionSettingStructureItemCollection
 //                    - DataCompositionTableStructureItemCollection
 //                    - DataCompositionChartStructureItemCollection
-//  SelectedGroupingsFields - an Array from DataCompositionSelectedField
+//  Selected grouping fields - an Array of selected Polecomposedata
 //
 Procedure FindSelectedRegisterFieldsGroups(StructureItems, SelectedFieldsGroups)
 	

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,10 +12,10 @@
 
 #If Not MobileStandaloneServer Then
 
-// The procedure saves the generated report  to the ReportsSnapshots information register as an MXL spreadsheet.
+// 
 //
 // Parameters:
-//  ReportResult - SpreadsheetDocument - Report snapshot in MXL format.
+//  ReportResult - SpreadsheetDocument - 
 //  ReportSettings - See ReportsOptions.DescriptionOfReport.
 //
 Procedure SaveUserReportSnapshot(ReportResult, ReportSettings) Export
@@ -42,18 +40,18 @@ Procedure SaveUserReportSnapshot(ReportResult, ReportSettings) Export
 
 EndProcedure
 
-// The procedure updates user's report snapshots.
+// 
 //
 // Parameters:
 //  FillParameters - Structure:
-//   * User - CatalogRef.Users - User who owns the snapshots to be updated.
+//   * User - CatalogRef.Users - 
 //   * ReportsSnapshots - ValueTable:
 //    ** User - CatalogRef.Users
 //    ** Report - CatalogRef.MetadataObjectIDs
 //    ** Variant - CatalogRef.ReportsOptions
 //    ** UserSettingsHash - Number
-//   * CatalogNameReportOptions - String - Name of the catalog that stores report options (unless this is the ReportsOptions catalog).
-//  StorageAddress - String - Used for the background execution.
+//   * CatalogNameReportOptions - String - 
+//  StorageAddress - String - 
 //
 Procedure UpdateUserReportsSnapshots(FillParameters, StorageAddress) Export
 
@@ -173,18 +171,18 @@ EndProcedure
 
 #EndIf
 
-// The function returns the list of user's report snapshots.
+// 
 //
 // Parameters:
-//  User - CatalogRef.Users - User who owns the snapshot list to be generated.
-//  CatalogNameReportOptions - String - Name of the catalog that stores report options (unless this is the ReportsOptions catalog).
+//  User - CatalogRef.Users - 
+//  CatalogNameReportOptions - String - 
 // Returns:
 //  ValueTable:
-//   * User - CatalogRef.Users - User who owns the report snapshot.
-//   * Report - CatalogRef.MetadataObjectIDs - Report ID.
-//   * Variant - DefinedType.OptionOfReportToUpdate - Report option.
-//   * OptionDescription - String - Report option description (applies to the standalone mode).
-//   * UserSettingsHash - Number  - User setting hash.
+//   * User - CatalogRef.Users - 
+//   * Report - CatalogRef.MetadataObjectIDs - 
+//   * Variant - DefinedType.OptionOfReportToUpdate - 
+//   * OptionDescription - String - 
+//   * UserSettingsHash - Number  - 
 //
 Function UserReportsSnapshots(User, CatalogNameReportOptions) Export
 
@@ -224,7 +222,7 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.AccessManagement
+// 
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.

@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.OnReadAtServer(ThisObject, CurrentObject);
@@ -34,7 +32,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AutoTitle = False;
 	EndIf;
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("ItemForPlacementName", "GroupAdditionalAttributes");
@@ -48,7 +46,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 
-	// StandardSubsystems.Properties
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
@@ -60,7 +58,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
-	// StandardSubsystems.Properties
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		If ModulePropertyManagerClient.ProcessNotifications(ThisObject, EventName, Parameter) Then
@@ -75,7 +73,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.FillCheckProcessing(ThisObject, Cancel, CheckedAttributes);
@@ -87,7 +85,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.BeforeWriteAtServer(ThisObject, CurrentObject);
@@ -105,7 +103,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// StandardSubsystems.Properties
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -121,7 +119,7 @@ EndProcedure
 
 #Region Private
 
-// StandardSubsystems.Properties 
+//  
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()

@@ -3,12 +3,7 @@
 	<Template uuid="29034f3e-d2eb-44e0-ac85-f2ffaf14eb90">
 		<Properties>
 			<Name>UpdateDistributionTerms</Name>
-			<Synonym>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Software update policy</v8:content>
-				</v8:item>
-			</Synonym>
+			<Synonym/>
 			<Comment/>
 			<TemplateType>HTMLDocument</TemplateType>
 		</Properties>

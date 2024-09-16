@@ -1,75 +1,73 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Constructor of the SignatureProperties parameter. Intended for adding and updating signature data.
-// Contains the signature's extended details.
+// 
+// 
 // 
 // Returns:
 //   Structure:
-//     * Signature             - BinaryData - Signing result.
-//                           - String - Signed XMLEnvelope (if it was passed in the data).
-//     * SignatureSetBy - CatalogRef.Users - a user who
-//                           signed the infobase object.
-//     * Comment         - String - a comment if it was entered upon signing.
-//     * SignatureFileName     - String - if a signature is added from a file.
-//     * SignatureDate         - Date - a signature date. It makes sense
-//                           when the date cannot be extracted from signature data.
-//     * SkipUponRenewal - Boolean - Indicates whether the signature is not subject to enhancement.
-//                                For example, if the EDI provider ensures the validity.
+//     * Signature             - BinaryData -  the result of the signing.
+//                           - String - 
+//     * SignatureSetBy - CatalogRef.Users -  the user who
+//                           signed the database object.
+//     * Comment         - String -  comment, if it was entered when signing.
+//     * SignatureFileName     - String -  if the signature was added from a file.
+//     * SignatureDate         - Date -  the date when the signature was made. This makes sense if
+//                           the date cannot be extracted from the signature data.
+//     * SkipUponRenewal - Boolean - 
+//                                
 //
-//     Used when updating signature validation results.:
-//     * SignatureValidationDate - Date - Date when the signature was last verified.
-//     * SignatureCorrect        - Boolean - Last signature check result.
-//     * IsVerificationRequired   - Boolean - Verification failure flag.
-//     * IsSignatureMathematicallyValid - Boolean - Indicates if the signature is valid. Applies to signatures with no additional attributes.
-//     * SignatureMathValidationError - String - Error if "VerifySignature" has
-//                                                      "CheckAdditionalAttributes" set to "False".
-//     * AdditionalAttributesCheckError - String - Error verifying the certificate and its enhanced
-//                                                        signature attributes (such as the timestamp).
-//     * IsAdditionalAttributesCheckedManually - Boolean - Indicates if the "SignatureCorrect" was set manually.
-//         If "IsSignatureMathematicallyValid" is set to "False" - Exception upon manual input.
+//     :
+//     * SignatureValidationDate - Date -  date of the last signature verification.
+//     * SignatureCorrect        - Boolean -  result of the last signature check.
+//     * IsVerificationRequired   - Boolean - 
+//     * IsSignatureMathematicallyValid - Boolean - 
+//     * SignatureMathValidationError - String - 
+//                                                      
+//     * AdditionalAttributesCheckError - String - 
+//                                                        
+//     * IsAdditionalAttributesCheckedManually - Boolean - 
+//         
 //     * AdditionalAttributesManualCheckAuthor - CatalogRef.Users
-//     * AdditionalAttributesManualCheckJustification - String - Reference to the organization that validated the signature.
-//                                                                   For example, "EDI Operator".
+//     * AdditionalAttributesManualCheckJustification - String - 
+//                                                                   
 //
-//     Intended for updating enhanced signatures.:
-//     * SignedObject   - DefinedType.SignedObject - Object the signature associated with.
-//                             Ignored in methods there this object is a parameter.
-//     * SequenceNumber     - Number - Signature ID that used for list sorting.
-//                             Empty if the signature is not associated with an object.
-//     * IsErrorOccurredDuringAutomaticRenewal - Boolean - Do no use. This is an internal parameter, which is filled by the scheduled job.
-//     Intended for linking with the machine-readable letter of authority.:
+//     :
+//     * SignedObject   - DefinedType.SignedObject - 
+//                             
+//     * SequenceNumber     - Number - 
+//                             
+//     * IsErrorOccurredDuringAutomaticRenewal - Boolean - 
+//     :
 //     * SignatureID - UUID
-//     * ResultOfSignatureVerificationByMRLOA - Array of Structure, Structure - MachineReadableLettersOfAuthorityFTS.ResultOfSignatureVerificationByMRLOA
+//     * ResultOfSignatureVerificationByMRLOA - Array of Structure, Structure - 
 //
-//     Derived signature properties:
+//     :
 //     * SignatureType          - EnumRef.CryptographySignatureTypes
-//     * DateActionLastTimestamp - Date - Validity period of the certificate that the last timestamp was signed with.
-//                                           Empty date if there's no timestamp.
-//                                           Applicable if the period was determined using CryptoManager.
-//     * Certificate          - ValueStorage - contains export of the certificate
-//                             that was used for signing (it is in the signature).
+//     * DateActionLastTimestamp - Date - 
+//                                           
+//                                           
+//     * Certificate          - ValueStorage -  contains an upload of the certificate
+//                             that was used for signing (contained in the signature).
 //                           - BinaryData
-//     * Thumbprint           - String - a certificate thumbprint in the Base64 string format.
-//     * CertificateOwner - String - a subject presentation received from the certificate binary data.
-//     * CertificateDetails - Structure - Property required for certificates that cannot be passed to the CryptoCertificate's method.
-//                             Has the following properties:
-//        ** SerialNumber  - String - a certificate serial number as in the CryptoCertificate platform object.
-//        ** IssuedBy       - String - as the IssuerPresentation function returns.
-//        ** IssuedTo      - String - as the SubjectPresentation function returns.
-//        ** StartDate     - String - a certificate date as in the CryptoCertificate platform object in the DLF=D format.
-//        ** EndDate  - String - a certificate date as in the CryptoCertificate platform object in the DLF=D format.
-//        ** ValidBefore - String - (Optional) Earliest of the expiration dates of the private key and public key.
-//                                     Applicable if the dates are specified in the certificate. The format is "DLF=D".
+//     * Thumbprint           - String -  the thumbprint of the certificate in Base64 string format.
+//     * CertificateOwner - String -  the subject representation obtained from the certificate's binary data.
+//     * CertificateDetails - Structure - 
+//                             :
+//        ** SerialNumber  - String -  serial number of the certificate, like the certificate Cryptography platform object.
+//        ** IssuedBy       - String -  how the publisher View function returns.
+//        ** IssuedTo      - String -  how the object Representation function returns.
+//        ** StartDate     - String -  date of the certificate, as in the object of the platform Certatcryptography in the format "DLF=D".
+//        ** EndDate  - String -  date of the certificate, as in the object of the platform Certatcryptography in the format "DLF=D".
+//        ** ValidBefore - String - 
+//                                     
 //
 Function NewSignatureProperties() Export
 	
@@ -111,35 +109,35 @@ Function NewSignatureProperties() Export
 	
 EndFunction
 
-// Signature verification result.
+// 
 // 
 // Returns:
 //  Structure:
-//   * Result - Boolean     - True if the check is passed.
-//             - String       - Check error details.
-//             - Undefined - Failed to get the cryptographic manager (when it is not specified).
-//   * SignatureCorrect        - Boolean, Undefined - Last signature check result.
-//   * CertificateRevoked   - Boolean - Flag indicating whether the error occurred because the certificate was revoked.
-//   * IsVerificationRequired   - Boolean - Signature verification failure flag.
-//   * IsSignatureMathematicallyValid - Boolean - Indicates if the signature is valid. 
-//                                           The verification scope excludes certificates and enhanced signature attributes.
-//   * SignatureMathValidationError - String - Error if "VerifySignature" has
-//                                                    "CheckAdditionalAttributes" set to "False".
-//   * AdditionalAttributesCheckError - String - Error verifying the certificate and its enhanced
-//                                                      signature attributes (such as the timestamp).
+//   * Result - Boolean     - 
+//             - String       - 
+//             - Undefined - 
+//   * SignatureCorrect        - Boolean, Undefined -  result of the last signature check.
+//   * CertificateRevoked   - Boolean - 
+//   * IsVerificationRequired   - Boolean - 
+//   * IsSignatureMathematicallyValid - Boolean -  
+//                                           
+//   * SignatureMathValidationError - String - 
+//                                                    
+//   * AdditionalAttributesCheckError - String - 
+//                                                      
 //   * CertificateVerificationParameters - 
 //
-//   * SignatureType          - EnumRef.CryptographySignatureTypes - Not filled when checking XML envelope signatures.
-//   * DateActionLastTimestamp - Date - Validity period of the certificate that the last timestamp was signed with.
-//    Empty date if there's no timestamp. Applicable if the period was determined using CryptoManager.
-//   * UnverifiedSignatureDate - Date - Unconfirmed signature data.
-//                                 - Undefined - Unconfirmed signature data is missing from the signature data
-//                                                and for the XML envelope.
-//   * DateSignedFromLabels  - Date - Date of the earliest timestamp.
-//                         - Undefined - Timestamp is missing from the signature data during the XML envelope check.
-//   * Certificate          - BinaryData - Signatory's certificate
-//   * Thumbprint           - String - a certificate thumbprint in the Base64 string format.
-//   * CertificateOwner - String - a subject presentation received from the certificate binary data.
+//   * SignatureType          - EnumRef.CryptographySignatureTypes - 
+//   * DateActionLastTimestamp - Date - 
+//    
+//   * UnverifiedSignatureDate - Date - 
+//                                 - Undefined - 
+//                                                
+//   * DateSignedFromLabels  - Date - 
+//                         - Undefined - 
+//   * Certificate          - BinaryData - 
+//   * Thumbprint           - String -  the thumbprint of the certificate in Base64 string format.
+//   * CertificateOwner - String -  the subject representation obtained from the certificate's binary data.
 //
 Function SignatureVerificationResult() Export
 	
@@ -161,17 +159,17 @@ Function SignatureVerificationResult() Export
 	
 EndFunction
 
-// Constructor for filling signature verification result on the form.
+// 
 // 
 // Returns:
-//  Structure - Signature verification result.:
+//  Structure - :
 //   * SequenceNumber - 
 //   * Object - 
 //   * SignatureDate - 
 //   * Comment - 
-//   * SignatureAddress - String - Signature address in temporary storage.
+//   * SignatureAddress - String - 
 //   * Thumbprint - 
-//   * CertificateAddress - String - Certificate address in a temporary storage.
+//   * CertificateAddress - String - 
 //   * SignatureCorrect - 
 //   * SignatureValidationDate - 
 //   * CertificateOwner - 
@@ -182,14 +180,14 @@ EndFunction
 //   * MachineReadableLetterOfAuthority - CatalogRef.MachineReadablePowersAttorney
 //   * MachineReadableLOAValid - Boolean
 //   * ResultOfSignatureVerificationByMRLOA - 
-//   * CheckResult - Structure - Verification result properties to be saved in the infobase.:
+//   * CheckResult - Structure - :
 //     ** IsSignatureMathematicallyValid - Boolean
-//     ** SignatureMathValidationError - String - Error text.
-//     ** AdditionalAttributesCheckError - String - Error text.
-//     ** IsAdditionalAttributesCheckedManually - Boolean - Manual verification flag.
+//     ** SignatureMathValidationError - String -  error text.
+//     ** AdditionalAttributesCheckError - String -  error text.
+//     ** IsAdditionalAttributesCheckedManually - Boolean - 
 //     ** AdditionalAttributesManualCheckAuthor - CatalogRef.Users
 //     ** AdditionalAttributesManualCheckJustification - String
-//   * BriefCheckResult - String - Intended for displaying the signature verification result on the form.
+//   * BriefCheckResult - String - 
 //
 Function ResultOfSignatureValidationOnForm() Export
 	
@@ -211,10 +209,10 @@ Function ResultOfSignatureValidationOnForm() Export
 	SignatureProperties.Insert("SignatureType");
 	SignatureProperties.Insert("DateActionLastTimestamp");
 	
-	// Compatibility block end.
+	// 
 	SignatureProperties.Insert("ErrorDescription"); 
 	SignatureProperties.Insert("Status");
-	// Compatibility block start.
+	// 
 	
 	SignatureProperties.Insert("MachineReadableLetterOfAuthority");
 	SignatureProperties.Insert("MachineReadableLOAValid");
@@ -235,7 +233,7 @@ Function ResultOfSignatureValidationOnForm() Export
 	
 EndFunction
 
-// Fills the check text on the form and puts the text to the "BriefCheckResult" attribute. 
+//  
 //
 // Parameters:
 //  SignatureProperties - See ResultOfSignatureValidationOnForm

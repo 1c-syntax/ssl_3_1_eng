@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -34,7 +32,7 @@ EndProcedure
 Procedure BeforeLoadDataFromSettingsAtServer(Settings)
 	
 	If FormFilterParameters <> Undefined Then
-		// Replacing fixed filter items to unavailable user settings.
+		// 
 		For Each FilterElement In FormFilterParameters Do
 			CommonClientServer.SetDynamicListFilterItem(
 				List, FilterElement.Key, FilterElement.Value);
@@ -241,8 +239,8 @@ Procedure RefreshTasksListOnServer()
 	
 	BusinessProcessesAndTasksServer.SetMyTasksListParameters(List);
 	Items.List.Refresh();
-	// The color of the overdue tasks depends on the current date.
-	// Therefore, refresh the conditional appearance.
+	// 
+	// 
 	SetConditionalAppearance();
 	
 EndProcedure

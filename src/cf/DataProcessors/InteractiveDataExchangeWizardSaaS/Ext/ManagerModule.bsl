@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -15,10 +13,10 @@
 #Region ExportMappingData
 
 // Parameters:
-//   ExportSettings1 - Structure - operation execution setting details.
-//   HandlerParameters - Structure - secondary parameters:
-//     * AdditionalParameters - Structure - arbitrary additional parameters.
-//   ContinueWait - Boolean - True if a long-running operation is running.
+//   ExportSettings1 - Structure -  description of the operation execution settings.
+//   HandlerParameters - Structure - :
+//     * AdditionalParameters - Structure -  custom additional parameters.
+//   ContinueWait - Boolean -  True if a long operation is running.
 //
 Procedure OnStartExportDataForMapping(ExportSettings1, HandlerParameters, ContinueWait) Export
 	
@@ -61,9 +59,9 @@ Procedure OnStartExportDataForMapping(ExportSettings1, HandlerParameters, Contin
 EndProcedure
 
 // Parameters:
-//   HandlerParameters - Structure - secondary parameters:
-//     * AdditionalParameters - Structure - arbitrary additional parameters.
-//   ContinueWait - Boolean - True if a long-running operation is not completed yet.
+//   HandlerParameters - Structure - :
+//     * AdditionalParameters - Structure -  custom additional parameters.
+//   ContinueWait - Boolean -  True if the long operation has not been completed yet.
 // 
 Procedure OnWaitForExportDataForMapping(HandlerParameters, ContinueWait) Export
 	
@@ -108,9 +106,9 @@ Procedure OnWaitForExportDataForMapping(HandlerParameters, ContinueWait) Export
 EndProcedure
 
 // Parameters:
-//   HandlerParameters - Structure - secondary parameters:
-//     * AdditionalParameters - Structure - arbitrary additional parameters.
-//   CompletionStatus - Structure - operation execution result details.
+//   HandlerParameters - Structure - :
+//     * AdditionalParameters - Structure -  custom additional parameters.
+//   CompletionStatus - Structure -  description of the operation result.
 //
 Procedure OnCompleteDataExportForMapping(HandlerParameters, CompletionStatus) Export
 	
@@ -143,10 +141,10 @@ EndProcedure
 #Region ExportImportData
 
 // Parameters:
-//   ExportSettings1 - Structure - operation execution setting details.
-//   HandlerParameters - Structure - secondary parameters:
-//     * AdditionalParameters - Structure - arbitrary additional parameters.
-//   ContinueWait - Boolean - True if a long-running operation is running.
+//   ExportSettings1 - Structure -  description of the operation execution settings.
+//   HandlerParameters - Structure - :
+//     * AdditionalParameters - Structure -  custom additional parameters.
+//   ContinueWait - Boolean -  True if a long operation is running.
 //
 Procedure OnStartExportData(ExportSettings1, HandlerParameters, ContinueWait) Export
 	
@@ -203,9 +201,9 @@ Procedure OnStartExportData(ExportSettings1, HandlerParameters, ContinueWait) Ex
 EndProcedure
 
 // Parameters:
-//   HandlerParameters - Structure - secondary parameters:
-//     * AdditionalParameters - Structure - arbitrary additional parameters.
-//   ContinueWait - Boolean - True if a long-running operation is not completed yet.
+//   HandlerParameters - Structure - :
+//     * AdditionalParameters - Structure -  custom additional parameters.
+//   ContinueWait - Boolean -  True if the long operation has not been completed yet.
 //
 Procedure OnWaitForExportData(HandlerParameters, ContinueWait) Export
 	
@@ -346,9 +344,9 @@ Procedure OnWaitForExportData(HandlerParameters, ContinueWait) Export
 EndProcedure
 
 // Parameters:
-//   HandlerParameters - Structure - secondary parameters:
-//     * AdditionalParameters - Structure - arbitrary additional parameters.
-//   CompletionStatus - Structure - operation execution result details.
+//   HandlerParameters - Structure - :
+//     * AdditionalParameters - Structure -  custom additional parameters.
+//   CompletionStatus - Structure -  description of the operation result.
 //
 Procedure OnCompleteDataExport(HandlerParameters, CompletionStatus) Export
 	
@@ -619,11 +617,11 @@ EndProcedure
 
 #EndRegion
 
-// Registers additional data on settings.
+// Registers additional data on settings
 //
 // Parameters:
 //     ExportProcessing - Structure
-//                       - DataProcessorObject.InteractiveExportChange - an initialized object.
+//                       - DataProcessorObject.InteractiveExportChange - 
 //
 Procedure RegisterAdditionExportData(Val ExportProcessing)
 	
@@ -637,22 +635,22 @@ Procedure RegisterAdditionExportData(Val ExportProcessing)
 	EndIf;
 	
 	If DataProcessor.ExportOption <= 0 Then
-		// Do not add.
+		// 
 		Return;
 		
 	ElsIf DataProcessor.ExportOption = 1 Then
-		// For a period with filter, clearing additional registration
+		// 
 		DataProcessor.AdditionalRegistration.Clear();
 		
 	ElsIf DataProcessor.ExportOption = 2 Then
-		// Detailed settings, clearing general parameters
+		// 
 		DataProcessor.AllDocumentsFilterComposer = Undefined;
 		DataProcessor.AllDocumentsFilterPeriod      = Undefined;
 		
 		DataExchangeServer.FillValueTable(DataProcessor.AdditionalRegistration, ExportProcessing.AdditionalRegistration);
 		
 	ElsIf DataProcessor.ExportOption = 3 Then
-		// According to the node scenario, simulating a detailed option.
+		// 
 		DataProcessor.ExportOption = 2;
 		
 		DataProcessor.AllDocumentsFilterComposer = Undefined;
@@ -684,7 +682,7 @@ Procedure OnStartPuttingDataToMap(ExportSettings1, HandlerParameters, ContinueWa
 		PredefinedNodeAlias = DataExchangeServer.PredefinedNodeAlias(ExportSettings1.Peer);
 	
 		If ValueIsFilled(PredefinedNodeAlias) Then
-			// A sender node code correction is required.
+			// 
 			ThisApplicationCode = TrimAll(PredefinedNodeAlias);
 		Else
 			ThisApplicationCode = DataExchangeServer.NodeIDForExchange(ExportSettings1.Peer);
@@ -695,7 +693,7 @@ Procedure OnStartPuttingDataToMap(ExportSettings1, HandlerParameters, ContinueWa
 	
 	BeginTransaction();
 	Try
-		// Send a message to a peer infobase.
+		// 
 		Message = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesManagementInterface.ImportExchangeMessageMessage());
 			

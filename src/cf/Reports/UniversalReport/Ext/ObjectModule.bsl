@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,9 +12,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.ReportsOptions
+// 
 
-// Set report form settings.
+// To set up a report form.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -70,13 +68,13 @@ Procedure OnDefineSelectionParameters(Form, SettingProperties) Export
 	EndIf;
 EndProcedure
 
-// Called in the event handler of the report form after executing the form code.
-// See "Managed form extension for reports.BeforeLoadOptionAtServer" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
-//   Form - ClientApplicationForm - Report form.
-//   Settings - DataCompositionSettings - Settings to be loaded to Settings Composer.
-//   BeforeDownloadingSettings - Boolean - True if the call came from the BeforeImportSettingsToComposer procedure.
+//   Form - ClientApplicationForm -  report form.
+//   Settings - DataCompositionSettings -  settings to upload to the settings Builder.
+//   BeforeDownloadingSettings - Boolean - 
 //
 Procedure BeforeLoadVariantAtServer(Form, Settings, BeforeDownloadingSettings = False) Export
 	CurrentSchemaKey = Undefined;
@@ -132,7 +130,7 @@ Procedure BeforeLoadVariantAtServer(Form, Settings, BeforeDownloadingSettings = 
 	EndIf;
 EndProcedure
 
-// Called before importing new settings. Used for modifying DCS reports.
+// 
 //
 // Parameters:
 //   Context - Arbitrary
@@ -188,8 +186,8 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 	ElsIf Not NewDCSettings.AdditionalProperties.Property("ReportInitialized")
 	        And TypeOf(NewDCUserSettings) = Type("DataCompositionUserSettings") Then
 		
-		// Reconfigure the schema when importing the main report option.
-		// Including cases where the settings are reset to the default values.
+		// 
+		// 
 		SchemaKey = "";
 	EndIf;
 	
@@ -252,7 +250,7 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		EndIf;
 		
 		If TypeOf(Context) = Type("ClientApplicationForm") Then
-			// Override.
+			// 
 			SSLSubsystemsIntegration.BeforeLoadVariantAtServer(Context, NewDCSettings);
 			ReportsOverridable.BeforeLoadVariantAtServer(Context, NewDCSettings);
 			BeforeLoadVariantAtServer(Context, NewDCSettings, True);
@@ -286,16 +284,15 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		
 EndProcedure
 
-// Called after defining form element properties associated with the user settings.
+// 
 // See ReportsServer.SettingsFormItemsProperties
-// ()
-// Allows to override properties to customize reports.
+// 
 //
 // Parameters:
-//  FormType - ReportFormType - See Syntax Assistant
+//  FormType - ReportFormType - 
 //  ItemsProperties - See ReportsServer.SettingsFormItemsProperties
-//  UserSettings - DataCompositionUserSettingsItemCollection - Items of the current
-//                              user settings that affect the creation of linked form items.
+//  UserSettings - DataCompositionUserSettingsItemCollection -  elements of current
+//                              user settings that affect the creation of related form elements.
 //
 Procedure OnDefineSettingsFormItemsProperties(FormType, ItemsProperties, UserSettings) Export 
 	If FormType <> ReportFormType.Main Then 
@@ -372,10 +369,10 @@ EndProcedure
 
 #Region Private
 
-// Returns binary data hash.
+// Returns the hash sum of binary data.
 //
 // Parameters:
-//   BinaryData - BinaryData - Data whose hash is calculated.
+//   BinaryData - BinaryData -  data from which the hash amount is calculated.
 //
 Function BinaryDataHash(BinaryData)
 	DataHashing = New DataHashing(HashFunction.MD5);

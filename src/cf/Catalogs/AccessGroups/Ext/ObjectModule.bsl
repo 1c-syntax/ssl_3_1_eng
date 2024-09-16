@@ -1,18 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var PreviousValues1; // Values of some access group tables and attributes
+Var PreviousValues1; // 
                       // 
 
 #EndRegion
@@ -21,7 +19,7 @@ Var PreviousValues1; // Values of some access group tables and attributes
 
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// 
 	If IsFolder Then
 		Return;
 	EndIf;
@@ -29,9 +27,12 @@ Procedure BeforeWrite(Cancel)
 	If UsersInternalCached.ShouldRegisterChangesInAccessRights()
 	 Or Not DataExchange.Load Then
 		
+		If Common.FileInfobase() Then
+			AccessManagementInternal.LockRegistersBeforeWritingAccessConfigurationObjectToFileInformationSystem();
+		EndIf;
 		PreviousValues1 = PreviousValues1();
 	EndIf;
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;
@@ -43,7 +44,7 @@ Procedure BeforeWrite(Cancel)
 		Catalogs.AccessGroupProfiles.RestoreNonexistentViewsFromAccessValue(PreviousValues1, ThisObject);
 	EndIf;
 	
-	// Deleting blank members of the access group.
+	// 
 	IndexOf = Users.Count() - 1;
 	While IndexOf >= 0 Do
 		If Not ValueIsFilled(Users[IndexOf].User) Then
@@ -54,16 +55,16 @@ Procedure BeforeWrite(Cancel)
 	
 	If Ref = AccessManagement.AdministratorsAccessGroup() Then
 		
-		// Administrator predefined profile is always used.
+		// 
 		Profile = AccessManagement.ProfileAdministrator();
 		
-		// Cannot be a personal access group.
+		// 
 		User = Undefined;
 		
-		// Regular users cannot be responsible for the group (only full access users can).
+		// 
 		EmployeeResponsible = Undefined;
 		
-		// Only full access users can make changes.
+		// 
 		If Not PrivilegedMode()
 		   And Not AccessManagement.HasRole("FullAccess") Then
 			
@@ -73,7 +74,7 @@ Procedure BeforeWrite(Cancel)
 				           |or in privileged mode.';");
 		EndIf;
 		
-		// Checking whether the access group contains regular users only.
+		// 
 		For Each CurrentRow In Users Do
 			If TypeOf(CurrentRow.User) <> Type("CatalogRef.Users") Then
 				Raise
@@ -85,14 +86,14 @@ Procedure BeforeWrite(Cancel)
 			EndIf;
 		EndDo;
 		
-	// Administrator predefined profile cannot be set to an arbitrary access group.
+	// 
 	ElsIf Profile = AccessManagement.ProfileAdministrator() Then
 		Raise
 			NStr("en = 'Only the predefined access group ""Administrators""
 			           |can have the predefined profile ""Administrator.""';");
 	EndIf;
 	
-	// Automatically setting attributes for the personal access group.
+	// 
 	If ValueIsFilled(User) Then
 		Parent = Catalogs.AccessGroups.PersonalAccessGroupsParent();
 	Else
@@ -102,8 +103,8 @@ Procedure BeforeWrite(Cancel)
 		EndIf;
 	EndIf;
 	
-	// When the deletion mark is cleared from an access group,
-	// it's also cleared from the group's profile.
+	// 
+	// 
 	If Not DeletionMark And PreviousValues1.DeletionMark = True
 	   And Profile = PreviousValues1.Profile Then
 		
@@ -137,13 +138,13 @@ Procedure BeforeWrite(Cancel)
 EndProcedure
 
 // Updates:
-// - roles of added, remaining, and deleted users
-// - InformationRegister.AccessGroupsTables
-// - InformationRegister.AccessGroupsValues
+// - roles of added, remaining, and deleted users;
+// - Data register.Access group table;
+// - Data register.Access group values.
 //
 Procedure OnWrite(Cancel)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// 
 	If IsFolder Then
 		Return;
 	EndIf;
@@ -158,7 +159,7 @@ Procedure OnWrite(Cancel)
 		SetPrivilegedMode(False);
 		SetSafeModeDisabled(False);
 	EndIf;
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;
@@ -223,8 +224,8 @@ EndProcedure
 
 #Region Private
 
-// Values of some attributes and tables of the access group
-// before it is changed for use in the "OnWrite" event handler.
+// 
+// 
 // 
 // Returns:
 //  Structure:
@@ -315,7 +316,7 @@ Procedure UpdateUsersRolesOnChangeAccessGroup()
 		Catalogs.AccessGroups.UsersForRolesUpdate(PreviousValues1, ThisObject);
 	
 	If Ref = AccessManagement.AdministratorsAccessGroup() Then
-		// Adding users associated with infobase users with the FullAccess role.
+		// 
 		
 		For Each IBUser In InfoBaseUsers.GetUsers() Do
 			If IBUser.Roles.Contains(Metadata.Roles.FullAccess) Then

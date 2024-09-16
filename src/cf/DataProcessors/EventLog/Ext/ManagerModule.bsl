@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -64,10 +62,10 @@ EndProcedure
 // Returns the enumeration value corresponding to the string name of the event status.
 //
 // Parameters:
-//  Name - String - the entry transaction status.
+//  Name - String -  the status of the write transaction.
 //
 // Returns:
-//  EventLogEntryTransactionStatus - transaction status value.
+//  EventLogEntryTransactionStatus - 
 //
 Function EventLogEntryTransactionStatusValueByName(Name) Export
 	
@@ -85,13 +83,13 @@ Function EventLogEntryTransactionStatusValueByName(Name) Export
 	
 EndFunction
 
-// Returns the enumeration value corresponding to the string level of the event log.
+// Returns the enumeration value corresponding to the string level of the log.
 //
 // Parameters:
-//  Name - String - event log level.
+//  Name - String -  the level of log.
 //
 // Returns:
-//  EventLogLevel - event log level value.
+//  EventLogLevel - 
 //
 Function EventLogLevelValueByName(Name) Export
 	
@@ -109,14 +107,14 @@ Function EventLogLevelValueByName(Name) Export
 	
 EndFunction
 
-// Sets the picture number in the row of the event log.
+// Sets the drawing number in the log event line.
 //
 // Parameters:
-//  LogEvent - ValueTableRow - an event log row.
+//  LogEvent - ValueTableRow -  log line.
 //
 Procedure SetPictureNumber(LogEvent) Export
 	
-	// Setting relative image number.
+	// 
 	If LogEvent.Level = EventLogLevel.Information Then
 		LogEvent.PicNumber = 0;
 	ElsIf LogEvent.Level = EventLogLevel.Warning Then
@@ -127,7 +125,7 @@ Procedure SetPictureNumber(LogEvent) Export
 		LogEvent.PicNumber = 3;
 	EndIf;
 	
-	// Setting absolute image number.
+	// 
 	If LogEvent.TransactionStatus = EventLogEntryTransactionStatus.Unfinished
 	 Or LogEvent.TransactionStatus = EventLogEntryTransactionStatus.RolledBack Then
 		LogEvent.PicNumber = LogEvent.PicNumber + 4;

@@ -165,7 +165,6 @@ Please wait...</v8:content>
 									</Title>
 									<Group>Vertical</Group>
 									<Behavior>Usual</Behavior>
-									<ShowTitle>false</ShowTitle>
 									<ExtendedTooltip name="GroupSetupStepsExtendedTooltip" id="331"/>
 									<ChildItems>
 										<UsualGroup name="GroupGetSettings" id="332">

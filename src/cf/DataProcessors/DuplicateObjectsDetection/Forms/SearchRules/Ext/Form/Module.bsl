@@ -1,32 +1,30 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
-// Expected parameters:
+// 
 //
-//     DuplicatesSearchArea - String - The full name of the metadata table for the given search area.
-//     FilterAreaPresentation - String - Presentation used to generate the title.
-//     AppliedRuleDetails - String, Undefined - Applied rule text. If set to "Undefined", there are no applied rules.
-//                                  SettingsAddress - String - Address of settings in the temporary storage. Expected structure fields:
+//     
+//     
+//     
+//                                  
 //
-//     TakeAppliedRulesIntoAccount - Boolean - Previous setting flag. By default, "True".
-//         SearchRules - ValueTable - Settings being edited. Expected columns:
-//         Attribute - String  - Attribute name for comparison.
-//             AttributePresentation - String - Attribute presentation for comparison.
-//             Rule - String - Comparison option:
-//             "Equal" looks for perfect matches. "Like" looks for fuzzy matches. "" looks for nothing.
-//                                 ComparisonOptions - ValueList - Available comparison options, where a value is a rule.
-//             Return value (as a selection result):
-//                                                  Undefined - Editing is canceled.
+//     
+//         
+//         
+//             
+//             
+//             
+//                                 
+//             
+//                                                  
 //
-// String - Address of the new composer settings in the temp storage.
-//     Points at a structure similar to the "SettingsAddress" parameter.
+// 
+//     
 //     
 //                    
 //
@@ -46,14 +44,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DeleteFromTempStorage(Parameters.SettingsAddress);
 	InitialSettings.Property("TakeAppliedRulesIntoAccount", TakeAppliedRulesIntoAccount);
 	
-	If AppliedRuleDetails = Undefined Then // Rules are not defined.
+	If AppliedRuleDetails = Undefined Then // 
 		Items.AppliedRestrictionsGroup.Visible = False;
 		WindowOptionsKey = "NoAppliedRestrictionsGroup";
 	Else
 		Items.TakeAppliedRulesIntoAccount.Visible = CanCancelAppliedRules();
 	EndIf;
 	
-	// Filling and adjusting rules.
+	// 
 	SearchRules.Load(InitialSettings.SearchRules);
 	For Each RuleRow In SearchRules Do
 		RuleRow.Use = Not IsBlankString(RuleRow.Rule);
@@ -211,13 +209,13 @@ EndProcedure
 Function SelectionErrors()
 	
 	If AppliedRuleDetails <> Undefined And TakeAppliedRulesIntoAccount Then
-		// There are application rules and they are used. There are no errors.
+		// 
 		Return Undefined;
 	EndIf;
 	
 	For Each RulesRow In SearchRules Do
 		If RulesRow.Use Then
-			// User rule is specified. There are no errors.
+			// 
 			Return Undefined;
 		EndIf;
 	EndDo;
@@ -283,7 +281,7 @@ Procedure SetColorsAndConditionalAppearance()
 		AppearanceItem.Appearance.SetParameterValue("Text", ListItem.Presentation);
 	EndDo;
 	
-	// Do not use.
+	// 
 	AppearanceItem = ConditionalAppearanceItems.Add();
 	
 	AppearanceFilter = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));

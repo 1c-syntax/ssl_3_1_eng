@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 #Region ForCallsFromOtherSubsystems
 
 #Region CTLEventHandlers
-// Handle software events that occur in CTL subsystems.
-// Intended only for calls from CTL to SSL.
+// 
+// 
 
-// Defines events, to which this library is subscribed.
+// Defines events that this library is subscribed to.
 //
 // Parameters:
 //  Subscriptions - See CTLSubsystemsIntegration.EventsCTL.
@@ -29,14 +27,14 @@ EndProcedure
 #EndRegion
 
 #Region OSLEventHandlers
-// Handle software events that occur in Online Support subsystems.
-// Intended only for calls from Online Support to SSL.
+// 
+// 
 
-// Defines events, to which this library is subscribed.
+// Defines events that this library is subscribed to.
 //
 // Parameters:
-//  Subscriptions - Structure - structure property keys are names of events, to which
-//           this library is subscribed.
+//  Subscriptions - Structure -  the structure property keys are the names of events that
+//           this library subscribes to.
 //
 Procedure OnDefineEventsSubscriptionsOSL(Subscriptions) Export
 
@@ -46,8 +44,8 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. For proper integration with 1C-Connect, use the "Connect integration" subsystem
-// (see Online Support Library version 2.4.2 or later).
+// Deprecated.
+// 
 //
 Procedure IntegrationOnlineSupportCallClientNotificationProcessing(EventName, Item) Export
 	
@@ -66,28 +64,30 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart
 Procedure BeforeStart(Parameters) Export
 	
-	// Start measuring application start time.
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.PerformanceMonitor") Then
 		ModulePerformanceMonitorClient = CommonClient.CommonModule("PerformanceMonitorClient");
 		Parameters.Modules.Add(ModulePerformanceMonitorClient);
 	EndIf;
 	
-	// Checking whether the user has minimum rights to access the application.
+	// 
 	Parameters.Modules.Add(UsersInternalClient);
 	
-	// Checking whether the infobase is locked for updating.
+	// 
 	Parameters.Modules.Add(InfobaseUpdateClient);
 	
-	// Checking whether the current version is equal or higher than the recommended one.
+	// 
 	Parameters.Modules.Add(New Structure("Module, Number", StandardSubsystemsClient, 2));
 	
-	// Checking whether reconnection the master node is necessary. 
+	// 
 	Parameters.Modules.Add(New Structure("Module, Number", StandardSubsystemsClient, 3));
 	
-	// Checking whether it is necessary to select initial unchanged infobase settings (main language and time zone).
+	Parameters.Modules.Add(ServerNotificationsClient);
+	
+	// 
 	Parameters.Modules.Add(New Structure("Module, Number", StandardSubsystemsClient, 4));
 
-	// Checking whether updating the infobase is legal.
+	// 
 	If CommonClient.SubsystemExists(
 		   "StandardSubsystems.SoftwareLicenseCheck") Then
 		
@@ -97,21 +97,19 @@ Procedure BeforeStart(Parameters) Export
 		Parameters.Modules.Add(ModuleSoftwareLicenseCheckClient);
 	EndIf;
 	
-	// Asking the user to continue with or without repeating data exchange message import.
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.DataExchange") Then
 		ModuleDataExchangeClient = CommonClient.CommonModule("DataExchangeClient");
 		Parameters.Modules.Add(ModuleDataExchangeClient);
 	EndIf;
 	
-	// Checking the status for deferred update handler.
+	// 
 	Parameters.Modules.Add(New Structure("Module, Number", InfobaseUpdateClient, 2));
 	
-	Parameters.Modules.Add(ServerNotificationsClient);
-	
-	// Exporting and updating application operating settings.
+	// 
 	Parameters.Modules.Add(New Structure("Module, Number", InfobaseUpdateClient, 3));
 	
-	// Initial standalone workstation setup.
+	// 
 	If CommonClient.SubsystemExists(
 		"StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		
@@ -119,22 +117,22 @@ Procedure BeforeStart(Parameters) Export
 		Parameters.Modules.Add(ModuleStandaloneModeInternalClient);
 	EndIf;
 	
-	// Checking user authorization.
+	// 
 	Parameters.Modules.Add(New Structure("Module, Number", UsersInternalClient, 2));
 	
-	// Checking for locks to access the infobase.
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.UsersSessions") Then
 		ModuleIBConnectionsClient = CommonClient.CommonModule("IBConnectionsClient");
 		Parameters.Modules.Add(ModuleIBConnectionsClient);
 	EndIf;
 	
-	// Updating an infobase.
+	// 
 	Parameters.Modules.Add(New Structure("Module, Number", InfobaseUpdateClient, 4));
 	
-	// Handling the UpdateAndExit startup key.
+	// 
 	Parameters.Modules.Add(New Structure("Module, Number", InfobaseUpdateClient, 5));
 	
-	// Change password or check the old password's strength if needed.
+	// 
 	Parameters.Modules.Add(New Structure("Module, Number", UsersInternalClient, 3));
 	
 	If SSLSubsystemsIntegrationClientCached.SubscriptionsCTL().BeforeStart Then
@@ -157,7 +155,7 @@ Procedure OnStart(Parameters) Export
 		Parameters.Modules.Add(ModuleReportsOptionsClient);
 	EndIf;
 	
-	// Opening a subordinate DIB node on the initial start.
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.DataExchange") Then
 		ModuleDataExchangeClient = CommonClient.CommonModule("DataExchangeClient");
 		Parameters.Modules.Add(ModuleDataExchangeClient);
@@ -168,7 +166,7 @@ Procedure OnStart(Parameters) Export
 		Parameters.Modules.Add(ModuleDataExchangeSaaSClient);
 	EndIf;
 	
-	// Opening the change log.
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.IBVersionUpdate") Then
 		ModuleUpdatingInfobaseClient = CommonClient.CommonModule("InfobaseUpdateClient");
 		Parameters.Modules.Add(ModuleUpdatingInfobaseClient);
@@ -179,7 +177,7 @@ Procedure OnStart(Parameters) Export
 		Parameters.Modules.Add(ModuleConfigurationUpdateClient);
 	EndIf;
 	
-	// Showing the form tor manage external resources locks, if necessary.
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.ScheduledJobs") Then
 		ModuleScheduledJobsClient = CommonClient.CommonModule("ScheduledJobsClient");
 		Parameters.Modules.Add(ModuleScheduledJobsClient);
@@ -369,6 +367,18 @@ Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
 	ServerNotificationsClient.AddIndicator(StartMoment,
 		"MonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer");
 	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		If SSLSubsystemsIntegrationClientCached.EDLSubscriptions().BeforeRecurringClientDataSendToServer Then
+			ModuleEDLSubsystemsIntegrationClient = CommonClient.CommonModule("EDLSubsystemsIntegrationClient");
+			ModuleEDLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer(Parameters);
+		EndIf;
+	Except
+		ServerNotificationsClient.HandleError(ErrorInfo());
+	EndTry;
+	ServerNotificationsClient.AddIndicator(StartMoment,
+		"EDLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer");
+	
 EndProcedure
 
 // See CommonClientOverridable.AfterRecurringReceiptOfClientDataOnServer
@@ -394,6 +404,18 @@ Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 	EndTry;
 	ServerNotificationsClient.AddIndicator(StartMoment,
 		"MonitoringCenterClientInternal.AfterRecurringReceiptOfClientDataOnServer");
+	
+	StartMoment = CurrentUniversalDateInMilliseconds();
+	Try
+		If SSLSubsystemsIntegrationClientCached.EDLSubscriptions().AfterRecurringReceiptOfClientDataOnServer Then
+			ModuleEDLSubsystemsIntegrationClient = CommonClient.CommonModule("EDLSubsystemsIntegrationClient");
+			ModuleEDLSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer(Results);
+		EndIf;
+	Except
+		ServerNotificationsClient.HandleError(ErrorInfo());
+	EndTry;
+	ServerNotificationsClient.AddIndicator(StartMoment,
+		"EDLSubsystemsIntegrationClient.AfterRecurringReceiptOfClientDataOnServer");
 	
 EndProcedure
 
@@ -614,24 +636,24 @@ EndProcedure
 
 #Region UsersSessions
 
-// Called upon session termination using the UsersSessions subsystem.
+// Called when the session is terminated by the end-User subsystem.
 //
 // Parameters:
-//  OwnerForm - ClientApplicationForm - used to terminate the session,
-//  SessionsNumbers - Number - a number 8 characters long, a number of the session to terminate,
-//  StandardProcessing - Boolean - Indicates whether standard session termination processing is executed
-//    (connection to the server agent via COM connection or administration server
+//  OwnerForm - ClientApplicationForm -  from which the session is terminated,
+//  SessionsNumbers - Number -  an 8-character number, the number of the session to be terminated.,
+//  StandardProcessing - Boolean -  flag for performing standard session termination processing
+//    (connecting to the server agent via a COM connection or the administration server
 //    requesting cluster connection parameters from the current user). Can be
-//    set to False in the event handler. In this case, standard
-//    session termination processing is not performed,
-//  NotificationAfterTerminateSession - NotifyDescription - the procedure
-//    called after the session is terminated (to automatically refresh the active
-//    user list). If the StandardProcessing parameter value is set to False,
-//    once the session is terminated, use the ExecuteNotificationProcessing method
-//    to execute a data processor for the passed notification details. Pass DialogReturnCode.OK
-//    as the Result parameter value if the session
-//    is terminated successfully). You can omit the parameter and skip
-//    the notification processing.
+//    set to False inside the event handler, in which case standard
+//    session termination processing will not be performed,
+//  NotificationAfterTerminateSession - NotifyDescription -  description of the alert that should
+//    be called after the session ends (to automatically update the list of active
+//    users). If the value of the standard Processing parameter is set to False,
+//    after the session ends successfully, the transmitted notification description must be
+//    processed using the perform message Processing method (the
+//    result parameter value should be passed the return code of the Dialog.OK on successful
+//    session termination). This parameter can be omitted . in this case, you should not process the notification
+//    .
 //
 Procedure OnEndSessions(OwnerForm, Val SessionsNumbers, StandardProcessing, Val NotificationAfterTerminateSession = Undefined) Export
 	
@@ -730,10 +752,10 @@ EndProcedure
 
 #Region IBBackup
 
-// Checks whether a backup can be performed in user mode.
+// Checks whether the backup can be performed in user mode.
 //
 // Parameters:
-//  Result - Boolean - a return value.
+//  Result - Boolean -  the return value.
 //
 Procedure OnCheckIfCanBackUpInUserMode(Result) Export
 	
@@ -754,7 +776,7 @@ Procedure OnCheckIfCanBackUpInUserMode(Result) Export
 	
 EndProcedure
 
-// Called when the user is prompted to back up.
+// Called when prompted to create a backup.
 Procedure OnPromptUserForBackup() Export
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.IBBackup") Then
@@ -780,11 +802,11 @@ EndProcedure
 
 #Region Private
 
-// Defines events, to which other libraries can subscribe.
+// Defines events that other libraries can subscribe to.
 //
 // Returns:
-//   Structure - structure property keys are names of events, to which
-//               libraries can be subscribed.
+//   Structure - 
+//               
 //
 Function SSLEvents() Export
 	
@@ -813,7 +835,7 @@ Function SSLEvents() Export
 	// UsersSessions
 	Events.Insert("OnEndSessions", False);
 	
-	// PrintTools
+	// Print
 	Events.Insert("PrintDocumentsAfterOpen", False);
 	Events.Insert("PrintDocumentsURLProcessing", False);
 	Events.Insert("PrintDocumentsExecuteCommand", False);

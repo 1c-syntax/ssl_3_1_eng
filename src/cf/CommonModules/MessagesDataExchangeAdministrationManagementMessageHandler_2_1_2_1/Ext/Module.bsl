@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Namespace of message interface version.
+// Namespace of the message interface version.
 //
 // Returns:
-//   String - a namespace.
+//   String -  name space.
 //
 Function Package() Export
 	
@@ -21,10 +19,10 @@ Function Package() Export
 	
 EndFunction
 
-// Message interface version supported by the handler.
+// The version of the message interface served by the handler.
 //
 // Returns:
-//   String - a message interface version.
+//   String - 
 //
 Function Version() Export
 	
@@ -35,7 +33,7 @@ EndFunction
 // Base type for version messages.
 //
 // Returns:
-//   XDTOObjectType - a base type of message body.
+//   XDTOObjectType - 
 //
 Function BaseType() Export
 	
@@ -49,13 +47,13 @@ Function BaseType() Export
 	
 EndFunction
 
-// Processing incoming SaaS messages
+// Processes incoming messages from the service model
 //
 // Parameters:
-//   Message   - XDTODataObject - an incoming message.
-//   Sender - ExchangePlanRef.MessagesExchange - exchange plan node that matches the message sender.
-//   MessageProcessed - Boolean - indicates whether the message is successfully processed. The parameter value must be
-//                         set to True if the message was successfully read in this handler.
+//   Message   - XDTODataObject -  incoming message.
+//   Sender - ExchangePlanRef.MessagesExchange -  the exchange plan node that corresponds to the sender of the message.
+//   MessageProcessed - Boolean -  flag for successful message processing. The value of this parameter must
+//                         be set to True if the message was successfully read in this handler.
 //
 Procedure ProcessSaaSMessage(Val Message, Val Sender, MessageProcessed) Export
 	
@@ -98,13 +96,13 @@ Procedure ConnectCorrespondent(Message, Sender)
 	
 	Body = Message.Body;
 	
-	// Checking the endpoint.
+	// 
 	IsEndpoint = DataExchangeSaaS.EndpointsExchangePlanManager().FindByCode(Body.SenderId);
 	
 	If IsEndpoint.IsEmpty()
 		Or IsEndpoint <> ThisMessageExchangeNode Then
 		
-		// Sending an error message to the service manager.
+		// 
 		ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Endpoint does not match the expected one. Expected endpoint code %1. Current endpoint code %2. ';"),
 			Body.SenderId,
@@ -115,10 +113,10 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 	EndIf;
 	
-	// Checking whether correspondent is connected.
+	// 
 	Peer = DataExchangeSaaS.EndpointsExchangePlanManager().FindByCode(Body.RecipientId);
 	
-	If Peer.IsEmpty() Then // Connecting a correspondent endpoint.
+	If Peer.IsEmpty() Then // 
 		
 		Cancel = False;
 		ConnectedCorrespondent = Undefined;
@@ -141,7 +139,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 									Body.RecipientName,
 									Body.SenderName);
 		
-		If Cancel Then // Sending an error message to the service manager.
+		If Cancel Then // 
 			
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Peer infobase endpoint connection error. Endpoint ID: %1.';"),
@@ -156,8 +154,8 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 		If ConnectedCorrespondentCode <> Body.RecipientId Then
 			
-			// A wrong exchange peer is connected.
-			// Send an error message to the Service Manager.
+			// 
+			// 
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Peer infobase endpoint connection error.
 				|Unexpected endpoint ID.
@@ -191,7 +189,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 		    Raise;
 		EndTry;
 		
-	Else // Updating the correspondent and the endpoint connection settings.
+	Else // 
 		
 		Cancel = False;
 		
@@ -211,7 +209,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 									SenderConnectionSettings,
 									RecipientConnectionSettings);
 		
-		If Cancel Then // Sending an error message to the service manager.
+		If Cancel Then // 
 			
 			ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Endpoint connection failed.
@@ -231,7 +229,7 @@ Procedure ConnectCorrespondent(Message, Sender)
 		
 	EndIf;
 	
-	// Sending a message to the service manager about successful operation completion.
+	// 
 	BeginTransaction();
 	Try
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(

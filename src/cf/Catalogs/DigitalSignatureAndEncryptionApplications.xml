@@ -510,7 +510,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The algorithm is used to calculate crypto-resistant data hash signed with the private part of the key using the signing algorithm.</v8:content>
+							<v8:content>An algorithm that calculates a secure data hash, which is then signed with the private part of the key using a signature algorithm.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -559,7 +559,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The symmetric algorithm used to encrypt data. It creates an additional secret key and uses it to encrypt data. Then the secret key is encrypted with the private part of the key using the signing algorithm.</v8:content>
+							<v8:content>A symmetric encryption algorithm that generates an additional secret key. It encrypts the data with this key, and then the secret key is further encrypted with the public part of the key using a signature algorithm.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -669,7 +669,8 @@
 			<Form>ChoiceForm</Form>
 			<Form>ApplicationCallError</Form>
 			<Form>BuiltinCryptoprovider</Form>
-			<Form>AutoDeterminedApp</Form>
+			<Form>ApplicationDefinedAutomatically</Form>
+			<Form>Token</Form>
 		</ChildObjects>
 	</Catalog>
 </MetaDataObject>

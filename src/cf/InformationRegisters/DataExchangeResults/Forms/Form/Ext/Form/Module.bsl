@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -43,7 +41,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.ConflictPage.Visible                = VersioningUsed;
 	Items.RejectedByRestrictionDatePage.Visible = VersioningUsed And PeriodClosingDatesEnabled;
 	
-	// Setting filters of dynamic lists and saving them in the attribute to manage them.
+	// 
 	DynamicListsFiltersSettings = DynamicListsFiltersSettings();
 	
 	If Common.DataSeparationEnabled() And VersioningUsed Then
@@ -1182,7 +1180,7 @@ Procedure UpdateFilterByReason(ShouldUpdate = True)
 EndProcedure
 
 // Parameters:
-//   DynamicList - DynamicList - an object to set a filter.
+//   DynamicList - DynamicList -  object to set the selection.
 //   FilterSettings - See FilterSettingByExchangeResults
 //                   - See FilterSettingByObjectsVersions
 //
@@ -1205,15 +1203,15 @@ EndProcedure
 &AtServer
 Procedure UpdateFilterByPeriod(ShouldUpdate = True)
 	
-	// Unposted documents
+	// 
 	FilterSettings = DynamicListsFiltersSettings.UnpostedDocuments; // See FilterSettingByExchangeResults
 	UpdateDynamicListFilterByPeriod(UnpostedDocuments, FilterSettings);
 	
-	// Blank attributes
+	// 
 	FilterSettings = DynamicListsFiltersSettings.BlankAttributes; // See FilterSettingByExchangeResults
 	UpdateDynamicListFilterByPeriod(BlankAttributes, FilterSettings);
 	
-	// XDTO object errors
+	// 
 	FilterSettings = DynamicListsFiltersSettings.XDTOObjectErrors; // See FilterSettingByExchangeResults
 	UpdateDynamicListFilterByPeriod(XDTOObjectErrors, FilterSettings);
 	
@@ -1396,22 +1394,22 @@ Procedure AcceptRejectVersionAtServer(Val SelectedRows, TagName, ErrorMessage = 
 EndProcedure
 
 // Parameters:
-//   Filter - DataCompositionFilter - a filter object.
+//   Filter - DataCompositionFilter -  the object selection.
 //
 // Returns:
 //   Structure:
 //     * IsSkipped - DataCompositionID
-//                 - Undefined - a composition item ID.
+//                 - Undefined - 
 //     * StartDate - DataCompositionID
-//                  - Undefined - a composition item ID.
+//                  - Undefined - 
 //     * EndDate - DataCompositionID
-//                     - Undefined - a composition item ID.
+//                     - Undefined - 
 //     * NodeEqual - DataCompositionID
-//                 - Undefined - a composition item ID.
+//                 - Undefined - 
 //     * Cause - DataCompositionID
-//               - Undefined - a composition item ID.
+//               - Undefined - 
 //     * NodeInList - DataCompositionID
-//                   - Undefined - a composition item ID.
+//                   - Undefined - 
 //
 &AtServer
 Function FilterSettingByExchangeResults(Filter)
@@ -1436,23 +1434,23 @@ Function FilterSettingByExchangeResults(Filter)
 EndFunction
 
 // Parameters:
-//   Filter - DataCompositionFilter - a filter object.
-//   FilterByReason - Boolean - True if the setup must include a filter by issue reason.
+//   Filter - DataCompositionFilter -  the object selection.
+//   FilterByReason - Boolean -  True if you need to enable selection due to a problem in the setting.
 //
 // Returns:
 //   Structure:
 //     * AuthorEqual - DataCompositionID
-//                  - Undefined - a composition item ID.
+//                  - Undefined - 
 //     * StartDate - DataCompositionID
-//                  - Undefined - a composition item ID.
+//                  - Undefined - 
 //     * EndDate - DataCompositionID
-//                     - Undefined - a composition item ID.
+//                     - Undefined - 
 //     * VersionIgnored - DataCompositionID
-//                             - Undefined - a composition item ID.
+//                             - Undefined - 
 //     * AuthorInList - DataCompositionID
-//                    - Undefined - a composition item ID.
+//                    - Undefined - 
 //     * ProhibitionReason - DataCompositionID
-//                      - Undefined - (optional) a composition item ID.
+//                      - Undefined - 
 //
 &AtServer
 Function FilterSettingByObjectsVersions(Filter, FilterByReason = False)
@@ -1492,25 +1490,25 @@ Function DynamicListsFiltersSettings()
 	
 	Result = New Structure;
 	
-	// Unposted documents.
+	// 
 	Filter = UnpostedDocuments.SettingsComposer.Settings.Filter;
 	Result.Insert("UnpostedDocuments", FilterSettingByExchangeResults(Filter));
 		
-	// Blank attributes.
+	// 
 	Filter = BlankAttributes.SettingsComposer.Settings.Filter;
 	Result.Insert("BlankAttributes", FilterSettingByExchangeResults(Filter));
 		
-	// XDTO errors.
+	// 
 	Filter = XDTOObjectErrors.SettingsComposer.Settings.Filter;
 	Result.Insert("XDTOObjectErrors", FilterSettingByExchangeResults(Filter));
 		
 	If VersioningUsed Then
 		
-		// Conflicts.
+		// Conflicts1
 		Filter = Conflicts.SettingsComposer.Settings.Filter;
 		Result.Insert("Conflicts", FilterSettingByObjectsVersions(Filter));
 		
-		// Items rejected due to restriction date
+		// 
 		Filter = RejectedDueToDate.SettingsComposer.Settings.Filter;
 		Result.Insert("RejectedDueToDate", FilterSettingByObjectsVersions(Filter, True));
 		
@@ -1563,7 +1561,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// Unposted documents.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1581,7 +1579,7 @@ Procedure SetConditionalAppearance()
 		"UnpostedDocuments.DocumentDate",
 		Items.UnpostedDocumentsDocumentDate.Name);
 	
-	// Conflicts.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1595,7 +1593,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
-	// Conflicts, other version is accepted, text color.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1614,7 +1612,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.UnacceptedVersion);
 	
-	// Conflicts, other version is accepted, text.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1627,7 +1625,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Text", NStr("en = 'Deleted';"));
 	
-	// Blank attributes.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1641,7 +1639,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
-	// XDTO conversion errors.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1656,7 +1654,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
 	
-	// Data declined by date.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1670,7 +1668,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
-	// Declined due to date, reference.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1684,7 +1682,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Text", NStr("en = 'Missing';"));
 	
-	// Data declined by date.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	

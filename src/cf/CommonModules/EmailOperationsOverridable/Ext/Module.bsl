@@ -1,79 +1,77 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Overrides subsystem settings.
+// Overrides the subsystem settings.
 //
 // Parameters:
 //  Settings - Structure:
-//   * CanReceiveEmails - Boolean - show email receiving settings in accounts.
-//                                       Default value: False - for basic configuration versions,
-//                                       True - for other versions.
-//   * ShouldUsePOP3Protocol - Boolean - Toggles POP3 settings for new email settings.
-//                                         By default, "True".
+//   * CanReceiveEmails - Boolean -  show email receiving settings in accounts.
+//                                       Default value: False for basic configuration versions
+//                                       , True for other versions.
+//   * ShouldUsePOP3Protocol - Boolean - 
+//                                         
 //
 Procedure OnDefineSettings(Settings) Export
 
 EndProcedure
 
-// Allows executing additional operations after sending email.
+// Allows you to perform additional operations after sending an email message.
 //
 // Parameters:
-//  EmailParameters - Structure - contains all email data:
-//   * Whom      - Array - (required) an email address of the recipient.
-//                 Address - String - email address.
-//                 Presentation - String - recipient's name.
+//  EmailParameters - Structure - :
+//   * Whom      - Array -  (required) Internet address of the email recipient.
+//                 Address-string - postal address.
+//                 View-string - name of the recipient.
 //
-//   * MessageRecipients - Array - array of structures describing recipients:
-//                            * ContactInformationSource - CatalogRef - a contact information owner.
-//                            * Address - String - an email address (required).
-//                            * Presentation - String - an addressee presentation.
+//   * MessageRecipients - Array - :
+//                            * ContactInformationSource - CatalogRef -  owner of the contact information.
+//                            * Address - String -  email address of the message recipient.
+//                            * Presentation - String -  representation of the addressee.
 //
-//   * Cc      - Array - a collection of address structures:
-//                   * Address         - String - an email address (required).
-//                   * Presentation - String - a recipient's name.
+//   * Cc      - Array - :
+//                   * Address         - String -  postal address (must be filled in).
+//                   * Presentation - String -  destination name.
 //                  
-//                - String - recipient email addresses, separator - ";".
+//                - String - 
 //
 //   * BCCs - Array
-//                  - String - see the "Cc" field description.
+//                  - String - see the description of the Copy field.
 //
-//   * Subject       - String - (mandatory) an email subject.
-//   * Body       - String - (mandatory) an email text (plain text, win1251 encoded).
+//   * Subject       - String -  (required) subject of the email message.
+//   * Body       - String -  (required) text of the email message (plain text in win-1251 encoding).
 //   * Importance   - InternetMailMessageImportance
 //   * Attachments   - Map of KeyAndValue:
-//                   * Key     - String - an attachment description.
+//                   * Key     - String -  the name of the attachment
 //                   * Value - BinaryData
-//                              - String -  a binary data address of an attachment in a temporary storage.
+//                              - String - 
 //                              - Structure:
-//                                 * BinaryData - BinaryData - attachment binary data.
-//                                 * Id  - String - an attachment ID, used to store pictures
-//                                                             displayed in the email body.
+//                                 * BinaryData - BinaryData -  binary attachment data.
+//                                 * Id  - String -  attachment ID, used for storing images
+//                                                             displayed in the message body.
 //
-//   * ReplyToAddress - Map - see the "To" field description.
-//   * Password      - String - email password.
-//   * BasisIDs - String - IDs of the message basis objects.
-//   * ProcessTexts  - Boolean - shows whether message text processing is required on sending.
-//   * RequestDeliveryReceipt  - Boolean - shows whether a delivery notification is required.
-//   * RequestReadReceipt - Boolean - shows whether a read notification is required.
+//   * ReplyToAddress - Map - see the description of the To field.
+//   * Password      - String - 
+//   * BasisIDs - String -  IDs of the bases of this message.
+//   * ProcessTexts  - Boolean -  the need to process the message texts when sending.
+//   * RequestDeliveryReceipt  - Boolean -  need to request a delivery notification.
+//   * RequestReadReceipt - Boolean -  need to request a read notification.
 //   * TextType   - String
 //                 - EnumRef.EmailTextTypes
-//                 - InternetMailTextType - specifies the type
-//                  of the passed text, possible values::
-//                  HTML/EmailTextTypes.HTML. Email text in HTML format.
-//                  PlainText/EmailTextTypes.PlainText. Plain text of an email message.
-//                                                 Displayed "as is" (default
-//                                                 value).
-//                  MarkedUpText/EmailTextTypes.MarkedUpText. Email message in
-//                                                 Rich Text format.
+//                 - InternetMailTextType - 
+//                  :
+//                  
+//                  
+//                                                 
+//                                                 
+//                  
+//                                                 
 //
 Procedure AfterEmailSending(EmailParameters) Export
 	
@@ -81,30 +79,30 @@ Procedure AfterEmailSending(EmailParameters) Export
 	
 EndProcedure
 
-// Specifies a list of emails to receive the delivered/read status for.
-// For the email list determination example, see ReportMailing.BeforeGetEmailMessagesStatuses
+// 
+// 
 //
 //   Parameters:
 //  EmailMessagesIDs - ValueTable:
 //   * Sender - CatalogRef.EmailAccounts
 //   * EmailID - String
-//   * RecipientAddress - String - recipient email
+//   * RecipientAddress - String - 
 //
 Procedure BeforeGetEmailMessagesStatuses(EmailMessagesIDs) Export
 	
 EndProcedure
 
-// Returns information only about known delivery statuses (if corresponding emails were received).
-// For an example of processing received email statuses, see ReportMailing.AfterGetEmailMessagesStatuses
+// 
+// 
 //
 // Parameters:
 //  DeliveryStatuses - ValueTable:
 //   * Sender - CatalogRef.EmailAccounts
 //   * EmailID - String 
-//   * RecipientAddress - String - recipient email
+//   * RecipientAddress - String - 
 //   * Status - EnumRef.EmailMessagesStatuses 
 //   * StatusChangeDate - Date
-//   * Cause - String - reason for email non-delivery
+//   * Cause - String - 
 //
 Procedure AfterGetEmailMessagesStatuses(DeliveryStatuses) Export
 	

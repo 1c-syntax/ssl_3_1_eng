@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -285,8 +283,8 @@ Procedure AddCreateNewExchangeCommands(Settings)
 EndProcedure
 
 // Parameters:
-//   SettingsTable1 - ValueTable - a table of available synchronization settings.
-//   ParentGroup2 - FormGroup - a parent form item.
+//   SettingsTable1 - ValueTable -  table of available sync settings.
+//   ParentGroup2 - FormGroup -  parent element of the form.
 //
 &AtServer
 Procedure AddNewExchangeCreationCommandsStandardSettings(SettingsTable1, ParentGroup2)

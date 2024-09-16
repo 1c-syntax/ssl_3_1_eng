@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -19,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SendOptions = ?(ValueIsFilled(Parameters.SendOptions),
 		Parameters.SendOptions, FilesOperationsInternal.PrepareSendingParametersStructure());
 		
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("ItemForPlacementName", "GroupAdditionalAttributes");
@@ -48,7 +46,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	RefreshFullPath();
 	UpdateCloudServiceNote(Object.Ref);
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -84,7 +82,7 @@ Procedure OnOpen(Cancel)
 	FilesOperationsInternalClient.ReadSignaturesCertificates(ThisObject);
 	DisplayAdditionalDataTabs();
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -120,7 +118,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	EndIf;
 	
 	
-	// StandardSubsystems.Properties
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		If ModulePropertyManagerClient.ProcessNotifications(ThisObject, EventName, Parameter) Then
@@ -136,7 +134,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.FillCheckProcessing(ThisObject, Cancel, CheckedAttributes);
@@ -153,7 +151,7 @@ Procedure OnReadAtServer(CurrentObject)
 	FilesOperationsInternal.FillSignatureList(ThisObject);
 	FilesOperationsInternal.FillEncryptionList(ThisObject);
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.OnReadAtServer(ThisObject, CurrentObject);
@@ -164,14 +162,14 @@ Procedure OnReadAtServer(CurrentObject)
 	SetButtonsAvailability(ThisObject, Items);
 	RefreshTitle();
 	
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -183,7 +181,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.BeforeWriteAtServer(ThisObject, CurrentObject);
@@ -229,7 +227,7 @@ EndProcedure
 &AtClient
 Procedure AfterWrite(WriteParameters)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
@@ -241,7 +239,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -295,8 +293,40 @@ Procedure DigitalSignaturesSelection(Item, RowSelected, Field, StandardProcessin
 		Return;
 	EndIf;
 	
+	CurrentData = Items.DigitalSignatures.CurrentData;
+	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
-	ModuleDigitalSignatureClient.OpenSignature(Items.DigitalSignatures.CurrentData);
+	If Field.Name = "DigitalSignaturesBriefCheckResult"
+		And ValueIsFilled(CurrentData.CheckResult)
+		And (ValueIsFilled(CurrentData.CheckResult.AdditionalAttributesCheckError)
+		Or ValueIsFilled(CurrentData.CheckResult.SignatureMathValidationError)) Then
+		
+		FormParameters = New Structure;
+		FormParameters.Insert("WarningTitle", NStr("en = 'Проверка подписи';"));
+		FormParameters.Insert("ErrorTextClient", ?(ValueIsFilled(CurrentData.CheckResult.SignatureMathValidationError),
+			CurrentData.CheckResult.SignatureMathValidationError,
+			CurrentData.CheckResult.AdditionalAttributesCheckError));
+		FormParameters.Insert("ShowNeedHelp", True);
+		FormParameters.Insert("ShowInstruction", True);
+		
+		AdditionalParameters = New Structure;
+		
+		If ValueIsFilled(CurrentData.CertificateAddress) Then
+			AdditionalParameters.Insert("CertificateData",
+			CurrentData.CertificateAddress);
+		EndIf;
+		
+		If ValueIsFilled(CurrentData.SignatureAddress) Then
+			AdditionalParameters.Insert("SignatureData",
+			CurrentData.SignatureAddress);
+		EndIf;
+		
+		FormParameters.Insert("AdditionalData", AdditionalParameters);
+		
+		ModuleDigitalSignatureClient.OpenExtendedErrorPresentationForm(FormParameters, ThisObject);
+		Return;
+	EndIf;
+	ModuleDigitalSignatureClient.OpenSignature(CurrentData);
 	
 EndProcedure
 
@@ -328,7 +358,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-// File command handlers.
+// 
 
 &AtClient
 Procedure ShowInList(Command)
@@ -423,7 +453,7 @@ Procedure StandardSetDeletionMarkAnswerReceived(QuestionResult, AdditionalParame
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -438,7 +468,7 @@ EndProcedure
 // End StandardSubsystems.Properties
 
 ///////////////////////////////////////////////////////////////////////////////////
-// Digital signature and encryption command handlers.
+// 
 
 &AtClient
 Procedure Sign(Command)
@@ -781,7 +811,7 @@ Procedure SetAvaliabilityOfEncryptionList()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-// Command handlers to support collaborative file management.
+// 
 
 &AtClient
 Procedure Lock(Command)
@@ -904,7 +934,7 @@ Procedure SaveChanges(Command)
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// 
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()
@@ -1173,7 +1203,7 @@ Function OtherCommandsNames()
 	
 	CommandsNames = New Array;
 	
-	// Simple commands that are available to any user that reads the files
+	// 
 	CommandsNames.Add("SaveWithDigitalSignature");
 	
 	CommandsNames.Add("OpenCertificate");
@@ -1422,7 +1452,7 @@ Function HandleFileRecordCommand()
 	SetAvaliabilityOfEncryptionList();
 	
 	If DescriptionBeforeWrite <> Object.Description Then
-		// update file in cache
+		// 
 		If ValueIsFilled(Object.CurrentVersion) Then
 			FilesOperationsInternalClient.RefreshInformationInWorkingDirectory(
 				Object.CurrentVersion, Object.Description);
@@ -1445,9 +1475,9 @@ Procedure UnlockObject(Val Ref, Val UUID)
 	
 EndProcedure
 
-// Continue the SignDSFile procedure.
-// It is called from the DigitalSignature subsystem after signing data for non-standard
-// way of adding a signature to the object.
+// The continuation of the procedure Podpischiki.
+// Called from the electronic Signature subsystem after signing data for a non
+// -standard way to add a signature to an object.
 //
 &AtClient
 Procedure OnGetSignature(ExecutionParameters, Context) Export
@@ -1457,9 +1487,9 @@ Procedure OnGetSignature(ExecutionParameters, Context) Export
 	
 EndProcedure
 
-// Continue the SignDSFile procedure.
-// It is called from the DigitalSignature subsystem after preparing signatures from files
-// for non-standard way of adding a signature to the object.
+// The continuation of the procedure Podpischiki.
+// Called from the electronic Signature subsystem after preparing signatures from files
+// for a non-standard way to add a signature to an object.
 //
 &AtClient
 Procedure OnGetSignatures(ExecutionParameters, Context) Export
@@ -1677,7 +1707,7 @@ Procedure AfterSignatureAuthenticityJustificationEntered(Result, AdditionalParam
 	DetermineIfModified();
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

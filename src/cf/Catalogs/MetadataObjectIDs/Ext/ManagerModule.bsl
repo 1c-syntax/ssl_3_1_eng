@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Not MobileStandaloneServer Then
 
@@ -16,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.BatchEditObjects
-
-// Returns object attributes that can be edited using the bulk attribute modification data processor.
 // 
+
+// Returns object details that can be edited
+// by processing group changes to details.
 //
 // Returns:
 //  Array of String
@@ -34,12 +32,12 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// CloudTechnology.ExportImportData
+// 
 
-// Returns the catalog attributes that naturally form a catalog item key.
+// Returns the directory details that form the natural key for the directory elements.
 //
 // Returns:
-//  Array of String - Array of attribute names used to generate a natural key.
+//  Array of String - 
 //
 Function NaturalKeyFields() Export
 	
@@ -92,7 +90,7 @@ EndProcedure
 #Region Internal
 
 // Parameters:
-//  ParameterName - String
+//  Parameter Name-String
 //  SpecifiedParameters - Array of String
 //
 // Returns:
@@ -149,12 +147,12 @@ Procedure CheckForUsage(ExtensionsObjects = False) Export
 	
 EndProcedure
 
-// Returns True if the check, update, and search for duplicates are completed.
+// Returns True if the check, update, and replacement of duplicates is completed.
 //
 // Parameters:
-//  Refresh - Boolean - If True, tries to update
-//             the data. If fails, an exception is thrown.
-//             If False, the function returns the data state.
+//  Refresh - Boolean -  if the pass is True, then the data will be updated
+//             if possible. If it is not possible, then an exception will be thrown.
+//             If passed False, then the data state is returned.
 //  
 //  ExtensionsObjects - Boolean
 //
@@ -210,7 +208,7 @@ EndFunction
 Procedure ImportDataToSubordinateNode(Objects) Export
 	
 	If Common.DataSeparationEnabled() Then
-		// Not supported in SaaS mode.
+		// 
 		Return;
 	EndIf;
 	
@@ -228,12 +226,12 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 	Try
 		Block.Lock();
 		
-		// Preparing the outgoing table with renaming for searching for duplicates.
+		// 
 		Upload0 = ExportAllIDs();
 		Upload0.Columns.Add("DuplicateUpdated", New TypeDescription("Boolean"));
 		Upload0.Columns.Add("FullNameLowerCase", New TypeDescription("String"));
 		
-		// Applying a filter to the objects to be imported. The filter returns only objects that differ from the existing ones.
+		// 
 		ItemsToImportTable = New ValueTable;
 		ItemsToImportTable.Columns.Add("Object");
 		ItemsToImportTable.Columns.Add("Ref");
@@ -259,7 +257,7 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 				EndIf;
 			EndIf;
 			
-			// Preliminary processing.
+			// 
 			
 			If Not IsCollection(ItemToImportProperties.Ref) Then
 				ItemToImportProperties.MetadataObjectByKey = MetadataObjectByKey(
@@ -271,16 +269,16 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 				If ItemToImportProperties.MetadataObjectByKey = Undefined
 				   And ItemToImportProperties.MetadataObjectByFullName = Undefined
 				   And Object.DeletionMark <> True Then
-					// If an imported object is missing from metadata,
-					// it is marked for deletion.
+					// 
+					// 
 					Object.DeletionMark = True;
 				EndIf;
 			EndIf;
 			
 			If Object.DeletionMark Then
-				// Objects marked for deletion cannot have "proper" full names.
-				// Therefore, to meet this condition, the procedure that updates the object's properties
-				// is applied prior to the import.
+				// 
+				// 
+				// 
 				UpdateMarkedForDeletionItemProperties(Object);
 			EndIf;
 			
@@ -303,12 +301,12 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 			EndIf;
 			
 			If Properties <> Undefined Then
-				Upload0.Delete(Properties); // Renaming items to be imported is not required.
+				Upload0.Delete(Properties); // 
 			EndIf;
 		EndDo;
 		ItemsToImportTable.Indexes.Add("Ref");
 		
-		// Renaming the existing items (except for items to be overwritten during the import) to search for duplicates.
+		// 
 		
 		RenameFullNames(Upload0);
 		For Each String In Upload0 Do
@@ -317,7 +315,7 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 		Upload0.Indexes.Add("MetadataObjectKey");
 		Upload0.Indexes.Add("FullNameLowerCase");
 		
-		// Prepare 
+		// 
 		
 		ObjectsToWrite = New Array; // Array of CatalogObject.MetadataObjectIDs -
 		FullNamesOfItemsToImport = New Map;
@@ -328,7 +326,7 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 			Ref = ItemToImportProperties.Ref;
 			
 			If ItemToImportProperties.Matches Then
-				Continue; // There is no need to import objects that are identical to existing ones.
+				Continue; // 
 			EndIf;
 			
 			If IsCollection(Ref) Then
@@ -336,7 +334,7 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 				Continue;
 			EndIf;
 			
-			// Checking the items to be imported for duplicates.
+			// 
 			
 			If FullNamesOfItemsToImport.Get(Lower(Object.FullName)) <> Undefined Then
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -371,14 +369,14 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 				EndIf;
 				
 				If Not Object.DeletionMark Then
-					// Searching existing metadata objects for duplicates by key.
+					// 
 					Filter = New Structure("MetadataObjectKey", MetadataObjectKey);
 					FindDuplicatesOnImportDataToSubordinateNode(Upload0, Filter, Object, Ref, ItemsToImportTable);
 				EndIf;
 			EndIf;
 			
 			If Not Object.DeletionMark Then
-				// Searching existing metadata objects for duplicates by full name.
+				// 
 				Filter = New Structure("FullNameLowerCase", Lower(Object.FullName));
 				FindDuplicatesOnImportDataToSubordinateNode(Upload0, Filter, Object, Ref, ItemsToImportTable);
 			EndIf;
@@ -386,7 +384,7 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 			ObjectsToWrite.Add(Object);
 		EndDo;
 		
-		// Update duplicates.
+		// 
 		Rows = Upload0.FindRows(New Structure("DuplicateUpdated", True));
 		For Each Properties In Rows Do
 			DuplicateObject1 = Properties.Ref.GetObject();
@@ -398,7 +396,7 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 		
 		PrepareNewSubsystemsListInSubordinateNode(ObjectsToWrite);
 		
-		// Import objects.
+		// 
 		For Each Object In ObjectsToWrite Do
 			Object.DataExchange.Load = True;
 			Object.Write();
@@ -412,16 +410,16 @@ Procedure ImportDataToSubordinateNode(Objects) Export
 	
 EndProcedure
 
-// Returns references to a metadata object found by the full name of the deleted metadata object.
-// Use this function to replace or clear a reference.
+// Returns references to the metadata object found by the full name of the deleted metadata object.
+// Used when you need to replace an old link with a new one or clear it.
 //
 // Parameters:
-//  FullNameOfDeletedItem - String - for example "Role.ReadBasicRegulatoryData".
+//  FullNameOfDeletedItem - String -  for example, " Role.Changebaselayer".
 //
 // Returns:
-//  Array - Has the following values:
+//  Array - :
 //   * Value - CatalogRef.MetadataObjectIDs
-//              - CatalogRef.ExtensionObjectIDs - found reference.
+//              - CatalogRef.ExtensionObjectIDs - 
 // 
 Function DeletedMetadataObjectID(FullNameOfDeletedItem) Export
 	
@@ -463,15 +461,15 @@ Function DeletedMetadataObjectID(FullNameOfDeletedItem) Export
 EndFunction
 
 // Parameters:
-//  IDs - Array - Array of values.:
+//  IDs - Array - :
 //                     * Value - CatalogRef.MetadataObjectIDs
-//                                - CatalogRef.ExtensionObjectIDs - the IDs of
-//                                    metadata objects in an application or an extension.
+//                                - CatalogRef.ExtensionObjectIDs - 
+//                                    
 // Returns:
 //  Map of KeyAndValue:
 //   * Key     - CatalogRef.MetadataObjectIDs
 //              - CatalogRef.ExtensionObjectIDs
-//   * Value - String - Metadata object full name without a question mark ( ? ).
+//   * Value - String - 
 //
 Function FullNamesofMetadataObjectsIncludingRemote(IDs) Export
 	
@@ -512,7 +510,7 @@ Function FullNamesofMetadataObjectsIncludingRemote(IDs) Export
 EndFunction
 
 // Returns:
-//  Array of String - Names of collections of metadata objects this catalog supports.
+//  Array of String - 
 //
 Function ValidCollections() Export
 	
@@ -569,18 +567,18 @@ EndFunction
 
 #Region Private
 
-// This procedure updates catalog data using the configuration metadata.
+// This procedure updates the configuration metadata reference data.
 //
 // Parameters:
-//  HasChanges  - Boolean - a return value). True is returned
-//                   to this parameter if changes are saved. Otherwise, not modified.
+//  HasChanges  - Boolean -  the return value. This parameter returns
+//                   the value True if a record was made, otherwise it does not change.
 //
-//  HasDeletedItems  - Boolean - a return value. Receives
-//                   True if a catalog item was marked
-//                   for deletion. Otherwise, not modified.
+//  HasDeletedItems  - Boolean -  the return value. This parameter returns
+//                   the value True if at least one element of the directory has been marked
+//                   for deletion, otherwise it does not change.
 //
-//  IsCheckOnly - Boolean - make no changes, just set
-//                   the HasChanges and HasDeleted flags.
+//  IsCheckOnly - Boolean -  do not make any changes, but only check the
+//                   check boxes there are Changes, there are Deleted.
 //
 Procedure UpdateCatalogData(HasChanges = False, HasDeletedItems = False, IsCheckOnly = False) Export
 	
@@ -588,9 +586,9 @@ Procedure UpdateCatalogData(HasChanges = False, HasDeletedItems = False, IsCheck
 	
 EndProcedure
 
-// Required to export all application metadata object IDs
-// to subordinate DIB nodes if the catalog was not included into the DIB before.
-// Also can be used to repair the catalog data in DIB nodes.
+// It is required to upload all IDs of configuration metadata objects
+// to the subordinate nodes of the rib, if the directory was not previously included in the rib.
+// It can also be used to repair directory data in rib nodes.
 //
 Procedure RegisterTotalChangeForSubordinateDIBNodes() Export
 	
@@ -624,28 +622,28 @@ Procedure RegisterTotalChangeForSubordinateDIBNodes() Export
 	
 EndProcedure
 
-// This procedure updates catalog data using the configuration metadata.
+// This procedure updates the configuration metadata reference data.
 //
 // Parameters:
-//  HasChanges - Boolean - a return value). True is returned
-//                  to this parameter if changes are saved. Otherwise, not modified.
+//  HasChanges - Boolean -  the return value. This parameter returns
+//                  the value True if a record was made, otherwise it does not change.
 //
-//  HasDeletedItems - Boolean - a return value. Receives
-//                  True if at least one catalog item was marked
-//                  for deletion. Otherwise, not modified.
+//  HasDeletedItems - Boolean -  the return value. This parameter returns
+//                  the value True if at least one element of the directory has been marked
+//                  for deletion, otherwise it does not change.
 //
-//  IsCheckOnly - Boolean - make no changes,
-//                   just set the HasChanges, HasDeleted, HasCriticalChanges, and ListOfCriticalChanges flags.
+//  IsCheckOnly - Boolean -  do not make any changes, but only set
+//                   the parameters there are Changes, there are Deleted, there are critical Changes, and the list of critical Changes.
 //
-//  HasCriticalChanges - Boolean - a return value. Receives
-//                  True if critical changes are found. Otherwise, not modified.
-//                    Critical changes (only for items without a deletion mark):  
-//                    FullName attribute change or adding a new catalog item.
-//                  Generally the exclusive mode is required for any critical changes.
+//  HasCriticalChanges - Boolean - 
+//                  
+//                    :  
+//                    
+//                  
 //
-//  ListOfCriticalChanges - String - a return value. Contains full names
-//                  of metadata objects that were added or must be added,
-//                  and also whose names were changed or must be changed.
+//  ListOfCriticalChanges - String -  the return value. Contains the full names
+//                  of metadata objects that have been added or need to be added,
+//                  as well as metadata objects whose full names have been changed or need to be changed.
 //
 //  ExtensionsObjects - Boolean
 //
@@ -697,7 +695,7 @@ Procedure RunDataUpdate(HasChanges, HasDeletedItems, IsCheckOnly,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Implementation of procedures declared in other modules.
+// 
 
 // See Common.MetadataObjectID.
 Function MetadataObjectID(MetadataObjectDetails, RaiseException1) Export
@@ -961,7 +959,7 @@ Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID
 	EndIf;
 	
 	If LibraryVersion = "0.0.0.0" Then
-		// No renaming is required during the initial filling.
+		// 
 		Return;
 	EndIf;
 	
@@ -984,10 +982,10 @@ Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Additional procedures and functions intended to be called from other modules.
+// 
 
 // For internal use only.
-// FullName for the object must be specified and valid.
+// The full name in the object must already be set correctly.
 //
 // Parameters:
 //   Object - CatalogObject.MetadataObjectIDs
@@ -1011,7 +1009,7 @@ Procedure UpdateIDProperties(Object) Export
 	
 	FullName = Object.FullName;
 	
-	// Restore previous values.
+	// 
 	If ValueIsFilled(Object.Ref) Then
 		PreviousValues1 = Common.ObjectAttributesValues(
 			Object.Ref,
@@ -1327,8 +1325,8 @@ Function MetadataObjectCollectionProperties(ExtensionsObjects = False) Export
 	
 EndFunction
 
-// Prevents illegal modification of the metadata object IDs.
-// Processes duplicate objects in a subordinate node of the distributed infobase.
+// Prevents inadmissible to change the IDs of the metadata objects.
+// Processes duplicates of a subordinate node in a distributed information database.
 //
 // Parameters:
 //   Object - CatalogObject.MetadataObjectIDs
@@ -1339,10 +1337,10 @@ Procedure BeforeWriteObject(Object) Export
 	ExtensionsObjects = IsExtensionsObject(Object);
 	StandardSubsystemsCached.MetadataObjectIDsUsageCheck(, ExtensionsObjects);
 	
-	// Disabling the object registration mechanism.
+	// 
 	Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 	
-	// Registering the object in all DIB nodes.
+	// 
 	For Each ExchangePlan In StandardSubsystemsCached.DIBExchangePlans() Do
 		StandardSubsystemsServer.RecordObjectChangesInAllNodes(Object, ExchangePlan, False);
 	EndDo;
@@ -1361,7 +1359,7 @@ Procedure BeforeWriteObject(Object) Export
 	SetPrivilegedMode(False);
 	SetSafeModeDisabled(False);
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the change records in the Event log.
+	// 
 	If Common.SeparatedDataUsageAvailable()
 	   And UsersInternalCached.ShouldRegisterChangesInAccessRights()
 	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -1370,7 +1368,7 @@ Procedure BeforeWriteObject(Object) Export
 			Common.ObjectAttributesValues(Object.Ref,
 				"DeletionMark, Name, Synonym"));
 	EndIf;
-	// ACC:75-on
+	// 
 	
 	If Object.DataExchange.Load Then
 		Return;
@@ -1386,7 +1384,7 @@ EndProcedure
 //
 Procedure AtObjectWriting(Object) Export
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// 
 	If Common.SeparatedDataUsageAvailable()
 	   And UsersInternalCached.ShouldRegisterChangesInAccessRights()
 	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -1401,7 +1399,7 @@ Procedure AtObjectWriting(Object) Export
 		SetPrivilegedMode(False);
 		SetSafeModeDisabled(False);
 	EndIf;
-	// ACC:75-on
+	// 
 	
 	If Object.DataExchange.Load Then
 		Return;
@@ -1409,7 +1407,7 @@ Procedure AtObjectWriting(Object) Export
 	
 EndProcedure
 
-// Prevents the metadata object IDs without deletion mark from being deleted.
+// Prevents deletion of metadata object IDs that are not marked for deletion.
 //
 // Parameters:
 //   Object - CatalogObject.MetadataObjectIDs
@@ -1420,9 +1418,9 @@ Procedure BeforeDeleteObject(Object) Export
 	ExtensionsObjects = IsExtensionsObject(Object);
 	StandardSubsystemsCached.MetadataObjectIDsUsageCheck(, ExtensionsObjects);
 	
-	// Disable the object registration mechanism.
-	// ID references are deleted independently in all nodes
-	// by the marked object deletion mechanism.
+	// 
+	// 
+	// 
 	Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 	
 	If Object.DataExchange.Load Then
@@ -1486,9 +1484,9 @@ Procedure ItemFormOnCreateAtServer(Form) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
-// For the ImportDataToSubordinateNode procedure.
+// For the procedure, load the given sub-Node.
 // 
 // Parameters:
 //  Upload0 - See ExportAllIDs
@@ -1505,7 +1503,7 @@ Procedure FindDuplicatesOnImportDataToSubordinateNode(Upload0, Filter, ObjectToI
 			String.NewRef = ObjectToImportRef;
 			String.DuplicateUpdated = True;
 			ObjectToImport.AdditionalProperties.Insert("IsDuplicateReplacement");
-			// Replacing new references to the duplicate with a new reference specified for the duplicate (if any).
+			// 
 			PreviousDuplicates = Upload0.FindRows(New Structure("NewRef", String.Ref));
 			For Each PreviousDuplicate In PreviousDuplicates Do
 				UpdateMarkedForDeletionItemProperties(PreviousDuplicate,,, True);
@@ -1533,17 +1531,17 @@ Procedure UpdateData1(HasChanges, HasDeletedItems, IsCheckOnly,
 	
 	MetadataObjectProperties1 = MetadataObjectProperties1(ExtensionsObjects,, ExtensionKeyIds);
 	
-	// Found - this status indicates that ID is found for the metadata object.
+	// 
 	MetadataObjectProperties1.Columns.Add("Found", New TypeDescription("Boolean"));
 	
-	// Update procedure:
-	// 1. Rename metadata objects considering the child subsystems.
-	// 2. Update the IDs of predefined metadata object collections.
-	// 3. Update the IDs of metadata objects that have metadata object keys.
-	// 4. Update the IDs of metadata objects that don't have metadata object keys.
-	// 5. Mark the duplicate IDs from steps 3 and 4 for deletion (by the objects' full names).
-	// 6. Assign new IDs.
-	// 7. Update the parents of the IDs and write them.
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	
 	ExtensionsVersion = SessionParameters.ExtensionsVersion;
 	
@@ -1566,8 +1564,8 @@ Procedure UpdateData1(HasChanges, HasDeletedItems, IsCheckOnly,
 		MetadataObjectRenamingList = "";
 		If Not ExtensionsObjects
 		   And Not Common.IsSubordinateDIBNode() Then
-			// Change the full names before processing (for DIB, it applies to the master node only).
-			// Not supported for extensions.
+			// 
+			// 
 			RenameFullNames(Upload0, MetadataObjectRenamingList, HasCriticalChanges);
 		EndIf;
 		
@@ -1714,7 +1712,7 @@ Function ExportAllIDs(ExtensionsObjects = False)
 	Upload0.Columns.Add("IsCollection",              New TypeDescription("Boolean"));
 	Upload0.Columns.Add("IsNew",                  New TypeDescription("Boolean"));
 	
-	// Ordering the IDs before processing.
+	// 
 	For Each String In Upload0 Do
 		If Not ValueIsFilled(String.Ref) Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -1821,10 +1819,10 @@ EndProcedure
 Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, ExtensionsObjects,
 			ExtensionProperties, HasDeletedItems, HasCriticalChanges, MetadataObjectRenamingList)
 	
-	// Processing the metadata object IDs.
+	// 
 	For Each Properties In Upload0 Do
 		
-		// Validating and updating properties of the metadata object collection IDs.
+		// 
 		If Properties.IsCollection Then
 			CheckUpdateCollectionProperties(Properties, ExtensionsObjects);
 			Continue;
@@ -1833,8 +1831,8 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 		If ExtensionsObjects
 		   And (    ExtensionProperties.UnattachedExtensionsNames[Lower(Properties.ExtensionName)] <> Undefined
 		      Or ExtensionProperties.UnattachedExtensionsNames[Lower(Properties.ExtensionID)] <> Undefined)Then
-			// In case the extension is disabled and then enabled, make sure
-			// the objects marked for deletion are the related data are not deleted.
+			// 
+			// 
 			Continue;
 		EndIf;
 		
@@ -1855,29 +1853,29 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 		
 		If MetadataObject = Undefined Then
 			If MetadataObjectKey = Type("Undefined") Then
-				// If the metadata object has no key, it can be found by the full name only.
+				// 
 				MetadataObject = MetadataFindByFullName(Properties.FullName);
 				If MetadataObject = Undefined And ExtensionsObjects Then
 					MetadataObject = ExtensionMetadataFindByFullName(Properties);
 				EndIf;
 			EndIf;
 		Else
-			// If a metadata object was deleted in the course of restructuring,
-			// then use the old ID for the new metadata object.
-			// And create new IDs for old metadata objects.
+			// 
+			// 
+			// 
 			If Upper(Left(MetadataObject.Name, StrLen("Delete"))) =  Upper("Delete")
 			   And Upper(Left(Properties.Name,         StrLen("Delete"))) <> Upper("Delete") Then
 				
 				NewMetadataObject = MetadataFindByFullName(Properties.FullName);
 				If NewMetadataObject <> Undefined Then
 					MetadataObject = NewMetadataObject;
-					MetadataObjectKey = Undefined; // Required for the ID update.
+					MetadataObjectKey = Undefined; // 
 				EndIf;
 			EndIf;
 		EndIf;
 		
-		// If the metadata object is found by key or full name,
-		// prepare a string with the metadata object's properties.
+		// 
+		// 
 		If MetadataObject <> Undefined Then
 			ObjectProperties = MetadataObjectProperties1.Find(MetadataObject.FullName(), "FullName");
 			If ObjectProperties = Undefined Then
@@ -1888,8 +1886,8 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 		EndIf;
 		
 		If MetadataObject = Undefined Or ObjectProperties.Found Then
-			// If the object is not found or re-found,
-			// mark its ID for deletion.
+			// 
+			// 
 			IsDuplicate = MetadataObject <> Undefined And ObjectProperties.Found;
 			PropertiesUpdated = False;
 			UpdateMarkedForDeletionItemProperties(Properties, PropertiesUpdated, HasDeletedItems, IsDuplicate);
@@ -1897,7 +1895,7 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 				Properties.Updated = True;
 			EndIf;
 		Else
-			// Updating properties of the existing metadata objects (if any changes were made).
+			// 
 			ObjectProperties.Found = True;
 			If Properties.Description              <> ObjectProperties.Description
 			 Or Properties.CollectionOrder          <> ObjectProperties.CollectionOrder
@@ -1923,7 +1921,7 @@ Procedure ProcessMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extension
 						+ Properties.FullName + " -> " + ObjectProperties.FullName;
 				EndIf;
 				
-				// Setting new properties for the metadata object ID.
+				// 
 				FillPropertyValues(Properties, ObjectProperties);
 				
 				Properties.PredefinedDataName = ObjectProperties.PredefinedDataName;
@@ -1950,8 +1948,8 @@ Function ExtensionMetadataFindByFullName(Properties)
 		Return Undefined;
 	EndIf;
 	
-	// Restore the link with the metadata object ID of the extension
-	// that is being reinstalled.
+	// 
+	// 
 	OriginalFullName = FullNameOfDeletedItem(Properties.FullName);
 	MetadataObject = MetadataFindByFullName(OriginalFullName);
 	
@@ -2014,7 +2012,7 @@ EndProcedure
 Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, ExtensionsObjects,
 			ExtensionProperties, ExtensionsVersion, HasChanges, IsCheckOnly)
 		
-	// ACC:1327-off #783.1.4.1 Managed lock is set in the calling code.
+	// 
 	If ExtensionsObjects Then
 		RecordSet = InformationRegisters.ExtensionVersionObjectIDs.CreateRecordSet();
 		RecordSet.Filter.ExtensionsVersion.Set(ExtensionsVersion);
@@ -2028,17 +2026,17 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 	
 	For Each Properties In Upload0 Do
 		
-		// Updating parents of the metadata object IDs.
+		// 
 		If Not Properties.IsCollection Then
 			ObjectProperties = MetadataObjectProperties1.Find(Properties.FullName, "FullName");
 			NewParent = EmptyCatalogRef(ExtensionsObjects);
 			
 			If ObjectProperties <> Undefined Then
 				If Not ValueIsFilled(ObjectProperties.FullParentName) Then
-					// This is a collection of metadata objects.
+					// 
 					NewParent = ObjectProperties.Parent;
 				Else
-					// This is not a collection of metadata objects. Example: subsystem.
+					// 
 					ParentDetails = Upload0.Find(ObjectProperties.FullParentName, "FullName");
 					If ParentDetails <> Undefined Then
 						NewParent = ParentDetails.Ref;
@@ -2070,7 +2068,7 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 			EndIf;
 		EndIf;
 		
-		// Updating the metadata object IDs.
+		// 
 		If Properties.IsNew Then
 			TableObject = CreateCatalogItem(ExtensionsObjects);
 			TableObject.SetNewObjectRef(Properties.Ref);
@@ -2089,7 +2087,7 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 		FillPropertyValues(TableObject, Properties);
 		TableObject.MetadataObjectKey = New ValueStorage(Properties.MetadataObjectKey);
 		TableObject.DataExchange.Load = True;
-		// @skip-check query-in-loop - The query branch is not triggered in this option
+		// 
 		CheckObjectBeforeWrite(TableObject, True);
 		TableObject.Write();
 	EndDo;
@@ -2108,8 +2106,8 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 		EndIf;
 		If RecordsTable.Count() = 0
 		   And ValueIsFilled(ExtensionsVersion) Then
-			// In case the extension has no metadata object, add one record
-			// so that the cache check returns "True".
+			// 
+			// 
 			RecordsTable.Add().ExtensionsVersion = ExtensionsVersion;
 			UpdateRecordSet = True;
 		EndIf;
@@ -2122,7 +2120,7 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 			RecordSet.Write();
 		EndIf;
 	EndIf;
-	// ACC:1327-off.
+	// 
 	
 EndProcedure
 
@@ -2155,7 +2153,7 @@ Procedure UpdateMarkedForDeletionItemProperties(Properties, PropertiesUpdated = 
 			HasDeletedItems = True;
 		EndIf;
 		
-		// Setting new properties for the metadata object ID.
+		// 
 		Properties.DeletionMark       = True;
 		Properties.Parent              = EmptyCatalogRef(IsExtensionsObject(Properties.Ref));
 		Properties.Description          = InsertQuestionMark(Properties.Description);
@@ -2203,7 +2201,7 @@ Procedure CheckUpdateCollectionProperties(Val CurrentProperties, ExtensionsObjec
 	 Or CurrentProperties.DeletionMark           <> False
 	 Or CurrentProperties.MetadataObjectKey     <> Undefined Then
 		
-		// Set up new properties.
+		// 
 		CurrentProperties.Description              = CollectionDescription;
 		CurrentProperties.CollectionOrder          = NewProperties.CollectionOrder;
 		CurrentProperties.Name                       = NewProperties.Name;
@@ -2262,7 +2260,7 @@ Function MetadataObjectKey(FullName)
 		Or MetadataObjectClass = Upper("CalculationRegister") Then
 		Return Type(MetadataObjectClass + "RecordKey." + MetadataObjectName);
 	Else
-		// No metadata object key.
+		// 
 		Return Type("Undefined");
 	EndIf;
 	
@@ -2308,7 +2306,7 @@ Function MetadataObjectKeyMatchesFullName(IDProperties)
 	
 	If MetadataObjectKey <> Undefined
 	   And MetadataObjectKey <> Type("Undefined") Then
-		// Key is specified; searching for metadata object by the key.
+		// 
 		CheckResult.MetadataObjectKey = MetadataObjectKey;
 		MetadataObject = MetadataObjectByKey(MetadataObjectKey,
 			IDProperties.ExtensionName,
@@ -2318,10 +2316,10 @@ Function MetadataObjectKeyMatchesFullName(IDProperties)
 			CheckResult.NotRespond = MetadataObject.FullName() <> IDProperties.FullName;
 		EndIf;
 	Else
-		// Key is not specified; searching for metadata object by the full name.
+		// 
 		MetadataObject = MetadataFindByFullName(IDProperties.FullName);
 		If MetadataObject = Undefined Then
-			// A collection might have been specified.
+			// 
 			
 			String = StandardSubsystemsCached.MetadataObjectCollectionProperties(ExtensionsObjects).Find(
 				IDProperties.Ref.UUID(), "Id");
@@ -2420,12 +2418,12 @@ Function MetadataObjectByKey(MetadataObjectKey, ExtensionName, ExtensionID, Exte
 	
 EndFunction
 
-// Intended to be called from StandardSubsystemsCached.RolesByMetadataObjectsKeys.
+// 
 // 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - String - Key of the "Role" metadata object.
-//   * Value - MetadataObject - Role.
+//   * Key - String - 
+//   * Value - MetadataObject - Role
 //
 Function RolesByKeysMetadataObjects() Export
 	
@@ -2777,7 +2775,7 @@ Procedure UpdateNewSubsystemsList(NewSubsystems, AllNewSubsystems)
 		EndIf;
 	EndDo;
 	
-	// Removing the subsystem from the list of subsystems deleted from metadata.
+	// 
 	IndexOf = InformationRecords.NewSubsystems.Count() - 1;
 	While IndexOf >= 0 Do
 		SubsystemName = InformationRecords.NewSubsystems.Get(IndexOf);
@@ -2916,7 +2914,7 @@ Function IsSubsystem(MetadataObject, SubsystemsCollection = Undefined)
 	
 EndFunction
 
-// For the AddRenaming procedure.
+// For the procedure, add a Name.
 Function CollectionName(FullName)
 	
 	PointPosition = StrFind(FullName, ".");
@@ -2929,7 +2927,7 @@ Function CollectionName(FullName)
 	
 EndFunction
 
-// For the RunDataUpdate and BeforeWriteObject procedures.
+// For procedures, perform data Update and re-write the Object.
 Procedure CheckObjectBeforeWrite(Object, AutoUpdate = False)
 	
 	ExtensionsObjects = IsExtensionsObject(Object);
@@ -2993,7 +2991,7 @@ Procedure CheckObjectBeforeWrite(Object, AutoUpdate = False)
 	
 EndProcedure
 
-// This method is required by CheckForUsage and DataUpdated procedures.
+// For verification procedures, Use and data are Updated.
 Function ExtensionObjectsIDsUnvailableInSharedModeErrorDescription()
 	
 	Return
@@ -3002,10 +3000,10 @@ Function ExtensionObjectsIDsUnvailableInSharedModeErrorDescription()
 	
 EndFunction
 
-// This method is required by OnCreateListFormAtServer procedure.
+// For the procedure of joining the listserverform.
 Procedure SetListOrderAndAppearance(Form)
 	
-	// Order.
+	// 
 	Order = Form.List.SettingsComposer.Settings.Order;
 	Order.UserSettingID = "DefaultOrder";
 	
@@ -3041,7 +3039,7 @@ Procedure SetListOrderAndAppearance(Form)
 	OrderItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	OrderItem.Use = True;
 	
-	// Appearance.
+	// 
 	AppearanceItem = Form.List.SettingsComposer.Settings.ConditionalAppearance.Items.Add();
 	AppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -3066,7 +3064,7 @@ Procedure SetListOrderAndAppearance(Form)
 	
 EndProcedure
 
-// This method is required by UpdateData procedure.
+// For the update Data procedure.
 Function ExtensionNames(ExtensionSource, ExtensionKeyIds)
 	
 	ExtensionNames = New Map;
@@ -3088,7 +3086,7 @@ Function ExtensionNames(ExtensionSource, ExtensionKeyIds)
 	
 EndFunction
 
-// Required by procedure "UpdateData".
+// For the update Data procedure.
 Procedure AddNamesOfUnconnectedExtensionsInSessionWithoutDelimiters(ExtensionProperties, DatabaseExtensions)
 	
 	If Not StandardSubsystemsServer.ThisIsSplitSessionModeWithNoDelimiters() Then
@@ -3113,7 +3111,7 @@ Procedure AddNamesOfUnconnectedExtensionsInSessionWithoutDelimiters(ExtensionPro
 	
 EndProcedure
 
-// This method is required by MetadataObjectIDByFullName and MetadataObjectIDs functions.
+// For the functions of the object idmetadannyhpolnom Names, object Idmetadannyh.
 Function MetadataObjectIDsWithRetryAttempt(FullMetadataObjectsNames, RaiseException1, OneItem)
 	
 	StandardSubsystemsCached.MetadataObjectIDsUsageCheck(True,
@@ -3151,7 +3149,7 @@ Function MetadataObjectIDsWithRetryAttempt(FullMetadataObjectsNames, RaiseExcept
 	
 EndFunction
 
-// This method is required by MetadataObjectIDs function.
+// For ID functions of data objects.
 Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 			RaiseException1, OneItem, SkipUnsupportedObjects)
 	
@@ -3223,7 +3221,7 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 		Filter = New Structure("FullName", FullMetadataObjectName);
 		FoundRows = Upload0.FindRows(Filter);
 		If FoundRows.Count() = 0 Then
-			// One of the reasons why the ID is not found by the full name is that the full name is specified with an error.
+			// 
 			MetadataObject = Common.MetadataObjectByFullName(FullMetadataObjectName);
 			If MetadataObject = Undefined Then
 				If Not RaiseException1 Then
@@ -3283,7 +3281,7 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 			
 			If DataBaseConfigurationChangedDynamically Then
 				If IDsFromKeys = Undefined Then
-					// @skip-check query-in-loop - Called no more than once
+					// 
 					IDsFromKeys = IDsFromKeys();
 				EndIf;
 				Id = IDsFromKeys.Get(FullMetadataObjectName);
@@ -3319,7 +3317,7 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 			
 		EndIf;
 		
-		// Checking whether the metadata object key matches the metadata object full name.
+		// 
 		TableRow = FoundRows[0];
 		CheckResult = MetadataObjectKeyMatchesFullName(TableRow);
 		If CheckResult.NotRespond Then
@@ -3393,7 +3391,7 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 	
 EndFunction
 
-// This method is required by MetadataObjectIDsWithoutRetryAttempt function.
+// For the ID function of Objectmetadannyhbezpytkipovtora.
 Function IDsFromKeys()
 	
 	Query = New Query;
@@ -3436,8 +3434,8 @@ Function IDsFromKeys()
 	
 EndFunction
 
-// Intended for the functions MetadataObjectIDsWithRetryAttempt,
-// MetadataObjectsByIDsWithRetryAttempt.
+// 
+// 
 //
 Function UpdateIDCatalogs()
 	
@@ -3453,7 +3451,7 @@ Function UpdateIDCatalogs()
 	
 EndFunction
 
-// This method is required by MetadataObjectByID and MetadataObjectsByIDs functions.
+// For functions, Objectsetfibodescription, ОбъектыМетаданныхПоИдентификаторам.
 Function MetadataObjectsByIDsWithRetryAttempt(IDs, RaiseException1)
 	
 	If IDs.Count() = 0 Then
@@ -3523,8 +3521,8 @@ Function MetadataObjectsByIDsWithRetryAttempt(IDs, RaiseException1)
 		Except
 			If Not Common.DataSeparationEnabled()
 			 Or Not Common.SeparatedDataUsageAvailable() Then
-				// If an error occurs, update the catalog (if possible),
-				// and retry to receive the ID.
+				// 
+				// 
 				MetadataObjects = Undefined;
 			Else
 				Raise;
@@ -3551,7 +3549,7 @@ Function MetadataObjectsByIDsWithRetryAttempt(IDs, RaiseException1)
 	
 EndFunction
 
-// This method is required by MetadataObjectsByIDsWithRetryAttempt function.
+// For the function objectmetadannyhidentificatorsexperience of the Repeat.
 Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 			ConfigurationIDs, ExtensionsIDs, RaiseException1)
 	
@@ -3625,7 +3623,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 				If RaiseException1 Then
 					Break;
 				Else
-					// The metadata object does not exist.
+					// 
 					IDsMetadataObjects.Insert(Id, Null);
 					Continue;
 				EndIf;
@@ -3650,7 +3648,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 	
 	DataBaseConfigurationChangedDynamically = DataBaseConfigurationChangedDynamically();
 	
-	// Checking whether the metadata object key matches the metadata object full name.
+	// 
 	For Each Properties In Upload0 Do
 		CheckResult = MetadataObjectKeyMatchesFullName(Properties);
 		If CheckResult.NotRespond Then
@@ -3713,7 +3711,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 							           |This means that an unexpected exception occurred.';"),
 							ExtensionName);
 						
-					Else // ActiveExtensions.Count() > 0
+					Else // 
 						TheExtensionObjectDoesNotExist = True;
 						
 						If CheckResult.RemoteMetadataObject <> Undefined
@@ -3746,9 +3744,9 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 					EndIf;
 					
 				ElsIf DataBaseConfigurationChangedDynamically Then
-					// The metadata object might be available after restart.
+					// 
 					If RaiseException1 Then
-						// Standard exception caused by dynamic update.
+						// 
 						StandardSubsystemsServer.RequireRestartDueToApplicationVersionDynamicUpdate();
 					Else
 						IDsMetadataObjects.Insert(Properties.Ref, Undefined);
@@ -3756,7 +3754,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 					EndIf;
 					
 				ElsIf Not RaiseException1 Then
-					// The metadata object does not exist.
+					// 
 					IDsMetadataObjects.Insert(Properties.Ref, Null);
 					Continue;
 					
@@ -3778,7 +3776,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 				EndIf;
 				
 			ElsIf DataBaseConfigurationChangedDynamically Then
-				// The metadata object might have been renamed.
+				// 
 				ErrorDescription = "";
 			Else
 				ErrorDescription =  StringFunctionsClientServer.SubstituteParametersToString(
@@ -3822,7 +3820,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 	
 EndFunction
 
-// This method is required by MetadataObjectsByIDs and MetadataObjectIDs functions.
+// For functions of the Metadannymethodentifiers, IDs of the metadannymethod Objects.
 Function IDCache()
 	
 	CachedDataKey = String(SessionParameters.CachedDataKey);
@@ -3831,7 +3829,7 @@ Function IDCache()
 	
 EndFunction
 
-// Intended to be called from  StandardSubsystemsCached.MetadataObjectIDCache.
+// To call from the standard Subsystemypovtisp.cache identificatorsobjects of data.
 // 
 // Parameters:
 //  CachedDataKey - UUID
@@ -3851,8 +3849,8 @@ Function MetadataObjectIDCache(CachedDataKey) Export
 	
 EndFunction
 
-// To be called from StandardSubsystemsCached.MetadataObjectIDPresentation.
-// Used from the PresentationGetProcessing procedure.
+// For a call from a standard systempovtisp.Representation of the Data object identifier.
+// Used from the procedure for processing the receipt of the submission.
 // 
 // Parameters:
 //  Ref - CatalogRef.MetadataObjectIDs
@@ -3931,12 +3929,12 @@ Function IDPresentation(Ref) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for replacing IDs in databases.
+// 
 
 Procedure ReplaceSubordinateNodeDuplicatesFoundOnImport(IsCheckOnly, HasChanges)
 	
 	If Common.DataSeparationEnabled() Then
-		// Not supported in SaaS mode.
+		// 
 		Return;
 	EndIf;
 	
@@ -3944,7 +3942,7 @@ Procedure ReplaceSubordinateNodeDuplicatesFoundOnImport(IsCheckOnly, HasChanges)
 		Return;
 	EndIf;
 	
-	// Replacing the duplicates in a subordinate DIB node.
+	// 
 	Query = New Query;
 	Query.Text =
 	"SELECT
@@ -3992,7 +3990,7 @@ Procedure ReplaceSubordinateNodeDuplicatesFoundOnImport(IsCheckOnly, HasChanges)
 			BeginTransaction();
 			Try
 				Block.Lock();
-				// Clearing new references from the duplicates IDs.
+				// 
 				For Each RefToReplace In RefsToReplace Do
 					DuplicateObject1 = RefToReplace.GetObject();
 					DuplicateObject1.NewRef = Undefined;
@@ -4027,19 +4025,18 @@ Procedure ReplaceSubordinateNodeDuplicatesFoundOnImport(IsCheckOnly, HasChanges)
 	
 EndProcedure
 
-// The function from the ValueSearchingAndReplacing universal data processor.
+// A function from the universal processing of search for Reassignments.
 // Changes:
-// - operations with the progress bar form are no longer supported;
-// - the UserInterruptProcessing procedure is deleted;
-// - the InformationRegisters[TableRow.Metadata.Name] is replaced with
-//   Common.ObjectManagerByFullName(TableRow.Metadata.FullName()).
+// - removed working with the Progressor form;
+// - removed the procedure for processing user Interrupts;
+// - replaced the "Registrazioni[String tables.Metadata.Name] "on
+//   " General Purpose.Of Managedobjectreference(Streetability.Metadata.Full name())".
 //
 Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWriteControl = False, Val ExtensionsObjects = False)
 	
-	// ACC:1327-off - No.783.1.4.1
-	// 1. It's not a transaction since it can be long-running.
-	// 2. The execution follows a data import (infobase update) from the master node.
-// 3. It's executed when duplicates of metadata object IDs are found (a rare occurrence).
+	// 
+	// 
+	// 
 	Parameters = ItemsReplacementParameters();
 	
 	For Each AccountingRegister In Metadata.AccountingRegisters Do
@@ -4128,7 +4125,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 					
 					ColumnsNames = New Array;
 					
-					// Getting names of dimensions that might contain references.
+					// 
 					For Each Dimension In Movement.Dimensions Do
 						
 						If Dimension.Type.ContainsType(TypeOf(Ref)) Then
@@ -4148,7 +4145,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 						EndIf;
 					EndDo;
 					
-					// Getting names of resources that might contain references.
+					// 
 					If Metadata.InformationRegisters.Contains(Movement) Then
 						For Each Resource In Movement.Resources Do
 							If Resource.Type.ContainsType(TypeOf(Ref)) Then
@@ -4157,14 +4154,14 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 						EndDo;
 					EndIf;
 					
-					// Getting names of resources that might contain references.
+					// 
 					For Each Attribute In Movement.Attributes Do
 						If Attribute.Type.ContainsType(TypeOf(Ref)) Then
 							ColumnsNames.Add(Attribute.Name);
 						EndIf;
 					EndDo;
 					
-					// Making replacements in the table.
+					// 
 					For Each ColumnName In ColumnsNames Do
 						TabSectionRow = SetTable.Find(Ref, ColumnName);
 						While TabSectionRow <> Undefined Do
@@ -4482,7 +4479,7 @@ Function ExecuteItemReplacement(Val Replaceable, Val RefsTable, Val DisableWrite
 	EndTry;
 	
 	Return Not HadExceptions;
-	// ACC:1327-off.
+	// 
 	
 EndFunction
 
@@ -4500,9 +4497,9 @@ Function ItemsReplacementParameters()
 EndFunction
 
 
-// Procedure from the ValueSearchingAndReplacing universal data processor.
+// A procedure from the universal search-for-Assignment processing.
 // Changes:
-// - the Message(…) method is replaced with the WriteLogEvent(…) method.
+// - the Report (...) method has been replaced with log record(...).
 //
 Procedure ReportError(Val LongDesc, ExtensionsObjects)
 	

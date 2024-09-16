@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -18,22 +16,22 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
-	// Attribute connection with deletion mark.
+	// 
 	If DeletionMark Then
 		Use = Enums.AddInUsageOptions.isDisabled;
 	EndIf;
 	
-	// Attribute connection with usage option.
+	// 
 	If Use = Enums.AddInUsageOptions.isDisabled Then
 		UpdateFrom1CITSPortal = False;
 	EndIf;
 	
-	// Each add-in must have its own ID with the UpdateFrom1CITSPortal flag set.
+	// 
 	If Not ThisIsTheLatestVersionComponent() Then
 		UpdateFrom1CITSPortal = False;
 	EndIf;
 	
-	// Check the add-in ID and version for uniqueness.
+	// 
 	If Not ThisIsTheUniqueComponent() Then 
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The add-in with ID ""%1"" and date ""%2"" is already attached to the app.';"),
@@ -41,7 +39,7 @@ Procedure BeforeWrite(Cancel)
 			VersionDate);
 	EndIf;
 	
-	// Storing binary add-in data.
+	// 
 	ComponentBinaryData = Undefined;
 	If AdditionalProperties.Property("ComponentBinaryData", ComponentBinaryData) Then
 		AddInStorage = New ValueStorage(ComponentBinaryData);
@@ -55,8 +53,8 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	// If a newer version add-in is being attached, and an old version has the flag "UpdateFrom1CITSPortal" set,
-	// clear the add-in flag when overwriting the old versions.
+	// 
+	// 
 	If ThisIsTheLatestVersionComponent() Then
 		RewriteComponentsOfEarlierVersions();
 	EndIf;

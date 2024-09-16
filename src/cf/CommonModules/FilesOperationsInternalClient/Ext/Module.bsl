@@ -1,27 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Returns the path to the user working directory.
+// Returns the path to the user's working directory.
 Function UserWorkingDirectory() Export
 	
 	Return FilesOperationsInternalClientCached.UserWorkingDirectory();
 	
 EndFunction
 
-// Opens the folder form with the list of files.
+// Opens the folder form with a list of files.
 //
 // Parameters:
-//   StandardProcessing - Boolean - passed "as is" from the "Opening" handler parameters.
-//   Folder - CatalogRef.Files - Folder to open.
+//   StandardProcessing - Boolean -  passed "as is "from the parameters of the"Open" handler.
+//   Folder - CatalogRef.Files - 
 //
 Procedure ReportsMailingViewFolder(StandardProcessing, Folder) Export
 	
@@ -37,19 +35,19 @@ Procedure MoveFiles() Export
 	
 EndProcedure
 
-// Creates a file in the application based on the passed path to the file and opens the card.
+// 
 //
 // Parameters:
 //  ExecutionParameters - Structure:
 //       * ResultHandler - NotifyDescription
-//                              - Undefined -  description of the procedure that receives the method result.
-//       * FullFileName - String - optional. A full path and name of the file on the client.
-//             If not specified, a dialog box to select a file will open.
-//       * FileOwner - AnyRef - file owner.
-//       * OwnerForm - ClientApplicationForm - a form, from which the file creation was called.
+//                              - Undefined -  
+//       * FullFileName - String -  optional. The full path and file name on the client.
+//             If not specified, a dialog will open to select a file.
+//       * FileOwner - AnyRef -  file owner.
+//       * OwnerForm - ClientApplicationForm -  the form from which the file creation is called.
 //       * NotOpenCardAfterCreateFromFile - Boolean
-//             - True when the file card does not open after being created.
-//       * NameOfFileToCreate - String - optional. New file name.
+//             - 
+//       * NameOfFileToCreate - String -  optional. New file name.
 //
 Procedure AddFormFileSystemWithExtension(ExecutionParameters) Export
 	
@@ -73,19 +71,19 @@ Procedure AddFormFileSystemWithExtension(ExecutionParameters) Export
 	
 EndProcedure
 
-// Creates a file in the application based on the passed path to the file and opens the card.
+// 
 //
 // Parameters: 
 //  ExecutionParameters - Structure:
-//       * FullFileName - String - optional. A full path and name of the file on the client.
-//                                   If not specified, a synchronous dialog box to select a file will open.
-//       * FileOwner - AnyRef - file owner.
-//       * UUID - UUID - a form ID to store the file.
-//       * NameOfFileToCreate - String - optional. New file name.
+//       * FullFileName - String -  optional. The full path and file name on the client.
+//                                   If not specified, a synchronous dialog will be opened to select a file.
+//       * FileOwner - AnyRef -  file owner.
+//       * UUID - UUID -  id of the form to store the file.
+//       * NameOfFileToCreate - String -  optional. New file name.
 //
 // Returns:
 //   Structure:
-//       * FileAdded - Boolean - shows whether the operation is performed successfully.
+//       * FileAdded - Boolean -  whether the operation was completed successfully.
 //       * FileRef - CatalogRef.Files
 //       * ErrorText - String
 //
@@ -100,7 +98,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 		ExecutionParameters.SelectionDialogFilter, StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'All files (%1)|%1';"), GetAllFilesMask()));
 		
 	If Not ExecutionParameters.Property("FullFileName") Then
-		// Import from the file system with 1C:Enterprise Extension.
+		// 
 		FileDialog = New FileDialog(FileDialogMode.Open);
 		FileDialog.Multiselect = False;
 		FileDialog.Title = NStr("en = 'Select file';");
@@ -148,7 +146,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 		TempTextStorageAddress = "";
 	EndIf;
 		
-	// Storing the file to a temporary storage.
+	// 
 	TempFileStorageAddress = "";
 	
 	Files = New Array;
@@ -184,7 +182,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 		CreationName = FileNameWithoutExtension;
 	EndIf;
 	
-	// Creating the File card in database.
+	// 
 	Try
 		
 		If FilesOperationsInternalClientCached.IsDirectoryFiles(ExecutionParameters.FileOwner) Then
@@ -238,7 +236,7 @@ Function AddFromFileSystemWithExtensionSynchronous(ExecutionParameters) Export
 	
 EndFunction
 
-// Continues AttachedFilesClient procedure execution.AddFiles.
+// Continuation of the attached file Client procedure.Add files.
 Procedure AddFilesAddInSuggested(FileSystemExtensionAttached1, AdditionalParameters) Export
 	
 	FileOwner = AdditionalParameters.FileOwner;
@@ -316,19 +314,19 @@ Procedure AddFilesAddInSuggested(FileSystemExtensionAttached1, AdditionalParamet
 			
 		EndIf;
 		
-	Else // If the web client has no extension attached.
+	Else // 
 		NotifyDescription = New NotifyDescription("AddFilesCompletion", ThisObject, AdditionalParameters);
 		PutSelectedFilesInStorageWeb(NotifyDescription, FileOwner, FormIdentifier);
 	EndIf;
 	
 EndProcedure
 
-// Shows a standard warning.
+// Displays a standard warning.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
-//  CommandPresentation - String - Name of the command that requires 1C:Enterprise Extension.
+//                       - Undefined - 
+//  CommandPresentation - String -  the name of the command that requires the extension to execute.
 //
 Procedure ShowFileSystemExtensionRequiredMessageBox(ResultHandler, CommandPresentation = "") Export
 	If Not ClientSupportsSynchronousCalls() Then
@@ -345,10 +343,10 @@ Procedure ShowFileSystemExtensionRequiredMessageBox(ResultHandler, CommandPresen
 	ReturnResultAfterShowWarning(ResultHandler, WarningText, Undefined);
 EndProcedure
 
-// Saves the path to the user's working directory to the settings.
+// Saves the path to the user's working directory in the settings.
 //
 // Parameters:
-//  DirectoryName - String - a directory name.
+//  DirectoryName - String -  directory name.
 //
 Procedure SetUserWorkingDirectory(DirectoryName) Export
 	
@@ -356,8 +354,8 @@ Procedure SetUserWorkingDirectory(DirectoryName) Export
 	
 EndProcedure
 
-// Returns My documents directory + the current user name or the folder
-// previously used for data export.
+// Returns the "My Documents" folder + the name of the current user or
+// the previously used folder for uploading.
 //
 Function DumpDirectory() Export
 	
@@ -381,7 +379,7 @@ Function DumpDirectory() Export
 	
 EndFunction
 
-// Shows the file selection dialog box to user and returns
+// Shows the user a file selection dialog and returns
 // an array of selected files to import.
 //
 Function FilesToImport() Export
@@ -407,18 +405,18 @@ Function FilesToImport() Export
 	
 EndFunction
 
-// Checks if the file name contains illegal characters.
+// Checks the file name for invalid characters.
 //
 // Parameters:
-//  FileName - String- a checked file name.
+//  FileName - String-  the file name to check.
 //
-//  DeleteInvalidCharacters - Boolean - if True, delete incorrect
-//             characters from the passed row.
+//  DeleteInvalidCharacters - Boolean -  True specifies to delete invalid
+//             characters from the passed string.
 //
 Procedure CorrectFileName(FileName, DeleteInvalidCharacters = False) Export
 	
-	// The source of the illegal character list: https://learn.microsoft.com/en-us/troubleshoot/windows-client/backup-and-storage/fat-hpfs-and-ntfs-file-systems
-	// The illegal characters for FAT and NTFS are combined.
+	// 
+	// 
 	
 	ExceptionStr = CommonClientServer.GetProhibitedCharsInFileName();
 	
@@ -446,7 +444,7 @@ Procedure CorrectFileName(FileName, DeleteInvalidCharacters = False) Export
 	
 EndProcedure
 
-// Iterates through directories recursively and counts the number of files and their total size.
+// Recursively traverses directories and counts the number of files and their total size.
 Procedure GetFileListSize(Path, FilesArray, TotalSize, TotalFilesCount) Export
 	
 	For Each SelectedFile In FilesArray Do
@@ -474,8 +472,8 @@ Procedure GetFileListSize(Path, FilesArray, TotalSize, TotalFilesCount) Export
 	
 EndProcedure
 
-// Returns a path to the directory of the following kind
-// "C:Documents and SettingsUSERNAMEApplication Data1CFilesA8".
+// Returns the path to the folder of the view
+// "C:\Documents and Settings\USER NAME\Application Data\1C\Files8\".
 //
 Function SelectPathToUserDataDirectory() Export
 	
@@ -503,10 +501,10 @@ Function OpenExplorerWithFile(Val FullFileName) Export
 	
 EndFunction
 
-// Returns the result of attaching 1C:Enterprise Extension.
+// 
 //
 //  Returns:
-//   Boolean - Always True in thin client, always False in Google Chrome.
+//   Boolean - 
 //
 Function FileSystemExtensionAttached1() Export
 	If ClientSupportsSynchronousCalls() Then
@@ -516,7 +514,7 @@ Function FileSystemExtensionAttached1() Export
 	EndIf;
 EndFunction
 
-// Procedure details. See CommonClient.ShowFileSystemExtensionInstallationQuestion.
+// Description of procedure  See CommonClient.ShowFileSystemExtensionInstallationQuestion.
 //
 Procedure ShowFileSystemExtensionInstallationQuestion(NotifyDescription) Export
 	If Not ClientSupportsSynchronousCalls() Then
@@ -584,13 +582,13 @@ Function FileUpdateParameters(ResultHandler, ObjectRef, FormIdentifier) Export
 	
 EndFunction	
 
-// Click the Show service files command in the file list.
+// Click the "Show service files" command in the file list.
 //
 // Parameters:
 //  List - DynamicList
 //
 // Returns:
-//  Boolean - display service files on the list.
+//  Boolean - 
 //
 Function ShowServiceFilesClick(List) Export
 	
@@ -605,7 +603,7 @@ Function ShowServiceFilesClick(List) Export
 	
 EndFunction
 
-// Saves edited file to the infobase and unlocks it.
+// Saves the edited file to the IB and removes the lock from it.
 //
 // Parameters:
 //   Parameters - See FileUpdateParameters.
@@ -628,7 +626,7 @@ Procedure EndEditAndNotify(Parameters) Export
 	
 EndProcedure
 
-// Saves the file to the infobase but does not unlock it.
+// Saves the file in the information database, but does not release it.
 Procedure SaveFileChangesWithNotification(ResultHandler, CommandParameter, FormIdentifier) Export
 	
 	If CommandParameter = Undefined Then
@@ -646,10 +644,10 @@ Procedure SaveFileChangesWithNotification(ResultHandler, CommandParameter, FormI
 	
 EndProcedure
 
-// Returns string presentation of extensions associated with the file type.
+// Returns a string representation of the extensions associated with the file type.
 //
 // Parameters:
-//   FileType - String - for file types, see FillListWithFilesTypes.
+//   FileType - String -  For file types, see Fill in the list of file types.
 //
 Function ExtensionsByFileType(FileType) Export
 	
@@ -665,16 +663,16 @@ Function ExtensionsByFileType(FileType) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Integration with 1C:Document Management.
+// 
 
-// Checks if 1C:Document Exchange is used to store object attachments.
+// 
 //
 // Parameters:
-//   AttachedFilesOwner - AnyRef - Attachment owner.
-//   Form - ClientApplicationForm - File owner form.
-//   Command - FormCommand - The executable command for attachment management.
-//   ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient - CommonModule - Implicitly returned value,
-//     a module for accessing the functionality for integrating 1C:Document Exchange.
+//   AttachedFilesOwner - AnyRef -  owner of the attached files.
+//   Form - ClientApplicationForm -  form of the file owner.
+//   Command - FormCommand - 
+//   ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient - CommonModule - 
+//     
 //
 // Returns:
 //   Boolean
@@ -684,7 +682,7 @@ Function Is1CDocumentManagementUsedForFileStorage(AttachedFilesOwner, Form = Und
 	
 	UseEDIToStoreObjectFiles = False;
 	
-	// IntegrationWith1CDocumentManagement
+	// IntegrationWith1CDocumentManagementSubsystem
 	If CommonClient.SubsystemExists("IntegrationWith1CDocumentManagementSubsystem") Then
 		DMILVersion = "0.0.0.0";
 		StandardSubsystemsClient.ClientRunParameters().Property("DMILVersion", DMILVersion);
@@ -701,23 +699,23 @@ Function Is1CDocumentManagementUsedForFileStorage(AttachedFilesOwner, Form = Und
 					AttachedFilesOwner);
 		EndIf;
 	EndIf;
-	// End IntegrationWith1CDocumentManagement
+	// End IntegrationWith1CDocumentManagementSubsystem
 	
 	Return UseEDIToStoreObjectFiles;
 	
 EndFunction
 
-// Opens a form for searching files stored in 1C:Document Management.
+// 
 //
 // Parameters:
-//   AttachedFilesOwner - AnyRef - Attachment owner.
-//   Form - ClientApplicationForm - File owner form.
-//   CommandExecuteParameters - CommandExecuteParameters - Opens the structure being passed to the command handler.
+//   AttachedFilesOwner - AnyRef -  owner of the attached files.
+//   Form - ClientApplicationForm -  form of the file owner.
+//   CommandExecuteParameters - CommandExecuteParameters - 
 //
 Procedure OpenFormAttachedFiles1CDocumentManagement(AttachedFilesOwner, Form = Undefined,
 		CommandExecuteParameters = Undefined) Export
 	
-	// IntegrationWith1CDocumentManagement
+	// IntegrationWith1CDocumentManagementSubsystem
 	DMILVersion = "0.0.0.0";
 	StandardSubsystemsClient.ClientRunParameters().Property("DMILVersion", DMILVersion);
 	ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient = CommonClient.CommonModule(
@@ -736,40 +734,40 @@ Procedure OpenFormAttachedFiles1CDocumentManagement(AttachedFilesOwner, Form = U
 		ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.OpenAttachedFiles(
 			AttachedFilesOwner);
 	EndIf;
-	// End IntegrationWith1CDocumentManagement
+	// End IntegrationWith1CDocumentManagementSubsystem
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for cryptography operations.
+// 
 
-// Check signatures of the file data in the table.
+// Check the object's data signatures in the table.
 // 
 // Parameters:
-//  Form - ClientApplicationForm - with attributes:
-//    * Object - FormDataStructure - as the object with the Ref and Encrypted properties.
-//                  For example, CatalogObject.File, CatalogObject.DocumentAttachedFiles.
-//               If the object has no properties, pass the structure with properties to FileData.
+//  Form - ClientApplicationForm - :
+//    * Object - FormDataStructure - 
+//                  
+//               
 //
 //    * DigitalSignatures - FormDataCollection:
-//       * SignatureValidationDate - Date - return value. Check date.
-//       * Status              - String - return value. Check result.
-//       * SignatureAddress        - String - signature data address in temporary storage.
+//       * SignatureValidationDate - Date -  the return value. Date of verification.
+//       * Status              - String -  the return value. The result of the check.
+//       * SignatureAddress        - String -  address of the signature data in temporary storage.
 //
-//  RefToBinaryData - BinaryData - binary file data.
-//                         - String - address in the temporary storage or URL.
+//  RefToBinaryData - BinaryData -  binary data of the file.
+//                         - String - 
 //
-//  SelectedRows - Array - a property of the DigitalSignatures parameter form table.
-//                   - Undefined - validate all signatures.
+//  SelectedRows - Array -  property of the form table of the electronic Signature parameter.
+//                   - Undefined - 
 //  FileData      - See FilesOperations.FileData
 //
 Procedure VerifySignatures(Form, RefToBinaryData, SelectedRows = Undefined, FileData = Undefined) Export
 	
-	// 1. Get the addresses of the binary data and signature binary data.
-	// 2. If the file is encrypted, decrypt and verify it.
+	// 
+	// 
 	
 	If FileData = Undefined Then
-		FileData = Form.Object; // TypeToDefine.AttachedFileObject
+		FileData = Form.Object; // 
 	EndIf;
 	
 	AdditionalParameters = New Structure;
@@ -803,7 +801,7 @@ Procedure VerifySignatures(Form, RefToBinaryData, SelectedRows = Undefined, File
 	
 EndProcedure
 
-// Continue the CheckSignatures procedure.
+// Continue with the check Signatures procedure.
 Procedure CheckSignaturesAfterCheckRow(SignatureVerificationResult, AdditionalParameters) Export
 	
 	Result = SignatureVerificationResult.Result;
@@ -866,7 +864,7 @@ EndProcedure
 //
 // Parameters:
 //   Form - ClientApplicationForm
-//   IsNew - Boolean - File is not written.
+//   IsNew - Boolean - 
 //
 Procedure SetCommandsAvailabilityOfDigitalSignaturesList(Form, IsNew) Export
 	
@@ -911,13 +909,13 @@ EndProcedure
 #Region Scanning
 
 
-// Opens the dialog box of scanning and view picture.
+// Opens the scan and view image dialog.
 // 
 // Parameters:
 //  ExecutionParameters - Structure:
-//   * ResultHandler - Undefined, NotifyDescription.
-//   * FileOwner - Undefined, TypeToDefine.FilesOwner.
-//   * OwnerForm - Undefined, Form.
+//   * ResultHandler - 
+//   * FileOwner - 
+//   * OwnerForm - 
 //   * IsFile - Boolean
 //  ScanningParameters - See FilesOperationsClient.ScanningParameters.
 //
@@ -942,9 +940,9 @@ Procedure AddFromScanner(ExecutionParameters, ScanningParameters = Undefined) Ex
 		ExecuteNotifyProcessing(ExecutionParameters.ResultHandler, ScanningResult);
 	ElsIf ResultType = FilesOperationsClient.ConversionResultTypeFileName() Then
 		ImageData = MultimediaData.GetBinaryData();
-		// ACC:441-off the file is a method result
+		// 
 		TempFileName = GetTempFileName(MultimediaData.FileExtention);
-		// ACC:441-on
+		// 
 		ImageData.Write(TempFileName);
 		ScanningResult.FileName = TempFileName;
 		
@@ -1003,15 +1001,15 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// Common procedures and functions of operations with operating system files.
+// 
 
-// Open file version.
+// Open the file version.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //  FileData             - Structure
-//  UUID - Form UUID.
+//  UUID - Unique form identifier.
 //
 Procedure OpenFileVersion(ResultHandler, FileData, UUID = Undefined) Export
 	
@@ -1027,7 +1025,7 @@ Procedure OpenFileVersion(ResultHandler, FileData, UUID = Undefined) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonClientOverridable.BeforeExit
 Procedure BeforeExit(Cancel, Warnings) Export
@@ -1077,7 +1075,7 @@ Function FileWriteNotificationParameters(Event = "") Export
 	EventParameters.Insert("Event", Event);
 	EventParameters.Insert("IsNew", False);
 	EventParameters.Insert("Owner");
-	EventParameters.Insert("FileOwner"); // Intended for compatibility purposes
+	EventParameters.Insert("FileOwner"); // 
 	EventParameters.Insert("File");
 	Return EventParameters;
 EndFunction
@@ -1111,7 +1109,7 @@ Procedure ExtractVersionText(FileOrFileVersion, FileAddress, Extension, UUID,
 		Return;
 	EndIf;
 	
-	// For the option of storing files in volumes, delete the file from the temporary storage after receiving it.
+	// 
 	If IsTempStorageURL(FileAddress) Then
 		DeleteFromTempStorage(FileAddress);
 	EndIf;
@@ -1122,7 +1120,7 @@ Procedure ExtractVersionText(FileOrFileVersion, FileAddress, Extension, UUID,
 	Text = "";
 	If FileNameWithPath <> "" Then
 		
-		// Extracting text from the file
+		// 
 		Cancel = False;
 		Text = ExtractText1(FileNameWithPath, Cancel, Encoding);
 		
@@ -1148,8 +1146,8 @@ Procedure ExtractVersionText(FileOrFileVersion, FileAddress, Extension, UUID,
 				EndTry;	
 			EndIf;
 		Else
-			// If there's no one to extract "Text", it's considered standard behavior.
-			// Do not generate an error report.
+			// 
+			// 
 			ExtractionResult = "FailedExtraction";
 		EndIf;
 		
@@ -1222,7 +1220,7 @@ Procedure SetModificationUniversalTime(PathToFile, NewTimeOfChange)
 	EndIf;
 EndProcedure
 
-// Returns True if a file with such extension can be imported.
+// Returns True if a file with this extension can be downloaded.
 Function CheckExtentionOfFileToDownload(FileExtention, RaiseException1 = True)
 	
 	CommonSettings = CommonFilesOperationsSettings();
@@ -1258,7 +1256,7 @@ Function EncryptedFilesExtension()
 	
 EndFunction
 
-// Extracts text from a file and returns it as String.
+// Extract text from a file and return it as a string.
 Function ExtractText1(FullFileName, Cancel = False, Encoding = Undefined)
 	
 	ExtractedText = "";
@@ -1294,7 +1292,7 @@ Function ExtractText1(FullFileName, Cancel = False, Encoding = Undefined)
 		Extracting = New TextExtraction(FullFileName);
 		ExtractedText = Extracting.GetText();
 	Except
-		// If there is no handler to extract the text. This is a common scenario.
+		// 
 		ExtractedText = "";
 		Dismiss = True;
 	EndTry;
@@ -1323,14 +1321,14 @@ Function ExtractText1(FullFileName, Cancel = False, Encoding = Undefined)
 	
 EndFunction
 
-// Returns the path to the working directory of user data. This directory is used
-// as the initial value for the user working directory.
+// Returns the path to the user's working data directory. This directory is used
+// as the initial value for the user's working directory.
 //
 // Parameters:
-//  Notification - NotifyDescription - a notification that runs after the user working
-//   directory is received. As a result the Structure is returned with the following properties:
-//     * Directory        - String - full name of the user data working directory.
-//     * ErrorDescription - String - an error text if the directory is not received.
+//  Notification - NotifyDescription - 
+//   :
+//     * Directory        - String -  full name of the user's working data directory.
+//     * ErrorDescription - String -  error text if the folder could not be retrieved.
 //
 Procedure GetUserDataWorkingDirectory(Notification)
 	
@@ -1343,7 +1341,7 @@ Procedure GetUserDataWorkingDirectory(Notification)
 	
 EndProcedure
 
-// Continue the GetUserDataWorkingDirectory procedure.
+// Continue with the procedure to get the working directory of the user's Data.
 Procedure GetUserDataWorkingDirectoryAfterGetDataError(ErrorInfo, StandardProcessing, Context) Export
 	
 	StandardProcessing = False;
@@ -1358,7 +1356,7 @@ Procedure GetUserDataWorkingDirectoryAfterGetDataError(ErrorInfo, StandardProces
 	
 EndProcedure
 
-// Continue the GetUserDataWorkingDirectory procedure.
+// Continue with the procedure to get the working directory of the user's Data.
 Procedure GetUserDataWorkingDirectoryAfterGet(UserDataDir, Context) Export
 	
 	Result = New Structure;
@@ -1369,7 +1367,7 @@ Procedure GetUserDataWorkingDirectoryAfterGet(UserDataDir, Context) Export
 	
 EndProcedure
 
-// Continue the CheckSignatures procedure.
+// Continue with the check Signatures procedure.
 Procedure CheckSignaturesLoopStart(AdditionalParameters)
 	
 	If AdditionalParameters.Collection.Count() <= AdditionalParameters.IndexOf + 1 Then
@@ -1397,19 +1395,19 @@ Procedure CheckSignaturesLoopStart(AdditionalParameters)
 	
 EndProcedure
 
-// Checks file properties in the working directory and in the file storage,
-// if necessary, asks for user confirmation and returns one of the following actions:
-// "OpenExistingFile", "GetFromStorageAndOpen", or "Cancel".
+// Checks the properties of the file in the working directory and in the file storage,
+// if necessary, checks with the user and returns one of the actions:
+// "Open Existing", "Take storagesopen","Cancel".
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
-//  FileNameWithPath - String - full file name with its path in the working directory.
+//                       - Undefined - 
+//  FileNameWithPath - String -  the full name of the file with the path in the working directory.
 // 
 //  FileData    - Structure:
-//                   Size                       - Number.
-//                   UniversalModificationDate - Date.
-//                   InWorkingDirectoryForRead     - Boolean.
+//                   Size Is A Number.
+//                   Datatypeconversion - Date.
+//                   In Workcatalogenachtension-Boolean.
 //
 Procedure ActionOnOpenFileInWorkingDirectory(ResultHandler, FileNameWithPath, FileData)
 	
@@ -1442,11 +1440,11 @@ Procedure ActionOnOpenFileInWorkingDirectory(ResultHandler, FileNameWithPath, Fi
 		DateDifference = -DateDifference;
 	EndIf;
 	
-	If DateDifference <= 1 Then // Second is a possible difference (Win95 can have that).
+	If DateDifference <= 1 Then // 
 		
 		If Parameters.SizeInFileStorage <> 0
 		   And Parameters.SizeInFileStorage <> Parameters.SizeInWorkingDirectory Then
-			// Date is the same, but the size is different. It is a rare but possible case.
+			// 
 			
 			Parameters.Insert("Title",
 				NStr("en = 'Different file sizes';"));
@@ -1463,7 +1461,7 @@ Procedure ActionOnOpenFileInWorkingDirectory(ResultHandler, FileNameWithPath, Fi
 		
 	ElsIf Parameters.ChangeDateUniversalInWorkingDirectory
 	        < Parameters.ChangeDateUniversalInFileStorage Then
-		// The most recent file is in the file storage
+		// 
 		If FileData.InWorkingDirectoryForRead = False Then
 			Parameters.Insert("Title", NStr("en = 'Newer file version in application';"));
 			Parameters.Insert("Message",
@@ -1479,16 +1477,16 @@ Procedure ActionOnOpenFileInWorkingDirectory(ResultHandler, FileNameWithPath, Fi
 	
 	ElsIf Parameters.ChangeDateUniversalInWorkingDirectory
 	        > Parameters.ChangeDateUniversalInFileStorage Then
-		// The most recent file is in the working directory
+		// 
 		
 		If FileData.InWorkingDirectoryForRead = False
 		   And FileData.BeingEditedBy = UsersClient.AuthorizedUser() Then
 			
-			// The file in the working directory is locked for editing by the current user
+			// 
 			ReturnResult(ResultHandler, "OpenExistingFile");
 			Return;
 		Else
-			// The file in the working directory is for reading.
+			// 
 			Parameters.Insert("Title", NStr("en = 'Newer local file version';"));
 			Parameters.Insert(
 				"Message",
@@ -1503,19 +1501,19 @@ Procedure ActionOnOpenFileInWorkingDirectory(ResultHandler, FileNameWithPath, Fi
 	
 EndProcedure
 
-// Returns the My Documents directory.
+// Returns the "My Documents" folder.
 //
 Function MyDocumentsDirectory()
 	Return DocumentsDir();
 EndFunction
 
-// Returns the path to the user working directory.
+// Returns the path to the user's working directory.
 //
 // Parameters:
-//  Notification - NotifyDescription - a notification that runs after the user working
-//   directory is received. As a result the Structure is returned with the following properties:
-//     * Directory        - String - full name of the user working directory.
-//     * ErrorDescription - String - an error text if the directory is not received.
+//  Notification - NotifyDescription - 
+//   :
+//     * Directory        - String -  full name of the user's working directory.
+//     * ErrorDescription - String -  error text if the folder could not be retrieved.
 //
 Procedure GetUserWorkingDirectory(Notification)
 	
@@ -1527,7 +1525,7 @@ Procedure GetUserWorkingDirectory(Notification)
 	DirectoryName =
 		StandardSubsystemsClient.ClientRunParameters().PersonalFilesOperationsSettings.PathToLocalFileCache;
 	
-	// Already specified.
+	// 
 	If DirectoryName <> Undefined
 		And Not IsBlankString(DirectoryName)
 		And ApplicationParameters["StandardSubsystems.WorkingDirectoryAccessCheckExecuted"] Then
@@ -1549,7 +1547,7 @@ Procedure GetUserWorkingDirectory(Notification)
 	
 EndProcedure
 
-// Continue the GetUserWorkingDirectory procedure.
+// Continue the procedure to get the user's working Directory.
 Procedure GetUserWorkingDirectoryAfterGetDataDirectory(Result, Context) Export
 	
 	If ValueIsFilled(Result.ErrorDescription) Then
@@ -1560,15 +1558,15 @@ Procedure GetUserWorkingDirectoryAfterGetDataDirectory(Result, Context) Export
 #If Not WebClient Then
 	
 	If Result.Directory <> Context.Directory Then
-		// Create a directory for files.
+		// 
 		Try
 			CreateDirectory(Context.Directory);
 			TestDirectoryName = Context.Directory + "CheckAccess\";
 			CreateDirectory(TestDirectoryName);
 			DeleteFiles(TestDirectoryName);
 		Except
-			// Insufficient rights to create a directory, or this path does not exist.
-			// Set the default settings.
+			// 
+			// 
 			Context.Directory = Undefined;
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", ErrorProcessing.DetailErrorDescription(ErrorInfo()),, True);
@@ -1589,12 +1587,12 @@ Procedure GetUserWorkingDirectoryAfterGetDataDirectory(Result, Context) Export
 	
 EndProcedure
 
-// Shows file editing tips in the web client
-// if the Show file editing tips option is enabled.
+// Shows a reminder about how to work with a file in the web client,
+// if the "Show hints when editing files" setting is enabled.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //
 Procedure OutputNotificationOnEdit(ResultHandler)
 	PersonalSettings = PersonalFilesOperationsSettings();
@@ -1637,7 +1635,7 @@ Procedure OutputNotificationOnEdit(ResultHandler)
 	ReturnResult(ResultHandler, True);
 EndProcedure
 
-// Continue the CheckSignatures procedure.
+// Continue with the check Signatures procedure.
 Procedure CheckSignaturesAfterPrepareData(Data, AdditionalParameters)
 	
 	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
@@ -1714,15 +1712,15 @@ Function SignatureRowData()
 	
 EndFunction
 
-// Puts files from the computer into the attachment storage.
+// 
 //
 // Parameters:
-//  SelectedFiles                 - Array of String - paths to files.
-//  FileOwner                  - DefinedType.FilesOwner - a reference to the file owner.
-//  FilesOperationsSettings        - Structure.
-//  AttachedFilesArray      - Array of DefinedType.AttachedFile - return value. filled in with the references
+//  SelectedFiles                 - Array of String -  file paths.
+//  FileOwner                  - DefinedType.FilesOwner -  a link to the owner of the file.
+//  Customizationsfiles - Structure.
+//  AttachedFilesArray      - Array of DefinedType.AttachedFile -  the return value. it is filled with links
 //                                   to the added files.
-//  FormIdentifier             - UUID - UUID.
+//  FormIdentifier             - UUID -  Unique form identifier.
 //
 Procedure PutSelectedFilesInStorage(Val SelectedFiles,
                                             Val FileOwner,
@@ -1825,18 +1823,18 @@ Procedure UpdateFileSavingState(Val SelectedFiles,
 	
 EndProcedure
 
-// Puts a file from the computer into the attachment storage (web client).
+// 
 // 
 // Parameters:
-//  ResultHandler    - NotifyDescription - Procedure to pass the control to upon completion.
-//                            Parameters of the callable procedure::
-//                             AttachedFile - AnyRef, Undefined - Reference to the added file.
-//                                                       Undefined if the file was not put.
-//                             AdditionalParameters - Arbitrary - Value specified upon creating the notification object.
+//  ResultHandler    - NotifyDescription - 
+//                            :
+//                             
+//                                                       
+//                             
 //                                                                      
-//  FileOwner           - reference to the file owner.
-//  FilesOperationsSettings - Structure.
-//  FormIdentifier      - Form UUID.
+//  FileOwner           - 
+//  
+//  FormIdentifier      - Unique form identifier.
 //
 Procedure PutSelectedFilesInStorageWeb(ResultHandler, Val FileOwner, Val FormIdentifier)
 	
@@ -1849,7 +1847,7 @@ Procedure PutSelectedFilesInStorageWeb(ResultHandler, Val FileOwner, Val FormIde
 	
 EndProcedure
 
-// Continues the PutSelectedFilesInStorageWeb procedure.
+// Continue the procedure to place the selected files in the storage area of the Web.
 Procedure PutSelectedFilesInStorageWebCompletion(Result, Address, SelectedFileName, AdditionalParameters) Export
 	
 	Handler = AdditionalParameters.ResultHandler; // NotifyDescription
@@ -1900,7 +1898,7 @@ Procedure PutSelectedFilesInStorageWebCompletion(Result, Address, SelectedFileNa
 		FileParameters.FilesGroup = FilesGroup;
 	EndIf;
 	
-	// Creating file cards in the database.
+	// 
 	AttachedFile = FilesOperationsInternalServerCall.AppendFile(
 		FileParameters, Address);
 		
@@ -1908,21 +1906,21 @@ Procedure PutSelectedFilesInStorageWebCompletion(Result, Address, SelectedFileNa
 	
 EndProcedure
 
-// Checks whether it is possible to unlock File.
+// Checks whether the File can be released.
 //
 // Parameters:
-//  ObjectRef - CatalogRef.Files - file.
+//  ObjectRef - CatalogRef.Files -  file.
 //
 //  EditedByCurrentUser - Boolean -
-//                 file is edited by the current user.
+//                  the file is edited by the current user.
 //
-//  BeingEditedBy  - CatalogRef.Users - the user who locked the file.
+//  BeingEditedBy  - CatalogRef.Users -  the person who took the file.
 //
-//  ErrorString - String - in which the error cause is returned in case of failure
-//                 (for example, "The file is locked by another user").
+//  ErrorString - String -  which returns the reason for the error in case of failure
+//                 (for example, "the File is occupied by another user").
 //
 // Returns:
-//  Boolean -  True if the file can be released.
+//  Boolean -  
 //
 Function AbilityToUnlockFile(ObjectRef,
                                   EditedByCurrentUser,
@@ -1971,7 +1969,7 @@ Procedure UnlockFiles(ListOfFiles) Export
 	
 	FilesData = FilesOperationsInternalServerCall.UnlockFiles(FilesArray);
 	
-	// Delete files from the working directory to avoid getting modified files during the next editing.
+	// 
 	Handler = New NotifyDescription;
 	For Each File In FilesArray Do
 		FileVersion = FilesData.FilesVersions.Get(File);
@@ -1990,11 +1988,11 @@ Procedure UnlockFiles(ListOfFiles) Export
 
 EndProcedure
 
-// Unlocks file without updating it.
+// Releases the file without updating it.
 //
 // Parameters:
 //  FileData             - Structure
-//  UUID - Managed form UUID.
+//  UUID - 
 //
 Procedure UnlockFileWithoutQuestion(FileData, UUID = Undefined)
 	
@@ -2014,10 +2012,10 @@ EndProcedure
 // Moves files to the specified folder.
 //
 // Parameters:
-//  ObjectsRef - Array - an array of files.
+//  ObjectsRef - Array -  array of files.
 //
-//  Folder         - CatalogRef.FilesFolders - a folder,
-//                  where files must be moved.
+//  Folder         - CatalogRef.FilesFolders -  the folder
+//                  to move files to.
 //
 Procedure MoveFilesToFolder(ObjectsRef, Folder) Export
 	
@@ -2039,7 +2037,7 @@ Procedure MoveFilesToFolder(ObjectsRef, Folder) Export
 	
 EndProcedure
 
-// Extracts text from a file and puts it to a temporary storage.
+// Extract the text from the file and put it in temporary storage.
 Function ExtractTextToTempStorage(FullFileName, UUID = "", Cancel = False,
 	Encoding = Undefined)
 	
@@ -2076,7 +2074,7 @@ Function ExtractTextToTempStorage(FullFileName, UUID = "", Cancel = False,
 	
 EndFunction
 
-// Returns a string constant for generating event log messages.
+// Returns a string constant for generating log messages.
 //
 // Returns:
 //   String
@@ -2087,7 +2085,7 @@ Function EventLogEvent()
 	
 EndFunction
 
-// Returns a message text about an error creating a new file.
+// Returns the text of the error message about creating a new file.
 //
 // Parameters:
 //  ErrorInfo - ErrorInfo
@@ -2101,7 +2099,7 @@ Function ErrorCreatingNewFile(ErrorInfo)
 
 EndFunction
 
-// Checks file extension and size.
+// Checks the file extension and size.
 //
 // Parameters:
 //   File - File
@@ -2114,7 +2112,7 @@ Function CheckCanImportFile(File, RaiseException1 = True, FilesWithErrors = Unde
 	
 	CommonSettings = CommonFilesOperationsSettings();
 	
-	// A file size is too big.
+	// 
 	If File.Size() > CommonSettings.MaxFileSize Then
 		
 		SizeInMB     = File.Size() / (1024 * 1024);
@@ -2139,7 +2137,7 @@ Function CheckCanImportFile(File, RaiseException1 = True, FilesWithErrors = Unde
 		Return False;
 	EndIf;
 	
-	// Check file extension.
+	// 
 	If Not CheckExtentionOfFileToDownload(File.Extension, False) Then
 		
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2159,7 +2157,7 @@ Function CheckCanImportFile(File, RaiseException1 = True, FilesWithErrors = Unde
 		Return False;
 	EndIf;
 	
-	// Word temporary files are not used.
+	// 
 	If StrStartsWith(File.Name, "~")
 		And File.GetHidden() Then
 		
@@ -2171,9 +2169,9 @@ Function CheckCanImportFile(File, RaiseException1 = True, FilesWithErrors = Unde
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Completes file editing and puts the file to the server.
+// 
 
-// Completes editing a file and puts it to the server.
+// Finish editing the File and place it on the server.
 //
 // Parameters:
 //   Parameters - See FileUpdateParameters.
@@ -2185,7 +2183,7 @@ Procedure EndEdit(Parameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditAfterInstallExtension(ExtensionInstalled, ExecutionParameters) Export
 	ExecutionParameters.Insert("FileData", Undefined);
 	
@@ -2196,16 +2194,16 @@ Procedure FinishEditAfterInstallExtension(ExtensionInstalled, ExecutionParameter
 	EndIf;
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithExtension(ExecutionParameters)
-	// Web client with 1C:Enterprise Extension
-	// Thin client
-	// Thick client
+	// 
+	// 
+	// 
 	
 	FileData = FilesOperationsInternalServerCall.FileDataAndWorkingDirectory(ExecutionParameters.ObjectRef);
 	ExecutionParameters.FileData = FileData;
 	
-	// Checking the ability to unlock the file.
+	// 
 	ErrorText = "";
 	CanUnlockFile = AbilityToUnlockFile(
 		FileData.Ref,
@@ -2222,7 +2220,7 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 		ExecutionParameters.FullFilePath = FileData.FullFileNameInWorkingDirectory;
 	EndIf;
 	
-	// Check file presence.
+	// 
 	ExecutionParameters.Insert("NewVersionFile", New File(ExecutionParameters.FullFilePath));
 	
 	If Not ValueIsFilled(ExecutionParameters.FullFilePath)
@@ -2268,13 +2266,13 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 		Raise ErrorText + Chars.LF + Chars.LF + ErrorProcessing.DetailErrorDescription(ErrorInfo());
 	EndTry;
 	
-	// Requesting a comment and version storage flag.
+	// 
 	If ExecutionParameters.CreateNewVersion = Undefined Then
 		
 		ExecutionParameters.CreateNewVersion = FileData.StoreVersions;
 		If FileData.StoreVersions Then
-			// If the current version author is not the current user, then
-			// the "Do not create new version" checkbox is unavailable.
+			// 
+			// 
 			CreateNewVersionAvailability = FileData.CurrentVersionAuthor = FileData.BeingEditedBy;
 			
 			ReturnFile = New Structure;
@@ -2290,12 +2288,12 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 			FinishEditWithExtensionAfterCheckNewVersion(ExecutionParameters);
 		EndIf;
 		
-	Else // The CreateNewVersion and VersionComment parameters are external.
+	Else // 
 		
 		If FileData.StoreVersions Then
 			
-			// If the current version author is not the current user, then
-			// the "Do not create new version" checkbox is unavailable.
+			// 
+			// 
 			If FileData.CurrentVersionAuthor <> FileData.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -2309,7 +2307,7 @@ Procedure FinishEditWithExtension(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithExtensionAfterRespondQuestionUnlockFile(Response, ExecutionParameters) Export
 	If Response <> -1 Then
 		If Response = DialogReturnCode.Yes Then
@@ -2327,7 +2325,7 @@ Procedure FinishEditWithExtensionAfterRespondQuestionUnlockFile(Response, Execut
 	EndIf;
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure CompleteEditingWithExtensionAfterPutFileOnServer(Result, ExecutionParameters) Export
 	
 	If TypeOf(Result) <> Type("Structure") Then
@@ -2347,7 +2345,7 @@ Procedure CompleteEditingWithExtensionAfterPutFileOnServer(Result, ExecutionPara
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithExtensionAfterCheckNewVersion(ExecutionParameters)
 	
 	If Not ExecutionParameters.FileData.Encrypted Then
@@ -2355,13 +2353,13 @@ Procedure FinishEditWithExtensionAfterCheckNewVersion(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// The file with the encrypted again flag is encrypted for the same certificates.
+	// 
 	
 	EncryptFileBeforePutFileInFileStorage(ExecutionParameters);
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithExtensionAfterCheckEncrypted(ExecutionParameters)
 	
 	FileInfo1 = FilesOperationsClientServer.FileInfo1("FileWithVersion", ExecutionParameters.NewVersionFile);
@@ -2455,7 +2453,7 @@ Procedure FinishEditWithExtensionAfterCheckEncrypted(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 Procedure FinishEditWithExtensionAfterCheckEncryptedRepeat(Result, Parameter) Export
 	If Result = DialogReturnCode.Retry Then
@@ -2463,7 +2461,7 @@ Procedure FinishEditWithExtensionAfterCheckEncryptedRepeat(Result, Parameter) Ex
 	EndIf;
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -2498,7 +2496,7 @@ Procedure FinishEditWithExtensionAfterDeleteFileFromWorkingDirectory(Result, Exe
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithExtensionAfterShowNotification(Result, ExecutionParameters) Export
 	
 	If TypeOf(Result) = Type("Structure") And Result.NeverAskAgain Then
@@ -2510,7 +2508,7 @@ Procedure FinishEditWithExtensionAfterShowNotification(Result, ExecutionParamete
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -2533,7 +2531,7 @@ Procedure FinishEditWithExtensionExceptionProcessing(ErrorInfo, ExecutionParamet
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithExtensionAfterRespondQuestionRepeat(Response, ExecutionParameters) Export
 	
 	If Response = DialogReturnCode.Cancel Then
@@ -2545,9 +2543,9 @@ Procedure FinishEditWithExtensionAfterRespondQuestionRepeat(Response, ExecutionP
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithoutExtension(ExecutionParameters)
-	// Web client without 1C:Enterprise Extension.
+	// 
 	
 	If ExecutionParameters.FileData = Undefined Then
 		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
@@ -2561,7 +2559,7 @@ Procedure FinishEditWithoutExtension(ExecutionParameters)
 		ExecutionParameters.Encoding                          = ExecutionParameters.FileData.CurrentVersionEncoding;
 	EndIf;
 	
-	// Checking the ability to unlock the file.
+	// 
 	ErrorText = "";
 	CanUnlockFile = AbilityToUnlockFile(
 		ExecutionParameters.ObjectRef,
@@ -2583,8 +2581,8 @@ Procedure FinishEditWithoutExtension(ExecutionParameters)
 		If ExecutionParameters.StoreVersions Then
 			ExecutionParameters.CreateNewVersion = True;
 			
-			// If the current version author is not the current user, then
-			// the "Do not create new version" checkbox is unavailable.
+			// 
+			// 
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				CreateNewVersionAvailability = False;
 			Else
@@ -2605,12 +2603,12 @@ Procedure FinishEditWithoutExtension(ExecutionParameters)
 		
 		OpenForm("DataProcessor.FilesOperations.Form.SaveFileToInfobaseForm", ParametersStructure, , , , , Handler);
 		
-	Else // The CreateNewVersion and VersionComment parameters are external.
+	Else // 
 		
 		If ExecutionParameters.StoreVersions Then
 			
-			// If the current version author is not the current user, then
-			// the "Do not create new version" checkbox is unavailable.
+			// 
+			// 
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -2625,7 +2623,7 @@ Procedure FinishEditWithoutExtension(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure CompleteEditingWithoutExtensionAfterPutFileOnServer(Result, ExecutionParameters) Export
 	
 	If TypeOf(Result) <> Type("Structure") Then
@@ -2645,7 +2643,7 @@ Procedure CompleteEditingWithoutExtensionAfterPutFileOnServer(Result, ExecutionP
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithoutExtensionAfterCheckNewVersion(ExecutionParameters)
 	
 	Handler = New NotifyDescription("FinishEditWithoutExtensionAfterReminder", ThisObject, ExecutionParameters);
@@ -2653,7 +2651,7 @@ Procedure FinishEditWithoutExtensionAfterCheckNewVersion(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithoutExtensionAfterReminder(Result, ExecutionParameters) Export
 	
 	If Result = DialogReturnCode.Cancel Or Result = Undefined Then
@@ -2670,7 +2668,7 @@ Procedure FinishEditWithoutExtensionAfterReminder(Result, ExecutionParameters) E
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithoutExtensionAfterImportFile(Put, Address, SelectedFileName, ExecutionParameters) Export
 	
 	If Not Put Then
@@ -2702,7 +2700,7 @@ Procedure FinishEditWithoutExtensionAfterImportFile(Put, Address, SelectedFileNa
 		Return;
 	EndIf;
 	
-	// SuggestFileSystemExtensionInstallationNow() is not required, because everything is done in the memory via BinaryData
+	// 
 	
 	DataDetails = New Structure;
 	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file';"));
@@ -2721,7 +2719,7 @@ Procedure FinishEditWithoutExtensionAfterImportFile(Put, Address, SelectedFileNa
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -2795,7 +2793,7 @@ Procedure FinishEditWithoutExtensionAfterEncryptFile(DataDetails, ExecutionParam
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithoutExtensionAfterShowNotification(Result, ExecutionParameters) Export
 	
 	If TypeOf(Result) = Type("Structure") And Result.Property("NeverAskAgain") And Result.NeverAskAgain Then
@@ -2807,7 +2805,7 @@ Procedure FinishEditWithoutExtensionAfterShowNotification(Result, ExecutionParam
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditExceptionHandler(ErrorInfo, ExecutionParameters)
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2824,7 +2822,7 @@ Procedure FinishEditExceptionHandler(ErrorInfo, ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditWithoutExtensionAfterRespondQuestionRepeat(Response, ExecutionParameters) Export
 	If Response = DialogReturnCode.Cancel Then
 		ReturnResult(ExecutionParameters.ResultHandler, False);
@@ -2834,19 +2832,19 @@ Procedure FinishEditWithoutExtensionAfterRespondQuestionRepeat(Response, Executi
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Selecting the file and creating a new version of it.
+// 
 
-// Imports the file and creates a new version.
+// 
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that
-//                       receives the method result with the following parameters:
-//    * Result               - Boolean - True if the file is updated.
-//    * AdditionalParameters - Arbitrary - a value that was specified on creating
-//                              the NotifyDescription object.
+//                       - Undefined - 
+//                       :
+//    * Result               - Boolean -  True if the file is updated.
+//    * AdditionalParameters - Arbitrary -  the value that was specified when creating the object
+//                              Description of the announcement.
 //  FileData        - See FilesOperationsInternalServerCall.FileDataAndWorkingDirectory
-//  FormIdentifier - UUID - a form UUID.
+//  FormIdentifier - UUID -  unique form ID.
 //
 Procedure UpdateFromFileOnHardDrive(ResultHandler, FileData, FormIdentifier,
 	FileAddingOptions = Undefined)
@@ -2964,11 +2962,11 @@ Procedure UpdateFromFileOnHardDrive(ResultHandler, FileData, FormIdentifier,
 		Return;
 	EndIf;
 	
-	// cutting .p7m at the end.
+	// 
 	Position = StrFind(ExecutionParameters.FileNameAndExtensionOnHardDrive, ExecutionParameters.FileExtensionOnHardDrive);
 	ExecutionParameters.FileNameAndExtensionOnHardDrive = Left(ExecutionParameters.FileNameAndExtensionOnHardDrive, Position - 2);
 	
-	// cutting .p7m at the end.
+	// 
 	ExecutionParameters.Insert("DialogBoxFullFileNamePrevious", ExecutionParameters.DialogBoxFullFileName);
 	Position = StrFind(ExecutionParameters.DialogBoxFullFileName, ExecutionParameters.FileExtensionOnHardDrive);
 	ExecutionParameters.DialogBoxFullFileName = Left(ExecutionParameters.DialogBoxFullFileName, Position - 2);
@@ -2978,7 +2976,7 @@ Procedure UpdateFromFileOnHardDrive(ResultHandler, FileData, FormIdentifier,
 	ExecutionParameters.FileExtensionOnHardDrive = CommonClientServer.ExtensionWithoutPoint(
 		TempFileNonEncrypted.Extension);
 	
-	// Decrypt here and enter the same date of change, as of DialogBoxFullFileNamePrevious.
+	// 
 	
 	Files = New Array;
 	FileDetails = New TransferableFileDescription(ExecutionParameters.DialogBoxFullFileNamePrevious);
@@ -2989,7 +2987,7 @@ Procedure UpdateFromFileOnHardDrive(ResultHandler, FileData, FormIdentifier,
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -3022,7 +3020,7 @@ Procedure UpdateFromFileOnHardDriveBeforeDecryption(Files, ExecutionParameters) 
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure UpdateFromFileOnHardDriveAfterDecryption(DataDetails, ExecutionParameters) Export
 	
 	If Not DataDetails.Success Then
@@ -3057,7 +3055,7 @@ Procedure UpdateFromFileOnHardDriveAfterDecryption(DataDetails, ExecutionParamet
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -3072,7 +3070,7 @@ Procedure UpdateFromFileOnHardDriveFollowUp(ExecutionParameters)
 	CommonInternalClient.ShortenFileName(FileNameAndExtensionInInfobase);
 	ExecutionParameters.Insert("FileDateInDatabase", ExecutionParameters.FileData.UniversalModificationDate);
 	
-	If ExecutionParameters.ChangeTimeSelected < ExecutionParameters.FileDateInDatabase Then // There is a newer one in the storage.
+	If ExecutionParameters.ChangeTimeSelected < ExecutionParameters.FileDateInDatabase Then // 
 		
 #If MobileClient Then
 		QuestionTextTemplate = NStr("en = 'File ""%1"" to be imported from the device 
@@ -3102,7 +3100,7 @@ Procedure UpdateFromFileOnHardDriveFollowUp(ExecutionParameters)
 
 	EndIf;
 	
-	// Check if a file copy in the working directory is available for editing.
+	// 
 	InWorkingDirectoryForRead = True;
 	InOwnerWorkingDirectory = False;
 	FullFileName = "";
@@ -3111,7 +3109,7 @@ Procedure UpdateFromFileOnHardDriveFollowUp(ExecutionParameters)
 	
 #If Not WebClient And Not MobileClient Then
 	If ExecutionParameters.FileData.CurrentUserEditsFile And FileInWorkingDirectory Then
-		// Checking if the file is not locked by the application.
+		// 
 		Try
 			SelectedFile = New File(FullFileName);
 			ReadOnly = SelectedFile.GetReadOnly();
@@ -3138,7 +3136,7 @@ Procedure UpdateFromFileOnHardDriveFollowUp(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -3156,7 +3154,7 @@ Procedure UpdateFromFileOnDiskOldVersion(Result, ExecutionParameters) Export
 		
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -3206,7 +3204,7 @@ Procedure UpdateFromFileOnHardDriveAfterDeleteFileFromWorkingDirectory(Result, E
 	ExecutionParameters.FileData.Extension = CommonClientServer.ExtensionWithoutPoint(
 		ExecutionParameters.FileExtensionOnHardDrive);
 	
-	// Place the selected file to the working directory as the UpdatePathFromFileOnHardDrive property is specified.
+	// 
 	Handler = New NotifyDescription("UpdateFromFileOnHardDriveAfterGetFileToWorkingDirectory", ThisObject, 
 		ExecutionParameters);
 	GetVersionFileToWorkingDirectory(Handler, ExecutionParameters.FileData, NewFullFileName, 
@@ -3214,7 +3212,7 @@ Procedure UpdateFromFileOnHardDriveAfterDeleteFileFromWorkingDirectory(Result, E
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -3222,7 +3220,7 @@ EndProcedure
 //
 Procedure UpdateFromFileOnHardDriveAfterGetFileToWorkingDirectory(Result, ExecutionParameters) Export
 	
-	// The result processing is not required.
+	// 
 	If ExecutionParameters.FileEncrypted Then
 		FilesOperationsInternalServerCall.CheckEncryptedFlag(ExecutionParameters.FileData.Ref, ExecutionParameters.FileEncrypted);
 	EndIf;
@@ -3230,7 +3228,7 @@ Procedure UpdateFromFileOnHardDriveAfterGetFileToWorkingDirectory(Result, Execut
 	PassedFullFilePath = "";
 	
 	Handler = New NotifyDescription("UpdateFromFileOnHardDriveAfterFinishEdit", ThisObject, ExecutionParameters);
-	If ExecutionParameters.CurrentUserEditsFile Then // File was already locked.
+	If ExecutionParameters.CurrentUserEditsFile Then // 
 		HandlerParameters = FileUpdateParameters(Handler, ExecutionParameters.FileData.Ref, ExecutionParameters.FormIdentifier);
 		HandlerParameters.PassedFullFilePath = PassedFullFilePath;
 		HandlerParameters.CreateNewVersion = ExecutionParameters.CreateNewVersion;
@@ -3250,7 +3248,7 @@ Procedure UpdateFromFileOnHardDriveAfterGetFileToWorkingDirectory(Result, Execut
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure UpdateFromFileOnHardDriveAfterFinishEdit(EditResult, ExecutionParameters) Export
 	
 	If ExecutionParameters.FileEncrypted Then
@@ -3261,18 +3259,18 @@ Procedure UpdateFromFileOnHardDriveAfterFinishEdit(EditResult, ExecutionParamete
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Marking file locked for editing.
+// Marks the file as busy for editing.
 
-// Marks a file locked for editing.
+// 
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result:
-//      * Result - Boolean -  True if the operation is successful.
-//      * AdditionalParameters - Arbitrary - a value that was specified on creating
-//                                the NotifyDescription object.
-//  ObjectRef            - CatalogRef.Files - file.
-//  UUID - UUID - a form UUID.
+//                       - Undefined - :
+//      * Result - Boolean -    True if the operation was completed successfully.
+//      * AdditionalParameters - Arbitrary -  the value that was specified when creating the object
+//                                Description of the announcement.
+//  ObjectRef            - CatalogRef.Files -  file.
+//  UUID - UUID -  unique form ID.
 //
 Procedure LockFileByRef(ResultHandler, ObjectRef, UUID = Undefined)
 	
@@ -3287,7 +3285,7 @@ Procedure LockFileByRef(ResultHandler, ObjectRef, UUID = Undefined)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure LockFileByRefAfterInstallExtension(ExtensionInstalled, ExecutionParameters) Export
 	
 	ExecutionParameters.Insert("FileData", Undefined);
@@ -3296,7 +3294,7 @@ Procedure LockFileByRefAfterInstallExtension(ExtensionInstalled, ExecutionParame
 	FileDataReceivedAndFileLocked = FilesOperationsInternalServerCall.GetFileDataAndLockFile(
 		ExecutionParameters.ObjectRef, ExecutionParameters.FileData, ErrorText, ExecutionParameters.UUID);
 		
-	If Not FileDataReceivedAndFileLocked Then // If you cannot lock the file, an error message is displayed.
+	If Not FileDataReceivedAndFileLocked Then // 
 		ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, ErrorText, False);
 		Return;
 	EndIf;
@@ -3323,14 +3321,14 @@ Procedure LockFileByRefAfterInstallExtension(ExtensionInstalled, ExecutionParame
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Marking files as locked for editing.
+// 
 
-// Marks files as locked for editing.
+// Marks files as occupied for editing.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
-//  FilesArray - Array - an array of files.
+//                       - Undefined - 
+//  FilesArray - Array -  array of files.
 //
 Procedure LockFilesByRefs(ResultHandler, Val FilesArray)
 	
@@ -3344,10 +3342,10 @@ Procedure LockFilesByRefs(ResultHandler, Val FilesArray)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure LockFilesByRefsAfterInstallExtension(ExtensionInstalled, ExecutionParameters) Export
 	
-	// Receiving an array of these files.
+	// 
 	FilesData = New Array;
 	FilesOperationsInternalServerCall.GetDataForFilesArray(ExecutionParameters.FilesArray, FilesData);
 	InArrayBoundary  = FilesData.UBound();
@@ -3357,13 +3355,13 @@ Procedure LockFilesByRefsAfterInstallExtension(ExtensionInstalled, ExecutionPara
 		
 		ErrorString = "";
 		If Not FilesOperationsClientServer.WhetherPossibleLockFile(FileData, ErrorString)
-		 Or ValueIsFilled(FileData.BeingEditedBy) Then // Cannot lock.
+		 Or ValueIsFilled(FileData.BeingEditedBy) Then // 
 			
 			FilesData.Delete(InArrayBoundary - Indus);
 		EndIf;
 	EndDo;
 	
-	// Lock files.
+	// 
 	LockedFilesCount = 0;
 	
 	For Each FileData In FilesData Do
@@ -3397,16 +3395,16 @@ Procedure LockFilesByRefsAfterInstallExtension(ExtensionInstalled, ExecutionPara
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Open file by reference to edit.
+// 
 
-// Opens file for editing.
+// Opens the file for editing.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
-//  ObjectRef            - CatalogRef.Files - file.
-//  UUID - UUID - a form ID.
-//  OwnerWorkingDirectory - String - working directory of the owner.
+//                       - Undefined - 
+//  ObjectRef            - CatalogRef.Files -  file.
+//  UUID - UUID -  the ID of the form.
+//  OwnerWorkingDirectory - String -  the owner's working directory.
 //
 Procedure EditFileByRef(ResultHandler, ObjectRef,
 	UUID = Undefined, OwnerWorkingDirectory = Undefined)
@@ -3422,7 +3420,7 @@ Procedure EditFileByRef(ResultHandler, ObjectRef,
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure EditFileByRefAfterInstallExtension(ExtensionInstalled, ExecutionParameters) Export
 	
 	ExecutionParameters.Insert("FileData", Undefined);
@@ -3439,7 +3437,7 @@ Procedure EditFileByRefAfterInstallExtension(ExtensionInstalled, ExecutionParame
 		FilesOperationsClientOverridable.OnFileCaptureError(ExecutionParameters.FileData, StandardProcessing);
 		
 		If StandardProcessing Then
-			// If you cannot lock the file, an error message is displayed.
+			// 
 			ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, 
 				Result.MessageText, False);
 			Return;
@@ -3485,7 +3483,7 @@ Procedure EditFileByRefAfterInstallExtension(ExtensionInstalled, ExecutionParame
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure EditFileByRefWithExtensionAfterGetFileToWorkingDirectory(Result, ExecutionParameters) Export
 	
 	If Result.FileReceived = True Then
@@ -3503,7 +3501,7 @@ Procedure EditFileByRefWithExtensionAfterGetFileToWorkingDirectory(Result, Execu
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure EditFileByRefCompletion(Result, ExecutionParameters) Export
 	
 	ClearTemporaryFormID(ExecutionParameters);
@@ -3513,15 +3511,15 @@ Procedure EditFileByRefCompletion(Result, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Opening file for editing.
+// 
 
-// Opens file for editing.
+// Opens the file for editing.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //  FileData             - Structure
-//  UUID - Form UUID.
+//  UUID - Unique form identifier.
 //
 Procedure EditFile(ResultHandler, FileData, UUID = Undefined) Export
 	
@@ -3536,7 +3534,7 @@ Procedure EditFile(ResultHandler, FileData, UUID = Undefined) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure EditFileAfterInstallExtension(ExtensionInstalled, ExecutionParameters) Export
 	
 	ErrorText = "";
@@ -3548,7 +3546,7 @@ Procedure EditFileAfterInstallExtension(ExtensionInstalled, ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// If File is not locked, lock it.
+	// 
 	If Not ValueIsFilled(ExecutionParameters.FileData.BeingEditedBy) Then
 		Handler = New NotifyDescription("EditFileAfterLockFile", ThisObject, ExecutionParameters);
 		LockFile(Handler, ExecutionParameters.FileData, ExecutionParameters.UUID);
@@ -3559,7 +3557,7 @@ Procedure EditFileAfterInstallExtension(ExtensionInstalled, ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   FileData - See FilesOperationsInternalServerCall.FileDataToOpen
@@ -3577,7 +3575,7 @@ Procedure EditFileAfterLockFile(FileData, ExecutionParameters) Export
 		ExecutionParameters.FileData = FileData;
 	EndIf;
 	
-	// If File does not have a file, open the card.
+	// 
 	If ExecutionParameters.FileData.Version.IsEmpty() Then 
 		ReturnResultAfterShowValue(
 			ExecutionParameters.ResultHandler, ExecutionParameters.FileData.Ref, True);
@@ -3601,7 +3599,7 @@ Procedure EditFileAfterLockFile(FileData, ExecutionParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure EditFileWithExtensionAfterGetFileToWorkingDirectory(Result, ExecutionParameters) Export
 	
 	If Result.FileReceived = True Then
@@ -3614,7 +3612,7 @@ Procedure EditFileWithExtensionAfterGetFileToWorkingDirectory(Result, ExecutionP
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure EditFileWithoutExtensionCompletion(Result, ExecutionParameters) Export
 	
 	ClearTemporaryFormID(ExecutionParameters);
@@ -3624,9 +3622,9 @@ Procedure EditFileWithoutExtensionCompletion(Result, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Open the file version.
+// 
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExtensionInstalled - Boolean
@@ -3656,7 +3654,7 @@ Procedure OpenFileVersionAfterInstallExtension(ExtensionInstalled, ExecutionPara
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure OpenFileVersionAfterGetFileToWorkingDirectory(Result, ExecutionParameters) Export
 	
 	If Result.FileReceived Then
@@ -3670,14 +3668,14 @@ Procedure OpenFileVersionAfterGetFileToWorkingDirectory(Result, ExecutionParamet
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Unlocking files without updating them.
+// 
 
-// Unlocks files without updating them.
+// Releases the files without upgrading.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
-//  FilesArray - Array - an array of files.
+//                       - Undefined - 
+//  FilesArray - Array -  array of files.
 //
 Procedure UnlockFilesByRefs(ResultHandler, Val FilesArray)
 	
@@ -3691,15 +3689,15 @@ Procedure UnlockFilesByRefs(ResultHandler, Val FilesArray)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure UnlockFilesByRefsAfterInstallExtension(ExtensionInstalled, ExecutionParameters) Export
 	
-	// Receiving an array of these files.
+	// 
 	ExecutionParameters.Insert("FilesData", New Array);
 	FilesOperationsInternalServerCall.GetDataForFilesArray(ExecutionParameters.FilesArray, ExecutionParameters.FilesData);
 	InArrayBoundary = ExecutionParameters.FilesData.UBound();
 	
-	// Checking the ability to unlock files.
+	// 
 	For Indus = 0 To InArrayBoundary Do
 		
 		FileData = ExecutionParameters.FilesData[InArrayBoundary - Indus]; // See FilesOperationsInternalServerCall.FileData
@@ -3734,7 +3732,7 @@ Procedure UnlockFilesByRefsAfterInstallExtension(ExtensionInstalled, ExecutionPa
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   Response - DialogReturnCode
@@ -3749,7 +3747,7 @@ Procedure UnlockFilesByRefsAfterRespondQuestionCancelEdit(Response, ExecutionPar
 		Return;
 	EndIf;
 	
-	// Lock files.
+	// 
 	For Each FileData In ExecutionParameters.FilesData Do
 		
 		Parameters = FileUnlockParameters(Undefined, FileData.Ref);
@@ -3774,21 +3772,21 @@ Procedure UnlockFilesByRefsAfterRespondQuestionCancelEdit(Response, ExecutionPar
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Unlocking file without updating it.
+// 
 
 // Returns:
 //   Structure:
 //    * ResultHandler    - NotifyDescription
-//                              - Undefined - description of the procedure that receives the method
-//                                result.
-//    * ObjectRef            - CatalogRef.Files - file.
-//    * Version                  - CatalogRef.FilesVersions - file version.
-//    * StoreVersions           - Boolean - store versions.
-//    * EditedByCurrentUser - Boolean - file is edited by the current user.
-//    * BeingEditedBy             - CatalogRef.Users - user who locked the file.
-//    * UUID - UUID - the managed form ID.
-//    * DontAskQuestion        - Boolean - do not ask "Cancellation of a file editing
-//                                         may result in the loss of your changes. Continue?".
+//                              - Undefined - 
+//                                
+//    * ObjectRef            - CatalogRef.Files -  file.
+//    * Version                  - CatalogRef.FilesVersions -  file version.
+//    * StoreVersions           - Boolean -  store versions.
+//    * EditedByCurrentUser - Boolean -  the file is edited by the current user.
+//    * BeingEditedBy             - CatalogRef.Users -  who took the file.
+//    * UUID - UUID -  ID of the managed form.
+//    * DontAskQuestion        - Boolean -  do not ask the question " Canceling file editing
+//                                         may cause you to lose your changes. Continue?".
 //
 Function FileUnlockParameters(ResultHandler, ObjectRef) Export
 	
@@ -3805,7 +3803,7 @@ Function FileUnlockParameters(ResultHandler, ObjectRef) Export
 	
 EndFunction	
 
-// Unlocks file without updating it.
+// Releases the file without updating it.
 //
 // Parameters:
 //  FileUnlockParameters - See FileUnlockParameters.
@@ -3817,7 +3815,7 @@ Procedure UnlockFile(FileUnlockParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure UnlockFileAfterInstallExtension(ExtensionInstalled, ExecutionParameters) Export
 	
 	ExecutionParameters.Insert("FileData", Undefined);
@@ -3841,7 +3839,7 @@ Procedure UnlockFileAfterInstallExtension(ExtensionInstalled, ExecutionParameter
 		
 	EndIf;
 	
-	// Checking the ability to unlock the file.
+	// 
 	ErrorText = "";
 	CanUnlockFile = AbilityToUnlockFile(
 		ExecutionParameters.ObjectRef,
@@ -3872,7 +3870,7 @@ Procedure UnlockFileAfterInstallExtension(ExtensionInstalled, ExecutionParameter
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure UnlockFileAfterRespondQuestionCancelEdit(Response, ExecutionParameters) Export
 	
 	If Response <> -1 Then
@@ -3913,9 +3911,9 @@ Procedure UnlockFileAfterRespondQuestionCancelEdit(Response, ExecutionParameters
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Write file changes.
+// 
 
-// Start recording the file changes.
+// Start recording of the file changes.
 //
 // Parameters:
 //   FileUpdateParameters - See FileUpdateParameters.
@@ -3927,7 +3925,7 @@ Procedure SaveFileChanges(FileUpdateParameters)
 		
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesAfterInstallExtensions(ExtensionInstalled, ExecutionParameters) Export
 	
 	ExecutionParameters.Insert("FileData", Undefined);
@@ -3942,15 +3940,15 @@ Procedure SaveFileChangesAfterInstallExtensions(ExtensionInstalled, ExecutionPar
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithExtension(ExecutionParameters)
-	// Code for the thin client, thick client, and web client with the attached extension.
+	// 
 	
 	FileData = FilesOperationsInternalServerCall.FileDataAndWorkingDirectory(ExecutionParameters.ObjectRef);
 	ExecutionParameters.FileData = FileData;
 	ExecutionParameters.StoreVersions = FileData.StoreVersions;
 	
-	// Checking the ability to unlock the file.
+	// 
 	ErrorText = "";
 	CanUnlockFile = AbilityToUnlockFile(
 		FileData.Ref,
@@ -3967,7 +3965,7 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 		ExecutionParameters.FullFilePath = FileData.FullFileNameInWorkingDirectory;
 	EndIf;
 	
-	// Checks whether there is a file on the computer.
+	// 
 	ExecutionParameters.Insert("NewVersionFile", New File(ExecutionParameters.FullFilePath));
 	If Not ExecutionParameters.NewVersionFile.Exists() Then
 		If Not IsBlankString(ExecutionParameters.FullFilePath) Then
@@ -3995,7 +3993,7 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// Requesting a comment and version storage flag.
+	// 
 	If ExecutionParameters.CreateNewVersion = Undefined Then
 		
 		ExecutionParameters.CreateNewVersion = True;
@@ -4004,8 +4002,8 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 		If FileData.StoreVersions Then
 			ExecutionParameters.CreateNewVersion = True;
 			
-			// If the current version author is not the current user, then
-			// the "Do not create new version" checkbox is unavailable.
+			// 
+			// 
 			If FileData.CurrentVersionAuthor <> FileData.BeingEditedBy Then
 				CreateNewVersionAvailability = False;
 			Else
@@ -4028,12 +4026,12 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 		
 		OpenForm("DataProcessor.FilesOperations.Form.SaveFileToInfobaseForm", ParametersStructure, , , , , Handler);
 		
-	Else // The CreateNewVersion and VersionComment parameters are external.
+	Else // 
 		
 		If ExecutionParameters.StoreVersions Then
 			
-			// If the current version author is not the current user, then
-			// the "Do not create new version" checkbox is unavailable.
+			// 
+			// 
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -4048,7 +4046,7 @@ Procedure SaveFileChangesWithExtension(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithExtensionAfterRespondQuestionUnlockFile(Response, ExecutionParameters) Export
 	
 	If Response = DialogReturnCode.Yes Then
@@ -4059,7 +4057,7 @@ Procedure SaveFileChangesWithExtensionAfterRespondQuestionUnlockFile(Response, E
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithExtensionAfterPutFileOnServer(Result, ExecutionParameters) Export
 	
 	If TypeOf(Result) <> Type("Structure") Then
@@ -4080,7 +4078,7 @@ Procedure SaveFileChangesWithExtensionAfterPutFileOnServer(Result, ExecutionPara
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithExtensionAfterCheckNewVersion(ExecutionParameters)
 	
 	If Not ExecutionParameters.FileData.Encrypted Then
@@ -4088,13 +4086,13 @@ Procedure SaveFileChangesWithExtensionAfterCheckNewVersion(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// The file with the encrypted again flag is encrypted for the same certificates.
+	// 
 	
 	EncryptFileBeforePutFileInFileStorage(ExecutionParameters);
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -4130,7 +4128,7 @@ Procedure SaveFileChangesWithExtensionAfterCheckEncrypted(ExecutionParameters)
 	DirectoryName = UserWorkingDirectory();
 	
 	RelativeFilePath = "";
-	If ExecutionParameters.FileData.OwnerWorkingDirectory <> "" Then // Has working directory.
+	If ExecutionParameters.FileData.OwnerWorkingDirectory <> "" Then // 
 		RelativeFilePath = ExecutionParameters.FullFilePath;
 	Else
 		Position = StrFind(ExecutionParameters.FullFilePath, DirectoryName);
@@ -4176,7 +4174,7 @@ Procedure SaveFileChangesWithExtensionAfterCheckEncrypted(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithExtensionAfterShowNotification(Result, ExecutionParameters) Export
 	
 	If  TypeOf(Result) = Type("Structure") And Result.Property("NeverAskAgain") And Result.NeverAskAgain Then
@@ -4189,7 +4187,7 @@ Procedure SaveFileChangesWithExtensionAfterShowNotification(Result, ExecutionPar
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithoutExtension(ExecutionParameters)
 	
 	If ExecutionParameters.StoreVersions = Undefined Then
@@ -4203,7 +4201,7 @@ Procedure SaveFileChangesWithoutExtension(ExecutionParameters)
 		ExecutionParameters.CurrentVersionAuthor                 = ExecutionParameters.FileData.CurrentVersionAuthor;
 	EndIf;
 	
-	// Checking the ability to unlock the file.
+	// 
 	ErrorText = "";
 	CanUnlockFile = AbilityToUnlockFile(
 		ExecutionParameters.ObjectRef,
@@ -4218,15 +4216,15 @@ Procedure SaveFileChangesWithoutExtension(ExecutionParameters)
 	ExecutionParameters.FullFilePath = "";
 	If ExecutionParameters.CreateNewVersion = Undefined Then
 		
-		// Requesting a comment and version storage flag.
+		// 
 		ExecutionParameters.CreateNewVersion = True;
 		CreateNewVersionAvailability = True;
 		
 		If ExecutionParameters.StoreVersions Then
 			ExecutionParameters.CreateNewVersion = True;
 			
-			// If the current version author is not the current user, then
-			// the "Do not create new version" checkbox is unavailable.
+			// 
+			// 
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				CreateNewVersionAvailability = False;
 			Else
@@ -4247,12 +4245,12 @@ Procedure SaveFileChangesWithoutExtension(ExecutionParameters)
 		
 		OpenForm("DataProcessor.FilesOperations.Form.SaveFileToInfobaseForm", ParametersStructure, , , , , Handler);
 		
-	Else // The CreateNewVersion and VersionComment parameters are external.
+	Else // 
 		
 		If ExecutionParameters.StoreVersions Then
 			
-			// If the current version author is not the current user, then
-			// the "Do not create new version" checkbox is unavailable.
+			// 
+			// 
 			If ExecutionParameters.CurrentVersionAuthor <> ExecutionParameters.BeingEditedBy Then
 				ExecutionParameters.CreateNewVersion = True;
 			EndIf;
@@ -4267,7 +4265,7 @@ Procedure SaveFileChangesWithoutExtension(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithoutExtensionAfterPutFileOnServer(Result, ExecutionParameters) Export
 	
 	If TypeOf(Result) <> Type("Structure") Then
@@ -4287,7 +4285,7 @@ Procedure SaveFileChangesWithoutExtensionAfterPutFileOnServer(Result, ExecutionP
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithoutExtensionAfterCheckNewVersion(ExecutionParameters)
 	
 	Handler = New NotifyDescription("SaveFileChangesWithoutExtensionAfterReminder", ThisObject, ExecutionParameters);
@@ -4295,7 +4293,7 @@ Procedure SaveFileChangesWithoutExtensionAfterCheckNewVersion(ExecutionParameter
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithoutExtensionAfterReminder(Result, ExecutionParameters) Export
 	
 	If Result.Value = DialogReturnCode.OK Then
@@ -4311,7 +4309,7 @@ Procedure SaveFileChangesWithoutExtensionAfterReminder(Result, ExecutionParamete
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithoutExtensionAfterImportFile(Put, Address, SelectedFileName, ExecutionParameters) Export
 	
 	If Not Put Then
@@ -4343,7 +4341,7 @@ Procedure SaveFileChangesWithoutExtensionAfterImportFile(Put, Address, SelectedF
 		Return;
 	EndIf;
 	
-	// SuggestFileSystemExtensionInstallationNow() is not required, because everything is done in the memory via BinaryData
+	// 
 	
 	DataDetails = New Structure;
 	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file';"));
@@ -4362,7 +4360,7 @@ Procedure SaveFileChangesWithoutExtensionAfterImportFile(Put, Address, SelectedF
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithoutExtensionAfterEncryptFile(DataDetails, ExecutionParameters) Export
 	
 	If DataDetails = Null Then
@@ -4407,7 +4405,7 @@ Procedure SaveFileChangesWithoutExtensionAfterEncryptFile(DataDetails, Execution
 EndProcedure
 
 
-// For the SaveFileChanges and EndEdit procedure.
+// For procedures save changes to the File, finish Editing.
 Procedure EncryptFileBeforePutFileInFileStorage(ExecutionParameters)
 	
 	If CertificatesNotSpecified(ExecutionParameters.FileData.EncryptionCertificatesArray) Then
@@ -4420,7 +4418,7 @@ Procedure EncryptFileBeforePutFileInFileStorage(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// SuggestFileSystemExtensionInstallationNow() is not required, because everything is done in the memory via BinaryData
+	// 
 	
 	DataDetails = New Structure;
 	DataDetails.Insert("Operation",            NStr("en = 'Encrypt file';"));
@@ -4439,7 +4437,7 @@ Procedure EncryptFileBeforePutFileInFileStorage(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure EncryptFileBeforePutFileInFileStorageAfterFileEncryption(DataDetails, ExecutionParameters) Export
 	
 	If DataDetails = Null Then
@@ -4463,7 +4461,7 @@ Procedure EncryptFileBeforePutFileInFileStorageAfterFileEncryption(DataDetails, 
 	
 EndProcedure
 
-// For the SaveFileChanges and EndEdit procedure.
+// For procedures save changes to the File, finish Editing.
 Function CertificatesNotSpecified(CertificatesArray)
 	
 	If CertificatesArray.Count() = 0 Then
@@ -4479,13 +4477,13 @@ Function CertificatesNotSpecified(CertificatesArray)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Marking file locked for editing.
+// Marks the file as busy for editing.
 
-// Marking file locked for editing.
+// Marks the file as busy for editing.
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
-//                        - Undefined - description of the procedure that receives the method result.
+//                        - Undefined - 
 //   FileData - Structure
 //
 Procedure LockFile(ResultHandler, FileData, UUID)
@@ -4501,7 +4499,7 @@ Procedure LockFile(ResultHandler, FileData, UUID)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExtensionInstalled - Boolean
@@ -4554,9 +4552,9 @@ Procedure LockFileAfterInstallExtension(ExtensionInstalled, ExecutionParameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Add files.
+// 
 
-// Continues AttachedFilesClient procedure execution.AddFiles.
+// Continuation of the attached file Client procedure.Add files.
 Procedure AddFilesCompletion(AttachedFile, AdditionalParameters) Export
 	
 	If AttachedFile = Undefined Then
@@ -4599,10 +4597,10 @@ Procedure AddFilesCompletion(AttachedFile, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Unlocking files without updating them.
+// 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Clears the "Read only" attribute and deletes the file.
+// 
 
 // Parameters:
 //  FullFileName - String
@@ -4629,16 +4627,16 @@ Procedure DeleteFileWithoutConfirmation(FullFileName)
 	
 EndProcedure
 
-// Delete the file, removing the readonly attribute.
+// Deleting a file with the readonly attribute removed.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
 //                       - Structure
-//                       - Undefined - description of the procedure that receives
-//                         the method result.
-//  FullFileName - String -  a full file name.
-//  AskQuestion - Boolean - ask question about deletion.
-//  QuestionHeader - String - Question header - adds text to the question about deletion.
+//                       - Undefined - 
+//                         
+//  FullFileName - String -    full file name.
+//  Ask a question-Boolean-ask a question about deletion.
+//  Question header - the question header Line-adds text to the deletion question.
 //
 Procedure DeleteFile(Val ResultHandler, FullFileName)
 	
@@ -4648,18 +4646,18 @@ Procedure DeleteFile(Val ResultHandler, FullFileName)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Receiving a file from the storage to working directory.
+// 
 
-// Receives File from the storage to working directory
-// and returns a path to this file.
+// Retrieves a File from the file store to the working directory
+// and returns the path to this file.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //  FileData        - See FilesOperationsInternalServerCall.FileDataAndWorkingDirectory
-//  FullFileName     - String.
-//  ForReading           - Boolean - False for reading, True for editing.
-//  FormIdentifier - UUID - a form ID.
+//  Fullfile name-String.
+//  ForReading           - Boolean -  False for reading, True for editing.
+//  FormIdentifier - UUID -  the ID of the form.
 //
 Procedure GetVersionFileToLocalFilesCache(ResultHandler, FileData, ForReading,
 	FormIdentifier, AdditionalParameters)
@@ -4684,7 +4682,7 @@ Procedure GetVersionFileToLocalFilesCache(ResultHandler, FileData, ForReading,
 		Return;
 	EndIf;
 
-	// Receiving a file path in the working directory and checking it for uniqueness.
+	// 
 	If ExecutionParameters.FullFileName = "" Then
 		CommonClient.MessageToUser(
 			NStr("en = 'Cannot get the file from the application to the working directory.';"));
@@ -4692,15 +4690,15 @@ Procedure GetVersionFileToLocalFilesCache(ResultHandler, FileData, ForReading,
 		Return;
 	EndIf;
 	
-	// "File" is found in the working directory.
-	// Check the change date and decide what to do next.
+	// 
+	// 
 	Handler = New NotifyDescription("GetVersionFileToLocalFilesCacheAfterActionChoice", 
 		ThisObject, ExecutionParameters);
 	ActionOnOpenFileInWorkingDirectory(Handler, ExecutionParameters.FullFileName, FileData);
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure GetVersionFileToLocalFilesCacheAfterActionChoice(Result, ExecutionParameters) Export
 	
 	If Result = "GetFromStorageAndOpen" Then
@@ -4723,14 +4721,14 @@ Procedure GetVersionFileToLocalFilesCacheAfterActionChoice(Result, ExecutionPara
 		ExecutionParameters.FileReceived = True;
 		ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		
-	Else // Result = "Cancel".
+	Else // 
 		ExecutionParameters.FullFileName = "";
 		ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 	EndIf;
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 Procedure GetVersionFileToLocalFilesCacheAfterDelete(FileDeleted, ExecutionParameters) Export
 	
@@ -4739,16 +4737,16 @@ Procedure GetVersionFileToLocalFilesCacheAfterDelete(FileDeleted, ExecutionParam
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Receive a file from the application to the computer.
+// 
 
-// Get a file from the application to the computer. Returns a path to the file.
+// 
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the procedure result.
+//                       - Undefined - 
 //  FileData  - Structure
-//  FullFileName - String - here a full file name is returned.
-//  FormIdentifier - UUID - a form ID.
+//  FullFileName - String -  the full file name is returned here.
+//  FormIdentifier - UUID -  the ID of the form.
 //
 Procedure GetVersionFileToWorkingDirectory(ResultHandler, FileData, FullFileName,
 	FormIdentifier = Undefined, AdditionalParameters = Undefined) Export
@@ -4779,10 +4777,10 @@ EndProcedure
 
 Function CanAccessWorkingDirectory(OwnerWorkingDirectory, Owner)
 	Result = False;
-	// Create a directory for files.
+	// 
 	Try
-		// If a directory is passed whose name is illegal in this file system,
-		// no exception is thrown (however, the directory will be unavailable).
+		// 
+		// 
 		InformationAboutTheCatalog = New File(OwnerWorkingDirectory);
 		If Not InformationAboutTheCatalog.Exists() Then
 			Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The directory of the %1 file folder does not exist.';"), 
@@ -4794,8 +4792,8 @@ Function CanAccessWorkingDirectory(OwnerWorkingDirectory, Owner)
 		DeleteFiles(TestDirectoryName);
 		Result = True;
 	Except
-		// Insufficient rights to create a directory, or this path does not exist.
-		// Set the default settings.
+		// 
+		// 
 		EventLogMessage = NStr("en = 'Working directory %1 for file folder %2 is not found or there is no save permission. Default settings are restored.';");
 		EventLogMessage = StringFunctionsClientServer.SubstituteParametersToString(EventLogMessage, 
 			OwnerWorkingDirectory, Owner);
@@ -4813,7 +4811,7 @@ Function CanAccessWorkingDirectory(OwnerWorkingDirectory, Owner)
 	Return Result;
 EndFunction
 
-// See the procedure of the same name in FilesOperationsClient common module.
+// See the procedure of the same name in the general module of worksfilamiclient.
 Procedure GetAttachedFile(Notification, AttachedFile, FormIdentifier, AdditionalParameters = Undefined) Export
 	
 	If AdditionalParameters = Undefined Then
@@ -4860,7 +4858,7 @@ Procedure GetAttachedFile(Notification, AttachedFile, FormIdentifier, Additional
 	
 EndProcedure
 
-// Continue the GetAttachedFile procedure.
+// Continue the procedure to get the joined File.
 Procedure GetAttachedFileAfterAttachExtension(ExtensionAttached, Context) Export
 	
 	If Not ExtensionAttached Then
@@ -4877,7 +4875,7 @@ Procedure GetAttachedFileAfterAttachExtension(ExtensionAttached, Context) Export
 	
 EndProcedure
 
-// Continue the GetAttachedFile procedure.
+// Continue the procedure to get the joined File.
 Procedure GetAttachedFileAfterGetWorkingDirectory(Result, Context) Export
 	
 	If ValueIsFilled(Result.ErrorDescription) Then
@@ -4934,7 +4932,7 @@ Procedure GetAttachedFileAfterGetWorkingDirectory(Result, Context) Export
 	
 EndProcedure
 
-// Continue the GetAttachedFile procedure.
+// Continue the procedure to get the joined File.
 Procedure GetAttachedFileAfterProcessFile(ActionsResult, Context) Export
 	
 	Result = New Structure;
@@ -4951,7 +4949,7 @@ Procedure GetAttachedFileAfterProcessFile(ActionsResult, Context) Export
 	
 EndProcedure
 
-// See the procedure with the same name in the AttachedFilesClient common module.
+// See the procedure of the same name in the general module of the attached Client.
 Procedure PutAttachedFile(Notification, AttachedFile, FormIdentifier, AdditionalParameters = Undefined) Export
 	
 	If AdditionalParameters = Undefined Then
@@ -4980,7 +4978,7 @@ Procedure PutAttachedFile(Notification, AttachedFile, FormIdentifier, Additional
 	
 EndProcedure
 
-// Continues the PutAttachedFile procedure.
+// Continue the procedure to place the joined File.
 Procedure PutAttachedFileAfterAttachExtension(ExtensionAttached, Context) Export
 	
 	If Not ExtensionAttached Then
@@ -4996,7 +4994,7 @@ Procedure PutAttachedFileAfterAttachExtension(ExtensionAttached, Context) Export
 	
 EndProcedure
 
-// Continues the PutAttachedFile procedure.
+// Continue the procedure to place the joined File.
 Procedure PutAttachedFileAfterGetWorkingDirectory(Result, Context) Export
 	
 	If ValueIsFilled(Result.ErrorDescription) Then
@@ -5021,12 +5019,12 @@ EndProcedure
 
 Procedure PlaceTheAttachedFileAfterReceivingTheWorkingDirectoryContinued(FileExists, Context) Export
 	If Not FileExists Then
-		// for compatibility of the two subsystems.
+		// 
 		Context.Insert("FileDirectory",   Context.UserWorkingDirectory);
 		Context.Insert("FullFileName", Context.FileData.FullFileNameInWorkingDirectory);
 		
 		If IsBlankString(Context.FileData.FullFileNameInWorkingDirectory) Then
-			// the file is missing in the working directory, simply unlock it.
+			// 
 			UnlockFileWithoutQuestion(Context.FileData, Context.FormIdentifier);
 			Return;
 		EndIf;
@@ -5117,7 +5115,7 @@ Procedure AddCall(Calls, Method, P1, P2, P3, P4)
 	
 EndProcedure
 
-// Continues the PutAttachedFile procedure.
+// Continue the procedure to place the joined File.
 Procedure PutAttachedFileAfterGetPermissions(PermissionsGranted, Context) Export
 	
 	If PermissionsGranted Then
@@ -5128,7 +5126,7 @@ Procedure PutAttachedFileAfterGetPermissions(PermissionsGranted, Context) Export
 		
 EndProcedure
 
-// Continues the PutAttachedFile procedure.
+// Continue the procedure to place the joined File.
 Procedure PutAttachedFileAfterProcessFile(ActionsResult, Context) Export
 	
 	Result = New Structure;
@@ -5165,18 +5163,18 @@ Procedure PutAttachedFileAfterProcessFile(ActionsResult, Context) Export
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// Opening the explorer with positioning on the file.
+// 
 
-// The procedure opens Windows Explorer positioning on File.
+// The procedure opens Windows Explorer by positioning itself on the File.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //  FileData          - See FilesOperationsInternalServerCall.FileData
 //
 Procedure FileDirectory(ResultHandler, FileData) Export
 	
-	// If File does not have the file, this operation is pointless.
+	// 
 	If FileData.Version.IsEmpty() Then 
 		Return;
 	EndIf;
@@ -5214,7 +5212,7 @@ Procedure FileDirectory(ResultHandler, FileData) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FileDirectoryAfterRespondQuestionGetFile(Response, ExecutionParameters) Export
 	
 	If Response = DialogReturnCode.Yes Then
@@ -5226,7 +5224,7 @@ Procedure FileDirectoryAfterRespondQuestionGetFile(Response, ExecutionParameters
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FileDirectoryAfterGetFileToWorkingDirectory(Result, ExecutionParameters) Export
 	
 	If Result <> -1 Then
@@ -5234,7 +5232,7 @@ Procedure FileDirectoryAfterGetFileToWorkingDirectory(Result, ExecutionParameter
 		OpenExplorerWithFile(ExecutionParameters.FullFileName);
 	EndIf;
 	
-	// For the option of storing files in volumes, delete the File from the temporary storage after receiving it.
+	// 
 	If IsTempStorageURL(ExecutionParameters.FileData.CurrentVersionURL) Then
 		DeleteFromTempStorage(ExecutionParameters.FileData.CurrentVersionURL);
 	EndIf;
@@ -5242,15 +5240,15 @@ Procedure FileDirectoryAfterGetFileToWorkingDirectory(Result, ExecutionParameter
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Delete the file from the computer and information register.
+// 
 
-// Delete from the computer and information register.
+// 
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
-//  Ref  - CatalogRef.Files - file.
-//  DeleteInWorkingDirectory - Boolean - delete even in the working directory.
+//                       - Undefined - 
+//  Ref  - CatalogRef.Files -  file.
+//  DeleteInWorkingDirectory - Boolean -  delete even in the working directory.
 //
 Procedure DeleteFileFromWorkingDirectory(ResultHandler, Ref, DeleteInWorkingDirectory = False)
 	
@@ -5268,7 +5266,7 @@ Procedure DeleteFileFromWorkingDirectory(ResultHandler, Ref, DeleteInWorkingDire
 	
 	If ExecutionParameters.FullFileNameFromRegister <> "" Then
 		
-		// We do not usually delete files in working directory, only if the DeleteInWorkingDirectory is passed.
+		// 
 		If Not InOwnerWorkingDirectory Or DeleteInWorkingDirectory = True Then
 			
 			FileOnHardDrive = New File(ExecutionParameters.FullFileNameFromRegister);
@@ -5296,7 +5294,7 @@ Procedure DeleteFileFromWorkingDirectory(ResultHandler, Ref, DeleteInWorkingDire
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure DeleteFileFromWorkingDirectoryAfterDeleteFile(Result, ExecutionParameters) Export
 	
 	PathWithSubdirectory = ExecutionParameters.DirectoryName;
@@ -5321,7 +5319,7 @@ Procedure DeleteFileFromWorkingDirectoryAfterDeleteFile(Result, ExecutionParamet
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure DeleteFileFromWorkingDirectoryCompletion(ExecutionParameters)
 	
 	If ExecutionParameters.FullFileNameFromRegister = "" Then
@@ -5339,19 +5337,19 @@ Procedure DeleteFileFromWorkingDirectoryCompletion(ExecutionParameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Clean up the working directory.
+// 
 
-// Clear space to place file. If there is enough space, it does nothing.
+// Free up space for placing the file - if there is space, it does nothing.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //  VersionAttributes  - See FilesOperationsInternalServerCall.FileData
 //
 Procedure ClearSpaceInWorkingDirectory(ResultHandler, VersionAttributes)
 
 #If WebClient Then
-	// The amount of free disk space cannot be determined in the web client.
+	// 
 	ReturnResultAfterShowWarning(
 		ResultHandler,
 		NStr("en = 'You can clear the working directory only in the thin client.';"),
@@ -5361,8 +5359,8 @@ Procedure ClearSpaceInWorkingDirectory(ResultHandler, VersionAttributes)
 	
 	MaxSize1 = PersonalFilesOperationsSettings().LocalFileCacheMaxSize;
 	
-	// If the size of "WorkingDirectory" is set to 0, assume that there's no limit
-	// (the default limit is 10 MB).
+	// 
+	// 
 	If MaxSize1 = 0 Then
 		Return;
 	EndIf;
@@ -5373,25 +5371,25 @@ Procedure ClearSpaceInWorkingDirectory(ResultHandler, VersionAttributes)
 	
 	WorkingDirectoryFilesSize = 0;
 	TotalFilesCount = 0;
-	// Calculating the full size of files in the working directory.
+	// 
 	GetFileListSize(DirectoryName, FilesArray, WorkingDirectoryFilesSize, TotalFilesCount);
 	
 	Size = VersionAttributes.Size;
 	If WorkingDirectoryFilesSize + Size > MaxSize1 Then
-		CleanUpWorkingDirectory(ResultHandler, WorkingDirectoryFilesSize, Size, False); // ClearAll = False.
+		CleanUpWorkingDirectory(ResultHandler, WorkingDirectoryFilesSize, Size, False); // 
 	EndIf;
 	
 EndProcedure
 
-// Clearing the working directory to make space. First it deletes the files 
-// most recently placed in the working directory.
+// Clearing the working directory - to free up space-first removes files 
+// that have been placed in the working directory for a long time.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
-//  WorkingDirectoryFilesSize  - Number - the size of files in working directory.
-//  SizeOfFileToAdd - Number - size of the file to add.
-//  ClearEverything - Boolean - delete all files in the directory (and not just delete files until the required amount of disk space is free).
+//                       - Undefined - 
+//  WorkingDirectoryFilesSize  - Number -  size of files in the working directory.
+//  SizeOfFileToAdd - Number -  the size of the file to add.
+//  ClearEverything - Boolean -  delete all files in the folder (not just until the required amount of disk space is available).
 //
 Procedure CleanUpWorkingDirectory(ResultHandler, WorkingDirectoryFilesSize, SizeOfFileToAdd, ClearEverything) Export
 	
@@ -5410,7 +5408,7 @@ Procedure CleanUpWorkingDirectory(ResultHandler, WorkingDirectoryFilesSize, Size
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure ClearWorkingDirectoryStart(ExecutionParameters)
 	
 	DirectoryName = UserWorkingDirectory();
@@ -5419,8 +5417,8 @@ Procedure ClearWorkingDirectoryStart(ExecutionParameters)
 	FilesArray = FindFiles(DirectoryName, "*");
 	ProcessFilesTable(DirectoryName, FilesArray, TableOfFiles);
 	
-	// Server call intended for sorting.
-	//  Sorting by date means that in the beginning, there will be items placed in the working directory long ago.
+	// 
+	//  
 	FilesOperationsInternalServerCall.SortStructuresArray(TableOfFiles);
 	
 	PersonalSettings = PersonalFilesOperationsSettings();
@@ -5475,7 +5473,7 @@ Procedure ClearWorkingDirectoryForFileToOpen(ExecutionParameters)
 			PathWithSubdirectory = ExecutionParameters.DirectoryName + Left(Item.Path, Position);
 		EndIf;
 		
-		// If the directory is empty, deleting it.
+		// 
 		FilesArrayInDirectory = FindFiles(PathWithSubdirectory, "*");
 		If FilesArrayInDirectory.Count() = 0 Then
 			If PathWithSubdirectory <> ExecutionParameters.DirectoryName Then
@@ -5493,7 +5491,7 @@ Procedure ClearWorkingDirectoryForFileToOpen(ExecutionParameters)
 		If ExecutionParameters.AmountOfFreeSpaceRequired > 0 Then
 			ExecutionParameters.SpaceLeft = ExecutionParameters.SpaceLeft - Item.Size;
 			If ExecutionParameters.SpaceLeft < ExecutionParameters.MaxSize1 - ExecutionParameters.AmountOfFreeSpaceRequired Then
-				Return; // If there is enough free space, exit the loop.
+				Return; // 
 			EndIf;
 		EndIf;
 		
@@ -5509,19 +5507,19 @@ Procedure ClearWorkingDirectoryForFileToOpen(ExecutionParameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Receiving file from the server and its registration in the local cache.
+// 
 
-// Receive the File from server and register it in the local cache.
+// Get the File from the server and register it in the local cache.
 //
 // Parameters:
 //   ExecutionParameters - Structure:
 //     * ResultHandler - NotifyDescription
-//                            - Undefined - description of the procedure that receives the result.
+//                            - Undefined - 
 //     * FileData - See FilesOperationsInternalServerCall.FileData
-//     * FullFileNameInWorkingDirectory - String - here a full file name is returned.
-//     * FileDateInDatabase - Date - file date in base.
-//     * ForReading - Boolean - a file is placed for reading.
-//     * FormIdentifier - UUID - Form ID.
+//     * FullFileNameInWorkingDirectory - String -  the full file name is returned here.
+//     * FileDateInDatabase - Date -  date of the file in the database.
+//     * ForReading - Boolean -  the file has been placed for reading.
+//     * FormIdentifier - UUID -  the ID of the form.
 //
 Procedure GetFromServerAndRegisterInLocalFilesCache(Val ExecutionParameters)
 	
@@ -5537,7 +5535,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCache(Val ExecutionParameters)
 		ExecutionParameters.DirectoryName = UserWorkingDirectory();
 		ExecutionParameters.DirectoryNamePreviousValue = ExecutionParameters.DirectoryName;
 		
-		// Generating a file name with an extension.
+		// 
 		ExecutionParameters.FileName = ExecutionParameters.FileData.FullVersionDescription;
 		If Not IsBlankString(ExecutionParameters.FileData.Extension) Then 
 			ExecutionParameters.FileName = CommonClientServer.GetNameWithExtension(
@@ -5560,11 +5558,11 @@ Procedure GetFromServerAndRegisterInLocalFilesCache(Val ExecutionParameters)
 		
 		ExecutionParameters.FullPathMaxSize = 260;
 		If Lower(ExecutionParameters.FileData.Extension) = "xls" Or Lower(ExecutionParameters.FileData.Extension) = "xlsx" Then
-			// Excel file name length together with the path cannot exceed 218 characters.
+			// 
 			ExecutionParameters.FullPathMaxSize = 218;
 		EndIf;
 		
-		MaxFileNameLength = ExecutionParameters.FullPathMaxSize - 5; // "5" is the minimum length of "C:\1\"
+		MaxFileNameLength = ExecutionParameters.FullPathMaxSize - 5; // 
 		
 		If ExecutionParameters.InOwnerWorkingDirectory = False Then
 #If Not WebClient Then
@@ -5572,7 +5570,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCache(Val ExecutionParameters)
 				UserDirectoryPath = UserDataDir();
 				MaxFileNameLength = ExecutionParameters.FullPathMaxSize - StrLen(UserDirectoryPath);
 				
-				// If the file name + 5 exceeds 260 characters, output the message "Replace the file name with a shorter one."
+				// 
 				If StrLen(ExecutionParameters.FileName) > MaxFileNameLength Then
 					
 					MessageText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -5601,7 +5599,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCache(Val ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure GetFromServerAndRegisterInLocalFilesCacheOfferSelectDirectory(Response, ExecutionParameters)
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -5616,7 +5614,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheOfferSelectDirectory(Response
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure GetFromServerAndRegisterInLocalFilesCacheStartToSelectDirectory(Response, ExecutionParameters) Export
 	
 	If Response = DialogReturnCode.No Then
@@ -5624,7 +5622,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheStartToSelectDirectory(Respon
 		Return;
 	EndIf;
 	
-	// Selecting a new path to a working directory.
+	// 
 	Title = NStr("en = 'Select another main working directory';");
 	DirectorySelected1 = ChoosePathToWorkingDirectory(ExecutionParameters.DirectoryName, Title, False);
 	If Not DirectorySelected1 Then
@@ -5637,7 +5635,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheStartToSelectDirectory(Respon
 		ExecutionParameters.DirectoryName,
 		ExecutionParameters.FileName);
 	
-	// fits into 260 characters
+	// 
 	If StrLen(ExecutionParameters.FullFileName) <= ExecutionParameters.FullPathMaxSize Then
 		Handler = New NotifyDescription("GetFromServerAndRegisterInLocalFilesCacheAfterMoveWorkingDirectoryContent", ThisObject, ExecutionParameters);
 		MoveWorkingDirectoryContent(Handler, ExecutionParameters.DirectoryNamePreviousValue, ExecutionParameters.DirectoryName);
@@ -5647,7 +5645,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheStartToSelectDirectory(Respon
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure GetFromServerAndRegisterInLocalFilesCacheAfterMoveWorkingDirectoryContent(ContentMoved, ExecutionParameters) Export
 	
 	If ContentMoved Then
@@ -5659,7 +5657,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheAfterMoveWorkingDirectoryCont
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters   - Structure:
@@ -5673,7 +5671,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFollowUp(ExecutionParameters)
 	EndIf;
 #EndIf
 	
-	// Write File to directory
+	// 
 	ExecutionParameters.FileName = CommonClientServer.GetNameWithExtension(
 		ExecutionParameters.FileData.FullVersionDescription,
 		ExecutionParameters.FileData.Extension);
@@ -5684,13 +5682,13 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFollowUp(ExecutionParameters)
 	Position = StrFind(ExecutionParameters.FullFileName, NameAndExtensionInPath);
 	PathToFile = "";
 	If Position <> 0 Then
-		PathToFile = Left(ExecutionParameters.FullFileName, Position - 1); // -"-1" is for reducing the length by one slash sign.
+		PathToFile = Left(ExecutionParameters.FullFileName, Position - 1); // -
 	EndIf;
 	
 	PathToFile = CommonClientServer.AddLastPathSeparator(PathToFile);
 	ExecutionParameters.Insert("ParameterFilePath", PathToFile);
 	
-	ExecutionParameters.FullFileName = PathToFile + ExecutionParameters.FileName; // Extension could have been replaced.
+	ExecutionParameters.FullFileName = PathToFile + ExecutionParameters.FileName; // 
 	
 	If ExecutionParameters.FileData.Property("UpdatePathFromFileOnHardDrive") Then
 		
@@ -5734,7 +5732,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFollowUp(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure GetFromServerAndRegisterInLocalFilesCacheAfterDecryption(DataDetails, ExecutionParameters) Export
 	
 	If Not DataDetails.Success Then
@@ -5755,7 +5753,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheAfterDecryption(DataDetails, 
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure GetFromServerAndRegisterInLocalFilesCacheFileSending(ExecutionParameters, FileAddress = Undefined)
 	
 	If FileAddress = Undefined Then
@@ -5780,9 +5778,9 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFileSending(ExecutionParamete
 		CallDetails = New Array;
 		CallDetails.Add("GetFiles");
 		CallDetails.Add(TransmittedFiles);
-		CallDetails.Add(Undefined);  // Obsolete.
+		CallDetails.Add(Undefined);  // 
 		CallDetails.Add(ExecutionParameters.ParameterFilePath);
-		CallDetails.Add(False);          // Interactively = False.
+		CallDetails.Add(False);          // 
 		OperationArray.Add(CallDetails);
 		
 		CallDetails = New Array;
@@ -5791,7 +5789,7 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFileSending(ExecutionParamete
 		OperationArray.Add(CallDetails);
 		
 		If Not RequestUserPermission(OperationArray) Then
-			// User did not give a permission.
+			// 
 			ClearTemporaryFormID(ExecutionParameters);
 			ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 			Return;
@@ -5807,12 +5805,12 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFileSending(ExecutionParamete
 		Return;
 	EndIf;
 	
-	// For the option of storing files in volumes, the file is deleted from the temporary storage after being received.
+	// 
 	If IsTempStorageURL(FileAddress) Then
 		DeleteFromTempStorage(FileAddress);
 	EndIf;
 	
-	// Set the file change time equal to the change time of the current version.
+	// 
 	SetModificationUniversalTime(ExecutionParameters.FullFileName, 
 		ExecutionParameters.FileData.UniversalModificationDate);
 	
@@ -5820,12 +5818,12 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheFileSending(ExecutionParamete
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure GetFromServerAndRegisterInLocalFilesCacheCompletion(ExecutionParameters)
 	
 	FileOnHardDrive = New File(ExecutionParameters.FullFileName);
 	
-	// Because the size on the computer can differ from the size in the infobase (when adding in the web client).
+	// 
 	FileSize = FileOnHardDrive.Size();
 	
 	FileOnHardDrive.SetReadOnly(ExecutionParameters.ForReading);
@@ -5863,17 +5861,17 @@ Procedure GetFromServerAndRegisterInLocalFilesCacheCompletion(ExecutionParameter
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Receiving a file from the storage to working directory.
+// 
 
-// Receives File from the storage to folder working directory
-// and returns a path to this file.
+// Retrieves a File from the file storage to the working directory of the folder
+// and returns the path to this file.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //  FileData        - See FilesOperationsInternalServerCall.FileData
-//  FullFileName     - String - a return value.
-//  ForReading           - Boolean - False for reading, True for editing.
+//  FullFileName     - String -  the return value.
+//  ForReading           - Boolean -  False for reading, True for editing.
 //  FormIdentifier - UUID
 //
 Procedure GetVersionFileToFolderWorkingDirectory(ResultHandler, FileData, FullFileName,
@@ -5889,7 +5887,7 @@ Procedure GetVersionFileToFolderWorkingDirectory(ResultHandler, FileData, FullFi
 	
 	ExecutionParameters.Insert("FileReceived", False);
 	
-	// Generating a file name with an extension.
+	// 
 	FileName = FileData.FullVersionDescription;
 	If Not IsBlankString(FileData.Extension) Then 
 		FileName = CommonClientServer.GetNameWithExtension(FileName, FileData.Extension);
@@ -5908,7 +5906,7 @@ Procedure GetVersionFileToFolderWorkingDirectory(ResultHandler, FileData, FullFi
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure GetVersionFileToFolderWorkingDirectoryAfterCheckPathLength(Result, ExecutionParameters) Export
 	
 	If Result = False Then
@@ -5919,10 +5917,10 @@ Procedure GetVersionFileToFolderWorkingDirectoryAfterCheckPathLength(Result, Exe
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 	
-	// Search for file registration in working directory (full name with the path).
+	// 
 	FileInfo1 = FilesOperationsInternalServerCall.FilesInfoInWorkingDir(
 		CommonClientServer.ValueInArray(ExecutionParameters.FullFileName));
 	FileInfo1 = FileInfo1[ExecutionParameters.FullFileName];
@@ -5935,7 +5933,7 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 	FileOnHardDrive = New File(ExecutionParameters.FullFileName);
 	FileOnHardDriveExists = FileOnHardDrive.Exists();
 	
-	// Deleting the file registration if it does not exist.
+	// 
 	If ExecutionParameters.FileIsInRegister And Not FileOnHardDriveExists Then
 		FilesOperationsInternalServerCall.DeleteFromRegister(Version);
 		ExecutionParameters.FileIsInRegister = False;
@@ -5953,14 +5951,14 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// It is found that the file exists in the working directory.
+	// 
 	
 	If ExecutionParameters.FileIsInRegister And Version <> ExecutionParameters.FileData.CurrentVersion Then
 		
 		If Owner = ExecutionParameters.FileData.Ref And InRegisterForReading = True Then
-			// If the file versions have the same owner, and
-			// the file in the working directory is registered for reading,
-			// replace it with the file from the storage.
+			// 
+			// 
+			// 
 			GetFromServerAndRegisterInFolderWorkingDirectory(
 				ExecutionParameters.ResultHandler,
 				ExecutionParameters.FileData,
@@ -5972,7 +5970,7 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 			Return;
 		EndIf;
 		
-		If ExecutionParameters.FileData.Owner = InRegisterFolder Then // The same folder.
+		If ExecutionParameters.FileData.Owner = InRegisterFolder Then // 
 			WarningText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The working directory contains file
 				           |""%1""
@@ -5995,10 +5993,10 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// The working directory contains "File".
-	// It's either unregistered or registered and the version matches.
+	// 
+	// 
 	
-	// Checking the modification date and deciding what to do next.
+	// 
 	Handler = New NotifyDescription("GetVersionsFileToFolderWorkingDirectoryAfterActionChoice", ThisObject, ExecutionParameters);
 	
 	ActionOnOpenFileInWorkingDirectory(
@@ -6008,7 +6006,7 @@ Procedure GetVersionFileToFolderWorkingDirectoryFollowUp(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -6018,7 +6016,7 @@ Procedure GetVersionsFileToFolderWorkingDirectoryAfterActionChoice(Result, Execu
 	
 	If Result = "GetFromStorageAndOpen" Then
 		
-		// In the folder working directory, the confirmation setting during deletion is not used.
+		// 
 		DeleteFileWithoutConfirmation(ExecutionParameters.FullFileName);
 		GetFromServerAndRegisterInLocalFilesCache(ExecutionParameters);
 		
@@ -6035,7 +6033,7 @@ Procedure GetVersionsFileToFolderWorkingDirectoryAfterActionChoice(Result, Execu
 		ExecutionParameters.FileReceived = True;
 		ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		
-	Else // Result = "Cancel".
+	Else // 
 		ExecutionParameters.FullFileName = "";
 		ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 	EndIf;
@@ -6043,19 +6041,19 @@ Procedure GetVersionsFileToFolderWorkingDirectoryAfterActionChoice(Result, Execu
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Receiving file from the server and its registration in the working directory.
+// 
 
-// Receive the File from server and register it in the working directory.
+// Get the File from the server and register it in the working directory.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //  FileData  - See FilesOperationsInternalServerCall.FileData
-//  FullFileNameInWorkingDirectory - String - a full file name is returned here.
-//  FileDateInDatabase - Date - file date in base.
-//  ForReading - Boolean - a file is placed for reading.
-//  FormIdentifier - UUID - a form ID.
-//  AdditionalParameters - Arbitrary - additional parameters of processing areas.
+//  FullFileNameInWorkingDirectory - String -  the full file name is returned here.
+//  FileDateInDatabase - Date -  date of the file in the database.
+//  ForReading - Boolean -  the file has been placed for reading.
+//  FormIdentifier - UUID -  the ID of the form.
+//  AdditionalParameters - Arbitrary -  additional processing parameters.
 //
 Procedure GetFromServerAndRegisterInFolderWorkingDirectory(ResultHandler, FileData, 
 	FullFileNameInWorkingDirectory, FileDateInDatabase, ForReading, FormIdentifier, AdditionalParameters)
@@ -6084,7 +6082,7 @@ Procedure GetFromServerAndRegisterInFolderWorkingDirectory(ResultHandler, FileDa
 		Return;
 	EndIf;
 
-	// Receiving a file path in the working directory and checking it for uniqueness.
+	// 
 	If ExecutionParameters.FullFileName = "" Then
 		CommonClient.MessageToUser(
 			NStr("en = 'Cannot get the file from the application to the working directory.';"));
@@ -6092,8 +6090,8 @@ Procedure GetFromServerAndRegisterInFolderWorkingDirectory(ResultHandler, FileDa
 		Return;
 	EndIf;
 	
-	// "File" is found in the working directory.
-	// Check the change date and decide what to do next.
+	// 
+	// 
 	Handler = New NotifyDescription("GetFromServerAndRegisterInFolderWorkingDirectoryAfterActionChoice", 
 		ThisObject, ExecutionParameters);
 	ActionOnOpenFileInWorkingDirectory(Handler, ExecutionParameters.FullFileName,
@@ -6101,7 +6099,7 @@ Procedure GetFromServerAndRegisterInFolderWorkingDirectory(ResultHandler, FileDa
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -6111,7 +6109,7 @@ Procedure GetFromServerAndRegisterInFolderWorkingDirectoryAfterActionChoice(Resu
 	
 	If Result = "GetFromStorageAndOpen" Then
 		
-		// In the folder working directory, the confirmation setting during deletion is not used.
+		// 
 		DeleteFileWithoutConfirmation(ExecutionParameters.FullFileName);		
 		GetFromServerAndRegisterInLocalFilesCache(ExecutionParameters);
 		
@@ -6126,7 +6124,7 @@ Procedure GetFromServerAndRegisterInFolderWorkingDirectoryAfterActionChoice(Resu
 		ExecutionParameters.FileReceived = True;
 		ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		
-	Else // Result = "Cancel".
+	Else // 
 		ExecutionParameters.FullFileName = "";
 		ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 	EndIf;
@@ -6134,16 +6132,16 @@ Procedure GetFromServerAndRegisterInFolderWorkingDirectoryAfterActionChoice(Resu
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Checking the max length of working directory, replacing and moving files.
+// 
 
-// Checks the max length and changes and moves files if necessary.
+// Checks the maximum length, if necessary - changes the working directory and transfers files.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //  FileData  - See FilesOperationsInternalServerCall.FileData
-//  FullFileName - String - a full file name.
-//  NormalFileName - String - File name without its path.
+//  FullFileName - String -  full file name.
+//  NormalFileName - String - 
 //
 Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData, 
 	FullFileName, NormalFileName)
@@ -6162,11 +6160,11 @@ Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData,
 	ExecutionParameters.Insert("DirectoryNamePreviousValue", FileData.OwnerWorkingDirectory);
 	ExecutionParameters.Insert("FullPathMaxSize", 260);
 	If Lower(FileData.Extension) = "xls" Or Lower(FileData.Extension) = "xlsx" Then
-		// Excel file name length together with the path cannot exceed 218 characters.
+		// 
 		ExecutionParameters.FullPathMaxSize = 218;
 	EndIf;
 	
-	MaxFileNameLength = ExecutionParameters.FullPathMaxSize - 5; // "5" is the minimum length of "C:\1\"
+	MaxFileNameLength = ExecutionParameters.FullPathMaxSize - 5; // 
 	If StrLen(ExecutionParameters.FullFileName) <= ExecutionParameters.FullPathMaxSize Then
 		ReturnResult(ResultHandler, True);
 		Return;
@@ -6181,7 +6179,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData,
 	UserDirectoryPath = UserDataDir();
 	MaxFileNameLength = ExecutionParameters.FullPathMaxSize - StrLen(UserDirectoryPath);
 	
-	// If the file name + 5 exceeds 260 characters, output the message "Replace the file name with a shorter one."
+	// 
 	If StrLen(ExecutionParameters.NormalFileName) > MaxFileNameLength Then
 		MessageText = MessageText + Chars.CR + Chars.CR
 			+ NStr("en = 'Please choose a shorter file name.';");
@@ -6189,8 +6187,8 @@ Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData,
 		Return;
 	EndIf;
 	
-	// If the directory structure (path to the current directory's working directory) exceeds 260-5 (1.txt), display the user message:
-	// "Rename the directories or move the directory to a different location."
+	// 
+	// 
 	If StrLen(FileData.OwnerWorkingDirectory) > ExecutionParameters.FullPathMaxSize - 5 Then
 		MessageText = MessageText + Chars.CR + Chars.CR
 			+ NStr("en = 'Please rename the folders or move the current folder to another one.';");
@@ -6202,7 +6200,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectory(ResultHandler, FileData,
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure CheckFullPathMaxLengthInWorkingDirectorySuggestChooseDirectory(ExecutionParameters)
 	
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -6217,7 +6215,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectorySuggestChooseDirectory(Executi
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure CheckFullPathMaxLengthInWorkingDirectoryStartChooseDirectory(Response, ExecutionParameters) Export
 	
 	If Response = DialogReturnCode.No Then
@@ -6225,7 +6223,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectoryStartChooseDirectory(Response,
 		Return;
 	EndIf;
 	
-	// Selecting a new path to a working directory.
+	// 
 	Title = NStr("en = 'Select another working directory';");
 	DirectorySelected1 = ChoosePathToWorkingDirectory(ExecutionParameters.FileData.OwnerWorkingDirectory, Title, True);
 	If Not DirectorySelected1 Then
@@ -6235,7 +6233,7 @@ Procedure CheckFullPathMaxLengthInWorkingDirectoryStartChooseDirectory(Response,
 	
 	ExecutionParameters.FullFileName = ExecutionParameters.FileData.OwnerWorkingDirectory + ExecutionParameters.NormalFileName;
 	
-	// fits into 260 characters
+	// 
 	If StrLen(ExecutionParameters.FullFileName) <= ExecutionParameters.FullPathMaxSize Then
 		Handler = New NotifyDescription("CheckFullPathMaxLengthInWorkingDirectoryAfterMoveWorkingDirectoryContent", ThisObject, ExecutionParameters);
 		MoveWorkingDirectoryContent(Handler, ExecutionParameters.DirectoryNamePreviousValue, ExecutionParameters.FileData.OwnerWorkingDirectory);
@@ -6245,13 +6243,13 @@ Procedure CheckFullPathMaxLengthInWorkingDirectoryStartChooseDirectory(Response,
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure CheckFullPathMaxLengthInWorkingDirectoryAfterMoveWorkingDirectoryContent(ContentMoved, ExecutionParameters) Export
 	
 	If ContentMoved Then
-		// The information register "FilesInWorkingDirectory": it has the full file path.
-		// Change it by replacing the common part with an SQL request
-		// for the current user.
+		// 
+		// 
+		// 
 		FilesOperationsInternalServerCall.SaveFolderWorkingDirectoryAndReplacePathsInRegister(
 			ExecutionParameters.FileData.Owner,
 			ExecutionParameters.FileData.OwnerWorkingDirectory,
@@ -6262,15 +6260,15 @@ Procedure CheckFullPathMaxLengthInWorkingDirectoryAfterMoveWorkingDirectoryConte
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Copying the content from one directory to another.
+// 
 
-// Copies all files from the specified directory to another one.
+// Copies all files in the specified folder to another folder.
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
-//                        - Undefined - description of the procedure that receives the method result.
-//   SourceDirectory  - String - the directory previous name.
-//   RecipientDirectory  - String - new name of the directory.
+//                        - Undefined - 
+//   SourceDirectory  - String -  previous folder name.
+//   RecipientDirectory  - String -  the new directory name.
 //
 Procedure CopyDirectoryContent1(ResultHandler, Val SourceDirectory, Val RecipientDirectory)
 	
@@ -6309,7 +6307,7 @@ Procedure CopyDirectoryContent1(ResultHandler, Val SourceDirectory, Val Recipien
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure CopyDirectoryContentAfterRespondQuestion(Response, ExecutionParameters) Export
 	
 	If Response = DialogReturnCode.No Then
@@ -6323,13 +6321,12 @@ Procedure CopyDirectoryContentAfterRespondQuestion(Response, ExecutionParameters
 	
 EndProcedure
 
-// Copies all files from the specified directory to another one.
+// Copies all files in the specified folder to another folder.
 //
 // Parameters:
-//   Result - Structure - Indicates copying result. See CopyDirectoryContent1
-//                            (return value).
-//   SourceDirectory  - String - the directory previous name.
-//   RecipientDirectory  - String - new name of the directory.
+//   Result - Structure -  See CopyDirectoryContent1
+//   SourceDirectory  - String -  previous folder name.
+//   RecipientDirectory  - String -  the new directory name.
 //
 Procedure CopyDirectoryContent(Result, SourceDirectory, RecipientDirectory)
 	
@@ -6362,7 +6359,7 @@ Procedure CopyDirectoryContent(Result, SourceDirectory, RecipientDirectory)
 			
 			RecipientFile = New File(FullRecipientFileName);
 			If RecipientFile.Exists() Then
-				// This is required for backward copying. In this case files can exist already.
+				// 
 				Result.CopiedFilesAndFolders.Add(FullRecipientFileName);
 			Else
 				Try
@@ -6382,19 +6379,19 @@ Procedure CopyDirectoryContent(Result, SourceDirectory, RecipientDirectory)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Moving the working directory content into a new one.
+// 
 
-// Transfers all files from the working directory to another directory (including those taken for editing).
+// Moves all files in the working directory to another directory (including those taken for editing).
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
-//                        - Undefined - description of the procedure that receives the method result.
-//   SourceDirectory - String - the directory previous name.
-//   RecipientDirectory - String - new name of the directory.
+//                        - Undefined - 
+//   SourceDirectory - String -  previous folder name.
+//   RecipientDirectory - String -  the new directory name.
 //
 Procedure MoveWorkingDirectoryContent(ResultHandler, SourceDirectory, RecipientDirectory) Export
 	
-	// The new path is a subset of the old one. This is prohibited, because. can lead to looping.
+	// 
 	If StrFind(Lower(RecipientDirectory), Lower(SourceDirectory)) <> 0 Then
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The destination working directory
@@ -6407,7 +6404,7 @@ Procedure MoveWorkingDirectoryContent(ResultHandler, SourceDirectory, RecipientD
 		Return;
 	EndIf;
 	
-	// Copying files from the old directory to a new one.
+	// 
 	HandlerParameters = New Structure;
 	HandlerParameters.Insert("ResultHandler", ResultHandler);
 	HandlerParameters.Insert("SourceDirectory", SourceDirectory);
@@ -6418,20 +6415,20 @@ Procedure MoveWorkingDirectoryContent(ResultHandler, SourceDirectory, RecipientD
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure MoveWorkingDirectoryContentAfterCopyToNewDirectory(Result, ExecutionParameters) Export
 	
 	If Result.ErrorOccurred Then
-		// A copying error occurred and then user canceled the operation.
+		// 
 		
 		Handler = New NotifyDescription(
 			"MoveWorkingDirectoryContentAfterCancelAndClearRecipient",
 			ThisObject,
 			ExecutionParameters);
 		
-		DeleteDirectoryContent(Handler, Result.CopiedFilesAndFolders); // Clean up the recipient folder.
+		DeleteDirectoryContent(Handler, Result.CopiedFilesAndFolders); // 
 	Else
-		// The copy was successful. Clean up the old directory.
+		// 
 		Handler = New NotifyDescription(
 			"MoveWorkingDirectoryContentAfterSuccessAndClearSource",
 			ThisObject,
@@ -6442,33 +6439,33 @@ Procedure MoveWorkingDirectoryContentAfterCopyToNewDirectory(Result, ExecutionPa
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure MoveWorkingDirectoryContentAfterCancelAndClearRecipient(RecipientDirectoryCleareed, ExecutionParameters) Export
 	
 	ReturnResult(ExecutionParameters.ResultHandler, False);
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure MoveWorkingDirectoryContentAfterSuccessAndClearSource(SourceDirectoryCleared, ExecutionParameters) Export
 	
 	If SourceDirectoryCleared Then
-		// The old directory has been cleaned up. All steps succeeded.
+		// 
 		ReturnResult(ExecutionParameters.ResultHandler, True);
 	Else
-		// The old directory wasn't cleaned up. Roll back the entire operation.
+		// 
 		Handler = New NotifyDescription("MoveWorkingDirectoryContentAfterSuccessAndCancelClearing", ThisObject, ExecutionParameters);
 		CopyDirectoryContent1(Handler, ExecutionParameters.RecipientDirectory, ExecutionParameters.SourceDirectory);
 	EndIf;
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure MoveWorkingDirectoryContentAfterSuccessAndCancelClearing(Result, ExecutionParameters) Export
 	
-	// Roll back the operation.
+	// 
 	If Result.ErrorOccurred Then
-		// Warning that an error occurred during the operation rollback.
+		// 
 		WarningText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot copy files from directory
 			           |""%1""
@@ -6478,21 +6475,21 @@ Procedure MoveWorkingDirectoryContentAfterSuccessAndCancelClearing(Result, Execu
 			ExecutionParameters.SourceDirectory);
 		ReturnResultAfterShowWarning(ExecutionParameters.ResultHandler, WarningText, False);
 	Else
-		// The operation was rolled back successfully.
+		// 
 		ReturnResult(ExecutionParameters.ResultHandler, False);
 	EndIf;
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Deleting the path array of passed folders and files.
+// 
 
-// Deletes all files and folders from the passed array.
+// 
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
-//                        - Undefined - description of the procedure that receives the method result.
-//   CopiedFilesAndFolders - Array of String - paths of files and folders.
+//                        - Undefined - 
+//   CopiedFilesAndFolders - Array of String -  file and folder paths.
 //
 Procedure DeleteDirectoryContent(ResultHandler, CopiedFilesAndFolders)
 	
@@ -6503,7 +6500,7 @@ Procedure DeleteDirectoryContent(ResultHandler, CopiedFilesAndFolders)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure DeleteDirectoryContentStart(ExecutionParameters)
 	
 	UpperBound = ExecutionParameters.CopiedFilesAndFolders.Count() - 1;
@@ -6511,7 +6508,7 @@ Procedure DeleteDirectoryContentStart(ExecutionParameters)
 		Path = ExecutionParameters.CopiedFilesAndFolders[UpperBound - IndexOf];
 		File = New File(Path);
 		If Not File.Exists() Then
-			Continue; // For example, Word temporary file ~aaa.doc could be deleted when closing Word.
+			Continue; // 
 		EndIf;
 		
 		Try
@@ -6537,10 +6534,10 @@ Procedure DeleteDirectoryContentStart(ExecutionParameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Import files checking their size.
+// 
 
 // Import with auxiliary operations (checking the size limit, deleting files, and showing
-// errors on import).
+// errors during import).
 //
 // Parameters:
 //  ExecutionParameters - See FilesImportParameters.
@@ -6553,7 +6550,7 @@ Procedure ExecuteFilesImport(Val ExecutionParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FilesImportAfterCheckSizes(Result, ExecutionParameters) Export
 	
 	If Result.Success = False Then
@@ -6588,7 +6585,7 @@ Procedure FilesImportAfterCheckSizes(Result, ExecutionParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FilesImportLoop(ExecutionParameters)
 	
 	ExecutionParameters.SelectedFilesIndex = ExecutionParameters.SelectedFilesIndex + 1;
@@ -6647,7 +6644,7 @@ Procedure FilesImportLoop(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FilesImportLoopAfterRespondQuestionContinue(Response, ExecutionParameters) Export
 	
 	If Response <> DialogReturnCode.No Then
@@ -6658,7 +6655,7 @@ Procedure FilesImportLoopAfterRespondQuestionContinue(Response, ExecutionParamet
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters   - Structure:
@@ -6679,7 +6676,7 @@ Procedure FilesImportLoopContinueImport(ExecutionParameters)
 		EndIf;	
 	EndIf;
 	
-	// File import.
+	// 
 	ImportFilesRecursively(ExecutionParameters.FolderForAddingCurrent, ExecutionParameters.FilesArrayOfThisDirectory, ExecutionParameters);
 	If ExecutionParameters.AsynchronousDialog.Open = True Then
 		Return;
@@ -6689,7 +6686,7 @@ Procedure FilesImportLoopContinueImport(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters   - Structure:
@@ -6703,14 +6700,14 @@ Procedure ImportFilesLoopContinueImportAfterRecurringQuestions(Result, Execution
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure ImportFilesAfterLoopAfterRecurringQuestions(Result, ExecutionParameters) Export
 	
 	FilesImportAfterLoopFollowUp(ExecutionParameters);
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FilesImportAfterLoopFollowUp(ExecutionParameters)
 	
 	If ExecutionParameters.AllFilesStructureArray.Count() > 1 Then
@@ -6733,7 +6730,7 @@ Procedure FilesImportAfterLoopFollowUp(ExecutionParameters)
 			PictureLib.DialogInformation);
 	EndIf;
 	
-	// Error message output
+	// 
 	If ExecutionParameters.ArrayOfFilesNamesWithErrors.Count() <> 0 Then
 		Parameters = New Structure;
 		Parameters.Insert("ArrayOfFilesNamesWithErrors", ExecutionParameters.ArrayOfFilesNamesWithErrors);
@@ -6749,7 +6746,7 @@ Procedure FilesImportAfterLoopFollowUp(ExecutionParameters)
 	
 EndProcedure
 
-// Deletes files after import or export.
+// Deletes files after importing or uploading.
 Procedure DeleteFilesAfterAdd(AllFilesStructureArray, AllFoldersArray)
 	
 	For Each Item In AllFilesStructureArray Do
@@ -6773,15 +6770,15 @@ Procedure DeleteFilesAfterAdd(AllFilesStructureArray, AllFoldersArray)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Save a file to the computer
+// 
 
-// Save a file to the computer.
+// 
 // 
 // Parameters:
 //   ResultHandler - NotifyDescription
-//                        - Undefined - description of the procedure that receives the method result.
+//                        - Undefined - 
 //   FileData  - Structure
-//   UUID - UUID - a form ID..
+//   UUID - UUID -  id of the form..
 //
 Procedure SaveAs(ResultHandler, FileData, UUID) Export
 	
@@ -6798,7 +6795,7 @@ Procedure SaveAs(ResultHandler, FileData, UUID) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters   - Structure:
@@ -6806,7 +6803,7 @@ EndProcedure
 //
 Procedure SaveAsWithExtension(ExecutionParameters)
 	
-	// Checking whether the file is already in cache, and if it is, show a dialog box with a choice.
+	// 
 	ExecutionParameters.Insert("PathToFileInCache", "");
 	If ExecutionParameters.FileData.CurrentUserEditsFile Then
 		InWorkingDirectoryForRead = True;
@@ -6821,7 +6818,7 @@ Procedure SaveAsWithExtension(ExecutionParameters)
 			VersionFile = New File(ExecutionParameters.FullFileName);
 			FileDateOnHardDrive = VersionFile.GetModificationUniversalTime();
 			
-			If FileDateOnHardDrive > FileDateInDatabase Then // The working directory has a newer one (changed by a third party user).
+			If FileDateOnHardDrive > FileDateInDatabase Then // 
 				FormOpenParameters = New Structure;
 				FormOpenParameters.Insert("File", ExecutionParameters.FullFileName);
 				
@@ -6844,7 +6841,7 @@ Procedure SaveAsWithExtension(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveAsWithExtensionAfterRespondQuestionDateNewer(Response, ExecutionParameters) Export
 	
 	If Response = DialogReturnCode.Cancel Or Response = Undefined Then
@@ -6852,7 +6849,7 @@ Procedure SaveAsWithExtensionAfterRespondQuestionDateNewer(Response, ExecutionPa
 		Return;
 	EndIf;
 	
-	If Response = 1 Then // Based on file on local computer.
+	If Response = 1 Then // 
 		ExecutionParameters.PathToFileInCache = ExecutionParameters.FullFileName;
 	EndIf;
 	
@@ -6860,7 +6857,7 @@ Procedure SaveAsWithExtensionAfterRespondQuestionDateNewer(Response, ExecutionPa
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveAsWithExtensionFollowUp(ExecutionParameters)
 	
 	ExecutionParameters.Insert("ChoicePath", ExecutionParameters.FileData.FolderForSaveAs);
@@ -6883,7 +6880,7 @@ Procedure SaveAsWithExtensionFollowUp(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters   - Structure:
@@ -6933,7 +6930,7 @@ Procedure SaveAsWithExtensionAfterSaveModeChoice(Result, ExecutionParameters) Ex
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters   - Structure:
@@ -7024,7 +7021,7 @@ Procedure SaveAsWithExtensionAfterDecryption(DataDetails, ExecutionParameters) E
 		
 		If GetFiles(TransmittedFiles,, PathToFile, False) Then
 			
-			// For the option of storing files in volumes, delete the File from the temporary storage after receiving it.
+			// 
 			If IsTempStorageURL(FileAddress) Then
 				DeleteFromTempStorage(FileAddress);
 			EndIf;
@@ -7047,7 +7044,7 @@ Procedure SaveAsWithExtensionAfterDecryption(DataDetails, ExecutionParameters) E
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveAsWithoutExtension(ExecutionParameters)
 	
 	ExecutionParameters.Insert("SaveDecrypted", False);
@@ -7065,7 +7062,7 @@ Procedure SaveAsWithoutExtension(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveAsWithoutExtensionAfterSaveModeChoice(Result, ExecutionParameters) Export
 	
 	If TypeOf(Result) = Type("Structure") Then
@@ -7090,7 +7087,7 @@ Procedure SaveAsWithoutExtensionAfterSaveModeChoice(Result, ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveAsWithoutExtensionCompletion(Result, ExecutionParameters) Export
 	
 	ClearTemporaryFormID(ExecutionParameters);
@@ -7115,7 +7112,7 @@ Procedure SaveAsWithoutExtensionCompletion(Result, ExecutionParameters) Export
 	
 EndProcedure
 
-// Continuation of the FilesOperationsClient.SaveFileAs procedure.
+// The continuation of the procedure, Remotevalidation.Sobrenaturales.
 Procedure SaveFileAsAfterSave(Result, CompletionHandler) Export
 	
 	If CompletionHandler = Undefined Then
@@ -7134,13 +7131,13 @@ Procedure SaveFileAsAfterSave(Result, CompletionHandler) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Shows a reminder before placing a file if it is set up.
+// 
 
-// It will show a reminder if it is set up.
+// Shows a reminder - if the setting is enabled.
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
-//                        - Undefined - description of the procedure that receives the method result.
+//                        - Undefined - 
 //
 Procedure ShowReminderBeforePutFile(ResultHandler)
 	
@@ -7173,20 +7170,20 @@ Procedure ShowReminderBeforePutFile(ResultHandler)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Checks file sizes.
+// 
 
-// Check file size limit.
-// Returns False if there are files that exceed the size limit 
-// and the user selected "Cancel" in the warning dialog box about the presence of such files.
+// Check the file size limit.
+// Returns False if there are files that exceed the size limit,
+// and the user selected "Cancel"in the warning dialog about the presence of such files.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //  CheckParameters - Structure:
-//    * SelectedFiles - Array - an array of "File" objects.
-//    * Recursively - Boolean - pass subdirectories recursively.
-//    * PseudoFileSystem - Map - for a string (directory), returns an array
-//                                             of strings (subdirectories and files). 
+//    * SelectedFiles - Array -  array of "File" objects.
+//    * Recursively - Boolean -  recursively crawl the subdirectories.
+//    * PseudoFileSystem - Map -  for a row (directory), returns an array
+//                                             of rows (subdirectories and files).
 //
 Procedure CheckMaxFilesSize(ResultHandler, CheckParameters)
 	
@@ -7227,7 +7224,7 @@ Procedure CheckMaxFilesSize(ResultHandler, CheckParameters)
 			ExecutionParameters.TotalFilesCount, CheckParameters.PseudoFileSystem);
 	EndIf;
 	
-	// There was at least one file that was too big.
+	// 
 	If ArrayOfTooBigFiles.Count() <> 0 Then 
 		TooBigFiles = New ValueList;
 		Parameters = New Structure;
@@ -7252,7 +7249,7 @@ Procedure CheckMaxFilesSize(ResultHandler, CheckParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure CheckFileSizeLimitAfterRespondQuestion(Response, ExecutionParameters) Export
 	
 	ExecutionParameters.Success = (Response = DialogReturnCode.OK);
@@ -7261,13 +7258,13 @@ Procedure CheckFileSizeLimitAfterRespondQuestion(Response, ExecutionParameters) 
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Shows that the file has not been modified.
+// 
 
-// It will show a reminder if it is set up.
+// Shows a reminder - if the setting is enabled.
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
-//                        - Undefined - description of the procedure that receives the method result.
+//                        - Undefined - 
 //
 Procedure ShowInformationFileWasNotModified(ResultHandler)
 	
@@ -7291,9 +7288,9 @@ Procedure ShowInformationFileWasNotModified(ResultHandler)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Imports the edited file into the application, removes the lock and sends a notification.
+// 
 
-// Continuation of the procedure (see above).
+// 
 Procedure EndEditAndNotifyCompletion(Result, ExecutionParameters) Export
 	
 	If Result = True Then
@@ -7308,7 +7305,7 @@ Procedure EndEditAndNotifyCompletion(Result, ExecutionParameters) Export
 	
 EndProcedure
 
-// Saves edited files to the infobase and removes the lock.
+// Saves the edited files to the IB and removes the lock.
 //
 // Parameters:
 //   Parameters - See FileUpdateParameters.
@@ -7325,13 +7322,13 @@ Procedure FinishEditByRefsWithNotification(Parameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure FinishEditByRefsAfterInstallExtension(ExtensionInstalled, ExecutionParameters) Export
 	
 	ExecutionParameters.Insert("FilesData", New Array);
 	FilesOperationsInternalServerCall.GetDataForFilesArray(ExecutionParameters.FilesArray, ExecutionParameters.FilesData);
 	
-	// Complete file editing
+	// 
 	FilesData = ExecutionParameters.FilesData; // Array of See FilesOperationsInternalServerCall.FileData -
 	For Each FileData In FilesData Do
 		
@@ -7386,12 +7383,12 @@ Procedure FinishEditFilesArrayWithNotificationCompletion(Result, ExecutionParame
 	
 EndProcedure
 
-// Adds files to the list with drag-and-drop.
+// Adds files by dragging and dropping them to the list of files.
 //
 // Parameters:
-//  FileOwner      - AnyRef - file owner.
-//  FormIdentifier - Form UUID.
-//  FileNamesArray   - Array of String - file paths.
+//  FileOwner      - AnyRef -  file owner.
+//  FormIdentifier - Unique form identifier.
+//  FileNamesArray   - Array of String - 
 //
 Procedure AddFilesWithDrag(Val FileOwner, Val FormIdentifier, Val FileNamesArray) Export
 	
@@ -7428,9 +7425,9 @@ Procedure AddFilesWithDrag(Val FileOwner, Val FormIdentifier, Val FileNamesArray
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Captures a file, opens a dialog box for editing and sends notifications.
+// 
 
-// Locks a file for editing and opens it.
+// Blocks the file for editing and opens it.
 Procedure EditWithNotification(ResultHandler, ObjectRef,
 	UUID = Undefined, OwnerWorkingDirectory = Undefined) Export
 	
@@ -7447,7 +7444,7 @@ Procedure EditWithNotification(ResultHandler, ObjectRef,
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure EditWithNotificationCompletion(FileEdited, ExecutionParameters) Export
 	
 	If FileEdited Then
@@ -7461,15 +7458,15 @@ Procedure EditWithNotificationCompletion(FileEdited, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Captures a file or several files and sends a message.
+// 
 
-// Locks a file or several files.
+// Locks a file or multiple files.
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
-//                        - Undefined - description of the procedure that receives the method result.
-//   CommandParameter - either a reference to a file or an array of references to files.
-//   UUID.
+//                        - Undefined - 
+//   CommandParameter - 
+//   
 //
 Procedure LockWithNotification(ResultHandler, CommandParameter, UUID = Undefined) Export
 	
@@ -7491,7 +7488,7 @@ Procedure LockWithNotification(ResultHandler, CommandParameter, UUID = Undefined
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure LockWithNotificationFilesArrayCompletion(Result, ExecutionParameters) Export
 	
 	NotifyChanged(Type("CatalogRef.Files"));
@@ -7503,7 +7500,7 @@ Procedure LockWithNotificationFilesArrayCompletion(Result, ExecutionParameters) 
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure LockWIthNotificationOneFileCompletion(Result, ExecutionParameters) Export
 	
 	If Result = True Then
@@ -7516,9 +7513,9 @@ Procedure LockWIthNotificationOneFileCompletion(Result, ExecutionParameters) Exp
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Unlocks a file and sends a notification.
+// 
 
-// Unlocks a file locked earlier.
+// Frees a previously occupied file.
 //
 // Parameters:
 //   Parameters - See FileUnlockParameters.
@@ -7548,7 +7545,7 @@ Procedure UnlockFileWithNotification(Parameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure UnlockFileWithNotificationFilesArrayCompletion(Result, ExecutionParameters) Export
 	
 	NotifyChanged(Type("CatalogRef.Files"));
@@ -7559,7 +7556,7 @@ Procedure UnlockFileWithNotificationFilesArrayCompletion(Result, ExecutionParame
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure UnlockFileWithNotificationOneFileCompletion(Result, ExecutionParameters) Export
 	
 	If Result = True Then
@@ -7574,15 +7571,15 @@ Procedure UnlockFileWithNotificationOneFileCompletion(Result, ExecutionParameter
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Opens a file and sends a notification.
+// 
 
-// Opens a file.
+// Open the file.
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
-//                        - Undefined - description of the procedure that receives the method result.
+//                        - Undefined - 
 //   FileData             - Structure
-//   UUID - UUID - forms.
+//   UUID - UUID -  shapes.
 //
 Procedure OpenFileWithNotification(ResultHandler, FileData, UUID = Undefined, ForEditing = True) Export
 	
@@ -7592,14 +7589,14 @@ Procedure OpenFileWithNotification(ResultHandler, FileData, UUID = Undefined, Fo
 	ExecutionParameters.Insert("ForEditing", ForEditing);
 	ExecutionParameters.Insert("UUID", UUID);
 	
-	// The file does not contain the owner, just open it by reference from the temporary storage.
+	// 
 	If Not ExecutionParameters.FileData.Property("Owner") Or Not ValueIsFilled(ExecutionParameters.FileData.Owner) Then
 		NotifyDescription = New NotifyDescription("OpenFileAddInSuggested", FilesOperationsInternalClient, ExecutionParameters);
 		ShowFileSystemExtensionInstallationQuestion(NotifyDescription);
 		Return;
 	EndIf;
 	
-	// If File does not have a file, open the card.
+	// 
 	If ExecutionParameters.FileData.Version.IsEmpty() And ExecutionParameters.FileData.StoreVersions Then
 		Handler = New NotifyDescription("OpenFileWithNotificationCompletion", ThisObject, ExecutionParameters);
 		ShowValue(Handler, ExecutionParameters.FileData.Ref);
@@ -7611,7 +7608,7 @@ Procedure OpenFileWithNotification(ResultHandler, FileData, UUID = Undefined, Fo
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure OpenFileWithNotificationAfterInstallExtension(ExtensionInstalled, ExecutionParameters) Export
 	
 	If FileSystemExtensionAttached1() Then
@@ -7631,7 +7628,7 @@ Procedure OpenFileWithNotificationAfterInstallExtension(ExtensionInstalled, Exec
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure OpenFileWithNotificationWithExtensionAfterGetVersionToWorkingDirectory(Result, ExecutionParameters) Export
 	
 	If Result.FileReceived = True Then
@@ -7646,7 +7643,7 @@ Procedure OpenFileWithNotificationWithExtensionAfterGetVersionToWorkingDirectory
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters   - Structure:
@@ -7713,7 +7710,7 @@ Procedure OpenFileWithoutExtension(Notification, FileData, FormIdentifier,
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure OpenFileWithoutExtensionAfterDecryption(DataDetails, Context) Export
 	
 	If Not DataDetails.Success Then
@@ -7734,7 +7731,7 @@ Procedure OpenFileWithoutExtensionAfterDecryption(DataDetails, Context) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure OpenFileWithoutExtensionReminder(Context)
 	
 	If Context.WithNotification
@@ -7748,7 +7745,7 @@ Procedure OpenFileWithoutExtensionReminder(Context)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure OpenFileWithoutExtensionFileSending(Result, Context) Export
 	
 	If (TypeOf(Result) = Type("Structure") And Result.Value = "Cancel") Or Result = Undefined Then
@@ -7777,9 +7774,9 @@ Procedure OpenFileWithoutExtensionFileSending(Result, Context) Export
 	
 EndProcedure
 
-// Fills in a temporary form ID for cases when it is not necessary
-// to return data in temporary storage to the calling code, for example,
-// as in the Open and OpenFileDirectory procedures in the FilesOperationsClient common module.
+// Fills in the temporary form ID for cases when you don't need
+// to return data in temporary storage to the calling code, such
+// as in the Open, open file Catalog procedures in the shared workfile Client module.
 //
 Procedure FillTemporaryFormID(FormIdentifier, ExecutionParameters)
 	
@@ -7787,13 +7784,13 @@ Procedure FillTemporaryFormID(FormIdentifier, ExecutionParameters)
 		Return;
 	EndIf;
 	
-	ExecutionParameters.Insert("TempForm", GetForm("DataProcessor.FilesOperations.Form.QuestionForm")); // ACC:65
+	ExecutionParameters.Insert("TempForm", GetForm("DataProcessor.FilesOperations.Form.QuestionForm")); // 
 	FormIdentifier = ExecutionParameters.TempForm.UUID;
 	StandardSubsystemsClient.SetFormStorageOption(ExecutionParameters.TempForm, True);
 	
 EndProcedure
 
-// Cancels the storage of the temporary ID, filled earlier.
+// Cancels storing the temporary ID that was previously filled in.
 Procedure ClearTemporaryFormID(ExecutionParameters)
 	
 	If ExecutionParameters.Property("TempForm") Then
@@ -7803,9 +7800,9 @@ Procedure ClearTemporaryFormID(ExecutionParameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Imports file to the application and sends a message.
+// 
 
-// Continuation of the procedure (see above).
+// 
 Procedure SaveFileChangesWithNotificationCompletion(Result, ExecutionParameters) Export
 	
 	If Result = True Then
@@ -7818,9 +7815,9 @@ Procedure SaveFileChangesWithNotificationCompletion(Result, ExecutionParameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Shows the file selection dialog box, imports the selected file into the application as a version and sends a notification.
+// 
 
-// Selects a file and creates a new version from it.
+// 
 Procedure UpdateFromFileOnHardDriveWithNotification(
 	ResultHandler,
 	FileData,
@@ -7840,7 +7837,7 @@ Procedure UpdateFromFileOnHardDriveWithNotification(
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters   - Structure:
@@ -7859,15 +7856,15 @@ Procedure UpdateFromFileOnHardDriveWithNotificationCompletion(Result, ExecutionP
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Encrypt files.
+// 
 
-// Encrypt file.
+// Encrypted file.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
+//                       - Undefined - 
 //  FileData - See FilesOperationsInternalServerCall.FileData
-//  UUID - UUID - a form ID.
+//  UUID - UUID -  the ID of the form.
 //
 Procedure Encrypt(ResultHandler, FileData, UUID) Export
 	
@@ -7896,7 +7893,7 @@ Procedure Encrypt(ResultHandler, FileData, UUID) Export
 		Return;
 	EndIf;
 	
-	// SuggestFileSystemExtensionInstallationNow() is not required, because everything is done in the memory via BinaryData
+	// 
 	
 	VersionsArray = FilesOperationsInternalServerCall.FileDataAndURLOfAllFileVersions(ExecutionParameters.FileData.Ref,
 		ExecutionParameters.UUID);
@@ -7978,7 +7975,7 @@ Procedure OnGetEncryptedData(Parameters, CurrentExecutionParameters) Export
 	
 EndProcedure
 
-// The Encrypt procedure completion. It is called from the DigitalSignature subsystem.
+// End of the Encrypt procedure. Called from the electronic Signature subsystem.
 Procedure AfterFileEncryption(DataDetails, ExecutionParameters) Export
 	
 	ExecutionParameters.Success = DataDetails.Success;
@@ -7998,15 +7995,15 @@ Procedure AfterFileEncryption(DataDetails, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Decrypt file.
+// Decryption of the file.
 
-// Decrypt file.
+// Decryption of the file.
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
-//                       - Undefined - description of the procedure that receives the method result.
-//  FileRef  - CatalogRef.Files - file.
-//  UUID - UUID - a form ID.
+//                       - Undefined - 
+//  FileRef  - CatalogRef.Files -  file.
+//  UUID - UUID -  the ID of the form.
 //  FileData  - See FilesOperationsInternalServerCall.FileData
 //
 Procedure Decrypt(ResultHandler, FileRef, UUID, FileData) Export
@@ -8023,7 +8020,7 @@ Procedure Decrypt(ResultHandler, FileRef, UUID, FileData) Export
 	ExecutionParameters.Insert("Success", False);
 	ExecutionParameters.Insert("DataArrayToStoreInDatabase", New Array);
 	
-	// SuggestFileSystemExtensionInstallationNow() is not required, because everything is done in the memory via BinaryData
+	// 
 	
 	VersionsArray = FilesOperationsInternalServerCall.FileDataAndURLOfAllFileVersions(
 		ExecutionParameters.FileRef, ExecutionParameters.UUID);
@@ -8129,7 +8126,7 @@ Procedure OnGetDecryptedData(Parameters, CurrentExecutionParameters) Export
 	
 EndProcedure
 
-// The Decrypt procedure completion. It is called from the DigitalSignature subsystem.
+// Completion of the Decrypt procedure. Called from the electronic Signature subsystem.
 Procedure AfterFileDecryption(DataDetails, ExecutionParameters) Export
 	
 	ExecutionParameters.Success = DataDetails.Success;
@@ -8142,7 +8139,7 @@ Procedure AfterFileDecryption(DataDetails, ExecutionParameters) Export
 	
 EndProcedure
 
-// Continue the CheckSignatures procedure. It is called from the DigitalSignature subsystem.
+// Continue with the check Signatures procedure. Called from the electronic Signature subsystem.
 Procedure AfterFileDecryptionOnCheckSignature(DataDetails, AdditionalParameters) Export
 	
 	If Not DataDetails.Success Then
@@ -8154,12 +8151,12 @@ Procedure AfterFileDecryptionOnCheckSignature(DataDetails, AdditionalParameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures that follow asynchronous procedures.
+// 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Create a new file.
+// 
 
-// Creates a new file interactively calling the dialog box of selection the File creation mode.
+// Creates a new file interactively with a dialog for selecting the File creation mode.
 //
 // Parameters:
 //   See FilesOperationsClient.AppendFile
@@ -8218,33 +8215,32 @@ Procedure AddFileFromFileSystem(FileOwner, OwnerForm) Export
 	
 EndProcedure
 
-// Creates a new file interactively, using the specified method.
+// Creates a new file interactively in the specified way.
 //
 // Parameters:
-//   CreateMode - Number - file creation mode.
-//       1 - from a template (by copying another file)
-//       2 - from a computer (from the file system)
-//       3 - from a scanner.
-//   ExecutionParameters - Structure - * FileOwner.
-//       * OwnerForm
-//                                     * DontOpenCardAfterCreateFromFIle.
-//       * FileOwner.
-//       * OwnerForm
-//       * DontOpenCardAfterCreateFromFIle.
+//   CreateMode - Number - 
+//       
+//       
+//       
+//   ExecutionParameters - Structure -  For types of values and descriptions, see the Workfile Client.Add a file().
+//       * Result handler.
+//       
+//       
+//       
 //
 Procedure AddAfterCreationModeChoice(CreateMode, ExecutionParameters) Export
 	
 	ExecutionParameters.Insert("NotOpenCardAfterCreateFromFile", True);
 	
-	If CreateMode = 1 Then // Copy another file.
+	If CreateMode = 1 Then // 
 		AddBasedOnTemplate(ExecutionParameters);
-	ElsIf CreateMode = 2 Then // Import from file system.
+	ElsIf CreateMode = 2 Then // 
 		If FileSystemExtensionAttached1() Then
 			AddFormFileSystemWithExtension(ExecutionParameters);
 		Else
 			AddFromFileSystemWithoutExtension(ExecutionParameters);
 		EndIf;
-	ElsIf CreateMode = 3 Then // Read from the scanner.
+	ElsIf CreateMode = 3 Then // 
 		AddingOptions = FilesOperationsClient.AddingFromScannerParameters();
 		FillPropertyValues(AddingOptions, ExecutionParameters);
 		AddFromScanner(AddingOptions);
@@ -8254,10 +8250,10 @@ Procedure AddAfterCreationModeChoice(CreateMode, ExecutionParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure AddBasedOnTemplate(ExecutionParameters) Export
 	
-	// Copy from the template file.
+	// 
 	FormParameters = New Structure;
 	FormParameters.Insert("SelectTemplate1", True);
 	FormParameters.Insert("CurrentRow", PredefinedValue("Catalog.FilesFolders.Templates"));
@@ -8267,7 +8263,7 @@ Procedure AddBasedOnTemplate(ExecutionParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure AddBasedOnTemplateAfterTemplateChoice(Result, ExecutionParameters) Export
 	
 	If Result = Undefined Then
@@ -8287,10 +8283,10 @@ Procedure AddBasedOnTemplateAfterTemplateChoice(Result, ExecutionParameters) Exp
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure AddFromFileSystemWithoutExtension(ExecutionParameters)
 	
-	// Import from file system without 1C:Enterprise Extension (web client).
+	// 
 	ChoiceDialog = New FileDialog(FileDialogMode.Open);
 	If ExecutionParameters.Property("SelectionDialogFilter") Then
 		ChoiceDialog.Filter = ExecutionParameters.SelectionDialogFilter;
@@ -8301,7 +8297,7 @@ Procedure AddFromFileSystemWithoutExtension(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure AddFromFileSystemWithoutFileSystemExtensionAfterImportFile(Put, Address, SelectedFileName, ExecutionParameters) Export
 	
 	If Not Put Then
@@ -8341,7 +8337,7 @@ Procedure AddFromFileSystemWithoutFileSystemExtensionAfterImportFile(Put, Addres
 		
 	EndIf;
 	
-	// Creating a file in the infobase.
+	// 
 	Try
 		
 		If FilesOperationsInternalClientCached.IsDirectoryFiles(ExecutionParameters.FileOwner) Then
@@ -8395,7 +8391,7 @@ Procedure AddFromFileSystemWithoutFileSystemExtensionAfterImportFile(Put, Addres
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure AddFromFileSystemWithoutExtensionAfterRespondQuestionContinue(Response, ExecutionParameters) Export
 	
 	If Response = DialogReturnCode.Retry Then
@@ -8407,7 +8403,7 @@ Procedure AddFromFileSystemWithoutExtensionAfterRespondQuestionContinue(Response
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for managing cryptography from the file form.
+// 
 
 // Parameters:
 //  Form - ClientApplicationForm
@@ -8438,7 +8434,7 @@ Procedure ReadSignaturesCertificates(Form) Export
 	
 EndProcedure
 
-// Continue the ReadSignaturesCertificates procedure.
+// Continue the procedure to read the certificate of Signatures.
 Procedure ReadSignaturesCertificatesAfterAttachExtension(Attached, Context) Export
 	
 	If Not Attached Then
@@ -8451,7 +8447,7 @@ Procedure ReadSignaturesCertificatesAfterAttachExtension(Attached, Context) Expo
 	
 EndProcedure
 
-// Continue the ReadSignaturesCertificates procedure.
+// Continue the procedure to read the certificate of Signatures.
 Procedure ReadSignaturesCertificatesAfterCreateCryptoManager(Result, Context) Export
 	
 	If TypeOf(Result) <> Type("CryptoManager") Then
@@ -8464,7 +8460,7 @@ Procedure ReadSignaturesCertificatesAfterCreateCryptoManager(Result, Context) Ex
 	
 EndProcedure
 
-// Continue the ReadSignaturesCertificates procedure.
+// Continue the procedure to read the certificate of Signatures.
 //
 // Parameters:
 //   Context - Structure:
@@ -8483,7 +8479,7 @@ Procedure ReadSignaturesCertificatesLoopStart(Context)
 		Return;
 	EndIf;
 	
-	// The signature was not read when writing the object
+	// 
 	Signature = GetFromTempStorage(Context.TableRow.SignatureAddress);
 	
 	If Not ValueIsFilled(Signature) Then
@@ -8498,7 +8494,7 @@ Procedure ReadSignaturesCertificatesLoopStart(Context)
 	
 EndProcedure
 
-// Continue the ReadSignaturesCertificates procedure.
+// Continue the procedure to read the certificate of Signatures.
 Procedure ReadSignatureCertificatesLoopAfterGetCertificatesFromSignatureError(ErrorInfo, StandardProcessing, Context) Export
 	
 	StandardProcessing = False;
@@ -8506,7 +8502,7 @@ Procedure ReadSignatureCertificatesLoopAfterGetCertificatesFromSignatureError(Er
 	
 EndProcedure
 
-// Continue the ReadSignaturesCertificates procedure.
+// Continue the procedure to read the certificate of Signatures.
 Procedure ReadSignaturesCertificatesLoopAfterGetCertificatesFromSignature(Certificates, Context) Export
 	
 	If Certificates.Count() = 0 Then
@@ -8532,7 +8528,7 @@ Procedure ReadSignaturesCertificatesLoopAfterGetCertificatesFromSignature(Certif
 	
 EndProcedure
 
-// Continue the ReadSignaturesCertificates procedure.
+// Continue the procedure to read the certificate of Signatures.
 Procedure ReadSignatureCertificatesLoopAfterExportCertificateError(ErrorInfo, StandardProcessing, Context) Export
 	
 	StandardProcessing = False;
@@ -8540,7 +8536,7 @@ Procedure ReadSignatureCertificatesLoopAfterExportCertificateError(ErrorInfo, St
 	
 EndProcedure
 
-// Continue the ReadSignaturesCertificates procedure.
+// Continue the procedure to read the certificate of Signatures.
 //
 // Parameters:
 //   Context - Structure:
@@ -8559,11 +8555,11 @@ Procedure ReadSignaturesCertificatesLoopAfterExportCertificate(CertificateData, 
 EndProcedure
 
 
-// Notifies by the end of Encrypt.
+// At the end of the Encrypt notifies.
 // Parameters:
-//  FilesArrayInWorkingDirectoryToDelete - Array - an array of strings that are paths to files.
-//  FileOwner  - AnyRef - file owner.
-//  FileRef  - CatalogRef.Files - file.
+//  FilesArrayInWorkingDirectoryToDelete - Array -  array of file path strings.
+//  FileOwner  - AnyRef -  file owner.
+//  FileRef  - CatalogRef.Files -  file.
 //
 Procedure InformOfEncryption(FilesArrayInWorkingDirectoryToDelete,
                                    FileOwner,
@@ -8573,7 +8569,7 @@ Procedure InformOfEncryption(FilesArrayInWorkingDirectoryToDelete,
 	Notify("Write_File", FileWriteNotificationParameters("AttachedFileEncrypted"), FileOwner);
 	Notify("Write_File", FileWriteNotificationParameters("FileDataChanged"), FileRef);
 	
-	// Deleting all file versions from working directory.
+	// 
 	For Each FullFileName In FilesArrayInWorkingDirectoryToDelete Do
 		DeleteFileWithoutConfirmation(FullFileName);
 	EndDo;
@@ -8588,10 +8584,10 @@ Procedure InformOfEncryption(FilesArrayInWorkingDirectoryToDelete,
 	
 EndProcedure
 
-// Notifies by the end of Decrypt.
+// At the end of Decrypt notifies.
 // Parameters:
-//  FileOwner  - AnyRef - file owner.
-//  FileRef  - CatalogRef.Files - file.
+//  FileOwner  - AnyRef -  file owner.
+//  FileRef  - CatalogRef.Files -  file.
 //
 Procedure InformOfDecryption(FileOwner, FileRef) Export
 	
@@ -8610,7 +8606,7 @@ Procedure InformOfDecryption(FileOwner, FileRef) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Operations with digital signatures.
+// 
 //
 Procedure SignFile(AttachedFile, FileData, FormIdentifier,
 			CompletionHandler = Undefined, HandlerOnGetSignature = Undefined, SignatureParameters = Undefined) Export
@@ -8692,7 +8688,7 @@ Procedure SignFile(AttachedFile, FileData, FormIdentifier,
 	
 EndProcedure
 
-// Finish the SignFile and AddSignatureFromFile procedures.
+// Completing the Signfile, addfile Signature procedures.
 Procedure AfterAddSignatures(DataDetails, ExecutionParameters) Export
 	
 	If TypeOf(DataDetails) <> Type("Structure")
@@ -8722,7 +8718,7 @@ Procedure AfterAddSignatures(DataDetails, ExecutionParameters) Export
 	
 EndProcedure
 
-// Adds digital signatures to the file in the application from the signature files on the computer.
+// 
 Procedure AddSignatureFromFile(File, FormIdentifier, CompletionHandler) Export
 	
 	FileProperties = FilesOperationsInternalServerCall.FileDataAndBinaryData(File, , FormIdentifier);
@@ -8757,9 +8753,9 @@ Procedure AddSignatureFromFile(File, FormIdentifier, CompletionHandler) Export
 	
 EndProcedure
 
-// Continue the AddSignatureFromFile procedure.
-// It is called from the DigitalSignature subsystem after preparing signatures from files for non-standard
-// way of adding a signature to the object.
+// Continue with the add file Signature procedure.
+// Called from the electronic Signature subsystem after preparing signatures from files for a non
+// -standard way to add a signature to an object.
 //
 // Parameters:
 //   Context - Structure:
@@ -8776,7 +8772,7 @@ Procedure OnGetSignatures(Parameters, Context) Export
 	
 EndProcedure
 
-// The AddSignatureFromFile procedure completion.
+// Completing the add file Signature procedure.
 Procedure AfterSignFile(DataDetails, ExecutionParameters) Export
 	
 	If TypeOf(DataDetails) <> Type("Structure")
@@ -8794,7 +8790,7 @@ Procedure AfterSignFile(DataDetails, ExecutionParameters) Export
 	
 EndProcedure
 
-// For the AfterSignFile and AfterSignFiles procedures.
+// For post-File and post-File signing procedures.
 Procedure NotifyOfFileChange(FileData)
 	
 	NotifyChanged(FileData.Ref);
@@ -8804,7 +8800,7 @@ Procedure NotifyOfFileChange(FileData)
 	
 EndProcedure
 
-// Saves file with the digital signature.
+// Saves a file with an electronic signature.
 Procedure SaveFileWithSignature(File, FormIdentifier) Export
 	
 	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
@@ -8831,8 +8827,8 @@ Procedure SaveFileWithSignature(File, FormIdentifier) Export
 	
 EndProcedure
 
-// Continue the SaveFileWithSignatures procedure.
-// It is called from the DigitalSignature subsystem after selecting signatures to save.
+// Continue the procedure to save the file with the signatures.
+// Called from the electronic Signature subsystem after selecting signatures to save.
 //
 Procedure OnSaveFileData(Parameters, Context) Export
 	
@@ -8842,8 +8838,8 @@ Procedure OnSaveFileData(Parameters, Context) Export
 	
 EndProcedure
 
-// Continue the SaveFileWithSignatures procedure.
-// It is called from the DigitalSignature subsystem after selecting signatures to save.
+// Continue the procedure to save the file with the signatures.
+// Called from the electronic Signature subsystem after selecting signatures to save.
 //
 Procedure OnSaveFileDataReturnResult(Result, AdditionalParameters) Export
 
@@ -8901,26 +8897,26 @@ Function CheckSignPossibility(FileData, CompletionHandler, ResultHandler, Execut
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Imports the structure of files and directories from the computer to the application.
+// 
 
 // Returns:
 //  Structure:
-//    * ResultHandler      - NotifyDescription - a handler that requires the import result.
-//    * Owner                  - DefinedType.AttachedFilesOwner - a folder or an owner object, to which
+//    * ResultHandler      - NotifyDescription -  a handler who needs to pass the result of the import.
+//    * Owner                  - DefinedType.AttachedFilesOwner -  the folder or owner object to which
 //                                                                                 the imported files are added.
-//    * FilesGroup              - DefinedType.AttachedFile - a group of files, to which
-//                                                                       the imported files are added.
-//    * SelectedFiles            - ValueList - imported objects of the File group.
-//    * Indicator                 - Number - a number from 0 to 100 is the progress of executing.
-//    * Comment               - String - comment.
-//    * StoreVersions             - Boolean - store versions.
-//    * ShouldDeleteAddedFiles - Boolean - delete SelectedFiles after importing.
-//    * Recursively                - Boolean - pass subdirectories recursively.
-//    * FormIdentifier        - UUID - a form ID.
-//    * PseudoFileSystem     - Map - file system emulation, returns an array of
-//                                                 strings (subdirectories and files) for a string (directory).
-//    * Encoding                 - String - an encoding for text files.
-//    * AddedFiles          - Array - added files, an output parameter.
+//    * FilesGroup              - DefinedType.AttachedFile -  the group of files that
+//                                                                       the imported files are added to.
+//    * SelectedFiles            - ValueList -  the imported object File.
+//    * Indicator                 - Number -  a number from 0 to 100 indicates progress.
+//    * Comment               - String -  comment.
+//    * StoreVersions             - Boolean -  store versions.
+//    * ShouldDeleteAddedFiles - Boolean -  delete files selected Files after import is complete.
+//    * Recursively                - Boolean -  recursively crawl the subdirectories.
+//    * FormIdentifier        - UUID -  the ID of the form.
+//    * PseudoFileSystem     - Map -  file system emulation-for a string (directory) returns an array
+//                                                 of strings (subdirectories and files).
+//    * Encoding                 - String -  encoding for text files.
+//    * AddedFiles          - Array -  added files, output parameter.
 //
 Function FilesImportParameters() Export
 	ExecutionParameters = New Structure;
@@ -8939,32 +8935,32 @@ Function FilesImportParameters() Export
 	Return ExecutionParameters;
 EndFunction
 
-// Recursive file import function. It takes an array of files or directories.
-// - If it is a file, it simply adds it. If it is a directory, it creates a group and recursively calls itself.
+// 
+// 
 //
 // Parameters:
 //  ExecutionParameters   - Structure:
 //    * ResultHandler      - NotifyDescription
-//                                - Structure - a handler that requires
-//                                  the import result.
-//    * Owner                  - AnyRef - file owner.
+//                                - Structure - 
+//                                  
+//    * Owner                  - AnyRef -  file owner.
 //    * SelectedFiles            - Array
-//                                - ValueList - File objects.
-//    * Indicator                 - Number - a number from 0 to 100 is the progress of executing.
-//    * ArrayOfFilesNamesWithErrors - Array - an array of file names with errors.
-//    * AllFilesStructureArray  - Array - a structure array of all files.
-//    * Comment               - String - comment.
-//    * StoreVersions             - Boolean - store versions.
-//    * ShouldDeleteAddedFiles - Boolean - delete SelectedFiles after importing.
-//    * Recursively                - Boolean - pass subdirectories recursively.
-//    * TotalFilesCount       - Number - total number of imported files.
-//    * Counter                   - Number - counter of processed files (file is not necessarily loaded).
-//    * FormIdentifier        - UUID - a form ID.
-//    * PseudoFileSystem     - Map - file system emulation, returns an array of
-//                                                 strings (subdirectories and files) for a string (directory).
-//    * AddedFiles          - Array - added files, an output parameter.
-//    * AllFoldersArray           - Array - an array of all folders.
-//    * Encoding                 - String - an encoding for text files.
+//                                - ValueList - 
+//    * Indicator                 - Number -  a number from 0 to 100 indicates progress.
+//    * ArrayOfFilesNamesWithErrors - Array -  array of file names with errors.
+//    * AllFilesStructureArray  - Array -  array of structures for all files.
+//    * Comment               - String -  comment.
+//    * StoreVersions             - Boolean -  store versions.
+//    * ShouldDeleteAddedFiles - Boolean -  delete files selected Files after import is complete.
+//    * Recursively                - Boolean -  recursively crawl the subdirectories.
+//    * TotalFilesCount       - Number -  the total number of imported files.
+//    * Counter                   - Number -  counter of processed files (not necessarily the file will be uploaded).
+//    * FormIdentifier        - UUID -  the ID of the form.
+//    * PseudoFileSystem     - Map -  file system emulation-for a string (directory) returns an array
+//                                                 of strings (subdirectories and files).
+//    * AddedFiles          - Array -  added files, output parameter.
+//    * AllFoldersArray           - Array -  an array of all the folders.
+//    * Encoding                 - String -  encoding for text files.
 //
 Procedure ImportFilesRecursively(Owner, SelectedFiles, ExecutionParameters)
 	
@@ -8979,21 +8975,21 @@ Procedure ImportFilesRecursively(Owner, SelectedFiles, ExecutionParameters)
 	InternalParameters.Insert("FoldersArrayForQuestionWhetherFolderAlreadyExists", New Array);
 	ImportFilesRecursivelyWithoutDialogBoxes(InternalParameters.Owner, InternalParameters.SelectedFiles, InternalParameters, True); 
 	If InternalParameters.FoldersArrayForQuestionWhetherFolderAlreadyExists.Count() = 0 Then
-		// The question is not required.
+		// 
 		ReturnResult(InternalParameters.ResultHandler, Undefined);
 		Return;
 	EndIf;
 	
-	// When the user answers the questions, write to "ExecutionParameters.SelectedFiles" the folders 
-	// from "ExecutionParameters.FoldersArrayForQuestionWhetherFolderAlreadyExists".
-	// Then, recursion is restarted.
+	//  
+	// 
+	// 
 	InternalParameters.SelectedFiles = New Array;
 	InternalParameters.Insert("FolderToAddToSelectedFiles", Undefined);
 	ImportFilesRecursivelySetNextQuestion(InternalParameters);
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //  ExecutionParameters - Structure:
@@ -9018,7 +9014,7 @@ Procedure ImportFilesRecursivelySetNextQuestion(ExecutionParameters)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 //
 // Parameters:
 //   ExecutionParameters - Structure:
@@ -9030,17 +9026,17 @@ Procedure FilesImportRecursivelyAfterRespondQuestion(Response, ExecutionParamete
 		ExecutionParameters.SelectedFiles.Add(ExecutionParameters.FolderToAddToSelectedFiles);
 	EndIf;
 	
-	// After responses to all question recursion is restarted.
+	// 
 	If ExecutionParameters.FoldersArrayForQuestionWhetherFolderAlreadyExists.Count() = 0 Then
 		ImportFilesRecursivelyWithoutDialogBoxes(ExecutionParameters.Owner,	ExecutionParameters.SelectedFiles, ExecutionParameters,
-			False); // AskQuestionFolderAlreadyExists (used only for the first level of recursion).
+			False); // 
 		
 		If ExecutionParameters.FoldersArrayForQuestionWhetherFolderAlreadyExists.Count() = 0 Then
-			// There are no more questions.
+			// 
 			ReturnResult(ExecutionParameters.ResultHandler, Undefined);
 			Return;
 		Else
-			// There are more questions.
+			// 
 			ExecutionParameters.SelectedFiles = New Array;
 		EndIf;
 	EndIf;
@@ -9049,14 +9045,14 @@ Procedure FilesImportRecursivelyAfterRespondQuestion(Response, ExecutionParamete
 	
 EndProcedure
 
-// Recursive file import function. It takes an array of files or directories.
-// - If it is a file, it simply adds it. If it is a directory, it creates a group and recursively calls itself.
+// 
+// 
 //
 // Parameters:
-//  Owner            - AnyRef - file owner.
-//  SelectedFiles      - Array - an array of File objects.
+//  Owner            - AnyRef -  file owner.
+//  SelectedFiles      - Array -  array of File objects.
 //  ExecutionParameters - See ImportFilesRecursively.ExecutionParameters
-//  AskQuestionFolderAlreadyExists - Boolean - True only for the first level of recursion.
+//  AskQuestionFolderAlreadyExists - Boolean -  True only for the first level of recursion.
 //
 Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles, Val ExecutionParameters, Val AskQuestionFolderAlreadyExists)
 	
@@ -9086,7 +9082,7 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 					NewPath = NewPath + String(SelectedFile.Name);
 					FilesArray = FindFilesPseudo(ExecutionParameters.PseudoFileSystem, NewPath);
 					
-					// Create a group in the catalog that is the equivalent of a directory on the computer.
+					// 
 					If FilesArray.Count() <> 0 Then
 						FileName = SelectedFile.Name;
 						
@@ -9100,14 +9096,14 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 						
 						FilesFolderRef = FilesOperationsInternalServerCall.CreateFilesFolder(FileName, Owner,,ExecutionParameters.FilesGroup);
 						If FilesOperationsInternalClientCached.IsDirectoryFiles(FilesFolderRef) Then
-							// The parameter "AskQuestionFolderAlreadyExists" prevents asking the user on the 1st recursion level,
-							// when it goes through folders for which the positive response was provided.
+							// 
+							// 
 							ImportFilesRecursivelyWithoutDialogBoxes(FilesFolderRef, FilesArray, ExecutionParameters, True);
 						Else
 							CurrentFilesGroup = ExecutionParameters.FilesGroup;
 							ExecutionParameters.FilesGroup = FilesFolderRef;
-							// The parameter "AskQuestionFolderAlreadyExists" prevents asking the user on the 1st recursion level,
-							// when it goes through folders for which the positive response was provided.
+							// 
+							// 
 							ImportFilesRecursivelyWithoutDialogBoxes(Owner, FilesArray, ExecutionParameters, True);
 							ExecutionParameters.FilesGroup = CurrentFilesGroup;
 						EndIf;
@@ -9124,9 +9120,9 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 				Continue;
 			EndIf;
 			
-			// Refresh the progress indicator.
+			// 
 			ExecutionParameters.Counter = ExecutionParameters.Counter + 1;
-			// Calculate the percentage.
+			// 
 			ExecutionParameters.Indicator = Int(ExecutionParameters.Counter * 100 / ExecutionParameters.TotalFilesCount);
 			SizeInMB = SelectedFile.Size() / (1024 * 1024);
 			LabelMore = StringFunctionsClientServer.SubstituteParametersToString(
@@ -9141,7 +9137,7 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 				LabelMore,
 				PictureLib.DialogInformation);
 			
-			// Create an item of the Files catalog.
+			// 
 			TempFileStorageAddress = "";
 			
 			Files = New Array;
@@ -9166,7 +9162,7 @@ Procedure ImportFilesRecursivelyWithoutDialogBoxes(Val Owner, Val SelectedFiles,
 				TempTextStorageAddress = "";
 			EndIf;
 			
-			// Create an item of the Files catalog.
+			// 
 			ImportFile1(SelectedFile, Owner, ExecutionParameters, TempFileStorageAddress, TempTextStorageAddress);
 				
 		Except
@@ -9236,13 +9232,13 @@ Procedure ImportFile1(Val SelectedFile, Val Owner, Val ExecutionParameters, Val 
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Other internal procedures and functions.
+// 
 
-// When renaming the file, it updates the information in the working directory (the file name on the computer and in the register).
+// 
 //
 // Parameters:
-//  CurrentVersion  - CatalogRef.FilesVersions - file version.
-//  NewName       - String - new file name.
+//  CurrentVersion  - CatalogRef.FilesVersions -  file version.
+//  NewName       - String -  new file name.
 //
 Procedure RefreshInformationInWorkingDirectory(CurrentVersion, NewName) Export
 	
@@ -9269,12 +9265,12 @@ Procedure RefreshInformationInWorkingDirectory(CurrentVersion, NewName) Export
 	
 EndProcedure
 
-// Re-register in the working directory with the ForReading flag (if the file exists there).
+// 
 // 
 // Parameters:
 //  FileData  - See FilesOperationsInternalServerCall.FileData
-//  ForReading - Boolean - a file is placed for reading.
-//  InOwnerWorkingDirectory - Boolean - a file is in owner working directory (not in the main working directory).
+//  ForReading - Boolean -  the file has been placed for reading.
+//  InOwnerWorkingDirectory - Boolean -  the file is in the owner's working directory (not the main working directory).
 //
 Procedure ReregisterFileInWorkingDirectory(FileData, ForReading, InOwnerWorkingDirectory)
 	
@@ -9298,12 +9294,12 @@ Procedure ReregisterFileInWorkingDirectory(FileData, ForReading, InOwnerWorkingD
 	
 EndProcedure
 
-// The function is designed to open file using the corresponding application.
+// This function is intended for opening the file by the corresponding application.
 //
 // Parameters:
 //  FileData  - See FilesOperationsInternalServerCall.FileData
-//  FileToOpenName - String - a full file name.
-//  OwnerID - UUID - a form owner ID.
+//  FileToOpenName - String -  full file name.
+//  OwnerID - UUID -  ID of the owner form.
 //
 Procedure OpenFileWithApplication(FileData, FileToOpenName, OwnerID = Undefined)
 	
@@ -9371,14 +9367,14 @@ Procedure OpenFileWithApplication(FileData, FileToOpenName, OwnerID = Undefined)
 		
 	EndIf;
 	
-	// Open  a file.
+	// 
 	FileSystemClient.OpenFile(FileToOpenName);
 	
 EndProcedure
 
-// Returns parameters to work with locked files.
+// Returns parameters for working with busy files.
 // Returns:
-//	Undefined - if there is no files being edited or you do not need to work with them.
+//	Undefined - if there are no editable files or you don't need to work with them.
 //	Structure - a structure with passed parameters.
 // 
 Function CheckLockedFilesOnExit()
@@ -9421,7 +9417,7 @@ Function CheckLockedFilesOnExit()
 	
 EndFunction
 
-// Returns the value of the LockedFilesCount client parameter.
+// Returns the value of the client parameter number of occupied Files.
 //
 Function LockedFilesCount()
 	
@@ -9429,7 +9425,7 @@ Function LockedFilesCount()
 	
 EndFunction
 
-// Changes the value of the LockedFilesCount client parameter.
+// Changes the value of the client parameter number of occupied Files.
 //
 Procedure ChangeLockedFilesCount(ChangeValue = -1) Export
 	
@@ -9451,12 +9447,12 @@ Function FilesInWorkingDirectoryData()
 	
 EndFunction
 
-// Passing files in working directory recursively and collecting information about them.
+// Recursively traversing files in the working directory and collecting information about them.
 //
 // Parameters:
-//  Path - String - a working directory path.
+//  Path - String -  path of the working directory.
 //  FilesArray - Array of DefinedType.AttachedFile
-//  TableOfFiles - Array of See FilesInWorkingDirectoryData - Files to be deleted.
+//  TableOfFiles - Array of See FilesInWorkingDirectoryData - 
 //
 Procedure ProcessFilesTable(Val Path, Val FilesArray, Val TableOfFiles)
 	
@@ -9481,7 +9477,7 @@ Procedure ProcessFilesTable(Val Path, Val FilesArray, Val TableOfFiles)
 			Continue;
 		EndIf;
 		
-		// Do not delete Word temporary files from the working directory.
+		// 
 		If StrStartsWith(SelectedFile.Name, "~") And SelectedFile.GetHidden() Then
 			Continue;
 		EndIf;
@@ -9494,11 +9490,11 @@ Procedure ProcessFilesTable(Val Path, Val FilesArray, Val TableOfFiles)
 	For Each FileInfoKey In FilesInfo Do
 		RelativePath = FileInfoKey.Key;
 		FileInfo1 = FileInfoKey.Value;
-		// The minimal data is considered the oldest if not found on the computer.
-		// It will be deleted when cleaning up the oldest files from the working directory.
+		// 
+		// 
 		PutFileDate = ?(FileInfo1.FileIsInRegister, FileInfo1.PutFileDate, Date('00010101'));
 		
-		// If it is not locked by the current user, you can delete it.
+		// 
 		If Not FileInfo1.FileIsInRegister 
 			Or FileInfo1.FileIsInRegister And Not FileInfo1.EditedByCurrentUser Then
 			Record = FilesInWorkingDirectoryData();
@@ -9514,8 +9510,8 @@ Procedure ProcessFilesTable(Val Path, Val FilesArray, Val TableOfFiles)
 	
 EndProcedure
 
-// Receives a relative path to a file in the working directory. If the information register has the path, it is taken from there.
-// Otherwise, it is generated and recorded to the information register.
+// 
+// 
 //
 // Parameters:
 //  FileData  - Structure
@@ -9559,7 +9555,7 @@ Function GetFilePathInWorkingDirectory(FileData)
 		Return "";
 	EndIf;
 	
-	// Writing file name to the register.
+	// 
 	ForReading = True;
 	InOwnerWorkingDirectory = FileData.OwnerWorkingDirectory <> "";
 	FilesOperationsInternalServerCall.WriteFullFileNameToRegister(FileData.Version, FullFileName, ForReading, InOwnerWorkingDirectory);
@@ -9575,7 +9571,7 @@ Function GetFilePathInWorkingDirectory(FileData)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// AUXILIARY PROCEDURES AND FUNCTIONS
+// 
 
 // Returns:
 //   See FilesOperations.FilesOperationSettings
@@ -9586,13 +9582,13 @@ Function PersonalFilesOperationsSettings() Export
 	
 EndFunction
 
-// Returns a structure that contains various personal settings.
+// Returns a structure containing various personal settings.
 Function CommonFilesOperationsSettings()
 	
 	CommonSettings = StandardSubsystemsClient.ClientRunParameters().CommonFilesOperationsSettings;
 	
-	// Verify and update the settings that are saved on the server
-	// and that are calculated on the client.
+	// 
+	// 
 	
 	Return CommonSettings;
 	
@@ -9601,9 +9597,9 @@ EndFunction
 // Parameters:
 //  FileData - See FilesOperationsInternalServerCall.FileData
 //  CurrentVersion  - CatalogRef.FilesVersions
-//  FullFileName - String - File name together with its path.
-//  InWorkingDirectoryForRead - Boolean - a file is placed for reading.
-//  InOwnerWorkingDirectory - Boolean - a file is in owner working directory (not in the main working directory).
+//  FullFileName - String - 
+//  InWorkingDirectoryForRead - Boolean -  the file has been placed for reading.
+//  InOwnerWorkingDirectory - Boolean -  the file is in the owner's working directory (not the main working directory).
 //
 // Returns:
 //  Boolean
@@ -9613,7 +9609,7 @@ Function FileInLocalFilesCache(FileData, CurrentVersion, FullFileName, InWorking
 	
 	FullFileName = "";
 	
-	// If it is an active version, take it from the FileData.
+	// 
 	If FileData <> Undefined And FileData.CurrentVersion = CurrentVersion Then
 		FullFileName = FileData.FullFileNameInWorkingDirectory;
 		InWorkingDirectoryForRead = FileData.InWorkingDirectoryForRead;
@@ -9638,14 +9634,14 @@ Function FileInLocalFilesCache(FileData, CurrentVersion, FullFileName, InWorking
 	
 EndFunction
 
-// Select a path to the working directory.
+// Select the path to the working directory.
 // Parameters:
-//  DirectoryName  - String - the directory previous name.
-//  Title  - String - a title of the form of directory path selection.
-//  OwnerWorkingDirectory - String-  working directory of the owner.
+//  DirectoryName  - String -  previous folder name.
+//  Title  - String -  the title of the form, select the directory path.
+//  OwnerWorkingDirectory - String-   the owner's working directory.
 //
 // Returns:
-//   Boolean  - Shows whether the operation is performed successfully.
+//   Boolean  -  whether the operation was completed successfully.
 //
 Function ChoosePathToWorkingDirectory(DirectoryName, Title, OwnerWorkingDirectory) Export
 	
@@ -9661,7 +9657,7 @@ Function ChoosePathToWorkingDirectory(DirectoryName, Title, OwnerWorkingDirector
 		DirectoryName = OpenFileDialog.Directory;
 		DirectoryName = CommonClientServer.AddLastPathSeparator(DirectoryName);
 		
-		// Create a directory for files
+		// 
 		Try
 			CreateDirectory(DirectoryName);
 			TestDirectoryName = DirectoryName + "CheckAccess\";
@@ -9671,7 +9667,7 @@ Function ChoosePathToWorkingDirectory(DirectoryName, Title, OwnerWorkingDirector
 			EventLogClient.AddMessageForEventLog(EventLogEvent(),
 				"Warning", ErrorProcessing.DetailErrorDescription(ErrorInfo()),, True);
 
-			// Insufficient rights to create a directory, or this path does not exist.
+			// 
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Error writing to directory ""%1"".
 				           |Invalid path or insufficient permissions.';"),
@@ -9704,12 +9700,12 @@ Function ChoosePathToWorkingDirectory(DirectoryName, Title, OwnerWorkingDirector
 	
 EndFunction
 
-// Reregister it In working directory with another ForReading flag.
+// Re-register in the working directory with a different Start flag.
 // Parameters:
-//  CurrentVersion  - CatalogRef.FilesVersions - file version.
-//  FullFileName - String - a full file name.
-//  ForReading - Boolean - a file is placed for reading.
-//  InOwnerWorkingDirectory - Boolean - a file is in owner working directory (not in the main working directory).
+//  CurrentVersion  - CatalogRef.FilesVersions -  file version.
+//  FullFileName - String -  full file name.
+//  ForReading - Boolean -  the file has been placed for reading.
+//  InOwnerWorkingDirectory - Boolean -  the file is in the owner's working directory (not the main working directory).
 //
 Procedure RegegisterInWorkingDirectory(CurrentVersion, FullFileName, ForReading, InOwnerWorkingDirectory)
 	
@@ -9721,14 +9717,14 @@ Procedure RegegisterInWorkingDirectory(CurrentVersion, FullFileName, ForReading,
 	
 EndProcedure
 
-// Passing files in working directory recursively to determine the size of files.
+// Recursive File traversal-to determine the file size.
 // Parameters:
-//  FilesArray - Array - an array of "File" objects.
-//  ArrayOfTooBigFiles - Array - an array of files.
-//  Recursively - Boolean - pass subdirectories recursively.
-//  TotalFilesCount - Number - total number of imported files.
-//  PseudoFileSystem - Map - file system emulation, returns an array of strings
-//                                         (subdirectories and files) for a string (directory).
+//  FilesArray - Array -  array of "File" objects.
+//  ArrayOfTooBigFiles - Array -  array of files.
+//  Recursively - Boolean -  recursively crawl the subdirectories.
+//  TotalFilesCount - Number -  the total number of imported files.
+//  PseudoFileSystem - Map -  file system emulation-for a string (directory) returns an array of strings
+//                                         (subdirectories and files).
 //
 Procedure FindTooBigFiles(
 				FilesArray,
@@ -9755,7 +9751,7 @@ Procedure FindTooBigFiles(
 					NewPath = NewPath + String(SelectedFile.Name);
 					FilesArrayInDirectory = FindFilesPseudo(PseudoFileSystem, NewPath);
 					
-					// Recursion.
+					// Recursion
 					If FilesArrayInDirectory.Count() <> 0 Then
 						FindTooBigFiles(FilesArrayInDirectory, ArrayOfTooBigFiles, Recursively, TotalFilesCount, PseudoFileSystem);
 					EndIf;
@@ -9766,7 +9762,7 @@ Procedure FindTooBigFiles(
 			
 			TotalFilesCount = TotalFilesCount + 1;
 			
-			// A file size is too big.
+			// 
 			If SelectedFile.Size() > MaxFileSize1 Then
 				ArrayOfTooBigFiles.Add(SelectedFile.FullName);
 				Continue;
@@ -9777,8 +9773,8 @@ Procedure FindTooBigFiles(
 	
 EndProcedure
 
-// Returns an array of files, emulating the work of FindFiles, not by file system, but by Map.
-//  If PseudoFileSystem is blank, it works with the file system.
+// Returns an array of files, emulating the work of Naytifiles - but not by file system, but by Matching
+//  if the pseudo-file System is empty-works with the file system.
 //
 Function FindFilesPseudo(Val PseudoFileSystem, Path)
 	
@@ -9801,19 +9797,19 @@ Function FindFilesPseudo(Val PseudoFileSystem, Path)
 	
 EndFunction
 
-// Dereference the lnk file
+// Dereference lnk file
 // Parameters:
-//  SelectedFile - File - object of the File type.
+//  SelectedFile - File -  an object of the File type.
 //
 // Returns:
-//   String - what the lnk file refers to.
+//   String - 
 //
 Function DereferenceLnkFile(SelectedFile)
 	
 #If Not WebClient And Not MobileClient Then
 	ShellApplication = New COMObject("shell.application");
-	FullPath = ShellApplication.NameSpace(SelectedFile.Path);// Path to the LNK file (without the filename).
-	FileName = FullPath.items().item(SelectedFile.Name); // Full path (only) to the lnk file.
+	FullPath = ShellApplication.NameSpace(SelectedFile.Path);// 
+	FileName = FullPath.items().item(SelectedFile.Name); // 
 	Ref = FileName.GetLink();
 	Return New File(Ref.path);
 #EndIf
@@ -9823,8 +9819,8 @@ Function DereferenceLnkFile(SelectedFile)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Compare versions and files.
-// Compares 2 files (TXT, DOC, DOC, ODT, MXL) using Microsoft Office or OpenOffice from 1C:Enterprise script for spreadsheet documents.
+// 
+// 
 //
 Procedure CompareFiles(FormIdentifier, FirstFile, SecondFile, Extension, VersionOwner = Undefined) Export
 	
@@ -10018,14 +10014,14 @@ Procedure CompareOpenOfficeOrgWriterFiles(Val PathToFile1, Val PathToFile2)
 	
 #If Not WebClient And Not MobileClient Then
 	
-	// Removing readonly, otherwise, it will not work.
+	// 
 	File1 = New File(PathToFile1);
 	File1.SetReadOnly(False);
 	
 	File2 = New File(PathToFile2);
 	File2.SetReadOnly(False);
 	
-	// Open OpenOffice.
+	// 
 	Try
 		ServiceManagerObject = New COMObject("com.sun.star.ServiceManager");
 		DesktopObject = ServiceManagerObject.createInstance("com.sun.star.frame.Desktop");
@@ -10038,24 +10034,24 @@ Procedure CompareOpenOfficeOrgWriterFiles(Val PathToFile1, Val PathToFile2)
 			+ NStr("en = 'Install or reinstall OpenOffice.org Writer.';");
 	EndTry;	
 	
-	// Opening parameters: disabling macros.
+	// 
 	DocumentParameters = New COMSafeArray("VT_VARIANT", 1);
 	RunMode = AssignValueToProperty(ServiceManagerObject,
 		"MacroExecutionMode",
 		0); // const short NEVER_EXECUTE = 0
 	DocumentParameters.SetValue(0, RunMode);
 	
-	// Open OpenOffice document.
+	// 
 	DesktopObject.loadComponentFromURL(ConvertToURL(PathToFile2), "_blank", 0, DocumentParameters);
 	
 	CurrentWindow = DesktopObject.getCurrentFrame();
 	
-	// Set showing changes.
+	// 
 	CompareParameters = New COMSafeArray("VT_VARIANT", 1);
 	CompareParameters.SetValue(0, AssignValueToProperty(ServiceManagerObject, "ShowTrackedChanges", True));
 	DispatcherHelperObject.executeDispatch(CurrentWindow, ".uno:ShowTrackedChanges", "", 0, CompareParameters);
 	
-	// Compare with the document.
+	// 
 	CallParameters = New COMSafeArray("VT_VARIANT", 1);
 	CallParameters.SetValue(0, AssignValueToProperty(ServiceManagerObject, "URL", ConvertToURL(PathToFile1)));
 	DispatcherHelperObject.executeDispatch(CurrentWindow, ".uno:CompareDocuments", "", 0, CallParameters);
@@ -10121,7 +10117,7 @@ Procedure CompareSpreadsheetDocuments1(PathToFile1, PathToFile2, TitleLeft, Titl
 	
 EndProcedure
 
-// The function converts a Windows file name into OpenOffice URL.
+// This function converts the Windows file name to an OpenOffice URL.
 Function ConvertToURL(FileName)
 	
 	Return "file:///" + StrReplace(FileName, "\", "/");
@@ -10139,9 +10135,9 @@ Function AssignValueToProperty(Object, PropertyName, PropertyValue)
 	
 EndFunction
 
-// Returns the user data directory inside the standard directory of application data.
-// This directory can be used to store files locked by the current user.
-// This method requires 1C:Enterprise Extension installed to operate in the web client.
+// Returns the user data directory inside the standard application data directory.
+// This directory can be used to store files captured by the current user.
+// To use this method on the web client, you must first enable the extension for working with 1C:Company.
 //
 Function UserDataDir()
 	
@@ -10159,7 +10155,7 @@ Function UserDataDir()
 	
 EndFunction
 
-// Opens the drag-and-drop form.
+// Opens the drag and drop form.
 Procedure OpenDragFormFromOutside(FolderForAdding, FileNamesArray) Export
 	
 	FormParameters = New Structure;
@@ -10171,29 +10167,29 @@ Procedure OpenDragFormFromOutside(FolderForAdding, FileNamesArray) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Internal procedures and functions for async methods.
+// 
 //
-// Parameters:
-//   Handler - NotifyDescription, Undefined, Structure - The procedure that handles the given async method.
-//       * Undefined - Do not process.
-//       * NotifyDescription - Describes the handler procedure.
-//     Rarely, the runtime should be interrupted to display an async dialog.
-//     In this case, "Handler" takes Structure of the calling code parameters
-//     with the mandatory "AsynchronousDialog" used for the interruption and dialog opening:
-//     * Structure - Structure of the calling code parameters.
-//     ** AsynchronousDialog - Structure -
-//       *** Open - Boolean - Set to "True" if the dialog is open.
-//           *** ProcedureName - String - The name of the procedure that handles the calling code. 
-//               *** Module - CommonModule, ClientApplicationForm - Module of the calling code handler.
-//               In this case, "NotifyDescription" is generated from "ProcedureName" and "Module".
-//               NOTE: Some async methods don't support passing Structure.
-//             See the list of types in the method comments.
-//             Result - Arbitrary - Result to be returned to "Handler".
+// 
+//   
+//       
+//       
+//     
+//     
+//     
+//     
+//     
+//       
+//            
+//               
+//               
+//               
+//             
+//             
 //
 //   
 //
 
-// Displays a notification dialog box and then, once the dialog box is closed, calls the handler and passes the user input to that handler.
+// Displays the warning window, and after closing it, calls the handler with the specified result.
 Procedure ReturnResultAfterShowWarning(Handler, WarningText, Result)
 	
 	If Handler <> Undefined Then
@@ -10208,7 +10204,7 @@ Procedure ReturnResultAfterShowWarning(Handler, WarningText, Result)
 	
 EndProcedure
 
-// Displays a value view window and then, once it is closed, calls the handler and passes the user input to that handler.
+// Displays the value view window, and after closing it, calls the handler with the specified result.
 Procedure ReturnResultAfterShowValue(Handler, Value, Result)
 	
 	If Handler <> Undefined Then
@@ -10223,7 +10219,7 @@ Procedure ReturnResultAfterShowValue(Handler, Value, Result)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure ReturnResultAfterCloseSimpleDialog(Structure) Export
 	
 	If TypeOf(Structure.Handler) = Type("NotifyDescription") Then
@@ -10232,7 +10228,7 @@ Procedure ReturnResultAfterCloseSimpleDialog(Structure) Export
 	
 EndProcedure
 
-// Returns the direct call result when the dialog box was not opened.
+// Returns the result of a direct call when no dialogs were opened.
 Procedure ReturnResult(Handler, Result) Export
 	
 	Handler = PrepareHandlerForDirectCall(Handler, Result);
@@ -10242,7 +10238,7 @@ Procedure ReturnResult(Handler, Result) Export
 	
 EndProcedure
 
-// Writes information required to prepare the handler of asynchronous dialog.
+// Records information necessary for the preparation of a handler for asynchronous dialogue.
 Procedure RegisterCompletionHandler(ExecutionParameters, CompletionHandler) Export
 	
 	AsynchronousDialog = New Structure;
@@ -10254,7 +10250,7 @@ Procedure RegisterCompletionHandler(ExecutionParameters, CompletionHandler) Expo
 	
 EndProcedure
 
-// Preparing a handler for an asynchronous dialog.
+// Preparation of a handler for asynchronous dialogue.
 Function CompletionHandler(HandlerOrStructure)
 	
 	Handler = Undefined;
@@ -10274,7 +10270,7 @@ EndFunction
 
 Procedure SetLockingFormFlag(ExecutionParameters, Value) Export
 	
-	// Recursive registration of all calling code handlers.
+	// 
 	If ExecutionParameters.Property("ResultHandler") Then
 		ExecutionParameters.ResultHandler = CompletionHandler(ExecutionParameters.ResultHandler);
 	EndIf;
@@ -10295,14 +10291,14 @@ Function LockingFormOpen(ExecutionParameters) Export
 	
 EndFunction
 
-// Preparing the result of direct call handler without opening the dialog box.
+// Preparing a direct call handler without opening a dialog.
 Function PrepareHandlerForDirectCall(HandlerOrStructure, Result)
 	
 	If TypeOf(HandlerOrStructure) = Type("Structure") Then
 		If HandlerOrStructure.Property("AsynchronousDialog") Then
 			HandlerOrStructure.AsynchronousDialog.ResultWhenNotOpen = Result;
 		EndIf;
-		Return Undefined; // The handler for dialog box was not prepared => The calling code did not stop.
+		Return Undefined; // 
 	Else
 		Return HandlerOrStructure;
 	EndIf;
@@ -10310,33 +10306,33 @@ Function PrepareHandlerForDirectCall(HandlerOrStructure, Result)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Executes a batch of non-interactive actions with a file.
-// If the file does not exist, actions will not be skipped.
+// 
+// 
 //
-// You can get the following properties: Name, BaseName, FullName, Path, Extension, Exists,
-//    ModificationTime, UnivarsalModificationTime, ReadOnly, Invisibility, Size, IsDirectory, IsFile.
+// 
+//    
 //
-// You can set the following properties: ModificationTime, UniversalModificationTime, ReadOnly, and Invisibility.
-// Can perform the following file operations: Delete.
+// 
+// 
 //
 // Parameters:
-//  Notification - NotifyDescription - a notification that runs after executing
-//   actions with the file. As a result a structure with the following properties is returned:
-//     * ErrorDescription - String - an error text if one of the actions is not performed.
-//     * Results     - Array - contains the result by each action as a structure:
-//             * File       - File - an initialized object file.
-//                          - Undefined - file initialization error.
-//             * Exists - Boolean - False if the file does not exist.
+//  Notification - NotifyDescription - 
+//   :
+//     * ErrorDescription - String -  error text if one of the actions failed.
+//     * Results     - Array - :
+//             * File       - File -  initialized file object.
+//                          - Undefined - 
+//             * Exists - Boolean -  False if the file does not exist.
 //
-//  FileOperations - Array - containing structures with name and parameters of the action:
-//    * Action - String    - GetProperties, SetProperties, Delete, CopyFromSource,
-//                             CreateDirectory, Get, or Put.
-//    * File     - String    - a full file name on the computer.
-//               - File      - initialized File object.
-//    * Properties - see properties that you can receive or set.
-//    * Source - String    - a full name of the file on the computer, from which you need to create a copy.
-//    * Address    - String    - an address of the file binary data, for example, a temporary storage address.
-//    * ErrorTitle - String - the text, to which you need to add a line break and an error presentation.
+//  FileOperations - Array - :
+//    * Action - String    -  Get Properties, Set Properties, Delete, Copy From Source,
+//                             Create A Directory, Get It, And Place It.
+//    * File     - String    -  full name of the file on the computer.
+//               - File      - 
+//    * Properties - see properties that can be obtained or set.
+//    * Source - String    -  the full name of the file on the computer from which you want to create a copy.
+//    * Address    - String    -  the address of the file's binary data, such as the address of temporary storage.
+//    * ErrorTitle - String -  the text to which you want to add a newline and the errors view.
 //
 Procedure ProcessFile(Notification, FileOperations, FormIdentifier = Undefined)
 	
@@ -10354,7 +10350,7 @@ Procedure ProcessFile(Notification, FileOperations, FormIdentifier = Undefined)
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 //
 // Parameters:
 //   Context - Structure:
@@ -10438,7 +10434,7 @@ Procedure ProcessFileLoopStart(Context)
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterError(ErrorInfo, StandardProcessing, Context) Export
 	
 	StandardProcessing = False;
@@ -10458,28 +10454,28 @@ Procedure ProcessFileAfterError(ErrorInfo, StandardProcessing, Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterDeleteFiles(Context) Export
 	
 	ProcessFileLoopStart(Context);
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterCopyFile(CopiedFile, Context) Export
 	
 	ProcessFileLoopStart(Context);
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterCreateDirectory(DirectoryName, Context) Export
 	
 	ProcessFileLoopStart(Context);
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterGetFiles(ObtainedFiles, Context) Export
 	
 	If TypeOf(ObtainedFiles) <> Type("Array") Or ObtainedFiles.Count() = 0 Then
@@ -10491,7 +10487,7 @@ Procedure ProcessFileAfterGetFiles(ObtainedFiles, Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterPutFiles(PlacedFiles, Context) Export
 	
 	If TypeOf(PlacedFiles) <> Type("Array") Or PlacedFiles.Count() = 0 Then
@@ -10505,7 +10501,7 @@ Procedure ProcessFileAfterPutFiles(PlacedFiles, Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 //
 // Parameters:
 //  Exists - Boolean
@@ -10534,7 +10530,7 @@ Procedure ProcessFileAfterCheckExistence(Exists, Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterGetModificationTime(Modified, Context) Export
 	
 	If Modified <> Null Then
@@ -10551,7 +10547,7 @@ Procedure ProcessFileAfterGetModificationTime(Modified, Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterGetUniversalModificationTime(UniversalModificationTime, Context) Export
 	
 	If UniversalModificationTime <> Null Then
@@ -10568,7 +10564,7 @@ Procedure ProcessFileAfterGetUniversalModificationTime(UniversalModificationTime
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterGetReadOnly(ReadOnly, Context) Export
 	
 	If ReadOnly <> Null Then
@@ -10585,7 +10581,7 @@ Procedure ProcessFileAfterGetReadOnly(ReadOnly, Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 //
 // Parameters:
 //  Invisibility - Boolean
@@ -10611,7 +10607,7 @@ Procedure ProcessFileAfterGetInvisibility(Invisibility, Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterGetSize(Size, Context) Export
 	
 	If Size <> Null Then
@@ -10628,7 +10624,7 @@ Procedure ProcessFileAfterGetSize(Size, Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterCheckIsDirectory(IsDirectory, Context) Export
 	
 	If IsDirectory <> Null Then
@@ -10645,7 +10641,7 @@ Procedure ProcessFileAfterCheckIsDirectory(IsDirectory, Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterCheckIsFile(IsFile, Context) Export
 	
 	If IsFile <> Null Then
@@ -10665,7 +10661,7 @@ Procedure ProcessFileAfterCheckIsFile(IsFile, Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterSetModificationTime(Context) Export
 	
 	If Context.PropertiesForInstalling.Property("UniversalModificationTime") Then
@@ -10678,7 +10674,7 @@ Procedure ProcessFileAfterSetModificationTime(Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterSetUniversalModificationTime(Context) Export
 	
 	If Context.PropertiesForInstalling.Property("ReadOnly") Then
@@ -10691,7 +10687,7 @@ Procedure ProcessFileAfterSetUniversalModificationTime(Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterSetReadOnly(Context) Export
 	
 	If Context.PropertiesForInstalling.Property("Invisibility") Then
@@ -10704,14 +10700,14 @@ Procedure ProcessFileAfterSetReadOnly(Context) Export
 	
 EndProcedure
 
-// Continue the ProcessFile procedure.
+// Continue the Processfile procedure.
 Procedure ProcessFileAfterSetInvisibility(Context) Export
 	
 	ProcessFileLoopStart(Context);
 	
 EndProcedure
 
-// Transfers a file from the client to a temporary storage on the server. Requires 1C:Enterprise Extension.
+// 
 Function PutFileFromHardDriveInTempStorage(FullFileName, FileAddress = "", UUID = Undefined)
 	If Not FileSystemExtensionAttached1() Then
 		Return Undefined;
@@ -10727,7 +10723,7 @@ Function PutFileFromHardDriveInTempStorage(FullFileName, FileAddress = "", UUID 
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for working with scanner.
+// 
 
 Procedure InitAddIn(NotificationOfReturn, SuggestInstall = False) Export
 	
@@ -10774,7 +10770,7 @@ Function ScanAvailable(IsSettingsCheck = False) Export
 	
 EndFunction
 
-// Returns scanning devices (an array of strings).
+// 
 Function EnumDevices(Form, Attachable_Module) Export
 	
 	Devices = ConnectedDevices(Form, Attachable_Module);
@@ -10784,12 +10780,12 @@ Function EnumDevices(Form, Attachable_Module) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures intended to support the asynchronous model.
+// 
 //
 Function ClientSupportsSynchronousCalls()
 	
 #If WebClient Then
-	// Synchronous methods are not supported in Chrome and Firefox.
+	// 
 	SystemInfo = New SystemInfo;
 	ApplicationInformationArray = StrSplit(SystemInfo.UserAgentInformation, " ", False);
 	
@@ -10805,10 +10801,10 @@ Function ClientSupportsSynchronousCalls()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Processing common form events of file operations.
+// 
 
-// Select a file opening mode and start editing.
-// Options: "Edit", "Cancel".
+// Select the file opening mode and start editing.
+// Options "Edit", "Cancel".
 //
 // Parameters:
 //   FileData - See FilesOperationsInternalServerCall.FileData
@@ -10847,7 +10843,7 @@ Procedure SelectModeAndEditFile(ResultHandler, FileData, CommandEditAvailability
 		
 	EndIf;
 	
-	// If the file is already locked for editing, open without asking.
+	// 
 	If Not ValueIsFilled(FileData.BeingEditedBy)
 		And PersonalSettings.PromptForEditModeOnOpenFile = True
 		And CommandEditAvailability Then
@@ -10884,7 +10880,7 @@ Procedure SelectModeAndEditFileCompletion(Result, ExecutionParameters) Export
 	
 EndProcedure
 
-// File commands are available. There is at least one row in the list and grouping is not selected.
+// 
 // 
 // Parameters:
 //  Items - FormItems:
@@ -10910,7 +10906,7 @@ Function FileCommandsAvailable(Items) Export
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////////
-// Print a spreadsheet or office document with a digital signature stamp.
+// 
 
 Procedure DoPrintFileWithStamp(Ref, UUID) Export
 	
@@ -10997,7 +10993,7 @@ Procedure PrintFileWithStamp(FileData)
 	
 EndProcedure
 
-// Backward compatibility. Open a file without owner by its address in the temporary storage.
+// 
 
 // Continue the OpenFile procedure.
 Procedure OpenFileAddInSuggested(FileSystemExtensionAttached1, AdditionalParameters) Export
@@ -11151,8 +11147,8 @@ Procedure ShowDialogNeedToGetFileFromServer(ResultHandler, Val FileNameWithPath,
 	StandardFileData.Insert("InWorkingDirectoryForRead",     Not ForEditing);
 	StandardFileData.Insert("BeingEditedBy",                  FileData.BeingEditedBy);
 	
-	// "File" is found in the working directory.
-	// Check the change date and decide what to do next.
+	// 
+	// 
 	
 	Parameters = New Structure;
 	Parameters.Insert("ResultHandler", ResultHandler);
@@ -11162,7 +11158,7 @@ Procedure ShowDialogNeedToGetFileFromServer(ResultHandler, Val FileNameWithPath,
 	
 EndProcedure
 
-// Continues ShowDialogNeedToGetFileFromServer procedure execution.
+// Continue the procedure to show the directory and get the file Server.
 Procedure ShowDialogNeedToGetFileFromServerActionDefined(Action, AdditionalParameters) Export
 	FileNameWithPath = AdditionalParameters.FileNameWithPath;
 	
@@ -11179,7 +11175,7 @@ Procedure ShowDialogNeedToGetFileFromServerActionDefined(Action, AdditionalParam
 		Result = True;
 	ElsIf Action = "OpenExistingFile" Then
 		Result = False;
-	Else // Action = "Cancel".
+	Else // 
 		Result = Undefined;
 	EndIf;
 	
@@ -11218,16 +11214,16 @@ Function ConnectedDevices(Form, Attachable_Module)
 	Return ConnectedDevices;
 EndFunction
 
-// Returns scanner setting by name.
+// Returns the configuration of the scanner by name.
 //
 // Parameters:
-//   Attachable_Module - scanning add-in
-//   DeviceName - String - scanner name.
-//   SettingName  - String - a setting name,
-//       for example, "XRESOLUTION", "PIXELTYPE", "ROTATION", or "SUPPORTEDSIZES".
+//   Attachable_Module - 
+//   DeviceName - String -  name of the scanner.
+//   SettingName  - String -  name of the setting,
+//       such as" XRESOLUTION", or" PIXELTYPE", or" ROTATION", or"SUPPORTEDSIZES".
 //
 // Returns:
-//   Number - scanner setting value.
+//   Number - 
 //
 Function ScannerSetting(Form, Attachable_Module, DeviceName, SettingName) Export
 	

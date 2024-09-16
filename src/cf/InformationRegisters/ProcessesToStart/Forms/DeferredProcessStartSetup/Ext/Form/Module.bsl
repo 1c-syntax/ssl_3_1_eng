@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -20,9 +18,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	BusinessProcess = Parameters.BusinessProcess;
 	TaskDueDate = Parameters.TaskDueDate;
 	
-	// Populate settings.
+	// 
 	FillFormAttributes();
-	// Specifying setting availability.
+	// 
 	SetFormItemsProperties();
 	
 EndProcedure
@@ -92,7 +90,7 @@ Procedure OnChangeDateTime()
 
 EndProcedure
 
-// Writes settings.
+// Records settings.
 //
 &AtClient
 Procedure WriteSettingsOnClient()
@@ -126,8 +124,8 @@ Procedure WriteSettingsOnClient()
 	
 EndProcedure
 
-// Fills in the State form attribute and sets availability of the DeferredStartDate
-// and DeferredStartDateTime fields.
+// Fills in the details of the Status form and sets the availability
+// of the date-deferred-Start and date-deferred-start-Time fields.
 //
 &AtServer
 Procedure SetDeferredProcessStartState()
@@ -142,7 +140,7 @@ Procedure SetDeferredProcessStartState()
 	
 EndProcedure
 
-// Saves deferred start settings in the register.
+// Writes the configuration of a delayed start to the registry.
 //
 &AtServer
 Procedure SaveSettings1()
@@ -155,7 +153,7 @@ Procedure SaveSettings1()
 	
 EndProcedure
 
-// Fills in the DecorationInterval decoration title.
+// Fills the header of the scenery Decorational.
 //
 &AtClient
 Procedure RefreshIntervalRepresentation()
@@ -176,8 +174,8 @@ Procedure RefreshIntervalRepresentation()
 			
 EndProcedure
 
-// Fills in the selection list for the DeferredStartDateTime form item with time
-// values.
+// Fills in the selection list for the date-Setstarttime form element
+// with time values.
 //
 &AtClient
 Procedure UpdateTimeSelectionList()
@@ -258,14 +256,14 @@ Procedure FillFormAttributes()
 	Setting = BusinessProcessesAndTasksServer.DeferredProcessParameters(Parameters.BusinessProcess);
 	
 	If ValueIsFilled(Setting) Then
-		// If the process is already deferred, filling the attributes for it.
+		// 
 		FillPropertyValues(ThisObject, Setting);
 		
 		PostponedProcessStart = (Setting.State = Enums.ProcessesStatesForStart.ReadyToStart);
 		DeferredProcessStartOnOpen = PostponedProcessStart;
 		
 	ElsIf Not ProcessIsStarted Then
-		// If it is not deferred, filling with default values.
+		// 
 		DeferredProcessStartOnOpen = False;
 		PostponedProcessStart = True;
 		DeferredStartDate = BegOfDay(CurrentSessionDate() + 86400);

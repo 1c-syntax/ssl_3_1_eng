@@ -1,78 +1,76 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Redefines the standard behavior of the Users subsystem.
+// Overrides the standard behavior of the Users subsystem.
 //
 // Parameters:
 //  Settings - Structure:
-//   * CommonAuthorizationSettings - Boolean - Indicates whether the "Users and rights settings" administration panel has authorization settings,
-//          and whether expiration settings will be available in user and external user forms.
-//          By default, True. For basic configuration versions, False.
-//          In SaaS, the value is got from the service manager settings, and it cannot be overridden.
+//   * CommonAuthorizationSettings - Boolean - 
+//          
+//          
+//          
 //          
 //
-//   * EditRoles - Boolean - shows whether the role editing interface is available 
-//          in profiles of users, external users, and groups of external users.
-//          This affects both regular users and administrators. Default value is True.
+//   * EditRoles - Boolean -  determines whether the interface for changing roles 
+//          in the user, external user, and external user group cards
+//          is available (including for the administrator). The default value is True.
 //
-//   * IndividualUsed - Boolean - If set to "True", then it is used in the
-//          "Users" subsystem. For example, in the user card. By default, "True".
+//   * IndividualUsed - Boolean - 
+//          
 //
-//   * IsDepartmentUsed  - Boolean - If set to "True", then it is used in the
-//          "Users" subsystem. For example, in the user card. By default, "True".
+//   * IsDepartmentUsed  - Boolean - 
+//          
 //
 Procedure OnDefineSettings(Settings) Export
 	
 EndProcedure
 
-// Allows you to specify roles, the purpose of which will be controlled in a special way.
-// The majority of configuration roles here are not required as they are intended for any users  
-// except for external ones.
+// Allows you to specify roles whose assignment will be controlled in a special way.
+// Most configuration roles do not need to be specified here, because they are intended for any users 
+// other than external users.
 //
 // Parameters:
 //  RolesAssignment - Structure:
-//   * ForSystemAdministratorsOnly - Array - Role names that, when separation is disabled,
-//     are intended for any users other than external users, and in separated mode,
-//     are intended only for service administrators, for example:
-//       Administration, UpdateDatabaseConfiguration, SystemAdministrator,
-//     and also all roles with the rights:
-//       Administration,
-//       Administration of configuration extensions,
-//       Update database configuration.
-//     Such roles are usually available in SSL and not available in applications.
+//   * ForSystemAdministratorsOnly - Array - 
+//     
+//     :
+//       
+//     
+//       
+//       
+//       
+//     
 //
-//   * ForSystemUsersOnly - Array - role names that, when separation is disabled,
-//     are intended for any users other than external users, and in separated mode,
-//     are intended only for non-separated users (technical support stuff
-//     and service administrators), for example:
-//       AddEditAddressInfo, AddEditBanks,
-//     and all roles with rights to change non-separated data and those that have the following rules:
-//       Thick client,
-//       External connection,
-//       Automation,
-//       Mode "All functions",
-//       Interactive open external data processors,
-//       Interactive open external reports.
-//     Such roles are mainly available in SSL. However, they might be available in applications.
+//   * ForSystemUsersOnly - Array - 
+//     
+//     
+//     :
+//       
+//     
+//       
+//       
+//       
+//       
+//       
+//       
+//     
 //
-//   * ForExternalUsersOnly - Array - Names of roles intended
-//     only for external users (roles with a specially developed set of rights), for example,:
-//       AddEditQuestionnaireQuestionsAnswers or BasicAccessExternalUserSSL.
-//     Such roles are available both in SSL and in applications (if external users are used).
+//   * ForExternalUsersOnly - Array - 
+//     :
+//       
+//     
 //
-//   * BothForUsersAndExternalUsers - Array - Names of roles intended
-//     for any users (internal, external, and unseparated), for example,:
-//       ReadQuestionnaireQuestionAnswers or AddEditPersonalReportsOptions.
-//     Such roles are available both in SSL and in applications (if external users are used).
+//   * BothForUsersAndExternalUsers - Array - 
+//     :
+//       
+//     
 //
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
@@ -80,43 +78,43 @@ Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
 EndProcedure
 
-// Overrides the behavior of the user form, the external user form,
-// and a group of external users, when it should be different from the default behavior.
+// Overrides the behavior of the user form and the external user form
+// , or the external user group, when it should differ from the default behavior.
 //
-// For example, you need to hide, show, or allow to change or lock
-// some properties in cases that are defined by the applied logic.
+// For example, you need to hide/show or allow changing/blocking
+// certain properties in cases that are defined by the application logic.
 //
 // Parameters:
 //  UserOrGroup - CatalogRef.Users
 //                        - CatalogRef.ExternalUsers
-//                        - CatalogRef.ExternalUsersGroups - reference to the user,
-//                          external user, or external user group at the time of form creation.
+//                        - CatalogRef.ExternalUsersGroups - 
+//                          
 //
 //  ActionsOnForm - Structure:
-//         * Roles                   - String - "", "View," "Edit."
-//                                             For example, when roles are edited in another form, you can hide them
-//                                             in this form or just lock editing.
-//         * ContactInformation   - String - "", "View," "Edit."
-//                                             This property is not available for external user groups.
+//         * Roles                   - String -  "", "View", "Edit".
+//                                             For example, when roles are edited in another form, you can hide
+//                                             them in this form or only block editing.
+//         * ContactInformation   - String -  "", "View", "Edit".
+//                                             This property is missing for external user groups.
 //                                             For example, you may need to hide contact information
-//                                             from the user with no application rights to view CI.
-//         * IBUserProperies - String - "", "View," "Edit."
-//                                             This property is not available for external user groups.
-//                                             For example, you may need to show infobase user properties
+//                                             from the user if you don't have application rights to view the CI.
+//         * IBUserProperies - String -  "", "View", "Edit".
+//                                             This property is missing for external user groups.
+//                                             For example, you may need to show the properties of the information security user
 //                                             for a user who has application rights to this information.
-//         * ItemProperties       - String - "", "View," "Edit."
-//                                             For example, Description is the full name of the infobase user.
-//                                             It might require editing the description
-//                                             for a user who has application rights for employee operations.
+//         * ItemProperties       - String -  "", "View", "Edit".
+//                                             For example, if the Name is the full name of the is user,
+//                                             you may need to allow editing the name
+//                                             for a user who has application rights to personnel operations.
 //
 Procedure ChangeActionsOnForm(Val UserOrGroup, Val ActionsOnForm) Export
 	
 EndProcedure
 
-// Additionally defines actions upon infobase user writing.
-// For example, if a record in the matching register must be synchronously updated and so on.
-// The method is called from the Users.SetIBUserProperies procedure if the user was changed.
-// If the Name field in the PreviousProperties structure is not filled in, a new infobase user is created.
+// Defines additional actions when recording an information database user.
+// For example, if you need to update a record in the corresponding register synchronously, and so on.
+// Called from the Users procedure.Ostrovityanova if the user was really modified.
+// If the Name field in the old Property structure is not filled in, a new is user is created.
 //
 // Parameters:
 //  PreviousProperties - See Users.NewIBUserDetails.
@@ -126,9 +124,9 @@ Procedure OnWriteInfobaseUser(Val PreviousProperties, Val NewProperties) Export
 	
 EndProcedure
 
-// Redefines actions that are required after deleting an infobase user.
-// For example, if you need to synchronously update record in the matching register and so on.
-// The procedure is called from the DeleteInfobaseUser() procedure if the user has been deleted.
+// Defines actions after deleting the user of the information database.
+// For example, if you need to update a record in the corresponding register synchronously, and so on.
+// Called from the delete Userib procedure if the user was deleted.
 //
 // Parameters:
 //  PreviousProperties - See Users.NewIBUserDetails.
@@ -137,18 +135,18 @@ Procedure AfterDeleteInfobaseUser(Val PreviousProperties) Export
 	
 EndProcedure
 
-// Overrides interface settings for new users.
-// For example, you can set initial settings of command interface sections location.
+// Overrides the interface settings that are set for new users.
+// For example, you can set initial settings for the location of command interface sections.
 //
 // Parameters:
 //  InitialSettings1 - Structure:
-//   * ClientSettings    - ClientSettings           - client application settings.
-//   * InterfaceSettings - CommandInterfaceSettings            - Command interface settings (for sections panel,
-//                                                                      navigation panel, and actions panel).
-//   * TaxiSettings      - ClientApplicationInterfaceSettings - client application interface settings
-//                                                                      (panel content and positions).
+//   * ClientSettings    - ClientSettings           -  configure the client application.
+//   * InterfaceSettings - CommandInterfaceSettings            -  command interface settings (
+//                                                                      section panels, navigation panels, and action panels).
+//   * TaxiSettings      - ClientApplicationInterfaceSettings -  customize the interface of the client application
+//                                                                      (composition and arrangement of panels).
 //
-//   * IsExternalUser - Boolean - If True, then this is an external user.
+//   * IsExternalUser - Boolean -  if True, this is an external user.
 //
 Procedure OnSetInitialSettings(InitialSettings1) Export
 	
@@ -156,27 +154,26 @@ Procedure OnSetInitialSettings(InitialSettings1) Export
 	
 EndProcedure
 
-// Allows you to add an arbitrary setting on the Others tab to the UsersSettings
-// handler interface so that other users can delete or copy it.
-// To be able to manage the setting, write a code for its copying  (See OnSaveOtherSetings)
-// and deleting  (See OnDeleteOtherSettings)
+// 
+// 
+//  (See OnSaveOtherSetings)
+//  (See OnDeleteOtherSettings)
 //
-// that will be called upon performing interactive actions involving the setting.
-// For example, a flag that indicates whether to show a warning when closing the application.
+// 
 //
 // Parameters:
-//  UserInfo - Structure - string and referential user presentation:
-//       * UserRef  - CatalogRef.Users - a user,
-//                               from which you need to receive settings.
-//       * InfobaseUserName - String - an infobase user,
-//                                             from which you need to receive settings.
-//  Settings - Structure - other user settings:
-//       * Key     - String - string ID of a setting that is used
-//                             for copying and clearing the setting.
+//  UserInfo - Structure - :
+//       * UserRef  - CatalogRef.Users -  the user
+//                               to get the settings from.
+//       * InfobaseUserName - String -  the user of the information base
+//                                             to get the settings from.
+//  Settings - Structure - :
+//       * Key     - String -  string ID of the setting to use later
+//                             for copying and clearing this setting.
 //       * Value - Structure:
-//              ** SettingName1  - String - name to be displayed in the setting tree.
-//              ** PictureSettings  - Picture - picture to be displayed in the tree of settings.
-//              ** SettingsList     - ValueList - a list of received settings.
+//              ** SettingName1  - String -  the name that will be displayed in the settings tree.
+//              ** PictureSettings  - Picture -  the image that will be displayed in the settings tree.
+//              ** SettingsList     - ValueList -  list of received settings.
 //
 Procedure OnGetOtherSettings(UserInfo, Settings) Export
 	
@@ -184,18 +181,18 @@ Procedure OnGetOtherSettings(UserInfo, Settings) Export
 	
 EndProcedure
 
-// Saves an arbitrary setting for the given user.
-// See also "OnGetOtherSettings".
+// 
+// 
 //
 // Parameters:
 //  Settings - Structure:
-//       * SettingID - String - a string of a setting to be copied.
-//       * SettingValue      - ValueList - a list of values of settings being copied.
-//  UserInfo - Structure - string and referential user presentation:
-//       * UserRef - CatalogRef.Users - a user
-//                              who needs to copy a setting.
-//       * InfobaseUserName - String - an infobase user
-//                                             who needs to copy a setting.
+//       * SettingID - String -  string ID of the setting to copy.
+//       * SettingValue      - ValueList - 
+//  :
+//       * UserRef - CatalogRef.Users -  the user
+//                              who needs to copy the setting.
+//       * InfobaseUserName - String -  the user of the information base
+//                                             who needs to copy the setting.
 //
 Procedure OnSaveOtherSetings(UserInfo, Settings) Export
 	
@@ -203,18 +200,18 @@ Procedure OnSaveOtherSetings(UserInfo, Settings) Export
 	
 EndProcedure
 
-// Clears an arbitrary setting for the given user.
-// See also "OnGetOtherSettings".
+// 
+// 
 //
 // Parameters:
 //  Settings - Structure:
-//       * SettingID - String - a string of a setting to be cleared.
-//       * SettingValue      - ValueList - a list of values of settings being cleared.
-//  UserInfo - Structure - string and referential user presentation:
-//       * UserRef - CatalogRef.Users - a user
-//                              who needs to clear a setting.
-//       * InfobaseUserName - String - an infobase
-//                                             user.
+//       * SettingID - String -  string ID of the setting to clear.
+//       * SettingValue      - ValueList - 
+//  :
+//       * UserRef - CatalogRef.Users -  the user
+//                              who needs to clear the setting.
+//       * InfobaseUserName - String -  the user of the information base
+//                                             who needs to clear the setting.
 //
 Procedure OnDeleteOtherSettings(UserInfo, Settings) Export
 	
@@ -222,60 +219,60 @@ Procedure OnDeleteOtherSettings(UserInfo, Settings) Export
 	
 EndProcedure
 
-// Allows you to specify a custom user choice form.
+// Allows you to specify your own user selection form.
 //
-// When developing the form:
-// - set the Internal filter to False, the filter must be cleared only for a user with full rights;
-// - set the Invalid filter to False, the filter must be cleared for any user.
+// In the form being developed, you must:
+// - set the Official selection = False, the selection should be removed only under full rights;
+// - if the selection is Invalid = False, the selection must be removed under any user.
 //
-// When implementing the custom form, you must support form parameters or use a standard form:
-// - CloseOnChoice
-// - MultipleChoice
-// - SelectConversationParticipants
+// When implementing a custom form, you must support the form parameters or use a standard form:
+// - Close the selection
+// - Multiple selections
+// -  Fibrocartilage
 //
-// To use a form for selecting conversation participants:
-// - pass the selection result to the notification about closing
-// - present the selection result as an array of
-//   Collaboration system user IDs.
+// To work as a form for selecting participants in the discussion, you must:
+// - send the selection result to the closing notification
+// - the selection result must be represented by an array of user IDs
+//   of the interaction system.
 //
 // Parameters:
-//   SelectedForm - String - name of form to open.
-//   FormParameters - Structure - form parameters when opening, Read only:
-//   * CloseOnChoice - Boolean - indicates that a form
-// 									must be closed after selecting an option.
-// 									If the property is set to False, you can 
-// 									select several positions or items in the form.
-//   * MultipleChoice - Boolean - allows or forbids you to select several rows from the list.
-//   * SelectConversationParticipants - Boolean - If True, the form is called as a form to select conversation participants.
-// 										   The form must return an array of
-// 										   Collaboration system user IDs.
+//   SelectedForm - String -  name of the form to open.
+//   FormParameters - Structure - :
+//   * CloseOnChoice - Boolean -  contains an indication that the form
+// 									should be closed after the selection is made.
+// 									If the property is set to False, you can use
+// 									the form to select multiple positions or elements.
+//   * MultipleChoice - Boolean -  allows or disables selecting multiple rows from the list.
+//   * SelectConversationParticipants - Boolean -  if True, the form is called as a form for selecting participants in the discussion.
+// 										   The form must return an array of system user IDs
+// 										   Interactions.
 //
-//   * PickingCompletionButtonTitle - String - the title of the selection completion button.
-//   * HideUsersWithoutMatchingIBUsers - Boolean - If True, users without
-// 													  infobase user ID must not be displayed in the list.
-//   * UsersGroupsSelection - Boolean - allows you to select user groups.
+//   * PickingCompletionButtonTitle - String -  title of the selection completion button.
+//   * HideUsersWithoutMatchingIBUsers - Boolean -  if True, users without
+// 													  an is user ID should not be displayed in the list.
+//   * UsersGroupsSelection - Boolean -  allow selecting user groups.
 // 										 If user groups are used and the parameter is not supported,
-// 										 you cannot assign rights to a user group via the choice form.
-//   * UsersToHide - ValueList - Users that are not displayed in the pick form.
+// 										 then you cannot assign rights to the user group via the selection form.
+//   * UsersToHide - ValueList -  users who are not displayed in the selection form.
 //                            - Undefined
-//   * CurrentRow - CatalogRef.UserGroups - The line in the user group dynamic list
-//                       where the cursor will be placed on the form opening.
-//                   - Undefined - The cursor is placed at the "All users" group.
+//   * CurrentRow - CatalogRef.UserGroups - 
+//                       
+//                   - Undefined - 
 //
-//   * AdvancedPick - Boolean - If True, viewing user groups is available.
-//   * ExtendedPickFormParameters - String - temporary storage address with the structure:
-//   ** SelectedUsers - Array of CatalogRef.Users - Users to be displayed
-//                                in the pick form.
-//   ** PickFormHeader - String - Overrides the pick form title (if specified).
-//   ** PickingCompletionButtonTitle - String - Overrides the button title (if specified).
+//   * AdvancedPick - Boolean -  if True, you can view user Groups.
+//   * ExtendedPickFormParameters - String - :
+//   ** SelectedUsers - Array of CatalogRef.Users - 
+//                                
+//   ** PickFormHeader - String - 
+//   ** PickingCompletionButtonTitle - String - 
 //
 Procedure OnDefineUsersSelectionForm(SelectedForm, FormParameters) Export
 
 EndProcedure
 
-// Allows you to add custom data access logging settings,
-// either when retrieving them with the "Users.RegistrationSettingsForDataAccessEvents" function
-// or when setting them with the "Users.UpdateRegistrationSettingsForDataAccessEvents" procedure.
+// 
+// 
+// 
 // 
 // 
 //

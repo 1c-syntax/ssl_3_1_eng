@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -266,7 +264,7 @@ Procedure RefreshVisibilityAtServer()
 	
 	SetPrivilegedMode(False);
 	
-	// Setting item visibility by user roles
+	// 
 	RoleAvailableDataSynchronizationSetup = DataExchangeServer.HasRightsToAdministerExchanges();
 	Items.DataSynchronizationSetup.Visible = RoleAvailableDataSynchronizationSetup;
 	Items.InstallUpdate.Visible = RoleAvailableDataSynchronizationSetup;
@@ -351,7 +349,7 @@ Procedure OnChangeDataSynchronizationSchedule()
 	Items.DataSynchronizationScheduleOption.ChoiceList.Add(2, NStr("en = 'Every hour';"));
 	Items.DataSynchronizationScheduleOption.ChoiceList.Add(3, NStr("en = 'Every day at 10:00 AM except for Sa and Su.';"));
 	
-	// Selecting a data synchronization schedule option
+	// 
 	DataSynchronizationScheduleOptions = New Map;
 	DataSynchronizationScheduleOptions.Insert(String(PredefinedScheduleOption1()), 1);
 	DataSynchronizationScheduleOptions.Insert(String(PredefinedScheduleOption2()), 2);
@@ -434,10 +432,10 @@ Procedure SetScheduledJobUsage(Val SynchronizeDataBySchedule)
 	
 EndProcedure
 
-// Predefined data synchronization schedules
+// 
 
 &AtServerNoContext
-Function PredefinedScheduleOption1() // Every 15 minutes
+Function PredefinedScheduleOption1() // 
 	
 	Months = New Array;
 	Months.Add(1);
@@ -465,21 +463,21 @@ Function PredefinedScheduleOption1() // Every 15 minutes
 	Schedule = New JobSchedule;
 	Schedule.Months                   = Months;
 	Schedule.WeekDays                = WeekDays;
-	Schedule.RepeatPeriodInDay = 60*15; // 15 minutes.
-	Schedule.DaysRepeatPeriod        = 1; // Every day.
+	Schedule.RepeatPeriodInDay = 60*15; // 
+	Schedule.DaysRepeatPeriod        = 1; // 
 	
 	Return Schedule;
 EndFunction
 
 &AtServerNoContext
-Function PredefinedScheduleOption2() // Every hour.
+Function PredefinedScheduleOption2() // 
 	
 	Return StandaloneModeInternal.DefaultDataSynchronizationSchedule();
 	
 EndFunction
 
 &AtServerNoContext
-Function PredefinedScheduleOption3() // Every day at 10:00 AM except for Sa and Su.
+Function PredefinedScheduleOption3() // 
 	
 	Months = New Array;
 	Months.Add(1);
@@ -506,7 +504,7 @@ Function PredefinedScheduleOption3() // Every day at 10:00 AM except for Sa and 
 	Schedule.Months            = Months;
 	Schedule.WeekDays         = WeekDays;
 	Schedule.BeginTime       = Date('00010101100000'); // 10:00
-	Schedule.DaysRepeatPeriod = 1; // Every day.
+	Schedule.DaysRepeatPeriod = 1; // 
 	
 	Return Schedule;
 EndFunction

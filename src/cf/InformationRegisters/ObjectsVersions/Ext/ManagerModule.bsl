@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,7 +12,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.AccessManagement
+// 
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -32,9 +30,9 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// CloudTechnology.ExportImportData
+// 
 
-// Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
+// It is connected to the offload of the unloaded data, which is undetectable.When registering the data handlers, the data loads.
 //
 // Parameters:
 //   Container - DataProcessorObject.ExportImportDataContainerManager
@@ -122,18 +120,18 @@ Procedure DeleteVersionAuthorInfo(Val VersionAuthor) Export
 			Break;
 		EndIf;
 		
-		Selection = Query.Execute().Select(); // @skip-check query-in-loop - Batch processing of a large amount of data.
+		Selection = Query.Execute().Select(); // 
 	EndDo;
 	
 EndProcedure
 
 
 Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
-	// Stores the intermediate parsed version (to reduce the number of parsing runs).
+	// 
 	// 
 	Var ObjectVersion;
 	
-	// Global ID used for string changes between versions.
+	// 
 	Var counterUniqueID;
 	
 	ObjectReference = ReportParameters.ObjectReference;
@@ -142,29 +140,29 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	CommonTemplate = GetTemplate("StandardObjectPresentationTemplate");
 	ReportTS = New SpreadsheetDocument;
 	
-	// Generate an ascending sorted array of version numbers
-	// (since some versions might be missing and unsorted).
+	// 
+	// 
 	VersionNumberArray = VersionsList.UnloadValues();
 	
-	// The number (k) of object versions stored in the infobase.
-	// Report generation requires (k – 1) comparisons.
-	// Therefore, the dimension tables will have (k) columns.
+	// 
+	// 
+	// 
 	ObjectVersionCount = VersionNumberArray.Count();
 	
-	// Contains all attribute changes and has the following dimensions:
-	// - One dimension (rows) with the descriptions of the object attributes.
-	// - Another dimension (columns) contains the object version identification and the change characteristics.
-	// Here, "version identification" means the string that uniquely differentiates a version among
-	// all object versions and contains additional change details.
+	// 
+	// 
+	// 
+	// 
+	// 
 	ChangesTableBankingDetails_ = New ValueTable;
 	PrepareAttributeChangeTableColumns(ChangesTableBankingDetails_, VersionNumberArray);
 	
-	// Stores table changes as a map between the object's value table names and table value history.
-	// One map is one table:
-	// - One table (rows) contains table field descriptions.
-	// - Another table (columns) contains the object version identification.
-	// Here, "version identification" means the string that uniquely differentiates a version among
-	// all object versions and contains additional change details.
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	// 
 	TabularSectionChangeTable = New Map;
 	
@@ -174,8 +172,8 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 	SpreadsheetDocumentChangeTable.Columns.Add("Presentation");
 	//
 	
-	// Generate the object's initial versions that are always shown
-	// (in case there are follow-up changes).
+	// 
+	// 
 	ObjectVersionPrev = CountInitialAttributeAndTabularSectionValues(ChangesTableBankingDetails_, TabularSectionChangeTable,
 		ObjectVersionCount, VersionNumberArray, ObjectReference);
 	
@@ -193,7 +191,7 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 		
 		SpreadsheetDocuments.Add(ObjectVersion.SpreadsheetDocuments);
 		
-		// Filling the attribute report table.
+		// 
 		FillAttributeChangingCharacteristic(ComparisonResult["Attributes"]["And"],
 			"And", ChangesTableBankingDetails_, CurrentVersionColumnName, ObjectVersion);
 		FillAttributeChangingCharacteristic(ComparisonResult["Attributes"]["d"],
@@ -201,7 +199,7 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 		FillAttributeChangingCharacteristic(ComparisonResult["Attributes"]["u"],
 			"U", ChangesTableBankingDetails_, CurrentVersionColumnName, ObjectVersion);
 		
-		// Changes in tabular sections.
+		// 
 		TabularSectionChanges1 = ComparisonResult["TabularSections"]["And"];
 		
 		For Each MapItem In ObjectVersion.TabularSections Do
@@ -243,10 +241,10 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 					TableVersionRef[TSItem.IndexInTS1-1].VersioningModification = "D";
 				EndDo;
 				
-				// UniqueID must be assigned for each item, for comparison with previous versions.
+				// 
 				For IndexOf = 1 To TableVersionRef.Count() Do
 					If TableVersionRef[IndexOf-1].VersioningRowID = Undefined Then
-						// Found a row that must be looked up for mapping in the previous table.
+						// 
 						TSRow = TableVersionRef[IndexOf-1];
 						
 						FilterParameters = New Structure;
@@ -365,7 +363,7 @@ Procedure OutputAttributeChanges(ReportTS, ChangesTableBankingDetails_, VersionN
 				AttributeValue = "";
 				Update = Undefined;
 				
-				// Skipping to the next version if the attribute was not changed in the current version.
+				// 
 				If TypeOf(ChangeCharacteristicStructure) = Type("String") Then
 					
 					AttributeValuePresentation = String(AttributeValue);
@@ -376,7 +374,7 @@ Procedure OutputAttributeChanges(ReportTS, ChangesTableBankingDetails_, VersionN
 						AttributeValue = ChangeCharacteristicStructure.Value.AttributeValue;
 						AttributeValuePresentation = String(AttributeValue);
 					EndIf;
-					// Getting the attribute change structure for the current version.
+					// 
 					Update = ChangeCharacteristicStructure.ChangeKind;
 				EndIf;
 				
@@ -422,7 +420,7 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 	
 	ReportTS.Put(EmptyRowTemplate);
 	
-	// Loop through all modified items. 
+	//  
 	For Each ChangedTSItem In TabularSectionChangeTable Do
 		TabularSectionName = ChangedTSItem.Key;
 		CurrentTSVersions = ChangedTSItem.Value;
@@ -440,13 +438,13 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 			
 			UUIDStringChanged = False;
 			
-			// Search in all versions by the current row (UniqueID = CurrCounterUUID). 
-			// If the row is deleted, highlight it with the "deleted entity" color,
-			// interrupt the search, and move to the next row.
+			//  
+			// 
+			// 
 			IndexByVersions = VersionNumberArray.Count();
 			
-			// ---------------------------------------------------------------------------------
-			// Preview the versions to make sure that they contain the changes ---
+			// -
+			// 
 			
 			RowModified = False;
 			
@@ -477,24 +475,24 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 			
 			// ---------------------------------------------------------------------------------
 			
-			// Displaying the versions as a spreadsheet document.
+			// 
 			IndexByVersions = VersionNumberArray.Count();
 			
 			IntervalBetweenFillings = 0;
 			
-			// Iterate through all versions. Find the changes in each of the versions by the row's ID.
+			// 
 			// 
 			While IndexByVersions >= 1 Do
 				IntervalBetweenFillings = IntervalBetweenFillings + 1;
 				CurrentTSVersionColumn = "Version" + Format(VersionNumberArray[IndexByVersions-1], "NG=0");
-				// Tabular section of the current version (table of modified values).
+				// 
 				CurrentVersionTS = CurrentTSVersions[CurrentTSVersionColumn];// ValueTable
 				FoundRow = CurrentVersionTS.Find(CurrCounterUUID, "VersioningRowID");
 				
-				// Changed row found in a version (this change is possibly the latest).
+				// 
 				If FoundRow <> Undefined Then
 					
-					// This section displays common header for the tabular sections area.
+					// 
 					If Not TabularSectionAreaHeaderDisplayed Then
 						TabularSectionAreaHeaderDisplayed = True;
 						CommonTSSectionHeaderTemplate = CommonTemplate.GetArea("TabularSectionsHeader");
@@ -503,7 +501,7 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 						ReportTS.Put(EmptyRowTemplate);
 					EndIf;
 					
-					// This section displays header for the current tabular section.
+					// 
 					If Not CurrentTabularSectionChanged Then
 						CurrentTabularSectionChanged = True;
 						CurrentTSHeaderTemplate = CommonTemplate.GetArea("TabularSectionHeader");
@@ -564,7 +562,7 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 					
 					IntervalBetweenFillings = 0;
 					
-					// Filling the next changed table row.
+					// 
 					FillArray = New ValueList;
 					For Each Column In CurrentVersionTS.Columns Do
 						If StrFind(Column.Name, InternalColumnPrefix) = 1 Then
@@ -767,11 +765,11 @@ EndProcedure
 
 Function CalculateChanges(VersionNumber, VersionParsingResult0, VersionParsingResult1, ObjectReference)
 	
-	// Parsing the previous version.
+	// 
 	Attributes_0      = VersionParsingResult0.Attributes;
 	TabularSections_0 = VersionParsingResult0.TabularSections;
 	
-	// Parsing the latest version.
+	// 
 	VersionParsingResult1 = ObjectsVersioning.ParseVersion(ObjectReference, VersionNumber);
 	AddRowNumbersToTabularSections(VersionParsingResult1.TabularSections);
 	
@@ -779,9 +777,8 @@ Function CalculateChanges(VersionNumber, VersionParsingResult0, VersionParsingRe
 	TabularSections_1 = VersionParsingResult1.TabularSections;
 	
 	///////////////////////////////////////////////////////////////////////////////
-	//           Generate a list of modified tables //
+	//           
 	///////////////////////////////////////////////////////////////////////////////
-//
 	TabularSectionList0	= CreateComparisonChart();
 	For Each Item In TabularSections_0 Do
 		NewRow = TabularSectionList0.Add();
@@ -794,22 +791,21 @@ Function CalculateChanges(VersionNumber, VersionParsingResult0, VersionParsingRe
 		NewRow.Set(0, TrimAll(Item.Key));
 	EndDo;
 	
-	// Metadata structure is possibly changed: attributes were added or deleted.
+	// 
 	TSToAddList = SubtractTable(TabularSectionList1, TabularSectionList0);
 	DeletedTSList  = SubtractTable(TabularSectionList0, TabularSectionList1);
 	
-	// List of unchanged attributes that will be used to search for matches/differences.
+	// 
 	RemainingTSList = SubtractTable(TabularSectionList1, TSToAddList);
 	
-	// List of attributes that were changed.
+	// 
 	ChangedTSList = FindChangedTabularSections(RemainingTSList,
 	                                                       TabularSections_0,
 	                                                       TabularSections_1);
 	
 	///////////////////////////////////////////////////////////////////////////////
-	//           Generate a list of modified attributes //
+	//           
 	///////////////////////////////////////////////////////////////////////////////
-//
 	AttributesList0 = CreateComparisonChart();
 	For Each Attribute In VersionParsingResult0.Attributes Do
 		NewRow = AttributesList0.Add();		
@@ -822,14 +818,14 @@ Function CalculateChanges(VersionNumber, VersionParsingResult0, VersionParsingRe
 		NewRow.Set(0, String(Attribute.AttributeDescription));
 	EndDo;
 	
-	// Metadata structure is possibly changed: attributes were added or deleted.
+	// 
 	AddedAttributeList = SubtractTable(AttributesList1, AttributesList0);
 	DeletedAttributeList  = SubtractTable(AttributesList0, AttributesList1);
 	
-	// List of unchanged attributes that will be used to search for matches/differences.
+	// 
 	RemainingAttributeList = SubtractTable(AttributesList1, AddedAttributeList);
 	
-	// List of attributes that were changed.
+	// 
 	ChangedAttributeList = CreateComparisonChart();
 	
 	ChangesInAttributes = New Map;
@@ -859,9 +855,8 @@ Function CalculateChanges(VersionNumber, VersionParsingResult0, VersionParsingRe
 	                              TabularSections_1);
 	
 	///////////////////////////////////////////////////////////////////////////////
-	//                      Generate a list of "SpreadsheetDocument" //
+	//                      
 	///////////////////////////////////////////////////////////////////////////////
-//
 	
 	SpreadsheetDocuments0 = VersionParsingResult0.SpreadsheetDocuments;// See ObjectsVersioning.ObjectSpreadsheetDocuments
 	SpreadsheetDocuments1 = VersionParsingResult1.SpreadsheetDocuments;// See ObjectsVersioning.ObjectSpreadsheetDocuments
@@ -938,7 +933,7 @@ Procedure PrepareAttributeChangeTableColumns(ValueTable,
 	
 	ValueTable.Columns.Add("Description");
 	ValueTable.Columns.Add("VersioningModification");
-	ValueTable.Columns.Add("VersioningValueType"); // Expected value type.
+	ValueTable.Columns.Add("VersioningValueType"); // 
 	
 	For IndexOf = 1 To VersionNumberArray.Count() Do
 		ValueTable.Columns.Add("Version" + Format(VersionNumberArray[IndexOf-1], "NG=0"));
@@ -979,7 +974,7 @@ Function CalculateChangesInTabularSections(ChangedTSList, TabularSections_0, Tab
 	
 	ChangesInTables = New Map;
 	
-	// Repeating for each tabular section.
+	// 
 	For IndexOf = 1 To ChangedTSList.Count() Do
 		
 		ChangesInTables.Insert(ChangedTSList[IndexOf-1].Value, New Map);
@@ -1045,7 +1040,7 @@ Function FindChangedTabularSections(RemainingTSList,
 	
 	ChangedTSList = CreateComparisonChart();
 	
-	// Searching for tabular sections with changed rows.
+	// 
 	For Each Item In RemainingTSList Do
 		
 		TS_0 = TabularSections_0[Item.Value];
@@ -1055,10 +1050,10 @@ Function FindChangedTabularSections(RemainingTSList,
 			
 			DifferenceFound = False;
 			
-			// Making sure the column structure remains the same.
+			// 
 			If TabularSectionsEqual (TS_0.Columns, TS_1.Columns) Then
 				
-				// Searching for differing items - rows.
+				// 
 				For IndexOf = 0 To TS_0.Count() - 1 Do
 					String_0 = TS_0[IndexOf];
 					String_1 = TS_1[IndexOf];
@@ -1093,7 +1088,7 @@ Function CountInitialAttributeAndTabularSectionValues(AttributesTable, TableTS, 
 	
 	JuniorObjectVersion = VersionNumberArray[0];
 	
-	// Parsing the first version.
+	// 
 	ObjectVersion  = ObjectsVersioning.ParseVersion(ObjectReference, JuniorObjectVersion);
 	AddRowNumbersToTabularSections(ObjectVersion.TabularSections);
 	
@@ -1399,13 +1394,13 @@ Function FindSimilarTableRows(Table1, Val Table2, Val RequiredDifferenceCount = 
 	CommonColumns = FindCommonColumns(Table1, Table2);
 	OtherColumns = FindNonmatchingColumns(Table1, Table2);
 	
-	// Comparing each row with each other row.
+	// 
 	For Each TableRow1 In Table1 Do
 		For Each TableRow2 In Table2.FindRows(New Structure(Ignore, False)) Do
-			// Count differences ignoring internal column.
+			// 
 			DifferenceCount = DifferenceCountInTableRows(TableRow1, TableRow2, CommonColumns, OtherColumns) - 1;
 			
-			// Analyzing the result of rows comparison.
+			// 
 			If DifferenceCount = RequiredDifferenceCount Then
 				Table1RowsAndTable2RowsMap.Insert(TableRow1.LineNumber, TableRow2.LineNumber);
 				TableRow2[Ignore] = True;
@@ -1480,10 +1475,10 @@ EndFunction
 
 Function DifferenceCountInTableRows(TableRow1, TableRow2, CommonColumns, OtherColumns)
 	
-	// Counting each unmapped column as a single difference.
+	// 
 	Result = OtherColumns.Count();
 	
-	// Counting differences by non-matching values.
+	// 
 	For Each ColumnName In CommonColumns Do
 		If TableRow1[ColumnName] <> TableRow2[ColumnName] Then
 			Result = Result + 1;
@@ -1558,7 +1553,7 @@ Function DifferencesBetweenRows(String1, String2, ColumnsToCheck)
 	Result = New Array;
 	For Each Column In ColumnsToCheck Do
 		If TypeOf(String1[Column]) = Type("ValueStorage") Then
-			Continue; // Attributes with the ValueStorage type are not compared.
+			Continue; // 
 		EndIf;
 		If String1[Column] <> String2[Column] Then
 			Result.Add(Column);
@@ -1568,7 +1563,7 @@ Function DifferencesBetweenRows(String1, String2, ColumnsToCheck)
 EndFunction
 
 
-// Progress of the synchronization warnings deletion
+// Progress of deleting synchronization warnings
 // 
 Procedure ProgressDeletingSyncAlerts(Val CurrentStep, Maximum, SampleIterator = 0)
 	
@@ -1652,19 +1647,19 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 	
 	While SelectionOfObjects.Next() Do
 		
-		// 1. Start a transaction of two operations: register read and write.
+		// 
 		BeginTransaction();
 		Try
 			
-			 // 2. Set an exclusive lock on the required range of register records to make sure that
-			 // the warning count hasn't changed in another session at the recording time.
+			 // 
+			 // 
 			 // 
 			DataLock = New DataLock;
 			DataLockItem = DataLock.Add("InformationRegister.ObjectsVersions");
 			DataLockItem.SetValue("Object", SelectionOfObjects.BlockingObject);
 			DataLock.Lock();
 			
-			// 3. Read the information register.
+			// 
 			RecordsetResults.Filter.Object.Set(SelectionOfObjects.BlockingObject, True);
 			
 			SelectingTheVersionNumber = SelectionOfObjects.Select();
@@ -1672,7 +1667,7 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 				
 				RecordsetResults.Filter.VersionNumber.Set(SelectingTheVersionNumber.VersionNumber, True);
 				
-				// 4. Write the information register.
+				// 
 				RecordsetResults.Write(True);
 				
 			EndDo;
@@ -1680,7 +1675,7 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 			SampleIterator = SampleIterator + 1;
 			If Round(SampleIterator * Proportion, 0) <> Round((SampleIterator - 1) * Proportion, 0) Then 
 				
-				// Increase the step proportionally (when the number of iterations multiplied by the ratio change the value).
+				// 
 				DeletionParameters.NumberOfOperationsCurrentStep = DeletionParameters.NumberOfOperationsCurrentStep + 1;
 				
 			EndIf;
@@ -1691,14 +1686,151 @@ Procedure ClearVersionWarnings(DeletionParameters, EventName) Export
 			
 		Except
 			
-			// 5. If the register is already locked in another session (or another exceptional issue happened),
-			// roll back the transaction and log the error.
+			// 
+			// 
 			RollbackTransaction();
 			
 			WriteLogEvent(EventName, EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			Raise;
 			
 		EndTry;
+		
+	EndDo;
+	
+EndProcedure
+
+Procedure RemovePreviousWarningExchanges(ObjectVersionInfo) Export
+	
+	// 
+	// 
+	// 
+	//
+	// 
+	// 
+	
+	AcceptableTypesOfWarnings = New Array;
+	AcceptableTypesOfWarnings.Add(Enums.ObjectVersionTypes.ConflictDataAccepted);
+	AcceptableTypesOfWarnings.Add(Enums.ObjectVersionTypes.RejectedConflictData);
+	AcceptableTypesOfWarnings.Add(Enums.ObjectVersionTypes.RejectedDueToPeriodEndClosingDateObjectExistsInInfobase);
+	AcceptableTypesOfWarnings.Add(Enums.ObjectVersionTypes.RejectedDueToPeriodEndClosingDateObjectDoesNotExistInInfobase);
+	
+	Try
+		
+		If AcceptableTypesOfWarnings.Find(ObjectVersionInfo.ObjectVersionType) <> Undefined Then
+			
+			RemovePreviousExchangeWarningsByType(ObjectVersionInfo, AcceptableTypesOfWarnings);
+			
+		EndIf;
+		
+		If Not IsBlankString(ObjectVersionInfo.SynchronizationWarning) Then
+			
+			DeletePreviousWarningExchangesByComment(ObjectVersionInfo);
+			
+		EndIf;
+		
+	Except
+		
+		EventName = NStr("en = 'Обмен данными';", Common.DefaultLanguageCode());
+		WriteLogEvent(EventName, EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		
+	EndTry;
+	
+EndProcedure
+
+Procedure RemovePreviousExchangeWarningsByType(ObjectVersionInfo, AcceptableTypesOfWarnings)
+	
+	Query = New Query;
+	Query.SetParameter("Object", ObjectVersionInfo.Object);
+	Query.SetParameter("ObjectVersionType", ObjectVersionInfo.ObjectVersionType);
+	
+	If ValueIsFilled(ObjectVersionInfo.VersionAuthor)
+		And TypeOf(ObjectVersionInfo.VersionAuthor) <> Type("CatalogRef.Users") Then
+		
+		Query.SetParameter("AuthorOfVersionIsSubAsset", ObjectVersionInfo.VersionAuthor);
+		
+	Else
+		
+		Query.SetParameter("AuthorOfVersionIsSubAsset", Undefined);
+		
+	EndIf;
+	
+	Query.Text =
+		"SELECT TOP 10
+		|	ObjectsVersions.Object AS Object,
+		|	ObjectsVersions.VersionNumber AS VersionNumber
+		|FROM
+		|	InformationRegister.ObjectsVersions AS ObjectsVersions
+		|WHERE
+		|	ObjectsVersions.Object = &Object
+		|	AND ObjectsVersions.ObjectVersionType = &ObjectVersionType
+		|	AND (ObjectsVersions.VersionAuthor = &AuthorOfVersionIsSubAsset
+		|			OR ObjectsVersions.VersionAuthor REFS Catalog.Users)
+		|
+		|ORDER BY
+		|	ObjectsVersions.VersionNumber";
+	
+	Selection = Query.Execute().Select();
+	While Selection.Count() > 0 Do
+		
+		While Selection.Next() Do
+			
+			RecordManager = CreateRecordManager();
+			RecordManager.Object = Selection.Object;
+			RecordManager.VersionNumber = Selection.VersionNumber;
+			RecordManager.Delete();
+			
+		EndDo;
+		
+		If TransactionActive() Then
+			
+			Break;
+			
+		EndIf;
+		
+		Selection = Query.Execute().Select(); // 
+		
+	EndDo;
+	
+EndProcedure
+
+Procedure DeletePreviousWarningExchangesByComment(ObjectVersionInfo)
+	
+	Query = New Query;
+	Query.SetParameter("Object", ObjectVersionInfo.Object);
+	Query.SetParameter("SynchronizationWarning", ObjectVersionInfo.SynchronizationWarning);
+	
+	Query.Text = 
+		"SELECT TOP 100
+		|	ObjectsVersions.Object AS Object,
+		|	ObjectsVersions.VersionNumber AS VersionNumber
+		|FROM
+		|	InformationRegister.ObjectsVersions AS ObjectsVersions
+		|WHERE
+		|	ObjectsVersions.Object = &Object
+		|	AND (CAST(ObjectsVersions.SynchronizationWarning AS STRING(512))) = &SynchronizationWarning
+		|
+		|ORDER BY
+		|	ObjectsVersions.VersionNumber";
+	
+	Selection = Query.Execute().Select();
+	While Selection.Count() > 0 Do
+		
+		While Selection.Next() Do
+			
+			RecordManager = CreateRecordManager();
+			RecordManager.Object = Selection.Object;
+			RecordManager.VersionNumber = Selection.VersionNumber;
+			RecordManager.Delete();
+			
+		EndDo;
+		
+		If TransactionActive() Then
+			
+			Break;
+			
+		EndIf;
+		
+		Selection = Query.Execute().Select(); // 
 		
 	EndDo;
 	

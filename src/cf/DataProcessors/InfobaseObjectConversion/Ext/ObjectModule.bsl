@@ -1,67 +1,65 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
 ////////////////////////////////////////////////////////////////////////////////
-// ABBREVIATION LIST
+// 
 //
-//  OCR - Object conversion rule
-//  OCR - Property conversion rules
-//  PGCR - Property group conversion rule
-//  VCR - Value conversion rule
-//  DER - Data export rule
-//  DCR - Data cleansing rule
+//  
+//  
+//  
+//  
+//  
+//  
 
 ////////////////////////////////////////////////////////////////////////////////
-// EXPORT VARIABLES
+// 
 
-Var EventLogMessageKey Export; // Message string for logging errors.
+Var EventLogMessageKey Export; // 
 
-Var ExternalConnection Export; // Contains the global context of external connection or "Undefined".
+Var ExternalConnection Export; // 
 
-Var Queries Export; // Contains used queries.
+Var Queries Export; // 
 
 ////////////////////////////////////////////////////////////////////////////////
-// AUXILIARY MODULE VARIABLES FOR CREATING ALGORITHMS (FOR BOTH IMPORT AND EXPORT)
+// 
 
-Var Conversion; // Conversion property structure (name, ID, and exchange event handlers).
+Var Conversion; // 
 
-Var Algorithms; // Structure containing used algorithms.
+Var Algorithms; // 
 
-Var AdditionalDataProcessors; // Structure containing used external data processors.
+Var AdditionalDataProcessors; // 
 
-Var Rules; // A structure containing OCR references.
+Var Rules; // 
 
-Var Managers; // Map containing the following fields: Name, TypeName, RefTypeAsString, Manager, MetadataObject, and OCR.
+Var Managers; // 
 
 Var ManagersForExchangePlans;
 
-Var AdditionalDataProcessorParameters; // Structure with parameters of external data processors in use.
+Var AdditionalDataProcessorParameters; // 
 
-Var ParametersInitialized; // If True, the required conversion parameters are initialized.
+Var ParametersInitialized; // 
 
-Var DataProtocolFile; // A data exchange log file.
+Var DataProtocolFile; // 
 
 Var CommentObjectProcessingFlag;
 
 ////////////////////////////////////////////////////////////////////////////////
-// HANDLER DEBUGGING VARIABLES
+// 
 
 Var ExportProcessing;
 Var LoadProcessing;
 
 ////////////////////////////////////////////////////////////////////////////////
-// FLAGS THAT SHOW WHETHER GLOBAL EVENT HANDLERS EXIST
+// 
 
 Var HasBeforeExportObjectGlobalHandler;
 Var HasAfterExportObjectGlobalHandler;
@@ -72,33 +70,33 @@ Var HasBeforeImportObjectGlobalHandler;
 Var HasAfterObjectImportGlobalHandler;
 
 ////////////////////////////////////////////////////////////////////////////////
-// VARIABLES THAT ARE USED IN EXCHANGE HANDLERS (BOTH FOR IMPORT AND EXPORT)
+// 
 
-Var StringType;                  // Type("String")
+Var StringType;                  // 
 
-Var BooleanType;                  // Type("Boolean")
+Var BooleanType;                  // 
 
-Var NumberType;                   // Type("Number")
+Var NumberType;                   // 
 
-Var DateType;                    // Type("Date")
+Var DateType;                    // 
 
-Var UUIDType; // Type("UUID")
+Var UUIDType; // 
 
-Var ValueStorageType;       // Type("ValueStorage")
+Var ValueStorageType;       // 
 
-Var BinaryDataType;          // Type("BinaryData")
+Var BinaryDataType;          // 
 
-Var AccumulationRecordTypeType;   // Type("AccumulationRecordType")
+Var AccumulationRecordTypeType;   // 
 
-Var ObjectDeletionType;         // Type("ObjectDeletion")
+Var ObjectDeletionType;         // 
 
-Var AccountTypeKind;                // Type("AccountType")
+Var AccountTypeKind;                // 
 
-Var TypeType;                     // Type("Type")
+Var TypeType;                     // 
 
-Var MapType;            // Type("Map")
+Var MapType;            // 
 
-Var TypeDescriptionOfTypes;           // Type("TypeDescription ")
+Var TypeDescriptionOfTypes;           // 
 
 Var StringType36;
 Var StringType255;
@@ -111,10 +109,10 @@ Var XMLNodeTypeText;
 
 Var BlankDateValue;
 
-Var ErrorsMessages; // Map: Key - Error code; Value - Error details.
+Var ErrorsMessages; // 
 
 ////////////////////////////////////////////////////////////////////////////////
-// EXPORT PROCESSING MODULE VARIABLES
+// 
  
 Var SnCounter;                            // Number
 
@@ -123,24 +121,24 @@ Var WrittenToFileSn;
 // 
 Var PropertyConversionRuleTable;       // ValueTable
 
-Var XMLRules;                            // XML string that contains exchange rule description.
+Var XMLRules;                            // 
 
 Var TypesForDestinationString;
 
-Var DocumentsForDeferredPostingField; // Value table that should be used for posting documents after data import.
+Var DocumentsForDeferredPostingField; // 
 
 
 // 
 Var DocumentsForDeferredPostingMap; // Map
 
-Var ObjectsForDeferredPostingField; // Map that should be used for storing reference type object after data import.
+Var ObjectsForDeferredPostingField; // 
 
-Var ExchangeFile; // A sequentially writable/readable exchange file.
+Var ExchangeFile; // 
 
-Var ObjectsToExportCount; //Total number of objects to be exported.
+Var ObjectsToExportCount;
 
 ////////////////////////////////////////////////////////////////////////////////
-// IMPORT PROCESSING MODULE VARIABLES
+// 
  
 Var DeferredDocumentRegisterRecordCount;
 Var LastSearchByRefNumber;
@@ -149,7 +147,7 @@ Var AdditionalSearchParameterMap;
 Var TypeAndObjectNameMap;
 Var EmptyTypeValueMap;
 Var TypeDescriptionMap;
-Var ConversionRulesMap; // A map for defining object conversion rules by the given object type.
+Var ConversionRulesMap; // 
 
 Var MessageNumberField;
 Var ReceivedMessageNumberField;
@@ -175,7 +173,7 @@ Var ObjectsToImportCount;
 Var ExchangeMessageFileSize;
 
 ////////////////////////////////////////////////////////////////////////////////
-// VARIABLES FOR PROPERTY VALUES
+// 
 
 Var ErrorFlagField;
 Var ExchangeResultField;
@@ -185,25 +183,25 @@ Var DataExchangeStateField;
 // 
 Var DataTableExchangeMessagesField; // Map
 
-Var PackageHeaderDataTableField; // A value table with data from the batch title file of exchange messages.
+Var PackageHeaderDataTableField; // 
 
-Var ErrorMessageStringField; // String - Error message.
+Var ErrorMessageStringField; // String - 
 
 Var DataForImportTypeMapField;
 
-Var ImportedObjectsCounterField; // Import object counter.
+Var ImportedObjectsCounterField; // 
 
-Var ExportedObjectsCounterField; // Export object counter.
+Var ExportedObjectsCounterField; // 
 
-Var ExchangeResultsPrioritiesField; // Array - Data exchange result priorities in descending order.
+Var ExchangeResultsPrioritiesField; // Array - 
 
 // 
 // 
 Var ObjectsPropertiesDetailsTableField; // Map
 
-Var ExportedByRefObjectsField; // Array of exported objects. All array elements are unique.
+Var ExportedByRefObjectsField; // 
 
-Var CreatedOnExportObjectsField; // Array of exported objects. All array elements are unique.
+Var CreatedOnExportObjectsField; // 
 
 // 
 // 
@@ -229,10 +227,10 @@ Var PackageNumber;
 
 #Region ExportProperties1
 
-// Function for retrieving properties: a number of the received data exchange message.
+// Function-property: number of the received data exchange message.
 //
 // Returns:
-//  Number - a number of the received data exchange message.
+//  Number - 
 //
 Function ReceivedMessageNumber() Export
 	
@@ -250,17 +248,17 @@ EndFunction
 
 #Region DataOperations
 
-// Returns a string - a name of the passed enumeration value.
-// Can be used in the event handlers 
-// whose script is stored in data exchange rules. Is called with the Execute() method.
-// The "No links to function found" message during 
-// the configuration check is not an error.
+// Returns the string name of the passed enumeration value.
+// This function can be used in event handlers whose program code 
+// is stored in data exchange rules. Called by the Run () method.
+// The "no function references found" message when checking the configuration 
+// is not a configuration check error.
 //
 // Parameters:
-//  Value - EnumRef - an enumeration value.
+//  Value - EnumRef -  enumeration value.
 //
 // Returns:
-//   String - a name of the passed enumeration value.
+//   String - 
 //
 Function deEnumValueName(Value) Export
 
@@ -277,8 +275,8 @@ EndFunction
 
 #Region ExchangeRulesOperationProcedures
 
-// Sets parameter values in the Parameters structure 
-// by the ParametersSetupTable table.
+// Sets parameter values in the structure Options 
+// the table Tablecontentparser.
 //
 Procedure SetParametersFromDialog() Export
 
@@ -292,31 +290,31 @@ EndProcedure
 
 #Region DataSending
 
-// Exports an object according to the specified conversion rule.
+// Unloads the object in accordance with the specified conversion rule.
 //
 // Parameters:
-//  Source				 - Arbitrary -an arbitrary data source.
-//  Receiver				 - XMLWriter - a destination object XML node.
-//  IncomingData			 - Arbitrary - auxiliary data passed
-//                             to the conversion rule.
-//  OutgoingData			 - Arbitrary - arbitrary auxiliary data passed to property
-//                             conversion rules.
-//  OCRName					 - String - a name of the conversion rule used to execute export.
-//  RefNode				 - XMLWriter - a destination object reference XML node.
-//  GetRefNodeOnly - Boolean - if True, the object is not exported but
-//                             the reference XML node is generated.
-//  OCR                      - ValueTableRow - a row of table of conversion rules.
-//  ExportSubordinateObjectRefs - Boolean - if True, subordinate object references are exported.
-//  ExportRegisterRecordSetRow - Boolean - if True, a record set line is exported.
-//  ParentNode				 - XMLWriter - a destination object parent XML node.
-//  ConstantNameForExport  - String - value to write to the ConstantName attribute.
-//  IsObjectExport     - Boolean - a flag showing that the object is exporting.
-//  IsRuleWithGlobalObjectExport - Boolean - a flag indicating global object export.
-//  DontUseRuleWithGlobalExportAndDontRememberExported - Boolean - not used.
-//  ObjectExportStack      - Array of AnyRef - contains information on parent export objects.
+//  Source				 - Arbitrary - custom data source.
+//  Receiver				 - XMLWriter -  xml node of the receiver object.
+//  IncomingData			 - Arbitrary -  auxiliary data passed to the rule
+//                             for performing the conversion.
+//  OutgoingData			 - Arbitrary -  custom auxiliary data passed
+//                             to the property conversion rules.
+//  OCRName					 - String -  name of the conversion rule that is used for uploading.
+//  RefNode				 - XMLWriter -  xml node of the receiver object reference.
+//  GetRefNodeOnly - Boolean -  if True, the object is not uploaded, only generated
+//                             xml link node.
+//  OCR                      - ValueTableRow -  a row in the conversion rules table.
+//  ExportSubordinateObjectRefs - Boolean -  if True, then links are unloaded from subordinate objects.
+//  ExportRegisterRecordSetRow - Boolean -  if True, the recordset row is unloaded.
+//  ParentNode				 - XMLWriter -  xml node of the ancestor of the receiver object.
+//  ConstantNameForExport  - String -  the value to write to attribute Imagestate.
+//  IsObjectExport     - Boolean -  indicates that the object is being unloaded.
+//  IsRuleWithGlobalObjectExport - Boolean -  indicates whether objects are being uploaded globally.
+//  DontUseRuleWithGlobalExportAndDontRememberExported - Boolean -  not use.
+//  ObjectExportStack      - Array of AnyRef -  contains information about higher-level upload objects.
 //
 // Returns:
-//   XMLWriter - Reference XML node or a destination value.
+//   XMLWriter - 
 //
 Function ExportByRule(
 		Source = Undefined,
@@ -345,7 +343,7 @@ Function ExportByRule(
 		WP.Object = Source;
 		WP.ObjectType = TypeOf(Source);
 		
-		WriteToExecutionProtocol(45, WP, True); // OCR is not found.
+		WriteToExecutionProtocol(45, WP, True); // 
 		Return Undefined;
 		
 	EndIf;
@@ -393,8 +391,8 @@ Function ExportByRule(
 	
 	ObjectExportStack.Add(SourceRef);
 	
-	// A circular reference to the object.
-	// Also, take into account the setting in the rules.
+	// 
+	// 
 	RememberExportedData = ObjectExportedByRefFromItself And (OCR.RememberExportedData);
 	
 	ExportedObjects          = OCR.Exported_;
@@ -449,7 +447,7 @@ Function ExportByRule(
 	ElsIf OCR.Owner().Columns.Find("AnObjectWithRegisteredRecords") <> Undefined
 		And OCR.AnObjectWithRegisteredRecords = True Then
 		
-		// If an object is exported with register records, don't post the object.
+		// 
 		WriteMode = "Record";
 		
 	EndIf;
@@ -461,7 +459,7 @@ Function ExportByRule(
 		And Not IsNotReferenceType Then
 		
 		If ExportingObject = Undefined Then
-			// If nothing is specified than specify that object is exporting.
+			// 
 			ExportingObject = True;	
 		EndIf;
 		
@@ -476,10 +474,10 @@ Function ExportByRule(
 			
 	EndIf;
 	
-	// Variable for storing the predefined item name.
+	// 
 	PredefinedItemName1 = Undefined;
 	
-	// BeforeObjectConversion global handler.
+	// 
 	Cancel = False;
 	If HasBeforeConvertObjectGlobalHandler Then
 		
@@ -537,14 +535,14 @@ Function ExportByRule(
 				OCR, Source, NStr("en = 'BeforeConvertObject (global)';"));
 		EndTry;
 		
-		If Cancel Then	//	Canceling further rule processing.
+		If Cancel Then	//	
 			CurrentNestingLevelExportByRule = CurrentNestingLevelExportByRule - 1;
 			Return Receiver;
 		EndIf;
 		
 	EndIf;
 	
-	// BeforeExport handler
+	// 
 	If OCR.HasBeforeExportHandler Then
 		
 		Try
@@ -567,7 +565,7 @@ Function ExportByRule(
 				OCR, Source, "BeforeExportObject");
 		EndTry;
 		
-		If Cancel Then	//	Canceling further rule processing.
+		If Cancel Then	//	
 			CurrentNestingLevelExportByRule = CurrentNestingLevelExportByRule - 1;
 			Return Receiver;
 		EndIf;
@@ -579,7 +577,7 @@ Function ExportByRule(
 	MustUpdateLocalExportedObjectCache = False;
 	RefValueInAnotherIB = "";
 
-	// Perhaps this data has already been exported.
+	// 
 	If Not AllObjectsExported Then
 		
 		NBSp = 0;
@@ -638,7 +636,7 @@ Function ExportByRule(
 			NBSp        = SnCounter;
 			
 			
-			// Preventing cyclic reference existence.
+			// 
 			If RememberExportedData Then
 				
 				If ExportedObjectRow = Undefined Then
@@ -681,7 +679,7 @@ Function ExportByRule(
 	ValueMap = OCR.PredefinedDataValues;
 	ValueMapItemCount = ValueMap.Count();
 	
-	// Predefined item map processing.
+	// 
 	If PredefinedItemName1 = Undefined Then
 		
 		If PropertyStructure <> Undefined
@@ -719,19 +717,19 @@ Function ExportByRule(
 	
 	If Not DontExportByValueMap Then
 		
-		// If value mapping does not contain values, exporting mapping in the ordinary way.
+		// 
 		RefNode = ValueMap[RefToSource];
 		If RefNode = Undefined Then
 			
-			// Perhaps, this is an Enum-to-Enum conversion, and the required property was not found in the VCR.
-			// In this case, import an empty reference.
+			// 
+			// 
 			If PropertyStructure.TypeName = "Enum"
 				And StrFind(OCR.Receiver, "EnumRef.") > 0 Then
 				
-				// If it is a reference from the remote extension then we do not register a conversion error.
+				// 
 				If Common.IsReference(TypeOf(RefToSource))
 					And Common.RefExists(RefToSource) Then
-					// Error writing to execution log.
+					// 
 					WP = ExchangeProtocolRecord();
 					WP.OCRName              = OCRName;
 					WP.Value            = Source;
@@ -770,7 +768,7 @@ Function ExportByRule(
 		If OCR.SearchProperties.Count() > 0 
 			Or PredefinedItemName1 <> Undefined Then
 			
-			//	Create reference node.
+			//	
 			RefNode = CreateNode("Ref");
 						
 			If MustRememberObject Then
@@ -824,10 +822,10 @@ Function ExportByRule(
 		
 	Else
 		
-		// Searching in the value map by VCR.
+		// 
 		If RefNode = Undefined Then
 			
-			// Error writing to execution log.
+			// 
 			WP = ExchangeProtocolRecord();
 			WP.OCRName              = OCRName;
 			WP.Value            = Source;
@@ -918,7 +916,7 @@ Function ExportByRule(
 		
 	EndIf;
 
-	// OnExport handler
+	// 
 	StandardProcessing = True;
 	Cancel = False;
 	
@@ -943,7 +941,7 @@ Function ExportByRule(
 				OCR, Source, "OnExportObject");
 		EndTry;
 				
-		If Cancel Then	//	Canceling writing the object to a file.
+		If Cancel Then	//	
 			
 			If ExportStackRow <> Undefined Then
 				DataExportCallStack.Delete(ExportStackRow);				
@@ -955,7 +953,7 @@ Function ExportByRule(
 		
 	EndIf;
 
-	// Export properties.
+	// 
 	If StandardProcessing Then
 		
 		If Not IsBlankString(ConstantNameForExport) Then
@@ -978,29 +976,29 @@ Function ExportByRule(
 		
 			ExportProperties(
 				Source,                 // Source
-				Receiver,                 // Destination
+				Receiver,                 // Receiver
 				IncomingData,           // IncomingData
 				OutgoingData,          // OutgoingData
 				OCR,                      // OCR
 				PropertyForExportArray, // PCRCollection
-				,                         // PropertiesCollectionNode = Undefined
-				,                         // CollectionObject = Undefined
-				,                         // PredefinedItemName = Undefined
-				True,                   // Val ExportOnlyRef = True
-				False,                     // Val IsRefExport = False
-				ExportingObject,        // Val ExportingObject = False
-				DataToExportKey,    // RefSearchKey = ""
-				,                         // DontUseRulesWithGlobalExportAndDontRememberExported = False
+				,                         // 
+				,                         // 
+				,                         // 
+				True,                   // 
+				False,                     // 
+				ExportingObject,        // 
+				DataToExportKey,    // 
+				,                         // 
 				RefValueInAnotherIB,  // RefValueInAnotherIB
-				TempFileList,    // TempFilesList = Undefined
-				ExportRegisterRecordSetRow, // ExportRegisterRecordSetRow = False
+				TempFileList,    // 
+				ExportRegisterRecordSetRow, // 
 				ObjectExportStack);
 				
 			EndIf;
 			
 		EndIf;    
 		
-		// AfterExport handler
+		// 
 		
 		If OCR.HasAfterExportHandler Then
 			
@@ -1022,7 +1020,7 @@ Function ExportByRule(
 					OCR, Source, "AfterExportObject");
 			EndTry;
 			
-			If Cancel Then	//	Canceling writing the object to a file.
+			If Cancel Then	//	
 				
 				If ExportStackRow <> Undefined Then
 					DataExportCallStack.Delete(ExportStackRow);				
@@ -1034,7 +1032,7 @@ Function ExportByRule(
 		EndIf;
 		
 		
-	//	Writing the object to a file
+	//	
 	
 	CurrentNestingLevelExportByRule = CurrentNestingLevelExportByRule - 1;
 	
@@ -1072,7 +1070,7 @@ Function ExportByRule(
 				
 				TempFile.Close();
 				
-				// Delete files.
+				// 
 				DeleteFiles(TempFileName); 
 			EndDo;
 			
@@ -1101,7 +1099,7 @@ Function ExportByRule(
 		DataExportCallStack.Delete(ExportStackRow);				
 	EndIf;
 	
-	// AfterExportToFile handler
+	// 
 	If OCR.HasAfterExportToFileHandler Then
 		
 		Try
@@ -1128,17 +1126,17 @@ Function ExportByRule(
 	
 EndFunction
 
-// Calls the BeforeExport and AfterExport rules to export the register.
+// Unloads the register by calling the pre-Load and post-Load rules.
 //
 // Parameters:
-//         RecordSetForExport - НаборЗаписейРегистра - it might also be Structure containing filter.
-//         Rule - ValueTableRow - object conversion rules tables.
-//         IncomingData - Arbitrary - incoming data for the conversion rule.
-//         DontExportPropertyObjectsByRefs - Boolean - a flag for property export by references.
-//         OCRName - String - a conversion rule name.
+//         RecordSetForExport - НаборЗаписейРегистра -  there may also be a Structure containing the selection.
+//         Rule - ValueTableRow -  tables of object conversion rules.
+//         IncomingData - Arbitrary -  incoming data for the conversion rule.
+//         DontExportPropertyObjectsByRefs - Boolean -  a sign to unload the properties on the links.
+//         OCRName - String -  name of the conversion rule.
 //
 // Returns:
-//         Boolean - a flag of successful export.
+//         Boolean - 
 //
 Function ExportRegister(RecordSetForExport,
 							Rule = Undefined,
@@ -1172,17 +1170,17 @@ Function ExportRegister(RecordSetForExport,
 							
 EndFunction
 
-// Generates the query result for data clearing export.
+// Generates the result of a request for uploading data cleaning.
 //
 //  Parameters:
-//       Properties                      - Structure - contains object properties.
-//       TypeName                       - String - an object type name.
-//       SelectionForDataClearing       - Boolean - a flag showing whether selection is passed for clearing.
-//       DeleteObjectsDirectly - Boolean - a flag showing whether direct deletion is required.
-//       SelectAllFields               - Boolean - a flag showing whether it is necessary to select all fields.
+//       Properties                      - Structure -  contains the properties of the object.
+//       TypeName                       - String -  name of the object type.
+//       SelectionForDataClearing       - Boolean -  indicates whether the selection is passed for clearing.
+//       DeleteObjectsDirectly - Boolean -  indicates whether direct deletion is required.
+//       SelectAllFields               - Boolean -  indicates whether all fields must be selected.
 //
 //  Returns:
-//       QueryResult, Undefined - a result of the query to export data cleaning.
+//       QueryResult, Undefined - 
 //
 Function QueryResultForExpotingDataClearing(Properties, TypeName, 
 	SelectionForDataClearing = False, DeleteObjectsDirectly = False, SelectAllFields = True) Export 
@@ -1294,17 +1292,17 @@ Function QueryResultForExpotingDataClearing(Properties, TypeName,
 	
 EndFunction
 
-// Generates selection for data clearing export.
+// Generates a selection for uploading and clearing data.
 //
 //  Parameters:
-//       Properties                      - Structure - contains object properties.
-//       TypeName                       - String - an object type name.
-//       SelectionForDataClearing       - Boolean - a flag showing whether selection is passed for clearing.
-//       DeleteObjectsDirectly - Boolean - a flag showing whether direct deletion is required.
-//       SelectAllFields               - Boolean - a flag showing whether it is necessary to select all fields.
+//       Properties                      - Structure -  contains the properties of the object.
+//       TypeName                       - String -  name of the object type.
+//       SelectionForDataClearing       - Boolean -  indicates whether the selection is passed for clearing.
+//       DeleteObjectsDirectly - Boolean -  indicates whether direct deletion is required.
+//       SelectAllFields               - Boolean -  indicates whether all fields must be selected.
 //
 //  Returns:
-//       QueryResultSelection, Undefined - generated selection for data clearing.
+//       QueryResultSelection, Undefined - 
 //
 Function SelectionForExpotingDataClearing(Properties, TypeName, 
 	SelectionForDataClearing = False, DeleteObjectsDirectly = False, SelectAllFields = True) Export
@@ -1323,10 +1321,10 @@ Function SelectionForExpotingDataClearing(Properties, TypeName,
 	
 EndFunction
 
-// Exports data according to the specified rule.
+// Uploads data according to the specified rule.
 //
 // Parameters:
-//  Rule - ValueTableRow - object data export rule reference:
+//  Rule - ValueTableRow - :
 //     * Enable - Boolean
 //     * Name - Arbitrary
 //     * Description - Arbitrary
@@ -1372,7 +1370,7 @@ Procedure ExportDataByRule(Rule) Export
 	EndIf;
 		
 	
-	// BeforeProcess handle
+	// 
 	Cancel           = False;
 	OutgoingData = Undefined;
 	DataSelection   = Undefined;
@@ -1406,7 +1404,7 @@ Procedure ExportDataByRule(Rule) Export
 		
 	EndIf;
 	
-	// Standard selection with filter.
+	// 
 	If Rule.DataFilterMethod = "StandardSelection" And Rule.UseFilter1 Then
 
 		Selection = SelectionForExportWithRestrictions(Rule);
@@ -1415,7 +1413,7 @@ Procedure ExportDataByRule(Rule) Export
 			ExportSelectionObject(Selection.Ref, Rule, , OutgoingData);
 		EndDo;
 
-	// Standard selection without filter.
+	// 
 	ElsIf (Rule.DataFilterMethod = "StandardSelection") Then
 		
 		Properties = Managers(Rule.SelectionObject1);
@@ -1437,7 +1435,7 @@ Procedure ExportDataByRule(Rule) Export
 				
 			Else
 				
-				// Get only the reference.
+				// 
 				SelectAllFields = False;	
 				
 			EndIf;	
@@ -1494,7 +1492,7 @@ Procedure ExportDataByRule(Rule) Export
 	EndIf;
 
 	
-	// AfterProcess handler
+	// 
 	
 	If Not IsBlankString(Rule.AfterProcess) Then
 		
@@ -1521,13 +1519,13 @@ Procedure ExportDataByRule(Rule) Export
 	
 EndProcedure
 
-// Adds information on exchange types to xml file.
+// Adds information about value types to the xml file.
 //
 // Parameters:
-//   Receiver - XMLWriter - a destination object XML node.
+//   Receiver - XMLWriter -  xml node of the receiver object.
 //   Type - String
-//       - Array of String - a single exported type or a list of string exported types.
-//   AttributesList - Structure - key contains the attribute name.
+//       - Array of String - 
+//   AttributesList - Structure -  the key contains the attribute name.
 //
 Procedure ExportInformationAboutTypes(Receiver, Type, AttributesList = Undefined) Export
 	
@@ -1551,13 +1549,13 @@ Procedure ExportInformationAboutTypes(Receiver, Type, AttributesList = Undefined
 	
 EndProcedure
 
-// Creates a record about object deleting in exchange file.
+// Creates an entry in the exchange file about deleting an object.
 //
 // Parameters:
 //  Ref - CatalogRef
-//         - DocumentRef - an object to be deleted.
-//  DestinationType - String - contains a destination type string presentation.
-//  SourceType - String - contains string presentation of the source type.
+//         - DocumentRef - 
+//  DestinationType - String -  contains a string representation of the receiver type.
+//  SourceType - String -  contains a string representation of the source type.
 // 
 Procedure WriteToFileObjectDeletion(Ref, Val DestinationType, Val SourceType) Export
 	
@@ -1574,11 +1572,11 @@ Procedure WriteToFileObjectDeletion(Ref, Val DestinationType, Val SourceType) Ex
 	
 EndProcedure
 
-// Registers an object that is created during data export.
+// Registers the object created during upload.
 //
 // Parameters:
 //  Ref - CatalogRef
-//         - DocumentRef - an object to be registered.
+//         - DocumentRef - 
 // 
 Procedure RegisterObjectCreatedDuringExport(Ref) Export
 	
@@ -1594,19 +1592,19 @@ EndProcedure
 
 #Region GetData
 
-// Returns a values table containing references to documents for deferred posting
-// and dates of these documents for the preliminary sorting.
+// Returns a table of values that contains links to documents for deferred processing,
+// as well as the dates of these documents for pre-sorting.
 //
 // Returns:
-//  ValueTable - Contains references to documents for deferred posting. Columns are:
-//    * DocumentRef - DocumentRef - a reference to the imported document that requires deferred posting;
-//    * DocumentDate  - Date - an imported document date for the preliminary table sorting.
+//  ValueTable - :
+//    * DocumentRef - DocumentRef -  link to the uploaded document that requires deferred processing;
+//    * DocumentDate  - Date -  date of the uploaded document for pre-sorting the table.
 //
 Function DocumentsForDeferredPosting() Export
 	
 	If TypeOf(DocumentsForDeferredPostingField) <> Type("ValueTable") Then
 		
-		// Initialize a table for deferred document posting.
+		// 
 		DocumentsForDeferredPostingField = New ValueTable;
 		DocumentsForDeferredPostingField.Columns.Add("DocumentRef");
 		DocumentsForDeferredPostingField.Columns.Add("DocumentDate", deTypeDetails("Date"));
@@ -1617,10 +1615,10 @@ Function DocumentsForDeferredPosting() Export
 	
 EndFunction
 
-// Returns the flag that shows whether it is import to the infobase.
+// Indicates that this is an upload to the database.
 // 
 // Returns:
-//  Boolean - a flag indicating data import mode.
+//  Boolean - 
 // 
 Function DataImportToInfobaseMode() Export
 	
@@ -1628,13 +1626,13 @@ Function DataImportToInfobaseMode() Export
 	
 EndFunction
 
-// Adds the row containing the reference to the document
-// to post and its date for the preliminary sorting to the deferred posting table.
+// Adds a line to the deferred holding table that contains a reference to the document
+// to be held and the date of the document to be pre-sorted.
 //
 // Parameters:
-//  ObjectReference         - DocumentRef - an object that requires deferred posting.
-//  ObjectDate            - Date - document date;
-//  AdditionalProperties - Structure - additional properties of the object being written.
+//  ObjectReference         - DocumentRef -  the item to hold on hold.
+//  ObjectDate            - Date -  document date;
+//  AdditionalProperties - Structure -  additional properties of the object being recorded.
 //
 Procedure AddObjectForDeferredPosting(ObjectReference, ObjectDate, AdditionalProperties) Export
 	
@@ -1647,19 +1645,19 @@ Procedure AddObjectForDeferredPosting(ObjectReference, ObjectDate, AdditionalPro
 	
 EndProcedure
 
-// Writes an object to the infobase.
+// Writes an object to the information database.
 //
 // Parameters:
 //  Object - CatalogObject
-//         - DocumentObject - Object being written.
-//  Type - String - object type as string.
-//  WriteObject - Boolean - a flag showing whether the object was written.
-//  SendBack - Boolean - a flag showing whether the data item status of this
-//                           infobase must be passed to the correspondent infobase.
+//         - DocumentObject -  the object being recorded.
+//  Type - String -  type of object as a string.
+//  WriteObject - Boolean -  indicates that the object was recorded.
+//  SendBack - Boolean -  indicates that the state of the data element in this information
+//                           database should be passed to the correspondent information database.
 // 
 Procedure WriteObjectToIB(Object, Type, WriteObject = False, Val SendBack = False) Export
 	
-	// Do not write to VT in the import mode.
+	// 
 	If DataImportToValueTableMode() Then
 		Return;
 	EndIf;
@@ -1687,16 +1685,16 @@ Procedure WriteObjectToIB(Object, Type, WriteObject = False, Val SendBack = Fals
 		
 	EndIf;
 	
-	// Setting a data import mode for the object.
+	// 
 	SetDataExchangeLoad(Object,, SendBack);
 	
-	// Checking for a deletion mark of the predefined item.
+	// 
 	RemoveDeletionMarkFromPredefinedItem(Object, Type);
 	
 	BeginTransaction();
 	Try
 		
-		// Writing an object to the transaction.
+		// 
 		Object.Write();
 		
 		InfobaseObjectsMaps = Undefined;
@@ -1724,12 +1722,12 @@ Procedure WriteObjectToIB(Object, Type, WriteObject = False, Val SendBack = Fals
 	
 EndProcedure
 
-// Cancels an infobase object posting.
+// Cancels the placement of the object in the information database.
 //
 // Parameters:
-//  Object - DocumentObject - a document to cancel posting.
-//  Type - String - object type as string.
-//  WriteObject - Boolean - a flag showing whether the object was written.
+//  Object - DocumentObject -  document to cancel the event.
+//  Type - String -  type of object as a string.
+//  WriteObject - Boolean -  indicates that the object was recorded.
 //
 Procedure UndoObjectPostingInIB(Object, Type, WriteObject = False) Export
 	
@@ -1740,13 +1738,13 @@ Procedure UndoObjectPostingInIB(Object, Type, WriteObject = False) Export
 	InformationRegisters.DataExchangeResults.RecordIssueResolved(Object,
 		Enums.DataExchangeIssuesTypes.UnpostedDocument);
 	
-	// Setting a data import mode for the object.
+	// 
 	SetDataExchangeLoad(Object);
 	
 	BeginTransaction();
 	Try
 		
-		// Undo document post.
+		// 
 		Object.Posted = False;
 		Object.Write();
 		
@@ -1778,13 +1776,13 @@ Procedure UndoObjectPostingInIB(Object, Type, WriteObject = False) Export
 	
 EndProcedure
 
-// Sets deletion mark.
+// Sets the delete mark.
 //
 // Parameters:
 //  Object - CatalogObject
-//         - DocumentObject - an object to set deletion mark for.
-//  DeletionMark - Boolean - deletion mark flag.
-//  ObjectTypeName - String - object type as string.
+//         - DocumentObject - 
+//  DeletionMark - Boolean -  flag for marking deletion.
+//  ObjectTypeName - String -  type of object as a string.
 //
 Procedure SetObjectDeletionMark(Object, DeletionMark, ObjectTypeName) Export
 	
@@ -1803,7 +1801,7 @@ Procedure SetObjectDeletionMark(Object, DeletionMark, ObjectTypeName) Export
 	
 	SetDataExchangeLoad(Object);
 		
-	// For hierarchical object the deletion mark is set only for the current object.
+	// 
 	If ObjectTypeName = "Catalog"
 		Or ObjectTypeName = "ChartOfCharacteristicTypes"
 		Or ObjectTypeName = "ChartOfAccounts" Then
@@ -1826,14 +1824,14 @@ EndProcedure
 
 #Region Other
 
-// Registers a warning in the event log.
-// If during data exchange this procedure is executed, the data exchange is not stopped.
-// After exchange end the exchange status in the monitor have the value "Warning"
-// if errors does not occur.
+// Logs the warning in the log.
+// If this procedure was accessed during data exchange, data exchange will not be stopped.
+// After the exchange is completed, the status of the exchange in the monitor for the user will be set to "Warning",
+// if there were no errors.
 //
 // Parameters:
-//  Warning - String - a warning text that must be registered.
-//            Information, warnings, and errors that occur during data exchange are recorded in the event log.
+//  Warning - String -  the text of the warning that you need to register.
+//            Information, warnings, and errors that occur during data exchange are recorded in the log.
 // 
 Procedure RecordWarning(Warning) Export
 	
@@ -1841,12 +1839,12 @@ Procedure RecordWarning(Warning) Export
 	
 EndProcedure
 
-// Sets the mark status for subordinate rows of the value tree row.
-// Depending on the mark of the current row.
+// Sets the marking state for subordinate rows of the value tree row.
+// Depending on the mark of the current line.
 //
 // Parameters:
-//  CurRow - ValueTreeRow - whose items must be marked.
-//  Attribute - String - a name of a tree item that enables marking.
+//  CurRow - ValueTreeRow -  the elements of which should be marked.
+//  Attribute - String -  name of the prop that is responsible for tagging.
 // 
 Procedure SetSubordinateMarks(CurRow, Attribute) Export
 
@@ -1879,18 +1877,18 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Obsolete: Use the GetQueryResultForExportDataClearing function
-// Generates the query result for data clearing export.
+// Deprecated: You should use the function resultsquery
+// for uploading and clearing Data Generates the result of the query for uploading and clearing data.
 //
 //  Parameters:
-//       Properties                      - Structure - contains object properties.
-//       TypeName                       - String - an object type name.
-//       SelectionForDataClearing       - Boolean - a flag showing whether selection is passed for clearing.
-//       DeleteObjectsDirectly - Boolean - a flag showing whether direct deletion is required.
-//       SelectAllFields               - Boolean - a flag showing whether it is necessary to select all fields.
+//       Properties                      - Structure -  contains the properties of the object.
+//       TypeName                       - String -  name of the object type.
+//       SelectionForDataClearing       - Boolean -  indicates whether the selection is passed for clearing.
+//       DeleteObjectsDirectly - Boolean -  indicates whether direct deletion is required.
+//       SelectAllFields               - Boolean -  indicates whether all fields must be selected.
 //
 //  Returns:
-//       QueryResult, Undefined - a result of the query to export data cleaning.
+//       QueryResult, Undefined - 
 //
 Function GetQueryResultForExportDataClearing(Properties, TypeName, 
 	SelectionForDataClearing = False, DeleteObjectsDirectly = False, SelectAllFields = True) Export 
@@ -1900,18 +1898,18 @@ Function GetQueryResultForExportDataClearing(Properties, TypeName,
 	
 EndFunction
 
-// Obsolete: Use the SelectionForExpotingDataClearing function
-// Generates selection for data clearing export.
+// Deprecated: You should use the fetch function for uploading and clearing Data
+// Creates a selection for uploading and clearing data.
 //
 //  Parameters:
-//       Properties                      - Structure - contains object properties.
-//       TypeName                       - String - an object type name.
-//       SelectionForDataClearing       - Boolean - a flag showing whether selection is passed for clearing.
-//       DeleteObjectsDirectly - Boolean - a flag showing whether direct deletion is required.
-//       SelectAllFields               - Boolean - a flag showing whether it is necessary to select all fields.
+//       Properties                      - Structure -  contains the properties of the object.
+//       TypeName                       - String -  name of the object type.
+//       SelectionForDataClearing       - Boolean -  indicates whether the selection is passed for clearing.
+//       DeleteObjectsDirectly - Boolean -  indicates whether direct deletion is required.
+//       SelectAllFields               - Boolean -  indicates whether all fields must be selected.
 //
 //  Returns:
-//       QueryResultSelection, Undefined - generated selection for data clearing.
+//       QueryResultSelection, Undefined - 
 //
 Function GetSelectionForDataClearingExport(Properties, TypeName, 
 	SelectionForDataClearing = False, DeleteObjectsDirectly = False, SelectAllFields = True) Export
@@ -1929,10 +1927,10 @@ EndFunction
 
 #Region ExportProperties1
 
-// Function for retrieving property: a flag that shows a data exchange execution error.
+// Function-property: flag for data exchange error.
 //
 // Returns:
-//  Boolean - a flag that shows a data exchange execution error.
+//  Boolean - 
 //
 Function FlagErrors() Export
 	
@@ -1946,10 +1944,10 @@ Function FlagErrors() Export
 	
 EndFunction
 
-// Function for retrieving property: the result of data exchange.
+// Function property: the result of the data exchange.
 //
 // Returns:
-//  EnumRef.ExchangeExecutionResults - data exchange result.
+//  EnumRef.ExchangeExecutionResults -  the result of the data exchange.
 //
 Function ExchangeExecutionResult() Export
 	
@@ -1963,10 +1961,10 @@ Function ExchangeExecutionResult() Export
 	
 EndFunction
 
-// Function for retrieving property: the result of data exchange.
+// Function property: the result of the data exchange.
 //
 // Returns:
-//  String - string presentation of the EnumRef.ExchangeExecutionResults enumeration value.
+//  String - 
 //
 Function ExchangeExecutionResultString() Export
 	
@@ -1974,10 +1972,10 @@ Function ExchangeExecutionResultString() Export
 	
 EndFunction
 
-// Function for retrieving properties: map with data tables of the received data exchange message.
+// Property function: matches the data tables of the incoming exchange message.
 //
 // Returns:
-//  Map - map with data tables of the received data exchange message.
+//  Map - 
 //
 Function DataTablesExchangeMessages() Export
 	
@@ -1991,10 +1989,10 @@ Function DataTablesExchangeMessages() Export
 	
 EndFunction
 
-// Function for retrieving properties: a value table with incoming exchange message statistics and extra information.
+// Property function: a table of values with statistical and additional information about the incoming exchange message.
 //
 // Returns:
-//  ValueTable - a value table with incoming exchange message statistics and extra information.
+//  ValueTable - 
 //
 Function PackageHeaderDataTable() Export
 	
@@ -2023,10 +2021,10 @@ Function PackageHeaderDataTable() Export
 	
 EndFunction
 
-// Function for retrieving properties: a data exchange error message string.
+// Property function: a string that contains an error message during data exchange.
 //
 // Returns:
-//  String - a string containing an error message on exchange data.
+//  String - 
 //
 Function ErrorMessageString() Export
 	
@@ -2040,10 +2038,10 @@ Function ErrorMessageString() Export
 	
 EndFunction
 
-// Function for retrieving property: the number of imported objects.
+// Property function: the number of objects that were loaded.
 //
 // Returns:
-//  Number - number of imported objects.
+//  Number - 
 //
 Function ImportedObjectCounter() Export
 	
@@ -2057,10 +2055,10 @@ Function ImportedObjectCounter() Export
 	
 EndFunction
 
-// Function for retrieving property: the amount of exported objects.
+// Property function: the number of objects that were unloaded.
 //
 // Returns:
-//  Number - number of exported objects.
+//  Number - 
 //
 Function ExportedObjectCounter() Export
 	
@@ -2078,12 +2076,12 @@ EndFunction
 
 #Region DataExport
 
-// Exports data.
-// -- All objects are exported to one file.
-// -- The following is exported to a file header:
-//	 - exchange rules.
-//	 - information on data types.
-//	 - exchange data (exchange plan name, node codes, message numbers (confirmation)).
+// Performs the downloading of data.
+// -- All objects are uploaded to a single file.
+// -- The file header is loaded with:
+//	 - the rules of the exchange.
+//	 - information about data types.
+//	 - data exchange (name of exchange, codes of nodes, number of messages (handshake)).
 //
 // Parameters:
 //      DataProcessorForDataImport - ОбработкаОбъект.КонвертацияОбъектовИнформационныхБаз в COM-connection.
@@ -2106,7 +2104,7 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	
 	InitializeKeepExchangeProtocol();
 	
-	// Open the exchange file.
+	// 
 	If IsExchangeOverExternalConnection() Then
 		ExchangeFile = New TextWriter;
 	Else
@@ -2158,12 +2156,12 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		
 	Else
 		
-		// Add exchange rules to the file.
+		// 
 		ExchangeFile.WriteLine(XMLRules);
 		
 	EndIf;
 	
-	// DATA EXPORT.
+	// 
 	Try
 		ExecuteExport();
 	Except
@@ -2186,7 +2184,7 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		
 	Else
 		
-		// Closing the exchange file
+		// 
 		CloseFile();
 		
 	EndIf;
@@ -2206,7 +2204,7 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		
 	EndIf;
 	
-	// Reset modal variables before storing the data processor in the cache.
+	// 
 	ExportedByRefObjectsField = Undefined;
 	CreatedOnExportObjectsField = Undefined;
 	ExportedByRefMetadataObjectsField = Undefined;
@@ -2215,16 +2213,16 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	
 EndProcedure
 
-// Export register by filter.
+// Unloads the selection register.
 // 
 // Parameters:
-//         RecordSetForExport - Structure - contains filter or the register RecordSet.
-//         Rule - ValueTableRow - from object conversion rules:
+//         RecordSetForExport - Structure -  containing a selection, or a set of register Entries.
+//         Rule - ValueTableRow - :
 //           * Properties - See PropertiesConversionRulesCollection
-//         IncomingData - Arbitrary - incoming data for the conversion rule.
-//         DontExportObjectsByRefs - Boolean - a flag for property export by references..
-//         OCRName - String - a conversion rule name.
-//         DataExportRule - ValueTableRow - from the data export rules table.
+//         IncomingData - Arbitrary -  incoming data for the conversion rule.
+//         DontExportObjectsByRefs - Boolean -  a sign to unload the properties on the links..
+//         OCRName - String -  name of the conversion rule.
+//         DataExportRule - ValueTableRow -  from the data upload rules table.
 //
 Procedure UnloadRegister(RecordSetForExport, 
 							Rule = Undefined, 
@@ -2252,7 +2250,7 @@ Procedure UnloadRegister(RecordSetForExport,
 		
 	EndIf;
 	
-	// Write the filter followed by writing the record set.
+	// 
 	// 
 	
 	Receiver = CreateNode("RegisterRecordSet");
@@ -2306,7 +2304,7 @@ Procedure UnloadRegister(RecordSetForExport,
 		
 	EndDo;
 	
-	// Adding filter parameters.
+	// 
 	For Each SearchPropertyRow In Rule.SearchProperties Do
 		
 		If IsBlankString(SearchPropertyRow.Receiver)
@@ -2325,7 +2323,7 @@ Procedure UnloadRegister(RecordSetForExport,
 	
 	Receiver.WriteStartElement("RecordSetRows");
 	
-	// Data set IncomingData = Undefined;
+	// 
 	For Each RegisterLine In RecordSetRows Do
 		
 		ExportSelectionObject(RegisterLine, DataExportRule, , IncomingData, DontExportObjectsByRefs, True, 
@@ -2348,8 +2346,8 @@ EndProcedure
 
 #Region DataImport
 
-// Imports data from the exchange message file.
-// Data is imported to the infobase.
+// Loads data from the exchange message file.
+// Data is uploaded to the information database.
 //
 // Parameters:
 // 
@@ -2428,7 +2426,7 @@ Procedure RunDataImport() Export
 				Raise NStr("en = 'Data import errors.';");
 			EndIf;
 			
-			// Delayed writing of what was not written.
+			// 
 			ExecuteWriteNotWrittenObjects();
 			
 			ExecuteHandlerAfterImportData();
@@ -2453,7 +2451,7 @@ Procedure RunDataImport() Export
 			Raise;
 		EndTry;
 		
-		// Posting documents in queue.
+		// 
 		DataExchangeInternal.DisableAccessKeysUpdate(True);
 		Try
 			ExecuteDeferredDocumentsPosting();
@@ -2478,7 +2476,7 @@ Procedure RunDataImport() Export
 	
 	FinishKeepExchangeProtocol();
 	
-	// Reset modal variables before storing the data processor in the cache.
+	// 
 	DocumentsForDeferredPostingField = Undefined;
 	ObjectsForDeferredPostingField = Undefined;
 	DocumentsForDeferredPostingMap = Undefined;
@@ -2494,17 +2492,17 @@ EndProcedure
 
 #Region PackagedDataImport
 
-// Imports data from an exchange message file to an infobase of the specified object types only.
+// Loads data from the exchange message file to the Information Database of only the specified object types.
 //
 // Parameters:
-//  TablesToImport - Array - array of types to be imported from the exchange message; array element -
-//                                String.
-//  For example, to import from the exchange message the Counterparties catalog items only:
-//   TablesToImport = New Array;
-//   TablesToImport.Add("CatalogRef.Counterparties");
+//  TablesToImport - Array - 
+//                                
+//  :
+//   
+//   
 // 
-//  You can receive the list of all types that are contained in the current exchange message
-//  by calling the ExecuteExchangeMessageAnalysis() procedure.
+//  
+//  
 // 
 Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	
@@ -2525,10 +2523,10 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	GlobalNotWrittenObjectStack = New Map;
 	ConversionRulesMap = New Map;
 	
-	// Import start date.
+	// 
 	DataExchangeState().StartDate = CurrentSessionDate();
 	
-	// Record in the event log.
+	// 
 	MessageString = NStr("en = 'Data exchange started. Node: %1.';", Common.DefaultLanguageCode());
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(ExchangeNodeDataImport));
 	WriteEventLogDataExchange1(MessageString, EventLogLevel.Information);
@@ -2542,13 +2540,13 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 		Raise;
 	EndTry;
 	
-	// Import end date.
+	// 
 	DataExchangeState().EndDate = CurrentSessionDate();
 	
-	// Record data import completion in the information register.
+	// 
 	WriteDataImportEnd();
 	
-	// Record in the event log.
+	// 
 	MessageString = NStr("en = 'Action to execute: %1;
 		|Completion status: %2;
 		|Objects processed: %3.';",
@@ -2560,7 +2558,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	//
 	WriteEventLogDataExchange1(MessageString, EventLogLevel.Information);
 	
-	// Reset modal variables before storing the data processor in the cache.
+	// 
 	DocumentsForDeferredPostingField = Undefined;
 	ObjectsForDeferredPostingField = Undefined;
 	DocumentsForDeferredPostingMap = Undefined;
@@ -2571,17 +2569,17 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	
 EndProcedure
 
-// Imports data from the exchange message file to values table of specified objects types.
+// Loads data from the exchange message file to a table of values for only the specified object types.
 //
 // Parameters:
-//  TablesToImport - Array - array of types to be imported from the exchange message; array element -
-//                                String.
-//  For example, to import from the exchange message the Counterparties catalog items only:
-//   TablesToImport = New Array;
-//   TablesToImport.Add("CatalogRef.Counterparties");
+//  TablesToImport - Array - 
+//                                
+//  :
+//   
+//   
 // 
-//  You can receive the list of all types that are contained in the current exchange message
-//  by calling the ExecuteExchangeMessageAnalysis() procedure.
+//  
+//  
 // 
 Procedure ExecuteDataImportIntoValueTable(TablesToImport) Export
 	
@@ -2604,7 +2602,7 @@ Procedure ExecuteDataImportIntoValueTable(TablesToImport) Export
 	
 	UseTransactions = False;
 	
-	// Initialize data tables of the data exchange message.
+	// 
 	For Each DataTableKey In TablesToImport Do
 		
 		SubstringsArray = StrSplit(DataTableKey, "#");
@@ -2617,7 +2615,7 @@ Procedure ExecuteDataImportIntoValueTable(TablesToImport) Export
 	
 	ExecuteSelectiveMessageReader(TablesToImport);
 	
-	// Reset modal variables before storing the data processor in the cache.
+	// 
 	DocumentsForDeferredPostingField = Undefined;
 	ObjectsForDeferredPostingField = Undefined;
 	DocumentsForDeferredPostingMap = Undefined;
@@ -2629,20 +2627,20 @@ Procedure ExecuteDataImportIntoValueTable(TablesToImport) Export
 EndProcedure
 
 // Performs sequential reading of the exchange message file while:
-//     - registration of changes by the number of the incoming receipt is deleted
-//     - exchange rules are imported
-//     - information on data types is imported
-//     - data mapping information is read and recorded to the infobase
-//     - information on objects types and their amount is collected.
+//     - deleting the registration of changes by the incoming receipt number
+//     - exchange rules are loaded
+//     - information about data types is loaded
+//     - data matching information is read and recorded and is
+//     -information about the types of objects and their number is collected.
 //
 // Parameters:
-//   AnalysisParameters - Structure - optional additional parameters of analysis. Valid fields:
-//     * CollectClassifiersStatistics - Boolean - a flag showing whether classifier data is included in
+//   AnalysisParameters - Structure - :
+//     * CollectClassifiersStatistics - Boolean -  flag that classifier data will be included in
 //                                                    statistics.
-//                                                    Classifiers are catalogs, charts of characteristic types, charts of
-//                                                    accounts, CCTs, which have in OCR
-//                                                    SynchronizeByID. and
-//                                                    SearchBySearchFieldsIfNotFoundByID.
+//                                                    Classifiers are defined as reference books, PVC, charts
+//                                                    of accounts, and PVR that have the following parameters set in the PKO:
+//                                                    Sync to the ID. and
+//                                                    continue searching for the field of Searchinglipoidentificatorunenashli.
 // 
 Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 	
@@ -2671,27 +2669,27 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 		
 		InitManagersAndMessages();
 		
-		// Analysis start date.
+		// 
 		DataExchangeState().StartDate = CurrentSessionDate();
 		
-		// Reset the modal variable.
+		// 
 		PackageHeaderDataTableField = Undefined;
 		
 		StartReadMessage(MessageReader, True);
 		Try
 			
-			// Reading data from the exchange message.
+			// 
 			ReadDataInAnalysisMode(MessageReader, AnalysisParameters);
 			
 			If FlagErrors() Then
 				Raise NStr("en = 'Data analysis errors.';");
 			EndIf;
 			
-			// Generate a temporary data table.
+			// 
 			TemporaryPackageHeaderDataTable = PackageHeaderDataTable().Copy(, "SourceTypeString, DestinationTypeString, SearchFields, TableFields");
 			TemporaryPackageHeaderDataTable.GroupBy("SourceTypeString, DestinationTypeString, SearchFields, TableFields");
 			
-			// Collapsing a table of a data batch title.
+			// 
 			PackageHeaderDataTable().GroupBy(
 				"ObjectTypeString, SourceTypeString, DestinationTypeString, SynchronizeByID, IsClassifier, IsObjectDeletion, UsePreview",
 				"ObjectCountInSource");
@@ -2734,13 +2732,13 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 	
 	FinishKeepExchangeProtocol();
 	
-	// Analysis end date.
+	// 
 	DataExchangeState().EndDate = CurrentSessionDate();
 	
-	// Record data analysis completion in the information register.
+	// 
 	WriteDataImportEnd();
 	
-	// Reset modal variables before storing the data processor in the cache.
+	// 
 	DocumentsForDeferredPostingField = Undefined;
 	ObjectsForDeferredPostingField = Undefined;
 	DocumentsForDeferredPostingMap = Undefined;
@@ -2755,7 +2753,7 @@ EndProcedure
 
 #Region ProcessingProceduresOfExternalConnection
 
-// Import data from an XML string.
+// Loads data from an XML string.
 //
 Procedure ExternalConnectionImportDataFromXMLString(XMLLine) Export
 	
@@ -2787,11 +2785,11 @@ Procedure ExternalConnectionImportDataFromXMLString(XMLLine) Export
 	
 EndProcedure
 
-// Execute Before data import handler for external connection.
+// The handler performs the conversion Before the data is loaded for the external connections.
 //
 Procedure ExternalConnectionConversionHandlerBeforeDataImport(Cancel) Export
 	
-	// {Handler: BeforeDataImport} Start
+	// 
 	If Not IsBlankString(Conversion.BeforeImportData) Then
 		
 		Try
@@ -2814,14 +2812,14 @@ Procedure ExternalConnectionConversionHandlerBeforeDataImport(Cancel) Export
 		
 	EndIf;
 	
-	If Cancel Then // Canceling data import
+	If Cancel Then // 
 		Return;
 	EndIf;
-	// {Handler: BeforeDataImport} End
+	// 
 	
 EndProcedure
 
-// Initializes settings before data import through the external connection.
+// The initialization routine before the data is loaded via an external connection.
 //
 Procedure ExternalConnectionBeforeDataImport() Export
 	
@@ -2845,7 +2843,7 @@ Procedure ExternalConnectionBeforeDataImport() Export
 		PutMessageToArchiveWithExternalConnection = True;
 		
 		PackageNumber = 0;
-		TempDirectory = GetTempFileName(); //ACC:411 - The temporary archive will be deleted by the procedure "CollectAndArchiveExchangeMessage" 
+		TempDirectory = GetTempFileName();
 		CreateDirectory(TempDirectory);
 		TempDirForArchiveAssembly = CommonClientServer.AddLastPathSeparator(TempDirectory);
 		
@@ -2879,7 +2877,7 @@ Procedure ExternalConnectionBeforeDataImport() Export
 		ProcessedObjectsCountToUpdateStatus = 100;
 	EndIf;
 	
-	// Clear up exchange rules.
+	// 
 	Rules.Clear();
 	ConversionRulesTable.Clear();
 	
@@ -2890,17 +2888,17 @@ Procedure ExternalConnectionBeforeDataImport() Export
 	
 EndProcedure
 
-// Executes After data import handler.
-// Clears variables and executes a deferred document posting and object writing.
+// Executes the handler After loading the data.
+// Resets variables and holds pending the holding of documents and writing of objects.
 //
 Procedure ExternalConnectionAfterDataImport() Export
 	
 	CollectAndArchiveExchangeMessage();
 	
-	// Delayed writing of what was not written.
+	// 
 	ExecuteWriteNotWrittenObjects();
 	
-	// AfterImportData handler.
+	// 
 	If Not FlagErrors() Then
 		
 		If Not IsBlankString(Conversion.AfterImportData) Then
@@ -2928,7 +2926,7 @@ Procedure ExternalConnectionAfterDataImport() Export
 	
 	If Not FlagErrors() Then
 		
-		// Posting documents in queue.
+		// 
 		ExecuteDeferredDocumentsPosting();
 		ExecuteDeferredObjectsWrite();
 		
@@ -2943,7 +2941,7 @@ Procedure ExternalConnectionAfterDataImport() Export
 		    LockItem.SetValue("Ref", ExchangeNodeDataImport);
 		    Block.Lock();
 			
-			// Writing information on the incoming message number.
+			// 
 			LockDataForEdit(ExchangeNodeDataImport);
 			NodeObject = ExchangeNodeDataImport.GetObject();
 			
@@ -2978,7 +2976,7 @@ Procedure ExternalConnectionAfterDataImport() Export
 	
 	FinishKeepExchangeProtocol();
 	
-	// Reset modal variables before storing the data processor in the cache.
+	// 
 	DocumentsForDeferredPostingField = Undefined;
 	ObjectsForDeferredPostingField = Undefined;
 	DocumentsForDeferredPostingMap = Undefined;
@@ -3003,7 +3001,7 @@ Procedure ExternalConnectionCheckTransactionStartAndCommitOnDataImport() Export
 	
 EndProcedure
 
-// Opens transaction for exchange via external connection, if required.
+// Opens a transaction for exchange over an external connection, if required.
 //
 Procedure ExternalConnectionBeginTransactionOnDataImport() Export
 	
@@ -3013,7 +3011,7 @@ Procedure ExternalConnectionBeginTransactionOnDataImport() Export
 	
 EndProcedure
 
-// Commits the transaction of exchange through the external connection (if import is executed in transaction).
+// Completes the transaction when exchanging via an external connection (if the download was performed in a transaction).
 //
 Procedure ExternalConnectionCommitTransactionOnDataImport() Export
 	
@@ -3029,7 +3027,7 @@ Procedure ExternalConnectionCommitTransactionOnDataImport() Export
 	
 EndProcedure
 
-// Cancels transaction on exchange via external connection.
+// Cancels the transaction when exchanging via an external connection.
 //
 Procedure ExternalConnectionRollbackTransactionOnDataImport() Export
 	
@@ -3043,8 +3041,8 @@ EndProcedure
 
 #Region Other
 
-// Stores an exchange file to a file storage service for subsequent mapping.
-// Data is not imported.
+// Places the exchange file in the file storage service for later matching.
+// Data is not being loaded.
 //
 Procedure PutMessageForDataMapping(XMLExportData) Export
 	
@@ -3064,11 +3062,11 @@ Procedure PutMessageForDataMapping(XMLExportData) Export
 	
 EndProcedure
 
-// Sets the Load parameter value for the DataExchange object property.
+// Sets the value of the "Load" parameter for the object's "Tricked" property.
 //
 // Parameters:
-//   Object - Arbitrary - a data object whose property is being set.
-//   Value - Boolean - a value of the Import property being set.
+//   Object - Arbitrary -  the data object for which the property is set.
+//   Value - Boolean -  the value of the "Upload" property to set.
 //   SendBack - Boolean
 //
 Procedure SetDataExchangeLoad(Object, Value = True, Val SendBack = False) Export
@@ -3077,17 +3075,17 @@ Procedure SetDataExchangeLoad(Object, Value = True, Val SendBack = False) Export
 	
 EndProcedure
 
-// Prepares a row with information about the rules based on the read data from the XML file.
+// Prepares a string with information about rules based on the read data from the XML file.
 //
 // Parameters:
 //   IsCorrespondentRules - Boolean
 // 
 // Returns:
-//   String - a string with information on rules.
+//   String - 
 //
 Function RulesInformation(IsCorrespondentRules = False) Export
 	
-	// Function return value.
+	// 
 	InfoString = "";
 	
 	If FlagErrors() Then
@@ -3107,7 +3105,7 @@ Function RulesInformation(IsCorrespondentRules = False) Export
 							Format(Conversion.CreationDateTime, "DLF =DD"));
 EndFunction
 
-// Sets an event name to save messages to the event log.
+// Sets the event name for writing messages to the log.
 // 
 // Parameters:
 //   EventName - String
@@ -3238,7 +3236,7 @@ Function AdditionalPropertiesForDeferredPosting()
 	
 	If TypeOf(DocumentsForDeferredPostingMap) <> Type("Map") Then
 		
-		// Initialize a map for deferred document posting.
+		// 
 		DocumentsForDeferredPostingMap = New Map;
 		
 	EndIf;
@@ -3251,7 +3249,7 @@ Function ObjectsForDeferredPosting()
 	
 	If TypeOf(ObjectsForDeferredPostingField) <> Type("Map") Then
 		
-		// Initialize a map for deferred object writing.
+		// 
 		ObjectsForDeferredPostingField = New Map;
 		
 	EndIf;
@@ -3301,14 +3299,14 @@ Function ExportObjectByRef(Object, ExchangePlanNode)
 		Return False;
 	EndIf;
 	
-	// receiving a value from cache
+	// 
 	Result = ExportedByRefMetadataObjects().Get(MetadataObject);
 	
 	If Result = Undefined Then
 		
 		Result = False;
 		
-		// Receiving a flag of export by reference.
+		// 
 		Filter = New Structure("MetadataObjectName3", MetadataObject.FullName());
 		
 		RulesArray = ObjectsRegistrationRules(ExchangePlanNode).FindRows(Filter);
@@ -3331,7 +3329,7 @@ Function ExportObjectByRef(Object, ExchangePlanNode)
 			
 		EndDo;
 		
-		// Saving the received value to cache.
+		// 
 		ExportedByRefMetadataObjects().Insert(MetadataObject, Result);
 		
 	EndIf;
@@ -3373,10 +3371,10 @@ Function ExchangePlanNodeProperties(Node)
 		
 		ExchangePlanNodePropertyField = New Structure;
 		
-		// Get attribute names.
+		// 
 		AttributesNames = Common.AttributeNamesByType(Node, Type("EnumRef.ExchangeObjectExportModes"));
 		
-		// Get attribute values.
+		// 
 		If Not IsBlankString(AttributesNames) Then
 			
 			ExchangePlanNodePropertyField = Common.ObjectAttributesValues(Node, AttributesNames);
@@ -3396,7 +3394,7 @@ Function IncomingExchangeMessageFormatVersion()
 		
 	EndIf;
 	
-	// Adding the version of the incoming message format to 4 digits.
+	// 
 	VersionDigits1 = StrSplit(IncomingExchangeMessageFormatVersionField, ".");
 	
 	If VersionDigits1.Count() < 4 Then
@@ -3468,17 +3466,17 @@ EndFunction
 
 #Region StringOperations
 
-// Splits a string into two parts: before the separator substring and after it.
+// Parses a string into two parts: before the delimiter substring and after.
 //
 // Parameters:
-//  Page1          - a string to split;
-//  Separator  - подстрока-separator:
-//  Mode        - 0 - separator is not included in the returned substrings;
-//                 1 - separator is included in the left substring;
-//                 2 - separator is included in the right substring.
+//  Page1          - the string to parse;
+//  Separator  - подстрока-Separator:
+//  Mode        - 0 -  the separator is not included in the returned substrings;
+//                 1-the separator is included in the left substring;
+//                 2-the separator is included in the right substring.
 //
 // Returns:
-//  Правая часть строки - before the separator character.
+//  Правая часть строки - 
 // 
 Function SplitWithSeparator(Page1, Val Separator, Mode=0)
 
@@ -3497,8 +3495,8 @@ EndFunction
 // Converts values from a string to an array using the specified separator.
 //
 // Parameters:
-//  Page1            - a string to split.
-//  Separator    - separator substring.
+//  Page1            - the string to parse.
+//  Separator    - substring separator.
 //
 // Returns:
 //  Array of values
@@ -3545,15 +3543,15 @@ Function StringNumberWithoutPrefixes(Number)
 	
 EndFunction
 
-// Splits a string into a prefix and numerical part.
+// Parses a string, selecting the prefix and numeric part from it.
 //
 // Parameters:
-//  Page1            - String - a string to split;
-//  NumericalPart  - Number - variable that contains numeric part of the passed string;
-//  Mode          - String - pass Number if you want numeric part to be returned, otherwise pass Prefix.
+//  Page1            - String -  the string to parse;
+//  NumericalPart  - Number -  variable to return the numeric part of the string to;
+//  Mode          - String -   if "Number", it returns the numeric part, otherwise it returns the prefix.
 //
 // Returns:
-//  String prefix
+//  The prefix of the string
 //
 Function PrefixNumberCount(Val Page1, NumericalPart = "", Mode = "")
 
@@ -3579,20 +3577,20 @@ Function PrefixNumberCount(Val Page1, NumericalPart = "", Mode = "")
 
 EndFunction
 
-// Casts the number (code) to the required length, splitting the number into a prefix and numeric part. The space between the prefix
-// and number
-// is filled with zeros.
-// Can be used in the event handlers whose script 
-// is stored in data exchange rules. Is called with the Execute() method.
-// The "No links to function found" message during the configuration 
-// check is not an error.
+// Sets the number (code) to the required length. In this case, the prefix
+// and the numeric part of the number are allocated, and the rest of the space between the prefix and
+// the number is filled with zeros.
+// This function can be used in event handlers whose program code 
+// is stored in data exchange rules. Called by the Run () method.
+// The "no function references found" message when checking the configuration 
+// is not a configuration check error.
 //
 // Parameters:
-//  Page1          - String- a string to convert;
-//  Length        - Number - required length of a row.
+//  Page1          - String-  the converted string;
+//  Length        - Number -  the required length of the string.
 //
 // Returns:
-//  String       - a code or number cast to the required length.
+//  String       - 
 // 
 Function CastNumberToLength(Val Page1, Length, AddZerosIfLengthNotLessCurrentNumberLength = True, Prefix = "")
 
@@ -3624,15 +3622,15 @@ Function CastNumberToLength(Val Page1, Length, AddZerosIfLengthNotLessCurrentNum
 
 EndFunction
 
-// Supplements string with the specified symbol to the specified length.
+// Extends the string with the specified character to the specified length.
 //
 // Parameters:
-//  Page1          - String - string to be supplemented;
-//  Length        - Number - required length of a resulting row;
-//  Than          - String - character used for supplementing the string.
+//  Page1          - String -  the string to pad;
+//  Length        - Number -  required length of the resulting string;
+//  Than          - String -  the character that completes the string.
 //
 // Returns:
-//  String - supplemented with the specified symbol to the specified length.
+//  String - 
 //
 Function odSupplementString(Page1, Length, Than = " ")
 
@@ -3649,17 +3647,17 @@ EndFunction
 
 #Region DataOperations
 
-// Defines whether the passed value is filled.
+// Determines whether the passed value is filled in.
 //
 // Parameters:
-//  Value       - Value to be checked.
+//  Value       - 
 //
 // Returns:
-//   Boolean - True if the value is not filled in. Otherwise, False.
+//   Boolean - 
 //
 Function deEmpty(Value, ThisNULL=False)
 
-	// Primitive types come first.
+	// 
 	If Value = Undefined Then
 		Return True;
 	ElsIf Value = NULL Then
@@ -3680,7 +3678,7 @@ Function deEmpty(Value, ThisNULL=False)
 		
 	Else
 		
-		// For others, consider the value empty if it matches the default value for its type.
+		// 
 		// 
 		Try
 			Result = Not ValueIsFilled(Value);
@@ -3693,10 +3691,10 @@ Function deEmpty(Value, ThisNULL=False)
 	
 EndFunction
 
-// Returns the TypeDescription object that contains the specified type.
+// Returns a type Descriptor object containing the specified type.
 //
 // Parameters:
-//  TypeValue - строка с именем типа или значение Тип - the Type type.
+//  TypeValue - строка с именем типа или значение Тип -  type of Type.
 //
 // Returns:
 //  TypeDescription
@@ -3723,13 +3721,13 @@ Function deTypeDetails(TypeValue)
 
 EndFunction
 
-// Returns the blank (default) value of the specified type.
+// Returns an empty (default) value of the specified type.
 //
 // Parameters:
-//  Type          - строка с именем типа или значение Тип - the Type type.
+//  Type          - строка с именем типа или значение Тип -  type of Type.
 //
 // Returns:
-//  A blank value of the specified type.
+//  An empty value of the specified type.
 //
 Function deGetEmptyValue(Type)
 
@@ -3764,8 +3762,8 @@ Function CheckRefExists(Ref, Manager, FoundByUUIDObject,
 			EndIf;
 			
 		Else
-			// This is the search by Ref mode. To use it, query the infobase.
-			// See the query template in "PropertyStructure.SearchString".
+			// 
+			// 
 			
 			Query = New Query();
 			Query.Text = SearchByUUIDQueryString + "  Ref = &Ref ";
@@ -3791,16 +3789,16 @@ Function CheckRefExists(Ref, Manager, FoundByUUIDObject,
 	
 EndFunction
 
-// Performs a simple search for infobase object by the specified property.
+// Performs a simple search for an information database object by the specified property.
 //
 // Parameters:
-//  Manager       - Manager of the sought-for object.
-//  Property       - Property whose value should be found: "Name", "Code", "Description", or "Name" of the indexed attribute. 
+//  Manager       - 
+//  Property       -  
 //                   
-//  Value       - Value being sought for.
+//  Value       - 
 //
 // Returns:
-//  Found infobase object.
+//  The found object of the information database.
 //
 Function deFindObjectByProperty(Manager, Property, Value, 
 	FoundByUUIDObject = Undefined, 
@@ -3842,7 +3840,7 @@ Function deFindObjectByProperty(Manager, Property, Value,
 	
 EndFunction
 
-// Returns predefined item value by its name.
+// Returns the value of a predefined element by its name.
 // 
 Function PredefinedManagerItem(Val Manager, Val PredefinedItemName)
 	
@@ -3870,16 +3868,16 @@ Function PredefinedManagerItem(Val Manager, Val PredefinedItemName)
 	
 EndFunction
 
-// Performs a simple search for infobase object by the specified property.
+// Performs a simple search for an information database object by the specified property.
 //
 // Parameters:
-//  Page1            - String - a property value, by which 
-//                   an object is searched;
-//  Type            - a type of the object to be found;
-//  Property       - String - a property name, by which an object is found.
+//  Page1            - String -  value of the property that 
+//                   the object is searched for;
+//  Type            - type of object you are looking for;
+//  Property       - String -  name of the property that we are looking for the object by.
 //
 // Returns:
-//  Found infobase object.
+//  The found object of the information database.
 //
 Function deGetValueByString(Page1, Type, Property = "")
 
@@ -3911,13 +3909,13 @@ Function deGetValueByString(Page1, Type, Property = "")
 
 EndFunction
 
-// Returns a string presentation of a value type.
+// Returns a string representation of the value type.
 //
 // Parameters: 
-//  ValueOrType - arbitrary value or Type.
+//  ValueOrType - 
 //
 // Returns:
-//  String - a string presentation of the value type.
+//  String - 
 //
 Function deValueTypeAsString(ValueOrType)
 
@@ -4042,7 +4040,7 @@ Function DescriptionOfTypesFromJSON(JSONText)
 			ElsIf Upper(JSONReader.CurrentValue) = Upper("multiple") Then
 				
 				JSONReader.Read();
-				// Indicates that it has a multiple type. This type is ignored below.
+				// 
 				
 			ElsIf Upper(JSONReader.CurrentValue) = Upper("typeFeatures") Then
 				
@@ -4071,13 +4069,13 @@ Function DescriptionOfTypesFromJSON(JSONText)
 					
 					Try
 						
-						// An attempt must be made as renaming a object will result in a type access error.
-						// For example when renaming LeasingContract (2.4) into LeasingAgreement (2.5).
+						// 
+						// 
 						ArrayOfNamesOfTypeDescriptions.Add(Type(TypeNameByString));
 						
 					Except
 						
-						// Skip the exception for renamed and deleted types.
+						// 
 						CommentText1 = NStr("en = 'Metadata not found: %1.';", Common.DefaultLanguageCode());
 						CommentText1 = StrTemplate(CommentText1, TypeNameByString);
 						
@@ -4219,15 +4217,15 @@ EndProcedure
 
 #Region ProceduresAndFunctionsOfObjectOperationsXMLWriter
 
-// Creates a new XML node.
-// Can be used in the event handlers 
-// whose script is stored in data exchange rules. Is called with the Execute() method.
+// Creates a new xml node.
+// This function can be used in event handlers whose program code 
+// is stored in data exchange rules. Called by the Run () method.
 //
 // Parameters: 
-//   Name - String - a node name.
+//   Name - String -  host name.
 //
 // Returns:
-//   XMLWriter - object of the new XML node.
+//   XMLWriter - 
 //
 Function CreateNode(Name)
 
@@ -4239,12 +4237,12 @@ Function CreateNode(Name)
 
 EndFunction
 
-// Writes item and its value to the specified object.
+// Writes the element and its value to the specified object.
 //
 // Parameters:
-//  Object         - An XMLWriter object.
-//  Name            - String - item name.
-//  Value       - item value.
+//  Object         - 
+//  Name            - String -  element name.
+//  Value       - element value.
 //
 Procedure deWriteElement(Object, Name, Value="")
 
@@ -4256,11 +4254,11 @@ Procedure deWriteElement(Object, Name, Value="")
 	
 EndProcedure
 
-// Subordinates an xml node to the specified parent node.
+// Subordinates the xml node to the specified parent node.
 //
 // Parameters: 
-//  ParentNode1   - xml-a parent node.
-//  Node           - The node to be set as subordinate.
+//  ParentNode1   - xml-parent node.
+//  Node           - 
 //
 Procedure AddSubordinateNode(ParentNode1, Node)
 
@@ -4275,12 +4273,12 @@ Procedure AddSubordinateNode(ParentNode1, Node)
 		
 EndProcedure
 
-// Sets an attribute of the specified xml node.
+// Sets the attribute of the specified xml node.
 //
 // Parameters: 
-//  Node           - xml-node
+//  Node           - xml-Node
 //  Name            - attribute name.
-//  Value       - a value being set.
+//  Value       - set value.
 //
 Procedure SetAttribute(Node, Name, Value)
 
@@ -4294,17 +4292,17 @@ EndProcedure
 
 #Region ProceduresAndFunctionsOfObjectOperationsXMLReader
 
-// Reads the attribute value by the name from the specified object, converts the value
+// Reads the attribute value by name from the specified object, and converts the value
 // to the specified primitive type.
 //
 // Parameters:
-//  Object      - An XMLReader object positioned at the beginning of the element whose attribute should be obtained."
+//  Object      - 
 //                
-//  Type         - значение Тип - the Type type. Attribute type.
-//  Name         - String - attribute name.
+//  Type         - значение Тип -  type of Type. Attribute type.
+//  Name         - String -  attribute name.
 //
 // Returns:
-//  The attribute value received by the name and cast to the specified type.
+//  The attribute value obtained by name and cast to the specified type.
 //
 Function deAttribute(Object, Type, Name)
 
@@ -4323,15 +4321,15 @@ Function deAttribute(Object, Type, Name)
 	
 EndFunction
 
-// Skips xml nodes to the end of the specified item (which is currently the default one).
+// Skips xml nodes to the end of the specified element (by default, the current one).
 //
 // Parameters:
-//  Object   - an object of the XMLReader type.
-//  Name      - a name of node, to the end of which items are skipped.
+//  Object   - an object of the ReadXml type.
+//  Name      - name of the node to skip elements to the end of.
 //
 Procedure deSkip(Object, Name="")
 
-	AttachmentsCount = 0; // The number of attachments with the same name.
+	AttachmentsCount = 0; // 
 
 	If Name = "" Then
 		
@@ -4369,16 +4367,16 @@ Procedure deSkip(Object, Name="")
 	
 EndProcedure
 
-// Reads the element text and converts the value to the specified type.
+// Reads the text of the element and converts the value to the specified type.
 //
 // Parameters:
-//  Object           - An XMLReader object whose data is being read.
-//  Type              - type of the return value.
+//  Object           - 
+//  Type              - the type of value to get.
 //  SearchByProperty - for reference types, you can specify a property
-//                     to be used for searching the object: Code, Description, <AttributeName>, Name (predefined value).
+//                     to search for the object by: "Code", "Name", <Requestname>, "Name" (predefined value).
 //
 // Returns:
-//  Значение xml--element converted to the relevant type.
+//  Значение xml-
 //
 Function deElementValue(Object, Type, SearchByProperty = "", CutStringRight = True)
 
@@ -4439,10 +4437,10 @@ EndFunction
 
 #Region ExchangeFileOperationsProceduresAndFunctions
 
-// Saves the specified xml node to file.
+// Saves the specified xml node to a file.
 //
 // Parameters:
-//  Node           - xml-node to be saved to the file.
+//  Node           - xml-the node to save to a file.
 //
 Procedure WriteToFile(Node)
 
@@ -4454,7 +4452,7 @@ Procedure WriteToFile(Node)
 	
 	If IsExchangeOverExternalConnection() Then
 		
-		// ============================ {Start: Data exchange through external connection}.
+		// 
 		DataProcessorForDataImport().ExternalConnectionImportDataFromXMLString(InformationToWriteToFile);
 		
 		If DataProcessorForDataImport().FlagErrors() Then
@@ -4466,7 +4464,7 @@ Procedure WriteToFile(Node)
 			Raise MessageString;
 			
 		EndIf;
-		// ============================ {End: Data exchange through external connection}.
+		// 
 		
 	Else
 		
@@ -4476,7 +4474,7 @@ Procedure WriteToFile(Node)
 	
 EndProcedure
 
-// Opens an exchange file, writes a file header according to the exchange format.
+// Opens the exchange file, writes the file header in accordance with the exchange format.
 //
 // Parameters:
 //  No.
@@ -4543,14 +4541,14 @@ EndProcedure
 
 #Region ProceduresAndFunctionsOfExchangeProtocolOperations
 
-// Returns a Structure type object containing all possible fields of
-// the execution protocol record (such as error messages and others).
+// Returns an object of the structure type containing all possible fields
+// of the execution Protocol record (error messages, etc.).
 //
 // Parameters:
 //  No.
 //
 // Returns:
-//  Structure - an object of the Structure type
+//  Structure - 
 //
 Function ExchangeProtocolRecord(ErrorMessageCode = "", Val ErrorString = "")
 
@@ -4616,7 +4614,7 @@ Procedure InitializeKeepExchangeProtocol()
 		
 	EndIf;
 	
-	// Attempting to write to an exchange protocol file.
+	// 
 	Try
 		DataProtocolFile = New TextWriter(ExchangeProtocolFileName, TextEncoding.ANSI, , AppendDataToExchangeLog);
 	Except
@@ -4677,12 +4675,12 @@ Function ExchangeExecutionResultWarning(ExchangeExecutionResult)
 	
 EndFunction
 
-// Writes to a protocol or displays messages of the specified structure.
+// Saves messages of the specified structure to the execution Protocol (or displays them on the screen).
 //
 // Parameters:
-//  Code               - Number - message code.
-//  RecordStructure   - Structure - protocol record structure.
-//  SetErrorFlag1 - если истина, то - it is an error message. Setting ErrorFlag.
+//  Code               - Number -  message code.
+//  RecordStructure   - Structure -  structure of the Protocol record.
+//  SetErrorFlag1 - если истина, то -  this is an error message. The Error Flag Is Cocked.
 // 
 Function WriteToExecutionProtocol(Code = "",
 									RecordStructure=Undefined,
@@ -4772,7 +4770,7 @@ Function WriteToExecutionProtocol(Code = "",
 		
 	EndIf;
 	
-	// Registering an event in the event log.
+	// 
 	ErrorMessageString = ErrorMessageString();
 	WriteEventLogDataExchange1(ErrorMessageString, ELLevel);
 	
@@ -4964,7 +4962,7 @@ EndFunction
 #Region CollectionsTypesDetails
 
 // Returns:
-//   ValueTable - A collection of data conversion rules:
+//   ValueTable - :
 //     * Name - String
 //     * Description - String
 //     * Order - Number
@@ -5030,7 +5028,7 @@ Function ConversionRulesCollection()
 EndFunction
 
 // Returns:
-//   ValueTable - A collection of search rules for tables.:
+//   ValueTable - :
 //     * TagName - Arbitrary
 //     * KeySearchFieldArray - Array of Arbitrary
 //     * KeySearchFields - Arbitrary
@@ -5049,7 +5047,7 @@ Function SearchTabularSectionsCollection()
 EndFunction
 
 // Returns:
-//   ValueTable - A collection of data property conversion rules:
+//   ValueTable - :
 //     * Name - String
 //     * Description - String
 //     * Order - Number
@@ -5098,7 +5096,7 @@ Function PropertiesConversionRulesCollection()
 EndFunction
 
 // Returns:
-//   ValueTable - A collection of data export rules:
+//   ValueTable - :
 //     * Enable - Boolean
 //     * Name - Arbitrary
 //     * Description - Arbitrary
@@ -5131,7 +5129,7 @@ Function DataExportRulesCollection()
 EndFunction
 
 // Returns:
-//   ValueTree - A collection of the data cleansing rules:
+//   ValueTree - :
 //     * Enable -  Boolean
 //     * IsFolder - Boolean
 //     * Name - String
@@ -5156,7 +5154,7 @@ EndFunction
 
 // Returns:
 //   ValueTable:
-//     * Ref - AnyRef - reference to an object being exported.
+//     * Ref - AnyRef -  reference to the object being uploaded.
 //
 Function DataExportCallStackCollection()
 	
@@ -5168,14 +5166,14 @@ EndFunction
 
 #Region ExchangeRulesImportProcedures
 
-// Imports the property group conversion rule.
+// Performs the download of the conversion rule group properties.
 //
 // Parameters:
-//   ExchangeRules  - XMLReader - an object of the XMLReader type.
+//   ExchangeRules  - XMLReader -  an object of the ReadXml type.
 //   PropertiesTable - See PropertiesConversionRulesCollection
 //   DisabledProperties - See PropertiesConversionRulesCollection
-//   SynchronizeByID - Boolean - True if synchronization is executed by ID.
-//   OCRName - String - a conversion rule name.
+//   SynchronizeByID - Boolean -  True if syncing is performed by ID.
+//   OCRName - String -  name of the conversion rule.
 //
 Procedure ImportPGCR(ExchangeRules, PropertiesTable, DisabledProperties, SynchronizeByID, OCRName = "")
 	
@@ -5196,7 +5194,7 @@ Procedure ImportPGCR(ExchangeRules, PropertiesTable, DisabledProperties, Synchro
 	NewRow.GroupRules            = PropertyConversionRuleTable.Copy();
 	NewRow.DisabledGroupRules = PropertyConversionRuleTable.Copy();
 	
-	// Default values
+	// 
 	NewRow.NotReplace               = False;
 	NewRow.GetFromIncomingData = False;
 	NewRow.SimplifiedPropertyExport = False;
@@ -5354,17 +5352,17 @@ Procedure AddFieldToSearchString(SearchFieldsString, FieldName)
 	
 EndProcedure
 
-// Imports the property group conversion rule.
+// Performs the download of the conversion rules properties.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object containing the text of exchange rules.
+//  ExchangeRules  - XMLReader -  an object containing the text of the exchange rules.
 //  PropertiesTable - See PropertiesConversionRulesCollection
 //  DisabledProperties - See PropertiesConversionRulesCollection
-//  OCRProperties - Structure - additional information on data to change:
-//    * OCRName - String - an OCR name.
-//    * SynchronizeByID - Boolean - a flag showing whether an algorithm for search by UUID is used.
-//    * ParentName - String - a name of parent OCR or PGCR.
-//  SearchFieldsString - String - OCR search properties.
+//  OCRProperties - Structure - :
+//    * OCRName - String -  name of the PKO.
+//    * SynchronizeByID - Boolean -  the criterion of using the search algorithm according to a unique identifier.
+//    * ParentName - String -  name of the parent PCO or PCGS.
+//  SearchFieldsString - String -  PKO search properties.
 //  SearchTable - See PropertiesConversionRulesCollection
 //
 Procedure ImportPCR(ExchangeRules,
@@ -5401,7 +5399,7 @@ Procedure ImportPCR(ExchangeRules,
 		
 	EndIf;
 	
-	// Default values
+	// 
 	NewRow.NotReplace               = False;
 	NewRow.GetFromIncomingData = False;
 	NewRow.IsRequiredProperty  = IsRequiredProperty;
@@ -5424,7 +5422,7 @@ Procedure ImportPCR(ExchangeRules,
 			
 			If Not IsDisabledField Then
 				
-				// Filling in the SearchFieldsString variable to search by all tabular section attributes with PCR.
+				// 
 				AddFieldToSearchString(SearchFieldsString, NewRow.Receiver);
 				
 			EndIf;
@@ -5527,12 +5525,12 @@ Procedure ImportPCR(ExchangeRules,
 	
 EndProcedure
 
-// Imports property conversion rules.
+// 
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  PropertiesTable - ValueTable - a value table containing PCR.
-//  SearchTable  - ValueTable - a value table containing PCR (synchronizing).
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  PropertiesTable - ValueTable -  a table of values containing PKS.
+//  SearchTable  - ValueTable -  table of values containing PKS (synchronizing).
 //
 Procedure ImportProperties(ExchangeRules,
 							PropertiesTable,
@@ -5571,13 +5569,13 @@ Procedure ImportProperties(ExchangeRules,
 	
 EndProcedure
 
-// Imports the value conversion rule.
+// Performs the download of the conversion rule values.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  Values       - соответствие значений объекта источника - destination
-//                   object presentation strings.
-//  SourceType   - значение Тип - the Type type - source object type.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  Values       - соответствие значений объекта источника -  string
+//                   representations of the receiver object.
+//  SourceType   - значение Тип -  type - type of the source object.
 //
 Procedure ImportVCR(ExchangeRules, Values, SourceType)
 	
@@ -5603,13 +5601,13 @@ Procedure ImportVCR(ExchangeRules, Values, SourceType)
 	
 EndProcedure
 
-// Imports value conversion rules.
+// Re-download rules of conversion values.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  Values       - соответствие значений объекта источника - destination
-//                   object presentation strings.
-//  SourceType   - значение Тип - the Type type - source object type.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  Values       - соответствие значений объекта источника -  string
+//                   representations of the receiver object.
+//  SourceType   - значение Тип -  type - type of the source object.
 //
 Procedure LoadValues(ExchangeRules, Values, SourceType)
 
@@ -5627,12 +5625,12 @@ Procedure LoadValues(ExchangeRules, Values, SourceType)
 	
 EndProcedure
 
-// Imports the object conversion rule.
+// Performs the download of the conversion rule objects.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
-//                   used on data import.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  XMLWriter      - XMLWriter -  an object of the Recordxml type - rules that are saved to the exchange file and
+//                   used when loading data.
 //
 Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 
@@ -5640,7 +5638,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 
 	NewRow = ConversionRulesCollection().Add();
 	
-	// Default values
+	// 
 	
 	NewRow.RememberExportedData = True;
 	NewRow.NotReplace            = False;
@@ -5671,7 +5669,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			
 			NewRow.DontCreateIfNotFound = deElementValue(ExchangeRules, BooleanType);			
 			
-		ElsIf NodeName = "RecordObjectChangeAtSenderNode" Then // Not supported.
+		ElsIf NodeName = "RecordObjectChangeAtSenderNode" Then // 
 			
 			deSkip(ExchangeRules);
 			
@@ -5782,7 +5780,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			
 			LoadValues(ExchangeRules, NewRow.PredefinedDataReadValues, NewRow.Source);
 			
-		// Event handlers.
+		// 
 		ElsIf NodeName = "BeforeExport" Then
 		
 			NewRow.BeforeExport = deElementValue(ExchangeRules, StringType);
@@ -5811,7 +5809,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			NewRow.AfterExportToFileHandlerName = StrReplace(HandlerName, "[OCRName]", NewRow.Name);
 			NewRow.HasAfterExportToFileHandler  = Not IsBlankString(NewRow.AfterExportToFile);
 			
-		// For import.
+		// 
 		
 		ElsIf NodeName = "BeforeImport" Then
 			
@@ -5891,14 +5889,14 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 				NewRow.ExchangeObjectsPriority = Enums.ExchangeObjectsPriorities.ExchangeObjectPriorityMatch;
 			EndIf;
 			
-		// Search option settings.
+		// 
 		ElsIf NodeName = "ObjectSearchOptionsSettings" Then
 		
 			ImportSearchVariantSettings(ExchangeRules, NewRow);
 			
 		ElsIf NodeName = "SearchInTabularSections" Then
 			
-			// Importing information by search key fields in tabular sections.
+			// 
 			Value = deElementValue(ExchangeRules, StringType);
 			
 			For Number = 1 To StrLineCount(Value) Do
@@ -5938,11 +5936,11 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 	
 	If ExchangeMode <> "Load" Then
 		
-		// RECEIVING PROPERTIES OF TABULAR SECTION FIELDS SEARCH FOR DATA IMPORT RULES (XMLWriter)
+		// 
 		
 		ResultingTSSearchString = "";
 		
-		// Sending details of tabular section search fields to the destination.
+		// 
 		For Each PropertyString In NewRow.Properties Do
 			
 			If Not PropertyString.IsFolder
@@ -5987,10 +5985,10 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 			
 		EndDo;
 		
-		// Deleting the UUID value from the array of search fields.
+		// 
 		CommonClientServer.DeleteValueFromArray(ArraySearchProperties, "{UUID}");
 		
-		// Getting the ArrayProperties variable value.
+		// 
 		TableFieldsTable = New ValueTable;
 		TableFieldsTable.Columns.Add("Receiver");
 		
@@ -6007,7 +6005,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 	
 	If ExchangeMode = "Load" Then
 		
-		// Correspondent rules import - record search fields and table fields.
+		// 
 		If Not ValueIsFilled(NewRow.TableFields) Then
 			NewRow.TableFields = TableFields;
 		EndIf;
@@ -6028,10 +6026,10 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 		
 	EndIf;
 	
-	// Close the node.
+	// 
 	XMLWriter.WriteEndElement(); // Rule
 	
-	// Fast access to an OCR by its name.
+	// 
 	Rules.Insert(NewRow.Name, NewRow);
 	
 EndProcedure
@@ -6111,12 +6109,12 @@ Procedure ImportSearchVariantSettings(ExchangeRules, BaseOCRRow)
 	
 EndProcedure
 
-// Imports object conversion rules.
+// Re-download rules of conversion facilities.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
-//                   used on data import.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  XMLWriter      - XMLWriter -  an object of the Recordxml type - rules that are saved to the exchange file and
+//                   used when loading data.
 //
 Procedure ImportConversionRules(ExchangeRules, XMLWriter)
 	
@@ -6148,10 +6146,10 @@ Procedure ImportConversionRules(ExchangeRules, XMLWriter)
 	
 EndProcedure
 
-// Imports the data clearing rule group according to the exchange rule format.
+// Loads a group of data clearing rules according to the format of the exchange rules.
 //
 // Parameters:
-//  NewRow    - A value tree row describing a group of data cleansing rules.
+//  NewRow    - 
 // 
 Procedure ImportDPRGroup(ExchangeRules, NewRow)
 
@@ -6193,10 +6191,10 @@ Procedure ImportDPRGroup(ExchangeRules, NewRow)
 	
 EndProcedure
 
-// Imports the data clearing rule according to the format of exchange rules.
+// Loads the data clearing rule according to the format of the exchange rules.
 //
 // Parameters:
-//  NewRow    - A value tree row describing a data cleansing rule.
+//  NewRow    - 
 // 
 Procedure ImportDPR(ExchangeRules, NewRow)
 	
@@ -6237,7 +6235,7 @@ Procedure ImportDPR(ExchangeRules, NewRow)
 			NewRow.Directly = deElementValue(ExchangeRules, BooleanType);
 
 		
-		// Event handlers.
+		// 
 
 		ElsIf NodeName = "BeforeProcessRule" Then
 			NewRow.BeforeProcess = deElementValue(ExchangeRules, StringType);
@@ -6254,7 +6252,7 @@ Procedure ImportDPR(ExchangeRules, NewRow)
 			HandlerName = "DPR_[DPRName]_BeforeDeleteObject";
 			NewRow.BeforeDeleteHandlerName = StrReplace(HandlerName, "[DPRName]", NewRow.Name);
 			
-		// Exit.
+		// 
 		ElsIf (NodeName = "Rule") And (ExchangeRules.NodeType = XMLNodeTypeEndElement) Then
 			Break;
 			
@@ -6269,12 +6267,12 @@ Procedure ImportDPR(ExchangeRules, NewRow)
 	
 EndProcedure
 
-// Imports data clearing rules.
+// Re-download the purge rules data.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
-//                   used on data import.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  XMLWriter      - XMLWriter -  an object of the Recordxml type - rules that are saved to the exchange file and
+//                   used when loading data.
 //
 Procedure ImportClearingRules(ExchangeRules, XMLWriter)
 
@@ -6325,12 +6323,12 @@ Procedure ImportClearingRules(ExchangeRules, XMLWriter)
 	
 EndProcedure
 
-// Imports the algorithm according to the exchange rule format.
+// Loads the algorithm in accordance with the format of the exchange rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
-//                   used on data import.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  XMLWriter      - XMLWriter -  an object of the Recordxml type - rules that are saved to the exchange file and
+//                   used when loading data.
 //
 Procedure ImportAlgorithm(ExchangeRules, XMLWriter)
 
@@ -6371,12 +6369,12 @@ Procedure ImportAlgorithm(ExchangeRules, XMLWriter)
 	
 EndProcedure
 
-// Imports algorithms according to the exchange rule format.
+// Loads algorithms according to the format of the exchange rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
-//                   used on data import.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  XMLWriter      - XMLWriter -  an object of the Recordxml type - rules that are saved to the exchange file and
+//                   used when loading data.
 //
 Procedure ImportAlgorithms(ExchangeRules, XMLWriter)
 
@@ -6398,12 +6396,12 @@ Procedure ImportAlgorithms(ExchangeRules, XMLWriter)
 	
 EndProcedure
 
-// Imports the query according to the exchange rule format.
+// Loads the request in accordance with the format of the exchange rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
-//                   used on data import.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  XMLWriter      - XMLWriter -  an object of the Recordxml type - rules that are saved to the exchange file and
+//                   used when loading data.
 //
 Procedure ImportQuery(ExchangeRules, XMLWriter)
 
@@ -6444,12 +6442,12 @@ Procedure ImportQuery(ExchangeRules, XMLWriter)
 	
 EndProcedure
 
-// Imports queries according to the exchange rule format.
+// Loads requests in accordance with the format of the exchange rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
-//                   used on data import.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  XMLWriter      - XMLWriter -  an object of the Recordxml type - rules that are saved to the exchange file and
+//                   used when loading data.
 //
 Procedure ImportQueries(ExchangeRules, XMLWriter)
 
@@ -6473,10 +6471,10 @@ Procedure ImportQueries(ExchangeRules, XMLWriter)
 	
 EndProcedure
 
-// Imports parameters according to the exchange rule format.
+// Loads parameters according to the format of the exchange rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
 //
 Procedure DoImportParameters(ExchangeRules, XMLWriter)
 
@@ -6492,7 +6490,7 @@ Procedure DoImportParameters(ExchangeRules, XMLWriter)
 
 		If NodeName = "Parameter" And NodeType = XMLNodeTypeStartElement Then
 			
-			// Importing by the 2.01 rule version.
+			// 
 			Name                     = deAttribute(ExchangeRules, StringType, "Name");
 			Description            = deAttribute(ExchangeRules, StringType, "Description");
 			SetInDialog   = deAttribute(ExchangeRules, BooleanType, "SetInDialog");
@@ -6508,7 +6506,7 @@ Procedure DoImportParameters(ExchangeRules, XMLWriter)
 				
 			EndIf;
 			
-			// Determining value types and setting initial values.
+			// 
 			If Not IsBlankString(ValueTypeString) Then
 				
 				Try
@@ -6560,7 +6558,7 @@ Procedure DoImportParameters(ExchangeRules, XMLWriter)
 
 		ElsIf (NodeType = XMLNodeTypeText) Then
 			
-			// Importing from the string to provide 2.0 compatibility.
+			// 
 			ParametersString1 = ExchangeRules.Value;
 			For Each Par In ArrayFromString(ParametersString1) Do
 				Parameters.Insert(Par);
@@ -6576,12 +6574,12 @@ Procedure DoImportParameters(ExchangeRules, XMLWriter)
 
 EndProcedure
 
-// Imports the data processor according to the exchange rule format.
+// Loads processing in accordance with the format of the exchange rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
-//                   used on data import.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  XMLWriter      - XMLWriter -  an object of the Recordxml type - rules that are saved to the exchange file and
+//                   used when loading data.
 //
 Procedure ImportDataProcessor(ExchangeRules, XMLWriter)
 
@@ -6623,12 +6621,12 @@ Procedure ImportDataProcessor(ExchangeRules, XMLWriter)
 	
 EndProcedure
 
-// Imports external data processors according to the exchange rule format.
+// Loads external processing in accordance with the format of the exchange rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
-//  XMLWriter      - XMLWriter - object of the XMLWriter type - rules to be saved into the exchange file and
-//                   used on data import.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
+//  XMLWriter      - XMLWriter -  an object of the Recordxml type - rules that are saved to the exchange file and
+//                   used when loading data.
 //
 Procedure ImportDataProcessors(ExchangeRules, XMLWriter)
 
@@ -6656,10 +6654,10 @@ Procedure ImportDataProcessors(ExchangeRules, XMLWriter)
 	
 EndProcedure
 
-// Imports the data export rule according to the exchange rule format.
+// Loads the data upload rule in accordance with the format of the exchange rules.
 //
 // Parameters:
-//  ExchangeRules - XMLReader - an object of the XMLReader type.
+//  ExchangeRules - XMLReader -  an object of the ReadXml type.
 //
 Procedure ImportDER(ExchangeRules)
 	
@@ -6688,7 +6686,7 @@ Procedure ImportDER(ExchangeRules)
 			
 		ElsIf NodeName = "SelectExportDataInSingleQuery" Then
 			
-			// This parameter is ignored during online data exchange.
+			// 
 			deSkip(ExchangeRules);
 			
 		ElsIf NodeName = "DoNotExportObjectsCreatedInDestinationInfobase" Then
@@ -6713,7 +6711,7 @@ Procedure ImportDER(ExchangeRules)
 					
 				EndIf;
 				
-				// For filtering using the query builder.
+				// 
 				If StrFind(SelectionObject1, "Ref.") Then
 					NewRow.ObjectForQueryName = StrReplace(SelectionObject1, "Ref.", ".");
 				Else
@@ -6726,7 +6724,7 @@ Procedure ImportDER(ExchangeRules)
 			
 			NewRow.ConversionRule = deElementValue(ExchangeRules, StringType);
 
-		// Event handlers.
+		// 
 
 		ElsIf NodeName = "BeforeProcessRule" Then
 			NewRow.BeforeProcess = deElementValue(ExchangeRules, StringType);
@@ -6760,10 +6758,10 @@ Procedure ImportDER(ExchangeRules)
 	
 EndProcedure
 
-// Imports data export rules according to the exchange rule format.
+// Loads data upload rules in accordance with the format of the exchange rules.
 //
 // Parameters:
-//  ExchangeRules  - XMLReader - an object of the XMLReader type.
+//  ExchangeRules  - XMLReader -  an object of the ReadXml type.
 //
 Procedure ImportExportRules(ExchangeRules)
 	
@@ -6860,15 +6858,15 @@ EndProcedure
 
 #Region ExchangeRulesOperationProcedures
 
-// Searches for the conversion rule by name or according to
-// the passed object type.
+// Searches for a conversion rule by name or according to the type
+// of object passed.
 //
 // Parameters:
-//   Object     - Arbitrary - a source object whose conversion rule will be searched.
-//   RuleName - String - a conversion rule name.
+//   Object     - Arbitrary -  source object for which we are looking for a conversion rule.
+//   RuleName - String -  name of the conversion rule.
 //
 // Returns:
-//   ValueTableRow - A reference to a conversion rule (to a row in the rules table):
+//   ValueTableRow - :
 //     * Name - String
 //     * Description - String
 //     * Source - String
@@ -6929,7 +6927,7 @@ Procedure RestoreRulesFromInternalFormat() Export
 		Return;
 	EndIf;	
 	
-	// Checking storage format version of exchange rules.
+	// 
 	RulesStorageFormatVersion = Undefined;
 	RulesStructure.Property("RulesStorageFormatVersion", RulesStorageFormatVersion);
 	If RulesStorageFormatVersion <> ExchangeRuleStorageFormatVersion() Then
@@ -6955,7 +6953,7 @@ Procedure RestoreRulesFromInternalFormat() Export
 	HasAfterObjectImportGlobalHandler     = Not IsBlankString(Conversion.AfterImportObject);
 	HasBeforeConvertObjectGlobalHandler = Not IsBlankString(Conversion.BeforeConvertObject);
 
-	// Restore queries
+	// 
 	Queries.Clear();
 	For Each StructureItem In QueriesToRestore Do
 		Query = New Query(StructureItem.Value);
@@ -7067,21 +7065,21 @@ Procedure ExecuteObjectDeletion(Object, Properties, DeleteDirectly)
 	
 EndProcedure
 
-// Deletes (or marks for deletion) a selection object according to the specified rule.
+// Deletes (or marks for deletion) the selection object in accordance with the specified rule.
 //
 // Parameters:
-//  Object         - Arbitrary - selection object to be deleted (or whose deletion mark will be set).
-//  Rule        - ValueTableRow - data clearing rule reference:
-//    * Name - String - a rule name.
-//  Properties       - Structure - metadata object properties of the object to be deleted.
-//  IncomingData - Arbitrary - arbitrary auxiliary data.
+//  Object         - Arbitrary -  the selection object that is being deleted (marked for deletion).
+//  Rule        - ValueTableRow - :
+//    * Name - String -  rule name.
+//  Properties       - Structure -  properties of the metadata object of the object being deleted.
+//  IncomingData - Arbitrary -  arbitrary auxiliary data.
 // 
 Procedure SelectionObjectDeletion(Object, Rule, Properties, IncomingData)
 	
 	Cancel = False;
 	DeleteDirectly = Rule.Directly;
 	
-	// BeforeSelectionObjectDeletion handler
+	// 
 	
 	If Not IsBlankString(Rule.BeforeDeleteRow) Then
 	
@@ -7125,21 +7123,21 @@ Procedure SelectionObjectDeletion(Object, Rule, Properties, IncomingData)
 	
 EndProcedure
 
-// Clears data according to the specified rule.
+// Clears data for the specified rule.
 //
 // Parameters:
-//  Rule - ValueTableRow - data clearing rule reference:
-//    * Name - String - a rule name.
+//  Rule - ValueTableRow - :
+//    * Name - String -  rule name.
 // 
 Procedure ClearDataByRule(Rule)
 	
-	// BeforeProcess handle
+	// 
 	
 	Cancel			= False;
 	DataSelection	= Undefined;
 	OutgoingData = Undefined;
 	
-	// BeforeProcessClearingRule handler
+	// 
 	If Not IsBlankString(Rule.BeforeProcess) Then
 		
 		Try
@@ -7169,7 +7167,7 @@ Procedure ClearDataByRule(Rule)
 		
 	EndIf;
 	
-	// Standard dataset.
+	// 
 	
 	Properties = Managers[Rule.SelectionObject1];
 	
@@ -7244,7 +7242,7 @@ Procedure ClearDataByRule(Rule)
 		
 	EndIf;
 	
-	// AfterProcessClearingRule handler
+	// 
 	
 	If Not IsBlankString(Rule.AfterProcess) Then
 		
@@ -7271,10 +7269,10 @@ Procedure ClearDataByRule(Rule)
 	
 EndProcedure
 
-// Iterates the tree of data clearing rules and executes clearing.
+// Traverses the data cleanup rule tree and performs cleanup.
 //
 // Parameters:
-//  Rows - ValueTreeRow - a collection of rows of the data clearing rule tree.
+//  Rows - ValueTreeRow -  a collection of rows in the data clearing rule tree.
 // 
 Procedure ProcessClearingRules(Rows)
 	
@@ -7320,7 +7318,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 	EndIf;
 	
 	If ExchangeFile.LocalName <> "ExchangeFile" Then
-		// Perhaps, this is an exchange message in a new format.
+		// 
 		If DataExchangeXDTOServer.CheckExchangeMessageFormat(ExchangeFile) Then
 			SwitchToNewExchange();
 		Else
@@ -7361,7 +7359,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 		deSkip(ExchangeFile);
 	EndIf;
 	
-	// {Handler: BeforeDataImport} Start
+	// 
 	If Not IsBlankString(Conversion.BeforeImportData) Then
 		
 		Cancel = False;
@@ -7388,7 +7386,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 		EndIf;
 		
 	EndIf;
-	// {Handler: BeforeDataImport} End
+	// 
 	
 	ExchangeFile.Read();
 	
@@ -7396,13 +7394,13 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 		Raise NStr("en = 'Exchange message format error.';");
 	EndIf;
 	
-	// CustomSearchSetup (optional)
+	// 
 	If ExchangeFile.LocalName = "CustomSearchSettings" Then
 		ImportCustomSearchFieldInfo();
 		ExchangeFile.Read();
 	EndIf;
 	
-	// DataTypeInfo (optional)
+	// 
 	If ExchangeFile.LocalName = "DataTypeInformation" Then
 		
 		If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
@@ -7420,7 +7418,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 		ExchangeFile.Read();
 	EndIf;
 	
-	// ParameterValue (optional) (multiple)
+	// 
 	If ExchangeFile.LocalName = "ParameterValue" Then
 		
 		If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
@@ -7446,7 +7444,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 		
 	EndIf;
 	
-	// AfterParametersImportAlgorithm (optional)
+	// 
 	If ExchangeFile.LocalName = "AfterParameterExportAlgorithm" Then
 		
 		If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
@@ -7457,7 +7455,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 		ExchangeFile.Read();
 	EndIf;
 	
-	// ExchangeData (mandatory)
+	// 
 	If ExchangeFile.NodeType <> XMLNodeType.StartElement Then
 		Raise NStr("en = 'Exchange message format error.';");
 	EndIf;
@@ -7473,7 +7471,7 @@ Procedure StartReadMessage(MessageReader, DataAnalysis = False)
 		Raise NStr("en = 'Cannot set a data receipt lock in an active transaction.';");
 	EndIf;
 	
-	// Setting the sender node lock.
+	// 
 	Try
 		LockDataForEdit(MessageReader.Sender);
 	Except
@@ -7490,7 +7488,7 @@ EndProcedure
 
 Procedure ExecuteHandlerAfterImportData()
 	
-	// {Handler: AfterImportData} Start
+	// 
 	If Not IsBlankString(Conversion.AfterImportData) Then
 		
 		Try
@@ -7511,7 +7509,7 @@ Procedure ExecuteHandlerAfterImportData()
 		EndTry;
 		
 	EndIf;
-	// {Handler: AfterImportData} End
+	// 
 	
 EndProcedure
 
@@ -7631,13 +7629,13 @@ Function SetNewObjectRef(Object, Manager, SearchProperties)
 	
 EndFunction
 
-// Searches for the object by its number in the list of already imported objects.
+// Searches for an object by its number in the list of already loaded objects.
 //
 // Parameters:
-//  NBSp          - a number of the object to be searched in the exchange file.
+//  NBSp          - the number of the object you are looking for in the exchange file.
 //
 // Returns:
-//  Reference to the found object. If object is not found, Undefined is returned.
+//  Link to the found object. If the object is not found, it returns Undefined.
 // 
 Function FindObjectByNumber(NBSp, ObjectType, MainObjectSearchMode = False)
 	
@@ -7666,7 +7664,7 @@ Procedure RemoveDeletionMarkFromPredefinedItem(Object, Val ObjectType)
 		
 		Object.DeletionMark = False;
 		
-		// Adding the event log entry.
+		// 
 		WP            = ExchangeProtocolRecord(80);
 		WP.ObjectType = ObjectType;
 		WP.Object     = String(Object);
@@ -7683,20 +7681,20 @@ Procedure SetCurrentDateToAttribute(ObjectAttribute)
 	
 EndProcedure
 
-// Creates a new object of the specified type, sets attributes that are specified
-// in the SearchProperties structure.
+// Creates a new object of the specified type, sets the details specified
+// in the search Property structure.
 //
 // Parameters:
-//  Type            - type of the object to be created.
-//  SearchProperties - Structure - contains attributes of a new object to be set.
-//  Object - an infobase object created after completion.
+//  Type            - type of object to create.
+//  SearchProperties - Structure -  contains the details of the new object to be set.
+//  Object - 
 //  WriteObjectImmediatelyAfterCreation - Boolean
-//  NewRef - a reference to the created object.
+//  NewRef - 
 //  SetAllObjectSearchProperties - Boolean
-//  RegisterRecordSet - InformationRegisterRecordSet - which is created.
+//  RegisterRecordSet - InformationRegisterRecordSet -  which is created.
 //
 // Returns:
-//  Created object or Undefined (if WriteObjectImmediatelyAfterCreation is not set).
+//  Created object, or Undefined (if not set to write objectsreferences).
 // 
 Function CreateNewObject(Type, SearchProperties, Object, 
 	WriteObjectImmediatelyAfterCreation, NewRef = Undefined, 
@@ -7769,7 +7767,7 @@ Function CreateNewObject(Type, SearchProperties, Object,
 		SetObjectSearchAttributes(Object, SearchProperties, , False, False);
 	EndIf;
 	
-	// Checks.
+	// Checks
 	If TypeName = "Document"
 		Or TypeName = "Task"
 		Or TypeName = "BusinessProcess" Then
@@ -7796,11 +7794,11 @@ Function CreateNewObject(Type, SearchProperties, Object,
 	
 EndFunction
 
-// Reads the object property node from the file and sets the property value.
+// Reads the object properties node from the file and sets the property value.
 //
 // Parameters:
-//  Type            - Property type.
-//  ObjectFound - If False, a new object created as the sought-for object wasn't found.
+//  Type            - 
+//  
 //                   
 //
 // Returns:
@@ -7884,7 +7882,7 @@ Function ReadProperty(Type, DontCreateObjectIfNotFound = False, PropertyNotFound
 			If Not PropertyExistence
 				And ValueIsFilled(Type) Then
 				
-				// If there is no data, empty value.
+				// 
 				Value = deGetEmptyValue(Type);
 				
 			EndIf;
@@ -7952,7 +7950,7 @@ Procedure SetObjectSearchAttributes(FoundObject, SearchProperties,
 						
 		Else
 				
-			// Setting attributes that are different.
+			// 
 			
 			If FoundObject[Name] <> NULL Then
 			
@@ -8037,7 +8035,7 @@ Function PropertyType1()
 	PropertyTypeString = deAttribute(ExchangeFile, StringType, "Type");
 	If IsBlankString(PropertyTypeString) Then
 		
-		// Define property by its map.
+		// 
 		Return Undefined;
 		
 	ElsIf PropertyTypeString = "TypeDefinition" Then
@@ -8165,7 +8163,7 @@ Procedure ReplaceUUIDIfNecessary(
 										ObjectMapFound = False,
 										InfobaseObjectsMaps = Undefined)
 	
-	// Do not replace main objects in the mapping mode.
+	// 
 	If MainObjectSearchMode And DataImportToValueTableMode() Then
 		Return;
 	EndIf;
@@ -8185,8 +8183,8 @@ Procedure ReplaceUUIDIfNecessary(
 		InfobaseObjectsMaps.Insert("SourceType", SourceTypeString);
 		InfobaseObjectsMaps.Insert("DestinationUUID", UUID);
 		
-		// The value will be defined after the object is written.
-		// The object might assigned a map upon identifying it by search fields.
+		// 
+		// 
 		InfobaseObjectsMaps.Insert("SourceUUID", Undefined);
 		
 	Else
@@ -8265,7 +8263,7 @@ Function FindItemUsingRequest(PropertyStructure, SearchProperties, ObjectType = 
 		
 		ParameterName = Property.Key;
 		
-		// The following parameters cannot be search fields.
+		// 
 		If ParameterName = "{UUID}" Or ParameterName = "{PredefinedItemName1}" Then
 			Continue;
 		EndIf;
@@ -8302,7 +8300,7 @@ Function FindItemUsingRequest(PropertyStructure, SearchProperties, ObjectType = 
 								
 	Else
 		
-		// Returning the first found object.
+		// 
 		Selection = Result.Select();
 		Selection.Next();
 		ObjectReference = Selection.Ref;
@@ -8313,13 +8311,13 @@ Function FindItemUsingRequest(PropertyStructure, SearchProperties, ObjectType = 
 	
 EndFunction
 
-// Determines the object conversion rule (OCR) by destination object type.
+// Defines an object conversion rule (PCO) based on the receiver object type.
 //
 // Parameters:
-//  RefTypeString1 - String - an object type as a string, for example, CatalogRef.Products.
+//  RefTypeString1 - String -  the object type in the string representation, e.g. "Spravochniki.Nomenclature".
 // 
 // Returns:
-//  MapValue = object conversion rule.
+//  Match valuesreferences = Object conversion rule.
 // 
 Function GetConversionRuleWithSearchAlgorithmByDestinationObjectType(RefTypeString1)
 	
@@ -8363,7 +8361,7 @@ EndFunction
 
 Function FindDocumentRef(SearchProperties, PropertyStructure, RealPropertyForSearchCount, SearchWithQuery, SearchByEqualDate)
 	
-	// Attempting to search for the document by the date and number.
+	// 
 	SearchWithQuery = SearchByEqualDate Or (RealPropertyForSearchCount <> 2);
 				
 	If SearchWithQuery Then
@@ -8379,7 +8377,7 @@ Function FindDocumentRef(SearchProperties, PropertyStructure, RealPropertyForSea
 																		
 	Else
 						
-		// Cannot find by date and number. Search using a query.
+		// 
 		SearchWithQuery = True;
 		ObjectReference = Undefined;
 						
@@ -8392,9 +8390,9 @@ EndFunction
 Function FindItemBySearchProperties(ObjectType, ObjectTypeName, SearchProperties, 
 	PropertyStructure, SearchPropertyNameString, SearchByEqualDate)
 	
-	// Do not search by predefined item name or object's UUID.
-	// Search by the properties present in the property name string.
-	// If the string is empty, search by all search properties.
+	// 
+	// 
+	// 
 	
 	If IsBlankString(SearchPropertyNameString) Then
 		
@@ -8489,7 +8487,7 @@ Procedure GetAdditionalObjectSearchParameters(SearchProperties, ObjectType, Prop
 	
 	If ObjectType = Undefined Then
 		
-		// Try to define type by search properties.
+		// 
 		DestinationTypeName = SearchProperties["{TypeNameInDestinationIB}"];
 		If DestinationTypeName = Undefined Then
 			DestinationTypeName = SearchProperties["{TypeNameInSourceIB}"];
@@ -8508,15 +8506,15 @@ Procedure GetAdditionalObjectSearchParameters(SearchProperties, ObjectType, Prop
 	
 EndProcedure
 
-// Searches an object in the infobase and creates a new object, if it is not found.
+// Searches for an object in the information database, and creates a new one if it is not found.
 //
 // Parameters:
-//  ObjectType     - The type of the sought-for object.
-//  SearchProperties - Structure - with properties to be used for object searching.
-//  ObjectFound   - If False, a new object created as the sought-for object wasn't found.
+//  ObjectType     - 
+//  SearchProperties - Structure -  contains properties that are used to search for the object.
+//  ObjectFound   - 
 //
 // Returns:
-//  New or found infobase object.
+//  A new or found object in the database.
 //  
 Function FindObjectByRef(ObjectType, 
 							SearchProperties = "", 
@@ -8539,15 +8537,15 @@ Function FindObjectByRef(ObjectType,
 							InfobaseObjectsMaps = Undefined,
 							SearchBySearchFieldsIfNotFoundByID = Undefined)
 	
-	// Object identification takes up to 5 steps. The next step triggers
-	// if the current step comes out with no results.
-	// An object is searched:
+	// 
+	// 
+	// 
 	//
-	// 1. In the infobase object map register.
-	// 2. By the predefined item name.
-	// 3. By the reference UUID.
-	// 4. Using an arbitrary search algorithm.
-	// 5. By search fields.
+	// 
+	// 
+	// 
+	// 
+	// 
 	// 
 	
 	SearchByEqualDate = False;
@@ -8561,7 +8559,7 @@ Function FindObjectByRef(ObjectType,
 	GlobalRefSn = deAttribute(ExchangeFile, NumberType, "Gsn");
 	RefSN           = deAttribute(ExchangeFile, NumberType, "NBSp");
 	
-	// Shows whether the object must be registered prior to export for the sender node (sending the object back).
+	// 
 	RecordObjectChangeAtSenderNode = deAttribute(ExchangeFile, BooleanType, "RecordObjectChangeAtSenderNode");
 	
 	FlagDontCreateObjectIfNotFound = deAttribute(ExchangeFile, BooleanType, "DontCreateIfNotFound");
@@ -8586,7 +8584,7 @@ Function FindObjectByRef(ObjectType,
 	
 	SearchBySearchFieldsIfNotFoundByID = deAttribute(ExchangeFile, BooleanType, "ContinueSearch");
 	
-	// 1. Search for an object by an infobase object map register.
+	// 
 	ReadSearchPropertyInfo(ObjectType, SearchProperties, SearchPropertiesDontReplace, SearchByEqualDate, ObjectParameters, MainObjectSearchMode, ObjectMapFound, InfobaseObjectsMaps);
 	GetAdditionalObjectSearchParameters(SearchProperties, ObjectType, PropertyStructure, ObjectTypeName, IsDocumentObject);
 	
@@ -8600,7 +8598,7 @@ Function FindObjectByRef(ObjectType,
 	
 	If ObjectMapFound Then
 		
-		// 1. Search for an object by an infobase object map register gave a positive result.
+		// 
 		
 		ObjectReference = PropertyStructure.Manager.GetRef(New UUID(UUIDProperty));
 		
@@ -8620,14 +8618,14 @@ Function FindObjectByRef(ObjectType,
 			
 		Else
 			
-			// For non-main objects (exported by reference), just get the link with the specified GUID.
+			// 
 			Return ObjectReference;
 			
 		EndIf;
 		
 	EndIf;
 	
-	// 2. Search for an object of a predefined item name.
+	// 
 	If PredefinedNameProperty <> Undefined Then
 		
 		CreateNewObjectAutomatically = False;
@@ -8662,14 +8660,14 @@ Function FindObjectByRef(ObjectType,
 			
 			ObjectFound = True;
 			
-			// 2. Search for an object of a predefined item name gave a positive result.
+			// 
 			Return ObjectReference;
 			
 		EndIf;
 		
 	EndIf;
 	
-	// 3. Search for an object by a reference UUID.
+	// 
 	If UUIDProperty <> Undefined Then
 		
 		If MainObjectSearchMode Then
@@ -8723,7 +8721,7 @@ Function FindObjectByRef(ObjectType,
 			
 		Else
 			
-			// For non-main objects (exported by reference), just get the link with the specified GUID.
+			// 
 			Return PropertyStructure.Manager.GetRef(New UUID(UUIDProperty));
 			
 		EndIf;
@@ -8741,14 +8739,14 @@ Function FindObjectByRef(ObjectType,
 			
 			ObjectFound = True;
 			
-			// 3. Search for an object by a reference UUID gave a positive result.
+			// 
 			Return ObjectReference;
 			
 		EndIf;
 		
 	EndIf;
 	
-	// 4. Search for an object with a custom search algorithm.
+	// 
 	SearchVariantNumber = 1;
 	SearchPropertyNameString = "";
 	PreviousSearchString = Undefined;
@@ -8807,7 +8805,7 @@ Function FindObjectByRef(ObjectType,
 			
 		If Not DontSearch Then
 	
-			// The search process.
+			// 
 			ObjectReference = FindItemBySearchProperties(ObjectType, ObjectTypeName, SearchProperties, PropertyStructure, 
 				SearchPropertyNameString, SearchByEqualDate);
 				
@@ -8847,7 +8845,7 @@ Function FindObjectByRef(ObjectType,
 		
 	If Not HasSearchAlgorithm Then
 		
-		// 5. Search for an object by search fields.
+		// 
 		ObjectReference = FindItemBySearchProperties(ObjectType, ObjectTypeName, SearchProperties, PropertyStructure, 
 					SearchPropertyNameString, SearchByEqualDate);
 		
@@ -8859,7 +8857,7 @@ Function FindObjectByRef(ObjectType,
 		Or ObjectTypeName = "Task"
 		Or ObjectTypeName = "BusinessProcess") Then
 		
-		// Setting the date if it is in the document search fields.
+		// 
 		EmptyDate = Not ValueIsFilled(SearchProperties["Date"]);
 		CanReplace = (Not EmptyDate) 
 			And (SearchPropertiesDontReplace["Date"] = Undefined);
@@ -8876,10 +8874,10 @@ Function FindObjectByRef(ObjectType,
 		
 	EndIf;		
 	
-	// Creating a new object is not always necessary.
+	// 
 	If (ObjectReference = Undefined
 			Or ObjectReference.IsEmpty())
-		And CreatedObject = Undefined Then // Object is not found by search fields.
+		And CreatedObject = Undefined Then // 
 		
 		If OnExchangeObjectByRefSetGIUDOnly Then
 			
@@ -8896,7 +8894,7 @@ Function FindObjectByRef(ObjectType,
 		
 	Else
 		
-		// The object is found by search fields.
+		// 
 		ObjectFound = True;
 			
 	EndIf;
@@ -8987,7 +8985,7 @@ Procedure SetExchangeFileCollectionProperties(Object, ExchangeFileCollection, Ty
 	
 EndProcedure
 
-// Imports an object tabular section.
+// Loads the table part of the object.
 //
 Procedure ImportTabularSection(Object, TabularSectionName, GeneralDocumentTypeInformation, ObjectParameters, OCR)
 	
@@ -9045,7 +9043,7 @@ Procedure ImportTabularSection(Object, TabularSectionName, GeneralDocumentTypeIn
 	
 	For Each CollectionRow In GroupCollection Do
 		
-		// Get a filter structure.
+		// 
 		Filter = New Structure();
 		
 		For Each FieldName In KeySearchFieldArray Do
@@ -9058,19 +9056,19 @@ Procedure ImportTabularSection(Object, TabularSectionName, GeneralDocumentTypeIn
 		
 		If CollectionRow[IteratorColumnName] = 0 Then
 			
-			// Filling in tabular section rows from the old object version.
+			// 
 			ObjectCollectionRows = ObjectCollection.FindRows(Filter);
 			
 			OrderFieldsValues = ExchangeFileCollection.FindRows(Filter);
 			
 		Else
 			
-			// Filling in tabular section rows from the exchange file collection.
+			// 
 			ObjectCollectionRows = ExchangeFileCollection.FindRows(Filter);
 			
 		EndIf;
 		
-		// Adding object tabular section rows.
+		// 
 		For Each CollectionRow In ObjectCollectionRows Do
 			
 			OrderCollectionRow = OrderCollection.Add();
@@ -9089,7 +9087,7 @@ Procedure ImportTabularSection(Object, TabularSectionName, GeneralDocumentTypeIn
 	
 	OrderCollection.Sort(OrderFieldName);
 	
-	// Importing result to the object tabular section.
+	// 
 	Try
 		ObjectTabularSection.Load(OrderCollection);
 	Except
@@ -9199,12 +9197,12 @@ Function KeySearchFieldsByTabularSection(OCR, TabularSectionName, KeySearchField
 
 EndFunction
 
-// Imports object records
+// Loads the movement of an object
 //
 // Parameters:
-//  Object         - The objects whose register records are being imported.
-//  Name            - a register name.
-//  Clear       - If set to True, records will be pre-cleaned.
+//  Object         - 
+//  Name            - register name.
+//  Clear       - 
 // 
 Procedure ImportRegisterRecords(Object, Name, Clear, GeneralDocumentTypeInformation, 
 	ObjectParameters, Rule)
@@ -9267,11 +9265,11 @@ Procedure ImportRegisterRecords(Object, Name, Clear, GeneralDocumentTypeInformat
 	
 EndProcedure
 
-// Sets object (record) properties.
+// Sets the properties of the object (record).
 //
 // Parameters:
-//  Record         - The object the given property belongs to.
-//                   For example, a table row or a register record.
+//  Record         - 
+//                   
 //
 Procedure SetRecordProperties(Record, TypesInformation, 
 	ObjectParameters, BranchName, RecNo,
@@ -9344,7 +9342,7 @@ Procedure SetRecordProperties(Record, TypesInformation,
 			
 		ElsIf NodeName = "ExtDimensionDr" Or NodeName = "ExtDimensionCr" Then
 			
-			// The search by extra dimensions is not implemented.
+			// 
 			
 			Var_Key = Undefined;
 			Value = Undefined;
@@ -9437,7 +9435,7 @@ Procedure SetRecordProperties(Record, TypesInformation,
 			FillPropertyValues(Record, SearchResultArray[0]);
 		EndIf;
 		
-		// Filling with properties and extra dimension value.
+		// 
 		For Each KeyAndValue In PropertyReadingStructure Do
 			
 			Record[KeyAndValue.Key] = KeyAndValue.Value;
@@ -9458,7 +9456,7 @@ Procedure SetRecordProperties(Record, TypesInformation,
 	
 EndProcedure
 
-// Imports a TypeDescription object from the specified XML source.
+// Loads an object of the type Descriptiontype type from the specified xml source.
 //
 // Parameters:
 //  Source         - xml-source.
@@ -9480,7 +9478,7 @@ Function ImportObjectTypes(Source)
 	FractionDigits = deAttribute(Source, NumberType,  "FractionDigits");
 	AllowedFlag          = deAttribute(Source, StringType, "AllowedSign");
 	
-	// Read the array of types.
+	// 
 	
 	TypesArray = New Array;
 	
@@ -9559,7 +9557,7 @@ EndProcedure
 
 Function ObjectByRefAndAddInformation(CreatedObject, Ref)
 	
-	// If you have created an object, work with it, if you have found an object, receive it.
+	// 
 	If CreatedObject <> Undefined Then
 		
 		Object = CreatedObject;
@@ -9655,7 +9653,7 @@ EndProcedure
 
 Function ReadObjectChangeRecordInfo()
 	
-	// Assigning CROSS values to variables. Information register is symmetric.
+	// 
 	DestinationUUID = deAttribute(ExchangeFile, StringType, "SourceUUID");
 	SourceUUID = deAttribute(ExchangeFile, StringType, "DestinationUUID");
 	DestinationType                     = deAttribute(ExchangeFile, StringType, "SourceType");
@@ -9671,7 +9669,7 @@ Function ReadObjectChangeRecordInfo()
 		
 	EndTry;
 	
-	// Getting the source property structure by the source type.
+	// 
 	Try
 		PropertyStructure = Managers[Type(SourceType)];
 	Except
@@ -9679,10 +9677,10 @@ Function ReadObjectChangeRecordInfo()
 		Return Undefined;
 	EndTry;
 	
-	// Getting the source reference by GUID.
+	// 
 	SourceUUID = PropertyStructure.Manager.GetRef(SourceUUID);
 	
-	// If reference is not received, do not write this set.
+	// 
 	If Not ValueIsFilled(SourceUUID) Then
 		deSkip(ExchangeFile, "ObjectRegistrationInformation");
 		Return Undefined;
@@ -9690,7 +9688,7 @@ Function ReadObjectChangeRecordInfo()
 	
 	RecordSet = ObjectMapsRegisterManager.CreateRecordSet(); // InformationRegisterRecordSet.InfobaseObjectsMaps
 	
-	// A filter for a record set.
+	// 
 	RecordSet.Filter.InfobaseNode.Set(ExchangeNodeDataImport);
 	RecordSet.Filter.SourceUUID.Set(SourceUUID);
 	RecordSet.Filter.DestinationUUID.Set(DestinationUUID);
@@ -9699,7 +9697,7 @@ Function ReadObjectChangeRecordInfo()
 	
 	If Not IsEmptySet Then
 		
-		// Adding a single record to the set.
+		// 
 		SetRow = RecordSet.Add();
 		
 		SetRow.InfobaseNode           = ExchangeNodeDataImport;
@@ -9710,7 +9708,7 @@ Function ReadObjectChangeRecordInfo()
 		
 	EndIf;
 	
-	// Write a record set.
+	// 
 	WriteObjectToIB(RecordSet, "InformationRegisterRecordSet.InfobaseObjectsMaps");
 	
 	deSkip(ExchangeFile, "ObjectRegistrationInformation");
@@ -9726,7 +9724,7 @@ Procedure ExportMappingInfoAdjustment()
 	
 	For Each Rule In ConversionRules Do
 		
-		Manager = Managers.Get(Type(Rule.SourceType)).Manager; // AreaManager, DocumentManager, etc.
+		Manager = Managers.Get(Type(Rule.SourceType)).Manager; // 
 		
 		If TypeOf(Manager) = Type("BusinessProcessRoutePoints") Then
 			Continue;
@@ -9760,7 +9758,7 @@ EndProcedure
 
 Procedure ReadMappingInfoAdjustment()
 	
-	// Assigning CROSS values to variables. Information register is symmetric.
+	// 
 	UUID = deAttribute(ExchangeFile, StringType, "UUID");
 	DestinationType            = deAttribute(ExchangeFile, StringType, "SourceType");
 	SourceType            = deAttribute(ExchangeFile, StringType, "DestinationType");
@@ -9776,7 +9774,7 @@ Procedure ReadMappingInfoAdjustment()
 	QueryResult = InfobaseObjectsMapQuery.Execute();
 	
 	If Not QueryResult.IsEmpty() Then
-		Return; // Skipping data as information already exists in the register.
+		Return; // 
 	EndIf;
 	
 	Try
@@ -9786,19 +9784,19 @@ Procedure ReadMappingInfoAdjustment()
 		Return;
 	EndTry;
 	
-	// Getting the source property structure by the source type.
+	// 
 	PropertyStructure = Managers[Type(SourceType)];
 	
-	// Getting the source reference by GUID.
+	// 
 	SourceUUID = PropertyStructure.Manager.GetRef(SourceUUID);
 	
 	Object = SourceUUID.GetObject();
 	
 	If Object = Undefined Then
-		Return; // Skipping data if there in no such object in the infobase.
+		Return; // 
 	EndIf;
 	
-	// Adding the record to the mapping register.
+	// 
 	RecordStructure = New Structure;
 	RecordStructure.Insert("InfobaseNode", ExchangeNodeDataImport);
 	RecordStructure.Insert("SourceUUID", SourceUUID);
@@ -9814,7 +9812,7 @@ EndProcedure
 
 Function ReadRegisterRecordSet()
 	
-	// Stubs to support debugging mechanism of event handler code.
+	// 
 	Var Ref,ObjectFound, DontReplaceObject, WriteMode, PostingMode, GenerateNewNumberOrCodeIfNotSet, ObjectIsModified;
 	
 	NBSp						= deAttribute(ExchangeFile, NumberType,  "NBSp");
@@ -9860,7 +9858,7 @@ Function ReadRegisterRecordSet()
 		
 	EndIf;
 
-    // BeforeImportObject global event handler.
+    // 
 	
 	If HasBeforeImportObjectGlobalHandler Then
 		
@@ -9888,7 +9886,7 @@ Function ReadRegisterRecordSet()
 			
 		EndTry;
 		
-		If Cancel Then	//	Canceling the object import
+		If Cancel Then	//	
 			
 			deSkip(ExchangeFile, "RegisterRecordSet");
 			Return Undefined;
@@ -9898,7 +9896,7 @@ Function ReadRegisterRecordSet()
 	EndIf;
 	
 	
-	// BeforeImportObject event handler.
+	// 
 	If HasBeforeImportHandler Then
 		
 		Cancel = False;
@@ -9924,7 +9922,7 @@ Function ReadRegisterRecordSet()
 			
 		EndTry;
 		
-		If Cancel Then // Canceling the object import
+		If Cancel Then // 
 			
 			deSkip(ExchangeFile, "RegisterRecordSet");
 			Return Undefined;
@@ -9942,7 +9940,7 @@ Function ReadRegisterRecordSet()
 	RecordSetParameters = Undefined;
 	RecNo = -1;
 	
-	// Reading what is written in the register.
+	// 
 	While ExchangeFile.Read() Do
 		
 		NodeName = ExchangeFile.LocalName;
@@ -9967,11 +9965,11 @@ Function ReadRegisterRecordSet()
 			DontReplaceProperty = deAttribute(ExchangeFile, BooleanType, "NotReplace");
 			OCRName             = deAttribute(ExchangeFile, StringType, "OCRName");
 			
-			// Reading and setting the property value.
+			// 
 			PropertyType1 = PropertyTypeByAdditionalData(TypesInformation, Name);
 			PropertyNotFoundByRef = False;
 			
-			// Always create.
+			// 
 			Value = ReadProperty(PropertyType1, IsEmptySet, PropertyNotFoundByRef, OCRName);
 			
 			If IsParameterForObject Then
@@ -9979,7 +9977,7 @@ Function ReadRegisterRecordSet()
 				If FilterReadMode Then
 					AddParameterIfNecessary(RecordSetParameters, Name, Value);
 				Else
-					// Supplementing the object parameter collection.
+					// 
 					AddParameterIfNecessary(ObjectParameters, Name, Value);
 					AddComplexParameterIfNecessary(RecordSetParameters, "Rows", RecNo, Name, Value);
 				EndIf;
@@ -10018,7 +10016,7 @@ Function ReadRegisterRecordSet()
 			
 			If ExchangeFile.NodeType <> XMLNodeTypeEndElement Then
 				
-				// The "OnImportObject" event handler triggers before reading the first record in the set.
+				// 
 				// 
 				If FilterReadMode = True
 					And HasOnImportHandler Then
@@ -10071,7 +10069,7 @@ Function ReadRegisterRecordSet()
 		
 	EndDo;
 	
-	// After import.
+	// 
 	Cancel = False;
 	If HasAfterImportHandler Then
 		
@@ -10155,7 +10153,7 @@ Procedure ExecuteWriteNotWrittenObjects()
 	
 	For Each DataString1 In GlobalNotWrittenObjectStack Do
 		
-		// Deferred objects writing.
+		// 
 		Object = DataString1.Value.Object;
 		
 		If DataString1.Value.GenerateCodeAutomatically = True Then
@@ -10179,12 +10177,12 @@ Procedure ExecuteNumberCodeGenerationIfNecessary(GenerateNewNumberOrCodeIfNotSet
 	If Not GenerateNewNumberOrCodeIfNotSet
 		Or Not DataExchangeMode1 Then
 		
-		// Skip it if you don't need to generate the number or if it should be
-		// generated outside of data exchange. 1C:Enterprise will generate it.
+		// 
+		// 
 		Return;
 	EndIf;
 	
-	// Checking whether the code or number are filled (depends on the object type).
+	// 
 	If ObjectTypeName = "Document"
 		Or ObjectTypeName =  "BusinessProcess"
 		Or ObjectTypeName = "Task" Then
@@ -10226,7 +10224,7 @@ Function ExchangeObjectPriority(ExchangeFile)
 	
 EndFunction
 
-// Reads the next object from the exchange file and imports it.
+// Reads the next object from the exchange file and loads it.
 //
 // Parameters:
 //  No.
@@ -10250,8 +10248,8 @@ Function ReadObject(UUIDAsString1 = "")
 	PropertyStructure = Managers[ObjectType];
 	ObjectTypeName   = PropertyStructure.TypeName;
 	
-	// A temporary workaround: Save the document records in the accounting registers to the value table.
-	// After the document is written, write the records.
+	// 
+	// 
 	//
 	DeferredMotionRecordingTables = New Map;
 	
@@ -10262,7 +10260,7 @@ Function ReadObject(UUIDAsString1 = "")
 		
 	EndIf;
 	
-	Object          = Undefined; // CatalogObject, DocumentObject, InformationRegisterRecordSet, etc.
+	Object          = Undefined; // 
 	ObjectFound    = True;
 	ObjectCreatedInCurrentInfobase = Undefined;
 	
@@ -10289,7 +10287,7 @@ Function ReadObject(UUIDAsString1 = "")
 	EndIf;
 
 
-	// BeforeImportObject global event handler.
+	// 
 	
 	If HasBeforeImportObjectGlobalHandler Then
 		
@@ -10316,7 +10314,7 @@ Function ReadObject(UUIDAsString1 = "")
 				
 		EndTry;
 				
-		If Cancel Then	//	Canceling the object import
+		If Cancel Then	//	
 			
 			deSkip(ExchangeFile, "Object");
 			Return Undefined;
@@ -10326,7 +10324,7 @@ Function ReadObject(UUIDAsString1 = "")
 	EndIf;
 	
 	
-	// BeforeImportObject event handler.
+	// 
 	If HasBeforeImportHandler Then
 		
 		Cancel = False;
@@ -10352,7 +10350,7 @@ Function ReadObject(UUIDAsString1 = "")
 			
 		EndTry;
 		
-		If Cancel Then // Canceling the object import
+		If Cancel Then // 
 			
 			deSkip(ExchangeFile, "Object");
 			Return Undefined;
@@ -10370,9 +10368,9 @@ Function ReadObject(UUIDAsString1 = "")
 	RecordSet = Undefined;
 	WriteObject = True;
 	
-	// The flag identifies whether the object was found using the search fields in the object mapping mode.
-	// If the flag is raised, add the information on mapping the reference GUID in the source and destination
-	// to the map register.
+	// 
+	// 
+	// 
 	ObjectFoundBySearchFields = False;
 	
 	While ExchangeFile.Read() Do
@@ -10386,13 +10384,13 @@ Function ReadObject(UUIDAsString1 = "")
 			
 			If Object = Undefined Then
 				
-				// The object was not found and was not created, attempting to do it now.
+				// 
 				ObjectFound = False;
 				
-				// OnImportObject event handler.
+				// 
 				If HasOnImportHandler Then
 					ObjectIsModified = True;
-					// Rewriting the object if OnImporthandler exists, because of possible changes.
+					// 
 					Try
 						
 						If ImportHandlersDebug Then
@@ -10414,7 +10412,7 @@ Function ReadObject(UUIDAsString1 = "")
 					
 				EndIf;
 				
-				// Failed to create the object in the event, creating it separately.
+				// 
 				If Object = Undefined Then
 					
 					If ObjectTypeName = "Constants" Then
@@ -10448,20 +10446,20 @@ Function ReadObject(UUIDAsString1 = "")
 				Or (Name = "IsFolder") 
 				Or (Object[Name] = NULL)) Then
 				
-				// Unknown property.
+				// 
 				deSkip(ExchangeFile, NodeName);
 				Continue;
 				
 			EndIf; 
 
 			
-			// Reading and setting the property value.
+			// 
 			PropertyType1 = PropertyTypeByAdditionalData(TypesInformation, Name);
 			Value    = ReadProperty(PropertyType1,,, OCRName);
 			
 			If IsParameterForObject Then
 				
-				// Supplementing the object parameter collection.
+				// 
 				AddParameterIfNecessary(ObjectParameters, Name, Value);
 				
 			Else
@@ -10494,7 +10492,7 @@ Function ReadObject(UUIDAsString1 = "")
 			
 		ElsIf NodeName = "Ref" Then
 			
-			// Reference to item. First receiving an object by reference, and then setting properties.
+			// 
 			InfobaseObjectsMaps = Undefined;
 			CreatedObject = Undefined;
 			DontCreateObjectIfNotFound = Undefined;
@@ -10554,7 +10552,7 @@ Function ReadObject(UUIDAsString1 = "")
 				
 			EndIf;
 			
-			// OnImportObject event handler.
+			// 
 			If HasOnImportHandler Then
 				
 				Try
@@ -10605,7 +10603,7 @@ Function ReadObject(UUIDAsString1 = "")
 				
 				ObjectFound = False;
 				
-				// OnImportObject event handler.
+				// 
 				
 				If HasOnImportHandler Then
 					
@@ -10653,25 +10651,25 @@ Function ReadObject(UUIDAsString1 = "")
 				
 				If LoadingTabularPartIsSupported(Object, Name) = True Then
 					
-					// Importing items from the tabular section
+					// 
 					ImportTabularSection(Object, Name, TypesInformation, ObjectParameters, Rule);
 					
 				EndIf;
 				
 			ElsIf NodeName = "RecordSet" Then
 				
-				// Import register records.
+				// 
 				ImportRegisterRecords(Object, Name, Not NotClear, TypesInformation, ObjectParameters, Rule);
 				
-				// SelfSupporting, International
+				// 
 				If Metadata.AccountingRegisters.Find(Name) <> Undefined Then
 				
 					LoadedRegisteredRecords = Object.RegisterRecords[Name].Unload();
 					If LoadedRegisteredRecords.Count() > 0 Then
 						
-						// A workaround for 1C:Enterprise bug #30178033.
-						// The order of extra dimensions in the accounting registers
-						// doesn't match the order specified in the bookkeeping account.
+						// 
+						// 
+						// 
 						EliminateErrorOfAssigningTypeOfSubconto(LoadedRegisteredRecords);
 						
 						DeferredMotionRecordingTables.Insert(Name, LoadedRegisteredRecords);
@@ -10687,7 +10685,7 @@ Function ReadObject(UUIDAsString1 = "")
 			
 			Cancel = False;
 			
-			// AfterObjectImport global event handler.
+			// 
 			If HasAfterObjectImportGlobalHandler Then
 				
 				ObjectIsModified = True;
@@ -10714,7 +10712,7 @@ Function ReadObject(UUIDAsString1 = "")
 				
 			EndIf;
 			
-			// AfterObjectImport event handler.
+			// 
 			If HasAfterImportHandler Then
 				
 				Try
@@ -10784,14 +10782,14 @@ Function ReadObject(UUIDAsString1 = "")
 					
 				Else
 					
-					// Determining how to write a document.
+					// 
 					If Object.Posted Then
 						
 						WriteMode = DocumentWriteMode.Posting;
 						
 					Else
 						
-						// The document can either be posted or not.
+						// 
 						DocumentCanBePosted = (Object.Metadata().Posting = AllowDocumentPosting);
 						
 						If DocumentCanBePosted Then
@@ -10806,7 +10804,7 @@ Function ReadObject(UUIDAsString1 = "")
 				
 				PostingMode = ?(PostingMode = "RealTime", DocumentPostingMode.RealTime, DocumentPostingMode.Regular);
 				
-				// Clearing the deletion mark to post the marked for deletion object.
+				// 
 				If Object.DeletionMark
 					And (WriteMode = DocumentWriteMode.Posting) Then
 					
@@ -10821,17 +10819,17 @@ Function ReadObject(UUIDAsString1 = "")
 					
 					Try
 						
-						// Write the document. Information whether to post it or cancel posting is recorded separately.
+						// 
 						
-						// If documents just need to be posted, post them as they are.
+						// 
 						If WriteMode = DocumentWriteMode.Write Then
 							
-							// Disable the object registration mechanism when unposting the document.
-							// ORM will run during the deferred posting (for data import optimization).
+							// 
+							// 
 							// 
 							Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 							
-							// Set DataExchange.Load for document register records.
+							// 
 							For Each CurRecord In Object.RegisterRecords Do
 								SetDataExchangeLoad(CurRecord,, SendBack);
 							EndDo;
@@ -10854,15 +10852,15 @@ Function ReadObject(UUIDAsString1 = "")
 							
 						ElsIf WriteMode = DocumentWriteMode.Posting Then
 							
-							// Disable the object registration mechanism when unposting the document.
-							// ORM will run during the deferred posting (for data import optimization).
+							// 
+							// 
 							// 
 							Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
 							
 							UndoObjectPostingInIB(Object, ObjectType, WriteObject);
 							
-							// If the document is written and a reference is created,
-							// add the document to the posting queue.
+							// 
+							// 
 							If WriteObject
 								And Object <> Undefined
 								And Object.Ref <> Undefined Then
@@ -10882,7 +10880,7 @@ Function ReadObject(UUIDAsString1 = "")
 						ErrorDescriptionString = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 						
 						If WriteObject Then
-							// Failed to execute actions required for the document.
+							// 
 							WriteDocumentInSafeMode(Object, ObjectType);
 						EndIf;
 						
@@ -10902,7 +10900,7 @@ Function ReadObject(UUIDAsString1 = "")
 						MessageString = NStr("en = 'Failed to save document: %1. Error details: %2';");
 						MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(Object), ErrorDescriptionString);
 						
-						// Cannot write the object properly. Report it.
+						// 
 						Raise MessageString;
 						
 					EndTry;
@@ -10925,7 +10923,7 @@ Function ReadObject(UUIDAsString1 = "")
 						
 					EndIf;
 					If RecordSet <> Undefined Then
-						// The register requires the filter to be set.
+						// 
 						For Each FilterElement In RecordSet.Filter Do
 							FilterElement.Set(Object[FilterElement.Name]);
 						EndDo;
@@ -10938,8 +10936,8 @@ Function ReadObject(UUIDAsString1 = "")
 				
 				If DataImportToInfobaseMode() Then
 					
-					// Disable the object registration mechanism when unposting the document.
-					// ORM will run during the deferred posting (for data import optimization).
+					// 
+					// 
 					// 
 					If ObjectTypeName <> "Constants" Then
 						Object.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
@@ -10949,8 +10947,8 @@ Function ReadObject(UUIDAsString1 = "")
 					
 					If Not (ObjectTypeName = "InformationRegister"
 						 Or ObjectTypeName = "Constants") Then
-						// If the document is written and a reference is created,
-						// add the object to the writing queue.
+						// 
+						// 
 						If WriteObject
 							And Object <> Undefined
 							And Object.Ref <> Undefined Then
@@ -11052,7 +11050,7 @@ EndFunction
 
 Procedure RecordAccountingRegisters(Recorder, DeferredMotionRecordingTables)
 	
-	If Not ValueIsFilled(Recorder.Ref) Then
+	If Not ValueIsFilled(Recorder.IsEmpty()) Then
 		
 		Return;
 		
@@ -11222,18 +11220,18 @@ Function DocumentRegisterRecordSet(DocumentReference, SourceKind, RegisterName)
 	
 EndFunction
 
-// Generates destination object property nodes according to the specified property conversion rule collection.
+// Generates the property nodes of the receiver object in accordance with the specified collection of property conversion rules.
 //
 // Parameters:
-//  Source		     - an arbitrary data source.
-//  Receiver		     - xml-a destination object node.
-//  IncomingData	     - arbitrary auxiliary data that is passed to
-//                         the conversion rule.
-//  OutgoingData      - arbitrary auxiliary data that is passed to
-//                         the property object conversion rules.
-//  OCR				     - A reference to an object conversion rule (the parent of the collection of property conversion rules).
-//  PGCR                 - A reference to a property group conversion rule.
-//  PropertyCollectionNode - xml-a property collection node.
+//  Source		     - custom data source.
+//  Receiver		     - xml-node of the receiver object.
+//  IncomingData	     - custom auxiliary data passed to the rule
+//                         for performing the conversion.
+//  OutgoingData      - custom auxiliary data passed
+//                         to the property object conversion rules.
+//  OCR				     - 
+//  PGCR                 - 
+//  PropertyCollectionNode - xml-node of the property collection.
 // 
 Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR, PGCR, PropertyCollectionNode, 
 	ExportRefOnly, TempFileList = Undefined, ExportRegisterRecordSetRow = False)
@@ -11244,7 +11242,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 	NotClear         = False;
 	ExportGroupToFile = PGCR.ExportGroupToFile;
 	
-	// BeforeProcessExport handler
+	// 
 
 	If PGCR.HasBeforeProcessExportHandler Then
 		
@@ -11285,7 +11283,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			
 		EndTry;
 							
-		If Cancel Then // Canceling property group processing.
+		If Cancel Then // 
 			
 			Return;
 			
@@ -11298,7 +11296,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 	SourceKind = PGCR.SourceKind;
 	
 	
-    // Creating a node of subordinate object collection.
+    // 
 	PropertyNodeStructure = Undefined;
 	ObjectCollectionNode = Undefined;
 	MasterNodeName = "";
@@ -11348,7 +11346,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 						
 		EndIf;
 		
-	Else  // This is a simple group.
+	Else  // 
 		
 		ExportProperties(Source, Receiver, IncomingData, OutgoingData, OCR, PGCR.GroupRules, 
 			PropertyCollectionNode, , , True, False);
@@ -11397,11 +11395,11 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 		
 	EndIf;
 	
-	// Getting the collection of subordinate objects.
+	// 
 	
 	If ObjectCollection1 <> Undefined Then
 		
-		// The collection was initialized in the BeforeProcess handler.
+		// 
 		
 	ElsIf PGCR.GetFromIncomingData Then
 		
@@ -11477,7 +11475,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 		EndIf;
 		
 		RecordFileName = GetTempFileName();
-		// Temporary files deletion is performed not by location via DeleteFiles(RecordFileName), but centrally.
+		// 
 		TempFileList.Add(RecordFileName);
 		
 		TempRecordFile = New TextWriter;
@@ -11505,7 +11503,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 	
 	For Each CollectionObject In ObjectCollection1 Do
 		
-		// BeforeExport handler
+		// 
 		If PGCR.HasBeforeExportHandler Then
 			
 			Cancel = False;
@@ -11534,7 +11532,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 				
 			EndTry;
 			
-			If Cancel Then // Canceling subordinate object export.
+			If Cancel Then // 
 				
 				Continue;
 				
@@ -11542,7 +11540,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			
 		EndIf;
 		
-		// OnExport handler
+		// 
 		
 		If PGCR.XMLNodeRequiredOnExport Or ExportGroupToFile Then
 			CollectionObjectNode = CreateNode("Record");
@@ -11582,7 +11580,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			
 		EndIf;
 		
-		// Exporting the collection object properties.
+		// 
 		If StandardProcessing Then
 			
 			If PGCR.GroupRules.Count() > 0 Then
@@ -11594,7 +11592,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			
 		EndIf;
 		
-		// AfterExport handler
+		// 
 		If PGCR.HasAfterExportHandler Then
 			
 			Cancel = False;
@@ -11624,7 +11622,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 				
 			EndTry;
 			
-		If Cancel Then // Canceling subordinate object export.
+		If Cancel Then // 
 			
 			Continue;
 			
@@ -11636,7 +11634,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			AddSubordinateNode(ObjectCollectionNode, CollectionObjectNode);
 		EndIf;
 		
-		// Filling the file with node objects.
+		// 
 		If ExportGroupToFile Then
 			
 			CollectionObjectNode.WriteEndElement();
@@ -11655,7 +11653,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 		
 	EndDo;
 	
-	// AfterProcessExport handler
+	// 
 	If PGCR.HasAfterProcessExportHandler Then
 		
 		Cancel = False;
@@ -11696,7 +11694,7 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 			
 		EndTry;
 		
-		If Cancel Then // Canceling subordinate object collection writing.
+		If Cancel Then // 
 			
 			Return;
 			
@@ -11705,8 +11703,8 @@ Procedure ExportPropertyGroup(Source, Receiver, IncomingData, OutgoingData, OCR,
 	EndIf;
 	
 	If ExportGroupToFile Then
-		TempRecordFile.WriteLine("</" + MasterNodeName + ">"); // Close the node.
-		TempRecordFile.Close(); // Closing the file
+		TempRecordFile.WriteLine("</" + MasterNodeName + ">"); // 
+		TempRecordFile.Close(); // 
 	Else
 		WriteDataToMasterNode(PropertyCollectionNode, PropertyNodeStructure, ObjectCollectionNode);
 	EndIf;
@@ -11789,7 +11787,7 @@ Procedure GetPropertyValue(Value, CollectionObject, OCR, PCR, IncomingData, Sour
 		
 		Value = ObjectForReceivingData[PropertyName];
 		
-		// Serialize TypeDescription to JSON.
+		// 
 		If PCR.SourceType = "TypeDefinition" Then
 			
 			Value = DescriptionOfTypesInJSON(Value);
@@ -11815,15 +11813,15 @@ EndProcedure
 Procedure _ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR, PCR, 
 	PropertyCollectionNode = Undefined, CollectionObject = Undefined, Val ExportRefOnly = False)
 	
-	// Stubs to support debugging mechanism of event handler code.
+	// 
     Var DestinationType, Empty, Expression, NotReplace, PropertiesOCR, PropertyNode1;
 	
-	// Initialize the value.
+	// 
 	Value = Undefined;
 	OCRName = "";
 	OCRNameExtDimensionType = "";
 	
-	// BeforeExport handler
+	// 
 	If PCR.HasBeforeExportHandler Then
 		
 		Cancel = False;
@@ -11854,7 +11852,7 @@ Procedure _ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR
 			
 		EndTry;
 		
-		If Cancel Then // Cancel export.
+		If Cancel Then // 
 			
 			Return;
 			
@@ -11876,7 +11874,7 @@ Procedure _ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR
 		ExtDimension = KeyAndValue.Value;
 		OCRName = "";
 		
-		// OnExport handler
+		// 
 		If PCR.HasOnExportHandler Then
 			
 			Cancel = False;
@@ -11907,7 +11905,7 @@ Procedure _ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR
 				
 			EndTry;
 			
-			If Cancel Then // Canceling extra dimension exporting
+			If Cancel Then // 
 				
 				Continue;
 				
@@ -11981,7 +11979,7 @@ Procedure _ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR
 				SetAttribute(PropertyNode1, "Type", DestinationType);
 			EndIf;
 							
-			// If it is a variable of multiple type, it must be exported with the specified type, perhaps this is an empty reference.
+			// 
 			deWriteElement(PropertyNode1, "Empty");
 			AddSubordinateNode(ExtDimensionNode, PropertyNode1);
 			
@@ -11994,10 +11992,10 @@ Procedure _ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR
 						
 				If Not ObjectPassesAllowedObjectFilter(ExtDimension) Then
 					
-					// Setting the flag indicating that the object needs to be fully exported.
+					// 
 					ExportRefOnly = False;
 					
-					// Adding the record to the mapping register.
+					// 
 					RecordStructure = New Structure;
 					RecordStructure.Insert("InfobaseNode", NodeForExchange);
 					RecordStructure.Insert("SourceUUID", ExtDimension);
@@ -12005,9 +12003,9 @@ Procedure _ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR
 					
 					InformationRegisters.InfobaseObjectsMaps.AddRecord(RecordStructure, True);
 					
-					// Add the object to the array of objects imported by reference.
-					// The objects will be registered on the current node and assigned
-					// a number of the current sent exchange message.
+					// 
+					// 
+					// 
 					ExportedByRefObjectsAddValue(ExtDimension);
 					
 				EndIf;
@@ -12034,7 +12032,7 @@ Procedure _ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR
 			
 		EndIf;
 		
-		// AfterExport handler
+		// 
 		If PCR.HasAfterExportHandler Then
 			
 			Cancel = False;
@@ -12061,7 +12059,7 @@ Procedure _ExportExtDimension1(Source, Receiver, IncomingData, OutgoingData, OCR
 				
 			EndTry;
 			
-			If Cancel Then // Cancel export.
+			If Cancel Then // 
 				
 				Continue;
 				
@@ -12249,8 +12247,8 @@ Function GetDataTypeForDestination(Value)
 	
 	DestinationType = deValueTypeAsString(Value);
 	
-	// If there's an OCR with the destination type set to "DestinationType", then:
-	// If there's a rule, keep the search result. Otherwise, keep "'.
+	// 
+	// 
 	TableRow = ConversionRulesTable.Find(DestinationType, "Receiver");
 	
 	If TableRow = Undefined Then
@@ -12374,20 +12372,20 @@ Procedure WriteDataToMasterNode(PropertyCollectionNode, PropertyNodeStructure, P
 	
 EndProcedure
 
-// Generates destination object property nodes according to the specified property conversion rule collection.
+// Generates the property nodes of the receiver object in accordance with the specified collection of property conversion rules.
 //
 // Parameters:
-//  Source             - Arbitrary - an arbitrary data source.
-//  Receiver             - XMLWriter - a destination object XML node.
-//  IncomingData       - Arbitrary - arbitrary auxiliary data that is passed to
-//                         the conversion rule.
-//  OutgoingData      - Arbitrary - arbitrary auxiliary data that is passed to
-//                         the property object conversion rules.
-//  OCR                  - ValueTableRow - a reference to the object conversion rule.
+//  Source             - Arbitrary -  custom data source.
+//  Receiver             - XMLWriter -  xml node of the receiver object.
+//  IncomingData       - Arbitrary -  custom auxiliary data passed to the rule
+//                         for performing the conversion.
+//  OutgoingData      - Arbitrary -  custom auxiliary data passed
+//                         to the property object conversion rules.
+//  OCR                  - ValueTableRow -  link to the object conversion rule.
 //  PCRCollection         - See PropertiesConversionRulesCollection
-//  PropertyCollectionNode - XMLWriter - property collection XML node.
-//  CollectionObject      - Arbitrary - if this parameter is specified, collection object properties are exported, otherwise source object properties are exported.
-//  PredefinedItemName1 - String - if this parameter is specified, the predefined item name is written to the properties.
+//  PropertyCollectionNode - XMLWriter -  xml node of the property collection.
+//  CollectionObject      - Arbitrary -  if specified, the properties of the collection object are unloaded, otherwise the Source.
+//  PredefinedItemName1 - String -  if specified, the name of the predefined element is written in the properties.
 // 
 Procedure ExportProperties(Source, 
 							Receiver, 
@@ -12408,7 +12406,7 @@ Procedure ExportProperties(Source,
 							ExportRegisterRecordSetRow = False,
 							ObjectExportStack = Undefined)
 							
-	// Stubs to support debugging mechanism of event handler code.
+	// 
 	Var KeyAndValue, ExtDimensionType, ExtDimension, OCRNameExtDimensionType, ExtDimensionNode;
 
 							
@@ -12422,7 +12420,7 @@ Procedure ExportProperties(Source,
 	
 	If IsRefExport Then
 				
-		// Exporting the predefined item name if it is specified.
+		// 
 		If PredefinedItemName1 <> Undefined Then
 			
 			PropertyCollectionNode.WriteStartElement("Property");
@@ -12441,7 +12439,7 @@ Procedure ExportProperties(Source,
 		If PCR.SimplifiedPropertyExport Then
 			
 			
-			 //	Create the property node.
+			 //	
 			PropertyCollectionNode.WriteStartElement("Property");
 			SetAttribute(PropertyCollectionNode, "Name", PCR.Receiver);
 			
@@ -12520,7 +12518,7 @@ Procedure ExportProperties(Source,
 			
 		EndIf;
 		
-		//	Initializing the value to be converted.
+		//	
 		Value 	 = Undefined;
 		OCRName		 = PCR.ConversionRule;
 		NotReplace   = PCR.NotReplace;
@@ -12531,7 +12529,7 @@ Procedure ExportProperties(Source,
 
 		ThisNULL      = False;
 		
-		// BeforeExport handler
+		// 
 		If PCR.HasBeforeExportHandler Then
 			
 			Cancel = False;
@@ -12562,7 +12560,7 @@ Procedure ExportProperties(Source,
 				
 			EndTry;
 			
-			If Cancel Then	//	Canceling property export
+			If Cancel Then	//	
 				
 				Continue;
 				
@@ -12570,7 +12568,7 @@ Procedure ExportProperties(Source,
 			
 		EndIf;
 		
-		// Create the property node.
+		// 
 		PropertyNodeStructure = Undefined;
 		PropertyNode1 = Undefined;
 		
@@ -12588,7 +12586,7 @@ Procedure ExportProperties(Source,
 			
 		EndIf;
 		
-		//	Perhaps, the conversion rule is already defined.
+		//	
 		If Not IsBlankString(OCRName) Then
 			
 			PropertiesOCR = Rules[OCRName];
@@ -12605,7 +12603,7 @@ Procedure ExportProperties(Source,
 			
 		ElsIf PropertiesOCR <> Undefined Then
 			
-			// Attempting to define a destination property type.
+			// 
 			DestinationType = PropertiesOCR.Receiver;
 			
 			AddAttributeForXMLWriter(PropertyNodeStructure, PropertyNode1, "Type", DestinationType);
@@ -12622,7 +12620,7 @@ Procedure ExportProperties(Source,
 		
 		IsOrdinaryProperty = IsBlankString(PCR.ParameterForTransferName);
 		
-		//	Determine the value to be converted.
+		//	
 		If Expression <> Undefined Then
 			
 			AddValueForXMLWriter(PropertyNodeStructure, PropertyNode1, "Expression", Expression);
@@ -12650,7 +12648,7 @@ Procedure ExportProperties(Source,
 		OldValueBeforeOnExportHandler = Value;
 		Empty = deEmpty(Value, ThisNULL);
 		
-		// OnExport handler
+		// 
 		If PCR.HasOnExportHandler Then
 			
 			Cancel = False;
@@ -12681,7 +12679,7 @@ Procedure ExportProperties(Source,
 				
 			EndTry;
 			
-			If Cancel Then	//	Canceling property export
+			If Cancel Then	//	
 				
 				Continue;
 				
@@ -12689,7 +12687,7 @@ Procedure ExportProperties(Source,
 			
 		EndIf;
 		
-		// Re-initialize the "Empty" variable in case its value was changed by the "OnExport" handler. 
+		//  
 		// 
 		If OldValueBeforeOnExportHandler <> Value Then
 			
@@ -12735,7 +12733,7 @@ Procedure ExportProperties(Source,
 						
 			If PropertySet Then
 				
-				// specifying a type if necessary
+				// 
 				If TypeRequired Then
 					
 					AddAttributeForXMLWriter(PropertyNodeStructure, PropertyNode1, "Type", DestinationType);
@@ -12773,10 +12771,10 @@ Procedure ExportProperties(Source,
 					
 					If Not ObjectPassesAllowedObjectFilter(Value) Then
 						
-						// Setting the flag indicating that the object needs to be fully exported.
+						// 
 						ExportRefOnly = False;
 						
-						// Adding the record to the mapping register.
+						// 
 						RecordStructure = New Structure;
 						RecordStructure.Insert("InfobaseNode", NodeForExchange);
 						RecordStructure.Insert("SourceUUID", Value);
@@ -12784,9 +12782,9 @@ Procedure ExportProperties(Source,
 						
 						InformationRegisters.InfobaseObjectsMaps.AddRecord(RecordStructure, True);
 						
-						// Add the object to the array of objects imported by reference.
-						// The objects will be registered on the current node and assigned
-						// a number of the current sent exchange message.
+						// 
+						// 
+						// 
 						ExportedByRefObjectsAddValue(Value);
 						
 					EndIf;
@@ -12853,7 +12851,7 @@ Procedure ExportProperties(Source,
 		
 		
 		
-		// AfterExport handler
+		// 
 		
 		If PCR.HasAfterExportHandler Then
 			
@@ -12881,7 +12879,7 @@ Procedure ExportProperties(Source,
 				
 			EndTry;
 			
-			If Cancel Then	//	Canceling property export
+			If Cancel Then	//	
 				
 				Continue;
 				
@@ -12891,13 +12889,13 @@ Procedure ExportProperties(Source,
 		
 		WriteDataToMasterNode(PropertyCollectionNode, PropertyNodeStructure, PropertyNode1, IsOrdinaryProperty);
 		
-	EndDo; // By PCR.
+	EndDo; // 
 	
 EndProcedure
 
 Procedure DetermineOCRByParameters(OCR, Source, OCRName)
 	
-	// Search for OCR.
+	// 
 	If OCR = Undefined Then
 		
         OCR = FindRule(Source, OCRName);
@@ -12975,7 +12973,7 @@ EndProcedure
 
 Procedure ExportChangeRecordedObjectData(RecordSetForExport)
 	
-	If RecordSetForExport.Count() = 0 Then // exporting an empty information register set
+	If RecordSetForExport.Count() = 0 Then // 
 		
 		Filter = New Structure;
 		Filter.Insert("SourceUUID", RecordSetForExport.Filter.SourceUUID.Value);
@@ -13040,7 +13038,7 @@ Procedure FireEventsBeforeExportObject(Object, Rule, Properties=Undefined, Incom
 	OutgoingData	= Undefined;
 	
 	
-	// BeforeExportObject global handler.
+	// 
 	If HasBeforeExportObjectGlobalHandler Then
 		
 		Try
@@ -13066,7 +13064,7 @@ Procedure FireEventsBeforeExportObject(Object, Rule, Properties=Undefined, Incom
 		
 	EndIf;
 	
-	// BeforeExport handler
+	// 
 	If Not IsBlankString(Rule.BeforeExport) Then
 		
 		Try
@@ -13093,9 +13091,9 @@ EndProcedure
 Procedure FireEventsAfterExportObject(Object, Rule, Properties=Undefined, IncomingData=Undefined, 
 	DontExportPropertyObjectsByRefs = False, OCRName, Cancel, OutgoingData)
 	
-	Var RefNode; // A stub variable
+	Var RefNode; // 
 	
-	// AfterExportObject global handler.
+	// 
 	If HasAfterExportObjectGlobalHandler Then
 		
 		Try
@@ -13116,7 +13114,7 @@ Procedure FireEventsAfterExportObject(Object, Rule, Properties=Undefined, Incomi
 		EndTry;
 	EndIf;
 	
-	// AfterExport handler
+	// 
 	If Not IsBlankString(Rule.AfterExport) Then
 		
 		Try
@@ -13140,12 +13138,12 @@ Procedure FireEventsAfterExportObject(Object, Rule, Properties=Undefined, Incomi
 	
 EndProcedure
 
-// Exports the selection object according to the specified rule.
+// Unloads the selection object in accordance with the specified rule.
 //
 // Parameters:
-//  Object          - The selection object to be exported.
-//  ExportRule - object data export rule reference.
-//  Properties        - Properties of the metadata object associated with the object being exported.
+//  Object          - 
+//  ExportRule - 
+//  Properties        - 
 //  IncomingData  - arbitrary auxiliary data.
 // 
 Function ExportSelectionObject(Object, 
@@ -13194,7 +13192,7 @@ Function ExportSelectionObject(Object,
 EndFunction
 
 // Returns:
-//   ReportBuilder - a builder object for dataset.
+//   ReportBuilder - 
 // 
 Function ObjectReportBuilder()
 	If ReportBuilder = Undefined Then
@@ -13377,7 +13375,7 @@ EndProcedure
 
 #Region ProceduresAndFunctionsOfCompilingExchangeRulesInStructure
 
-// returns the exchange rule structure.
+// returns the structure of exchange rules.
 Function ExchangeRules(Source) Export
 	
 	ImportExchangeRules(Source, "XMLFile");
@@ -13386,7 +13384,7 @@ Function ExchangeRules(Source) Export
 		Return Undefined;
 	EndIf;
 	
-	// Save queries.
+	// 
 	QueriesToSave = New Structure;
 	
 	For Each StructureItem In Queries Do
@@ -13395,7 +13393,7 @@ Function ExchangeRules(Source) Export
 		
 	EndDo;
 	
-	// Save parameters.
+	// 
 	ParametersToSave = New Structure;
 	
 	For Each StructureItem In Parameters Do
@@ -13421,7 +13419,7 @@ Function ExchangeRules(Source) Export
 	ExchangeRuleStructure.Insert("XMLRules",              XMLRules);
 	ExchangeRuleStructure.Insert("TypesForDestinationString", TypesForDestinationString);
 	
-	// "SelectiveObjectsRegistrationRules" will be stored in registration rule records.
+	// 
 	
 	Return ExchangeRuleStructure;
 	
@@ -13431,10 +13429,10 @@ EndFunction
 
 #Region InitializingExchangeRulesTables
 
-// Initializes table columns of object property conversion rules.
+// Initializes columns in the table of rules for converting object properties.
 //
 // Parameters:
-//  Tab - ValueTable - a table of property conversion rules to initialize.
+//  Tab - ValueTable -  initialized table of property conversion rules.
 // 
 Procedure InitPropertyConversionRuleTable(Tab)
 
@@ -13513,7 +13511,7 @@ Function CreateExportedObjectTable()
 	
 EndFunction
 
-// Initializes table columns of object conversion rules.
+// Initializes columns in the object conversion rules table.
 // 
 Procedure InitConversionRuleTable()
 
@@ -13586,17 +13584,17 @@ Procedure InitConversionRuleTable()
 	Columns.Add("SearchProperties",      deTypeDetails("ValueTable"));
 	Columns.Add("DisabledProperties", deTypeDetails("ValueTable"));
 	
-	// The "Values" property is not used.
-	// Columns.Add("Values", deTypeDetails("Map"));
+	// 
+	// 
 	
-	// Map.
-	// Key - Predefined item value in this infobase.
-	// Value - String presentation of the predefined value in the destination.
+	// 
+	// 
+	// 
 	Columns.Add("PredefinedDataValues", deTypeDetails("Map"));
 	
-	// Structure.
-	// Key - String presentation of the item value in this infobase.
-	// Value - String presentation of the predefined value in the destination.
+	// 
+	// 
+	// 
 	Columns.Add("PredefinedDataReadValues", deTypeDetails("Structure"));
 	
 	Columns.Add("Exported_",                     deTypeDetails("ValueTable"));
@@ -13614,7 +13612,7 @@ Procedure InitConversionRuleTable()
 	
 EndProcedure
 
-// Initializes table columns of data export rules.
+// Initializes columns in the data upload rule table.
 //
 Procedure InitExportRuleTable()
 
@@ -13642,7 +13640,7 @@ Procedure InitExportRuleTable()
 	Columns.Add("AfterExport");
 	Columns.Add("AfterExportHandlerName");
 	
-	// Columns for filtering using the query builder.
+	// 
 	Columns.Add("UseFilter1", deTypeDetails("Boolean"));
 	Columns.Add("BuilderSettings");
 	Columns.Add("ObjectForQueryName");
@@ -13657,7 +13655,7 @@ Procedure InitExportRuleTable()
 	
 EndProcedure
 
-// Initializes table columns of data clearing rules.
+// Initializes columns in the data clearing rules table.
 //
 Procedure CleaningRuleTableInitialization()
 
@@ -13685,7 +13683,7 @@ Procedure CleaningRuleTableInitialization()
 
 EndProcedure
 
-// Initializes table columns of parameter setup table.
+// Initializes columns in the parameter settings table.
 //
 Procedure ParametersSetupTableInitialization()
 
@@ -13709,13 +13707,13 @@ Function InitExchangeMessageDataTable(ObjectType)
 	
 	Columns = ExchangeMessageDataTable.Columns;
 	
-	// Required fields.
+	// 
 	Columns.Add(UUIDColumnName(), StringType36);
 	Columns.Add(ColumnNameTypeAsString(),              StringType255);
 	
 	MetadataObject = Metadata.FindByType(ObjectType);
 	
-	// Get details of all metadata object fields from the configuration.
+	// 
 	ObjectPropertiesDescriptionTable = Common.ObjectPropertiesDetails(MetadataObject, "Name, Type");
 	
 	For Each PropertyDetails In ObjectPropertiesDescriptionTable Do
@@ -13742,7 +13740,7 @@ Function InitializeDataProcessors()
 	
 EndFunction
 
-// Disables the attached debug processing with handler code.
+// Disables processing with handler code that was previously enabled for debugging.
 //
 Procedure DisableDataProcessorForDebug()
 	
@@ -13771,7 +13769,7 @@ Procedure DisableDataProcessorForDebug()
 	
 EndProcedure
 
-// Initializes the ErrorsMessages variable that contains mapping of message codes and their description.
+// Initializes the error Message variable, which contains matches of message codes to their descriptions.
 //
 // Parameters:
 //  No.
@@ -13944,7 +13942,7 @@ Procedure SupplementManagerArrayWithRegisterType(Managers, MetadataObjectsList, 
 		
 EndProcedure
 
-// Initializes the Managers variable that contains mapping of object types and their properties.
+// Initializes the managers variable, which contains matches of object types to their properties.
 //
 // Parameters:
 //  No.
@@ -13955,7 +13953,7 @@ Procedure ManagersInitialization()
 	
 	ManagersForExchangePlans = New Map;
     	
-	// REFERENCES
+	// References
 	
 	For Each MetadataObjectsList In Metadata.Catalogs Do
 		
@@ -14004,7 +14002,7 @@ Procedure ManagersInitialization()
 		SupplementManagerArrayWithReferenceType(Managers, ManagersForExchangePlans, MetadataObjectsList, "BusinessProcess", BusinessProcesses[MetadataObjectsList.Name], "BusinessProcessRef");
 		
 		TypeName = "BusinessProcessRoutePoint";
-		// Route point references
+		// 
 		Name              = MetadataObjectsList.Name;
 		Manager         = BusinessProcesses[Name].RoutePoints;
 		SearchString     = "";
@@ -14018,7 +14016,7 @@ Procedure ManagersInitialization()
 				
 	EndDo;
 	
-	// REGISTERS
+	// Registers
 
 	For Each MetadataObjectsList In Metadata.InformationRegisters Do
 		
@@ -14142,12 +14140,12 @@ EndFunction
 //     * Manager - CatalogManager
 //                - DocumentManager
 //                - InformationRegisterManager
-//                - and so on.
+//                - 
 //     * MetadataObjectsList - MetadataObjectCatalog
 //                - MetadataObjectDocument
 //                - MetadataObjectInformationRegister
-//                - and so on.
-//     * OCR - ValueTableRow - a row of table of conversion rules:
+//                - 
+//     * OCR - ValueTableRow - :
 //       ** Properties - See PropertiesConversionRulesCollection
 //
 Function Managers(Type)
@@ -14163,7 +14161,7 @@ Procedure CreateConversionStructure()
 		
 EndProcedure
 
-// Initializes data processor attributes and module variables.
+// Initializes processing details and module variables.
 //
 Procedure InitAttributesAndModuleVariables()
 
@@ -14220,7 +14218,7 @@ Procedure InitAttributesAndModuleVariables()
 	ObjectsToExportCount     = 0;
 	ExchangeMessageFileSize      = 0;
 
-	// XML node types.
+	// 
 	
 	XMLNodeTypeEndElement  = XMLNodeType.EndElement;
 	XMLNodeTypeStartElement = XMLNodeType.StartElement;
@@ -14244,7 +14242,7 @@ Procedure InitAttributesAndModuleVariables()
 		
 	ObjectMapsRegisterManager = InformationRegisters.InfobaseObjectsMaps;
 	
-	// Query to define information on mapping objects to replace source reference with target reference.
+	// 
 	InfobaseObjectsMapQuery = New Query;
 	InfobaseObjectsMapQuery.Text = "
 	|SELECT TOP 1
@@ -14287,10 +14285,10 @@ Procedure WriteDataImportEnd()
 	
 	InformationRegisters.DataExchangesStates.AddRecord(DataExchangeState());
 	
-	// Writing the successful exchange to the information register.
+	// 
 	If ExchangeExecutionResult() = Enums.ExchangeExecutionResults.Completed2 Then
 		
-		// Generating and filling in a structure for the new information register record.
+		// 
 		RecordStructure = New Structure("InfobaseNode, ActionOnExchange, EndDate");
 		FillPropertyValues(RecordStructure, DataExchangeState());
 		
@@ -14356,7 +14354,7 @@ Function PCRPropertyName(LineOfATabularSection)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Global handlers
+// 
 
 Procedure ExecuteHandlerConversionAfterExchangeRulesImport()
 	
@@ -14601,7 +14599,7 @@ Procedure ExecuteHandlerConversionAfterGetExchangeNodesInformation(Val ExchangeN
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// OCR handlers.
+// 
 
 Procedure ExecuteOCRHandlerBeforeObjectExport(ExchangeFile, Source, IncomingData, OutgoingData,
 														OCRName, OCR, ExportedObjects, Cancel, DataToExportKey,
@@ -14859,7 +14857,7 @@ Procedure ExecuteOCRHandlerSearchFieldsSequence(SearchVariantNumber, SearchPrope
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// PCR handlers.
+// 
 
 Procedure ExecutePCRHandlerBeforeExportProperty(ExchangeFile, Source, Receiver, IncomingData, OutgoingData,
 														 PCR, OCR, CollectionObject, Cancel, Value, DestinationType, OCRName,
@@ -15017,7 +15015,7 @@ Procedure ExecutePCRHandlerAfterExportProperty(ExchangeFile, Source, Receiver, I
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// PGCR handlers.
+// 
 
 Procedure ExecutePGCRHandlerBeforeExportProcessing(ExchangeFile, Source, Receiver, IncomingData, OutgoingData, OCR,
 														   PGCR, Cancel, ObjectCollection1, NotReplace, PropertyCollectionNode, NotClear)
@@ -15191,7 +15189,7 @@ Procedure ExecutePGCRHandlerAfterExportProcessing(ExchangeFile, Source, Receiver
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// DER handlers.
+// 
 
 Procedure ExecuteHandlerDERBeforeProcessRule(Cancel, OCRName, Rule, OutgoingData, DataSelection)
 	
@@ -15278,7 +15276,7 @@ Procedure ExecuteHandlerDERAfterExportObject(ExchangeFile, Object, OCRName, Inco
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// DPR handlers.
+// 
 
 Procedure ExecuteHandlerDPRBeforeProcessRule(Rule, Cancel, OutgoingData, DataSelection)
 	
@@ -15331,7 +15329,7 @@ Procedure ExecuteHandlerDPRAfterProcessRule(Rule)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Parameter handlers.
+// 
 
 Procedure ExecuteHandlerParametersAfterParameterImport(Name, Value)
 	
@@ -15360,11 +15358,11 @@ Function ExchangeMessageFormatVersion()
 	
 EndFunction
 
-// Storage format version of exchange rules
-// that is supported in the processing.
+// The version of the storage format of the rules of the exchange format (read rules)
+// work which supports this treatment.
 //
-// Exchange rules are retrieved from the file and saved in the infobase in storage format.
-// Rule storage format can be obsolete. Rules need to be reread.
+// The exchange rules are read from the file and stored in the information database in the storage format.
+// The format for storing rules may be outdated. In this case, you will need to re-read the exchange rules again.
 //
 Function ExchangeRuleStorageFormatVersion()
 	
@@ -15495,7 +15493,7 @@ Procedure FillInformationByDestinationDataTypes(StructureOfData, Rules)
 			
 		EndIf;
 		
-		// Going through search fields and other property conversion rules, and saving data types.
+		// 
 		FillPropertiesForSearch(DataFromStructure, String.SearchProperties);
 				
 		// Properties
@@ -15572,7 +15570,7 @@ Procedure ImportSingleTypeData(ExchangeRules, TypeMap, LocalItemName)
 		
 	ElsIf ExchangeRules.NodeType = XMLNodeTypeStartElement Then
 			
-		// This is a new item.
+		// 
 		NewMap = New Map;
 		TypeMap.Insert(NodeName, NewMap);
 		
@@ -15583,7 +15581,7 @@ Procedure ImportSingleTypeData(ExchangeRules, TypeMap, LocalItemName)
 		
 		If ExchangeRules.Value = "TypeDefinition" Then
 			
-			TypeMap.Insert(NodeName, Type("TypeDescription")); // Deserialize JSON to TypeDescription.
+			TypeMap.Insert(NodeName, Type("TypeDescription")); // 
 			
 		Else
 			
@@ -15611,12 +15609,12 @@ Procedure ImportTypeMapForSingleType(ExchangeRules, TypeMap)
 			
 		EndIf;
 		
-		// Reading the element start
+		// 
 		ExchangeRules.Read();
 		
 		If ExchangeRules.NodeType = XMLNodeTypeStartElement Then
 			
-			// This is a new item.
+			// 
 			NewMap = New Map;
 			TypeMap.Insert(NodeName, NewMap);
 			
@@ -15626,7 +15624,7 @@ Procedure ImportTypeMapForSingleType(ExchangeRules, TypeMap)
 			
 			If ExchangeRules.Value = "TypeDefinition" Then
 				
-				TypeMap.Insert(NodeName, Type("TypeDescription")); // Deserialize JSON to TypeDescription.
+				TypeMap.Insert(NodeName, Type("TypeDescription")); // 
 				
 			Else
 				
@@ -15723,14 +15721,14 @@ Procedure ImportCustomSearchFieldInfo()
 	
 EndProcedure
 
-// Imports exchange rules according to the format.
+// Re-download rules of the exchange in accordance with the format.
 //
 // Parameters:
 //   Source     - XMLReader
-//                - String - an object where the exchange rules are imported from;
-//   SourceType - String - a string specifying a source type: "XMLFile", "ReadingXML", "String".
-//   ErrorMessageString - String - error message.
-//   ImportRuleHeaderOnly - Boolean - True if only rules heading is required to import.
+//                - String -  the object from which the exchange rules are loaded;
+//   SourceType - String -  a string indicating the source type: "Xmlfile", "ReadXml", "String".
+//   ErrorMessageString - String -  error message.
+//   ImportRuleHeaderOnly - Boolean -  True if you only need to load the rule header.
 // 
 Procedure ImportExchangeRules(Source="",
 									SourceType="XMLFile",
@@ -15752,7 +15750,7 @@ Procedure ImportExchangeRules(Source="",
 	PropertyConversionRuleTable = New ValueTable;
 	InitPropertyConversionRuleTable(PropertyConversionRuleTable);
 	
-	// Perhaps, embedded exchange rules are selected (one of templates.
+	// 
 	
 	ExchangeRulesTempFileName = "";
 	If IsBlankString(Source) Then
@@ -15805,7 +15803,7 @@ Procedure ImportExchangeRules(Source="",
 		
 		NodeName = ExchangeRules.LocalName;
 		
-		// Conversion attributes.
+		// 
 		If NodeName = "FormatVersion" Then
 			Value = deElementValue(ExchangeRules, StringType);
 			Conversion.Insert("FormatVersion", Value);
@@ -15861,7 +15859,7 @@ Procedure ImportExchangeRules(Source="",
 			EndIf;
 			
 		ElsIf NodeName = "CompatibilityMode" Then
-			// For backward compatibility.
+			// 
 			deSkip(ExchangeRules);
 			
 		ElsIf NodeName = "Comment" Then
@@ -15873,7 +15871,7 @@ Procedure ImportExchangeRules(Source="",
 		ElsIf NodeName = "Parameters" Then
 			DoImportParameters(ExchangeRules, XMLWriter)
 
-		// Conversion events.
+		// 
 		
 		ElsIf NodeName = "" Then
 		
@@ -15971,7 +15969,7 @@ Procedure ImportExchangeRules(Source="",
 		ElsIf NodeName = "ObjectsRegistrationRules" Then
 			deSkip(ExchangeRules);
 			
-		// Algorithms, Queries, DataProcessors.
+		// 
 		
 		ElsIf NodeName = "Algorithms" Then
 			ImportAlgorithms(ExchangeRules, XMLWriter);
@@ -15982,7 +15980,7 @@ Procedure ImportExchangeRules(Source="",
 		ElsIf NodeName = "DataProcessors" Then
 			ImportDataProcessors(ExchangeRules, XMLWriter);
 			
-		// Exit.
+		// 
 		ElsIf (NodeName = "ExchangeRules") And (ExchangeRules.NodeType = XMLNodeTypeEndElement) Then
 			If ExchangeMode <> "Load" Then
 				ExchangeRules.Close();
@@ -15990,7 +15988,7 @@ Procedure ImportExchangeRules(Source="",
 			Break;
 
 			
-		// Invalid format.
+		// 
 		Else
 			ErrorMessageString = WriteToExecutionProtocol(7);
 			Return;
@@ -16000,7 +15998,7 @@ Procedure ImportExchangeRules(Source="",
 	XMLWriter.WriteEndElement();
 	XMLRules = XMLWriter.Close();
 	
-	// Deleting the temporary rule file.
+	// 
 	If Not IsBlankString(ExchangeRulesTempFileName) Then
 		Try
 			DeleteFiles(ExchangeRulesTempFileName);
@@ -16014,7 +16012,7 @@ Procedure ImportExchangeRules(Source="",
 		Return;
 	EndIf;
 	
-	// Information on destination data types is required for quick data import.
+	// 
 	StructureOfData = New Map();
 	FillInformationByDestinationDataTypes(StructureOfData, ConversionRulesTable);
 	
@@ -16026,7 +16024,7 @@ Procedure ImportExchangeRules(Source="",
 		SetSafeMode(SecurityProfileName);
 	EndIf;
 	
-	// Event call is required after importing the exchange rules.
+	// 
 	AfterExchangeRulesImportEventText = "";
 	If ExchangeMode <> "Load" And Conversion.Property("AfterImportExchangeRules", AfterExchangeRulesImportEventText)
 		And Not IsBlankString(AfterExchangeRulesImportEventText) Then
@@ -16071,7 +16069,7 @@ Procedure ProcessNewItemReadEnd(LastImportObject = Undefined)
 		
 	EndIf;
 	
-	// When importing in external connection mode, transaction management is performed from the management application.
+	// 
 	If Not DataImportedOverExternalConnection Then
 		
 		If UseTransactions
@@ -16173,7 +16171,7 @@ Procedure ExecuteSelectiveMessageReader(TablesToImport)
 		AdditionalSearchParameterMap = New Map;
 		ConversionRulesMap = New Map;
 		
-		// Initializing exchange logging.
+		// 
 		InitializeKeepExchangeProtocol();
 		
 		If ProcessedObjectsCountToUpdateStatus = 0 Then
@@ -16200,7 +16198,7 @@ Procedure ExecuteSelectiveMessageReader(TablesToImport)
 				Raise NStr("en = 'Data import errors.';");
 			EndIf;
 			
-			// Delayed writing of what was not written.
+			// 
 			ExecuteWriteNotWrittenObjects();
 			
 			ExecuteHandlerAfterImportData();
@@ -16220,7 +16218,7 @@ Procedure ExecuteSelectiveMessageReader(TablesToImport)
 			Raise;
 		EndTry;
 		
-		// Posting documents in queue.
+		// 
 		ExecuteDeferredDocumentsPosting();
 		ExecuteDeferredObjectsWrite();
 		
@@ -16257,14 +16255,14 @@ Procedure RunReadingData(MessageReader)
 			
 		ElsIf NodeName = "RegisterRecordSet" Then
 			
-			// Register record set.
+			// 
 			LastImportObject = ReadRegisterRecordSet();
 			
 			ProcessNewItemReadEnd(LastImportObject);
 			
 		ElsIf NodeName = "ObjectDeletion" Then
 			
-			// Processing of object deletion from infobase.
+			// 
 			ReadObjectDeletion(ErrorMessageString);
 			
 			deSkip(ExchangeFile, "ObjectDeletion");
@@ -16295,7 +16293,7 @@ Procedure RunReadingData(MessageReader)
 			
 		ElsIf (NodeName = "ExchangeFile") And (ExchangeFile.NodeType = XMLNodeTypeEndElement) Then
 			
-			Break; // Exit.
+			Break; // 
 			
 		Else
 			
@@ -16303,7 +16301,7 @@ Procedure RunReadingData(MessageReader)
 			
 		EndIf;
 		
-		// Abort the file read cycle if an importing error occurs.
+		// 
 		If FlagErrors() Then
 			Raise NStr("en = 'Data import errors.';");
 		EndIf;
@@ -16344,11 +16342,11 @@ Procedure ReadDataForTables(TablesToImport)
 			
 			If TablesToImport.Find(DataTableKey) <> Undefined Then
 				
-				If DataImportToInfobaseMode() Then // Import to the infobase.
+				If DataImportToInfobaseMode() Then // 
 					
 					ProcessNewItemReadEnd(ReadObject());
 					
-				Else // Import into the values table.
+				Else // 
 					
 					UUIDAsString1 = "";
 					
@@ -16372,7 +16370,7 @@ Procedure ReadDataForTables(TablesToImport)
 							
 						EndIf;
 						
-						// Filling in object property values.
+						// 
 						FillPropertyValues(TableRow, LastImportObject);
 						
 					EndIf;
@@ -16423,18 +16421,18 @@ Procedure ReadDataForTables(TablesToImport)
 			
 			If TablesToImport.Find(DataTableKey) <> Undefined Then
 				
-				If DataImportToInfobaseMode() Then // Import to the infobase.
+				If DataImportToInfobaseMode() Then // 
 					
-					// Processing of object deletion from infobase.
+					// 
 					ReadObjectDeletion("");
 					
 					ProcessNewItemReadEnd();
 					
-				Else // Import into the values table.
+				Else // 
 					
 					UUIDAsString1 = deAttribute(ExchangeFile, StringType, "UUID");
 					
-					// Add object deletion to the message data table.
+					// 
 					ExchangeMessageDataTable = DataTablesExchangeMessages().Get(DataTableKey);
 					
 					TableRow = ExchangeMessageDataTable.Find(UUIDAsString1, UUIDColumnName());
@@ -16445,7 +16443,7 @@ Procedure ReadDataForTables(TablesToImport)
 						
 						TableRow = ExchangeMessageDataTable.Add();
 						
-						// Filling in the values of all table fields with default values.
+						// 
 						For Each Column In ExchangeMessageDataTable.Columns Do
 							
 							// Filter
@@ -16481,19 +16479,19 @@ Procedure ReadDataForTables(TablesToImport)
 			
 		ElsIf NodeName = "ObjectRegistrationInformation" Then
 			
-			deSkip(ExchangeFile, NodeName); // Skipping item in selective message read mode.
+			deSkip(ExchangeFile, NodeName); // 
 			
 		ElsIf NodeName = "ObjectRegistrationDataAdjustment" Then
 			
-			deSkip(ExchangeFile, NodeName); // Skipping item in selective message read mode.
+			deSkip(ExchangeFile, NodeName); // 
 			
 		ElsIf NodeName = "CommonNodeData" Then
 			
-			deSkip(ExchangeFile, NodeName); // Skipping item in selective message read mode.
+			deSkip(ExchangeFile, NodeName); // 
 			
 		ElsIf (NodeName = "ExchangeFile") And (ExchangeFile.NodeType = XMLNodeTypeEndElement) Then
 			
-			Break; // Exit.
+			Break; // 
 			
 		Else
 			
@@ -16501,7 +16499,7 @@ Procedure ReadDataForTables(TablesToImport)
 			
 		EndIf;
 		
-		// Abort the file read cycle if an error occurs.
+		// 
 		If FlagErrors() Then
 			Raise NStr("en = 'Data import errors.';");
 		EndIf;
@@ -16510,8 +16508,8 @@ Procedure ReadDataForTables(TablesToImport)
 	
 EndProcedure
 
-// A classifier is a catalog, a chart of characteristic types, a chart of accounts, a CCT, which have the following flags selected
-// in OCR: SynchronizeByID AND SearchBySearchFieldsIfNotFoundByID.
+// Under the classifier, we understand the reference book, PVC, chart of accounts, and PVR, which
+// have the flags set in the PKO to synchronize with the Identifier And continue with the search field of the Searchlipoidentificatorunnashli.
 //
 Function IsClassifierObject(ObjectTypeString, OCR)
 	
@@ -16533,7 +16531,7 @@ EndFunction
 
 Procedure ReadDataInAnalysisMode(MessageReader, AnalysisParameters = Undefined)
 	
-	// Default parameters.
+	// 
 	StatisticsCollectionParameters = New Structure("CollectClassifiersStatistics", False);
 	If AnalysisParameters <> Undefined Then
 		FillPropertyValues(StatisticsCollectionParameters, AnalysisParameters);
@@ -16553,17 +16551,17 @@ Procedure ReadDataInAnalysisMode(MessageReader, AnalysisParameters = Undefined)
 				OCR        = Rules[RuleName];
 				
 				If StatisticsCollectionParameters.CollectClassifiersStatistics And IsClassifierObject(ObjectTypeString, OCR) Then
-					// New behavior.
+					// 
 					CollectStatistics = True;
 					IsClassifier   = True;
 					
 				ElsIf Not (OCR.SynchronizeByID And OCR.SearchBySearchFieldsIfNotFoundByID) And OCR.SynchronizeByID Then
-					// A compatibility branch.
-					// Objects that are auto-mapped during an exchange (classifiers) are hidden from the statistics table. 
-					// Therefore, don't gather statistics.
+					// 
+					//  
+					// 
 					// 
 
-					// Objects identified by search fields (not by reference UUID) are hidden.
+					// 
 					// 
 					CollectStatistics = True;
 					IsClassifier   = False;
@@ -16616,16 +16614,16 @@ Procedure ReadDataInAnalysisMode(MessageReader, AnalysisParameters = Undefined)
 			TableRow.IsClassifier = False;
 			TableRow.IsObjectDeletion = True;
 			
-			TableRow.SearchFields = ""; // Search fields are assigned in object mapping processing.
+			TableRow.SearchFields = ""; // 
 			
-			// Define values for the "TableFields" column.
-			// Get details of all metadata object fields from the configuration.
+			// 
+			// 
 			ObjectType = Type(TableRow.ObjectTypeString);
 			MetadataObject = Metadata.FindByType(ObjectType);
 			
 			SubstringsArray = ObjectPropertiesDescriptionTable(MetadataObject).UnloadColumn("Name");
 			
-			// Deleting field Reference from visible table fields
+			// 
 			CommonClientServer.DeleteValueFromArray(SubstringsArray, "Ref");
 			
 			TableRow.TableFields = StrConcat(SubstringsArray, ",");
@@ -16656,7 +16654,7 @@ Procedure ReadDataInAnalysisMode(MessageReader, AnalysisParameters = Undefined)
 			
 		ElsIf (NodeName = "ExchangeFile") And (ExchangeFile.NodeType = XMLNodeType.EndElement) Then
 			
-			Break; // Exit.
+			Break; // 
 			
 		Else
 			
@@ -16664,7 +16662,7 @@ Procedure ReadDataInAnalysisMode(MessageReader, AnalysisParameters = Undefined)
 			
 		EndIf;
 		
-		// Abort the file read cycle if an error occurs.
+		// 
 		If FlagErrors() Then
 			Raise NStr("en = 'Data analysis errors.';");
 		EndIf;
@@ -16692,14 +16690,14 @@ Procedure ReadDataInExternalConnectionMode(MessageReader)
 			
 		ElsIf NodeName = "RegisterRecordSet" Then
 			
-			// Register record set.
+			// 
 			LastImportObject = ReadRegisterRecordSet();
 			
 			ProcessNewItemReadEnd(LastImportObject);
 			DataExchangeServer.CalculateImportPercent(ImportedObjectCounter(), ObjectsToImportCount, ExchangeMessageFileSize);
 		ElsIf NodeName = "ObjectDeletion" Then
 			
-			// Processing of object deletion from infobase.
+			// 
 			ReadObjectDeletion(ErrorMessageString);
 			
 			deSkip(ExchangeFile, "ObjectDeletion");
@@ -16810,7 +16808,7 @@ Procedure ReadDataInExternalConnectionMode(MessageReader)
 			
 		ElsIf (NodeName = "ExchangeFile") And (ExchangeFile.NodeType = XMLNodeTypeEndElement) Then
 			
-			Break; // Exit.
+			Break; // 
 			
 		Else
 			
@@ -16818,7 +16816,7 @@ Procedure ReadDataInExternalConnectionMode(MessageReader)
 			
 		EndIf;
 		
-		// Abort the file read cycle if an importing error occurs.
+		// 
 		If FlagErrors() Then
 			Break;
 		EndIf;
@@ -16828,7 +16826,7 @@ Procedure ReadDataInExternalConnectionMode(MessageReader)
 EndProcedure
 
 // Returns:
-//   Structure - Exchange message reading parameters:
+//   Structure - :
 //     * MessageNo - Number
 //     * ReceivedNo - Number
 //     * Sender - ExchangePlanRef
@@ -16867,8 +16865,8 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 	
 	ExchangeNodeRecipient = ExchangePlans[ExchangePlanName()].FindByCode(FromWhomCode);
 	
-	// Check if the destination node is present.
-	// Check if the destination node in the exchange message is valid.
+	// 
+	// 
 	If Not ValueIsFilled(ExchangeNodeRecipient)
 		Or ExchangeNodeRecipient <> ExchangeNodeDataImport Then
 		
@@ -16899,7 +16897,7 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 			RollbackTransaction();
 		EndTry;
 		
-		If ReceivedNo >= MessageReader.MessageNo Then // The message number is less than or equal to the previously received one.
+		If ReceivedNo >= MessageReader.MessageNo Then // 
 			
 			MessageReaderTemporary = Common.CopyRecursive(MessageReader, False); //Structure
 			MessageReaderTemporary.MessageReceivedEarlier = True;
@@ -16910,7 +16908,7 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 		
 		DeleteChangeRecords = DeleteChangeRecords And Not MessageReader.BackupRestored;
 		
-		If DeleteChangeRecords Then // Delete change records.
+		If DeleteChangeRecords Then // 
 			
 			If TransactionActive() Then
 				Raise NStr("en = 'Cannot unregister items in an active transaction.';");
@@ -16942,7 +16940,7 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 		
 	EndIf;
 	
-	// {Handler: AfterReceiveExchangeNodeDetails} Start
+	// 
 	If Not IsBlankString(Conversion.AfterGetExchangeNodesInformation) Then
 		
 		Try
@@ -16964,7 +16962,7 @@ Procedure ReadDataViaExchange(MessageReader, DataAnalysis)
 		EndTry;
 		
 	EndIf;
-	// {Handler: AfterReceiveExchangeNodeDetails} End
+	// 
 	
 EndProcedure
 
@@ -16982,7 +16980,7 @@ Procedure ReadCommonNodeData(MessageReader)
 	
 	DataImportMode = DataImportModePrevious;
 	
-	// {Handler: OnGetSenderData} Start
+	// 
 	Ignore = False;
 	ExchangePlanName = CommonNode.Metadata().Name;
 	If DataExchangeServer.HasExchangePlanManagerAlgorithm("OnGetSenderData",ExchangePlanName) Then
@@ -16992,7 +16990,7 @@ Procedure ReadCommonNodeData(MessageReader)
 			Return;
 		EndIf;
 	EndIf;
-	// {Handler: OnGetSenderData} End
+	// 
 	
 	If DataExchangeEvents.DataDiffers1(CommonNode, CommonNode.Ref.GetObject()) Then
 		
@@ -17002,7 +17000,7 @@ Procedure ReadCommonNodeData(MessageReader)
 			CommonNode.DataExchange.Load = True;
 			CommonNode.Write();
 			
-			// Updating cached values of the mechanism.
+			// 
 			DataExchangeInternal.ResetObjectsRegistrationMechanismCache();
 			
 			CommitTransaction();
@@ -17011,11 +17009,11 @@ Procedure ReadCommonNodeData(MessageReader)
 			Raise;
 		EndTry;
 		
-		// Close the transaction that was started to get data in the "Load" mode.
-		// Otherwise, the lock set on "CommonNodeDataChanges" when calling the method
-		// "DeleteChangeRecords" is applied while the transaction is open.
-		// This will prevent both interactive and programmatical (from other sessions)
-		// modification of the exchange plan. 
+		// 
+		// 
+		// 
+		// 
+		//  
 		// 
 		// 
 		// 
@@ -17025,11 +17023,11 @@ Procedure ReadCommonNodeData(MessageReader)
 			OpenTransaction = True;
 		EndIf;
 		
-		// Deleting change registration in case if the changes have been registered earlier (in case of a conflict).
+		// 
 		InformationRegisters.CommonNodeDataChanges.DeleteChangeRecords(CommonNode.Ref);
 		
-		// Restart the transaction that had started to get data in the "Load" mode if it was committed before calling
-		// the "DeleteChangesRegistration" method of the "CommonNodeDataChanges" information register.
+		// 
+		// 
 		If OpenTransaction Then
 			BeginTransaction();
 		EndIf;
@@ -17068,14 +17066,16 @@ Procedure WriteInformationOnDataExchangeOverExchangePlans(Val SentNo)
 	SetAttribute(Receiver, "Whom", DataExchangeServer.CorrespondentNodeIDForExchange(NodeForExchange));
 	SetAttribute(Receiver, "FromWhom", DataExchangeServer.NodeIDForExchange(NodeForExchange));
 	
-	// Attributes of exchange message handshake functionality.
+	ReceivedNo = Common.ObjectAttributeValue(NodeForExchange, "ReceivedNo");
+	
+	// 
 	SetAttribute(Receiver, "OutgoingMessageNumber", SentNo);
-	SetAttribute(Receiver, "IncomingMessageNumber",  NodeForExchange.ReceivedNo);
+	SetAttribute(Receiver, "IncomingMessageNumber",  ReceivedNo);
 	SetAttribute(Receiver, "DeleteChangeRecords", True);
 	
 	SetAttribute(Receiver, "SenderVersion", TrimAll(Metadata.Version));
 	
-	// Writing the object to a file
+	// 
 	Receiver.WriteEndElement();
 	
 	WriteToFile(Receiver);
@@ -17176,7 +17176,7 @@ Procedure ExportCommonNodeData(Val SentNo)
 	CommonNode = ExchangePlans[ExchangePlanName].CreateNode();
 	DataExchangeEvents.FillObjectPropertiesValues(CommonNode, NodeForExchange.GetObject(), CommonNodeData);
 	
-	// {Handler: OnSendSenderData} Start
+	// 
 	Ignore = False;
 	If DataExchangeServer.HasExchangePlanManagerAlgorithm("OnSendSenderData", ExchangePlanName) Then
 		ExchangePlans[ExchangePlanName].OnSendSenderData(CommonNode, Ignore);
@@ -17184,7 +17184,7 @@ Procedure ExportCommonNodeData(Val SentNo)
 			Return;
 		EndIf;
 	EndIf;
-	// {Handler: OnSendSenderData} End
+	// 
 	
 	CommonNode.Code = DataExchangeServer.NodeIDForExchange(NodeForExchange);
 	
@@ -17237,7 +17237,7 @@ Procedure SendOneParameterToDestination(Name, InitialParameterValue, ConversionR
 		
 		If Empty Then
 			
-			// Writing the empty value.
+			// 
 			deWriteElement(ParameterNode, "Empty");
 			
 			ParameterNode.WriteEndElement();
@@ -17269,7 +17269,7 @@ Procedure SendOneParameterToDestination(Name, InitialParameterValue, ConversionR
 			DestinationType  = PropertiesOCR.Receiver;
 			SetAttribute(ParameterNode, "Type", DestinationType);
 			
-			// Writing the empty value.
+			// 
 			deWriteElement(ParameterNode, "Empty");
 			
 			ParameterNode.WriteEndElement();
@@ -17386,7 +17386,7 @@ Procedure ExecuteExport(ErrorMessageString = "")
 		
 	EndDo;
 	
-	// Getting types of metadata objects that will take part in the export.
+	// 
 	UsedExportRulesTable = DataExportRulesCollection().Copy(New Structure("Enable", True));
 	UsedExportRulesTable.Indexes.Add("SelectionObjectMetadata");
 	
@@ -17402,7 +17402,7 @@ Procedure ExecuteExport(ErrorMessageString = "")
 	
 	DataMapForExportedItemUpdate = New Map;
 	
-	// {BeforeDataExport HANDLER}
+	// 
 	Cancel = False;
 	
 	If Not IsBlankString(Conversion.BeforeExportData) Then
@@ -17427,19 +17427,19 @@ Procedure ExecuteExport(ErrorMessageString = "")
 			Cancel = True;
 		EndTry; 
 		
-		If Cancel Then // Canceling data export
+		If Cancel Then // 
 			FinishKeepExchangeProtocol();
 			Return;
 		EndIf;
 		
 	EndIf;
-	// {BeforeDataExport HANDLER}
+	// 
 	
 	SendCustomSearchFieldsInformationToDestination();
 	
 	SendTypesInformationToDestination();
 	
-	// Passing add. parameters to destination.
+	// 
 	SendAdditionalParametersToDestination();
 	
 	EventTextAfterParametersImport = "";
@@ -17462,7 +17462,7 @@ Procedure ExecuteExport(ErrorMessageString = "")
 	
 	Cancel = False;
 	
-	// EXPORTING MAPPING REGISTER
+	// 
 	If ExportMappingInformation Then
 		
 		XMLWriter = New XMLWriter;
@@ -17491,14 +17491,14 @@ Procedure ExecuteExport(ErrorMessageString = "")
 		
 	EndIf;
 	
-	// EXPORTING MAPPING REGISTER CORRECTION
+	// 
 	If MustAdjustMappingInfo() Then
 		
 		ExportMappingInfoAdjustment();
 		
 	EndIf;
 	
-	// EXPORTING REGISTERED DATA
+	// 
 	XMLWriter = New XMLWriter;
 	XMLWriter.SetString();
 	WriteMessage1 = ExchangePlans.CreateMessageWriter();
@@ -17511,21 +17511,21 @@ Procedure ExecuteExport(ErrorMessageString = "")
 		WriteToExecutionProtocol(ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
-	// Registering the selected exported by reference objects on the current node.
+	// 
 	For Each Item In ExportedByRefObjects() Do
 		
 		ExchangePlans.RecordChanges(WriteMessage1.Recipient, Item);
 		
 	EndDo;
 	
-	// Setting the sent message number for objects exported by reference.
+	// 
 	If ExportedByRefObjects().Count() > 0 Then
 		
 		DataExchangeServer.SelectChanges(WriteMessage1.Recipient, WriteMessage1.MessageNo, ExportedByRefObjects());
 		
 	EndIf;
 	
-	// Setting the sent message number for objects created in current session.
+	// 
 	If CreatedOnExportObjects().Count() > 0 Then
 		
 		DataExchangeServer.SelectChanges(WriteMessage1.Recipient, WriteMessage1.MessageNo, CreatedOnExportObjects());
@@ -17541,7 +17541,7 @@ Procedure ExecuteExport(ErrorMessageString = "")
 	XMLWriter.Close();
 	XMLWriter = Undefined;
 	
-	// {AfterDataExport HANDLER}
+	// 
 	If Not Cancel And Not IsBlankString(Conversion.AfterExportData) Then
 		
 		Try
@@ -17562,20 +17562,20 @@ Procedure ExecuteExport(ErrorMessageString = "")
 		EndTry;
 	
 	EndIf;
-	// {AfterDataExport HANDLER}
+	// 
 	
 EndProcedure
 
 Procedure ExportObjectMappingRegister(WriteMessage1, ErrorMessageString)
 	
-	// Selecting changes only for the mapping register.
+	// 
 	ChangesSelection = DataExchangeServer.SelectChanges(WriteMessage1.Recipient, WriteMessage1.MessageNo, Metadata.InformationRegisters.InfobaseObjectsMaps);
 	
 	While ChangesSelection.Next() Do
 		
 		Data = ChangesSelection.Get();
 		
-		// Apply filter to the data export.
+		// 
 		If Data.Filter.InfobaseNode.Value <> NodeForExchange Then
 			Continue;
 		ElsIf IsBlankString(Data.Filter.DestinationUUID.Value) Then
@@ -17594,8 +17594,8 @@ Procedure ExportObjectMappingRegister(WriteMessage1, ErrorMessageString)
 			
 		EndDo;
 		
-		// Export the registered information from the register "InfobaseObjectsMaps".
-		// The register conversion rules are specified in the handler's code.
+		// 
+		// 
 		If ExportObject Then
 			
 			ExportChangeRecordedObjectData(Data);
@@ -17608,9 +17608,9 @@ EndProcedure
 
 Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExportRulesTable)
 	
-	// Stubs to support debugging mechanism of event handler code.
+	// 
 	Var Cancel, OCRName, DataSelection, OutgoingData;
-	// {BeforeGetChangedObjects HANDLER}
+	// 
 	If Not IsBlankString(Conversion.BeforeGetChangedObjects) Then
 		
 		Try
@@ -17634,34 +17634,34 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 		EndTry;
 		
 	EndIf;
-	// {BeforeGetChangedObjects HANDLER}
+	// 
 	
 	MetadataToExportArray = UsedExportRulesTable.UnloadColumn("SelectionObjectMetadata");
 	
-	// The Undefined value means that constants need to be exported.
+	// 
 	If MetadataToExportArray.Find(Undefined) <> Undefined Then
 		
 		SupplementMetadataToExportArrayWithConstants(MetadataToExportArray);
 		
 	EndIf;
 	
-	// Deleting elements with the Undefined value from the array.
+	// 
 	DeleteInvalidValuesFromMetadataToExportArray(MetadataToExportArray);
 	
-	// The "InfobaseObjectsMaps" information register is exported separately.
-	// Therefore, it should be excluded from the selection.
+	// 
+	// 
 	If MetadataToExportArray.Find(Metadata.InformationRegisters.InfobaseObjectsMaps) <> Undefined Then
 		
 		CommonClientServer.DeleteValueFromArray(MetadataToExportArray, Metadata.InformationRegisters.InfobaseObjectsMaps);
 		
 	EndIf;
 	
-	// Updating cached values of the object registration mechanism.
+	// 
 	DataExchangeInternal.CheckObjectsRegistrationMechanismCache();
 	
 	InitialDataExport = DataExchangeServer.InitialDataExportFlagIsSet(WriteMessage1.Recipient);
 	
-	// CHANGE SELECTION
+	// 
 	ChangesSelection = DataExchangeServer.SelectChanges(WriteMessage1.Recipient, WriteMessage1.MessageNo, MetadataToExportArray);
 	
 	MetadataObjectPrevious      = Undefined;
@@ -17685,7 +17685,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 		HasImportedObjectsCounterFieldExternalConnection = False;
 		If IsExchangeOverExternalConnection() Then
 			ImportProcessingAttributes = DataProcessorForDataImport().Metadata().Attributes;
-			// This data processor attribute might be missing in the correspondent infobase.
+			// 
 			If ImportProcessingAttributes.Find("ObjectsToImportCountExternalConnection") <> Undefined Then
 				DataProcessorForDataImport().ObjectsToImportCountExternalConnection = ObjectsToExportCount;
 			EndIf;
@@ -17695,7 +17695,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 		While ChangesSelection.Next() Do
 			
 			If IsExchangeOverExternalConnection() Then
-				// This data processor attribute might be missing in the correspondent infobase.
+				// 
 				If HasImportedObjectsCounterFieldExternalConnection Then
 					Increment(DataProcessorForDataImport().ImportedObjectCounterExternalConnection);
 				EndIf;
@@ -17708,7 +17708,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 			
 			ExportDataType = TypeOf(Data);
 			
-			// Process object deletion.
+			// 
 			If ExportDataType = ObjectDeletionType Then
 				
 				ProcessObjectDeletion(Data);
@@ -17720,12 +17720,12 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 			
 			CurrentMetadataObject = Data.Metadata(); // MetadataObject
 			
-			// A new type of a metadata object is exported.
+			// 
 			If MetadataObjectPrevious <> CurrentMetadataObject Then
 				
 				If MetadataObjectPrevious <> Undefined Then
 					
-					// {AfterProcess DER HANDLER}
+					// 
 					If PreviousDataExportRule <> Undefined
 						And Not IsBlankString(PreviousDataExportRule.AfterProcess) Then
 						
@@ -17747,7 +17747,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 						EndTry;
 						
 					EndIf;
-					// {AfterProcess DER HANDLER}
+					// 
 					
 				EndIf;
 				
@@ -17785,7 +17785,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 				
 				PreviousDataExportRule = DataExportRule;
 				
-				// {BeforeProcess DER HANDLER}
+				// 
 				OutgoingData = Undefined;
 				
 				If DataExportRule <> Undefined
@@ -17810,13 +17810,13 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 					
 					
 				EndIf;
-				// {BeforeProcess DER HANDLER}
+				// 
 				
 			EndIf;
 			
 			If ExportDataType <> MapRegisterType Then
 				
-				// Determining the kind of object sending.
+				// 
 				ItemSend = DataItemSend.Auto;
 				
 				StandardSubsystemsServer.OnSendDataToSlave(Data, ItemSend, InitialDataExport, NodeForExchangeObject);
@@ -17825,11 +17825,11 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 					
 					If ExportingRegister Then
 						
-						// Sending an empty record set upon the register deletion.
+						// 
 						
 					Else
 						
-						// Sending data about deleting.
+						// 
 						ProcessObjectDeletion(Data);
 						Continue;
 						
@@ -17843,15 +17843,15 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 				
 			EndIf;
 			
-			// OBJECT EXPORT
+			// 
 			If ExportingRegister Then
 				
-				// Export a register.
+				// 
 				ExportRegister(Data, DataExportRule, OutgoingData, DontExportObjectsByRefs);
 				
 			ElsIf ExportingConstants Then
 				
-				// Exporting a constant set.
+				// 
 				Properties = Managers[Type("ConstantsSet")];
 				
 				ExportConstantsSet(DataExportRule, Properties, OutgoingData, CurrentMetadataObject.Name);
@@ -17864,7 +17864,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 					
 				Except
 					
-					If False Then // For Automatic configuration checker.
+					If False Then // 
 						
 						Raise;
 						
@@ -17872,7 +17872,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 					
 				EndTry;
 				
-				// Exporting reference types.
+				// 
 				ExportSelectionObject(Data, DataExportRule, , OutgoingData, DontExportObjectsByRefs);
 				
 			EndIf;
@@ -17883,7 +17883,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 		
 		If MetadataObjectPrevious <> Undefined Then
 			
-			// {AfterProcess DER HANDLER}
+			// 
 			If DataExportRule <> Undefined
 				And Not IsBlankString(DataExportRule.AfterProcess) Then
 				
@@ -17905,7 +17905,7 @@ Procedure ExecuteRegisteredDataExport(WriteMessage1, ErrorMessageString, UsedExp
 				EndTry;
 				
 			EndIf;
-			// {AfterProcess DER HANDLER}
+			// 
 			
 		EndIf;
 	
@@ -17943,9 +17943,9 @@ Procedure CheckTheStartAndCommitOfATransactionWhenLoadingData()
 				And DataProcessorForDataImport().ObjectCountPerTransaction > 0
 				And DataProcessorForDataImport().ImportedObjectCounter() % DataProcessorForDataImport().ObjectCountPerTransaction = 0 Then
 				
-				// If transactions are used and the number of items per transaction is set,
-				// control the number of imported objects when reading exchange messages.
-				// When the numbers match, commit the transaction and open a new one. 
+				// 
+				// 
+				//  
 				// 
 				// 
 				ExternalConnection.CommitTransaction();
@@ -18030,7 +18030,9 @@ EndFunction
 
 Function MustAdjustMappingInfo()
 	
-	Return InformationRegisters.CommonInfobasesNodesSettings.MustAdjustMappingInfo(NodeForExchange, NodeForExchange.SentNo + 1);
+	SentNo = Common.ObjectAttributeValue(NodeForExchange, "SentNo");
+	Return InformationRegisters.CommonInfobasesNodesSettings.MustAdjustMappingInfo(
+		NodeForExchange, SentNo + 1);
 	
 EndFunction
 

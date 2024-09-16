@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Returns the earliest infobase version used across all data areas.
+// Returns the minimum version of the information database among all data areas.
 //
 // Returns:
-//  String - for example, "2.3.1.4".
+//  String - 
 //
 Function EarliestIBVersion() Export
 	
@@ -47,7 +45,7 @@ EndFunction
 
 #Region Private
 
-// Checks if the infobase update is required when the configuration version is changed.
+// Check whether the database needs to be updated when changing the configuration version.
 //
 Function InfobaseUpdateRequired() Export
 	
@@ -68,8 +66,8 @@ Function InfobaseUpdateRequired() Export
 	
 EndFunction
 
-// Returns the map of names and IDs for deferred handlers
-// and handler queues.
+// Returns matching names and IDs of deferred handlers
+// and their queues.
 //
 Function DeferredUpdateHandlerQueue() Export
 	
@@ -110,8 +108,8 @@ Function DeferredUpdateHandlerQueue() Export
 	
 EndFunction
 
-// Caches metadata object types when checking the availability
-// of an object to be written on the content of the InfobaseUpdate exchange plan.
+// Caches the types of metadata objects when checking for the presence
+// of the recorded object as part of the Information Database update exchange plan.
 // 
 // Returns:
 //  Map
@@ -122,7 +120,7 @@ Function CacheForCheckingRegisteredObjects() Export
 	
 EndFunction
 
-// The initial population of predefined data.
+// 
 
 // Returns:
 //  FixedMap of KeyAndValue:

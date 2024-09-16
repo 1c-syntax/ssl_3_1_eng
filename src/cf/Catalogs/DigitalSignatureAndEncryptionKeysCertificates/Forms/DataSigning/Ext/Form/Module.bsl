@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -23,6 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DigitalSignatureInternal.SetPasswordEntryNote(ThisObject, ,
 		Items.AdvancedPasswordNote.Name);
 	
+	SetSignatureType(Parameters.SignatureType);
 	DigitalSignatureInternal.SetSigningEncryptionDecryptionForm(ThisObject);
 	
 	If DigitalSignatureInternal.UseCloudSignatureService() Then
@@ -35,8 +34,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				"ConfirmationCommandsGroup");
 		ModuleCryptographyServiceDSSConfirmationServer.ConfirmationWhenChangingCertificate(ThisObject, Certificate);
 	EndIf;
-	
-	SetSignatureType(Parameters.SignatureType);
 	
 	If Not DigitalSignature.AvailableAdvancedSignature() Then
 		SignatureType = Undefined;
@@ -160,7 +157,7 @@ Procedure CertificateOnChange(Item)
 	
 EndProcedure
 
-// Continues the CertificateOnChange procedure.
+// Continuation of the certificate Change procedure.
 &AtClient
 Procedure CertificateOnChangeCompletion(CertificatesThumbprintsAtClient, Context) Export
 	
@@ -227,7 +224,7 @@ Procedure CertificateChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 EndProcedure
 
-// Continues the CertificateChoiceProcessing procedure.
+// Continuation of the certificate processing Selection procedure.
 &AtClient
 Procedure CertificateChoiceProcessingCompletion(CertificatesThumbprintsAtClient, ValueSelected) Export
 	
@@ -320,6 +317,11 @@ Procedure Sign(Command)
 	If DigitalSignatureInternalClient.ThisIsACloudSignatureOperation(ThisObject) Then
 		ModuleCryptographyServiceDSSConfirmationClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
 		If ModuleCryptographyServiceDSSConfirmationClient.CheckingBeforePerformingOperation(ThisObject, PasswordProperties.Value) Then 
+			If TypeOf(DataDetails) = Type("Structure")
+				And TypeOf(DataDetails.Data) = Type("Structure")
+				And DataDetails.Data.Property("CMSParameters") Then
+				DataDetails.Data.CMSParameters.IncludeCertificatesInSignature = String(DataDetails.Data.CMSParameters.IncludeCertificatesInSignature);
+			EndIf;
 			ModuleCryptographyServiceDSSConfirmationClient.PerformInitialServiceOperation(ThisObject, DataDetails, PasswordProperties.Value);
 			Items.Sign.Enabled = False;
 		EndIf;
@@ -336,7 +338,7 @@ Procedure Sign(Command)
 	
 EndProcedure
 
-// Continues the Sign procedure.
+// Continue with the procedure to Sign.
 &AtClient
 Procedure SignCompletion(Result, Context) Export
 	
@@ -456,7 +458,7 @@ Procedure ContinueOpening(Notification, CommonInternalData, ClientParameters) Ex
 	
 EndProcedure
 
-// Continues the ContinueOpening procedure.
+// Continue the procedure continue Opening.
 &AtClient
 Procedure ContinueOpeningAfterStart(Result, Context) Export
 	
@@ -508,7 +510,7 @@ Procedure ContinueOpeningAfterStart(Result, Context) Export
 	
 EndProcedure
 
-// Continues the ContinueOpening procedure.
+// Continue the procedure continue Opening.
 &AtClient
 Procedure ContinueOpeningAfterSignData(Result, Context) Export
 	
@@ -516,7 +518,7 @@ Procedure ContinueOpeningAfterSignData(Result, Context) Export
 	
 EndProcedure
 
-// Continues the ContinueOpening procedure.
+// Continue the procedure continue Opening.
 &AtClient
 Procedure ContinueOpeningCompletion(Context, Result = Undefined)
 	
@@ -562,10 +564,10 @@ Function VariablesCleared()
 	
 EndFunction
 
-// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
+// APK: 78-off: for secure data transfer on the client between forms, without sending them to the server.
 &AtClient
 Procedure PerformSigning(ClientParameters, CompletionProcessing) Export
-// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
+// 
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	
@@ -580,7 +582,7 @@ Procedure PerformSigning(ClientParameters, CompletionProcessing) Export
 	
 EndProcedure
 
-// Continues the ExecuteSigning procedure.
+// Continue with the Signup procedure.
 &AtClient
 Procedure PerformSigningCompletion(Result, Context) Export
 	
@@ -596,7 +598,7 @@ Procedure OnChangeCertificatesList()
 	
 EndProcedure
 
-// Continues the OnChangeCertificatesList procedure.
+// Continuation of the procedure for changing the list of Certificates.
 &AtClient
 Procedure OnChangeCertificatesListCompletion(CertificatesThumbprintsAtClient, Context) Export
 	
@@ -730,7 +732,7 @@ Procedure SignData(Notification)
 	
 EndProcedure
 
-// Continues the SignData procedure.
+// Continue the sign Data procedure.
 &AtClient
 Procedure SignDataAfterCAQuestionAnswered(Result, Context) Export
 	
@@ -771,11 +773,11 @@ Procedure SignDataAfterCAQuestionAnswered(Result, Context) Export
 	
 EndProcedure
 
-// Continues the SignData procedure.
+// Continue the sign Data procedure.
 &AtClient
 Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
 	
-	If TypeOf(Result) = Type("Structure") Then // Certificate check error.
+	If TypeOf(Result) = Type("Structure") Then // 
 		
 		If Result.CertificateRevoked Then
 			Context.ErrorAtClient.Insert("ErrorDescription", NStr("en = 'The certificate is revoked.
@@ -821,7 +823,7 @@ Procedure SignDataAfterSelectedCertificateVerified(Result, Context) Export
 	
 EndProcedure
 
-// Continues the SignData procedure.
+// Continue the sign Data procedure.
 &AtClient
 Procedure SignDataAfterInvalidSignatureWarning(Result, AdditionalParameters) Export
 	
@@ -864,7 +866,7 @@ Procedure SignDataAfterInvalidSignatureWarning(Result, AdditionalParameters) Exp
 	
 EndProcedure
 
-// Continues the SignData procedure.
+// Continue the sign Data procedure.
 &AtClient
 Procedure SignDataAfterProcesssingBeforeExecute(Result, Context) Export
 	
@@ -907,7 +909,7 @@ Procedure SignDataAfterProcesssingBeforeExecute(Result, Context) Export
 			CertificateAtServerErrorDescription = New Structure;
 			SignDataAfterExecutionAtServerSide(Result, Context);
 		Else
-			// An attempt to sign on the server.
+			// 
 			DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 					"SignDataAfterExecutionAtServerSide", ThisObject, Context),
 				"Signing", "AtServerSide", Context.ExecutionParameters);
@@ -918,7 +920,7 @@ Procedure SignDataAfterProcesssingBeforeExecute(Result, Context) Export
 	
 EndProcedure
 
-// Continues the SignData procedure.
+// Continue the sign Data procedure.
 &AtClient
 Async Procedure SignDataAfterExecutionAtServerSide(Result, Context) Export
 	
@@ -941,7 +943,7 @@ Async Procedure SignDataAfterExecutionAtServerSide(Result, Context) Export
 			EndIf;
 		EndIf;
 		
-		// An attempt to sign on the client.
+		// 
 		DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 				"SignDataAfterExecutionAtClientSide", ThisObject, Context),
 			"Signing", "OnClientSide", Context.ExecutionParameters);
@@ -949,7 +951,7 @@ Async Procedure SignDataAfterExecutionAtServerSide(Result, Context) Export
 	
 EndProcedure
 
-// Continues the SignData procedure.
+// Continue the sign Data procedure.
 &AtClient
 Procedure SignDataAfterExecutionAtClientSide(Result, Context) Export
 	
@@ -988,7 +990,15 @@ Procedure SignDataAfterExecutionAtClientSide(Result, Context) Export
 	EndIf;
 	
 	If NotifyOfCertificateAboutToExpire Then
+		
 		FormOpenParameters = New Structure("Certificate", Certificate);
+		If CertificationAuthorityAuditResult <> Undefined 
+			And CertificationAuthorityAuditResult.Valid_SSLyf
+			And (ValueIsFilled(CertificationAuthorityAuditResult.Warning.ErrorText) 
+			Or ValueIsFilled(CertificationAuthorityAuditResult.Warning.AdditionalInfo)) Then
+			FormOpenParameters.Insert("AdditionalDataChecks", CertificationAuthorityAuditResult.Warning);
+		EndIf;
+		
 		ActionOnClick = New NotifyDescription("OpenNotificationFormNeedReplaceCertificate",
 			DigitalSignatureInternalClient, FormOpenParameters);
 		
@@ -997,12 +1007,13 @@ Procedure SignDataAfterExecutionAtClientSide(Result, Context) Export
 			PictureLib.DialogExclamation, UserNotificationStatus.Important,
 			Certificate);
 	EndIf;
+
 	
 	ExecuteNotifyProcessing(Context.Notification, True);
 	
 EndProcedure
 
-// Continues the SignData procedure.
+// Continue the sign Data procedure.
 &AtClient
 Procedure SignDataAfterExecute(Result)
 	
@@ -1012,8 +1023,8 @@ Procedure SignDataAfterExecute(Result)
 	EndIf;
 	
 	If Result.Property("HasProcessedDataItems") Then
-		// Cannot change the certificate once the signing has started.
-		// Otherwise, the dataset will be processed in different ways.
+		// 
+		// 
 		Items.Certificate.ReadOnly = True;
 		Items.Comment.ReadOnly = True;
 	EndIf;

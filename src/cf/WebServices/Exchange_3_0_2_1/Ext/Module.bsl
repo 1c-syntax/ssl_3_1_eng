@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Web service operation handlers.
+// 
 
-// An analog of the "Upload" operation.
+// Corresponds to the Upload operation.
 Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -36,7 +34,7 @@ Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// An analog of the "UploadData" operation.
+// Corresponds to the UploadData operation.
 Function RunDataExport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -62,7 +60,7 @@ Function RunDataExport(ExchangePlanName,
 	
 EndFunction
 
-// An analog of the "UploadDataInt" operation.
+// 
 Function RunDataExportInternalPublication(ExchangePlanName,
 													InfobaseNodeCode,
 													TaskID__,
@@ -81,7 +79,7 @@ Function RunDataExportInternalPublication(ExchangePlanName,
 	
 EndFunction
 
-// An analog of the "Download" operation.
+// Corresponds to the Download operation.
 Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -100,7 +98,7 @@ Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// An analog of the "DownloadData" operation.
+// Corresponds to the DownloadData operation.
 Function RunDataImport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -125,7 +123,7 @@ Function RunDataImport(ExchangePlanName,
 	
 EndFunction
 
-// An analog of the "DownloadDataInt" operation.
+// 
 Function RunDataImportInternalPublication(ExchangePlanName,
 													InfobaseNodeCode,
 													TaskID__,
@@ -147,7 +145,7 @@ Function RunDataImportInternalPublication(ExchangePlanName,
 	
 EndFunction
 
-// An analog of the "GetIBParameters" operation.
+// Corresponds to the GetIBParameters operation.
 Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -160,7 +158,7 @@ Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage, DataAre
 	
 EndFunction
 
-// An analog of the "CreateExchangeNode" operation.
+// Corresponds to the CreateExchangeNode operation.
 Function CreateDataExchangeNode(XDTOParameters, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -203,7 +201,7 @@ Function CreateDataExchangeNode(XDTOParameters, DataArea)
 	
 EndFunction
 
-// An analog of the "RemoveExchangeNode" operation.
+// Corresponds to the RemoveExchangeNode operation.
 Function DeleteDataExchangeNode(ExchangePlanName, NodeID, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -229,7 +227,7 @@ Function DeleteDataExchangeNode(ExchangePlanName, NodeID, DataArea)
 	
 EndFunction
 
-// An analog of the "GetContinuousOperationStatus" operation.
+// Corresponds to the GetContinuousOperationStatus operation.
 Function GetTimeConsumingOperationState(OperationID, ErrorMessageString, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -268,7 +266,7 @@ Function GetTimeConsumingOperationState(OperationID, ErrorMessageString, DataAre
 	
 EndFunction
 
-// An analog of the "PrepareGetFile" operation.
+// Corresponds to the PrepareGetFile operation.
 Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity, Zone)
 	
 	SignInToDataArea(Zone);
@@ -288,7 +286,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity, Zone)
 	MoveFile(SourceFileName1, SourceFileNameInTemporaryDirectory);
 	
 	If BlockSize <> 0 Then
-		// Splitting a file into parts
+		// 
 		FilesNames = SplitFile(SourceFileNameInTemporaryDirectory, BlockSize * 1024);
 		PartQuantity = FilesNames.Count();
 		
@@ -304,7 +302,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity, Zone)
 	
 EndFunction
 
-// An analog of the "GetFilePart" operation.
+// Corresponds to the GetFilePart operation.
 Function GetFilePart(TransferId, PartNumber, PartData, Zone)
 	
 	SignInToDataArea(Zone);
@@ -334,7 +332,7 @@ Function GetFilePart(TransferId, PartNumber, PartData, Zone)
 	
 EndFunction
 
-// An analog of the "ReleaseFile" operation.
+// Corresponds to the ReleaseFile operation.
 Function ReleaseFile(TransferId)
 	
 	Try
@@ -348,12 +346,12 @@ Function ReleaseFile(TransferId)
 	
 EndFunction
 
-// An analog of the "PutFilePart" operation.
+// Corresponds to the PutFilePart operation.
 //
 // Parameters:
-//   TransferId - UUID - data transfer session UUID.
-//   PartNumber - Number - the file part number.
-//   PartData - BinaryData - the file part details.
+//   TransferId - UUID -  unique ID of the data transfer session.
+//   PartNumber - Number -  part number of the file.
+//   PartData - BinaryData -  data part of the file.
 //
 Function PutFilePart(TransferId, PartNumber, PartData, Zone)
 	
@@ -377,7 +375,7 @@ Function PutFilePart(TransferId, PartNumber, PartData, Zone)
 	
 EndFunction
 
-// An analog of the "SaveFileFromParts" operation.
+// Corresponds to the SaveFileFromParts operation.
 Function SaveFileFromParts(TransferId, PartQuantity, FileId, Zone)
 	
 	SignInToDataArea(Zone);
@@ -447,7 +445,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId, Zone)
 	
 EndFunction
 
-// An analog of the "PutMessageForDataMatching" operation.
+// Corresponds to the PutMessageForDataMatching operation.
 Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -475,9 +473,9 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 	DataExchangeInternal.PutMessageForDataMapping(ExchangeNode, FileID);
 	
-	// The web client and the thin client have dedicated temporary directories. 
-	// Configuring syncing from the thin client will result in an error due to the missing file
-	// in the temporary directory.
+	//  
+	// 
+	// 
 	// 
 	MoveTheMessageFileForTheFileIB(FileID);
 	
@@ -487,20 +485,20 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 EndFunction
 
-// An analog of the "Ping" operation.
+// Corresponds to the Ping operation.
 Function Ping()
-	// Test connection.
+	// 
 	Return "";
 EndFunction
 
-// An analog of the "TestConnection" operation.
+// Corresponds to the TestConnection operation.
 Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 	
 	SignInToDataArea(DataArea);
 	
 	SetPrivilegedMode(True);
 	
-	// Checking whether a user has rights to perform the data exchange.
+	// 
 	Try
 		DataExchangeServer.CheckCanSynchronizeData(True);
 	Except
@@ -508,7 +506,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 		Return False;
 	EndTry;
 	
-	// Checking whether the infobase is locked for update.
+	// 
 	Try
 		CheckInfobaseLockForUpdate();
 	Except
@@ -516,7 +514,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 		Return False;
 	EndTry;
 		
-	// Checking whether the exchange plan node exists (it might be deleted).
+	// 
 	NodeRef1 = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeCode);
 	If NodeRef1 = Undefined
 		Or Common.ObjectAttributeValue(NodeRef1, "DeletionMark") Then
@@ -539,7 +537,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 	Return True;
 EndFunction
 
-// An analog of the "ChangeNodeTransportToWSPass" operation.
+// 
 Function ChangeNodeTransportToWSInt(XDTOParameters, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -586,7 +584,7 @@ Function ChangeNodeTransportToWSInt(XDTOParameters, DataArea)
 	
 EndFunction
 
-// An analog of the "Callback" operation.
+// 
 Function Callback(TaskID, Error, Zone)
 	
 	SignInToDataArea(Zone);
@@ -619,7 +617,7 @@ Function Callback(TaskID, Error, Zone)
 		JobParameters.Insert("ScheduledStartTime", CurrentSessionDate());
 		JobParameters.Insert("Parameters", ProcedureParameters);
 		JobParameters.Insert("RestartCountOnFailure", 3);
-		JobParameters.Insert("RestartIntervalOnFailure", 300);
+		JobParameters.Insert("RestartIntervalOnFailure", 900);
 
 		ModuleJobsQueue = Common.CommonModule("JobsQueue");
 		ModuleJobsQueue.AddJob(JobParameters);
@@ -642,7 +640,7 @@ Function Callback(TaskID, Error, Zone)
 	
 EndFunction
 
-// An analog of the "ChekTask" operation.
+// 
 Function TaskStatus(TaskID)
 	
 	SetPrivilegedMode(True);
@@ -654,13 +652,8 @@ Function TaskStatus(TaskID)
 	
 	If Jobs.Count() > 0 Then
 		
-		State = Jobs[0].Id.JobState;
-		
-		MetadataObjectsList = State.Metadata();
-		EnumManager = Enums[MetadataObjectsList.Name];
-		ValueIndex = EnumManager.IndexOf(State);
-
-		Return MetadataObjectsList.EnumValues.Get(ValueIndex).Name;
+		State = Common.ObjectAttributeValue(Jobs[0].Id, "JobState");
+		Return Common.EnumerationValueName(State);
 		
 	Else
 		
@@ -670,7 +663,7 @@ Function TaskStatus(TaskID)
 	
 EndFunction
 
-// An analog of the "StopTasks" operation.
+// 
 Function StopTasks(TasksID, Zone)
 	
 	SignInToDataArea(Zone);
@@ -684,21 +677,21 @@ Function StopTasks(TasksID, Zone)
 		Filter = New Structure("Key", TaskID__);
 		ModuleJobsQueue = Common.CommonModule("JobsQueue");
 		Jobs = ModuleJobsQueue.GetJobs(Filter);
-		
-		If Jobs.Count() = 0 Then
-			Continue;
-		EndIf;	
+	
+		For Each Job In Jobs Do
 			
-		BackgrJobUUID = Jobs[0].Id.ActiveBackgroundJob;
+			JobParameters = New Structure;
+			JobParameters.Insert("RestartCountOnFailure", 0);
 			
-		If Not ValueIsFilled(BackgrJobUUID) Then
-			Continue;
-		EndIf;
+			ModuleJobsQueue.ChangeJob(Job.Id, JobParameters);
+			ModuleJobsQueue.DeleteJob(Job.Id);
+			
+			BackgrJobUUID = Common.ObjectAttributeValue(
+				Job.Id, "ActiveBackgroundJob");
+				
+			TimeConsumingOperations.CancelJobExecution(BackgrJobUUID);
 		
-		BackgroundJob = BackgroundJobs.FindByUUID(BackgrJobUUID);
-		If BackgroundJob <> Undefined Then
-			BackgroundJob.Cancel();
-		EndIf;
+		EndDo;
 		
 	EndDo;
 	
@@ -709,7 +702,7 @@ Function StopTasks(TasksID, Zone)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+// 
 
 Procedure CheckInfobaseLockForUpdate()
 	
@@ -793,7 +786,7 @@ Procedure ExportDataInClientServerModeInternalPublication(ExchangePlanName,
 	JobParameters.Insert("ScheduledStartTime", CurrentSessionDate());
 	JobParameters.Insert("Parameters", ProcedureParameters);
 	JobParameters.Insert("RestartCountOnFailure", 3);
-	JobParameters.Insert("RestartIntervalOnFailure", 300);
+	JobParameters.Insert("RestartIntervalOnFailure", 900);
 	
 	ModuleJobsQueue = Common.CommonModule("JobsQueue");
 	ModuleJobsQueue.AddJob(JobParameters);
@@ -874,7 +867,7 @@ Procedure ImportDataInClientServerModeInternalPublication(ExchangePlanName,
 	JobParameters.Insert("ScheduledStartTime", CurrentSessionDate());
 	JobParameters.Insert("Parameters", ProcedureParameters);
 	JobParameters.Insert("RestartCountOnFailure", 3);
-	JobParameters.Insert("RestartIntervalOnFailure", 300);
+	JobParameters.Insert("RestartIntervalOnFailure", 900);
 	
 	ModuleJobsQueue = Common.CommonModule("JobsQueue");
 	ModuleJobsQueue.AddJob(JobParameters);
@@ -1004,7 +997,7 @@ Procedure SignInToDataArea(DataArea)
 	CTLVersion = ModuleSaaSTechnology.LibraryVersion();
 
 	If CommonClientServer.CompareVersions(CTLVersion, "2.0.7.46") >= 0 Then
-		ModuleSaaSOperations.SignInToDataArea(DataArea); //ACC:287
+		ModuleSaaSOperations.SignInToDataArea(DataArea);
 	Else
 		ModuleSaaSOperations.SetSessionSeparation(True, DataArea);
 	EndIf;
@@ -1024,7 +1017,7 @@ Procedure SignOutOfDataArea(DataArea)
 	CTLVersion = ModuleSaaSTechnology.LibraryVersion();
 
 	If CommonClientServer.CompareVersions(CTLVersion, "2.0.7.46") >= 0 Then
-		ModuleSaaSOperations.SignOutOfDataArea(); //ACC:287
+		ModuleSaaSOperations.SignOutOfDataArea();
 	Else
 		ModuleSaaSOperations.SetSessionSeparation(False);
 	EndIf;

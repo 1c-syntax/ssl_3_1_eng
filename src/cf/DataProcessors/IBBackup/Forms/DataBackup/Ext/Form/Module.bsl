@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -390,12 +388,12 @@ Function CheckAttributesFilling()
 		
 		If AttributesFilled Then
 			
-			// CAC:280-off Exceptions are not processed as files are not deleted on this step.
+			// 
 			Try
 				DeleteFiles(Object.BackupDirectory, "*.test1From1");
 			Except
 			EndTry;
-			// ACC:280-on
+			// 
 			
 		EndIf;
 		
@@ -562,7 +560,7 @@ Procedure AfterStartScript(Result, Context) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Handlers of form events on the server and changes of backup settings.
+// 
 
 &AtServerNoContext
 Procedure SetBackupArchivePath(Val Path, Val AutomaticRun)
@@ -578,7 +576,7 @@ Procedure SetBackupArchivePath(Val Path, Val AutomaticRun)
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions of backup preparation.
+// 
 
 #If Not WebClient And Not MobileClient Then
 
@@ -599,14 +597,14 @@ Function GenerateScriptFiles()
 	
 	Scripts = GenerateScriptsText(ScriptParameters, ApplicationParameters["StandardSubsystems.MessagesForEventLog"]);
 	
-	// Auxiliary file: helpers.js.
+	// 
 	ScriptFile = New TextDocument;
 	ScriptFile.Output = UseOutput.Enable;
 	ScriptFile.SetText(Scripts.Script);
 	ScriptFileName = BackupParameters.TempFilesDirForUpdate + "main.js";
 	ScriptFile.Write(ScriptFileName, IBBackupClient.IBBackupApplicationFilesEncoding());
 	
-	// Auxiliary file: helpers.js.
+	// 
 	ScriptFile = New TextDocument;
 	ScriptFile.Output = UseOutput.Enable;
 	ScriptFile.SetText(Scripts.AddlBackupFile);
@@ -617,7 +615,7 @@ Function GenerateScriptFiles()
 	PictureLib.ExternalOperationSplashIcon.Write(BackupParameters.TempFilesDirForUpdate + "splash.ico");
 	PictureLib.TimeConsumingOperation48.Write(BackupParameters.TempFilesDirForUpdate + "progress.gif");
 	
-	// Main splash file: splash.hta.
+	// 
 	MainScriptFileName = BackupParameters.TempFilesDirForUpdate + "splash.hta";
 	ScriptFile = New TextDocument;
 	ScriptFile.Output = UseOutput.Enable;
@@ -651,7 +649,7 @@ EndFunction
 &AtServer
 Function GenerateScriptText(ScriptParameters)
 	
-	// Configuration update file: main.js.
+	// 
 	ScriptTemplate = DataProcessors.IBBackup.GetTemplate("BackupFileTemplate");
 	
 	Script = ScriptTemplate.GetArea("ParametersArea");

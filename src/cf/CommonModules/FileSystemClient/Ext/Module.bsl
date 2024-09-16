@@ -1,46 +1,44 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 #Region FilesImport
 
-// Shows a file selection dialog box and places the selected file into a temporary storage.
-// This method provides the functionality of both BeginPutFile and BeginPuttingFiles global context methods.
-// Its return value is not affected by the availability of 1C:Enterprise Extension.
-// Restrictions:
-//   Not used to select catalogs. This option is not supported in the web client mode.
+// Displays the file selection dialog and places the selected file in temporary storage.
+// Combines the work of the global context methods beginmessage of a File and beginmessage of Files,
+// returning an identical result regardless of whether the extension for working with 1C is enabled or not:Company.
+// Limitations:
+//   Not used for selecting directories - this option is not supported by the web client.
 //
 // Parameters:
-//   CompletionHandler - NotifyDescription - contains details of the procedure that will be called after
-//                             the file with the following parameters is imported:
-//      * FileThatWasPut - Undefined - The user canceled out of the selection dialog, or the file is used by another program.
-//                       - Structure    - The user selected a file:
-//                           ** Location  - String - data location in a temporary storage.
-//                           ** Name       - String - The local path used to receive the file
-//                                        (in the thin client and in the web client with 1C:Enterprise Extension installed).
-//                                        Or the filename with the extension (in the web client without 1C:Enterprise Extension installed).
+//   CompletionHandler - NotifyDescription - 
+//                             :
+//      * FileThatWasPut - Undefined - 
+//                       - Structure    - :
+//                           ** Location  - String -  location of data in temporary storage.
+//                           ** Name       - String - 
 //                                        
-//      * AdditionalParameters - Arbitrary - a value that was specified on creating
-//                                the NotifyDescription object.
+//                                        
+//                                        
+//      * AdditionalParameters - Arbitrary -  the value that was specified when creating the object
+//                                Description of the announcement.
 //   ImportParameters         - See FileSystemClient.FileImportParameters.
-//   FileName                  - String - the full path to the file that will be offered to the user at the beginning of
-//                             interactive selection or will be put to the temporary storage in noninteractive. If
-//                             noninteractive mode is selected and the parameter is not filled, an exception will be called.
-//   AddressInTempStorage - String - the address where the file will be saved.
+//   FileName                  - String -  the full path to the file that will be offered to the user at the beginning
+//                             of an interactive selection or placed in temporary storage in a non-interactive one. If
+//                             non-interactive mode is selected and the parameter is empty, an exception is thrown.
+//   AddressInTempStorage - String -  the address where the file will be saved.
 //
 // Example:
-//   Notification = New NotifyDescription("SelectFileAfterPutFiles", ThisObject, Context);
-//   ImportParameters = FileSystemClient.FileImportParameters();
-//   ImportParameters.FormIdentifier = UUID;
-//   FileSystemClient.ImportFile(Notification, ImportParameters);
+//   Alert = New Message Descriptor ("Select File After File Placemark", This Object, Context);
+//   Boot Parameters = Filesystem Client.Parameters of the upload file();
+//   Boot parameters.Form ID = Unique Identifier;
+//   Filobasidiella.Upload A File(Notification, Upload Parameters);
 //
 Procedure ImportFile_(
 		CompletionHandler, 
@@ -68,43 +66,43 @@ Procedure ImportFile_(
 	
 EndProcedure
 
-// Shows a file selection dialog and puts the selected files to a temporary storage.
-// This method provides the functionality of both BeginPutFile and BeginPuttingFiles global context methods.
-// Its return value is not affected by the availability of 1C:Enterprise Extension.
-// Restrictions:
-//   Not used to select catalogs. This option is not supported in the web client mode.
-//   Multiple selection in the web client is only supported if 1C:Enterprise Extension is installed.
+// Displays the file selection dialog and places the selected files in temporary storage.
+// Combines the work of the global context methods beginmessage of a File and beginmessage of Files,
+// returning an identical result regardless of whether the extension for working with 1C is enabled or not:Company.
+// Limitations:
+//   Not used for selecting directories - this option is not supported by the web client.
+//   Multiple selection is not supported in the web client if the extension for working with 1C is not installed:Company.
 //
 // Parameters:
-//   CompletionHandler - NotifyDescription - contains the description of the procedure that will be called after
-//                             the files with the following parameters will be imported:
-//      * PlacedFiles - Undefined - The user canceled out of the selection dialog, or the file is used by another program.
-//                        - Array - Objects of the Structure type. The user selected a file:
-//                           ** Location  - String - data location in a temporary storage.
-//                           ** Name       - String - The local path used to receive the file
-//                                        (in the thin client and in the web client with 1C:Enterprise Extension installed).
-//                                        Or the filename with the extension (in the web client without 1C:Enterprise Extension installed).
+//   CompletionHandler - NotifyDescription - 
+//                             :
+//      * PlacedFiles - Undefined - 
+//                        - Array - :
+//                           ** Location  - String -  location of data in temporary storage.
+//                           ** Name       - String - 
 //                                        
-//                           ** FullName - String - The local path used to receive the file
-//                                         (in the thin client and in the web client with 1C:Enterprise Extension installed).
-//                                         Or "" (in the web client without 1C:Enterprise Extension installed).
+//                                        
+//                                        
+//                           ** FullName - String - 
 //                                         
-//                           ** FileName  - String - File name with the extension.
-//      * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
+//                                         
+//                                         
+//                           ** FileName  - String -  name of the file with the extension.
+//      * AdditionalParameters - Arbitrary -  the value that was specified when creating the message Description object.
 //   ImportParameters    - See FileSystemClient.FileImportParameters.
-//   FilesToUpload     - Array - contains objects of the TransferableFileDetails type. Can be filled completely.
-//                        In this case the files being imported will be saved to the specified addresses. Can be filled
-//                        partially. Only the names of the array items are filled. In this case the files being imported will be
-//                        placed in new temporary storages. Array can be empty. In this case the files
-//                        to put are defined by the values specified in the ImportParameters parameter. If noninteractive mode is selected in
-//                        import parameters, and the FilesToUpload parameter is not filled, an exception
-//                        will be called.
+//   FilesToUpload     - Array -  contains objects of the file Descriptiontransmitability type. It can be filled in completely
+//                        . in this case, the downloaded files will be saved to the specified addresses. It can be
+//                        partially filled in - only the names of array elements are filled in. In this case, the uploaded files will
+//                        be placed in the new temporary storage. The array may be empty. In this case, the set
+//                        of files to be placed is determined by the values specified in the upload Parameters parameter. If
+//                        non-interactive mode is selected in the download parameters and the downloadable Files parameter is not filled in,
+//                        an exception is thrown.
 //
 // Example:
-//   Notification = New NotifyDescription("LoadExtensionAfterPutFiles", ThisObject, Context);
-//   ImportParameters = FileSystemClient.FileImportParameters();
-//   ImportParameters.FormIdentifier = UUID;
-//   FileSystemClient.ImportFiles(Notification, ImportParameters);
+//   Alert = New Message Descriptiondescription ("Upload An Extension Of The File List", This Object, Context);
+//   Boot Parameters = Filesystem Client.Parameters of the upload file();
+//   Boot parameters.Form ID = Unique Identifier;
+//   Filobasidiella.Upload Files(Notification, Upload Parameters);
 //
 Procedure ImportFiles(
 		CompletionHandler, 
@@ -142,24 +140,24 @@ EndProcedure
 
 #Region ModifiesStoredData
 
-// Gets the file and saves it to the local file system of the user.
+// Retrieves the file and saves it to the user's local file system.
 //
 // Parameters:
 //   CompletionHandler      - NotifyDescription
-//                             - Undefined - Contains the description of the follow-up procedure with the following parameters 
+//                             - Undefined -  
 //                                              :
-//      * ObtainedFiles         - Undefined - files are not received.
-//                                - Array - contains objects of the TransferredFileDescription type. Saved files.
-//      * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
-//   AddressInTempStorage - String - data location in a temporary storage.
-//   FileName                  - String - a full path according to which the received file and the file name
-//                                        with an extension must be saved.
+//      * ObtainedFiles         - Undefined -  the files have not been received.
+//                                - Array - 
+//      * AdditionalParameters - Arbitrary -  the value that was specified when creating the message Description object.
+//   AddressInTempStorage - String -  location of data in temporary storage.
+//   FileName                  - String -  the full path where the received file should be saved, or the name of the file
+//                                        with the extension.
 //   SavingParameters       - See FileSystemClient.FileSavingParameters
 //
 // Example:
-//   Notification = New NotifyDescription("SaveCertificateAfterFilesReceipt", ThisObject, Context);
-//   SavingParameters = FileSystemClient.FileSavingParameters();
-//   FileSystemClient.SaveFile(Notification, Context.CertificateAddress, FileName, SavingParameters);
+//   Alert = New Description Of The Message ("Save The Certificate After Receiving Files", This Object, Context);
+//   Save Parameters = Filesystem Client.File Save Parametersfile ();
+//   Filesystem Client.Save The File(Notification, Context.Adressability, Filename, Parametrelerine);
 //
 Procedure SaveFile(CompletionHandler, AddressInTempStorage, FileName = "",
 	SavingParameters = Undefined) Export
@@ -177,27 +175,27 @@ Procedure SaveFile(CompletionHandler, AddressInTempStorage, FileName = "",
 	
 EndProcedure
 
-// Gets the files and saves them to the local file system of the user.
-// To save files in noninteractive mode, the Name property of the FilesToSave parameter must have
-// the full path to the file being saved, or if the Name property contains only the file name with extension, the Directory property of the Dialog item of the SavingParameters parameter is to be
-// filled. Otherwise, an exception
-// will be called.
+// Retrieves files and saves them to the user's local file system.
+// To save files in non-interactive mode, the name property of the Savedefiles parameter must contain
+// the full path to the saved file, or if the Name property contains only the name of the file with the extension, you must
+// fill in the Directory property of the save Parameters dialog item. Otherwise
+// , an exception will be thrown.
 //
 // Parameters:
 //   CompletionHandler - NotifyDescription
-//                        - Undefined - Contains the description of the follow-up procedure
-//                             with the following parameters:
-//     * ObtainedFiles         - Undefined - files are not received.
-//                               - Array - contains objects of the TransferredFileDescription type. Saved files.
-//     * AdditionalParameters - Arbitrary - a value that was specified on creating
-//                               the NotifyDescription object.
+//                        - Undefined - 
+//                             :
+//     * ObtainedFiles         - Undefined -  the files have not been received.
+//                               - Array - 
+//     * AdditionalParameters - Arbitrary -  the value that was specified when creating the object
+//                               Description of the announcement.
 //   FilesToSave     - Array of TransferableFileDescription
 //   SavingParameters  - See FileSystemClient.FileSavingParameters
 //
 // Example:
-//   Notification = New NotifyDescription("SavePrintFormToFileAfterGetFiles", ThisObject);
-//   SavingParameters = FileSystemClient.FilesSavingParameters();
-//   FileSystemClient.SaveFiles(Notification, FilesToGet, SavingParameters);
+//   Alert = New Message Description ("Save Printable Formfile After Receiving Files", This Object);
+//   Save Parameters = Filesystem Client.Filesaving Parametersfile ();
+//   Filesystem Client.Save Files(Notification, Received Files, Save Parameters);
 //
 Procedure SaveFiles(CompletionHandler, FilesToSave, SavingParameters = Undefined) Export
 	
@@ -213,43 +211,43 @@ EndProcedure
 
 #Region Parameters
 
-// Initializes a parameter structure to import the file from the file system.
-// To be used in FileSystemClient.ImportFile and FileSystemClient.ImportFiles
+// Initializes the parameter structure for loading a file from the file system.
+// For use in the filesystem Client.Zagruzchik and Filobasidiella.Upload files
 //
 // Returns:
 //  Structure:
-//    * FormIdentifier                  - UUID - a UUID of the form
-//                                          used to place files. If the parameter is filled,
-//                                          the DeleteFromTempStorage global context method is to be called
-//                                          after completing the operation with the binary data. Default
-//                                          value is Undefined.
-//    * Interactively                        - Boolean - Indicates interactive mode usage when a file selection dialog is shown to
-//                                          the user. The default
-//                                          value is True.
-//    * Dialog                              - FileDialog - See the properties in Syntax Assistant.
-//                                          It is used if the "Interactively" property is set to True,
-//                                          and 1C:Enterprise Extension is attached.
-//    * SuggestionText                    - String - a text of a suggestion to install the extension. If the parameter
-//                                          takes the value "", the standard suggestion text will be output.
-//                                          Default value - "".
+//    * FormIdentifier                  - UUID -  unique ID of the form from
+//                                          which the file is placed. If the parameter is not filled in,
+//                                          you must call the delete time Storage global context method
+//                                          after you finish working with the received binary data. The
+//                                          default value is Undefined.
+//    * Interactively                        - Boolean -  specifies the use of interactive mode, in which
+//                                          the user is shown a file selection dialog. The
+//                                          default value is True.
+//    * Dialog                              - FileDialog -  see the properties in the syntax assistant.
+//                                          It is used if the property Interactively takes the value True and
+//                                          it was possible to connect the extension to work with 1C:Enterprise.
+//    * SuggestionText                    - String -  text of the offer to install the extension. If the parameter
+//                                          takes the value"", the standard text of the sentence is displayed.
+//                                          The default value is "".
 //    * AcrtionBeforeStartPutFiles - NotifyDescription
-//                                          - Undefined - Contains the details of the procedure
-//                                          that must be called right before a file is stored to the temporary storage.
-//                                          If set to "Undefined", no procedure will be called.
-//                                          By default, "Undefined". Parameters of the callable procedure
+//                                          - Undefined - 
+//                                          
+//                                          
+//                                          
 //                                          :
 //        ** Files         - FileRef
-//                                   - Array - a reference to a file ready to be placed in temporary storage.
-//                                   If multiple files were imported, it contains an array of links.
-//        ** RefusalToPlaceFile   - Boolean - Indicates that file putting was canceled. If the parameter is set to True in
-//                                   the handler procedure body, the file is not placed.
-//        ** AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
+//                                   - Array - 
+//                                   
+//        ** RefusalToPlaceFile   - Boolean -  indicates that you don't want to move the file any further. If
+//                                   this parameter is set to True in the body of the handler procedure, the file placement will be canceled.
+//        ** AdditionalParameters - Arbitrary -  the value that was specified when creating the message Description object.
 //
 // Example:
-//  ImportParameters = FileSystemClient.FileImportParameters();
-//  ImportParameters.Dialog.Title = NStr("en = 'Select a document'");
-//  ImportParameters.Dialog.Filter = NStr("en = 'MS Word files (*.doc;*.docx)|*.doc;*.docx|All files (*.*)|*.*'");
-//  FileSystemClient.ImportFile(Notification, ImportParameters);
+//  Boot Parameters = Filesystem Client.Parameters of the upload file();
+//  Boot parameters.Dialogue.Title = NSTR ("ru = 'Select a document'");
+//  Boot parameters.Dialogue.Filter = NSTR ("ru = 'MS Word Files (*. doc;*.docx)|*.doc;*.docx|All files (*.*)|*.*'");
+//  Filobasidiella.Upload A File(Notification, Upload Parameters);
 //
 Function FileImportParameters() Export
 	
@@ -260,26 +258,26 @@ Function FileImportParameters() Export
 	
 EndFunction
 
-// Initializes a parameter structure to save the file to the file system.
-// To be used in FileSystemClient.SaveFile.
+// Initializes the parameter structure for saving the file to the file system.
+// For use in the filesystem Client.Save the file.
 //
 // Returns:
 //  Structure:
-//    * Interactively     - Boolean - Indicates interactive mode usage when a file selection dialog is shown to
-//                       the user. The default
-//                       value is True.
-//    * Dialog           - FileDialog - See the properties in Syntax Assistant.
-//                       It is used if the "Interactively" property is set to True,
-//                       and 1C:Enterprise Extension is attached.
-//    * SuggestionText - String - a text of a suggestion to install the extension. If the parameter
-//                       takes the value "", the standard suggestion text will be output.
-//                       Default value - "".
+//    * Interactively     - Boolean -  specifies the use of interactive mode, in which
+//                       the user is shown a file selection dialog. The
+//                       default value is True.
+//    * Dialog           - FileDialog -  see the properties in the syntax assistant.
+//                       It is used if the property Interactively takes the value True and
+//                       it was possible to connect the extension to work with 1C:Enterprise.
+//    * SuggestionText - String -  text of the offer to install the extension. If the parameter
+//                       takes the value"", the standard text of the sentence is displayed.
+//                       The default value is "".
 //
 // Example:
-//  SavingParameters = FileSystemClient.FileSavingParameters();
-//  SavingParameters.Dialog.Title = NStr("en = 'Save key operation profile to file");
-//  SavingParameters.Dialog.Filter = "Key operation profile files (*.xml)|*.xml";
-//  FileSystemClient.SaveFile(Undefined, SaveKeyOperationsProfileToServer(), , SavingParameters);
+//  Save Parameters = Filesystem Client.Parametricheskaya();
+//  Save parameters.Dialogue.Header = NSTR ("ru =' Save key operations profile to file'");
+//  Save parameters.Dialogue.Filter = " key operation profile Files (*. xml)|*. xml";
+//  Filobasidiella.SaveFile(Undefined, Saveprofile Keyoperationsserver (),, Save Parameters);
 //
 Function FileSavingParameters() Export
 	
@@ -287,25 +285,25 @@ Function FileSavingParameters() Export
 	
 EndFunction
 
-// Initializes a parameter structure to save the file to the file system.
-// To be used in FileSystemClient.SaveFiles
+// Initializes the parameter structure for saving the file to the file system.
+// For use in the filesystem Client.Save files
 //
 // Returns:
 //  Structure:
-//    * Interactively     - Boolean - Indicates interactive mode usage when a file selection dialog is shown to
-//                       the user. The default
-//                       value is True.
-//    * Dialog           - FileDialog - See the properties in Syntax Assistant.
-//                       It is used if the "Interactively" property is set to True,
-//                       and 1C:Enterprise Extension is attached.
-//    * SuggestionText - String - a text of a suggestion to install the extension. If the parameter
-//                       takes the value "", the standard suggestion text will be output.
-//                       Default value - "".
+//    * Interactively     - Boolean -  specifies the use of interactive mode, in which
+//                       the user is shown a file selection dialog. The
+//                       default value is True.
+//    * Dialog           - FileDialog -  see the properties in the syntax assistant.
+//                       It is used if the property Interactively takes the value True and
+//                       it was possible to connect the extension to work with 1C:Enterprise.
+//    * SuggestionText - String -  text of the offer to install the extension. If the parameter
+//                       takes the value"", the standard text of the sentence is displayed.
+//                       The default value is "".
 //
 // Example:
-//  SavingParameters = FileSystemClient.FilesSavingParameters();
-//  SavingParameters.Dialog.Title = NStr("en ='Select a folder to save generated document'");
-//  FileSystemClient.SaveFiles(Notification, FilesToGet, SavingParameters);
+//  Save Parameters = Filesystem Client.Parametrisation();
+//  Save parameters.Dialogue.Title = NSTR ("ru ='Selecting a folder to save the generated document'");
+//  Filobasidiella.Save Files(Notification, Received Files, Save Parameters);
 //
 Function FilesSavingParameters() Export
 	
@@ -313,18 +311,18 @@ Function FilesSavingParameters() Export
 	
 EndFunction
 
-// Initializes a parameter structure to open the file.
-// To be used in FileSystemClient.OpenFile
+// Initializes the parameter structure for opening the file.
+// For use in the filesystem Client.OpenFile
 //
 // Returns:
 //  Structure:
-//    *Encoding         - String - The text file encoding. By default, "".
-//                       If the parameter is not specified, the text format will be determined automatically. 
-//                       For the encodings list, see text document's "Write" method in Syntax Assistant.
-//    *ForEditing - Boolean - True to open the file for editing, False otherwise. If
-//                       the parameter takes the True value, waiting for application closing, and if in the
-//                       FileLocation parameter the address is stored in the temporary storage, it updates the file data.
-//                       Default value is False.
+//    *Encoding         - String -  encoding of a text file. If the parameter is omitted, the text format
+//                       will be determined automatically. For a list of encodings, see in the syntax assistant 
+//                       , write a text document in the description of the method. The default value is "".
+//    *ForEditing - Boolean -  True if the file is opened for editing, otherwise False. If
+//                       the parameter is set to True, waits for the program to close, and if the parameter
+//                       The file location stores the address in temporary storage, updates the file data.
+//                       The default value is False.
 //
 Function FileOpeningParameters() Export
 	
@@ -339,22 +337,22 @@ EndFunction
 
 #Region RunExternalApplications
 
-// Opens a file for viewing or editing.
-// If the file is opened from the binary data in a temporary storage, it is previously saved
-// to the temporary directory.
+// Opens the file for viewing or editing.
+// If a file is opened from binary data in temporary storage, it first saves
+// it to a temporary directory.
 //
 // Parameters:
-//  FileLocation1    - String - a full path to the file in the file system or file data location
-//                       in the temporary storage.
+//  FileLocation1    - String -  the full path to the file in the file system or the location of the file data
+//                       in temporary storage.
 //  CompletionHandler - NotifyDescription
-//                       - Undefined - The description of the procedure that takes the return value.
-//                       Takes the following parameters:
-//    * TheModifiedFile             - Boolean - Indicates that either the local file or the temp storage binary data was modified.
-//    * AdditionalParameters - Arbitrary - a value that was specified on creating
-//                              the NotifyDescription object.
-//  FileName             - String - the name of the file with an extension or the file extension without the dot. If
-//                       the FileLocation parameter contains the address in a temporary storage and the parameter
-//                       FileName is empty, an exception is thrown.
+//                       - Undefined - 
+//                       :
+//    * TheModifiedFile             - Boolean - 
+//    * AdditionalParameters - Arbitrary -  the value that was specified when creating the object
+//                              Description of the announcement.
+//  FileName             - String -  the name of the file with the extension or the file extension without the dot. If
+//                       the file Location parameter contains an address in temporary storage and the parameter
+//                       Filename is not filled in, an exception will be thrown.
 //  OpeningParameters    - See FileSystemClient.FileOpeningParameters.
 //
 Procedure OpenFile(
@@ -396,19 +394,19 @@ Procedure OpenFile(
 	
 EndProcedure
 
-// Opens Windows Explorer to the specified directory.
-// If a file path is specified, the pointer is placed on the file.
+// Opens file Explorer with the specified path.
+// If a path to a file is passed, it positions the cursor in Explorer on that file.
 //
 // Parameters:
-//  PathToDirectoryOrFile - String - The full path to a local file or directory.
+//  PathToDirectoryOrFile - String - 
 //
 // Example:
-//  // For Windows OS
-//  FileSystemClient.OpenExplorer("C:\Users");
-//  FileSystemClient.OpenExplorer("C:\Program Files\1cv8\common\1cestart.exe");
-//  // For Linux OS
-//  FileSystemClient.OpenExplorer("/home/");
-//  FileSystemClient.OpenExplorer("/opt/1C/v8.3/x86_64/1cv8c");
+//  
+//  
+//  
+//  
+//  
+//  
 //
 Procedure OpenExplorer(PathToDirectoryOrFile) Export
 	
@@ -425,31 +423,31 @@ Procedure OpenExplorer(PathToDirectoryOrFile) Export
 	
 EndProcedure
 
-// Opens a URL in an application associated with URL protocol.
+// 
 //
-// Valid protocols: http, https, e1c, v8help, mailto, tel, skype.
+// 
 //
-// Do not use protocol file:// to open Explorer or a file.
-// - To open Explorer See OpenExplorer.
-// - To open a file in an associated application, use OpenFileInViewer.
+// 
+//  See OpenExplorer.
+// 
 //
 // Parameters:
-//  URL - String - a link to open.
-//  Notification - NotifyDescription - notification on file open attempt.
-//      If the notification is not specified and an error occurs, the method shows a warning.
-//      ApplicationStarted - Boolean - True if the external application opened successfully.
-//      AdditionalParameters - Arbitrary - a value that was specified when creating the NotifyDescription object.
+//  URL - String -  the link to open.
+//  Notification - NotifyDescription -  notification of the opening result.
+//      If an alert is not set, a warning will be displayed in case of an error.
+//      The application is omitted - Boolean - True if the external application did not cause errors when opening.
+//      Additional parameters - Arbitrary - the value that was specified when creating the object of the announcement description.
 //
 // Example:
-//  FileSystemClient.OpenURL("e1cib/navigationpoint/startpage"); // Home page.
-//  FileSystemClient.OpenURL("v8help://1cv8/QueryLanguageFullTextSearchInData");
-//  FileSystemClient.OpenURL("https://1c.ru");
-//  FileSystemClient.OpenURL("mailto:help@1c.ru");
-//  FileSystemClient.OpenURL("skype:echo123?call");
+//  Filobasidiella.Open the navigation link ("e1cib/navigationpoint/startpage"); / / home page.
+//  Filobasidiella.Open the navigation link ("v8help://1cv8/QueryLanguageFullTextSearchInData");
+//  Filobasidiella.Open the navigation link("https://1c.ru");
+//  Filobasidiella.Open the navigation link ("mailto:help@1c.ru");
+//  Filobasidiella.Open the navigation link ("skype: echo123?call");
 //
 Procedure OpenURL(URL, Val Notification = Undefined) Export
 	
-	// CAC:534-off safe start methods are provided with this function
+	// 
 	
 	Context = New Structure;
 	Context.Insert("URL", URL);
@@ -471,7 +469,7 @@ Procedure OpenURL(URL, Val Notification = Undefined) Export
 		
 #If ThickClientOrdinaryApplication Then
 			
-			// 1C:Enterprise design feature: GotoURL is not supported by ordinary applications running in the thick client.
+			// 
 			Notification = New NotifyDescription(
 				,, Context,
 				"OpenURLOnProcessError", FileSystemInternalClient);
@@ -505,47 +503,47 @@ Procedure OpenURL(URL, Val Notification = Undefined) Export
 		
 	EndIf;
 	
-	// ACC:534-on
+	// 
 	
 EndProcedure
 
-// Parameter constructor for FileSystemClient.StartApplication.
+// Parameter constructor for the filesystem Client.Run the program.
 //
 // Returns:
 //  Structure:
-//    * CurrentDirectory - String - sets the current directory of the application being started up.
-//    * Notification - NotifyDescription - Notification about the app's runtime result. 
-//          If the notification is not specified and an error occurs, the method shows a warning. Completion handler parameters:
-//          Result - Structure - App's runtime result:
-//              -- ApplicationStarted - Boolean - True if the external application opened successfully.
-//              -- ErrorDescription - String - a brief error description. Empty string on cancel by user.
-//              -- ReturnCode - Number - the application return code.
-//              -- OutputStream - String - App result passed to stdout.
-//                             In the web client, it is always "".
-//              -- ErrorStream - String - App errors passed to stderr.
-//                             In the web client, always set to "".
-//          AdditionalParameters - Arbitrary - The value specified when creating the NotifyDescription object:
-//    * WaitForCompletion - Boolean - True, wait for the running application to end before proceeding.
-//    * GetOutputStream - Boolean - False - result is passed to stdout.
-//         Ignored if WaitForCompletion is not specified.
-//    * GetErrorStream - Boolean - False - errors are passed to stderr stream.
-//         Ignored if WaitForCompletion is not specified.
+//    * CurrentDirectory - String -  sets the current folder of the application to launch.
+//    * Notification - NotifyDescription -  
+//          :
+//          
+//              -- 
+//              -- 
+//              -- 
+//              -- 
+//                             
+//              -- 
+//                             
+//          :
+//    * WaitForCompletion - Boolean -  True, wait for the running application to finish before continuing.
+//    * GetOutputStream - Boolean -  False-the result sent to the stdout stream,
+//         if wait for Completion is not specified, is ignored.
+//    * GetErrorStream - Boolean -  False-errors sent to the stderr stream,
+//         if wait for Completion is not specified - ignored.
 //    * ThreadsEncoding - TextEncoding
-//                       - String - The encoding used to read stdout and stderr.
-//         The default is "CP866" for Windows and "UTF-8" for other operating systems.
+//                       - String - 
+//         
 //    * ExecutionEncoding - String
-//                          - Number - an encoding set in Windows using the chcp command,
-//         the possible values ​​are "OEM", "CP866", "UTF8" or the code page number.
-//         On Linux, it is set by the environment variable "LANGUAGE" for a particular command.
-//         Possible values ​​can be determined by executing the "locale -a" command, for example, "en_EN.UTF-8".
-//         Ignored when under MacOS.
-//    * ExecuteWithFullRights - Boolean - True, if the application must be run
-//          with full system privileges:
-//          Windows: UAC query;
-//          Linux: execution with pkexec command;
-//          macOS, web client, and mobile client: Result.ErrorDetails will be returned.
-//    * ExecutionEnvironment - String - an empty string if the runtime is not Windows. Used when identifying 
-//								   invalid characters in the launch string.
+//                          - Number - 
+//         
+//         
+//         
+//         
+//    * ExecuteWithFullRights - Boolean - 
+//          :
+//          
+//          
+//          
+//    * ExecutionEnvironment - String -  an empty string if the execution environment is not Windows. Used when 
+//								   defining invalid characters in the startup string.
 //
 Function ApplicationStartupParameters() Export
 	
@@ -566,22 +564,22 @@ Function ApplicationStartupParameters() Export
 	
 EndFunction
 
-// Starts up an external application for execution (for example, * .exe, * bat), 
-// or a system command (for example, ping, tracert or traceroute, access the rac client),
-// It also allows you to get a return code and the values ​​of output streams (stdout) and errors (stderr)
+//  
+// 
+// 
 //
-// When an external program is started up in batch mode, the output stream and error stream may return in an unexpected language. 
-// To pass to the external application the language in which the expected result must be, you need to:
-// - Specify the language in the startup parameter of this application (if such a parameter is provided). 
-//   For example, batch mode of 1C:Enterprise has the "/L en" key;
-// - In other cases, explicitly set the encoding for the batch command execution.
-//   See the ExecutionEncoding property in the return value of FileSystemClient.ApplicationStartupParameters. 
+//  
+// 
+//  
+//   
+// 
+//    
 //
 // Parameters:
-//  StartupCommand - String - application startup command line.
-//                 - Array - the first array element, the path to the application being executed,
-//      if Array, the first array element is a path to the application being executed, the rest of the elements are its startup parameters.
-//      An array matches the one that the called application in argv will get.
+//  StartupCommand - String -  command line for running the program.
+//                 - Array - 
+//      
+//      
 //  ApplicationStartupParameters - See FileSystemClient.ApplicationStartupParameters.
 //
 // Пример: 
@@ -589,29 +587,29 @@ EndFunction
 //  ФайловаяСистемаКлиент.ЗапуститьПрограмму("calc");
 //  
 // Example:
-//  Passing arguments as an array:
-//  Setup.exe -args "PIDKEY=***":
-//  StartupCommand = New Array;
-//  StartupCommand.Add("-args);
-//  StartupCommand.Add("PIDKEY =***);
-//  FileSystemClient.StartApplication(StartupCommand);
-//  Startup with waiting for exit and obtaining the return code:
+//  
+//  
+//  
+//  
+//  
+//  
+//  
 //
-//  ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters ();
-//  ApplicationStartupParameters .WaitForCompletion = True;
-//  ApplicationStartupParameters.GetOutputStream = True;
-//  ApplicationStartupParameters.GetErrorStream = True;
-//  ApplicationStartupParameters.Notification = New NotifyDescription("OnGetAppStartupResult", ThisObject);
-//  FileSystemClient.StartApplication("ping 127.0.0.1 -n 5", ApplicationStartupParameters );
+//  
+//  
+//  
+//  
+//  
+//  
 //
-//  Example of notification handling
+//  
 //   
-//  &AtClient
-//  Procedure OnGetAppStartupResult(Result, AdditionalParameters) Export
-//  ReturnCode = Result.ReturnCode;
-//      ErrorStream = Result.OutputStream;
-//      ErrorStream = Result.ErrorStream;
-//      EndProcedure
+//  
+//  
+//  
+//      
+//      
+//      
 //  
 //
 Procedure StartApplication(Val StartupCommand, Val ApplicationStartupParameters = Undefined) Export
@@ -628,7 +626,7 @@ Procedure StartApplication(Val StartupCommand, Val ApplicationStartupParameters 
 #If Not WebClient Then
 	If ApplicationStartupParameters.WaitForCompletion Then
 		
-		// CAC:441-off temporary files are deleted after the asynchronous operations
+		// 
 		
 		If ApplicationStartupParameters.GetOutputStream Then
 			OutputThreadFileName = GetTempFileName("stdout.tmp");
@@ -640,7 +638,7 @@ Procedure StartApplication(Val StartupCommand, Val ApplicationStartupParameters 
 			CommandString = CommandString + " 2> """ + ErrorsThreadFileName + """";
 		EndIf;
 		
-		// ACC:441-on
+		// 
 		
 	EndIf;
 #EndIf
@@ -665,7 +663,7 @@ Procedure StartApplication(Val StartupCommand, Val ApplicationStartupParameters 
 	
 EndProcedure
 
-// Prints file by an external application.
+// Prints the file by an external application.
 //
 // Parameters:
 //  FileToOpenName - String
@@ -698,16 +696,16 @@ EndProcedure
 
 #Region Other
 
-// Calls directory selection dialog.
+// Displays the folder selection dialog.
 //
 // Parameters:
-//   CompletionHandler - NotifyDescription - contains the description of the procedure that will be called after
-//                        the selection dialog box is closed, with the following parameters:
-//      -- PathToDirectory - String - Full path to a directory. Returns an empty string if 1C:Enterprise Extension is not installed
-//                        or if the user canceled the selection action.
-//      -- AdditionalParameters - a value that was specified on creating the NotifyDescription object.
-//   Title - String - a title of the directory selection dialog.
-//   Directory   - String - the initial default directory value.
+//   CompletionHandler - NotifyDescription - 
+//                        :
+//      -- 
+//                        
+//      -- 
+//   Title - String -  title of the folder selection dialog.
+//   Directory   - String -  the initial value of the folder that is suggested by default.
 //
 Procedure SelectDirectory(CompletionHandler, Title = "", Directory = "") Export
 	
@@ -722,18 +720,18 @@ Procedure SelectDirectory(CompletionHandler, Title = "", Directory = "") Export
 	
 EndProcedure
 
-// Shows a file selection dialog.
-// In the web client, a user will see a dialog box prompting to install
-//  1C:Enterprise Extension if required.
+// Displays the file selection dialog.
+// When working in the web client, the user will be shown a dialog for installing an extension
+// for working with files, if necessary.
 //
 // Parameters:
-//   CompletionHandler - NotifyDescription - contains the description of the procedure that will be called after
-//           the selection dialog box is closed, with the parameters:
-//          * Result - Array of String - selected file names.
-//           			- String - an empty string if a user refused to install the extension.
-//           			- Undefined - if a user refused to select a file.
-//      * AdditionalParameters - Structure - additional notification parameters.
-//   Dialog - FileDialog - See the properties in Syntax Assistant.
+//   CompletionHandler - NotifyDescription - 
+//           :
+//          * Result - Array of String -  selected file names.
+//           			- String - 
+//           			- Undefined - 
+//      * AdditionalParameters - Structure -  additional notification parameters.
+//   Dialog - FileDialog -  see the properties in the syntax assistant.
 //
 Procedure ShowSelectionDialog(CompletionHandler, Dialog) Export
 	
@@ -747,13 +745,13 @@ Procedure ShowSelectionDialog(CompletionHandler, Dialog) Export
 	
 EndProcedure
 
-// Gets temporary directory name.
+// Getting the name of the temporary folder.
 //
 // Parameters:
-//  Notification - NotifyDescription - notification on getting directory name attempt with the following parameters.
-//    -- DirectoryName - String - path to the directory.
-//    -- AdditionalParameters - Structure - a value that was specified upon creating the NotifyDescription object.
-//  Extension - String - the suffix in the directory name, which helps to identify the directory for analysis.
+//  Notification - NotifyDescription -  notification of the receipt result with the following parameters.
+//    -- 
+//    -- 
+//  Extension - String -  a suffix in the folder name that will help you identify the folder during analysis.
 //
 Procedure CreateTemporaryDirectory(Val Notification, Extension = "") Export 
 	
@@ -768,32 +766,32 @@ Procedure CreateTemporaryDirectory(Val Notification, Extension = "") Export
 	
 EndProcedure
 
-// Prompts the user to install 1C:Enterprise Extension in the web client.
-// Incorporate the procedure at the beginning of code areas that process files.
+// Prompts the user to install an extension to work with 1C:An enterprise in the web client.
+// It is intended for use at the beginning of code sections where you are working with files.
 //
 // Parameters:
-//  OnCloseNotifyDescription - NotifyDescription - the description of the procedure to be called once a form
-//          is closed. Parameters:
-//    -- ExtensionAttached - Boolean - True if the extension is attached.
-//    -- AdditionalParameters - Arbitrary - the parameters specified in OnCloseNotifyDescription.
-//  SuggestionText - String - the message text. If the text is not specified, the default text is displayed.
-//  CanContinueWithoutInstalling - Boolean - If True, displays the ContinueWithoutInstalling button.
-//          If False, displays the Cancel button.
+//  OnCloseNotifyDescription - NotifyDescription - 
+//          :
+//    -- 
+//    -- 
+//  SuggestionText - String -  message text. If omitted, the default text is displayed.
+//  CanContinueWithoutInstalling - Boolean -  if True, the continue button will be shown
+//          . If False, the Cancel button will be shown.
 //
 // Example:
 //
-//  Notification = New NotifyDescription("PrintDocumentCompletion", ThisObject);
-//  MessageText = NStr("en = 'To print the document, install 1C:Enterprise Extension.'");
-//  FileSystemClient.AttachFileOperationsExtension(Notification, MessageText);
+//  
+//  
+//  
 //
-//  Procedure PrintDocumentCompletion(ExtensionAttached, AdditionalParameters) Export
-//    If ExtensionAttached Then
-//     // Script that prints a document only if 1C:Enterprise Extension is attached.
-//     // …
-//    Else
-//     // Script that prints a document if 1C:Enterprise Extension is not attached.
-//     // …
-//    EndIf;
+//  
+//    
+//     
+//     
+//    
+//     
+//     
+//    
 //
 Procedure AttachFileOperationsExtension(
 		OnCloseNotifyDescription, 
@@ -805,7 +803,7 @@ Procedure AttachFileOperationsExtension(
 		OnCloseNotifyDescription);
 	
 #If Not WebClient Then
-	// In thin, thick, and web clients, the extension is always attached.
+	// 
 	ExecuteNotifyProcessing(NotifyDescriptionCompletion, "AttachmentNotRequired");
 	Return;
 #EndIf
@@ -821,14 +819,14 @@ Procedure AttachFileOperationsExtension(
 	
 EndProcedure
 
-// Generates a unique file name in the specified folder and adds a sequence number to the name if needed.
-// For example: "file (2).txt", "file (3).txt", and so on.
+// Generates a unique file name in the specified folder, if necessary, adding an ordinal number to the file name,
+// for example: "file (2). txt", "file (3). txt", etc.
 //
 // Parameters:
-//   FileName - String - a full name of the file and folder. For example: "C:\Documents\file.txt".
+//   FileName - String -  the full name of the file with the folder, for example, " C:\Документы\файл.txt".
 //
 // Returns:
-//   String - For example: "C:\Documents\file (2).txt" if "file.txt" already exists in the folder.
+//   String - 
 //
 Function UniqueFileName(Val FileName) Export
 	
@@ -842,10 +840,10 @@ EndFunction
 
 #Region Private
 
-// Initializes a parameter structure to interact with the file system.
+// Initializes the parameter structure for interacting with the file system.
 //
 // Parameters:
-//  DialogMode - FileDialogMode - the run mode of generating file selection dialog. 
+//  DialogMode - FileDialogMode -  mode of operation of the constructed file selection dialog. 
 //
 // Returns:
 //  Structure:
@@ -864,9 +862,8 @@ Function OperationContext(DialogMode)
 	
 EndFunction
 
-// Puts the selected files to a temporary storage.
+// 
 // See FileSystemClient.ImportFile_
-// and FileSystemClient.ImportFiles
 //
 Procedure ShowPutFile(CompletionHandler, PutParameters)
 	
@@ -877,9 +874,8 @@ Procedure ShowPutFile(CompletionHandler, PutParameters)
 	
 EndProcedure
 
-// Saves files from temporary storage to the file system.
+// 
 // See FileSystemClient.SaveFile
-// and FileSystemClient.SaveFiles
 //
 Procedure ShowDownloadFiles(CompletionHandler, FilesToSave, ReceivingParameters)
 	
@@ -892,13 +888,13 @@ Procedure ShowDownloadFiles(CompletionHandler, FilesToSave, ReceivingParameters)
 	
 EndProcedure
 
-// Gets the path to save the file in the temporary files catalog.
+// Gets the path to save the file in the temporary files folder.
 //
 // Parameters:
-//  FileName - String - the name of the file with an extension or the file extension without the dot.
+//  FileName - String -  name of the file with the extension or extension without a dot.
 //
 // Returns:
-//  String - path to save the file.
+//  String - 
 //
 Function TempFileFullName(Val FileName)
 
@@ -920,10 +916,10 @@ Function TempFileFullName(Val FileName)
 
 EndFunction
 
-// Trims the file name length based on the rule that the length of a full file path must be 260 characters maximum.
+// Reduces the length of the file name based on the rule that the full path of the file must not exceed 260 characters.
 //
 // Parameters:
-//  FullFileName - String - a full file name with the path and extension.
+//  FullFileName - String -  the full name of the file with the path before it and the extension.
 //
 Procedure ShortenFullFileNameToAllowedNTFSLength(FullFileName)
 	
@@ -939,7 +935,7 @@ Procedure ShortenFullFileNameToAllowedNTFSLength(FullFileName)
 	ExtensionLength = StrLen(File.Extension);
 	PathLength       = StrLen(File.Path);
 	
-	// Analyze the directory path length. 1 character is the minimum length of the directory name.
+	// 
 	If PathLength > AllowedNTFSLength - ExtensionLength - 1 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'File path is too long:
 		|%1';"), FullFileName);
@@ -1056,12 +1052,12 @@ Procedure PrintFromTheApplicationByTheLinuxFileNameCompletion(Result, Parameters
 		Return;
 	EndIf;
 	
-	// ACC:566-off - Applicable only for Linux
+	// 
 	File = New File(Parameters.TheFileOfTheConvertedData);
 	If File.Exists() Then
 		DeleteFiles(Parameters.TheFileOfTheConvertedData);
 	EndIf;
-	// ACC:566-on
+	// 
 	
 	If Not Result.ApplicationStarted Or ValueIsFilled(Result.ErrorDescription) 
 		Or ValueIsFilled(Result.ErrorStream) Then
@@ -1105,10 +1101,10 @@ EndProcedure
 // Getting the name of the temporary file.
 //
 // Parameters:
-//  Notification - NotifyDescription - notification on getting directory name attempt with the following parameters.
-//    -- TempFileName - String - The path to the temporary file.
-//    -- AdditionalParameters - Structure - The value that was specified upon creating the NotifyDescription object.
-//  Extension - String - the extension of the temporary file.
+//  Notification - NotifyDescription -  notification of the receipt result with the following parameters.
+//    -- 
+//    -- 
+//  Extension - String -  the extension of the temporary file.
 //
 Procedure GetTheFullNameOfTheTemporaryFile(Val Notification, Extension = "")
 	
@@ -1123,7 +1119,7 @@ Procedure GetTheFullNameOfTheTemporaryFile(Val Notification, Extension = "")
 	
 EndProcedure
 
-// Continue the GetFullTempFileName procedure.
+// The continuation of the procedure will receive the full timefile.
 // 
 // Parameters:
 //  ExtensionAttached - Boolean
@@ -1149,7 +1145,7 @@ Procedure GetTheNameOfATemporaryFileAfterCheckingTheFileExtension(ExtensionAttac
 	
 EndProcedure
 
-// Continue the GetFullTempFileName procedure.
+// The continuation of the procedure will receive the full timefile.
 // 
 // Parameters:
 //  TempFilesDirName - String
@@ -1165,7 +1161,7 @@ Procedure GetTheNameOfTheTemporaryFileAfterGettingTheTemporaryDirectory(TempFile
 #If WebClient Then
 	TempFileName = TempFilesDirName + String(New UUID);
 #Else
-	TempFileName = GetTempFileName(Extension); // ACC:441 - The function is a temporary file name getter.
+	TempFileName = GetTempFileName(Extension); // 
 #EndIf
 	
 	If Not IsBlankString(Extension) Then 
@@ -1176,7 +1172,7 @@ Procedure GetTheNameOfTheTemporaryFileAfterGettingTheTemporaryDirectory(TempFile
 	
 EndProcedure
 
-// Continue the GetFullTempFileName procedure.
+// The continuation of the procedure will receive the full timefile.
 Procedure GetTheNameOfATemporaryFileWhenProcessingAnError(ErrorInfo, StandardProcessing, Context) Export
 	
 	StandardProcessing = False;
@@ -1185,7 +1181,7 @@ Procedure GetTheNameOfATemporaryFileWhenProcessingAnError(ErrorInfo, StandardPro
 	
 EndProcedure
 
-// Continue the GetFullTempFileName procedure.
+// The continuation of the procedure will receive the full timefile.
 Procedure GetTheNameOfTheTemporaryFileNotifyAboutTheError(ErrorDescription, Context)
 	
 	ShowMessageBox(, ErrorDescription);

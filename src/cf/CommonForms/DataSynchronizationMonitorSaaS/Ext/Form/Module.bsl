@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -94,10 +92,10 @@ Procedure RefreshMonitorData()
 	
 	NodesStatesListRowIndex = GetCurrentRowIndex();
 	
-	// Updating monitor tables on the server
+	// 
 	RefreshNodesStatesList();
 	
-	// positioning a mouse pointer positioning
+	// 
 	ExecuteCursorPositioning(NodesStatesListRowIndex);
 	
 EndProcedure
@@ -105,10 +103,10 @@ EndProcedure
 &AtClient
 Function GetCurrentRowIndex()
 	
-	// Function return value.
+	// 
 	RowIndex = Undefined;
 	
-	// Positioning the mouse pointer upon the monitor update
+	// 
 	CurrentData = Items.NodesStateList.CurrentData;
 	
 	If CurrentData <> Undefined Then
@@ -125,7 +123,7 @@ Procedure ExecuteCursorPositioning(RowIndex)
 	
 	If RowIndex <> Undefined Then
 		
-		// Checking the mouse pointer position once new data is received
+		// 
 		If NodesStateList.Count() <> 0 Then
 			
 			If RowIndex > NodesStateList.Count() - 1 Then
@@ -134,7 +132,7 @@ Procedure ExecuteCursorPositioning(RowIndex)
 				
 			EndIf;
 			
-			// Place the mouse pointer.
+			// 
 			Items.NodesStateList.CurrentRow = NodesStateList[RowIndex].GetID();
 			
 		EndIf;

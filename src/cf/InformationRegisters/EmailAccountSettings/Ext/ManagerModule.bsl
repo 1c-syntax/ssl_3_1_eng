@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,7 +12,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.AccessManagement
+// 
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -37,11 +35,11 @@ EndProcedure
 
 #Region Internal
 
-// Updates email's last usage date.
+// 
 //
 // Parameters:
-//  Account     - CatalogRef.EmailAccounts - Email account being updated.
-//  DateOfUse - Date - Email's last usage date. If nothing is passed, set to the current date.
+//  Account     - CatalogRef.EmailAccounts - 
+//  DateOfUse - Date - 
 //
 Procedure UpdateTheAccountUsageDate(Account, DateOfUse = Undefined) Export
 	

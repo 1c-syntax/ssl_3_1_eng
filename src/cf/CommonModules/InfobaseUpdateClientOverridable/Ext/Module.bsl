@@ -1,21 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Is called by following a link or double-clicking a cell 
-// of a spreadsheet document that contains application release notes (common template AppReleaseNotes).
+// Called when you click on a hyperlink or double-click on a cell 
+// in a table document with a description of system changes (the General layout of the system change Description).
 //
 // Parameters:
-//   Area - SpreadsheetDocumentRange - a document area 
-//             that was clicked.
+//   Area - SpreadsheetDocumentRange -  the area of the document 
+//             where the click occurred.
 //
 Procedure OnClickUpdateDetailsDocumentHyperlink(Val Area) Export
 	
@@ -23,12 +21,12 @@ Procedure OnClickUpdateDetailsDocumentHyperlink(Val Area) Export
 
 EndProcedure
 
-// Is called in the BeforeStart handler. Checks for
-// an update to a current version of a program.
+// Called in the handler before the system starts Working, checks whether it can
+// be updated to the current version of the program.
 //
 // Parameters:
-//  DataVersion - String - data version of a main configuration that is to be updated
-//                          (from the SubsystemsVersions information register).
+//  DataVersion - String -  the version of the main configuration data that is being updated
+//                          (from the version information register of the Subsystems).
 //
 Procedure OnDetermineUpdateAvailability(Val DataVersion) Export
 	

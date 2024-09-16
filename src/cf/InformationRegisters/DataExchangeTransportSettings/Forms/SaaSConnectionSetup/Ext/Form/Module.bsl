@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -16,6 +14,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DataExchangeServer.CheckExchangeManagementRights();
 	
 	SetPrivilegedMode(True);
+	
+	// 
+	If Not Parameters.Property("AccountPasswordRecoveryAddress") Then
+		
+		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		
+	EndIf;
 	
 	AccountPasswordRecoveryAddress = Parameters.AccountPasswordRecoveryAddress;
 	AutomaticSynchronizationSetup = Parameters.AutomaticSynchronizationSetup;
@@ -107,14 +112,14 @@ Procedure TestServiceConnection(Cancel)
 	
 	SetPrivilegedMode(True);
 	
-	// Determine the user name.
+	// 
 	UserProperties = Users.IBUserProperies(
 		Common.ObjectAttributeValue(User, "IBUserID"));
 	If UserProperties <> Undefined Then
 		Record.WSUserName = UserProperties.Name
 	EndIf;
 	
-	// Testing connection to the correspondent.
+	// 
 	ConnectionParameters = DataExchangeServer.WSParameterStructure();
 	FillPropertyValues(ConnectionParameters, Record);
 	
@@ -128,7 +133,7 @@ Procedure TestServiceConnection(Cancel)
 	If Not DataExchangeWebService.CorrespondentConnectionEstablished(Record.Peer, ConnectionParameters, UserMessage) Then
 		Common.MessageToUser(UserMessage,, "WSPassword",, Cancel);
 	Else
-		// Connection check is completed successfully. Writing password if it has been changed
+		// 
 		If WSPasswordChanged Then
 			Common.WriteDataToSecureStorage(Record.Peer, WSPassword, "WSPassword");
 		EndIf;
@@ -140,7 +145,7 @@ EndProcedure
 Function DataSynchronizationUsers()
 	
 	Result = New ValueTable;
-	Result.Columns.Add("User"); // Type: CatalogRef.Users
+	Result.Columns.Add("User"); // 
 	Result.Columns.Add("Presentation");
 	
 	QueryText =

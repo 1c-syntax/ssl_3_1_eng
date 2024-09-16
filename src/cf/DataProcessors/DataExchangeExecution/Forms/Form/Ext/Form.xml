@@ -736,8 +736,8 @@ To stop it, click "Finish synchronization".</v8:content>
 												</v8:item>
 											</Title>
 											<Picture>
-												<xr:Ref>StdPicture.DialogInformation</xr:Ref>
-												<xr:LoadTransparent>true</xr:LoadTransparent>
+												<xr:Ref>CommonPicture.Information32</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
 											</Picture>
 											<FileDragMode>AsFile</FileDragMode>
 											<ContextMenu name="ExchangeSucceededPictureContextMenu" id="14"/>

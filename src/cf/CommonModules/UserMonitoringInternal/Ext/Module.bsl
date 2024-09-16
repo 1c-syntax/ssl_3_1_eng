@@ -1,17 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystem event handlers.
+// 
 
 // See CommonOverridable.OnAddMetadataObjectsRenaming.
 Procedure OnAddMetadataObjectsRenaming(Total) Export
@@ -95,8 +93,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
+	// 
+	// 
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	
 	ToDoItem = ToDoList.Add();
@@ -112,7 +110,7 @@ Procedure OnFillToDoList(ToDoList) Export
 EndProcedure
 
 // Parameters:
-//  ErrorText - String - Return value (the error text can be extended).
+//  ErrorText - String - 
 //
 Procedure OnWriteErrorUpdatingRegistrationSettingsForDataAccessEvents(ErrorText) Export
 	
@@ -240,17 +238,17 @@ Function EventNameDataAccessAuditingEventRegistrationSettingsChange() Export
 EndFunction
 
 // Parameters:
-//  Store - Undefined - Read from the constant.
-//            - ValueStorage - Use the specified one.
+//  Store - Undefined - 
+//            - ValueStorage - 
 //
 // Returns:
 //  Structure:
 //    * Use - Boolean
 //    * Content - Array of EventLogAccessEventUseDescription
 //    * Comments - Map of KeyAndValue:
-//        * Key     - String - Full table name followed by field name. For example, "Catalog.Individuals.DocumentNumber".
-//        * Value - String - Arbitrary text
-//    * GeneralComment - String - Arbitrary text
+//        * Key     - String - 
+//        * Value - String - 
+//    * GeneralComment - String - 
 //
 Function StoredRegistrationSettings(Store = Undefined) Export
 	
@@ -292,7 +290,7 @@ Function StoredRegistrationSettings(Store = Undefined) Export
 	
 EndFunction
 
-// Intended for the correct translation of the log column name.
+// 
 //
 Function ConnectionColumnName() Export
 	Return "Connection";

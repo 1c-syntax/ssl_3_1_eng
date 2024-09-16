@@ -1,75 +1,73 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Determines the following properties of scheduled jobs:
-//  - dependence on functional options.
-//  - ability of execution in different application modes.
+// Defines the following properties of routine tasks:
+//  - dependence on functional options;
+//  - ability to run in different modes of the program;
 //  - other parameters.
 //
 // Parameters:
 //  Settings - ValueTable:
-//    * ScheduledJob - MetadataObjectScheduledJob - a scheduled job.
-//    * FunctionalOption - MetadataObjectFunctionalOption - functional option
-//        the scheduled job depends on.
-//    * DependenceByT      - Boolean - if the scheduled job depends on more than
-//        one functional option and you want to enable it only
-//        when all functional options are enabled, specify True
+//    * ScheduledJob - MetadataObjectScheduledJob -  routine task.
+//    * FunctionalOption - MetadataObjectFunctionalOption -  functional option
+//        that the scheduled task depends on.
+//    * DependenceByT      - Boolean -  if a routine task depends on more than
+//        one functional option and needs to be enabled only
+//        when all functional options are enabled, then specify True
 //        for each dependency.
-//        The default value is False - if one or more functional options are enabled,
-//        the scheduled job is also enabled.
+//        By default, False - if at least one functional option is enabled,
+//        the routine task is also enabled.
 //    * EnableOnEnableFunctionalOption - Boolean
-//                                              - Undefined - if False, the scheduled job
-//        will not be enabled if the functional option is enabled. The
-//        Undefined value corresponds to True.
-//        The default value is Undefined.
+//                                              - Undefined - 
+//        
+//        
+//        
 //    * AvailableInSubordinateDIBNode - Boolean
-//                                  - Undefined - True or Undefined if the scheduled
-//        job is available in the DIB node.
-//        The default value is Undefined.
+//                                  - Undefined - 
+//        
+//        
 //    * AvailableAtStandaloneWorkstation - Boolean
-//                                      - Undefined - True or Undefined if the scheduled
-//        job is available in the standalone workplace.
-//        The default value is Undefined.
+//                                      - Undefined - 
+//        
+//        
 //    * AvailableSaaS - Boolean
-//                             - Undefined - — False if scheduled job
-//        execution (including queue jobs) in the infobase with enabled separator must be locked.
-//        The Undefined value is read as True.
-//        Default value: Undefined.
-//    * UseExternalResources  - Boolean - True if the scheduled job modifies data
-//        in external sources (receiving emails, synchronizing data, etc.). Do not set the
-//        value to True for scheduled jobs that do not modify data in external sources.
-//        For example, CurrencyRateImport scheduled job. Scheduled jobs operating with external resources are
-//        automatically disabled in the copy of the infobase. The default value is False.
-//    * IsParameterized             - Boolean - True if the scheduled job is parameterized.
-//        The default value is False.
+//                             - Undefined - 
+//        
+//        
+//        
+//    * UseExternalResources  - Boolean -  True if the scheduled task modifies data
+//        in external sources (receiving mail, syncing data, etc.). Do not set
+//        the value to True for scheduled tasks that do not modify data in external sources.
+//        For example, a routine task for uploading courses in Currency. Routine tasks that work with external resources
+//        are automatically disabled in the database copy. By default, it is False.
+//    * IsParameterized             - Boolean -  True if the routine task is parameterized.
+//        By default, it is False.
 //
 // Example:
-//	Setting = Settings.Add();
-//	Setting.ScheduledJob = Metadata.ScheduledJobs.SMSDeliveryStatusUpdate;
-//	Setting.FunctionalOption = Metadata.FunctionalOptions.UseEmailClient;
-//	Setting.AvailableInSaaS = False;
+//	Customization = Customization.Add ();
+//	Settings.Routine Task = Metadata.Routine tasks.Obnovlenchestva;
+//	Customization.Functional Option = Metadata.Functional options.Use postclient;
+//	Customization.Testopenmailrelay = False;
 //
 Procedure OnDefineScheduledJobSettings(Settings) Export
 	
 	
 EndProcedure
 
-// Allows to overwrite the default subsystem settings.
+// Allows you to override the default subsystem settings.
 //
 // Parameters:
 //  Settings - Structure:
-//    * UnlockCommandPlacement - String - determines unlock
-//                                                     command location for operations with external resources
-//                                                     on infobase movement.
+//    * UnlockCommandPlacement - String -  determines the location of the command to remove
+//                                                     the lock on working with external resources
+//                                                     when moving the information base.
 //
 Procedure OnDefineSettings(Settings) Export
 	

@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Returns a reference for the key operation by name.
-// If a key operation with the specified name is not found in the catalog, 
-// creates a new item.
+// The function returns a reference to the key operation by name.
+// If a key operation with this name is not in the reference list, 
+// it creates a new element.
 //
 // Parameters:
-//  KeyOperationName - String - Key operation name.
-//  IsFailed - Boolean - Error flag.
+//  KeyOperationName - String -  name of the key operation.
+//  Performed with an error-Boolean attribute of the key operation.
 //
 // Returns:
 //  CatalogRef.KeyOperations
@@ -57,8 +55,8 @@ EndFunction
 
 #Region StandardSubsystemsCachedCopy
 
-// Returns a map of the "functional" subsystem names and the True value.
-// A subsystem is considered functional if its "Include in command interface" check box is cleared.
+// Returns a match between the names of "functional" subsystems and the value True.
+// The" functional "subsystem has the" Include in command interface " checkbox unchecked.
 //
 Function SubsystemsNames() Export
 	
@@ -99,11 +97,11 @@ EndProcedure
 
 #Region CommonCachedCopy
 
-// Returns an array of the separators that are in the configuration.
+// Returns an array of existing delimiters in the configuration.
 //
 // Returns:
-//   FixedArray of String - an array of names of common attributes which
-//  serve as separators.
+//   FixedArray of String - 
+//  
 //
 Function ConfigurationSeparators() Export
 	

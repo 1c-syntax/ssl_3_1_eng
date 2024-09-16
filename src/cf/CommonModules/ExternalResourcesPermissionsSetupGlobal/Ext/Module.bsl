@@ -1,20 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Performs an asynchronous processing of a notification of closing external resource permissions
-// setup wizard form when the call is executed using an idle handler.
-// DialogReturnCode.OK is passed as a result to the handler.
+// Performs asynchronous processing of notifications about closing forms of the wizard for configuring permissions to
+// use external resources when called through the connection of the wait handler.
+// As a result, the value of the directory return Code is passed to the handler.OK.
 //
-// The procedure is not intended for direct call.
+// The procedure is not intended to be called directly.
 //
 Procedure FinishExternalResourcePermissionSetup() Export
 	
@@ -22,11 +20,11 @@ Procedure FinishExternalResourcePermissionSetup() Export
 	
 EndProcedure
 
-// Performs an asynchronous processing of a notification of closing external resource permissions
-// setup wizard form when the call is executed using an idle handler.
-// DialogReturnCode.OK is passed as a result to the handler.
+// Performs asynchronous processing of notifications about closing forms of the wizard for configuring permissions to
+// use external resources when called through the connection of the wait handler.
+// As a result, the value of the directory return Code is passed to the handler.Cancel.
 //
-// The procedure is not intended for direct call.
+// The procedure is not intended to be called directly.
 //
 Procedure CancelExternalResourcePermissionSetup() Export
 	

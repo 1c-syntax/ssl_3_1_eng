@@ -1,21 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Describes transliteration rules for a national alphabet into Latin characters.
+// Describes the rules for transliteration of the national alphabet into the Latin alphabet.
 //
 // Parameters:
 //  Rules - Map of KeyAndValue:
-//    * Key - String - a national alphabet letter;
-//    * Value - String - a Latin alphabet letter.
+//    * Key - String -  the national letter of the alphabet;
+//    * Value - String -  a letter of the Latin alphabet.
 //
 Procedure OnFillTransliterationRules(Rules) Export
 	

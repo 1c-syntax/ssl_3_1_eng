@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Returns the current setting of digital signature usage.
+// Returns the current setting for using electronic signatures.
 //
 // Returns:
-//  Boolean - if True, digital signatures are used.
+//  Boolean - 
 //
 Function UseDigitalSignature() Export
 	
@@ -21,10 +19,10 @@ Function UseDigitalSignature() Export
 	
 EndFunction
 
-// Returns the current setting of encryption usage.
+// Returns the current encryption usage setting.
 //
 // Returns:
-//  Boolean - if True, encryption is used.
+//  Boolean - 
 //
 Function UseEncryption() Export
 	
@@ -32,10 +30,10 @@ Function UseEncryption() Export
 	
 EndFunction
 
-// Returns the current setting of digital signature check on the server.
+// Returns the current setting for verifying electronic signatures on the server.
 //
 // Returns:
-//  Boolean - if True, digital signatures will be checked on the server.
+//  Boolean - 
 //
 Function VerifyDigitalSignaturesOnTheServer() Export
 	
@@ -43,11 +41,11 @@ Function VerifyDigitalSignaturesOnTheServer() Export
 	
 EndFunction
 
-// Returns the current setting of digital signature creation on the server.
-// The setting also involves encryption and decryption on the server.
+// Returns the current setting for creating electronic signatures on the server.
+// The configuration also involves encryption and decryption on the server.
 //
 // Returns:
-//  Boolean - if True, digital signatures will be created on the server.
+//  Boolean - 
 //
 Function GenerateDigitalSignaturesAtServer() Export
 	
@@ -55,150 +53,150 @@ Function GenerateDigitalSignaturesAtServer() Export
 	
 EndFunction
 
-// Signs data, returns a signature, and adds the signature to an object, if specified.
+// Signs the data, returns the signature, and adds the signature to the object, if specified.
 //
-// A common method to process property values with the NotifyDescription type in the DataDetails parameter.
-//  When processing a notification, the parameter structure is passed to it.
-//  This structure always has a Notification property of the NotifyDescription type, which needs to be processed to continue.
-//  In addition, the structure always has the DataDetails property received when calling the procedure.
-//  When calling a notification, the structure must be passed as a value. If an error occurs during the asynchronous
-//  execution, add the ErrorDetails property of String type to this structure.
+// A General approach to processing property values with the message Description type in the data Description parameter.
+//  When processing an alert, a parameter structure is passed to it, which always has
+//  the "Alert" property of the message Description type, which must be processed in order to continue.
+//  In addition, the structure always has a data Descriptionproperty that is obtained when calling the procedure.
+//  When calling an alert, a structure must be passed as the value. If an
+//  error occurs during asynchronous execution, then insert the error Descriptionproperty of the String type into this structure.
 // 
 // Parameters:
 //  DataDetails - Structure:
-//    * Operation             - String - a title of the data signing form, for example, File signing.
-//    * DataTitle      - String - a title of an item or a data set, for example, File.
-//    * NotifyOnCompletion  - Boolean - (optional) - if False, no notification of successful
-//                           completion of the operation will be shown to present the data indicated next to the title.
-//    * ShowComment  - Boolean - (optional) - allows adding a comment in the
-//                           data signing form. False if not specified.
-//    * CertificatesFilter    - Array - (optional) - contains references to the catalog items.
-//                           DigitalSignatureAndEncryptionCertificates that can be selected
-//                           by the user. The filter locks the ability to select other certificates
-//                           from the Personal store.
-//                           - Structure:
-//                             * Organization - DefinedType.Organization - contains a reference to the company,
-//                                 by which the filter will be set in the list of user certificates.
-//    * NoConfirmation     - Boolean - (Optional) - Skip user confirmation if
-//                           there is only one certificate in the CertificatesFilter property and:
-//                           a) Either the certificate has the flag "Protect digital signature application with password",
-//                           b) Or a user has memorized the certificate password for the time of the session,
-//                           c) Or a password has been set earlier by the SetCertificatePassword method.
-//                           If an error occurs upon signing, the form will be opened with the ability to enter the password.
-//                           The ShowComment parameter is ignored.
-//    * BeforeExecute     - NotifyDescription - (Optional) Details of the additional data preparation handler,
-//                           that triggers after selecting a certificate for signing the data.
-//                           The handler is intended for filling the "Data" parameter if it depends
-//                           on the certificate that in the moment of call is already inserted in DataDetails
-//                           as SelectedCertificate (see below).
-//                           It is also intended for overriding the SelectedLetterOfAuthority parameter in DataDetails.
-//                           Consider the common approach (see above).
-//    * ExecuteAtServer   - Undefined
-//                           - Boolean -  (optional) - when not specified or Undefined,
-//                           the execution will be determined automatically: if there is a server, first
-//                           execute at the server, then in case of a failure at the client, then display a message about two errors.
-//                           When True: if execution on the server is allowed, execute
-//                           only on the server, in case of a failure one message about a server error is displayed.
-//                           When False: execute only on the client, as if there is no server.
-//    * AdditionalActionParameters - Arbitrary - (optional) - if specified, it is passed
-//                           to the server to the BeforeOperationStart procedure of the
-//                           DigitalSignatureOverridable common module as InputParameters.
-//    * OperationContext     - Undefined - (Optional) If specified, the property is assigned a value
-//                           of an arbitrary type, which allows the user to repeat the same action
-//                           with the certificate without asking the user for the password and the action confirmation. 
-//                           If the procedure fails, the repeated action with the passed context
-//                           might also cause an error.
+//    * Operation             - String -  header of the data signing form, such as file Signing.
+//    * DataTitle      - String -  title of an element or data set, such as a File.
+//    * NotifyOnCompletion  - Boolean - 
 //                           
-//                           - Arbitrary - (optional) - if defined, the action will be executed
-//                           with the same certificate without requesting a password or confirmation.
-//                           The WithoutConfirmation parameter is considered to be True.
-//                           The Operation, DataTitle, ShowComment, CertificatesFilter
-//                           and ExecuteAtServer parameters are ignored. They retain the values they had at the first call.
-//                           The AdditionalActionsParameters parameter is ignored.
-//                           The BeforeOperationStart procedure is not called.
-//                           If you pass the context returned by the Decrypt procedure,
-//                           the password entered for the certificate can be used as if
-//                           the password had been saved for the duration of session. In other cases, the context is ignored.
-//    * StopExecution - Arbitrary - if the property exists and an
-//                           error occurs during asynchronous execution, execution stops without displaying the operation form or with closing this form
-//                           if it was opened.
+//    * ShowComment  - Boolean -  (optional) - allows entering a comment in
+//                           the data signing form. If omitted, it means False.
+//    * CertificatesFilter    - Array -  (optional) - contains links to directory elements.
+//                           Electronic signature decryption certificates that can be selected
+//                           by the user. Selection blocks the ability to select other certificates
+//                           from the personal storage.
+//                           - Structure:
+//                             * Organization - DefinedType.Organization -  contains a link to the company
+//                                 for which the selection will be set in the list of user certificates.
+//    * NoConfirmation     - Boolean - 
+//                           :
+//                           
+//                           
+//                           
+//                           
+//                           
+//    * BeforeExecute     - NotifyDescription - 
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
+//    * ExecuteAtServer   - Undefined
+//                           - Boolean - 
+//                           
+//                           
+//                           
+//                           
+//                           
+//    * AdditionalActionParameters - Arbitrary -  (optional) - if specified, it is passed
+//                           to the server in the procedure for pre-Moderation of the shared module
+//                           The electronic signature is defined as input Parameters.
+//    * OperationContext     - Undefined - 
+//                           
+//                            
+//                           
+//                           
+//                           
+//                           - Arbitrary - 
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
+//    * StopExecution - Arbitrary -  if the property exists and an error occurs during asynchronous execution
+//                           , execution stops without displaying the operation form or closing this form
+//                           if it was open.
 //
 //    Option 1.
-//    * Data              - BinaryData - data for signing.
-//                          - String - an address of a temporary storage with binary data.
-//                          - NotifyDescription - a data receipt handler that returns
-//                          it in the Data property (see the common approach above). In the moment of call,
-//                          DataDetails already has the selected certificate as SelectedCertificate (see below).
+//    * Data              - BinaryData -  data for signing.
+//                          - String - 
+//                          - NotifyDescription - 
+//                          
+//                          
 //                          - Structure:
 //                             * XMLEnvelope       - See DigitalSignatureClient.XMLEnvelope
 //                             * XMLDSigParameters - See DigitalSignatureClient.XMLDSigParameters
 //                          - Structure:
 //                             * CMSParameters - See DigitalSignatureClient.CMSParameters
-//                             * Data  - String - an arbitrary string for signing,
-//                                       - BinaryData - binary data for signing.
-//    * Object              - AnyRef - (optional) - a reference to an object to be signed.
-//                          If not specified, a signature is not required.
-//                          - NotifyDescription - (optional) - a handler for adding a signature to
-//                          the DigitalSignatures information register. Consider the common approach (see above).
-//                          DataDetails already has the SignatureProperties parameter at the time it is called.
-//                          In case of the DataSet parameter, the DataSetCurrentItem property
-//                          is inserted into the DataDetails. It contains the SignatureProperties parameter.
-//    * ObjectVersion       - String - (optional) - an object data version to check and
-//                          lock the object before adding the signature.
-//    * Presentation       - AnyRef - (optional), if the parameter is not specified,
-//                                  the presentation is calculated by the Object property value.
+//                             * Data  - String -  custom string for signing,
+//                                       - BinaryData - 
+//    * Object              - AnyRef -  (optional) - a reference to the object to add the signature to.
+//                          If omitted, the signature does not need to be added.
+//                          - NotifyDescription - 
+//                          
+//                          
+//                          
+//                          
+//    * ObjectVersion       - String -  (optional) - the version of the object data to check and
+//                          lock the object before adding a signature.
+//    * Presentation       - AnyRef -  (optional), if the parameter is not specified,
+//                                  then the representation is calculated by the value of the Object property.
 //                          - String
 //                          - Structure:
 //                             ** Value      - AnyRef
-//                                              - NotifyDescription - to open.
-//                             ** Presentation - String - - a value presentation.
+//                                              - NotifyDescription - 
+//                             ** Presentation - String -  representation of the value.
 //    Option 2.
-//    * DataSet         - Array - structures with properties described in Option 1.
-//    * SetPresentation - String - presentations of several data set items, for example, Files (%1).
-//                          To this presentation, the number of items is filled in parameter %1.
-//                          Click the hyperlink to open the list.
-//                          If the data set has 1 item, value
-//                          in the Presentation property of the DataSet property is used. If not specified,
-//                          the presentation is calculated by the Object property value of a data set item.
+//    * DataSet         - Array -  structures with the properties described in Option 1.
+//    * SetPresentation - String -  representations of multiple data set elements, such as " Files (%1)".
+//                          In this view, the %1 parameter is filled with the number of elements.
+//                          You can use the hyperlink to open the list.
+//                          If the dataset 1 element, then use the value
+//                          in the property View properties Nabetani, if not specified, then
+//                          performance is calculated on the value of the item Object of the data set.
 //    * PresentationsList - ValueList
-//                          - Array - (optional) - an arbitrary list of items
-//                          or an array with values, like the Presentation property has, and which
-//                          the user can open. If not specified, it is filled from
-//                          the Presentation or Object properties in the DataSet property.
+//                          - Array - 
+//                          
+//                          
+//                          
 //
-//  Form - ClientApplicationForm - a form, from which you need to get an UUID
-//                                that will be used when locking an object.
-//        - UUID - a UUID that will be used
-//                                to lock an object.
-//        - Undefined     - use a standard form.
+//  Form - ClientApplicationForm -  a form from which you need to get a unique identifier
+//                                that will be used when blocking an object.
+//        - UUID - 
+//                                
+//        - Undefined     - 
 //
 //  ResultProcessing - NotifyDescription -
-//     Required for non-standard result processing, for example, if the Object or Form parameter is not specified.
-//     The result gets the DataDetails parameter, to which the following properties are added in case of success::
-//     # Success - Boolean - True if everything is successfully completed.
-//               If Success = False, the partial completion is defined by having the SignatureProperties property.
-//     # Cancel - Boolean - True if the user canceled the operation interactively.
-//     # UserClickedSign - Boolean - If True, the user has clicked Sign at least once.
-//               Used for scenarios where a simple signature is enough to continue the business process (the intention to set a signature),
-//               and setting a qualified signature is an addition that can be implemented later if technical problems arise.
-//               # SelectedCertificate - Structure - Contains the following certificate properties:
-//     ## CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Reference to the found certificate.
-//         ## Thumbprint - String - Certificate thumbprint in the Base64 string format.
-//         ## String - Address of temporary storage that contains certificate binary data.
-//         # SelectedLetterOfAuthority - AnyRef
-//     # SignatureProperties = String - Address in a temporary storage that contains the structure described below
-//     if it was signed on the server side.
-//               Check the property in the DataSet parameter when passing it.
-//                       = Structure:
+//     
+//     :
+//     
+//               
+//     
+//     
+//               
+//               
+//               
+//     
+//         
+//         
+//         
+//     
+//     
+//               
+//                       
 //                        * SignatureType  - EnumRef.CryptographySignatureTypes
-//                        * DateActionLastTimestamp - Date, Undefined - Filled only using
-//                                                                                   the cryptographic manager.
-//                        * DateSignedFromLabels - Date, Undefined - Date of the earliest timestamp.
-//                        * UnverifiedSignatureDate - Date - Unconfirmed signature data.
-//                        * Certificate  - BinaryData - Certificate used for signature validation.
-//                        * Thumbprint           - String - Certificate thumbprint in the Base64 string format.
-//                        * CertificateOwner - String - Object presentation obtained from the certificate binary data. 
-//         In the "DataSet" parameter is passed, the property is checked in it.
+//                        * DateActionLastTimestamp - Date, Undefined - 
+//                                                                                   
+//                        * DateSignedFromLabels - Date, Undefined - 
+//                        * UnverifiedSignatureDate - Date - 
+//                        * Certificate  - BinaryData - 
+//                        * Thumbprint           - String -  the thumbprint of the certificate in Base64 string format.
+//                        * CertificateOwner - String -  
+//         
 //                       
 //  SignatureParameters - See NewSignatureType
 //
@@ -244,18 +242,18 @@ Procedure Sign(DataDetails, Form = Undefined, ResultProcessing = Undefined, Sign
 	
 EndProcedure
 
-// Construction of the SignatureType parameter. Used in the "Sign" procedure.
-// It is ignored when signing XML envelopes.
+// 
+// 
 // 
 // Parameters:
 //  SignatureType - EnumRef.CryptographySignatureTypes
 // 
 // Returns:
 //  Structure:
-//   * SignatureTypes - Array - Array of signature types to choose from.
-//   * Visible - Boolean - Signature type visibility on the signing form.
-//   * Enabled - Boolean - Signature type availability on the signing form.
-//   * CanSelectLetterOfAuthority - Boolean - Flag indicating whether to show the LoA selection field.
+//   * SignatureTypes - Array - 
+//   * Visible - Boolean - 
+//   * Enabled - Boolean - 
+//   * CanSelectLetterOfAuthority - Boolean - 
 //   * VerifyCertificate - String - :
 //        
 //                                      
@@ -280,68 +278,68 @@ Function NewSignatureType(SignatureType = Undefined) Export
 	
 EndFunction
 
-// It prompts the user to select signature files to add to the object, and adds them.
+// Prompts the user to select the signature files to add to the object and adds them.
 //
-// A common method to process property values with the NotifyDescription type in the DataDetails parameter.
-//  When processing a notification, the parameter structure is passed to it.
-//  This structure always has a Notification property of the NotifyDescription type, which needs to be processed to continue.
-//  In addition, the structure always has the DataDetails property received when calling the procedure.
-//  When calling a notification, the structure must be passed as a value. If an error occurs during the asynchronous
-//  execution, add the ErrorDetails property of String type to this structure.
+// A General approach to processing property values with the message Description type in the data Description parameter.
+//  When processing an alert, a parameter structure is passed to it, which always has
+//  the "Alert" property of the message Description type, which must be processed in order to continue.
+//  In addition, the structure always has a data Descriptionproperty that is obtained when calling the procedure.
+//  When calling an alert, a structure must be passed as the value. If an
+//  error occurs during asynchronous execution, then insert the error Descriptionproperty of the String type into this structure.
 // 
 // Parameters:
 //  DataDetails - Structure:
-//    * DataTitle      - String - a data item title, for example, File.
-//    * ShowComment  - Boolean - (optional) - allows adding a comment in the
-//                             data signing form. False if not specified.
-//    * Object               - AnyRef - (optional) - a reference to an object to be signed.
-//                           - NotifyDescription - (optional) - a handler for adding a signature to
-//                             the DigitalSignatures information register. Consider the common approach (see above).
-//                             DataDetails already has the Signatures parameter at the time it is called.
-//    * ObjectVersion        - String - (optional) - an object data version to check and
-//                             lock the object before adding the signature.
+//    * DataTitle      - String -  title of the data element, such as a File.
+//    * ShowComment  - Boolean -  (optional) - allows you to enter
+//                             a comment in the caption form. If omitted, it means False.
+//    * Object               - AnyRef -  (optional) - a reference to the object to add the signature to.
+//                           - NotifyDescription - 
+//                             
+//                             
+//    * ObjectVersion        - String -  (optional) - the version of the object data to check and
+//                             lock the object before adding a signature.
 //    * Presentation        - AnyRef
-//                           - String - (optional), if it is not specified,
-//                             the presentation is calculated by the Object property value.
-//    * Data               - BinaryData - (optional) - data to check the signature.
-//                           - String - (optional) - an address of a temporary storage with binary data.
-//                           - NotifyDescription - (optional) - a data receipt handler that returns
-//                             it in the Data property (see the common approach above).
+//                           - String - 
+//                             
+//    * Data               - BinaryData -  (optional) - data for signature verification.
+//                           - String - 
+//                           - NotifyDescription - 
+//                             
 //
-//  Form - ClientApplicationForm - a form, from which you need to get an UUID
-//        that will be used when locking an object.
-//        - UUID - a UUID that will be used
-//        to lock an object.
-//        - Undefined - use a standard form.
+//  Form - ClientApplicationForm -  a form from which you need to get a unique identifier
+//        that will be used when blocking an object.
+//        - UUID - 
+//        
+//        - Undefined - 
 //
 //  ResultProcessing - NotifyDescription -
-//     Required for non-standard result processing, for example, if the Object or Form parameter is not specified.
-//     Required for non-standard result processing, for example, if the Object or Form parameter is not specified.:
-//     # Success - Boolean - True if everything is successfully completed.
-//     #Cancel - Boolean - True if the user canceled the operation interactively.
-//     # Signatures - Array - Array that contains the following elements:
-//       ## SignatureProperties = String - Temporary storage address that contains the structure described below.
-//                          = Structure - Detailed signature description:
-//           ### Comment - String - Comment if it was entered upon signing.
-//           ### SignedBy - CatalogRef.Users - User who
-//                                   signed the infobase object.
-//           ### Comment - String - Comment if it was entered upon signing.
-//           ### SignatureFileName - String - a name of the file from which the signature was added.
-//           ### SignatureDate - Date - Signing date.
-//                                   Applicable if the date cannot be extracted from signature data.
-//                                   If the date is not specified or blank, the current session date is used.
-//           ### SignatureCheckDate - Date - Date of signature check after adding from file.
-//                                   If the Data property is not specified in the DataDetails parameter,
-//                                   it returns a blank date.
-//           ### SignatureCorrect - Boolean - Signature check result after adding from file.
-//                                    If the Data property is not specified in the DataDetails parameter,
-//                                    it returns False.
+//     
+//     :
+//     
+//     
+//     
+//       
+//                          
+//           
+//           
+//                                   
+//           
+//           
+//           
+//                                   
+//                                   
+//           
+//                                   
+//                                   
+//           
+//                                    
+//                                    
 //
-//           Derivative properties:
-//           ### Certificate - BinaryData - Contains export of the certificate
-//                                   that was used for signing (it is in the signature).
-//           ### Thumbprint - String - Certificate thumbprint in the Base64 format.
-//           ### CertificateRecipient - String - Subject presentation received from the certificate binary data.
+//           
+//           
+//                                   
+//           
+//           
 //
 Procedure AddSignatureFromFile(DataDetails, Form = Undefined, ResultProcessing = Undefined) Export
 	
@@ -397,45 +395,45 @@ Procedure AddSignatureFromFile(DataDetails, Form = Undefined, ResultProcessing =
 	
 EndProcedure
 
-// It prompts the user to select signatures to save together with the object data.
+// Prompts the user to select signatures to save along with the object data.
 //
-// A common method to process property values with the NotifyDescription type in the DataDetails parameter.
-//  When processing a notification, the parameter structure is passed to it.
-//  This structure always has a Notification property of the NotifyDescription type, which needs to be processed to continue.
-//  In addition, the structure always has the DataDetails property received when calling the procedure.
-//  When calling a notification, the structure must be passed as a value. If an error occurs during the asynchronous
-//  execution, add the ErrorDetails property of String type to this structure.
+// A General approach to processing property values with the message Description type in the data Description parameter.
+//  When processing an alert, a parameter structure is passed to it, which always has
+//  the "Alert" property of the message Description type, which must be processed in order to continue.
+//  In addition, the structure always has a data Descriptionproperty that is obtained when calling the procedure.
+//  When calling an alert, a structure must be passed as the value. If an
+//  error occurs during asynchronous execution, then insert the error Descriptionproperty of the String type into this structure.
 // 
 // Parameters:
 //  DataDetails - Structure:
-//    * DataTitle      - String - a data item title, for example, File.
-//    * ShowComment  - Boolean - (optional) - allows adding a comment in the
-//                           data signing form. False if not specified.
+//    * DataTitle      - String -  title of the data element, such as a File.
+//    * ShowComment  - Boolean -  (optional) - allows you to enter
+//                           a comment in the caption form. If omitted, it means False.
 //    * Presentation        - AnyRef
-//                           - String - (optional), if it is not specified,
-//                           the presentation is calculated by the Object property value.
-//    * Object               - AnyRef - a reference to object, from which you need to get the signature list.
-//                           - String - a temporary storage address of a signature array with properties,
-//                           as the AddSignatureFromFile procedure returns.
-//    * Data               - NotifyDescription - Handler for saving data and receiving the full file
-//                           name with a path (after saving it), returned in the FullFileName property
-//                           of the String type for saving digital signatures (see the common approach above).
-//                           If 1C:Enterprise Extension is not attached, return
-//                           the file name without a path.
-//                           If the property will not be inserted or filled, it means canceling
-//                           the continuation, and ResultProcessing with the False result will be called.
+//                           - String - 
+//                           
+//    * Object               - AnyRef -  link to the object to get the list of signatures from.
+//                           - String - 
+//                           
+//    * Data               - NotifyDescription - 
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
 //
-//                           For a batch request for permissions from the web client user to save the file of data
-//                           and signatures, you need to insert the PermissionsProcessingRequest parameter of the NotifyDescription type.
-//                           The procedure will get a structure with the following properties:
-//                              # Calls - Array - Contains details of calls to save signatures.
-//                              # ContinuationHandler - NotifyDescription - Procedure to be executed
-//                                                     after requesting permissions, the procedure parameters are the same as
-//                                                     the notification for the BeginRequestingUserPermission method has.
-//                                                     If the permission is not received, everything is canceled.
+//                           
+//                           
+//                           
+//                              
+//                              
+//                                                     
+//                                                     
+//                                                     
 //
 //  ResultProcessing - NotifyDescription -
-//     The parameter is passed to the result of the type: Boolean - True if everything was successful.
+//     A Boolean -True parameter is passed to the result if everything was successful.
 //
 Procedure SaveDataWithSignature(DataDetails, ResultProcessing = Undefined) Export
 	
@@ -443,45 +441,44 @@ Procedure SaveDataWithSignature(DataDetails, ResultProcessing = Undefined) Expor
 	
 EndProcedure
 
-// Checks the validity of the signature and the certificate..
+// Checks the validity of the signature and certificate.
 // The certificate is always checked on the server if the administrator
-// had set the check of digital signatures on the server.
+// has configured electronic signature verification on the server.
 //
 // Parameters:
-//   Notification           - NotifyDescription - CheckParameters.ResultAsStructure - True.:
+//   Notification           - NotifyDescription - :
 //             
 //             
 //             
 //             See DigitalSignatureClientServer.SignatureVerificationResult
-//             CheckParameters.ResultAsStructure - True.
-//   RawData       - BinaryData - binary data that was signed.
-//                          Mathematical check is executed on the client side, even when
-//                          the administrator has set the check of digital signatures on the server
-//                          if the crypto manager is specified or it was received without an error.
-//                          Performance and security increase when the signature is checked
-//                          in the decrypted file (it will not be passed to the server).
-//                        - String - the address of temporary storage that contains initial binary data.
+//             
+//   RawData       - BinaryData -  binary data that has been signed.
+//                          Mathematical verification is performed on the client side, even when
+//                          the administrator has configured the verification of electronic signatures on the server,
+//                          if a cryptography manager is specified or it was obtained without error.
+//                          This improves performance as well as security when the signature
+//                          in the decrypted file is verified (it will not be transmitted to the server).
+//                        - String - 
 //                        - Structure:
-//                           * XMLEnvelope       - String - the signed XMLEnvelope,
-//                                                         see also the XMLEnvelope function.
+//                           * XMLEnvelope       - String -  signed envelopexml,
+//                                                         see also the envelopexml function.
 //                           * XMLDSigParameters - See DigitalSignatureClient.XMLDSigParameters
 //                        - Structure:
 //                           * CMSParameters - See DigitalSignatureClient.CMSParameters
-//                           * Data  - String - an arbitrary string for signing,
-//                                     - BinaryData - binary data for signing.
-//   Signature              - BinaryData - digital signature binary data.
-//                        - String         - an address of a temporary storage with binary data.
-//                        - Undefined   - if SourceData is a SOAP envelope.
-//   CryptoManager - Undefined - get crypto manager by default
-//                          (manager of the first app in the list, as configured by the administrator).
-//                        - CryptoManager - use the specified crypto manager.
-//   OnDate               - Date - Date for checking the certificate if the date cannot be extracted
-//                          from the signature or XMLEnvelope is to be checked.
-//                          If the parameter is not passed, use the current session date
-//                          if the date cannot be extracted from the signature or XMLEnvelope is to be checked.
+//                           * Data  - String -  custom string for signing,
+//                                     - BinaryData - 
+//   Signature              - BinaryData -  binary data of the electronic signature.
+//                        - String         - 
+//                        - Undefined   - 
+//   CryptoManager - Undefined -  get the default cryptography Manager
+//                          (Manager of the first program in the list, as configured by the administrator).
+//                        - CryptoManager - 
+//   OnDate               - Date - 
+//                          
+//                          
+//                          
 //   CheckParameters    - See SignatureVerificationParameters
-//                        - Undefined - Flag indicating whether to
-//                          display a cryptographic manager creation error (when it's not specified).
+//                        
 //
 Procedure VerifySignature(Notification, RawData, Signature,
 	CryptoManager = Undefined,
@@ -493,13 +490,13 @@ Procedure VerifySignature(Notification, RawData, Signature,
 	
 EndProcedure
 
-// Constructor of the CheckParameters parameter for the CheckSignature procedure.
+// 
 // 
 // Returns:
 //  Structure:
-//   * ShowCryptoManagerCreationError - Boolean - Flag indicating whether to 
-//              display a cryptographic manager creation error (when it's not specified).
-//   * ResultAsStructure - Boolean - If True, the result will have the following format:
+//   * ShowCryptoManagerCreationError - Boolean -  
+//              
+//   * ResultAsStructure - Boolean - 
 //      See DigitalSignatureClientServer.SignatureVerificationResult
 //   * VerifyCertificate - String - 
 //      
@@ -520,111 +517,111 @@ Function SignatureVerificationParameters() Export
 	
 EndFunction
 
-// Encrypts data, returns encryption certificates, and adds them to an object, if specified.
+// Encrypts data, returns encryption certificates, and adds them to the object, if specified.
 // 
-// A common method to process property values with the NotifyDescription type in the DataDetails parameter.
-//  When processing a notification, the parameter structure is passed to it.
-//  This structure always has a Notification property of the NotifyDescription type, which needs to be processed to continue.
-//  In addition, the structure always has the DataDetails property received when calling the procedure.
-//  When calling a notification, the structure must be passed as a value. If an error occurs during the asynchronous
-//  execution, add the ErrorDetails property of String type to this structure.
+// A General approach to processing property values with the message Description type in the data Description parameter.
+//  When processing an alert, a parameter structure is passed to it, which always has
+//  the "Alert" property of the message Description type, which must be processed in order to continue.
+//  In addition, the structure always has a data Descriptionproperty that is obtained when calling the procedure.
+//  When calling an alert, a structure must be passed as the value. If an
+//  error occurs during asynchronous execution, then insert the error Descriptionproperty of the String type into this structure.
 // 
 // Parameters:
 //  DataDetails - Structure:
-//    * Operation             - String - a data encryption form title, for example, File encryption.
-//    * DataTitle      - String - a title of an item or a data set, for example, File.
-//    * NotifyOnCompletion  - Boolean - (optional) - if False, no notification of successful
-//                           completion of the operation will be shown to present the data indicated next to the title.
-//    * CertificatesSet    - String - (optional) the address of temporary storage that contains an array, described below.
-//                           - Array - (optional) contains values of the
-//                           CatalogRef.KeyCertificatesForDigitalSignaturesAndEncryption type or
-//                           the BinaryData type (certificate export).
-//                           - AnyRef - (Optional) - a reference to the object that requires certificates.
-//    * ChangeSet        - Boolean - if True and CertificatesSet is specified and contains only references
-//                           to certificates, you will be able to change the content of certificates.
-//    * NoConfirmation     - Boolean - (optional) - skip user confirmation
-//                           if the CertificatesFilter property is specified.
+//    * Operation             - String -  header of the data encryption form, such as file Encryption.
+//    * DataTitle      - String -  title of an element or data set, such as a File.
+//    * NotifyOnCompletion  - Boolean -  (optional) - if False, it will not be shown the notification about successful
+//                           the completion of the operation to present information that is specified next to the title.
+//    * CertificatesSet    - String -  (optional) address of the temporary storage containing the array described below.
+//                           - Array - 
+//                           
+//                           
+//                           - AnyRef - 
+//    * ChangeSet        - Boolean -  if True and the set of Certificates is set and contains only references
+//                           to certificates, then you will be able to change the composition of certificates.
+//    * NoConfirmation     - Boolean -  (optional) - skip the user for confirmation
+//                           if you specify a property Ombrellificio.
 //    * ExecuteAtServer   - Undefined
-//                           - Boolean -  (optional) - when not specified or Undefined,
-//                           the execution will be determined automatically: if there is a server, first
-//                           execute at the server, then in case of a failure at the client, then display a message about two errors.
-//                           When True: if execution on the server is allowed, execute
-//                           only on the server, in case of a failure one message about a server error is displayed.
-//                           When False: execute only on the client, as if there is no server.
-//    * OperationContext     - Undefined - (optional) - if specified, the property will be
-//                           set to a specific value of an arbitrary type, which allows you to
-//                           execute an action with the same encryption certificates again (the user
+//                           - Boolean - 
+//                           
+//                           
+//                           
+//                           
+//                           
+//    * OperationContext     - Undefined -  (optional) - if specified, then the property will
+//                           be set to a specific value of any type that allows
+//                           you to perform the action with the same encryption certificates again (the user
 //                           is not asked to confirm the action).
-//                           - Arbitrary - (optional) - if defined, the action will be executed
-//                           with the same encryption certificates.
-//                           The WithoutConfirmation parameter is considered to be True.
-//                           The Operation, DataTitle, CertificatesSet, ChangeSet,
-//                           and ExecuteAtServer parameters are ignored, and their values are left as they were at the first call.
-//    * StopExecution - Arbitrary - if the property exists and an
-//                           error occurs during asynchronous execution, execution stops without displaying the operation form or with closing this form
-//                           if it was opened.
+//                           - Arbitrary - 
+//                           
+//                           
+//                           
+//                           
+//    * StopExecution - Arbitrary -  if the property exists and an error occurs during asynchronous execution
+//                           , execution stops without displaying the operation form or closing this form
+//                           if it was open.
 //
 //    Option 1.
-//    * Data                - BinaryData - data to encrypt.
-//                            - String - an address of a temporary storage with binary data.
-//                            - NotifyDescription - a data receipt handler that returns
-//                            it in the Data property (see the common approach above).
-//    * ResultPlacement  - Undefined - (optional) - describes where to place the encrypted data.
-//                            If it is not specified or Undefined, use the ResultProcessing parameter.
-//                            - NotifyDescription - a handler of saving encrypted data.
-//                            Consider the common approach (see above).
-//                            DataDetails already has the EncryptedData parameter at the time it is called.
-//                            In case of the DataSet parameter,
-//                            the DataSetCurrentItem property is inserted into the DataDetails. It contains the EncryptedData parameter.
-//    * Object                - AnyRef - (optional) - a reference to the object that needs to be encrypted.
-//                            f not specified, encryption certificates are not required.
-//    * ObjectVersion         - String - (optional) - version of the object data to check and
-//                            lock the object before adding the encryption certificates.
-//    * Presentation       - AnyRef - (optional), if the parameter is not specified,
-//                                  the presentation is calculated by the Object property value.
+//    * Data                - BinaryData -  data for encryption.
+//                            - String - 
+//                            - NotifyDescription - 
+//                            
+//    * ResultPlacement  - Undefined -  (optional) - describes where to put the encrypted data.
+//                            If omitted or Undefined, then use the result Processing parameter.
+//                            - NotifyDescription - 
+//                            
+//                            
+//                            
+//                            
+//    * Object                - AnyRef -  (optional) - a reference to the object to be encrypted.
+//                            If omitted, you do not need to add encryption certificates.
+//    * ObjectVersion         - String -  (optional) - the version of object data to check and
+//                            lock the object before adding encryption certificates.
+//    * Presentation       - AnyRef -  (optional), if the parameter is not specified,
+//                                  then the representation is calculated by the value of the Object property.
 //                          - String
 //                          - Structure:
 //                             ** Value      - AnyRef
-//                                              - NotifyDescription - to open.
-//                             ** Presentation - String - - a value presentation.
+//                                              - NotifyDescription - 
+//                             ** Presentation - String -  representation of the value.
 //
 //    Option 2.
-//    * DataSet           - Array - structures with properties described in Option 1.
-//    * SetPresentation   - String - presentations of several data set items, for example, Files (%1).
-//                            To this presentation, the number of items is filled in parameter %1.
-//                            Click the hyperlink to open the list.
-//                            If the data set has 1 item, value
-//                            in the Presentation property of the DataSet property is used. If not specified,
-//                            the presentation is calculated by the Object property value of a data set item.
+//    * DataSet           - Array -  structures with the properties described in Option 1.
+//    * SetPresentation   - String -  representations of multiple data set elements, such as " Files (%1)".
+//                            In this view, the %1 parameter is filled with the number of elements.
+//                            You can use the hyperlink to open the list.
+//                            If the dataset 1 element, then use the value
+//                            in the property View properties Nabetani, if not specified, then
+//                            performance is calculated on the value of the item Object of the data set.
 //    * PresentationsList   - ValueList
-//                            - Array - (optional) - an arbitrary list of items
-//                            or an array with values, like the Presentation property has, and which
-//                            the user can open. If not specified, it is filled from
-//                            the Presentation or Object properties in the DataSet property.
+//                            - Array - 
+//                            
+//                            
+//                            
 //
-//  Form - ClientApplicationForm  - a form to provide a UUID used to
-//        store encrypted data to a temporary storage.
-//        - UUID - a UUID that will be
-//        used to store encrypted data to a temporary storage.
-//        - Undefined      - use a standard form.
+//  Form - ClientApplicationForm  -  a form from which you need to get a unique identifier that will
+//        be used when placing encrypted data in temporary storage.
+//        - UUID - 
+//        
+//        - Undefined      - 
 //
 //  ResultProcessing - NotifyDescription -
-//     It is required for non-standard result processing, if the Form or the ResultPlacement parameter is not specified.
-//     The result gets the DataDetails parameter, to which the following properties are added in case of a success:
-//     # Success - Boolean - True if everything is successfully completed. If "Success" is False, the partial completion
-//               is defined by the SignatureProperties property (if the property is present, the step is completed).
-//     # Cancel - Boolean - True if the user canceled the operation interactively.
-//     # EncryptionCertificates = String - Temporary storage address that contains the array described below.
-//                             = Array - Placed before starting encryption and after this it is not changed.
-//                                ## Value - Structure
-//                                   ### Thumbprint - String - Certificate thumbprint in the Base64 string format.
-//                                   ### Presentation - String - Saved subject presentation
-//                                                       got from certificate binary data.
-//                                   ### Certificate - BinaryData - Contains export of the certificate
-//                                                       that was used for encryption.
-//     # EncryptedData = BinaryData - Encryption result.
-//                             Check the property in the DataSet parameter when passing it.
-//                           String = Address of temporary storage that contains the encryption result.
+//     
+//     :
+//     
+//               
+//     
+//     
+//                             
+//                                
+//                                   
+//                                   
+//                                                       
+//                                   
+//                                                       
+//     
+//                             
+//                           
 //
 Procedure Encrypt(DataDetails, Form = Undefined, ResultProcessing = Undefined) Export
 	
@@ -661,139 +658,139 @@ Procedure Encrypt(DataDetails, Form = Undefined, ResultProcessing = Undefined) E
 	
 EndProcedure
 
-// Decrypts data, returns it and places into object if it is specified.
+// Decrypts data, returns it, and puts it in an object, if specified.
 // 
-// A common method to process property values with the NotifyDescription type in the DataDetails parameter.
-//  When processing a notification, the parameter structure is passed to it.
-//  This structure always has a Notification property of the NotifyDescription type, which needs to be processed to continue.
-//  In addition, the structure always has the DataDetails property received when calling the procedure.
-//  When calling a notification, the structure must be passed as a value. If an error occurs during the asynchronous
-//  execution, add the ErrorDetails property of String type to this structure.
+// A General approach to processing property values with the message Description type in the data Description parameter.
+//  When processing an alert, a parameter structure is passed to it, which always has
+//  the "Alert" property of the message Description type, which must be processed in order to continue.
+//  In addition, the structure always has a data Descriptionproperty that is obtained when calling the procedure.
+//  When calling an alert, a structure must be passed as the value. If an
+//  error occurs during asynchronous execution, then insert the error Descriptionproperty of the String type into this structure.
 // 
 // Parameters:
 //  DataDetails - Structure:
-//    * Operation             - String - a data decryption form title, for example, File decryption.
-//    * DataTitle      - String - a title of an item or a data set, for example, File.
-//    * NotifyOnCompletion  - Boolean - (optional) - if False, no notification of successful
-//                           completion of the operation will be shown to present the data indicated next to the title.
-//    * CertificatesFilter    - Array - (optional) - contains references to the catalog items.
-//                           DigitalSignatureAndEncryptionCertificates that can be selected
-//                           by the user. The filter locks the ability to select other certificates
-//                           from the Personal store.
-//    * NoConfirmation     - Boolean - (Optional)
-//                           - Skip user confirmation if CertificatesFilter property has one certificate and:
-//                           a) Either the certificate has the flag "Protect digital signature application with password",
-//                           b) Or a user has memorized the certificate password for the time of the session,
-//                           c) Or a password has been set earlier by the SetCertificatePassword method.
-//                           If an error occurs during decryption, a form opens where the user can enter the password.
+//    * Operation             - String -  header of the data decryption form, for example, file Decryption.
+//    * DataTitle      - String -  title of an element or data set, such as a File.
+//    * NotifyOnCompletion  - Boolean - 
 //                           
-//    * IsAuthentication    - Boolean - (optional) - if True, show the OK button
-//                           instead of the Decrypt button. And some labels will be corrected.
-//                           Besides, the ReportCompletion parameter is set to False.
-//    * BeforeExecute     - NotifyDescription - (optional) - details of the additional
-//                           data preparation handler, after selecting the certificate, by which the data will be decrypted.
-//                           In this handler you can fill the Data parameter if it is required.
-//                           DataDetails already has
-//                           the SelectedCertificate parameter in the moment of call (see below). Consider the common approach (see above).
+//    * CertificatesFilter    - Array -  (optional) - contains links to directory elements.
+//                           Electronic signature decryption certificates that can be selected
+//                           by the user. Selection blocks the ability to select other certificates
+//                           from the personal storage.
+//    * NoConfirmation     - Boolean - 
+//                           :
+//                           
+//                           
+//                           
+//                           
+//                           
+//    * IsAuthentication    - Boolean -  (optional) - if True,
+//                           the OK button will be displayed instead of the Decrypt button. Also, some labels have been corrected.
+//                           In addition, the report Completion parameter is set to False.
+//    * BeforeExecute     - NotifyDescription -  (optional) - description of the handler for additional
+//                           data preparation after selecting the certificate with which the data will be decrypted.
+//                           In this handler, you can fill in the Data parameter, if necessary.
+//                           At the time of the call, the selected certificate has already been inserted into the data description, as the selected certificate
+//                           (see below). The general approach should be taken into account (see above).
 //    * ExecuteAtServer   - Undefined
-//                           - Boolean -  (optional) - when not specified or Undefined,
-//                           the execution will be determined automatically: if there is a server, first
-//                           execute at the server, then in case of a failure at the client, then display a message about two errors.
-//                           When True: if execution on the server is allowed, execute
-//                           only on the server, in case of a failure one message about a server error is displayed.
-//                           When False: execute only on the client, as if there is no server.
-//    * AdditionalActionParameters - Arbitrary - (optional) - if specified, it is passed
-//                           to the server to the BeforeOperationStart common module procedure.
-//                           DigitalSignatureOverridable common module as InputParameters.
-//    * OperationContext     - Undefined - (Optional) If specified, the property is assigned a value
-//                           of an arbitrary type, which allows the user to repeat the same action
-//                           with the certificate without asking the user for the password and the action confirmation. 
-//                           If the procedure fails, the repeated action with the passed context
-//                           might also cause an error.
+//                           - Boolean - 
 //                           
-//                           - Arbitrary - (optional) - if defined, the action will be executed
-//                           with the same certificate without requesting a password or confirmation.
-//                           The WithoutConfirmation parameter is considered to be True.
-//                           The Operation, DataTitle, CertificatesFilter, IsAuthentication
-//                           and ExecuteAtServer parameters are ignored. They retain the values they had at the first call.
-//                           The AdditionalActionsParameters parameter is ignored.
-//                           The BeforeOperationStart procedure is not called.
-//                           If you pass the context returned by the Sign procedure,
-//                           the password entered for the certificate can be used as if
-//                           the password had been saved for the duration of session. In other cases, the context is ignored.
-//    * StopExecution - Arbitrary - if the property exists and an
-//                           error occurs during asynchronous execution, execution stops without displaying the operation form or with closing this form
-//                           if it was opened.
+//                           
+//                           
+//                           
+//                           
+//    * AdditionalActionParameters - Arbitrary -  (optional) - if specified, it is passed
+//                           to the server in the procedure for pre-Moderation of the shared module.
+//                           The electronic signature is undefined as input Parameters.
+//    * OperationContext     - Undefined - 
+//                           
+//                            
+//                           
+//                           
+//                           
+//                           - Arbitrary - 
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
+//                           
+//    * StopExecution - Arbitrary -  if the property exists and an error occurs during asynchronous execution
+//                           , execution stops without displaying the operation form or closing this form
+//                           if it was open.
 // 
 //    Option 1.
-//    * Data                - BinaryData - data to decrypt.
-//                            - String - an address of a temporary storage with binary data.
-//                            - NotifyDescription - a data receipt handler that returns
-//                            it in the Data property (see the common approach above). In the moment of call,
-//                            DataDetails already has the selected certificate as SelectedCertificate (see below).
-//    * ResultPlacement  - Undefined - (optional) - describes where to place the decrypted data.
-//                            If it is not specified or Undefined, use the ResultProcessing parameter.
-//                            - NotifyDescription - a handler of saving decrypted data.
-//                            Consider the common approach (see above).
-//                            DataDetails already has the DecryptedData parameter at the time it is called.
-//                            In case of the DataSet parameter,
-//                            the DataSetCurrentItem property is inserted into the DataDetails. It contains the DecryptedData parameter.
-//    * Object                - AnyRef - (optional) - a reference to the object to be decrypted,
-//                            as well as clear records from the EncryptionCertificates
-//                            information register after decryption is completed successfully.
-//                            If not specified, you do not need to get certificates from an object and clear them.
-//                            - String - temporary storage address that contains
-//                              ## Array of Structure - encryption certificate array
-//                                 ### Thumbprint     - String - a certificate thumbprint in the Base64 string format.
-//                                 ### Presentation - String - a saved subject presentation
-//                                                     received from certificate binary data.
-//                                 ### Certificate    - BinaryData - contains export of the certificate
-//                                                     that was used for encryption.
-//    * Presentation       - AnyRef - (optional), if the parameter is not specified,
-//                                  the presentation is calculated by the Object property value.
+//    * Data                - BinaryData -  data to decrypt.
+//                            - String - 
+//                            - NotifyDescription - 
+//                            
+//                            
+//    * ResultPlacement  - Undefined -  (optional) - describes where to put the decrypted data.
+//                            If omitted or Undefined, then use the result Processing parameter.
+//                            - NotifyDescription - 
+//                            
+//                            
+//                            
+//                            
+//    * Object                - AnyRef -  (optional) - a reference to the object that you want to decrypt,
+//                            and also clear record of the information register of Certificatesfree
+//                            after successful completion of the decryption.
+//                            If omitted, certificates do not need to be retrieved from the object and cleared.
+//                            - String - 
+//                              
+//                                 
+//                                 
+//                                                     
+//                                 
+//                                                     
+//    * Presentation       - AnyRef -  (optional), if the parameter is not specified,
+//                                  then the representation is calculated by the value of the Object property.
 //                          - String
 //                          - Structure:
 //                             ** Value      - AnyRef
-//                                              - NotifyDescription - to open.
-//                             ** Presentation - String - - a value presentation.
+//                                              - NotifyDescription - 
+//                             ** Presentation - String -  representation of the value.
 // 
 //    Option 2.
-//    * DataSet           - Array - structures with properties described in Option 1.
-//    * SetPresentation   - String - presentations of several data set items, for example, Files (%1).
-//                            To this presentation, the number of items is filled in parameter %1.
-//                            Click the hyperlink to open the list.
-//                            If the data set has 1 item, value
-//                            in the Presentation property of the DataSet property is used. If not specified,
-//                            the presentation is calculated by the Object property value of a data set item.
+//    * DataSet           - Array -  structures with the properties described in Option 1.
+//    * SetPresentation   - String -  representations of multiple data set elements, such as " Files (%1)".
+//                            In this view, the %1 parameter is filled with the number of elements.
+//                            You can use the hyperlink to open the list.
+//                            If the dataset 1 element, then use the value
+//                            in the property View properties Nabetani, if not specified, then
+//                            performance is calculated on the value of the item Object of the data set.
 //    * PresentationsList   - ValueList
-//                            - Array - (optional) - an arbitrary list of items
-//                            or an array with values, like the Presentation property has, and which
-//                            the user can open. If not specified, it is filled from
-//                            the Presentation or Object properties in the DataSet property.
-//    * EncryptionCertificates - Array - (optional) values, like the Object parameter has. It is used
-//                            to extract encryption certificate lists for items that are specified
-//                            in the PresentationsList parameter (the order needs to correspond to it).
+//                            - Array - 
+//                            
+//                            
+//                            
+//    * EncryptionCertificates - Array -  (optional) values like the Object parameter. Used
+//                            to extract lists of encryption certificates for items specified
+//                            in the list of Representations parameter (the order must match).
 //                            When specified, the Object parameter is not used.
 //
-//  Form - ClientApplicationForm - a form to provide a UUID used to
-//        store decrypted data to a temporary storage.
-//        - UUID - a UUID that will be
-//        used to store decrypted data to a temporary storage.
-//        - Undefined - use a standard form.
+//  Form - ClientApplicationForm -  a form from which you need to get a unique identifier that will
+//        be used when placing decrypted data in temporary storage.
+//        - UUID - 
+//        
+//        - Undefined - 
 //
 //  ResultProcessing - NotifyDescription -
-//     It is required for non-standard result processing, if the Form and/or the ResultPlacement parameter is not specified.
-//     The result gets the DataDetails parameter, to which the following properties are added in case of a success:
-//     # Success - Boolean - True if everything is successfully completed. If Success = False, the partial completion
-//               is defined by having the SignatureProperties property. If there is, the step is completed.
-//     # Cancel - Boolean - True if the user canceled the operation interactively.
-//     # SelectedCertificate - Structure - contains the following certificate properties
-//         ## Ref - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Reference to the certificate.
-//         ## Thumbprint - String - Certificate thumbprint in the Base64 format.
-//         ## Data - String - Temp storage address that contains certificate binary data.
-//     # DecryptedData - BinaryData - Decryption result.
-//                              Check the property in the DataSet parameter when passing it.
-//                            = String - Temp storage address that contains the decryption result.
+//     
+//     :
+//     
+//               
+//     
+//     
+//         
+//         
+//         
+//     
+//                              
+//                            
 //
 Procedure Decrypt(DataDetails, Form = Undefined, ResultProcessing = Undefined) Export
 	
@@ -855,75 +852,73 @@ Procedure Decrypt(DataDetails, Form = Undefined, ResultProcessing = Undefined) E
 	
 EndProcedure
 
-// Upgrades the signatures to the given type.
+// 
 //
 // Parameters:
 //  DataDetails - Structure:
-//    * SignatureType          - EnumRef.CryptographySignatureTypes - Signature type to upgrade to.
-//                           If the actual SignatureType is the same or higher, no actions are performed.
+//    * SignatureType          - EnumRef.CryptographySignatureTypes - 
 //                           
-//    * AddArchiveTimestamp - Boolean - If True and SignatureType and actual SignatureType are archived, add a timestamp.
+//                           
+//    * AddArchiveTimestamp - Boolean - 
 //                           
 //   
-//    * Signature             - BinaryData - Signature data.
-//                          - String - an address of a temporary storage with binary data.
+//    * Signature             - BinaryData - 
+//                          - String - 
 //                          - Structure:
-//                             ** SignedObject - AnyRef - Reference to the object whose signatures will be upgraded.
-//                             ** SequenceNumber - Number - a signature sequence number.
-//                                                - Array - values of the type specified above.
-//                                                - Undefined - All object's signatures.
-//                             ** Signature - BinaryData - (Optional) Signature data.
-//                                        Applicable if the signature sequence number is numeric.
-//                                        - String - Address of the temporary storage that contains the signature binary data.
-//                                                          Applicable if the signature sequence number is numeric.
+//                             ** SignedObject - AnyRef - 
+//                             ** SequenceNumber - Number -  serial number of the signature.
+//                                                - Array - 
+//                                                - Undefined - 
+//                             ** Signature - BinaryData - 
+//                                        
+//                                        - String - 
+//                                                         
 //                          - Array of BinaryData
-//                          - Array of String - Same as in the line above. 
-//                          - Array of Structure - Same as the structure above.
+//                          - Array of String - 
+//                          - Array of Structure - 
 //   
-//    * Presentation       - AnyRef - (Optional) If not specified, the presentation is generated using the Object and SequenceNumber property values.
+//    * Presentation       - AnyRef - 
 //                                  
 //                          - String
 //                          - Structure:
 //                             ** Value      - AnyRef
-//                                              - NotifyDescription - to open.
-//                             ** Presentation - String - Value presentation.
+//                                              - NotifyDescription - 
+//                             ** Presentation - String - 
 //                          - ValueList
-//                          - Array - (Optional) Arbitrary list or array with the above values that users can open.
-//                          If not specified, takes the value from properties Object and SequenceNumber.
+//                          - Array - 
 //                          
 //                          
+//                          
 //
-//  Form - ClientApplicationForm - a form, from which you need to get an UUID
-//                                that will be used when locking an object.
-//        - UUID - a UUID that will be used
-//                                to lock an object.
+//  Form - ClientApplicationForm -  a form from which you need to get a unique identifier
+//                                that will be used when blocking an object.
+//        - UUID - 
+//                                
 //
-//  AbortArrayProcessingOnError  - Boolean - Flag indicating whether to interrupt processing items if an error occurs. By default, True.
-//  ShouldIgnoreCertificateValidityPeriod - Boolean - Flag indicating whether to validate the certificate before enhancement
-//                                                 By default, False.
+//  AbortArrayProcessingOnError  - Boolean - 
+//  ShouldIgnoreCertificateValidityPeriod - Boolean - 
+//                                                 
 //
-//  ResultProcessing - NotifyDescription - Required for non-standard result processing.
-//     For example, if the object reference or signature number is not specified.
-//     Structure:
-//     # Success = Boolean - True if all operations succeeded. If False, the partial abortion is defined by SignatureProperties.
-//               If the property is specified, the step is considered completed.
-//     # ErrorText = String
-//     # SignatureProperties - Array of Structure -
-//                          ## Signature - BinaryData - Signature to be upgraded.
-//                                     = String - Address in the temp storage.
-//                          ## SignedObject - AnyRef - If any.
-//                          ## SequenceNumber - Number - If any.
-//                          ## SignatureType - EnumRef.CryptographySignatureTypes - Signature type.
-//                                Applicable if the upgrade failed but the type was determined.
-//                          ## LastTimestampValidityPeriod - Date - Timestamp validity.
-//                                Applicable if the upgrade failed but the validity period was determined.
-//                          ## SignatureProperties = See DigitalSignatureClientServer.NewSignatureProperties
-//                             -
-//                          Upgraded signature properties.
-//                           Only modified properties are available.
-//                        ## Error - String - Text of an error occurred during the upgrade.
-//                                                 In this case, the structure doesn't contain properties of the signature that failed to upgrade.
-//                                                 - String - Address of the temp storage that contains the array above.
+//  
+//     
+//     :
+//     
+//               
+//     
+//     
+//                          
+//                                     
+//                          
+//                          
+//                          
+//                                
+//                          
+//                                
+//                           See DigitalSignatureClientServer.NewSignatureProperties
+//                             
+//                          
+//                           
+//                        
 //
 Procedure EnhanceSignature(DataDetails, Form, ResultProcessing = Undefined,
 	AbortArrayProcessingOnError = True, ShouldIgnoreCertificateValidityPeriod = False) Export
@@ -947,25 +942,25 @@ Procedure EnhanceSignature(DataDetails, Form, ResultProcessing = Undefined,
 
 EndProcedure
 
-// Checks the crypto certificate validity.
+// Checks the validity of the cryptography certificate.
 //
 // Parameters:
-//   Notification           - NotifyDescription - a notification about the execution result of the following types:
-//             = Boolean       - True if the check is completed successfully.
-//             = String       - a description of a certificate check error.
-//             = Undefined - cannot get the crypto manager (because it is not specified).
+//   Notification           - NotifyDescription -  notification of the result of the following types of execution
+//             = Boolean       - True if the check is successful.
+//             = String - description of the certificate verification error.
+//             = Undefined - failed to get a cryptography manager (when not specified).
 //
-//   Certificate           - CryptoCertificate - a certificate.
-//                        - BinaryData - certificate binary data.
-//                        - String - an address of a temporary storage that contains certificate binary data.
+//   Certificate           - CryptoCertificate -  certificate.
+//                        - BinaryData -  binary data of the certificate.
+//                        - String - 
 //
-//   CryptoManager - Undefined - get the crypto manager automatically.
-//                        - CryptoManager - use the specified crypto manager
-//                          (a check on the server will not be executed).
+//   CryptoManager - Undefined -  to the Manager of the cryptographic automatically.
+//                        - CryptoManager - 
+//                          
 //
-//   OnDate               - Date - check the certificate on the specified date.
-//                          If parameter is not specified or a blank date is specified,
-//                          check on the current session date.
+//   OnDate               - Date -  check the certificate for the specified date.
+//                          If the parameter is omitted or an empty date is specified,
+//                          then check for the current session date.
 //   CheckParameters - See CertificateVerificationParameters.
 //
 Procedure CheckCertificate(Notification, Certificate, CryptoManager = Undefined, OnDate = Undefined, CheckParameters = Undefined) Export
@@ -995,70 +990,70 @@ Function CertificateVerificationParameters() Export
 	
 EndFunction
 
-// Opens the CertificateCheck form and returns the check result.
+// Opens the certificate Verification form and returns the verification result.
 //
 // Parameters:
-//  Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a certificate being checked.
+//  Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -  the certificate to verify.
 //
-//  AdditionalParameters - Undefined - an ordinary certificate check.
-//                          - Structure - Has the following optional properties:
-//    * FormOwner          - ClientApplicationForm - another form.
-//    * FormCaption         - String - if specified, it replaces the form title.
-//    * CheckOnSelection      - Boolean - if True, the Check button will be called
-//                             "Check and continue", and the Close button will be called "Cancel".
-//    * ResultProcessing    - NotifyDescription - it is called immediately after the check,
-//                             Result.ChecksPassed (see below) is passed to the procedure with the initial value False.
-//                             If True is not set in the CheckOnChoose mode,
-//                             the form will not be closed after a return from the notification procedure and
-//                             a warning that it is impossible to continue will be shown.
-//    * NoConfirmation       - Boolean - if it is set to True and you have a password,
-//                             the check will be executed immediately without opening the form.
-//                             If the mode is CheckOnChoose and the ResultProcessing parameter is set,
-//                             the form will not open if the ChecksPassed parameter is set to True.
-//    * CompletionProcessing    - NotifyDescription - it is called when the form is closed,
-//                             the Undefined or the ChecksPassed value are passed as its result (see below).
-//    * OperationContext       - Arbitrary - if you pass the context returned by the Sign procedure,
-//                             Decrypt procedure, the password entered for the certificate can be used
-//                             as if the password had been saved for the duration of session.
-//                             When recalling the WithoutConfirmation parameter is considered equal to True.
-//    * DontShowResults - Boolean - if a parameter takes the True value and the OperationContext parameter
-//                             contains the context of the previous operation, the check results will not be shown
+//  AdditionalParameters - Undefined -  normal certificate verification.
+//                          - Structure - :
+//    * FormOwner          - ClientApplicationForm -  other form.
+//    * FormCaption         - String -  if specified, then replaces the form header.
+//    * CheckOnSelection      - Boolean -  if True, then the Check button will be called
+//                             "Check and continue" and the Close button will be called "Cancel".
+//    * ResultProcessing    - NotifyDescription -  called immediately after verification,
+//                             the result is passed to the procedure.The checks are passed (see below) with the initial value False.
+//                             In the Check-Selection mode, if the Truth is not set,
+//                             the form will not be closed after returning from the notification procedure and
+//                             a warning about the impossibility of continuing will be shown.
+//    * NoConfirmation       - Boolean -  if set to True, then if you have a password
+//                             , the verification will be performed immediately without opening the form.
+//                             If the check mode is Selected and the result Processing parameter is set, the
+//                             form will not be opened if the check Pass parameter is set to True.
+//    * CompletionProcessing    - NotifyDescription -  called when the form is closed, the result
+//                             is passed Undefined or the value of the check is passed (see below).
+//    * OperationContext       - Arbitrary -  if you pass the context returned by the procedures, Sign,
+//                             Decrypt, etc., the password entered for the certificate can be used
+//                             as if it was saved for the duration of the session.
+//                             When called again, the no Confirmation parameter is considered to be True.
+//    * DontShowResults - Boolean -  if the parameter is set to True and the Contextoperation parameter
+//                             contains the context of the previous operation, the validation results will not be shown
 //                             to the user.
-//    * SignatureType             - EnumRef.CryptographySignatureTypes - By default, the type specified in the settings. 
-//                             It gets the type from "OperationContext" if it is passed from "Sign".
+//    * SignatureType             - EnumRef.CryptographySignatureTypes -  
+//                             
 //    * PerformCAVerification - 
 //    * IgnoreCertificateRevocationStatus - 
-//    * Result              - Undefined - a check was never performed.
-//                             - Structure - Return value. It is inserted before processing the result:
-//         * ChecksPassed  - Boolean - a return value. Is set in the procedure of the ResultProcessing parameter.
-//         * ChecksAtServer - Undefined - a check was not executed on the server:
-//                             - Structure - with properties, as the following parameter has.
+//    * Result              - Undefined -  the check was never performed.
+//                             - Structure - :
+//         * ChecksPassed  - Boolean -  the return value. It is set in the procedure of the Result processing parameter.
+//         * ChecksAtServer - Undefined - :
+//                             - Structure - 
 //         * ChecksAtClient - Structure:
 //             * CertificateExists  - Boolean
-//                                   - Undefined - if True, the check was successful;
-//                                     if False - the check was not successful; if Undefined, it was not executed.
-//                                     If standard checks are hidden in the OnCreateFormCertificateCheck
-//                                     of the DigitalSignatureOverridable module, there is no property.
+//                                   - Undefined - 
+//                                     
+//                                     
+//                                     
 //             * CertificateData   - Boolean
-//                                   - Undefined - the same as specified above.
+//                                   - Undefined - 
 //             * ProgramExists    - Boolean
-//                                   - Undefined - the same as specified above.
+//                                   - Undefined - 
 //             * Signing          - Boolean
-//                                   - Undefined - the same as specified above.
+//                                   - Undefined - 
 //             * CheckSignature     - Boolean
-//                                   - Undefined - the same as specified above.
+//                                   - Undefined - 
 //             * Encryption          - Boolean
-//                                   - Undefined - the same as specified above.
+//                                   - Undefined - 
 //             * Details         - Boolean
-//                                   - Undefined - the same as specified above.
-//             <Additional check name> additional check name determined
-//                                     in the OnCreateFormCertificateCheck common module
-//                                     with types as specified above.
-//             <Additional check name>Error additional check name with the Error ending and
-//                                    the String type (contains the error text if the check is False).
+//                                   - Undefined - 
+//             
+//                                     
+//                                     
+//             
+//                                    
 //
-//    * AdditionalChecksParameters - Arbitrary - parameters that are passed to the procedure named
-//        OnCreateFormCertificateCheck of the DigitalSignatureOverridable common module.
+//    * AdditionalChecksParameters - Arbitrary -  parameters that are passed to the procedure
+//        The attachment of the form of verification of the certificate of the general module of the electronic signature is undetectable.
 //
 Procedure CheckCatalogCertificate(Certificate, AdditionalParameters = Undefined) Export
 	
@@ -1066,22 +1061,22 @@ Procedure CheckCatalogCertificate(Certificate, AdditionalParameters = Undefined)
 	
 EndProcedure
 
-// Shows the dialog box for installing an extension to use digital signature and encryption.
-// For operations using platform tools only (CryptoManager).
+// Displays the dialog for installing an extension for working with electronic signature and encryption.
+// Only for working through the platform's tools (Manager Cryptography).
 //
 // Parameters:
-//   WithoutQuestion - Boolean - if True is set, the question will not be shown.
-//                It is required if the user clicked Install extension.
+//   WithoutQuestion - Boolean -  if True, then the question will not be shown.
+//                Required if the user clicked the button to Install the extension.
 //
-//   ResultHandler - NotifyDescription - details of the procedure that gets the ExtensionInstalled
-//      selection result of the following types:
-//       = Boolean
-//          True - The user confirmed the installation, the extension was successfully attached after installation.
-//          False   - The user confirmed the installation, but the extension could not be attached after the installation.
-//       = Undefined - The user refused to install.
+//   ResultHandler - NotifyDescription - 
+//      :
+//       
+//          
+//          
+//       
 //
-//   QueryText     - String - a question text.
-//   QuestionTitle - String - a question title.
+//   QueryText     - String -  question text.
+//   QuestionTitle - String -  the question title.
 //
 //
 Procedure InstallExtension(WithoutQuestion, ResultHandler = Undefined, QueryText = "", QuestionTitle = "") Export
@@ -1090,10 +1085,10 @@ Procedure InstallExtension(WithoutQuestion, ResultHandler = Undefined, QueryText
 	
 EndProcedure
 
-// Opens or activates the form of setting digital signature and encryption.
+// Opens or activates the electronic signature and encryption settings form.
 // 
 // Parameters:
-//  Page - String - allowed rows are Certificates, Settings, and Applications.
+//  Page - String -  valid strings are "Certificates", "Settings", "Programs".
 //
 Procedure OpenDigitalSignatureAndEncryptionSettings(Page = "Certificates") Export
 	
@@ -1102,7 +1097,7 @@ Procedure OpenDigitalSignatureAndEncryptionSettings(Page = "Certificates") Expor
 	
 	Form = OpenForm("CommonForm.DigitalSignatureAndEncryptionSettings", FormParameters);
 	
-	// When re-opening the form, additional actions are required.
+	// 
 	If Page = "Certificates" Then
 		Form.Items.Pages.CurrentPage = Form.Items.CertificatesPage;
 		
@@ -1117,7 +1112,7 @@ Procedure OpenDigitalSignatureAndEncryptionSettings(Page = "Certificates") Expor
 	
 EndProcedure
 
-// Opens a reference to the "How to work with digital signature and encryption apps" ITS section.
+// Opens a link to the its section "Instructions for working with electronic signature and encryption programs".
 //
 Procedure OpenInstructionOfWorkWithApplications() Export
 	
@@ -1125,11 +1120,11 @@ Procedure OpenInstructionOfWorkWithApplications() Export
 	
 EndProcedure
 
-// Opens an guide describing  typical issues with digital signature apps and how to solve them.
+// 
 // 
 //
 // Parameters:
-//   SectionName - String - a reference to the error in the instruction.
+//   SectionName - String -  link to the error in the instructions.
 //
 Procedure OpenInstructionOnTypicalProblemsOnWorkWithApplications(SectionName = "") Export
 	
@@ -1143,14 +1138,14 @@ Procedure OpenInstructionOnTypicalProblemsOnWorkWithApplications(SectionName = "
 	
 EndProcedure
 
-// Returns the date extracted from the signature binary data or Undefined.
+// Returns the date extracted from the binary signature data, or Undefined.
 //
 // Parameters:
-//  Notification - NotifyDescription - Called to pass the return value, which has one of the following types::
-//                 = Date - Date was successfully obtained.
-//                 = Undefined - Failed to obtain the date.
-//  Signature - BinaryData - signature data to extract a date from.
-//  CastToSessionTimeZone - Boolean - cast the universal time to the session time.
+//  Notification - NotifyDescription - :
+//                 
+//                 
+//  Signature - BinaryData - 
+//  CastToSessionTimeZone - Boolean -  bring the universal time to the session time.
 //
 Procedure SigningDate(Notification, Signature, CastToSessionTimeZone = True) Export
 	
@@ -1170,17 +1165,17 @@ Procedure SigningDate(Notification, Signature, CastToSessionTimeZone = True) Exp
 	
 EndProcedure
 	
-// Returns a certificate presentation in the directory, generated
-// from the subject presentation (IssuedTo) and certificate expiration date.
+// Returns a view of the certificate in the directory, formed
+// from the view of the subject (Comuvydan) and the certificate validity period.
 //
 // Parameters:
-//   Certificate   - CryptoCertificate - Cryptographic certificate.
+//   Certificate   - CryptoCertificate -  the certificate cryptography.
 //                - Structure:
 //                   * ValidBefore - 
-//                   * Certificate   - CryptoCertificate - Cryptographic certificate.
+//                   * Certificate   - CryptoCertificate -  the certificate cryptography.
 //
 // Returns:
-//  String - Certificate presentation in the catalog.
+//  String - 
 //
 Function CertificatePresentation(Certificate) Export
 	
@@ -1189,16 +1184,16 @@ Function CertificatePresentation(Certificate) Export
 	
 EndFunction
 
-// Returns the certificate subject presentation (IssuedTo).
+// Returns a representation of the certificate's subject (Comunidad).
 //
 // Parameters:
-//   Certificate - CryptoCertificate - a crypto certificate.
+//   Certificate - CryptoCertificate -  the certificate cryptography.
 //
 // Returns:
-//   String   - a subject presentation in the format "Last name Name, Company, Department, Position."
-//              If cannot determine FullName, then it is replaced with CommonName.
-//              Company, Department, or JobPosition can be missing if they are not specified or
-//              cannot be determined.
+//   String   - 
+//              
+//              
+//              
 //
 Function SubjectPresentation(Certificate) Export
 	
@@ -1206,14 +1201,14 @@ Function SubjectPresentation(Certificate) Export
 	
 EndFunction
 
-// Returns a presentation of the certificate issuer (IssuedBy).
+// Returns a view of the certificate publisher (issued by whom).
 //
 // Parameters:
-//   Certificate - CryptoCertificate - a crypto certificate.
+//   Certificate - CryptoCertificate -  the certificate cryptography.
 //
 // Returns:
-//   String - Issuer's presentation in the format "CommonName, Company, Department",
-//            Company and Department can be missing, if undefined.
+//   String - 
+//            
 //
 Function IssuerPresentation(Certificate) Export
 	
@@ -1221,23 +1216,23 @@ Function IssuerPresentation(Certificate) Export
 	
 EndFunction
 
-// Returns main certificate properties as a structure.
+// Returns the main properties of the certificate as a structure.
 //
 // Parameters:
-//   Certificate - CryptoCertificate - a crypto certificate.
+//   Certificate - CryptoCertificate -  the certificate cryptography.
 //
 // Returns:
 //   Structure:
-//    * Thumbprint      - String - a certificate thumbprint in the Base64 string format.
-//    * SerialNumber  - BinaryData - a property of the SerialNumber certificate.
+//    * Thumbprint      - String -  the thumbprint of the certificate in Base64 string format.
+//    * SerialNumber  - BinaryData -  certificate property SerialNumber.
 //    * Presentation  - See DigitalSignatureClient.CertificatePresentation.
 //    * IssuedTo      - See DigitalSignatureClient.SubjectPresentation.
 //    * IssuedBy       - See DigitalSignatureClient.IssuerPresentation.
-//    * StartDate     - Date   - a StartDate certificate property in the session time zone.
-//    * EndDate  - Date   - an EndDate certificate property in the session time zone.
-//    * Purpose     - String - Extended property details of the EKU certificate.
-//    * Signing     - Boolean - the UseToSign certificate property.
-//    * Encryption     - Boolean - the UseToEncrypt certificate property.
+//    * StartDate     - Date   -  the property of the DataPoint certificate in the session time zone.
+//    * EndDate  - Date   -  property of the end Date certificate in the session time zone.
+//    * Purpose     - String -  description of the extended property of the EKU certificate.
+//    * Signing     - Boolean -  the certificate property is used for Signing.
+//    * Encryption     - Boolean -  certificate property use for Decryption.
 //
 Function CertificateProperties(Certificate) Export
 	
@@ -1246,90 +1241,90 @@ Function CertificateProperties(Certificate) Export
 	
 EndFunction
 
-// Returns properties of the crypto certificate subject.
+// Returns the subject properties of the cryptography certificate.
 //
 // Parameters:
-//   Certificate - CryptoCertificate - a certificate to return the subject properties for.
+//   Certificate - CryptoCertificate -  for which you need to return the subject properties.
 //
 // Returns:
-//  Structure - Contains properties whose content depends on the national specifics. For example, for the Russian Federation:
-//     * CommonName         - String - (64) - it is extracted from the CN field - it is an alias of the certificate authority.
-//                          LE: depends on type of the last DS owner.
-//                              a) Company name
-//                              b) Automated system name
-//                              c) other displayed name as the information system requires.
-//                          Individual: FullName.
-//                        - Undefined - such certificate property is missing.
+//  Structure - :
+//     * CommonName         - String -  (64) - extracted from the CN field.
+//                          Legal entity - depending on the type of the final owner of the SKPEP
+//                              a) name of the company;
+//                              b) the name of the automated system;
+//                              c) another display name according to the requirements of the information system.
+//                          FULL NAME.
+//                        - Undefined - 
 //
-//     * Country           - String - (2) - it is extracted from the C field - the two-symbol country code
+//     * Country           - String -  (2) - extracted from the field C-two-character country code
 //                          according to ISO 3166-1:1997 (GOST 7.67-2003).
-//                        - Undefined - the certificate property does not exist.
+//                        - Undefined - 
 //
-//     * State           - String - (128) - it is extracted from the S field - the RF region name.
-//                          LE - by the location address.
-//                          Individual - by the registration address.
-//                        - Undefined - such certificate property is missing.
+//     * State           - String -  (128) - extracted from the field S - name of the subject of the Russian Federation.
+//                          YUL - at the location address.
+//                          FL - at the registration address.
+//                        - Undefined - 
 //
-//     * Locality  - String - (128) - extracted from the L field - a locality description.
-//                          LE - by the location address.
-//                          Individual - by the registration address.
-//                        - Undefined - such certificate property is missing.
+//     * Locality  - String -  (128) - extracted from the field L - name of the locality.
+//                          YUL - at the location address.
+//                          FL - at the registration address.
+//                        - Undefined - 
 //
-//     * Street            - String - (128) - it is extracted from the Street field - the street, house, and office names.
-//                          LE - by the location address.
-//                          Individual - by the registration address.
-//                        - Undefined - such certificate property is missing.
+//     * Street            - String -  (128) - extracted from the Street field - the name of the street, house, office.
+//                          YUL - at the location address.
+//                          FL - at the registration address.
+//                        - Undefined - 
 //
-//     * Organization      - String - (64) - extracted from the O field.
-//                          LE - a full or short company name.
-//                        - Undefined - such certificate property is missing.
+//     * Organization      - String -  (64) - extracted from the O field.
+//                          Legal entity is the full or abbreviated name of the company.
+//                        - Undefined - 
 //
-//     * Department    - String - (64) - it is extracted from the OU field.
-//                          LE - in case of issuing the DS to official responsible - the company department.
-//                              Department is a territorial structural unit of a large company,
-//                              which is not usually filled in the certificate.
-//                        - Undefined - such certificate property is missing.
+//     * Department    - String -  (64) - extracted from the OU field.
+//                          Legal entity - in the case of the release of the UPCEP to an official - a division of the company.
+//                              A subdivision is a territorial structural unit of a large company,
+//                              which is usually not filled in in the certificate.
+//                        - Undefined - 
 //
-//     * Email - String - (128) - extracted from the E field (an email address).
-//                          LE - an official responsible email address.
-//                          Individual - email address of an individual.
-//                        - Undefined - such certificate property is missing.
+//     * Email - String -  (128) - extracted from the E-mail address field.
+//                          Legal entity - the e-mail address of the official.
+//                          FL - the e-mail address of an individual.
+//                        - Undefined - 
 //
-//     * JobTitle        - String - (64) - extracted from the T field.
-//                          LE - in case of issuing the DS to an official responsible - their position.
-//                        - Undefined - such certificate property is missing.
+//     * JobTitle        - String -  (64) - extracted from the T field.
+//                          YUL - in the case of the release of the SKPEP to an official - his position.
+//                        - Undefined - 
 //
-//     * OGRN             - String - (64) - extracted from the OGRN field.
-//                          For LE, a company's registration number.
-//                        - Undefined - such certificate property is missing.
+//     * OGRN             - String -  (13) - extracted from the OGRN field.
+//                          YUL - OGRN of the company.
+//                        - Undefined - 
 //
-//     * OGRNIE           - String - (64) - extracted from the OGRNIP field.
-//                          For IE, an individual entrepreneur's registration number.
-//                        - Undefined - such certificate property is missing.
+//     * OGRNIE           - String -  (15) - extracted from the OGRNIP field.
+//                          IP - OGRN of an individual entrepreneur.
+//                        - Undefined - 
 //
-//     * SNILS            - String - (64) - extracted from the SNILS field.
-//                          Individual - a SNILS number
-//                          LE - not required, in case of issuing the DS to official responsible - their SNILS number.
-//                        - Undefined - such certificate property is missing.
+//     * SNILS            - String -  (11) - extracted from the SNILS field.
+//                          FL - SNILS
+//                          YUL - not necessarily, in the case of the release of a SKPEP on an official - his SNILS.
+//                        - Undefined - 
 //
-//     * TIN              - String - (12) - extracted from the INN field.
-//                          Individual - a TIN.
-//                          IE - a TIN.
-//                          LE - not required, but can be filled in in old certificates.
-//                        - Undefined - such certificate property is missing.
+//     * TIN              - String -  (12) - extracted from the INN field.
+//                          FL - INN.
+//                          IP - INN.
+//                          YUL - not required, but can be filled in in old certificates.
+//                        - Undefined - 
 //
-//     * TINEntity            - String - (10) - extracted from the INNLE field.
-//                          LE - required, but may be absent in old certificates.
-//                        - Undefined - such certificate property is missing.
+//     * TINEntity            - String -  (10) - extracted from the INNLE field.
+//                          YUL - required, but may be missing in old certificates.
+//                        - Undefined - 
 //
-//     * LastName          - String - (64) - extracted from the SN field (if the field is filled in).
-//                        - Undefined - such certificate property is missing.
+//     * LastName          - String -  (64) - is extracted from the SN field, if filled in.
+//                        - Undefined - 
 //
-//     * Name              - String - (64) - extracted from the GN field (if the field is filled in).
-//                        - Undefined - such certificate property is missing.
+//     * Name              - String -  (64) - is extracted from the GN field if filled in.
+//                        - Undefined - 
 //
-//     * MiddleName         - String - (64) - extracted from the GN field (if the field is filled in).
-//                        - Undefined - such certificate property is missing.
+//     * MiddleName         - String -  (64) - is extracted from the GN field if filled in.
+//                        - Undefined - 
 //
 Function CertificateSubjectProperties(Certificate) Export
 	
@@ -1337,54 +1332,54 @@ Function CertificateSubjectProperties(Certificate) Export
 	
 EndFunction
 
-// Returns properties of the crypto certificate issuer. 
+// Returns properties of the cryptography certificate publisher. 
 //
 // Parameters:
-//   Certificate - CryptoCertificate - a certificate to return the issuer properties for.
+//   Certificate - CryptoCertificate -  for which you need to return the publisher properties.
 //
 // Returns:
-//  Structure - Contains properties whose content depends on the national specifics.
-//              For example, for the Russian Federation:
-//     * CommonName         - String - (64) - it is extracted from the CN field - it is an alias of the certificate authority.
-//                        - Undefined - such certificate property is missing.
+//  Structure - 
+//              :
+//     * CommonName         - String -  (64) - extracted from the CN alias field of the certification authority.
+//                        - Undefined - 
 //
-//     * Country           - String - (2) - it is extracted from the C field - the two-symbol country code
+//     * Country           - String -  (2) - extracted from the field C-two-character country code
 //                          according to ISO 3166-1:1997 (GOST 7.67-2003).
-//                        - Undefined - such certificate property is missing.
+//                        - Undefined - 
 //
-//     * State           - String - (128) - it is extracted from the S field - it is the RF region name
-//                          by the location address of hardware and software complex certificate authority.
-//                        - Undefined - such certificate property is missing.
+//     * State           - String -  (128) - extracted from the field S-name of the subject of the Russian Federation
+//                          at the address of the location of the PAC UC.
+//                        - Undefined - 
 //
-//     * Locality  - String - (128) - it is extracted from the L field - the description of the locality
-//                          by the location address of hardware and software complex certificate authority.
-//                        - Undefined - such certificate property is missing.
+//     * Locality  - String -  (128) - extracted from the field L - name of the locality
+//                          at the address of the location of the UC PACK.
+//                        - Undefined - 
 //
-//     * Street            - String - (128) - it is extracted from the S field - it is the name of the street, house, and office
-//                          by the location address of hardware and software complex certificate authority.
-//                        - Undefined - such certificate property is missing.
+//     * Street            - String -  (128) - extracted from the field Street-name of the street, house, office
+//                          at the address of the location of the PAC UC.
+//                        - Undefined - 
 //
-//     * Organization      - String - (64) - a full or short name of the company is extracted from the O field.
-//                        - Undefined - such certificate property is missing.
+//     * Organization      - String -  (64) - extracted from the field O-full or abbreviated name of the company.
+//                        - Undefined - 
 //
-//     * Department    - String - (64) - extracted from the OU field (a company department).
-//                            Department is a territorial structural unit of a large company,
-//                            which is not usually filled in the certificate.
-//                        - Undefined - such certificate property is missing.
+//     * Department    - String -  (64) - extracted from the OU - business unit field.
+//                            A division is a territorial structural unit of a large company
+//                            that is usually not filled in in the certificate.
+//                        - Undefined - 
 //
-//     * Email - String - (128) - it is extracted from the E field. It is an email address of the certificate authority.
-//                        - Undefined - such certificate property is missing.
+//     * Email - String -  (128) - extracted from the e-mail address field of the certification authority.
+//                        - Undefined - 
 //
-//     * OGRN             - String - (13) - extracted from the OGRN field. A certificate authority's registration number.
-//                        - Undefined - such certificate property is missing.
+//     * OGRN             - String -  (13) - extracted from THE OGRN-OGRN field of the certification center company.
+//                        - Undefined - 
 //
-//     * TIN              - String - (12) - extracted from the INN field - a TIN of the certificate authority company.
-//                          LE - not required, but may be present in old certificates.
-//                        - Undefined - such certificate property is missing.
+//     * TIN              - String -  (12) - is extracted from the INN - INN field of the certification center company.
+//                          YUL - optional, but may be present in old certificates.
+//                        - Undefined - 
 //
-//     * TINEntity            - String - (10) - extracted from the INNLE field - a TIN of the certificate authority company.
-//                          LE - required, but may be absent in old certificates.
-//                        - Undefined - such certificate property is missing.
+//     * TINEntity            - String -  (10) - extracted from the INNLE field - INN of the certification center company.
+//                          YUL - required, but may be missing in old certificates.
+//                        - Undefined - 
 //
 Function CertificateIssuerProperties(Certificate) Export
 	
@@ -1392,63 +1387,63 @@ Function CertificateIssuerProperties(Certificate) Export
 	
 EndFunction
 
-// Returns the XML format template containing one standard Signature
-// item (see standard https://www.w3.org/TR/xmldsig-core1) 
-// with one Reference item and the filled in URI attribute
-// (reference to the XML message to be signed).
-//
-// The returned template contains the %SignatureMethod%, %DigestMethod%,
-// %DigestValue%, %SignatureValue%, %BinarySecurityToken% parameters,
-// which are automatically filled in upon signing.
-// The %SignatureMethod% (signing algorithm in the XML format) and
-// %DigestMethod% (hashing algorithm in the XML format) parameters are calculated by
-// the public key algorithm of the certificate that is used for signing,
-// first by the table specified in the XMLDSigParameters, then
-// if the table is not filled in or mapping is not found,
-// by the internal mapping table (recommended).
 // 
-// Templates with multiple Signature and multiple Reference are supported.
-// Signing and hashing algorithms GOST 94…2012 are supported.
-// Canonicalization algorithms are supported
+//  
+// 
+// 
 //
-// Exclusive XML Canonicalization 1.0
-// http://www.w3.org/2001/10/xml-exc-c14n#
-//  http://www.w3.org/2001/10/xml-exc-c14n#WithComments
-//   Canonical XML 1.0
-//   http://www.w3.org/TR/2001/REC-xml-c14n-20010315
-//  http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments
-//   Canonical XML 1.1
-//   http://www.w3.org/2006/12/xml-c14n11
-//  http://www.w3.org/2006/12/xml-c14n11#WithComments
-//   Enveloped signature (it is ignored since
-//   the empty URI is not supported in the SignedInfo.Reference item)
-//  http://www.w3.org/2000/09/xmldsig#enveloped-signature
-//  Recommendation SMEV 3.5.0.1, "XML transformation ALGORITHM"
-//   urn://smev-gov-ru/xmldsig/transform
-//  The certificate can be specified in the KeyInfo as the base64 value:
-//   - Either as the X509Data.X509Certificate item
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
+// 
 //
-// - Or as the KeyInfoReference.Reference item or
-// - the SecurityTokenReference.Reference with the URI to an item with a value.
+// 
+// 
+//  
+//   
+//   
+//  
+//   
+//   
+//  
+//   
+//   
+//  
+//  
+//   
+//  
+//   
+//
+// 
+// 
 // 
 //   
 //
 // Parameters:
 //  Parameters - See DigitalSignatureClient.XMLEnvelopeParameters
-//            - Undefined - use default parameters.
+//            - Indefinite - use default parameters.
 //
 // Returns:
 //  String
 //
 // Example:
-//	EnvelopeParameters = DigitalSignatureClient.XMLEnvelopeParameters();
-//	EnvelopeParameters.Option = "furs.mark.crpt.ru_v1";
-//	EnvelopeParameters.XMLMessage =
+//	The parameters of the envelope = the electronic signature of the client.Parameters of the XML() converter;
+//	The parameters of the envelope.Option = "furs.mark.crpt.ru_v1";
+//	The parameters of the envelope.Message XML =
 //	"    <getProductDetailsResponse xmlns=""http://warehouse.example.com/ws"">
 //	|      <getProductDetailsResult>
 //	|       <productID>12345</productID>
-//	|       <productName>Faceted glass</productName>
-//	|       <description>Faceted glass. 250 ml.</description>
+//	|       <productName>Faceted glass</ProductName>
+//	|       <description>The glass is faceted. 250 ml.</description>
 //	|       <price>9.95</price>
 //	|       <currency>
 //	|         <code>840</code>
@@ -1461,7 +1456,7 @@ EndFunction
 //	|     </getProductDetailsResult>
 //	|   </getProductDetailsResponse>";
 //	
-//	XMLEnvelope = DigitalSignatureClient.XMLEnvelope(Parameters);
+//	ConvertXML = Electronic Signature Client.envelopexml(Parameters);
 //
 Function XMLEnvelope(Parameters = Undefined) Export
 	
@@ -1469,17 +1464,17 @@ Function XMLEnvelope(Parameters = Undefined) Export
 	
 EndFunction
 
-// Returns the parameters that can be set for the XML envelope.
+// Returns parameters that can be set for an XML envelope.
 //
 // Returns:
 //  Structure:
-//   * Variant - String - an option of the standard XML template for exchange with a service:
-//                 "furs.mark.crpt.ru_v1" (initial value) or "dmdk.goznak.ru_v1".
-//                 Other formats are possible if they meet the requirements
-//                 specified in the details of the XMLEnvelope function.
+//   * Variant - String - :
+//                 
+//                 
+//                 
 //
-//   * XMLMessage - String - a message in the XML format that is inserted into the template.
-//                             If it is not filled in, the %MessageXML% parameter remains.
+//   * XMLMessage - String -  an XML message that is inserted into the template.
+//                             If not filled in, the %messagexml% parameter remains.
 //
 Function XMLEnvelopeParameters() Export
 	
@@ -1487,40 +1482,40 @@ Function XMLEnvelopeParameters() Export
 	
 EndFunction
 
-// Generates a property structure for configuring the non-standard processing
-// of the XML envelope and signing and hashing algorithms.
+// Forms a property structure for customizing non
+// -standard XML envelope processing and signing and hashing algorithms.
 //
-// It is recommended that you do not fill in the XPathSignedInfo and the XPathTagToSign parameters,
-// the XPathSignedInfo parameter is calculated using canonicalization algorithms,
-// and the XPathTagToSign parameter is calculated by reference
-// in the URI attribute of the SignedInfo.Reference item of the XML envelope.
+// It is recommended not to fill in the parameters XPathSignedInfo and XPath-signed tag
+// The XPathSignedInfo parameter is calculated by canonicalization algorithms,
+// and the XPath parameter of the signable tag is calculated by reference
+// in the URI attribute of the SignedInfo.Reference element of the XML envelope.
 // The parameters are left for backward compatibility. If specified, it works the same way:
-// the parameters are not extracted from the XML envelope and they are not controlled, while
-// the envelope must contain canonicalization algorithms and have certificate placement
-// items, as in the "furs.mark.crpt.ru_v1" envelope option.
+// parameters are not extracted from the XML envelope and their control is not performed, while
+// the envelope must contain canonization algorithms and have
+// certificate placement elements, as in the "furs.mark.crpt.ru_v1" envelope variant.
 //
-// It is not required to fill in the algorithms for using certificates
-// with public key algorithms GOST 94, GOST 2001, GOST 2012/256, and GOST 2012/512.
-// Signing and hashing algorithms are calculated using the public key algorithm
-// extracted from the certificate that is used for signing. First
-// by the passed table, then if the table is not filled in or mapping
-// is not found, by the internal mapping table (recommended).
+// There is no need to fill in algorithms for using certificates
+// with the public key algorithms GOST 94, GOST 2001, GOST 2012/256 and GOST 2012/512.
+// Signing and hashing algorithms are calculated using the algorithm of the public key
+// extracted from the certificate that is being signed. First
+// by the transmitted table, then if the table is not filled in or a match
+// is not found, by the internal matching table (recommended).
 //
 // Returns:
 //  Structure:
-//   * XPathSignedInfo         - String - By default: "(//. | //@* | //namespace::*)[ancestor-or-self::*[local-name()='SignedInfo']]".
-//   * XPathTagToSign   - String - by default: "(//. | //@* | //namespace::*)[ancestor-or-self::soap:Body]".
+//   * XPathSignedInfo         - String -  by default: "(//. | //@* | //namespace::*) [ancestor-or-self::*[local-name ()= 'SignedInfo']]".
+//   * XPathTagToSign   - String -  by default: "(//. | //@* | //namespace::*) [ancestor-or-self:: soap:Body]".
 //
-//   * OIDOfPublicKeyAlgorithm - String - for example, "1.2.643.2.2.19" + Chars.LF + "1.2.643.7.1.1.1.1" + …
-//   * SIgnatureAlgorithmName        - String - for example, "GOST R 34.10-2001" + Chars.LF + "GOST R 34.11-2012" + …
-//   * SignatureAlgorithmOID        - String - for example, 1.2.643.2.2.3" + Chars.LF + "1.2.643.7.1.1.3.2" + …
-//   * HashingAlgorithmName    - String - for example, "GOST R 34.11-94" + Chars.LF + "GOST R 34.11-12" + …
-//   * HashingAlgorithmOID    - String - for example, "1.2.643.2.2.9" + Chars.LF + "1.2.643.7.1.1.2.2" + …
-//   * SignAlgorithm            - String - for example, "http://www.w3.org/2001/04/xmldsig-more#gostr34102001-gostr3411"
-//                                      + Chars.LF +
-//                                      "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102012-gostr34112012-256" + …
-//   * HashAlgorithm        - String - for example, "http://www.w3.org/2001/04/xmldsig-more#gostr3411"+ Chars.LF +
-//                                      "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34112012-256" + …
+//   * OIDOfPublicKeyAlgorithm - String -  for example, "1.2.643.2.2.19" + Characters.PS + "1.2.643.7.1.1.1.1"+ ...
+//   * SIgnatureAlgorithmName        - String -  for example, "GOST R 34.10-2001" + Characters.PS + "GOST R 34.11-2012"+ ...
+//   * SignatureAlgorithmOID        - String -  for example, "1.2.643.2.2.3" + Characters.PS + "1.2.643.7.1.1.3.2"+ ...
+//   * HashingAlgorithmName    - String -  for example, "GOST R 34.11-94" + Characters.PS + "GOST R 34.11-12"+ ...
+//   * HashingAlgorithmOID    - String -  for example, "1.2.643.2.2.9" + Characters.PS + "1.2.643.7.1.1.2.2"+ ...
+//   * SignAlgorithm            - String -  for example, "http://www.w3.org/2001/04/xmldsig-more#gostr34102001-gostr3411"
+//                                      + Symbols.PS +
+//                                      "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102012-gostr34112012-256"+ ...
+//   * HashAlgorithm        - String -  for example, "http://www.w3.org/2001/04/xmldsig-more#gostr3411"
+//                                      + Symbols.PS + "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34112012-256"+ ...
 //
 Function XMLDSigParameters() Export
 	
@@ -1528,16 +1523,16 @@ Function XMLDSigParameters() Export
 	
 EndFunction
 
-// Generates property structures to sign data in the CMS format.
+// Forms the structure of the properties to sign the data in CMS format.
 // 
 // Returns:
 //  Structure:
-//   * SignatureType                    - String - "CAdES-BES" - other options are not used yet.
-//   * DetachedAddIn                  - Boolean -  False (default) - include data in a signature container.
-//                                   True - do not include data in a signature container.
-//   * IncludeCertificatesInSignature - CryptoCertificateIncludeMode - determines the length of the chain of
-//                                   certificates included in the signature. The IncludeChainWithoutRoot value
-//                                   is not supported and is considered equal to the IncludeWholeChain value.
+//   * SignatureType                    - String -  "CAdES-BES" - other options are not used yet.
+//   * DetachedAddIn                  - Boolean -    False ( default) - include data in the signature container.
+//                                   True - do not include data in the signature container.
+//   * IncludeCertificatesInSignature - CryptoCertificateIncludeMode -  specifies the length
+//                                   of the certificate chain to include in the signature. The value of
+//                                   include chained root Is not supported and is considered equal to the value of include full Chained.
 //
 Function CMSParameters() Export
 	
@@ -1547,30 +1542,30 @@ EndFunction
 
 #Region WriteCertificateToCatalog1
 
-// Initializes the parameters structure to add a certificate
-// to the DigitalSignatureAndEncryptionKeysCertificates catalog.
-// To use in the WriteCertificateToCatalog procedure.
+// Initializes the parameter structure for adding the certificate
+// to the Certificate directory of the Key Electronic Signature decryption.
+// To be used in the procedure, write down the certificate of the reference.
 //
 // Returns:
 //   Structure:
-//      * Description   - String - Certificate presentation in the list.
-//                       By default, "".
-//      * User   - CatalogRef.Users - a user who owns the certificate.
-//                       The value is used when receiving a list of personal user certificates
-//                       in the forms of signing and data encryption.
+//      * Description   - String -  presentation of the certificate in the list.
+//                       The default value is "".
+//      * User   - CatalogRef.Users -  the user who owns the certificate.
+//                       This value is used when getting a list of the user
+//                       's personal certificates in the data signing and encryption forms.
 //                       The default value is Undefined.
-//      * Organization    - DefinedType.Organization - a company that owns the certificate.
+//      * Organization    - DefinedType.Organization -  the company that the certificate belongs to.
 //                       The default value is Undefined.
-//      * Individual - DefinedType.Individual - The individual that owns the certificate.
-//                       By default. "Undefined".
-//      * Application      - CatalogRef.DigitalSignatureAndEncryptionApplications - Application for signing and encrypting.
-//                       By default, Undefined.
+//      * Individual - DefinedType.Individual - 
 //                       
-//      * EnterPasswordInDigitalSignatureApplication - Boolean - Flag "Protect digital signature app with password".
-//                       True is required if a certificate was installed on the computer with strong private key protection.
-//                       Meaning that only a blank password is supported at 1C:Enterprise level.
-//                       The password is requested by the operating system, which rejects empty passwords from 1C:Enterprise.
-//                       By default, False.
+//      * Application      - CatalogRef.DigitalSignatureAndEncryptionApplications -  the program that
+//                       is required for signing and decryption.
+//                       The default value is Undefined.
+//      * EnterPasswordInDigitalSignatureApplication - Boolean - 
+//                       
+//                       
+//                       
+//                       
 //                       
 //
 Function CertificateRecordParameters() Export
@@ -1587,24 +1582,24 @@ Function CertificateRecordParameters() Export
 	
 EndFunction
 
-// Checks the certificate and if check is successful, adds a new or updates an existing certificate
-// in the DigitalSignatureAndEncryptionKeysCertificates catalog. If the check fails, displays
-// information about the errors that have occurred.F
-// To add a certificate at the server, see DigitalSignature.WriteCertificateToCatalog.
+// Verifies the certificate and, if successful, adds a new certificate or updates an existing one in the Certificate
+// directory of the Key Electronic Signature Decryption. If the check is not passed, it shows
+// information about the errors that occurred.
+// To add a certificate on the server, see the electronic signature.Write down the certificate in the Reference book.
 //
 // Parameters:
-//   CompletionHandler - NotifyDescription - Called after adding a certificate
-//                           to pass the return value of the following types:
-//       = Undefined - Error occurred while checking or adding the certificate.
-//       = CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Added certificate.
-//   Certificate              - BinaryData - certificate binary data.
-//                           - String - binary data of an digital signature certificate or
-//                           data address in temporary storage.
-//   CertificatePassword       - String - a certificate password for checking private key operations.
-//   ToEncrypt           - Boolean - determines components of checks
-//                           performed before adding a certificate. If the parameter takes the True value,
-//                           encryption and decryption are checked, otherwise signing and signature are checked.
-//   AdditionalParameters - Undefined - without additional parameters.
+//   CompletionHandler - NotifyDescription - 
+//                           :
+//       
+//       
+//   Certificate              - BinaryData -  binary data of the certificate.
+//                           - String - 
+//                           
+//   CertificatePassword       - String -  password of the certificate for verifying operations with the private key.
+//   ToEncrypt           - Boolean -  defines the list of checks
+//                           performed before adding the certificate. If the parameter is set to True,
+//                           encryption and decryption are checked, otherwise signing and signature verification are performed.
+//   AdditionalParameters - Undefined -  without any additional parameters.
 //                           - See CertificateRecordParameters
 //
 Procedure WriteCertificateToCatalog(CompletionHandler,
@@ -1661,38 +1656,39 @@ EndProcedure
 
 #Region InteractiveCertificateAddition
 
-// Initializes a parameter structure for interactively adding a certificate.
-// If the CreateApplication parameter is True and the FromPersonalStorage parameter is False, opens a new application
-// for certificate issue.
-// If the CreateApplication parameter is False and the FromPersonalStorage parameter is True, adds a certificate
-// from the Personal store.
-// If the CreateApplication parameter is True and the FromPersonalStorage parameter is True, opens a window for
-// choosing certificate addition method.
-// For usage in DigitalSignatureClient.AddCertificate
+// Initializes the parameter structure for interactively adding a certificate.
+// If the create Statement parameter Is True and the store Name parameter is False, it opens a new
+// certificate issuance application.
+// If the create Statement parameter Is False and from the personal Store is True, it adds a certificate from
+// the personal store.
+// If the parameter create Statement-True and from other storage-True, opens the window for choosing
+// how to add the certificate.
+// For use in the electronic signature of the Client.Add a certificate
 //
 // Returns:
 //   Structure:
-//      * ToPersonalList      - Boolean - if the parameter takes the True value, the user attribute
-//                           will be filled in by the current user, otherwise the attribute will not be filled in.
+//      * ToPersonalList      - Boolean -  if the parameter is set to True, the User account
+//                           will be filled in by the current user, otherwise the account will not be filled in.
 //                           The default value is False.
-//      * Organization        - DefinedType.Organization - a company that owns the certificate.
+//      * Organization        - DefinedType.Organization -  the company that the certificate belongs to.
 //                           The default value is Undefined.
-//                           In the case when the parameter is used to create an application, then the value
-//                           is passed to the OnFillCompanyAttributesInApplicationForCertificate procedure
-//                           of the ApplicationForACertificateOverridable common module without change, and after the call
-//                           it cast to the types of the CompanyType property.
-//      * CreateRequest   - Boolean - if the parameter takes the True value, adds the ability
-//                           to create a new application for certificate issue.
+//                           In the case when the parameter is used to create a statement, then the value
+//                           is passed to the procedure for
+//                           filling in the company's requestionsapplicationsertificate of the general module of the application, the certificate is undefined without modification, and after the call
+//                           is reduced to the composition of the types of the Company's type property.
+//      * CreateRequest   - Boolean -  if the parameter is set to True, it adds the ability
+//                           to create a new certificate issuance request.
 //                           The default value is True.
-//      * FromPersonalStorage - Boolean - if the parameter takes the True value, adds the ability to
-//                           select a certificate from the installed certificates in the Personal store.
+//      * FromPersonalStorage - Boolean -  if the parameter is set to True, it adds the ability
+//                           to select a certificate from the ones installed in the personal storage.
 //                           The default value is True.
-//      * Individual     - CatalogRef - the individual for whom you need to create an application
-//                           for certificate issue (when it is filled in, it has priority over the company).
+//      * Individual     - CatalogRef -  the individual for whom you need to create
+//                           a certificate application (when completed, takes precedence over the company).
 //                           The default value is Undefined.
-//                           The value is passed to the OnFillOwnerAttributesInApplicationForCertificate procedure
-//                           of the ApplicationForACertificateOverridable common module without change, and after the call
-//                           is cast to the types of the OwnerType property.
+//                           The value is passed to the procedure when
+//                           filling in the Owner's requestionsapplicationsertificate of the general module of the declarationsertificationdetermined without modification, and after the call
+//                           is reduced to the composition of the types of the property of the Owner's type.
+//      * OnToken           - Boolean - 
 //
 Function CertificateAddingOptions() Export
 	
@@ -1702,38 +1698,39 @@ Function CertificateAddingOptions() Export
 	AddingOptions.Insert("CreateRequest", True);
 	AddingOptions.Insert("FromPersonalStorage", True);
 	AddingOptions.Insert("Individual", Undefined);
+	AddingOptions.Insert("OnToken", False);
 	
 	Return AddingOptions;
 	
 EndFunction
 
-// Interactively adds a certificate from installed on the computer or creates an application for certificate issue.
+// Interactively adds a certificate from the ones installed on the computer or creates a certificate release request.
 //
 // Parameters:
-//   CompletionHandler - NotifyDescription - Called after adding a certificate with a value of one of the following types:
-//      = Undefined - Error occurred while checking or adding the certificate.
-//      = Structure
-//          # Ref - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Added certificate.
-//          # Added - Boolean - Successful addition flag. If a certificate is added
-//                      using an application for a new qualified certificate issue, the flag takes
-//                      the False value until the application is executed and the certificate is installed on 
-//                      the computer.
-//   AddingOptions - Undefined - without additional parameters.
+//   CompletionHandler - NotifyDescription - :
+//      
+//      
+//          
+//          
+//                      
+//                       
+//                      
+//   AddingOptions - Undefined -  without any additional parameters.
 //                       - See DigitalSignatureClient.CertificateAddingOptions
 //
 // Example:
-//  1) Adding a certificate from installed in the Personal store:
-//  AddingOptions = DigitalSignatureClient.CertificateAddingOptions();
-//  AddingOptions.CreateApplication = False;
-//  DigitalSignatureClient.AddCertificate(, AddingOptions);
+//  1) Adding a certificate from the installed in your personal storage:
+//  Addmentparameters = email client.Parameteridentification();
+//  Add parameters.Create An Ad = False;
+//  Electronic signature of the client.Donaufestival (Parametrizability);
 //  
-//  2) Creation of an application for certificate issue:
-//  AddingOptions = DigitalSignatureClient.CertificateAddingOptions();
-//  AddingOptions.FromPersonalStorage = False;
-//  DigitalSignatureClient.AddCertificate(, AddingOptions);
+//  2) Creating an application for issuing a certificate:
+//  Addmentparameters = email client.Parameteridentification();
+//  Add parameters.Isochlorogenic = False;
+//  Electronic signature of the client.Donaufestival (Parametrizability);
 //  
-//  3) Interactive selection of certificate addition method:
-//  DigitalSignatureClient.AddCertificate();
+//  3) Interactive choice of how to add a certificate:
+//  e-Signclient.Add a certificate();
 //
 Procedure ToAddCertificate(CompletionHandler = Undefined, AddingOptions = Undefined) Export
 	
@@ -1754,6 +1751,9 @@ Procedure ToAddCertificate(CompletionHandler = Undefined, AddingOptions = Undefi
 		AddingOptions.FromPersonalStorage And Not AddingOptions.CreateRequest);
 	InteractiveSelectionParameters.Insert("CreateRequest",
 		AddingOptions.CreateRequest And Not AddingOptions.FromPersonalStorage);
+	If InteractiveSelectionParameters.CreateRequest Then
+		InteractiveSelectionParameters.Insert("OnToken", AddingOptions.OnToken);
+	EndIf;
 	
 	DigitalSignatureInternalClient.ToAddCertificate(InteractiveSelectionParameters, CompletionHandler);
 	
@@ -1763,32 +1763,63 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// These procedures and functions are intended for integration with 1C:Electronic Document Library.
+// 
+// 
+// Parameters:
+//  FormParameters - Structure
+//   
+//   
+//   
+//                             
+//                            
+//    
+//                            
+//   
+//      
+//      
+//                              
+//      
+//   
+//   
+//                            
+//   
+//                            
+//   
+//  OwnerForm - ClientApplicationForm - 
+//  CallbackOnCompletion - NotifyDescription - 
+//
+Procedure OpenExtendedErrorPresentationForm(FormParameters, OwnerForm = Undefined, CallbackOnCompletion = Undefined) Export
+	
+	DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, OwnerForm, CallbackOnCompletion);
+	
+EndProcedure
 
-// Creates and returns the cryptographic manager (on the client) for the specified app or data.
+// 
+
+// 
 //
 // Parameters:
-//  Notification     - NotifyDescription - Runtime result notification of the following types:
-//                   = CryptoManager - Initialized crypto manager.
-//                   = String - Details of the cryptographic manager creation error.
+//  Notification     - NotifyDescription - :
+//                   
+//                   
 //
-//  Operation       - String - if it is not blank, it needs to contain one of rows that determine
-//                   the operation to insert into the error description: Signing, SignatureCheck, Encryption,
-//                   Decryption, CertificateCheck, and GetCertificates.
+//  Operation       - String -  if not empty, it must contain one of the lines that define
+//                   the operation to insert in the error description: Signing, Verifying Signatures, Encrypting,
+//                   Decrypting, Verifying Certificates, Receiving Certificates.
 //
-//  ShowError - Boolean - if True, the ApplicationCallError form will open,
-//                   from which you can go to the list of installed apps
-//                   in the personal settings form on the "Installed applications" page,
-//                   where you can see why the app could not be used,
-//                   and open the installation instructions.
+//  ShowError - Boolean -  if it is True, then the program error Form will open
+//                   , from which you can go to the list of installed programs
+//                   in the personal settings form on the "Installed programs" page,
+//                   where you can see why the program could not be used,
+//                   and also open the installation instructions.
 //
-//  Application      - Undefined - Returns a cryptographic manager for the first app
-//                   it was successfully created.
-//                 - CatalogRef.DigitalSignatureAndEncryptionApplications - App for which
-//                   a crypto manager must be created and returned.
+//  Application      - Undefined - 
+//                   
+//                 - CatalogRef.DigitalSignatureAndEncryptionApplications - 
+//                   
 //                 - Structure - See DigitalSignature.NewApplicationDetails.
-//                 - BinaryData - DER-encoded data from a signature or certificate used to determine the app.
-//                 - String - Address of the binary data in the temp storage.
+//                 - BinaryData - 
+//                 - String - 
 //
 Procedure CreateCryptoManager(Notification, Operation, ShowError = True, Application = Undefined) Export
 	
@@ -1808,18 +1839,18 @@ Procedure CreateCryptoManager(Notification, Operation, ShowError = True, Applica
 	
 EndProcedure
 
-// Finds a certificate on the computer by a thumbprint string.
-// For operations using platform tools only (CryptoManager).
+// Finds the certificate on the computer based on the fingerprint string.
+// Only for working through the platform's tools (Manager Cryptography).
 //
 // Parameters:
-//   Notification           - NotifyDescription - a notification about the execution result of the following types:
-//     = CryptoCertificate - a found certificate.
-//     = Undefined           - the certificate does not exist in the storage.
-//     = String                 - a text of the crypto manager creation error (or other error).
+//   Notification           - NotifyDescription - :
+//     
+//     
+//     
 //
-//   Thumbprint              - String - a Base64 coded certificate thumbprint.
-//   InPersonalStorageOnly - Boolean - if True, search in the Personal store, otherwise, search everywhere.
-//   ShowError         - Boolean - if False, hide the error text to be returned.
+//   Thumbprint              - String -  The Base64 encoded thumbprint of the certificate.
+//   InPersonalStorageOnly - Boolean -  if True, then search in your personal storage, otherwise everywhere.
+//   ShowError         - Boolean -  if False, then the error text that will be returned will not be shown.
 //
 Procedure GetCertificateByThumbprint(Notification, Thumbprint, InPersonalStorageOnly, ShowError = True) Export
 	
@@ -1832,22 +1863,22 @@ Procedure GetCertificateByThumbprint(Notification, Thumbprint, InPersonalStorage
 	
 EndProcedure
 
-// Gets certificate thumbprints of the OS user.
+// 
 // 
 // Parameters:
-//  Notification     - NotifyDescription - Called for transferring return values of the following types:
-//                     Structure:
-//                     = Thumbprints - Map - Key: Thumbprint in the Base64 format. Value: Source
-//                      "Client", "Server", "Service".
-//                      If "ReceivingParameters" type is Boolean, then "Value" is set to "True".
-//                     (Intended for backward compatibility.)
-//                     = ErrorOnGetCertificatesAtClient - String -  Error text (creation error or another error).
-//                     = ErrorGettingCertificatesAtServer - String - Error text (creation error or another error).
+//  Notification     - NotifyDescription - :
+//                     
+//                     
+//                      
+//                      
+//                     
+//                     
+//                     
 //
-//  OnlyPersonal   - Boolean - if False, recipient certificates are added to the personal certificates.
+//  OnlyPersonal   - Boolean -  if False, recipient certificates are added to the personal certificates.
 //
 //  ReceivingParameters - See CertificateThumbprintsReceiptParameters
-//                     - Boolean - Indicates if the thumbprints are obtained only on the computer. Intended for backward compatibility.
+//                     
 //
 Procedure GetCertificatesThumbprints(Notification, OnlyPersonal, ReceivingParameters = True) Export
 	
@@ -1855,23 +1886,23 @@ Procedure GetCertificatesThumbprints(Notification, OnlyPersonal, ReceivingParame
 	
 EndProcedure
 
-// The constructor of parameters for getting certificate thumbprints.
+// 
 // See GetCertificatesThumbprints.
 // 
 // Parameters:
-//   ClientSide - Boolean, Undefined - Flag indicating whether the cryptography manager creation error should be displayed on the user's computer.
-//     If it's set to "Undefined", then receiving OS user certificates on the computer is restricted.
-//   ServerSide  - Boolean, Undefined - Flag indicating whether the cryptography manager creation error should be displayed on the server side.
-//     If it's set to "Undefined", then receiving OS user certificates on the server is restricted.
-//   Service     - Boolean, Undefined - If Boolean, and the setting is enabled, get the OS user certificate thumbprints in the service. 
-//     If it's set to "Undefined", then receiving OS user certificates in the service is restricted.
+//   ClientSide - Boolean, Undefined - 
+//     
+//   ServerSide  - Boolean, Undefined - 
+//     
+//   Service     - Boolean, Undefined -  
+//     
 //
 // Returns:
 //  Structure:
-//   * ClientSide - Boolean, Undefined
-//   * ServerSide  - Boolean, Undefined
-//   * Service     - Boolean, Undefined
-//   * ShouldReturnSource - Boolean - Always set to "True". Intended for backward compatibility.
+//   * ClientSide - 
+//   * ServerSide  - 
+//   * Service     - 
+//   * ShouldReturnSource - Boolean - 
 //
 Function CertificateThumbprintsReceiptParameters(ClientSide = True, ServerSide = True, Service = True) Export
 	
@@ -1884,29 +1915,29 @@ Function CertificateThumbprintsReceiptParameters(ClientSide = True, ServerSide =
 	
 EndFunction
 
-//  The procedure checks whether the certificate is in the Personal store, its expiration date whether the current user
-//  is specified in the certificate or no one is specified, and also that the app for working with the certificate is filled.
+//  The procedure checks whether the certificate is in the personal storage, whether the current user
+//  is specified in the certificate or not, and whether the program for working with the certificate is filled in.
 //
 //  Parameters:
-//   Notification - NotifyDescription - Notification with the result of the type:
-//     = Array of Structure
-//            # Ref - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Reference to the certificate.
-//            # Description - String - Certificate presentation in the list.
-//            # Thumbprint - String - Certificate thumbprint in the Base64 string format.
-//            # Data - String - Address of a temporary storage that contains certificate binary data.
-//            # Company - TypeToDefine.Company - Company that owns the certificate.
-//   Filter - Undefined - use default values for the structure properties that are specified below.
+//   Notification - NotifyDescription - :
+//     
+//            
+//            
+//            
+//            
+//            
+//   Filter - Undefined -  to use the default values for the properties of the structure described below.
 //         - Structure:
-//                 * CheckExpirationDate - Boolean - if there is no property, it is True.
-//                 * CertificatesWithFilledProgramOnly - Boolean - if there is no property, it is True.
-//                         In the query to the catalog, only those certificates are selected
-//                         that have the Application field filled in.
-//                 * IncludeCertificatesWithBlankUser - Boolean - if there is no property, it is True.
-//                         In the query to the catalog, not only those certificates are selected, for which the User field
-//                         matches the current user, but also those for which it is not filled.
-//                 * Organization - DefinedType.Organization - if there is a property and it is filled in,
-//                         only certificates with the Company field that matches
-//                         the specified one are selected in the catalog query.
+//                 * CheckExpirationDate - Boolean -  if the property is not present, it means True.
+//                 * CertificatesWithFilledProgramOnly - Boolean -  if the property is not present, it means True
+//                         . the request to the directory selects only those certificates
+//                         that have the Program field filled in.
+//                 * IncludeCertificatesWithBlankUser - Boolean -  if the property is not present, it means True
+//                         . the request to the directory selects not only certificates that
+//                         have the same User field as the current user, but also those that do not have it filled in.
+//                 * Organization - DefinedType.Organization -  if the property is present and filled in, then
+//                         only certificates that have the same Company field as the specified one are selected in the request to the directory
+//                         .
 //
 Procedure FindValidPersonalCertificates(Notification, Filter = Undefined) Export
 	
@@ -1924,27 +1955,27 @@ Procedure FindValidPersonalCertificates(Notification, Filter = Undefined) Export
 	
 EndProcedure
 
-// Searches for installed apps both on the client and on the server.
-// For operations using platform tools only (CryptoManager).
+// Searches for installed programs on the client and server.
+// Only for working through the platform's tools (Manager Cryptography).
 //
 // Parameters:
-//   Notification - NotifyDescription - Notification with the result of the following type::
-//     Array - Contains Structure values with the same properties as DigitalSignature.NewApplicationDetails
-//                and the following additional properties:
-//       # Set - Boolean - if True, it is specified at the client or at the server.
-//       # CheckResultAtClient - String - If blank, then it is specified. Otherwise, contains error details.
-//       # CheckResultAtServer - String - If blank, then it is specified. Otherwise, contains error details.
-//                                     - Undefined - the check was not performed.
+//   Notification - NotifyDescription - :
+//     
+//                
+//       
+//       
+//       
+//                                     
 //
-//   ApplicationsDetails   - Undefined - check only known apps that are populated with the
-//                                 DigitalSignature.FillApplicationsList procedure, if an empty array is passed.
-//                      - Array - Contains the same values as returned by DigitalSignature.NewApplicationDetails.
-//                                 The specified details will be appended to the built-in details.
-//                                 If the new details match the app type or name, the latter will be replaced.
+//   ApplicationsDetails   - Undefined -  check only known programs that are filled in by the procedure
+//                                 Electronic signature.Fill in the program list if you pass an empty array.
+//                      - Array - 
+//                                 
+//                                 
 //
-//   CheckAtServer1 - Undefined - check at the server if signing or encryption at the server is enabled.
-//                      - Boolean - if True check on the server, otherwise do not check
-//                                 whether signing or encryption is enabled on the server or not.
+//   CheckAtServer1 - Undefined -  check on the server if signing or encryption is enabled on the server.
+//                      - Boolean - 
+//                                 
 //
 Procedure FindInstalledPrograms(Notification, ApplicationsDetails = Undefined, CheckAtServer1 = Undefined) Export
 	
@@ -1969,45 +2000,44 @@ Procedure FindInstalledPrograms(Notification, ApplicationsDetails = Undefined, C
 	
 EndProcedure
 
-// Checks installed apps and prompts to install apps depending on the passed parameters.
+// 
 // 
 // Parameters:
 //  Form - ClientApplicationForm
-//  CheckParameters - Undefined, Structure:
-//   * ShouldPromptToInstallApp - Boolean - If set to "True", the data processor form opens. 
-//      See "DataProcessor.DigitalSignatureAndEncryptionApplications.InstallCryptoProvidersApps" (if the data processor is present and the list of installed apps is empty).
-//      By default "True" if "AppsToCheck" is set to "True" and cloud signatures and cryptographic operations 
-//      are not used on the server side. Otherwise, "False" by default.
-//   * AppsToCheck - Structure
-//      - Undefined - (Default value) Returns all the installed apps.
-//      - Boolean - See DigitalSignatureInternalClientServer.AppsRelevantAlgorithms
-//      - BInaryData - Signature/certificate data used for looking for suitable apps.
-//      - String - Address of the signature/certificate data in a temporary storage.
-//      - Array - contains value that are returned by "DigitalSignature.NewApplicationDetails".
-//   * SetComponent - Boolean - Flag indicating whether to prompt for installing the add-in
-//        that automatically detects installed apps. By default, "True".
-//   * ShouldInstallExtension - Boolean - Flag indicating whether to prompt the user for installing the cryptographic extension
-//        that automatically detects installed apps. By default, "True".
-//   * IsCheckedOnServer - Boolean, Undefined - If set to "Undefined", the check will run on server depending on the general settings.
-//                                                 By default, "Undefined".
+//  CheckParameters - 
+//    
+//      
+//       
+//      
+//   
+//       See DigitalSignatureInternalClientServer.AppsRelevantAlgorithms
+//      
+//      
+//      
+//   
+//        
+//   
+//        
+//   
+//                                                 
 //  CallbackOnCompletion - NotifyDescription - :
-//     Runtime result notification. One of the types
-//     = Structure:
-//                           # CheckCompleted = Boolean - True if the check was performed on a computer and installed CSP are detected.
-//     If False, "Error" is populated with the error details.
-//     # Error = String - Error text.
-//          # Programs = Array of Structure - Only the apps installed on the client.
-//          ## ApplicationName - String - Name of a cryptographic service provider. For example, "Infotecs GOST 2012/512 Cryptographic Service Provider"
-//          ## ApplicationType - Number - Type of a cryptographic service provider. For example, "77".
-//             ## Name - String - Application presentation as specified in the supplied list.
-//          For example, NStr("en = 'ViPNet CSP'").
-//          ## Version - String - Library version.
-//     ## License - Boolean - License presence flag.
-//                                            # ServerApplications = see Programs - Apps passed in the AppsToCheck parameter that were installed on the server.
-//     # IsConflictPossible = Boolean - Flag indicating whether a few cryptographic apps are installed,
-//     which might conflict with each other.
-//     # IsConflictPossibleAtServer = Boolean - Flag indicating whether a few cryptographic apps are installed,
-//     which might conflict with each other.
+//     
+//     
+//                           
+//     
+//     
+//          
+//          
+//          
+//             
+//          
+//          
+//     
+//                                            
+//     
+//     
+//     
+//     
 //
 Procedure CheckCryptographyAppsInstallation(Form, CheckParameters = Undefined, CallbackOnCompletion = Undefined) Export
 	
@@ -2015,32 +2045,32 @@ Procedure CheckCryptographyAppsInstallation(Form, CheckParameters = Undefined, C
 	
 EndProcedure
 
-// False if not specified.
-// For operations using platform tools only (CryptoManager).
+// Sets a password in the password store on the client for the duration of the session.
+// Only for working through the platform's tools (Manager Cryptography).
 //
-// Setting a password allows the user not to enter the password during the next
-// operation, which is useful when performing a package of operations.
-// If a password is set for the certificate, the RememberPassword check box
-// in the DataSigning and DataDecryption forms becomes hidden.
-// To cancel the set password, set the password value to Undefined.
+// Setting a password allows you not to enter the user's password during the next
+// operation, which is useful when performing a batch of operations.
+// If a password is set for the certificate, then the remember Password check box
+// in the data Signing and Decryption forms becomes invisible.
+// To cancel the set password, just set the password value Undefined.
 //
 // Parameters:
-//  CertificateReference - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a certificate
-//                        for which password is being set.
+//  CertificateReference - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -  the certificate
+//                        that the password is set for.
 //
-//  Password           - String - a password to be set. It can be blank.
-//                   - Undefined - reset the set password, if any.
+//  Password           - String -  to set the password. It may be empty.
+//                   - Undefined - 
 //
-//  PasswordNote   - Structure - with the note properties under the password instead of the RememberPassword check box:
-//     * ExplanationText       - String - - text only.
-//     * HyperlinkNote - Boolean - if True, then call ActionProcessing by clicking the note.
+//  PasswordNote   - Structure - :
+//     * ExplanationText       - String -  only text;
+//     * HyperlinkNote - Boolean -  if true, then when you click on the explanation, call action Processing.
 //     * ToolTipText       - String
-//                            - FormattedString - a text or a text with hyperlinks.
-//     * ProcessAction    - NotifyDescription - Calls a procedure, the result of which takes the value of the following type
-//        = Structure:
-//        # Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - Reference
-//          to the selected certificate.
-//                         # Action - String - "NoteClick" or the tooltip URL.
+//                            - FormattedString - 
+//     * ProcessAction    - NotifyDescription - 
+//        :
+//        
+//          
+//                         
 //          
 // 
 Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote = Undefined) Export
@@ -2049,16 +2079,16 @@ Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote = 
 	
 EndProcedure
 
-// The function checks whether the password was installed during the session.
-// It uses either the SetCertificatePassword procedure,
-// or the successful operation with the selected "Save password" checkbox.
+// 
+// 
+// 
 //
 // Parameters:
 //  CertificateReference - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - 
-//                        Certificate whose password is being checked.
+//                        
 //
 // Returns:
-//  Boolean - If False, no password is specified.
+//  Boolean - 
 //
 Function CertificatePasswordIsSet(CertificateReference) Export
 	
@@ -2066,20 +2096,20 @@ Function CertificatePasswordIsSet(CertificateReference) Export
 	
 EndFunction
 
-// Overrides the usual certificate choice from the catalog to certificate selection
-// from the Personal store with password confirmation and automatic addition to the catalog
-// if there is no certificate in the catalog yet.
+// Overrides the normal certificate selection from the directory to select a certificate
+// from the personal storage with password confirmation and automatic addition to the directory,
+// if the certificate is not already in the directory.
 //
 // Parameters:
-//  Item    - FormField - a form item, where the selected value will be passed.
-//  Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - the current value
-//               selected in the Item field required to select the matching list line.
+//  Item    - FormField -  the form element that the selected value will be passed to.
+//  Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -  the current value
+//               selected in the Item field to select the corresponding row in the list.
 //
-//  StandardProcessing - Boolean - the StartChoice event standard parameter that you need to reset to False.
+//  StandardProcessing - Boolean -  standard parameter of the initial Selection event to reset to False.
 //  
-//  ToEncryptAndDecrypt - Boolean - manages the choice form title. The initial value is False.
-//                              False is to sign, True is to encrypt and decrypt.
-//                            - Undefined - to sign and encrypt.
+//  ToEncryptAndDecrypt - Boolean -  controls the header of the selection form. The initial value is False.
+//                              False-for signing, True-for encryption and decryption,
+//                            - Undefined - 
 //
 Procedure CertificateStartChoiceWithConfirmation(Item, Certificate, StandardProcessing, ToEncryptAndDecrypt = False) Export
 	
@@ -2093,22 +2123,22 @@ Procedure CertificateStartChoiceWithConfirmation(Item, Certificate, StandardProc
 	
 EndProcedure
 
-// Shows the certificate check result executed in the background mode.
+// Shows the result of a certificate check that was performed in the background.
 //
 // Parameters:
-//   Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - the certificate
-//                        for which a check was executed.
+//   Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -  the certificate
+//                        that was validated.
 //   Result            - 
-//   FormOwner        - ClientApplicationForm - the owner of the certificate check form that is being opened.
-//   Title            - String - the title of the certificate check form that is being opened.
-//   MergeResults - String - determines the method of the check result representation in the client/server
-//                        mode when using a digital signature on the server. It can be
-//                        DontMerge, MergeByAnd, MergeByOr. If it is 
-//                        MergeByAnd or MergeByOr, the check results will be merged with 
+//   FormOwner        - ClientApplicationForm -  owner of the certificate verification form that is being opened.
+//   Title            - String -  title of the certificate verification form to open.
+//   MergeResults - String -  defines how the verification results are displayed in the client-server
+//                        version when using an electronic signature on the server. It can take
+//                        the values Unjoin, Unify, and unify. If takes the value 
+//                        Combine or Merge, the results of the check will be combined with 
 //                        the corresponding condition. Otherwise, the results will be displayed
 //                        separately for client and server checks.
-//   CompletionProcessing  - NotifyDescription - contains details of the procedure that will be called after
-//                        closing the certificate check form.
+//   CompletionProcessing  - NotifyDescription -  contains a description of the procedure that will be called after
+//                        closing the certificate verification form.
 //
 Procedure ShowCertificateCheckResult(Certificate, Result, FormOwner,
 	Title = "", MergeResults = "DontMerge", CompletionProcessing = Undefined) Export
@@ -2118,12 +2148,12 @@ Procedure ShowCertificateCheckResult(Certificate, Result, FormOwner,
 	
 EndProcedure
 
-// Gets a root certificate from the certificate data and installs it.
+// 
 // 
 // Parameters:
 //  Certificate - BinaryData
-//             - String - Address in the temp storage.
-//             - String - Certificate's string presentation in the Base64 format
+//             - String - 
+//             - String - 
 //             - CryptoCertificate
 //
 Procedure InstallRootCertificate(Certificate) Export
@@ -2133,30 +2163,30 @@ Procedure InstallRootCertificate(Certificate) Export
 	
 EndProcedure
 
-// Get signature properties from the binary data without using the cryptographic manager.
+// 
 // 
 // Parameters:
-//  Notification - NotifyDescription - Depending on the passed data, returns the structure
-//                                   containing signature properties or a Map 
-//                                   in case an Array was passed (key is Signature, value is Structure).
-//   # Structure: 
-//     ## SignatureType - EnumRef.CryptographySignatureTypes, Undefined - Undefined if the passed file is not a signature file.
-//     ## LastTimestampValidityPeriod - Date, Undefined - Expiration date of the certificate used for signing the last timestamp.
-//                                 It is required only if a cryptographic manager was created successfully. 
-//     ## SignatureDateFromTimestamp - Date, Undefined - Earliest timestamp (CADES-T). If it is missing but there are other stamps,
-//                                                   the date is populated using the cryptographic manager.
-//     ## UnconfirmedSignatureDate - Date - Unconfirmed signature date.
-//             - Undefined - Signature data has no unconfirmed signature date.
-//     ## Certificates - Array of BinaryDate - Certificates to check.
-//     ## Certificate - BinaryDate - Signatory's certificate.
-//     ## Thumbprint - String - Certificate thumbprint in the Base64 format.
-//     ## CertificateOwner - String - Subject presentation extracted from the certificate binary data. 
+//  Notification - NotifyDescription - 
+//                                    
+//                                   
+//   : 
 //     
-//  Signature - BinaryData - DER-encoded certificate data.
-//          - String - Address in the temp storage.
+//     
+//                                  
+//     
+//                                                   
+//     
+//             - Undefined - 
+//     
+//     
+//     
+//      
+//     
+//  Signature - BinaryData - 
+//          - String - 
 //          - Array of String
 //          - Array of BinaryData
-//  ShouldReadCertificates - Boolean - Flag indicating whether to populate the "Certificate" and "Certificates" properties in the return value.
+//  ShouldReadCertificates - Boolean - 
 //
 Procedure ReadSignatureProperties(Notification, Signature, ShouldReadCertificates = True) Export
 
@@ -2164,7 +2194,7 @@ Procedure ReadSignatureProperties(Notification, Signature, ShouldReadCertificate
 
 EndProcedure
 
-// Notifies the user when the certificate is about to expire (unless "Do not remind again" checkbox is selected)
+// 
 // 
 // Parameters:
 //  Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates
@@ -2185,18 +2215,18 @@ Procedure NotifyAboutCertificateExpiring(Certificate) Export
 	
 EndProcedure
 
-// Returns the properties that were manually entered during the signature verification.
+// 
 // 
 // Parameters:
-//  FormOwner - ClientApplicationForm - The owner of the signature manual verification form.
-//  Notification - NotifyDescription - Returns the result of updating the signature properties during a manual verification.
-//   If input is canceled, it returns "Undefined". Otherwise, returns Structure
-//   # IsAdditionalAttributesCheckedManually -:
-//    # AdditionalAttributesManualCheckAuthor -
-//    # AdditionalAttributesManualCheckJustification -
-//    # CheckDate -
-//    # SignatureCorrect -
-//    # IsVerificationRequired -
+//  FormOwner - ClientApplicationForm - 
+//  Notification - NotifyDescription - 
+//   
+//   :
+//    
+//    
+//    
+//    
+//    
 //    
 //
 Procedure EnterSignatureAuthenticityJustification(FormOwner, Notification) Export
@@ -2213,11 +2243,11 @@ EndProcedure
 
 #Region Internal
 
-// Opens the link that navigates to the digital signature errors and their solutions.
+// 
 // 
 //
 // Parameters:
-//   SearchString - String - The search string.
+//   SearchString - String - 
 //
 Procedure OpenSearchByErrorsWhenManagingDigitalSignature(SearchString = "") Export
 	
@@ -2231,7 +2261,7 @@ Procedure OpenSearchByErrorsWhenManagingDigitalSignature(SearchString = "") Expo
 	
 EndProcedure
 
-// Opens the DS view form.
+// Opens the form for viewing the item's signature.
 Procedure OpenSignature(CurrentData) Export
 	
 	If CurrentData = Undefined Then
@@ -2253,12 +2283,12 @@ Procedure OpenRenewalFormActionsSignatures(Form, RenewalOptions, FollowUpHandler
 		
 EndProcedure
 
-// Opens the RenewDigitalSignatures report form.
+// 
 // 
 // Parameters:
-//  ExtensionMode - String - Report options: 
-//   UnprocessedSignatures, IsSignatureUpdateRequired, 
-//   IsArchiveMarksRequried, AreErrorsOccurredDuringAutomaticRenewal.
+//  ExtensionMode - String -  
+//    
+//   
 //
 Procedure OpenReportExtendValidityofElectronicSignatures(ExtensionMode) Export
 	
@@ -2268,25 +2298,25 @@ Procedure OpenReportExtendValidityofElectronicSignatures(ExtensionMode) Export
 EndProcedure
 
 
-// Saves a signature to the computer.
+// 
 Procedure SaveSignature(SignatureAddress, SignatureFileName = "") Export
 	
 	DigitalSignatureInternalClient.SaveSignature(SignatureAddress, SignatureFileName);
 	
 EndProcedure
 
-// Opens the certificate data view form.
+// Opens the display form of the certificate data.
 //
 // Parameters:
-//  CertificateData - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a reference to the certificate.
-//                    - CryptoCertificate - an existing certificate.
-//                    - BinaryData - certificate binary data.
-//                    - String - an address of temporary storage that contains the certificate BinaryData.
-//                    - String - a certificate thumbprint to be searched in all storages.
+//  CertificateData - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -  link to the certificate.
+//                    - CryptoCertificate - 
+//                    - BinaryData -  binary data of the certificate.
+//                    - String - 
+//                    - String - 
 //
-//  OpenData     - Boolean - open the certificate data and not the form of catalog item.
-//                      If not a reference is passed to the catalog item and the catalog item
-//                      could not be found by thumbprint, the certificate data will be opened.
+//  OpenData     - Boolean -  to open the certificate information, not the form of a dictionary element.
+//                      If the reference to the reference list item was not passed and the reference list item
+//                      could not be found by fingerprint, then the certificate data will be opened.
 //
 Procedure OpenCertificate(CertificateData, OpenData = False) Export
 	
@@ -2294,15 +2324,15 @@ Procedure OpenCertificate(CertificateData, OpenData = False) Export
 	
 EndProcedure
 
-// It reports the signing once it is completed.
+// At the end of the signing to announce the signing.
 //
 // Parameters:
-//  DataPresentation - Arbitrary - a reference to the object, to which
-//                          digital signature is added.
-//  IsPluralForm     - Boolean - determines the type of message and whether there are multiple items
-//                          or one item.
-//  FromFile             - Boolean - determines the type of message to add
-//                          a digital signature or a file.
+//  DataPresentation - Arbitrary -  link to the object to which
+//                          the electronic signature was added.
+//  IsPluralForm     - Boolean -  specifies whether the message type is plural
+//                          or singular.
+//  FromFile             - Boolean -  defines the type of message for adding
+//                          an electronic signature or file.
 //
 Procedure ObjectSigningInfo(DataPresentation, IsPluralForm = False, FromFile = False) Export
 	
@@ -2324,13 +2354,13 @@ Procedure ObjectSigningInfo(DataPresentation, IsPluralForm = False, FromFile = F
 	
 EndProcedure
 
-// Reports completion at the end of encryption.
+// When encryption is complete, it notifies you that it is complete.
 //
 // Parameters:
-//  DataPresentation - Arbitrary - a reference to an object
-//                          whose data is encrypted.
-//  IsPluralForm     - Boolean - determines the type of message and whether there are multiple items
-//                          or one item.
+//  DataPresentation - Arbitrary -  a reference to an object whose
+//                          data is encrypted.
+//  IsPluralForm     - Boolean -  specifies whether the message type is plural
+//                          or singular.
 //
 Procedure InformOfObjectEncryption(DataPresentation, IsPluralForm = False) Export
 	
@@ -2340,13 +2370,13 @@ Procedure InformOfObjectEncryption(DataPresentation, IsPluralForm = False) Expor
 	
 EndProcedure
 
-// Reports completion at the end of decryption.
+// When decryption is complete, it notifies you of completion.
 //
 // Parameters:
-//  DataPresentation - Arbitrary - a reference to an object
-//                          whose data is decrypted.
-//  IsPluralForm     - Boolean - determines the type of message and whether there are multiple items
-//                          or one item.
+//  DataPresentation - Arbitrary -  a reference to the object whose
+//                          data is decrypted.
+//  IsPluralForm     - Boolean -  specifies whether the message type is plural
+//                          or singular.
 //
 Procedure InformOfObjectDecryption(DataPresentation, IsPluralForm = False) Export
 	

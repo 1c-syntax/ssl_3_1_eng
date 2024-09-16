@@ -1,28 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 // Opens a form with available commands.
 //
 // Parameters:
-//   CommandParameter - Arbitrary - passed "as is" from the command handler parameters.
-//   CommandExecuteParameters - CommandExecuteParameters - passed "as is" from the command handler parameters.
-//   Kind - String - A data processor type that can be obtained from the function series:
-//       AdditionalReportsAndDataProcessorsClientServer.DataProcessorKind<…>.
-//   SectionName - String - a name of the command interface section the command is called from.
+//   CommandParameter - Arbitrary -  passed "as is" from the command handler parameters.
+//   CommandExecuteParameters - CommandExecuteParameters -  passed "as is" from the command handler parameters.
+//   Kind - String - :
+//       
+//   SectionName - String -  name of the section of the command interface from which the command is called.
 //
 Procedure OpenAdditionalReportAndDataProcessorCommandsForm(CommandParameter, CommandExecuteParameters, Kind, SectionName = "") Export
 	
 	RelatedObjects = New ValueList;
-	If TypeOf(CommandParameter) = Type("Array") Then // Assignable data processor.
+	If TypeOf(CommandParameter) = Type("Array") Then // 
 		RelatedObjects.LoadValues(CommandParameter);
 	ElsIf CommandParameter <> Undefined Then
 		RelatedObjects.Add(CommandParameter);
@@ -33,7 +31,7 @@ Procedure OpenAdditionalReportAndDataProcessorCommandsForm(CommandParameter, Com
 	Parameters.Kind = Kind;
 	Parameters.SectionName = SectionName;
 	
-	If TypeOf(CommandExecuteParameters.Source) = Type("ClientApplicationForm") Then // Assignable data processor.
+	If TypeOf(CommandExecuteParameters.Source) = Type("ClientApplicationForm") Then // 
 		Parameters.Insert("FormName", CommandExecuteParameters.Source.FormName);
 	EndIf;
 	
@@ -48,11 +46,11 @@ Procedure OpenAdditionalReportAndDataProcessorCommandsForm(CommandParameter, Com
 	
 EndProcedure
 
-// Opens an additional report form with the specified report option.
+// Opens an additional report form with the specified option.
 //
 // Parameters:
-//   Ref - CatalogRef.AdditionalReportsAndDataProcessors - an additional report reference.
-//   VariantKey - String - a name of the additional report option.
+//   Ref - CatalogRef.AdditionalReportsAndDataProcessors -  link to the additional report.
+//   VariantKey - String -  name of the additional report option.
 //
 Procedure OpenAdditionalReportOption(Ref, VariantKey) Export
 	
@@ -67,21 +65,21 @@ Procedure OpenAdditionalReportOption(Ref, VariantKey) Export
 	
 EndProcedure
 
-// Returns a blank structure of parameters of command execution in the background.
+// Returns an empty structure of command execution parameters in the background.
 //
 // Parameters:
-//   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a reference to a report or data processor being executed.
+//   Ref - CatalogRef.AdditionalReportsAndDataProcessors -  link to the additional processing or report that is being performed.
 //
 // Returns:
-//   Structure - Parameter template for executing the command in the background:
-//      * AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors - passed "as is" from
+//   Structure - :
+//      * AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors -  passed "as is" from
 //                                                                                          the form parameters.
-//      * AccompanyingText1 - String - a text of a long-running operation.
-//      * RelatedObjects - Array - references to the objects the command is being executed for.
-//          It is used for additional data processors to assign.
-//      * CreatedObjects - Array - references to the objects created while executing the command.
-//          It is used for assignable additional data processors of the "Create related objects" kind.
-//      * OwnerForm - ClientApplicationForm - a list form or an object form the command is called from.
+//      * AccompanyingText1 - String -  text of a long operation.
+//      * RelatedObjects - Array -  references of objects for which the command is executed.
+//          Used for assigned additional treatments.
+//      * CreatedObjects - Array -  references to objects created during the command execution.
+//          Used for assigned additional processing of the "creating related objects" type.
+//      * OwnerForm - ClientApplicationForm -  the form of the object or list that the command was called from.
 //
 Function CommandExecuteParametersInBackground(Ref) Export
 	
@@ -94,28 +92,28 @@ Function CommandExecuteParametersInBackground(Ref) Export
 	
 EndFunction
 
-// Executes command CommandID in the background using the long-running operation mechanism.
-// It is intended for use in forms of external reports and data processors.
+// Executes the command ID In the background using the long-running operation mechanism.
+// For use in external reporting and processing forms.
 //
 // Parameters:
-//   CommandID - String - a command name as it is specified in function ExternalDataProcessorInfo in the object module.
-//   CommandParameters - Structure - command execution parameters.
-//       For parameters, see function CommandExecuteParametersInBackground.
-//       Also includes an internal parameter reserved by the subsystem:
-//         * CommandID - String - a name of the command being executed. Matches the CommandID parameter.
-//       In addition to standard parameters, the procedure can have custom parameters used in the command handler.
-//       It is recommended that you add a prefix, such as "Context…", to custom parameter names
-//       to avoid exact matches with standard parameter names.
+//   CommandID - String -  the name of the command, as specified in the function informationexternal Processing of the object module.
+//   CommandParameters - Structure - 
+//       
+//       :
+//         * CommandID - String -  name of the command to run. Matches the command ID parameter.
+//       In addition to standard parameters, it can contain custom parameters for use in the command handler.
+//       When adding custom parameters, we recommend that you use a prefix in their names
+//       to avoid conflicts with standard parameters, such as"Context...".
 //   Handler - See TimeConsumingOperationsClient.WaitCompletion.CallbackOnCompletion
 //
 // Example:
-//	&AtClient
-//	Procedure CommandHandler(Command)
-//		CommandParameters = AdditionalReportsAndDataProcessorsClient.CommandExecuteParametersInBackground(Parameters.AdditionalDataProcessorRef);
-//		CommandParameters.AccompanyingText = NStr("en = 'Executing command…'");
-//		Handler = New NotifyDescription("<ExportProcedureName>", ThisObject);
-//		AdditionalReportsAndDataProcessorsClient.ExecuteCommnadInBackground(Command.Name, CommandParameters, Handler);
-//	EndProcedure
+//	&Naciente
+//	Command Handler Procedure (Command)
+//		Command Parameterscommand = Additional Reportsprocessclient.Parameterinfocollection(Parameters.Additional processing link);
+//		Command parameters.Accompanying text = NSTR ("ru = 'Running the command...'");
+//		Handler = New Description Of The Announcement("<Export Procedure Name>", This Object);
+//		Additional reports and processing of the client.Violetcompany(Command.Name, Command Parametersand Handler);
+//	End of procedure
 //
 Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val Handler) Export
 	
@@ -156,7 +154,7 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 	Else
 		Form = Handler;
 		Handler = Undefined;
-		MustReceiveResult = True; // For backward compatibility purposes.
+		MustReceiveResult = True; // 
 	EndIf;
 	
 	Job = AdditionalReportsAndDataProcessorsServerCall.StartTimeConsumingOperation(Form.UUID, CommandParameters);
@@ -173,7 +171,7 @@ Procedure ExecuteCommandInBackground(Val CommandID, Val CommandParameters, Val H
 	WaitSettings = TimeConsumingOperationsClient.IdleParameters(Form);
 	WaitSettings.MessageText       = AccompanyingText1;
 	WaitSettings.OutputIdleWindow = True;
-	WaitSettings.MustReceiveResult    = MustReceiveResult; // For backward compatibility purposes.
+	WaitSettings.MustReceiveResult    = MustReceiveResult; // 
 	WaitSettings.OutputMessages    = True;
 	WaitSettings.OutputProgressBar = True;
 	
@@ -183,10 +181,10 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Instead of using the ChoiceProcessing event along with source analysis,
-// use the notification handler (see the Handler parameter in the ExecuteCommandInBackground procedure):
-// ChoiceSource.FormName = AdditionalReportsAndDataProcessorsClient.TimeConsumingOperationFormName().
-// Returns a form name that is used to identify the outcome of the long-running operation.
+// Deprecated.
+// 
+// 
+// 
 //
 // 
 //
@@ -205,12 +203,12 @@ EndFunction
 
 #Region Internal
 
-// Opens the form for picking additional reports.
-// Usage locations:
-//   Catalog.ReportMailings.Form.ItemForm.AddAdditionalReport.
+// Opens the form for selecting additional reports.
+// Place of use:
+//   Guide.Mailing lists of reports.Form.Form of the element.Add an additional report.
 //
 // Parameters:
-//   FormItem - Arbitrary - a form item the items are picked for.
+//   FormItem - Arbitrary -  the form element that you are selecting elements for.
 //
 Procedure ReportDistributionPickAddlReport(FormItem) Export
 	
@@ -232,25 +230,25 @@ Procedure ReportDistributionPickAddlReport(FormItem) Export
 	
 EndProcedure
 
-// External print command handler.
+// Handler for an external print command.
 //
 // Parameters:
-//  CommandToExecute - Structure        - a structure from the command table row, see
-//                                        AdditionalReportsAndDataProcessors.OnReceivePrintCommands.
-//  Form            - ClientApplicationForm - a form where the print command is executed.
+//  CommandToExecute - Structure        -  the structure from the command table row, see
+//                                        Additional processing reports.The receipt of the print command.
+//  Form            - ClientApplicationForm -  the form in which the print command is executed.
 //
 Procedure ExecuteAssignablePrintCommand(CommandToExecute, Form) Export
 	
-	// Moving additional parameters passed by this subsystem to the structure root.
+	// 
 	For Each KeyAndValue In CommandToExecute.AdditionalParameters Do
 		CommandToExecute.Insert(KeyAndValue.Key, KeyAndValue.Value);
 	EndDo;
 	
-	// Writing fixed parameters.
+	// 
 	CommandToExecute.Insert("IsReport", False);
 	CommandToExecute.Insert("Kind", PredefinedValue("Enum.AdditionalReportsAndDataProcessorsKinds.PrintForm"));
 	
-	// Starting the data processor method that matches the command context.
+	// 
 	StartupOption = CommandToExecute.StartupOption;
 	If StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.OpeningForm") Then
 		OpenDataProcessorForm(CommandToExecute, Form, CommandToExecute.PrintObjects);
@@ -262,19 +260,19 @@ Procedure ExecuteAssignablePrintCommand(CommandToExecute, Form) Export
 	
 EndProcedure
 
-// Opens the list of commands of additional reports and data processors.
+// Opens a list of additional report and processing commands.
 //
 // Parameters:
-//   ReferencesArrray - Array of AnyRef - references to the selected objects for which a command is being executed.
+//   ReferencesArrray - Array of AnyRef -  links to the selected objects that the command is running on.
 //   ExecutionParameters - Structure:
 //       * CommandDetails - Structure:
-//          ** Id - String - Command ID.
-//          ** Presentation - String - Command presentation in a form.
-//          ** Name - String - a command name on a form.
+//          ** Id - String -  command ID.
+//          ** Presentation - String -  representation of the team in the form.
+//          ** Name - String -  name of the team in the form.
 //          ** AdditionalParameters - See AdditionalReportsAndDataProcessors.AdditionalCommandParameters
-//       * Form - ClientApplicationForm - a form where the command is called.
+//       * Form - ClientApplicationForm -  the form from which the command was called.
 //       * Source - FormDataStructure
-//                  - FormTable - an object or a form list with the Reference field.
+//                  - FormTable - 
 //
 Procedure OpenCommandList(Val ReferencesArrray, Val ExecutionParameters) Export
 	Context = New Structure;
@@ -299,8 +297,8 @@ Procedure HandlerFillingCommands(Val ReferencesArrray, Val ExecutionParameters) 
 	
 	ShowNotificationOnCommandExecution(CommandToExecute);
 	
-	// Runtime control is supported only for server methods.
-	// If a form opens or client-side code is called, the result is output by the data processor.
+	// 
+	// 
 	If CommandToExecute.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.OpeningForm") Then
 		
 		ExternalObjectName = AdditionalReportsAndDataProcessorsServerCall.AttachExternalDataProcessor(CommandToExecute.Ref);
@@ -342,14 +340,14 @@ EndProcedure
 
 #Region Private
 
-// Displays a notification before command run.
+// Displays an alert before running the command.
 Procedure ShowNotificationOnCommandExecution(CommandToExecute)
 	If CommandToExecute.ShouldShowUserNotification Then
 		ShowUserNotification(NStr("en = 'Command running…';"), , CommandToExecute.Presentation);
 	EndIf;
 EndProcedure
 
-// Opens a data processor form.
+// Opens the processing form.
 Procedure OpenDataProcessorForm(CommandToExecute, Form, RelatedObjects) Export
 	ProcessingParameters = New Structure("CommandID, AdditionalDataProcessorRef, FormName, SessionKey1");
 	ProcessingParameters.CommandID          = CommandToExecute.Id;
@@ -384,7 +382,7 @@ Procedure OpenDataProcessorForm(CommandToExecute, Form, RelatedObjects) Export
 	#EndIf
 EndProcedure
 
-// Executes a data processor client method.
+// Executes the client processing method.
 Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObjects) Export
 	
 	ShowNotificationOnCommandExecution(CommandToExecute);
@@ -473,14 +471,14 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 	
 EndProcedure
 
-// Generates a spreadsheet document in the Print subsystem form.
+// Generates a tabular document in the form of the "Print" subsystem.
 Procedure ExecutePrintFormOpening(CommandToExecute, Form, RelatedObjects) Export
 	
 	StandardProcessing = True;
-	// ACC:222-off For backward compatibility.
+	// 
 	AdditionalReportsAndDataProcessorsClientOverridable.BeforeExecuteExternalPrintFormPrintCommand(
 		RelatedObjects, StandardProcessing);
-	// ACC:222-on
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManagerInternalClient = CommonClient.CommonModule("PrintManagementInternalClient");
 		ModulePrintManagerInternalClient.ExecutePrintFormOpening(
@@ -493,7 +491,7 @@ Procedure ExecutePrintFormOpening(CommandToExecute, Form, RelatedObjects) Export
 	
 EndProcedure
 
-// Shows the extension installation dialog box, and then exports additional report or data processor data.
+// Displays the extension installation dialog, then uploads additional report or processing data.
 //
 // Parameters:
 //   ExportingParameters - Structure:
@@ -518,7 +516,7 @@ Procedure ExportToFile(ExportingParameters) Export
 	
 EndProcedure
 
-// Intended for the PopulateCommandHandler procedure
+// 
 Procedure UpdateDataInForm() Export
 	
 	ParameterName = ApplicationParameterNameFormCommandExecutionOwner();

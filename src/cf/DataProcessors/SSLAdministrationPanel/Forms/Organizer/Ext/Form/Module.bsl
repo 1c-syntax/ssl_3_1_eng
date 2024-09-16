@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -50,7 +48,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.BusinessProcessesAndTasksGroup.Visible = False;
 	EndIf;
 	
-	// Update items states.
+	// 
 	SetAvailability();
 	
 	ApplicationSettingsOverridable.OrganizerOnCreateAtServer(ThisObject);
@@ -186,7 +184,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client.
+// Client
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -291,7 +289,7 @@ Procedure NotifyPerformersAboutNewTasksUsageEmailAvailabilityCheckCompleted(Chec
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server.
+// Server
 
 &AtServer
 Function OnChangeAttributeServer(TagName)

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,10 +12,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.BatchEditObjects
+// 
 
-// Returns the object attributes that are not recommended to be edited
-// using a bulk attribute modification data processor.
+// Returns the details of an object that is not recommended to edit
+// by processing a batch update of account details.
 //
 // Returns:
 //  Array of String
@@ -93,7 +91,7 @@ EndProcedure
 
 #Region Internal
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
+// See also updating the information base undefined.customizingmachine infillingelements
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -104,7 +102,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemsFilling
+// See also updating the information base undefined.At firstfillingelements
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -119,7 +117,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 			ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description",
-		"en = 'All business objects';", LanguagesCodes); // @NStr-1
+		"en = 'All business objects';", LanguagesCodes); // 
 	Else
 		Item.Description = NStr("en = 'All business objects';", Common.DefaultLanguageCode());
 	EndIf;
@@ -128,13 +126,13 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.
+// See also updating the information base undefined.customizingmachine infillingelements
 //
 // Parameters:
-//  Object                  - Object to populate.
-//  Data                  - ValueTableRow - object filling data.
+//  Object                  - the object to fill in.
+//  Data                  - ValueTableRow -  data for filling in the object.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable -  the data filled in in the procedure for the initial filling of the elements.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

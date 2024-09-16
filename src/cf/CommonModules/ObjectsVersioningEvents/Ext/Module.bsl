@@ -1,25 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Writes an object version (unless it is a document version) to the infobase.
+// Writes the object version (other than documents) to the information database.
 //
 // Parameters:
-//  Source - CatalogObject - an infobase object to be written;
-//  Cancel    - Boolean - indicates whether the object record is canceled.
+//  Source - CatalogObject -  write the object IB;
+//  Cancel    - Boolean -  indicates that the object was not recorded.
 //
 Procedure WriteObjectVersion(Source, Cancel) Export
 	
-	// No need to check for "DataExchange.Load" as when writing the versioned object during exchange,
-	// the current object version is saved.
+	// 
+	// 
 	If Source.DataExchange.Load And Source.DataExchange.Sender = Undefined Then
 		Return;
 	EndIf;
@@ -28,20 +26,20 @@ Procedure WriteObjectVersion(Source, Cancel) Export
 	
 EndProcedure
 
-// Writes a document version to the infobase.
+// Writes the document version to the information database.
 //
 // Parameters:
-//  Source        - DocumentObject - infobase object to be written;
-//  Cancel           - Boolean - flag specifying whether writing the document is canceled.
-//  WriteMode     - DocumentWriteMode - specifies whether writing, posting, or canceling is performed.
-//                                           Changing the parameter value modifies the write mode.
-//  PostingMode - DocumentPostingMode - defines whether the real time posting is performed.
-//                                               Changing the parameter value modifies the posting mode.
+//  Source        - DocumentObject -  recordable IB document;
+//  Cancel           - Boolean -  indicates that the document was not recorded.
+//  WriteMode     - DocumentWriteMode -  allows you to determine whether recording, holding, or canceling is in progress.
+//                                           Changing the parameter value allows you to change the recording mode.
+//  PostingMode - DocumentPostingMode -  allows you to determine whether or not an operational survey is being performed.
+//                                               Changing the parameter value allows you to change the holding mode.
 //
 Procedure WriteDocumentVersion(Source, Cancel, WriteMode, PostingMode) Export
 	
-	// No need to check for "DataExchange.Load" as when writing the versioned object during exchange,
-	// the current object version is saved.
+	// 
+	// 
 	If Source.DataExchange.Load And Source.DataExchange.Sender = Undefined Then
 		Return;
 	EndIf;
@@ -55,7 +53,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Event subscription handlers.
+// 
 
 // For internal use only.
 //

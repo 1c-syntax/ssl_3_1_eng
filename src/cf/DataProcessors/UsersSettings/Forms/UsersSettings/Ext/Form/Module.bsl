@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -437,7 +435,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for displaying lists of settings.
+// 
 
 &AtClient
 Procedure UpdateSettingsList()
@@ -467,7 +465,7 @@ Function UpdatingSettingsList()
 	TimeConsumingOperationParameters = TimeConsumingOperationParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // Run immediately.
+	ExecutionParameters.WaitCompletion = 0; // 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user settings';");
 	
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
@@ -522,7 +520,7 @@ Procedure FillSettings(Val ResultAddress)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for calculating the number of settings items.
+// 
 
 &AtServer
 Procedure CalculateSettingsCount()
@@ -581,7 +579,7 @@ Function SettingsInTreeCount(SettingsList)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for copying, deleting, and clearing settings.
+// 
 
 &AtServer
 Procedure CopyAtServer(UsersDestination, ReportPersonalizationCount, Report)
@@ -627,7 +625,7 @@ Procedure CopyAtServer(UsersDestination, ReportPersonalizationCount, Report)
 			Result.SettingsArray,
 			NotCopiedReportSettings);
 		
-		// Copy report options.
+		// 
 		DataProcessors.UsersSettings.CopyReportOptions(Result.ReportOptionArray,
 			UserReportOptionTable, InfoBaseUser, UsersDestination);
 			
@@ -711,7 +709,7 @@ Procedure ClearAtServer(Users = Undefined, SelectedUsers1 = False)
 		Return;
 	EndIf;
 	
-	// Clear settings.
+	// 
 	UserInfo = New Structure;
 	UserInfo.Insert("InfobaseUserName", InfoBaseUser);
 	UserInfo.Insert("UserRef", UserRef);
@@ -732,7 +730,7 @@ Procedure ClearAtServer(Users = Undefined, SelectedUsers1 = False)
 		EndDo;
 	EndIf;
 	
-	// Clear report options.
+	// 
 	If SelectedSettingsPage = "ReportSettingsPage" Then
 		
 		DataProcessors.UsersSettings.DeleteReportOptions(Result.ReportOptionArray,
@@ -845,7 +843,7 @@ Procedure ClearCompletion(Response, SettingsTree) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 &AtClient
 Procedure Attachable_ExecuteNotifyProcessing()
@@ -1156,7 +1154,7 @@ EndFunction
 Function CopiedOrDeletedSettingsCount(SettingsTree)
 	
 	SelectedRows = SettingsTree.SelectedRows;
-	// Moving the array of selected rows to a value list in order to sort the selected rows.
+	// 
 	SelectedRowsList = New ValueList;
 	For Each Item In SelectedRows Do
 		SelectedRowsList.Add(Item);
@@ -1366,13 +1364,13 @@ Function SelectedSettings1()
 	For Each SelectedItem In SelectedItems Do
 		SelectedSetting = SettingsTree.FindByID(SelectedItem);
 		
-		// Filling the array of personal settings.
+		// 
 		If SelectedSetting.Type = "PersonalSettings" Then
 			PersonalSettingsArray.Add(SelectedSetting.Keys);
 			Continue;
 		EndIf;
 		
-		// Filling the array of other user settings.
+		// 
 		If SelectedSetting.Type = "OtherUserSettingsItem1" Then
 			OtherUserSettings = New Structure;
 			OtherUserSettings.Insert("SettingID", SelectedSetting.RowType);
@@ -1381,14 +1379,14 @@ Function SelectedSettings1()
 			Continue;
 		EndIf;
 		
-		// Marking personal settings in the list of keys.
+		// 
 		If SelectedSetting.Type = "PersonalOption" Then
 			
 			For Each Item In SelectedSetting.Keys Do
 				Item.Check = True;
 			EndDo;
 			CurrentReportOption = SelectedSetting.Keys.Copy();
-			// Filling the array of user-defined report options.
+			// 
 			ReportOptionArray.Add(SelectedSetting.Keys);
 			
 		ElsIf SelectedSetting.Type = "StandardOptionPersonal" Then

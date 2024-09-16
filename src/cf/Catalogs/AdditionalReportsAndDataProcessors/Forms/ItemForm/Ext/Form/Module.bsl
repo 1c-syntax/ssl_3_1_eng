@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -40,7 +38,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModulePropertyManager.OnCreateAtServer(ThisObject, AdditionalParameters);
 	EndIf;
 	
-	// Checking if new data processors can be imported into the infobase.
+	// 
 	IsNew = Object.Ref.IsEmpty();
 	InsertRight1 = AdditionalReportsAndDataProcessors.InsertRight1();
 	If Not InsertRight1 Then
@@ -52,18 +50,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ExportToFile.Visible = False;
 	EndIf;
 	
-	// Restrict available publication options as specified in the infobase settings.
+	// 
 	Items.Publication.ChoiceList.Clear();
 	AvaliablePublicationKinds = AdditionalReportsAndDataProcessorsCached.AvaliablePublicationKinds();
 	For Each PublicationKind In AvaliablePublicationKinds Do
 		Items.Publication.ChoiceList.Add(PublicationKind);
 	EndDo;
 	
-	// Restricting detailed information display.
+	// 
 	ExtendedInformationDisplay = AdditionalReportsAndDataProcessors.DisplayExtendedInformation(Object.Ref);
 	Items.AdditionalInfoPage.Visible = ExtendedInformationDisplay;
 	
-	// Restricting data processor import from/export to a file.
+	// 
 	If Not AdditionalReportsAndDataProcessors.CanImportDataProcessorFromFile(Object.Ref) Then
 		Items.LoadFromFile.Visible = False;
 	EndIf;
@@ -213,7 +211,7 @@ Procedure OnReadAtServer(CurrentObject)
 	|	AND NOT RegisterData.User.Invalid";
 	QuickAccess.Load(Query.Execute().Unload());
 	
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -249,7 +247,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -354,7 +352,7 @@ EndProcedure
 Procedure CommandsLocationClick(Item, StandardProcessing)
 	StandardProcessing = False;
 	If Object.Kind = KindAdditionalReport Or Object.Kind = KindAdditionalDataProcessor Then
-		// Select sections.
+		// 
 		Sections = New ValueList;
 		For Each TableRow In Object.Sections Do
 			Sections.Add(TableRow.Section);
@@ -366,7 +364,7 @@ Procedure CommandsLocationClick(Item, StandardProcessing)
 		
 		OpenForm("Catalog.AdditionalReportsAndDataProcessors.Form.PlacementInSections", FormParameters, ThisObject);
 	Else
-		// Select metadata objects
+		// 
 		FormParameters = PrepareMetadataObjectsSelectionFormParameters();
 		StandardSubsystemsClient.ChooseMetadataObjects(FormParameters);
 	EndIf;
@@ -483,7 +481,7 @@ Procedure PlaceInSections(Command)
 		EndIf;
 	EndDo;
 	
-	// Opens a dialog for assigning multiple report options to command interface sections
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsOptionsClient = CommonClient.CommonModule("ReportsOptionsClient");
 		ModuleReportsOptionsClient.OpenOptionArrangeInSectionsDialog(OptionsArray);
@@ -715,7 +713,7 @@ Procedure UpdateFromFileAndMessage(RegistrationParameters)
 	UpdateFromFileAtServer(RegistrationParameters);
 	
 	If RegistrationParameters.DisableConflicts Then
-		// Multiple objects are disabled, which requires dynamic list refresh.
+		// 
 		NotifyChanged(Type("CatalogRef.AdditionalReportsAndDataProcessors"));
 	EndIf;
 	
@@ -725,7 +723,7 @@ Procedure UpdateFromFileAndMessage(RegistrationParameters)
 		NotificationText     = RegistrationParameters.FileName;
 		ShowUserNotification(NotificationTitle1, NotificationRef, NotificationText);
 		UpdateFromFileCompletion(Undefined, RegistrationParameters);
-	ElsIf RegistrationParameters.ObjectNameUsed Then // Checking the reason of canceling data processor import and displaying the reason to the user.
+	ElsIf RegistrationParameters.ObjectNameUsed Then // 
 		ShowConflicts(RegistrationParameters);
 	Else
 		ResultHandler = New NotifyDescription("UpdateFromFileCompletion", ThisObject, RegistrationParameters);
@@ -808,24 +806,24 @@ EndProcedure
 &AtClient
 Procedure UpdateFromFileConflictDecision(Response, RegistrationParameters) Export
 	If Response = "ContinueWithoutPublishing" Then
-		// Recall server (Debug mode option) and process the result.
+		// 
 		RegistrationParameters.DisablePublication = True;
 		UpdateFromFileAndMessage(RegistrationParameters);
 	ElsIf Response = "DisableConflictingItems" Then
-		// Repeating server call (switching conflicting items to debug mode) and processing the result.
+		// 
 		RegistrationParameters.DisableConflicts = True;
 		UpdateFromFileAndMessage(RegistrationParameters);
 	ElsIf Response = "CancelAndOpen" Then
-		// Cancel and show the conflicts.
-		// The list is displayed if there is more than one conflicting item.
+		// 
+		// 
 		ShowList = (RegistrationParameters.ConflictsCount > 1);
 		If RegistrationParameters.OldObjectName = RegistrationParameters.ObjectName And Not IsNew Then
-			// Or the current item has a name collision.
-			// The list contains the current item and the conflicting item.
-			// This allows you to review and decide which one should be disabled.
+			// 
+			// 
+			// 
 			ShowList = True;
 		EndIf;
-		If ShowList Then // List form with a filter by conflicting items.
+		If ShowList Then // 
 			Var_FormName = "Catalog.AdditionalReportsAndDataProcessors.ListForm";
 			FormTitle = NStr("en = 'Additional reports and data processors with name ""%1""';");
 			FormTitle = StringFunctionsClientServer.SubstituteParametersToString(FormTitle, RegistrationParameters.ObjectName);
@@ -835,14 +833,14 @@ Procedure UpdateFromFileConflictDecision(Response, RegistrationParameters) Expor
 			ParametersForm.Filter.Insert("IsFolder", False);
 			ParametersForm.Insert("Title", FormTitle);
 			ParametersForm.Insert("Representation", "List");
-		Else // Item form.
+		Else // 
 			Var_FormName = "Catalog.AdditionalReportsAndDataProcessors.ObjectForm";
 			ParametersForm = New Structure;
 			ParametersForm.Insert("Key", RegistrationParameters.Conflicting[0].Value);
 		EndIf;
 		UpdateFromFileCompletion(Undefined, RegistrationParameters);
 		OpenForm(Var_FormName, ParametersForm, Undefined, True);
-	Else // Cancel.
+	Else // 
 		UpdateFromFileCompletion(Undefined, RegistrationParameters);
 	EndIf;
 EndProcedure
@@ -999,14 +997,14 @@ Procedure ExecuteCommandAfterWriteConfirmed(Response, Context) Export
 	If Response = "WriteAndContinue" Then
 		ClearMessages();
 		If Not Write() Then
-			Return; // Failed to write, the platform shows an error message.
+			Return; // 
 		EndIf;
 	ElsIf Response <> "ContinueWithoutWriting" Then
 		Return;
 	EndIf;
 	
 	If Object.Ref.IsEmpty() Or Modified Then
-		Return; // Final check.
+		Return; // 
 	EndIf;
 	
 	CommandsTableRow = Items.ObjectCommands.CurrentData;
@@ -1084,7 +1082,7 @@ Procedure AfterCompleteExecutingServerCommandInBackground(Job, AdditionalParamet
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client, Server
+// 
 
 &AtClientAtServerNoContext
 Function UsersQuickAccessPresentation(UsersCount)
@@ -1101,7 +1099,7 @@ Function UsersQuickAccessPresentation(UsersCount)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server call, Server.
+// 
 
 &AtServerNoContext
 Function StartExecuteServerCommandInBackground(CommandToExecute, UUID)
@@ -1514,7 +1512,7 @@ Procedure FillInCommands(SavedCommands = Undefined)
 				For Each IDOfCommandToReplace In CommandsToReplaceIDs Do
 					Filter.Id = TrimAll(IDOfCommandToReplace);
 					ListOfCommandsToReplace = ObjectPrintCommands.FindRows(Filter);
-					// If it is impossible to exactly determine a command to replace, replacement is not performed.
+					// 
 					If ListOfCommandsToReplace.Count() = 1 Then
 						CommandsToReplacePresentation = CommandsToReplacePresentation + ?(IsBlankString(CommandsToReplacePresentation), "", ", ") + """" + ListOfCommandsToReplace[0].Presentation + """";
 						CommandsToReplaceCount = CommandsToReplaceCount + 1;
@@ -1654,7 +1652,7 @@ Function CommandsPageName()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Additional attributes
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()

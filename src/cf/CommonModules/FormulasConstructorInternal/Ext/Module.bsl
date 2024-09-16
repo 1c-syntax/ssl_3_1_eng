@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -342,14 +340,14 @@ Procedure FormulaEditorHandler(Form, Parameter, AdditionalParameters) Export
 	EndIf;
 EndProcedure
 
-// Run a search in the field list.
+// 
 // 
 // Parameters:
 //  ShapeStructure - Structure:
 //    * 
 // 
 // Returns:
-//  Undefined, Structure - Run a search in the field list.:
+//  Undefined, Structure - :
 //   * ItemsTree 
 //   * FoundItems1 - Array
 //
@@ -2482,10 +2480,10 @@ Function ExpressionToCheck(Form, FormulaPresentation, NameOfTheListOfOperands) E
 						Operand = """" + Operand + """";
 					EndIf;
 					If TypeOf(Operand) = Type("Boolean") Then
-						Operand = Format(Operand, "BF=False; BT=True"); // Must be in the configuration language.
+						Operand = Format(Operand, "BF=False; BT=True"); // 
 					EndIf;
 					If TypeOf(Operand) = Type("Date") Then
-						Operand = "'" + Format(CurrentSessionDate(), "DF=yyyyMMddHHmm") +  "'"; // Used in the Calculate() expression.
+						Operand = "'" + Format(CurrentSessionDate(), "DF=yyyyMMddHHmm") +  "'"; // 
 					EndIf;
 					If Common.IsReference(TypeOf(Operand)) Then
 						Operand = "1";
@@ -2792,7 +2790,7 @@ Procedure AddAGroupOfOperatorsStringFunctions(ListOfOperators)
 	
 	Type = New TypeDescription("String");
 	
-	// NStr has localizable IDs.
+	// 
 	
 	AddAnOperatorToAGroup(Group, "String", NStr("en = 'Convert into a string';"), Type, True);
 	AddAnOperatorToAGroup(Group, "Upper", NStr("en = 'Uppercase';"), Type, True);

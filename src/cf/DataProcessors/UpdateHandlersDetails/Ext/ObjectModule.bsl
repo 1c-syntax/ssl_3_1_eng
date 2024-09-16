@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -46,7 +44,7 @@ EndProcedure
 
 #Region QueueNumbersFilling
 
-// Fills in a queue number
+// Fills in the queue number
 //
 // Parameters:
 //  UpdateIterations - Array of See InfobaseUpdateInternal.UpdateIteration
@@ -59,7 +57,7 @@ Procedure FillQueueNumber(UpdateIterations) Export
 	
 EndProcedure
 
-// Imports details of configuration handlers to the data processor tables
+// Loads descriptions of configuration handlers in the table parts of processing
 //
 Procedure ImportHandlers() Export
 	
@@ -95,7 +93,7 @@ Procedure ImportHandlers() Export
 	
 EndProcedure
 
-// Imports details of subsystem handlers to the data processor tables
+// Loads descriptions of subsystem handlers in the table parts of processing
 //
 // Parameters:
 //  SubsystemsHandlers - See NewSubsystemsHandlers
@@ -142,11 +140,11 @@ Procedure ImportSubsystemsHandlers(SubsystemsHandlers)
 	
 EndProcedure
 
-// Defines handler intersections by the data of objects to read/to change
-// and updates the data on whether handler execution priorities are specified.
+// Detects handler intersections based on data from readable / modifiable objects
+// and updates data about the fullness of handler execution priorities.
 //
 // Returns:
-//   ValueTable - new data of the UpdateHandlers tabular section
+//   ValueTable - 
 //
 Function UpdateHandlersConflictsInfo() Export
 	
@@ -221,13 +219,13 @@ Function UpdateHandlersConflictsInfo() Export
 	
 EndFunction
 
-// Builds a handler execution queue based on intersection data and specified handler execution priorities.
+// Builds a queue for executing handlers based on the intersections and the specified handler execution priorities.
 //
 // Parameters:
-//   RaiseException - Boolean - throw an exception if errors occurred
+//   RaiseException - Boolean -  throw an exception if there are errors
 //
 // Returns:
-//   Boolean - True if no errors occurred when building the queue
+//   Boolean - 
 //
 Function BuildQueue(RaiseException = False) Export
 	
@@ -312,14 +310,14 @@ Function BuildQueue(RaiseException = False) Export
 		
 	EndDo;
 	
-	// Clear the new queue.
+	// 
 	If UpdateHandlers.Total("NewQueue") > 0 Then
 		For Each LongDesc In UpdateHandlers Do
 			LongDesc.NewQueue = 0;
 		EndDo;
 	EndIf;
 	
-	// Remove blanks in the queue number, which could appear during recursive transitions.
+	// 
 	NumberChange = 0;
 	For QueueNumber = 1 To MaxQueue Do
 		
@@ -534,7 +532,7 @@ Function ConflictsDataUpdateQueryText()
 	DestructionText = "DROP HandlersConflicts";
 	
 	#Region TextOfHandlersIntersection
-	// Other handlers read and write modifiable objects
+	// 
 	TextOfHandlersIntersection = 
 	"SELECT
 	|	T.MetadataObject AS MetadataObject,
@@ -1548,7 +1546,7 @@ Procedure ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQu
 				HandlersQueue[Handler].Queue = HandlersQueue[Handler].Queue + 1;
 				AddHandlerToExistenceInQueue(HandlersAvailabilityInQueue, HandlersQueue[Handler].Queue, Handler, MaxQueue);
 
-				// Offset completed linked handlers.
+				// 
 				ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQueue, Handler, MaxQueue, RecursionData);
 			EndIf;
 			
@@ -1560,7 +1558,7 @@ Procedure ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQu
 				HandlersQueue[LinkedHandler.Key].Queue = HandlersQueue[Handler].Queue + 1;
 				AddHandlerToExistenceInQueue(HandlersAvailabilityInQueue, HandlersQueue[LinkedHandler.Key].Queue, LinkedHandler.Key, MaxQueue);
 				
-				// Offset linked handlers of a linked handler.
+				// 
 				ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQueue, LinkedHandler.Key, MaxQueue, RecursionData);
 			EndIf;
 			
@@ -1572,7 +1570,7 @@ Procedure ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQu
 				HandlersQueue[Handler].Queue = HandlersQueue[LinkedHandler.Key].Queue + 1;
 				AddHandlerToExistenceInQueue(HandlersAvailabilityInQueue, HandlersQueue[Handler].Queue, Handler, MaxQueue);
 				
-				// Offset completed linked handlers.
+				// 
 				ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQueue, Handler, MaxQueue, RecursionData);
 			EndIf;
 			
@@ -1817,10 +1815,10 @@ EndProcedure
 
 #Region HasHandlersExecutionCycle
 
-// Checks whether the execution cycle is available for all handlers by priority data.
+// Checks whether execution is looped based on priority data for all handlers.
 //
 // Returns:
-//   Boolean - True if the execution cycle is available
+//   Boolean - 
 //
 Function HasHandlersExecutionCycle(TheHandlerBeingChecked = Undefined, Val HandlerPriorities = Undefined, ReportErrors = False)
 
@@ -2194,20 +2192,20 @@ Procedure SetQueueNumber(UpdateIterations)
 			For Each LongDesc In FoundADescriptionOf Do
 				Handler.DeferredProcessingQueue = LongDesc.NewQueue;
 			EndDo;
-		EndDo;// By deferred handlers.
+		EndDo;// 
 		
-	EndDo;// By libraries.
+	EndDo;// 
 	
 EndProcedure
 
-// Returns the time between the specified dates in the "00:00:00" format.
-// If the TimeStructure parameter is specified, the Hours, Minutes, and Seconds values are returned separately.
-// if StartTime = 0, transforms the date to the time format and returns the TimeStructure parameter if required.
+// 
+// 
+// 
 //
 // Parameters:
-//   EndTime - Date - End time.
-//   BeginTime - Date - Start time.
-//   TimeStructure - Structure - separate components:
+//   EndTime - Date -  end time.
+//   BeginTime - Date -  start time.
+//   TimeStructure - Structure - :
 //    * Hours1 - Number
 //    * Minutes1 - Number
 //    * Seconds - Number
@@ -2232,13 +2230,13 @@ Function TimeDifference1(EndTime, BeginTime = 0, TimeStructure = Undefined)
 			+?(StrLen(String(Round(Seconds))) = 1,"0" + String(Seconds), String(Seconds));
 EndFunction
 
-// Returns a number presentation of a version.
+// Returns a numeric representation of the version number.
 //
 // Parameters:
-//   Version - String - Version number in the X.X.XX.XXX format 
+//   Version - String -  version number in the format X. X. XX. XXX 
 //
 // Returns:
-//   Number - a version number converted into an integer
+//   Number - 
 //
 Function VersionAsNumber(Version) Export
 	
@@ -2265,16 +2263,16 @@ Function VersionAsNumber(Version) Export
 	
 EndFunction
 
-// Returns the list of subsystems to be developed in the configuration 
+// Returns a list of developed subsystems in the configuration 
 //
 // Returns:
-//   Array of String - subsystem names as they were set in the InfobaseUpdateXXX common modules
+//   Array of String - 
 //
 Function SubsystemsToDevelop() Export
 	
 	Result = New Array;
 	InfobaseUpdateOverridable.WhenFormingAListOfSubsystemsUnderDevelopment(Result);
-	InfobaseUpdateOverridable.OnGenerateListOfSubsystemsToDevelop(Result); // ACC:222 For backward compatibility.
+	InfobaseUpdateOverridable.OnGenerateListOfSubsystemsToDevelop(Result); // 
 	Return Result;
 	
 EndFunction
@@ -2334,10 +2332,10 @@ Function ObjectTypeOrder(FullName)
 	
 EndFunction
 
-// Returns the mapping of direct and backward orders.
-// "Before" in the direct order matches "After" in the backward order. 
-// "After" in the direct order matches "Before" in the backward order. 
-// "Any" in the direct order matches "Any" in the backward order.
+// 
+//  
+//  
+// 
 //
 // Returns:
 //   Map

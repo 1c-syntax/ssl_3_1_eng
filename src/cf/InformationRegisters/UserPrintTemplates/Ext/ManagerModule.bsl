@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Registers the objects to be updated in the InfobaseUpdate exchange plan.
-// 
+// Registers objects
+// that need to be updated to the new version on the exchange plan for updating the information Database.
 //
 // Parameters:
-//  Parameters - Structure - an internal parameter to pass to the InfobaseUpdate.MarkForProcessing procedure.
+//  Parameters - Structure -  service parameter to pass to the information database Update procedure.Mark the processing.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	

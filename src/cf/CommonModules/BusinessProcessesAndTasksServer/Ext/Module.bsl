@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Initializes common parameters of the task execution form.
+// Initializes the General parameters of the task execution form.
 //
 // Parameters:
-//  BusinessTaskForm            - ClientApplicationForm - a task execution form.
-//  TaskObject           - TaskObject     - a task object.
-//  StateGroupItem - FormGroup      - a group with information on the task state.
-//  CompletionDateItem  - FormField        - a field with the task completion date.
+//  BusinessTaskForm            - ClientApplicationForm -  task completion form.
+//  TaskObject           - TaskObject     -  the object of the task.
+//  StateGroupItem - FormGroup      -  group with information about the task status.
+//  CompletionDateItem  - FormField        -  field with the task execution date.
 //
 Procedure TaskFormOnCreateAtServer(BusinessTaskForm, TaskObject, 
 	StateGroupItem, CompletionDateItem) Export
@@ -39,7 +37,7 @@ Procedure TaskFormOnCreateAtServer(BusinessTaskForm, TaskObject,
 		If Item = Undefined Then
 			Item = BusinessTaskForm.Items.Add("__TaskState", Type("FormDecoration"), Parent);
 			Item.Type = FormDecorationType.Label;
-			Item.Height = 0; // Auto height.
+			Item.Height = 0; // 
 			Item.AutoMaxWidth = False;
 		EndIf;
 		UseDateAndTimeInTaskDeadlines = GetFunctionalOption("UseDateAndTimeInTaskDeadlines");
@@ -68,18 +66,18 @@ Procedure TaskFormOnCreateAtServer(BusinessTaskForm, TaskObject,
 			Item = BusinessTaskForm.Items.Add("__HeadTask", Type("FormDecoration"), Parent);
 			Item.Type = FormDecorationType.Label;
 			Item.Title = NStr("en = 'This is a head task for nested business processes. It will be completed automatically upon their completion.';");
-			Item.Height = 0; // Auto height.
+			Item.Height = 0; // 
 			Item.AutoMaxWidth = False;
 		EndIf;
 	EndIf;
 	
 EndProcedure
 
-// The procedure is called when creating a task list form on the server.
+// Called when creating the task list form on the server.
 //
 // Parameters:
 //  TaskListOrItsConditionalAppearance - DynamicList
-//                                      - DataCompositionConditionalAppearance - conditional appearance of a task list.
+//                                      - DataCompositionConditionalAppearance - 
 //
 Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	
@@ -90,7 +88,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 		ConditionalTaskListAppearance = TaskListOrItsConditionalAppearance;
 	EndIf;
 	
-	// Deleting preset appearance items.
+	// 
 	Predefined1 = New Array;
 	Items = ConditionalTaskListAppearance.Items;
 	For Each ConditionalAppearanceItem In Items Do
@@ -102,7 +100,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 		Items.Delete(ConditionalAppearanceItem);
 	EndDo;
 		
-	// Set the appearance for overdue tasks.
+	// 
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -127,7 +125,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value =  Metadata.StyleItems.OverdueDataColor.Value;   
 	AppearanceColorItem.Use = True;
 	
-	// Set the appearance for completed tasks.
+	// 
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -141,7 +139,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value = Metadata.StyleItems.ExecutedTask.Value; 
 	AppearanceColorItem.Use = True;
 	
-	// Set the appearance for unaccepted tasks.
+	// 
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -155,7 +153,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value = Metadata.StyleItems.NotAcceptedForExecutionTasks.Value; 
 	AppearanceColorItem.Use = True;
 	
-	// Set the appearance for tasks with an empty due date.
+	// 
 	ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -177,7 +175,7 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	AppearanceColorItem.Value = NStr("en = 'Due date is not specified';");
 	AppearanceColorItem.Use = True;
 	
-	// Set the appearance for external users. The Author field is empty.
+	// 
 	If Users.IsExternalUserSession() Then
 			ConditionalAppearanceItem = ConditionalTaskListAppearance.Items.Add();
 			ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
@@ -199,14 +197,14 @@ Procedure SetTaskAppearance(Val TaskListOrItsConditionalAppearance) Export
 	
 EndProcedure
 
-// The procedure is called when creating business processes list form on the server.
+// Called when creating a list of business processes form on the server.
 //
 // Parameters:
-//  BusinessProcessesConditionalAppearance - DataCompositionConditionalAppearance - conditional appearance of a business process list.
+//  BusinessProcessesConditionalAppearance - DataCompositionConditionalAppearance -  conditional design of the list of business processes.
 //
 Procedure SetBusinessProcessesAppearance(Val BusinessProcessesConditionalAppearance) Export
 	
-	// Description is not specified.
+	// 
 	ConditionalAppearanceItem = BusinessProcessesConditionalAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -221,7 +219,7 @@ Procedure SetBusinessProcessesAppearance(Val BusinessProcessesConditionalAppeara
 	ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", NStr("en = 'No details';"));
 	
-	// Completed business process.
+	// 
 	ConditionalAppearanceItem = BusinessProcessesConditionalAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
@@ -234,22 +232,22 @@ Procedure SetBusinessProcessesAppearance(Val BusinessProcessesConditionalAppeara
 	
 EndProcedure
 
-// Returns the string representation of the task assignee Performer 
-// or the values specified in parameters PerformerRole, MainAddressingObject, and AdditionalAddressingObject.
+// Returns a string representation of the executor of the task Executor, 
+// or specified in the parameters of the executor Role, main forwarding Object, and additional forwarding Object.
 //
 // Parameters:
-//  Performer                   - CatalogRef.Users - a task assignee.
-//  PerformerRole               - CatalogRef.PerformerRoles - role.
-//  MainAddressingObject       - AnyRef - a reference to the main business object.
-//  AdditionalAddressingObject - AnyRef - a reference to the additional business object.
+//  Performer                   - CatalogRef.Users -  the task assignee.
+//  PerformerRole               - CatalogRef.PerformerRoles -  role.
+//  MainAddressingObject       - AnyRef -  reference to the main addressing object.
+//  AdditionalAddressingObject - AnyRef -  a reference to an additional addressing object.
 //
 // Returns:
-//  String - String representation of the task assignee, for example:
-//           "John Smith" - an assignee as specified in the Performer parameter.
-//           "Chief accountant" - a business role specified in the PerformerRole parameter.
-//           "Chief accountant (Sun LLC)" - if a role is specified along with the main business object.
-//           "Chief accountant (Sun LLC, New York branch)" - if a role is specified along with both business
-//                                                                   objects.
+//  String - :
+//           
+//           
+//           
+//           
+//                                                                   
 //
 Function PerformerString(Val Performer, Val PerformerRole,
 	Val MainAddressingObject = Undefined, Val AdditionalAddressingObject = Undefined) Export
@@ -263,19 +261,19 @@ Function PerformerString(Val Performer, Val PerformerRole,
 
 EndFunction
 
-// Returns a string representation of the PerformerRole role and its business objects if they are specified.
+// Returns a string representation of the Executor role and its addressing objects, if specified.
 //
 // Parameters:
-//  PerformerRole               - CatalogRef.PerformerRoles - role.
-//  MainAddressingObject       - AnyRef - a reference to the main business object.
-//  AdditionalAddressingObject - AnyRef - a reference to the additional business object.
+//  PerformerRole               - CatalogRef.PerformerRoles -  role.
+//  MainAddressingObject       - AnyRef -  reference to the main addressing object.
+//  AdditionalAddressingObject - AnyRef -  a reference to an additional addressing object.
 // 
 // Returns:
-//  String - String representation of the role, for example:
-//            "Chief accountant" - a business role specified in the PerformerRole parameter.
-//            "Chief accountant (Sun LLC)" - if a role is specified along with the main business object.
-//            "Chief accountant (Sun LLC, New York branch)" - if a role is specified along with both business
-//                                                                    objects.
+//  String - :
+//            
+//            
+//            
+//                                                                    
 //
 Function RoleString(Val PerformerRole,
 	Val MainAddressingObject = Undefined, Val AdditionalAddressingObject = Undefined) Export
@@ -295,11 +293,11 @@ Function RoleString(Val PerformerRole,
 
 EndFunction
 
-// Marks for deletion all the specified business process tasks (or clears the mark).
+// Marks all tasks in the specified business process for deletion (or unchecks them).
 //
 // Parameters:
-//  BusinessProcessRef - DefinedType.BusinessProcess - a business process whose tasks are to be marked for deletion.
-//  DeletionMark     - Boolean - the DeletionMark property value for tasks.
+//  BusinessProcessRef - DefinedType.BusinessProcess -  a business process that needs to be marked for deletion.
+//  DeletionMark     - Boolean -  the value of the mark Delete property for issues.
 //
 Procedure MarkTasksForDeletion(BusinessProcessRef, DeletionMark) Export
 	
@@ -336,11 +334,11 @@ Procedure MarkTasksForDeletion(BusinessProcessRef, DeletionMark) Export
 	
 EndProcedure	
 
-// Sets display and edit format for a form field of the Date type
-// based on the subsystem settings.
+// Set the format for displaying and editing the date field
+// of the form, depending on the subsystem settings.
 //
 // Parameters:
-//  DateField - FormField - a form control, a field with a value of the Date type.
+//  DateField - FormField -  a form control, a field with a value of the date type.
 //
 Procedure SetDateFormat(DateField) Export
 	
@@ -355,12 +353,12 @@ Procedure SetDateFormat(DateField) Export
 	
 EndProcedure
 
-// Gets the business processes of the TaskRef head task.
+// Get the business processes of the leading task task Link.
 //
 // Parameters:
-//   TaskRef - TaskRef.PerformerTask - a head task.
-//   ForChange - Boolean - If True, sets an exclusive managed lock for all business processes of the specified 
-//                           head task. Default value is False.
+//   TaskRef - TaskRef.PerformerTask -  the leading task.
+//   ForChange - Boolean -  if True, you should set an exclusive managed lock 
+//                           on all business processes of the specified master task. By default, False.
 // Returns:
 //    Array of DefinedType.BusinessProcess
 // 
@@ -371,8 +369,8 @@ Function HeadTaskBusinessProcesses(TaskRef, ForChange = False) Export
 		
 EndFunction
 
-// Returns the business process completion date
-// which is the maximum completion date of the business process tasks.
+// Returns the end date of the specified business process,
+// obtained as the maximum execution date for the business process tasks.
 //
 // Parameters:
 //  BusinessProcessRef - DefinedType.BusinessProcess
@@ -406,12 +404,12 @@ Function BusinessProcessCompletionDate(BusinessProcessRef) Export
 	
 EndFunction	
 
-// Returns business processes subordinate to the current task.
+// 
 //
 // Parameters:
 //  TaskRef  - TaskRef.PerformerTask
-//  ForChange  - Boolean - If True, sets an exclusive managed lock 
-//                           for all business processes of the specified head task. Default value is False.
+//  ForChange  - Boolean -  if True, you should set an exclusive managed lock 
+//                           on all business processes that are subordinate to the specified task. By default, False.
 //
 // Returns:
 //   Array of DefinedType.BusinessProcess
@@ -427,7 +425,7 @@ Function MainTaskBusinessProcesses(TaskRef, ForChange = False) Export
 			
 			BusinessProcessMetadata = Metadata.FindByType(BusinessProcessType);
 			
-			// Business processes are not required to have a main task.
+			// 
 			MainTaskAttribute = BusinessProcessMetadata.Attributes.Find("MainTask");
 			If MainTaskAttribute = Undefined Then
 				Continue;
@@ -452,7 +450,7 @@ Function MainTaskBusinessProcesses(TaskRef, ForChange = False) Export
 		
 		BusinessProcessMetadata = Metadata.FindByType(BusinessProcessType);
 		
-		// A main task is not required in business process.
+		// 
 		MainTaskAttribute = BusinessProcessMetadata.Attributes.Find("MainTask");
 		If MainTaskAttribute = Undefined Then
 			Continue;
@@ -482,7 +480,7 @@ Function MainTaskBusinessProcesses(TaskRef, ForChange = False) Export
 	
 EndFunction
 
-// Checks if the current user has sufficient rights to change the business process state.
+// Checks whether the current user has rights to change the state of the business process.
 //
 // Parameters:
 //  BusinessProcessObject - DefinedType.BusinessProcessObject
@@ -534,9 +532,9 @@ Procedure ValidateRightsToChangeBusinessProcessState(BusinessProcessObject) Expo
 	
 EndProcedure
 
-// Sets an exclusive managed lock for the specified business process.
-// For calling commands in dynamic lists from handlers.
-// Rows of dynamic list grouping are ignored.
+// Set an exclusive managed lock on the specified business processes.
+// To call from command handlers in dynamic lists.
+// Dynamic list grouping strings are ignored.
 //
 // Parameters:
 //   Var_BusinessProcesses - DefinedType.BusinessProcess
@@ -566,9 +564,9 @@ Procedure LockBusinessProcesses(Var_BusinessProcesses) Export
 	
 EndProcedure	
 
-// Sets an exclusive managed lock for the specified tasks.
-// For calling commands in dynamic lists from handlers.
-// Rows of dynamic list grouping are ignored.
+// Set an exclusive managed lock on the specified tasks.
+// To call from command handlers in dynamic lists.
+// Dynamic list grouping strings are ignored.
 //
 // Parameters:
 //   Var_Tasks - Array of TaskRef.PerformerTask
@@ -598,13 +596,13 @@ Procedure LockTasks(Var_Tasks) Export
 	
 EndProcedure
 
-// Fills MainTask attribute when creating a business process based on another business process.
-// See also BusinessProcessesAndTasksOverridable.OnFillMainBusinessProcessTask.
+// 
+// 
 //
 // Parameters:
 //  BusinessProcessObject	 - DefinedType.BusinessProcessObject
 //  FillingData	 - TaskRef
-//                  	 - Arbitrary - filling data that is passed to the filling handler.
+//                  	 - Arbitrary -  fill-in data that is passed to the fill-in handler.
 //
 Procedure FillMainTask(BusinessProcessObject, FillingData) Export
 	
@@ -624,13 +622,13 @@ Procedure FillMainTask(BusinessProcessObject, FillingData) Export
 	
 EndProcedure
 
-// Gets a task assignees group that matches the addressing attributes.
-//  If the group does not exist yet, it is created and returned.
+// Get a group of task performers that matches the address details.
+//  If the group doesn't already exist, a new one is created and returned.
 //
 // Parameters:
-//  PerformerRole               - CatalogRef.PerformerRoles - business role.
-//  MainAddressingObject       - Characteristic.TaskAddressingObjects - a reference to the main business object.
-//  AdditionalAddressingObject - Characteristic.TaskAddressingObjects - a reference to the additional business object.
+//  PerformerRole               - CatalogRef.PerformerRoles -  the performer's role.
+//  MainAddressingObject       - Characteristic.TaskAddressingObjects -  reference to the main addressing object.
+//  AdditionalAddressingObject - Characteristic.TaskAddressingObjects -  a reference to an additional addressing object.
 // 
 // Returns:
 //  CatalogRef.TaskPerformersGroups
@@ -666,14 +664,14 @@ Function TaskPerformersGroup(PerformerRole, MainAddressingObject, AdditionalAddr
 			LockItem.SetValue("AdditionalAddressingObject", AdditionalAddressingObject);
 			Block.Lock();
 			
-			Selection = Query.Execute().Select(); // A locking read.
+			Selection = Query.Execute().Select(); // 
 			If Selection.Next() Then
 				
 				PerformersGroup = Selection.Ref;
 			
 			Else
 				
-				// It is necessary to add a new task assignees group.
+				// 
 				PerformersGroupObject = Catalogs.TaskPerformersGroups.CreateItem();
 				PerformersGroupObject.PerformerRole               = PerformerRole;
 				PerformersGroupObject.MainAddressingObject       = MainAddressingObject;
@@ -695,13 +693,13 @@ Function TaskPerformersGroup(PerformerRole, MainAddressingObject, AdditionalAddr
 EndFunction 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Deferred start of business processes.
+// 
 
-// Adds a process for deferred start.
+// Adds a process to the queue for delayed start.
 //
 // Parameters:
 //  Process_    - DefinedType.BusinessProcess
-//  StartDate4 - Date - deferred start date.
+//  StartDate4 - Date -  delayed start date.
 //
 Procedure AddProcessForDeferredStart(Process_, StartDate4) Export
 	
@@ -721,7 +719,7 @@ Procedure AddProcessForDeferredStart(Process_, StartDate4) Export
 	
 EndProcedure
 
-// Disables deferred process start.
+// Disables the delayed start of the process.
 //
 // Parameters:
 //  Process_ - DefinedType.BusinessProcess
@@ -730,7 +728,7 @@ Procedure DisableProcessDeferredStart(Process_) Export
 	
 	StartSettings = DeferredProcessParameters(Process_);
 	
-	If StartSettings = Undefined Then // The process does not wait for start.
+	If StartSettings = Undefined Then // 
 		Return;
 	EndIf;
 	
@@ -742,7 +740,7 @@ Procedure DisableProcessDeferredStart(Process_) Export
 	
 EndProcedure
 
-// Starts the deferred business process and sets the start flag.
+// Starts a deferred business process by setting the start flag.
 //
 // Parameters:
 //   BusinessProcess - DefinedType.BusinessProcess
@@ -756,7 +754,7 @@ Procedure StartDeferredProcess(BusinessProcess) Export
 		LockDataForEdit(BusinessProcess);
 		
 		BusinessProcessObject = BusinessProcess.GetObject();
-		// Start the business process and record this in the register.
+		// 
 		BusinessProcessObject.Start();
 		InformationRegisters.ProcessesToStart.RegisterProcessStart(BusinessProcess);
 		
@@ -778,18 +776,18 @@ Procedure StartDeferredProcess(BusinessProcess) Export
 	
 EndProcedure
 
-// Returns information on the business process start.
+// Returns startup information for the process.
 //
 // Parameters:
 //  Process_ - DefinedType.BusinessProcess
 // 
 // Returns:
-//  - Undefined - if there is no info.
+//  - Undefined - 
 //  - Structure:
 //     * BusinessProcess - DefinedType.BusinessProcess
 //     * DeferredStartDate - Date
 //     * State - EnumRef.ProcessesStatesForStart
-//     * StartCancelReason - String - start cancellation reason.
+//     * StartCancelReason - String -  reason for canceling the start.
 //
 Function DeferredProcessParameters(Process_) Export
 	
@@ -825,8 +823,8 @@ Function DeferredProcessParameters(Process_) Export
 	
 EndFunction
 
-// Returns the start date of a deferred business process if BusinessProcess
-// waits for deferred start. Otherwise returns an empty date.
+// Returns the start date of a deferred business process when the business
+// Process is waiting for a deferred start. Otherwise, it returns an empty date.
 //
 // Parameters:
 //  BusinessProcess - DefinedType.BusinessProcess
@@ -853,11 +851,11 @@ Function ProcessDeferredStartDate(BusinessProcess) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Scheduled job handlers.
+// 
 
-// Runs notification mailing to assignees on new tasks received since the date of previous mailing.
-// Notifications are sent using email on behalf of the system account.
-// Also it is the NewPerformerTaskNotifications scheduled job handler.
+// 
+// 
+// 
 //
 Procedure NotifyPerformersOnNewTasks() Export
 	
@@ -875,8 +873,8 @@ Procedure NotifyPerformersOnNewTasks() Export
 	NotificationDate3 = CurrentSessionDate();
 	LatestNotificationDate = Constants.NewTasksNotificationDate.Get();
 	
-	// If the notification was not sent or was sent more than 24 hours ago,
-	// select the tasks created in the last 24 hours.
+	// 
+	// 
 	If (LatestNotificationDate = '00010101000000') 
 		Or (NotificationDate3 - LatestNotificationDate > 24*60*60) Then
 		LatestNotificationDate = NotificationDate3 - 24*60*60;
@@ -903,12 +901,12 @@ Procedure NotifyPerformersOnNewTasks() Export
 	
 EndProcedure
 
-// Runs notification mailing to task assignees and authors on overdue tasks.
-// Notifications are sent using email on behalf of the system account.
-// If a task is sent to a role with no assignee,
-// a new task to the persons responsible for role setting is created.
+// 
+// 
+// 
+// 
 //
-// Also it is the TaskMonitoring scheduled job handler.
+// 
 //
 Procedure CheckTasks() Export
 	
@@ -935,17 +933,17 @@ Procedure CheckTasks() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// 
 
-// Prepares the first portion of objects for deferred access rights processing.
-// It is intended to call from deferred update handlers on changing the logic of generating access value sets.
+// Prepare the first batch of objects for deferred processing of access rights.
+// To call the handlers of pending updates when you change the logic of the development of a set of access values.
 //
 // Parameters:
-//   Parameters     - Structure - structure of deferred update handler parameters.
-//   BusinessProcess - MetadataObjectBusinessProcess  - business process metadata whose access value sets
-//                   are to be updated.
-//   ProcedureName  - String - a name of procedure of deferred update handler for the event log.
-//   PortionSize  - Number  - a number of objects processed in one call.
+//   Parameters     - Structure -  structure of parameters for the deferred update handler.
+//   BusinessProcess - MetadataObjectBusinessProcess  -  metadata of the business process whose access value sets
+//                   need to be updated.
+//   ProcedureName  - String -  name of the deferred update handler procedure for the log.
+//   PortionSize  - Number  -  the number of objects processed per call.
 //
 Procedure StartUpdateAccessValuesSetsPortion(Parameters, BusinessProcess, ProcedureName, PortionSize = 1000) Export
 	
@@ -1023,11 +1021,11 @@ Procedure StartUpdateAccessValuesSetsPortion(Parameters, BusinessProcess, Proced
 	
 EndProcedure
 
-// Complete processing of the first portion of objects for deferred access right processing.
-// It is intended to call from deferred update handlers on changing the logic of generating access value sets.
+// Finish processing the first batch of objects for deferred processing of access rights.
+// To call the handlers of pending updates when you change the logic of the development of a set of access values.
 //
 // Parameters:
-//   Parameters - Structure - parameters of the deferred update handler.
+//   Parameters - Structure -  parameters of the deferred update handler.
 //
 Procedure FinishUpdateAccessValuesSetsPortions(Parameters) Export
 	
@@ -1044,7 +1042,7 @@ Procedure FinishUpdateAccessValuesSetsPortions(Parameters) Export
 		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The ""%1"" procedure has updated access rights for objects: %2';"), 
 			Parameters.ProcedureName, Parameters.ObjectsProcessed));
 	
-	// Clearing temporary parameters which are not required to save between the sessions.
+	// 
 	Parameters.Delete("ObjectsToBeProcessed");
 	Parameters.Delete("ProcedureName");
 	Parameters.Delete("BusinessProcess");
@@ -1057,7 +1055,7 @@ EndProcedure
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -1151,7 +1149,7 @@ Procedure OnDeterminePerformersGroups(TempTablesManager, ParameterContent, Param
 	
 EndProcedure
 
-// StandardSubsystems.AccessManagement
+// 
 
 // See UsersInternal.OnFillRegisteredRefKinds.
 Procedure OnFillRegisteredRefKinds(RefsKinds) Export
@@ -1189,15 +1187,15 @@ Procedure AfterGetData(Sender, Cancel, GetFromMasterNode) Export
 	
 EndProcedure
 
-// See description in the "FillAllExtensionsParameters" procedure
-// of the "ExtensionVersionParameters" information register manager module.
+// See the description in the procedure
+// to fill in the Extension Work Parameters of the Information Register Manager module Extension Work Parameters.
 //
 Procedure OnFillAllExtensionParameters() Export
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	// If exceptions occurred and the update is not completed.
+	// 
 	UpdateAuxiliaryDataOfItemsModifiedUponDataImport();
 	
 EndProcedure
@@ -1207,7 +1205,7 @@ EndProcedure
 // See ImportDataFromFileOverridable.OnDefineCatalogsForDataImport.
 Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 	
-	// Cannot import to the TaskPerformersGroups catalog.
+	// 
 	TableRow = CatalogsToImport.Find(Metadata.Catalogs.TaskPerformersGroups.FullName(), "FullName");
 	If TableRow <> Undefined Then 
 		CatalogsToImport.Delete(TableRow);
@@ -1273,9 +1271,9 @@ EndProcedure
 // See AccessManagementOverridable.OnFillAccessRightsDependencies.
 Procedure OnFillAccessRightsDependencies(RightsDependencies) Export
 	
-	// The assignee's task can be modified even if its business process is read-only.
-	// Therefore, don't check for the "Update" access right.
-	// Instead, check if the "Read" right is granted.
+	// 
+	// 
+	// 
 	
 	String = RightsDependencies.Add();
 	String.SubordinateTable = "Task.PerformerTask";
@@ -1348,8 +1346,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	PerformerTaskQuantity = PerformerTaskQuantity();
 	
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Tasks.PerformerTask.FullName());
 	
 	If Users.IsExternalUserSession()
@@ -1409,7 +1407,7 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnDefineSettings
+// See also updating the information base undefined.When defining settings
 //
 // Parameters:
 //  Objects - Array of MetadataObject
@@ -1449,7 +1447,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Monitoring and management control of task completion.
+// 
 
 Function ExportPerformers(QueryText, MainAddressingObjectRef = Undefined, 
 	AdditionalAddressingObjectRef = Undefined)
@@ -1500,7 +1498,7 @@ Function FindPersonsResponsibleForRolesAssignment(MainAddressingObject, Addition
 	QueryText = StrReplace(QueryTemplate, "&ConditionByAddressingObjects", ConditionByAddressingObjects);
 	Assignees = ExportPerformers(QueryText, MainAddressingObject, AdditionalAddressingObject);
 	
-	// If the main and additional business objects are not specified in the task.
+	// 
 	If Not ValueIsFilled(AdditionalAddressingObject) And Not ValueIsFilled(MainAddressingObject) Then
 		Return Assignees;
 	EndIf;
@@ -1709,7 +1707,7 @@ Function OverdueTasksEmails(OverdueTasks)
 					EmailRecipient = Email(RecipientsAddresses, Performer);
 					FindMessageAndAddText(MessageSetByAddressees, EmailRecipient, Performer, EmailText, "ToPerformer");
 				EndDo;
-			Else	// There is no assignee to perform the task.
+			Else	// 
 				CreateTaskForSettingRoles(OverdueTaskRef, Coordinators);
 			EndIf;
 			
@@ -1949,7 +1947,7 @@ Function GenerateTaskPresentation(TaskStructure)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 Function SelectRolesWithPerformerCount(MainAddressingObject) Export
 	If MainAddressingObject <> Undefined Then
@@ -2028,7 +2026,7 @@ Function SelectRolesWithPerformerCount(MainAddressingObject) Export
 	
 EndFunction
 
-// Checks if there is at least one assignee for the specified role.
+// Whether there is at least one performer assigned to the specified role.
 //
 // Returns:
 //   Boolean
@@ -2125,9 +2123,9 @@ Function EventLogEvent() Export
 	Return NStr("en = 'Business processes and tasks';", Common.DefaultLanguageCode());
 EndFunction
 
-// The procedure is called when changing state of a business process. 
-// It is used to propagate the state change to the uncompleted 
-// tasks of the business process.
+// Called when the state of a business process changes in order to 
+// propagate this state change to the outstanding tasks of this 
+// business process.
 //
 // Parameters:
 //   BusinessProcessObject - DefinedType.BusinessProcessObject
@@ -2171,7 +2169,7 @@ EndProcedure
 //
 Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 	
-	// Locking nested and subordinate business processes.
+	// 
 	Block = New DataLock;
 	For Each BusinessProcessMetadata In Metadata.BusinessProcesses Do
 		
@@ -2205,7 +2203,7 @@ Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 		|	AND BusinessProcesses.Completed = FALSE";
 	QueryTexts = New Array;
 	
-	// Changing state of nested and subordinate business processes.
+	// 
 	For Each BusinessProcessMetadata In Metadata.BusinessProcesses Do
 		
 		If Not AccessRight("Update", BusinessProcessMetadata) Then
@@ -2243,10 +2241,10 @@ Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 		| 	AND BusinessProcesses.Completed = FALSE";
 	QueryTexts = New Array;
 	
-	// Changing state of subordinate business processes.
+	// 
 	For Each BusinessProcessMetadata In Metadata.BusinessProcesses Do
 		
-		// A main task is not required in business process.
+		// 
 		MainTaskAttribute = BusinessProcessMetadata.Attributes.Find("MainTask");
 		If MainTaskAttribute = Undefined Then
 			Continue;
@@ -2274,11 +2272,11 @@ Procedure OnChangeTasksState(Var_Tasks, OldState, NewState)
 	
 EndProcedure
 
-// Gets task assignee groups according to the new task assignee records.
+// Gets the group implementing tasks according to the new recordings of the performers of the tasks.
 //
 // Parameters:
-//  NewTasksPerformers  - ValueTable - data retrieved from
-//                           the TaskPerformers information register record set.
+//  NewTasksPerformers  - ValueTable -  unloads task Executor information from a set
+//                           of register entries.
 //
 // Returns:
 //   Array of CatalogRef.TaskPerformersGroups
@@ -2320,9 +2318,9 @@ Function TaskPerformersGroups(NewTasksPerformers) Export
 	For Each Record In NewTasksPerformers Do
 		FillPropertyValues(FilterPerformersGroups, Record);
 		PerformersGroup = PerformersGroups.FindRows(FilterPerformersGroups)[0];
-		// It is necessary to update the reference in the found row.
+		// 
 		If Not ValueIsFilled(PerformersGroup.Ref) Then
-			// It is necessary to add a new assignee group.
+			// 
 			PerformersGroupObject = Catalogs.TaskPerformersGroups.CreateItem();
 			FillPropertyValues(PerformersGroupObject, FilterPerformersGroups);
 			PerformersGroupObject.Write();
@@ -2335,7 +2333,7 @@ Function TaskPerformersGroups(NewTasksPerformers) Export
 	
 EndFunction
 
-// The procedure marks nested and subordinate business processes of TaskRef for deletion.
+// Mark on delete sub and sub business processes tasks Segacasino.
 //
 // Parameters:
 //  TaskRef                 - TaskRef.PerformerTask
@@ -2356,17 +2354,17 @@ Procedure OnMarkTaskForDeletion(TaskRef, DeletionMarkNewValue) Export
 	
 	BeginTransaction();
 	Try
-		// Mark nested business processes.
+		// 
 		SetPrivilegedMode(True);
 		SubBusinessProcesses = HeadTaskBusinessProcesses(TaskRef, True);
 		SetPrivilegedMode(False);
-		// Without privileged mode, with rights check.
+		// 
 		For Each SubBusinessProcess In SubBusinessProcesses Do
 			BusinessProcessObject = SubBusinessProcess.GetObject();
 			BusinessProcessObject.SetDeletionMark(DeletionMarkNewValue);
 		EndDo;
 		
-		// Mark subordinate business processes.
+		// 
 		SubordinateBusinessProcesses = MainTaskBusinessProcesses(TaskRef, True);
 		For Each SubordinateBusinessProcess In SubordinateBusinessProcesses Do
 			BusinessProcessObject = SubordinateBusinessProcess.GetObject();
@@ -2382,14 +2380,14 @@ Procedure OnMarkTaskForDeletion(TaskRef, DeletionMarkNewValue) Export
 	
 EndProcedure
 
-// Checks whether the user has sufficient rights to mark a business process
-// as suspended or active.
+// Checks for permissions to mark the business process
+// as stopped or active.
 // 
 // Parameters:
 //  BusinessProcess - DefinedType.BusinessProcessObject
 //
 // Returns:
-//  Boolean - True if the user has the rights.
+//  Boolean - 
 //
 Function HasRightsToStopBusinessProcess(BusinessProcess)
 	
@@ -2426,7 +2424,7 @@ Procedure SetMyTasksListParameters(List) Export
 	List.Parameters.SetParameterValue("EndOfDay", Today.EndDate);
 	List.Parameters.SetParameterValue("EndOfWeek", ThisWeek.EndDate);
 	List.Parameters.SetParameterValue("EndOfNextWeek", NextWeek.EndDate);
-	List.Parameters.SetParameterValue("Overdue", " " + NStr("en = 'Overdue';")); // Insert a space for sort purposes.
+	List.Parameters.SetParameterValue("Overdue", " " + NStr("en = 'Overdue';")); // 
 	List.Parameters.SetParameterValue("Today", NStr("en = 'Today';"));
 	List.Parameters.SetParameterValue("ThisWeek", NStr("en = 'Till the end of the week';"));
 	List.Parameters.SetParameterValue("NextWeek", NStr("en = 'Next week';"));
@@ -2518,15 +2516,15 @@ Function PerformerTaskQuantity()
 	
 EndFunction
 
-// StandardSubsystems.AccessManagement
+// 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures used for data exchange in DIB.
+// 
 
-// Overrides the standard behavior on data import.
+// 
 Procedure OnDataGet(DataElement, ItemReceive)
 	
-	// Standard data processor cannot be overridden.
+	// 
 	If ItemReceive = DataItemReceive.Ignore Then
 		Return;
 	EndIf;
@@ -2537,7 +2535,7 @@ Procedure OnDataGet(DataElement, ItemReceive)
 	
 EndProcedure
 
-// Intended for "OnGetData".
+// 
 Procedure RegisterTaskAssigneesChangeUponDataImport(DataElement)
 	
 	If Not Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -2555,7 +2553,7 @@ Procedure RegisterTaskAssigneesChangeUponDataImport(DataElement)
 	
 EndProcedure
 
-// Intended for procedure "AfterGetData".
+// 
 Procedure UpdateAuxiliaryDataOfItemsModifiedUponDataImport()
 	
 	RefsKindName = "ModifiedTasksAssigneesGroups";
@@ -2581,9 +2579,9 @@ EndProcedure
 // End StandardSubsystems.AccessManagement
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// 
 
-// Initializes EmployeeResponsibleForTasksManagement predefined business role.
+// Initialize the predefined role of executers responsible for execution Control.
 // 
 Procedure FillEmployeeResponsibleForCompletionControl() Export
 	
@@ -2601,7 +2599,7 @@ EndProcedure
 
 // Parameters:
 //  Recipients - See ContactsManager.ObjectsContactInformation
-//  Recipient - CatalogRef.Users, CatalogRef.ExternalUsers 
+//  Recipient -  
 // 
 // Returns:
 //  String
@@ -2688,7 +2686,7 @@ Function SystemEmailAccountIsSetUp(ErrorDescription)
 	Return False;
 EndFunction
 
-// [2.3.3.70] Updates the StartDeferredProcesses scheduled job.
+// [2.3.3.70] Updates the use of a routine task for start-up Processes.
 Procedure UpdateScheduledJobUsage() Export
 	
 	SearchParameters = New Structure;
@@ -2702,7 +2700,7 @@ Procedure UpdateScheduledJobUsage() Export
 	
 EndProcedure
 
-// Runs during update to SSL v.3.0.2.131 and initial data population.
+// Called when switching to the configuration version 3.0.2.131 and during initial filling.
 // 
 Procedure FillPredefinedItemDescriptionAllAddressingObjects() Export
 	

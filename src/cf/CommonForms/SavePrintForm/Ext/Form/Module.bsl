@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -15,7 +13,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ArrayOfSaveFormatsRestrictions = StrSplit(Parameters.RestrictionOfSaveFormats, ",", False);
 	
-	// Populate format list.
+	// 
 	For Each SaveFormat In PrintManagement.SpreadsheetDocumentSaveFormatsSettings() Do
 		If Not ArrayOfSaveFormatsRestrictions.Count()
 			Or ArrayOfSaveFormatsRestrictions.Find(SaveFormat.Extension) <> Undefined Then
@@ -23,7 +21,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			SelectedSaveFormats.Add(String(SaveFormat.SpreadsheetDocumentFileType), SaveFormat.Presentation, False, SaveFormat.Picture);
 		EndIf;
 	EndDo;
-	SelectedSaveFormats[0].Check = True; // By default, only the first format from the list is selected.
+	SelectedSaveFormats[0].Check = True; // 
 	
 	If SelectedSaveFormats.Count() = 1 Then
 		Items.FormatsSelectionGroup.Visible = False;
@@ -32,10 +30,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "");
 	EndIf;
 	
-	// Default save destination.
+	// 
 	SavingOption = "SaveToFolder";
 	
-	// Visibility setup.
+	// 
 	CanBeSaved = Parameters.PrintObjects.Count() > 0;
 	
 	AttachmentObjects = GetObjectsToAttach(Parameters.PrintObjects);
@@ -138,8 +136,8 @@ Procedure FolderToSaveFilesStartChoice(Item, ChoiceData, StandardProcessing)
 	
 EndProcedure
 
-// Completion handler that handles selection of the destination directory.
-//  See "FileDialog.Show" in Syntax Assistant.
+// 
+//  
 //
 &AtClient
 Procedure FolderToSaveFilesSelectionCompletion(Folder, AdditionalParameters) Export 

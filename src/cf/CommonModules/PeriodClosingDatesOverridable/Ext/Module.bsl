@@ -1,21 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Allows you to change interface upon embedding.
+// Allows you to change how the interface works when embedded.
 //
 // Parameters:
 //  InterfaceSettings5 - Structure:
-//   * UseExternalUsers - Boolean - initial value is False
-//     if you set to True, period-end closing dates can be set up for external users.
+//   * UseExternalUsers - Boolean -  the initial value is False
+//     . if set to True, then the ban dates can be configured for external users.
 //
 Procedure InterfaceSetup(InterfaceSettings5) Export
 	
@@ -23,25 +21,25 @@ Procedure InterfaceSetup(InterfaceSettings5) Export
 	
 EndProcedure
 
-// Fills in sections of period-end closing dates used upon their setup.
-// If you do not specify any section, then only common period-end closing date setup will be available.
+// Fills in the sections of the ban dates for changes that are used when setting the ban dates.
+// If you don't specify any sections, then only the General ban date setting will be available.
 //
 // Parameters:
 //  Sections - ValueTable:
-//   * Name - String - Name used in the data source details
-//       in the FillDataSourcesForPeriodClosingCheck procedure.
+//   * Name - String -  the name used in the description of data sources in
+//       the procedure fill in the data source for checking the change Request.
 //
-//   * Id - UUID - an item reference ID of chart of characteristic types.
-//       To get an ID, execute the platform method in 1C:Enterprise mode:
-//       "ChartsOfCharacteristicTypes.PeriodClosingDatesSections.GetRef().UUID()".
-//       Do not specify IDs received using any other method
-//       as it can violate their uniqueness.
+//   * Id - UUID - 
+//       :
+//       
+//       
+//       
 //
-//   * Presentation - String - presents a section in the form of period-end closing date setup.
+//   * Presentation - String -  represents a section in the ban date settings form.
 //
-//   * ObjectsTypes  - Array - object reference types, by which you can set period-end closing dates,
-//       for example, Type("CatalogRef.Companies"), if no type is specified,
-//       period-end closing dates are set up only to the precision of a section.
+//   * ObjectsTypes  - Array -  types of object links that can be used to set the ban dates,
+//       such as the Type ("reference Link.Companies"); if no type is specified,
+//       the dates of the ban will only be adjusted to the exact section.
 //
 Procedure OnFillPeriodClosingDatesSections(Sections) Export
 	
@@ -49,23 +47,23 @@ Procedure OnFillPeriodClosingDatesSections(Sections) Export
 	
 EndProcedure
 
-// Allows you to specify tables and object fields to check period-end closing.
-// To add a new source to DataSources  See PeriodClosingDates.AddRow.
+// 
+//  See PeriodClosingDates.AddRow.
 //
-// Called from the ChangeProhibited procedure of the PeriodEndClosingDates common module
-// used in the BeforeWrite event subscription of the object to check for period-end
-// closing and canceled restricted object changes.
+// 
+// 
+// 
 //
 // Parameters:
 //  DataSources - ValueTable:
-//   * Table     - String - a full name of a metadata object,
-//                   for example, Metadata.Documents.PurchaseInvoice.FullName().
-//   * DateField    - String - an attribute name of an object or a tabular section,
-//                   for example: "Date", "Goods.ShipmentDate".
-//   * Section      - String - Name of a period-end closing date section
-//                   specified in the OnFillPeriodClosingDatesSections procedure (see above).
-//   * ObjectField - String - an attribute name of an object or a tabular section,
-//                   for example: "Company", "Goods.Warehouse".
+//   * Table     - String -  the full name of the metadata object,
+//                   such as Metadata.Documents.Prikhodnayanakladnaya.Full name().
+//   * DateField    - String -  name of the object's or table part's details,
+//                   for example: "Date", " Products.Upload date".
+//   * Section      - String - 
+//                   
+//   * ObjectField - String -  name of the item's or table part's details,
+//                   for example: "Company", " Products.Warehouse".
 //
 Procedure FillDataSourcesForPeriodClosingCheck(DataSources) Export
 	
@@ -73,10 +71,10 @@ Procedure FillDataSourcesForPeriodClosingCheck(DataSources) Export
 	
 EndProcedure
 
-// Allows you to arbitrarily override period-end closing check:
+// Allows you to override the validation to be performed, but not changed in an arbitrary manner.
 //
-// If you check upon writing the document, the AdditionalProperties property of the Object document contains
-// the WriteMode property.
+// If the check is performed while the document is being recorded, the Additional properties of the document Object
+// property has the record Mode property.
 //  
 // Parameters:
 //  Object       - CatalogObject
@@ -90,17 +88,17 @@ EndProcedure
 //               - InformationRegisterRecordSet
 //               - AccumulationRegisterRecordSet
 //               - AccountingRegisterRecordSet
-//               - CalculationRegisterRecordSet - a data item or a record set to be checked 
-//                 (passed from handlers BeforeWrite and OnReadAtServer).
+//               - CalculationRegisterRecordSet -  
+//                 
 //
-//  PeriodClosingCheck    - Boolean - set to False to skip period-end closing check.
+//  PeriodClosingCheck    - Boolean -  set to False to skip the data modification ban check.
 //  ImportRestrictionCheckNode - ExchangePlanRef
-//                              - Undefined - set to Undefined 
-//                                to skip data import restriction check.
-//  ObjectVersion               - String - set "OldVersion" or "NewVersion" to check only the old
-//                                object version (in the database) or only the new object version 
-//                                (in the Object parameter).
-//                                By default, contains the "" value - both object versions are checked at the same time.
+//                              - Undefined -  
+//                                
+//  ObjectVersion               - String -  set" new version "or" New version " to
+//                                check only the old version (in the database) 
+//                                or only the new version of the object (in the Object parameter).
+//                                By default, it contains the value "" - both versions of the object are checked at once.
 //
 Procedure BeforeCheckPeriodClosing(Object,
                                          PeriodClosingCheck,
@@ -111,10 +109,10 @@ Procedure BeforeCheckPeriodClosing(Object,
 	
 EndProcedure
 
-// Overrides getting data to check the closing date for an old (existing) data version.
+// Allows you to redefine getting data to check the date when the old (existing) version of data was banned.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - a metadata object of data to be received.
+//  MetadataObject - MetadataObject -  metadata object for the received data.
 //  DataID - CatalogRef
 //                      - DocumentRef
 //                      - ChartOfCharacteristicTypesRef
@@ -123,34 +121,34 @@ EndProcedure
 //                      - BusinessProcessRef
 //                      - TaskRef
 //                      - ExchangePlanRef
-//                      - Filter - Reference to a data item or a record set filter to be checked.
-//                                The value to be checked will be received from the database.
+//                      - Filter - 
+//                                
 //
 //  ImportRestrictionCheckNode - Undefined
-//                              - ExchangePlanRef - if Undefined, check period-end closing; 
-//                                otherwise check data import from the exchange plan node.
+//                              - ExchangePlanRef -  
+//                                
 //
 //  DataToCheck - See PeriodClosingDates.DataToCheckTemplate.
 //
 //  Example:
-//  If TypeOf(DataID) = Type("DocumentRef.Order") Then
-//  	Data = Common.ObjectAttributesValues(DataID, "Company, WorkEndDate, WorkOrder");
-//  	If Data.WorkOrder Then
-//  		Check = DataToCheck.Add();
-//  		Check.Section = "WorkOrders";
+//  If The Tag Type(Data ID) = Type ("Document Link.Order") Then
+//  	Data = General Purpose.Object Requisitvalues(Data ID, " Company, Work Completion Dateorder");
+//  	If The Data.Custom Order Then
+//  		Verification = Data For Verification.Add();
+//  		Check.Section = " Custom Orders";
 //  		Check.Object = Data.Company;
-//  		Check.Date = Data.WorkEndDate;
-//  	EndIf;
-//  EndIf;
+//  		Check.Date = Data.Dataconvert;
+//  	Conicelli;
+//  Conicelli;
 //
 Procedure BeforeCheckOldDataVersion(MetadataObject, DataID, ImportRestrictionCheckNode, DataToCheck) Export
 	
 EndProcedure
 
-// Overrides getting data to check the closing date for a new (future) data version.
+// Allows you to redefine getting data to check the date when a new (future) version of data was banned.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - a metadata object of data to be received.
+//  MetadataObject - MetadataObject -  metadata object for the received data.
 //  Data  - CatalogObject
 //          - DocumentObject
 //          - ChartOfCharacteristicTypesObject
@@ -162,23 +160,23 @@ EndProcedure
 //          - InformationRegisterRecordSet
 //          - AccumulationRegisterRecordSet
 //          - AccountingRegisterRecordSet
-//          - CalculationRegisterRecordSet - Data item or record set to be checked.
+//          - CalculationRegisterRecordSet - 
 //
 //  ImportRestrictionCheckNode - Undefined
-//                              - ExchangePlanRef - if Undefined, check period-end closing; 
-//                                otherwise check data import from the exchange plan node.
+//                              - ExchangePlanRef -  
+//                                
 //
 //  DataToCheck - See PeriodClosingDates.DataToCheckTemplate.
 //
 //  Example:
-//  If TypeOf(Data) = Type("DocumentObject.Order") AND Data.WorkOrder Then
+//  If The Patch Type(Data) = Type ("Document Object.Order") And Data.Custom Order Then
 //  	
-//  	Check = DataToCheck.Add();
-//  	Check.Section = "WorkOrders";
+//  	Verification = Data For Verification.Add();
+//  	Check.Section = " Custom Orders";
 //  	Check.Object = Data.Company;
-//  	Check.Date = Data.WorkEndDate;
+//  	Check.Date = Data.Dataconvert;
 //  	
-//  EndIf;
+//  Conicelli;
 //
 Procedure BeforeCheckNewDataVersion(MetadataObject, Data, ImportRestrictionCheckNode, DataToCheck) Export
 	

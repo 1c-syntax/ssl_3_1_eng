@@ -1,25 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Maps objects from the current infobase to objects from the source Infobase.
-// Generates a mapping table to be displayed to the user.
-// Detects the following types of object mapping:
-// - objects mapped using references
-// - objects mapped using InfobaseObjectsMaps information register data
-// - objects mapped using unapproved mapping - mapping items that are not written to the infobase (current changes)
-// - unmapped source objects
-// - unmapped destination objects (of the current infobase).
+// For internal use.
 //
 Procedure MapObjects(Parameters, TempStorageAddress) Export
 	
@@ -27,9 +18,7 @@ Procedure MapObjects(Parameters, TempStorageAddress) Export
 	
 EndProcedure
 
-// Maps objects automatically using the mapping fields specified by the user (search fields).
-// Compares mapping fields using strict equality.
-// Generates a table of automatic mapping to be displayed to the user.
+// For internal use.
 //
 Procedure ExecuteAutomaticObjectMapping(Parameters, TempStorageAddress) Export
 	
@@ -49,7 +38,7 @@ Function ObjectMappingResult(Parameters)
 	
 	Cancel = False;
 	
-	// Applying the table of unapproved mapping items to the database.
+	// 
 	If Parameters.FormAttributes.ApplyOnlyUnapprovedRecordsTable Then
 		
 		ObjectsMapping.ApplyUnapprovedRecordsTable(Cancel);
@@ -61,10 +50,10 @@ Function ObjectMappingResult(Parameters)
 		Return Undefined;
 	EndIf;
 	
-	// Applying automatic object mapping result obtained by the user.
+	// 
 	If Parameters.FormAttributes.ApplyAutomaticMappingResult Then
 		
-		// Adding rows to the table of unapproved mapping items
+		// 
 		For Each TableRow In Parameters.AutomaticallyMappedObjectsTable Do
 			
 			FillPropertyValues(ObjectsMapping.UnapprovedMappingTable.Add(), TableRow);
@@ -73,7 +62,7 @@ Function ObjectMappingResult(Parameters)
 		
 	EndIf;
 	
-	// Applying the table of unapproved mapping items to the database.
+	// 
 	If Parameters.FormAttributes.ApplyUnapprovedRecordsTable Then
 		
 		ObjectsMapping.ApplyUnapprovedRecordsTable(Cancel);
@@ -84,7 +73,7 @@ Function ObjectMappingResult(Parameters)
 		
 	EndIf;
 	
-	// Generate map table.
+	// 
 	ObjectsMapping.MapObjects(Cancel);
 	
 	If Cancel Then
@@ -111,20 +100,20 @@ Function AutomaticObjectMappingResult(Parameters)
 	ObjectsMapping = Create();
 	DataExchangeServer.ImportObjectContext(Parameters.ObjectContext, ObjectsMapping);
 	
-	// Defining the UsedFieldsList property.
+	// 
 	ObjectsMapping.UsedFieldsList.Clear();
 	CommonClientServer.SupplementTable(Parameters.FormAttributes.UsedFieldsList, ObjectsMapping.UsedFieldsList);
 	
-	// Defining the TableFieldsList property
+	// 
 	ObjectsMapping.TableFieldsList.Clear();
 	CommonClientServer.SupplementTable(Parameters.FormAttributes.TableFieldsList, ObjectsMapping.TableFieldsList);
 	
-	// Loading the table of unapproved mapping items
+	// 
 	ObjectsMapping.UnapprovedMappingTable.Load(Parameters.UnapprovedMappingTable);
 	
 	Cancel = False;
 	
-	// Receiving the automatic object mapping table.
+	// 
 	ObjectsMapping.ExecuteAutomaticObjectMapping(Cancel, Parameters.FormAttributes.MappingFieldsList);
 	
 	If Cancel Then

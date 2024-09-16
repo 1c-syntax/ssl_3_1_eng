@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -19,7 +17,7 @@ Var CurrencyCodes;
 
 #Region EventHandlers
 
-// The dependent currency rates are controlled while writing.
+// When recording, the exchange rates of subordinate currencies are monitored.
 //
 Procedure OnWrite(Cancel, Replacing)
 	
@@ -45,7 +43,7 @@ EndProcedure
 
 #Region Private
 
-// Finds all dependent currencies and changes their rate.
+// Finds all dependent currencies and changes their exchange rate.
 //
 Procedure UpdateSubordinateCurrenciesRates()
 	
@@ -54,7 +52,7 @@ Procedure UpdateSubordinateCurrenciesRates()
 	
 	For Each BaseCurrencyRecord In ThisObject Do
 	
-		If SelectedCurrency <> Undefined Then // Only the given currency's rate must be updated.
+		If SelectedCurrency <> Undefined Then // 
 			BlockDependentCurrencyRate(SelectedCurrency, BaseCurrencyRecord.Period); 
 		Else
 			DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(BaseCurrencyRecord.Currency, AdditionalProperties);
@@ -67,22 +65,20 @@ Procedure UpdateSubordinateCurrenciesRates()
 	
 	For Each BaseCurrencyRecord In ThisObject Do
 
-		If SelectedCurrency <> Undefined Then // Only the given currency's rate must be updated.
+		If SelectedCurrency <> Undefined Then // 
 			UpdatedPeriods = Undefined;
 			If Not AdditionalProperties.Property("UpdatedPeriods", UpdatedPeriods) Then
 				UpdatedPeriods = New Map;
 				AdditionalProperties.Insert("UpdatedPeriods", UpdatedPeriods);
 			EndIf;
-			// The rate is not updated more than once over the same period of time.
+			// 
 			If UpdatedPeriods[BaseCurrencyRecord.Period] = Undefined Then
-				//@skip-check query-in-loop. Batch processing of a large amount of data.
 				UpdateSubordinateCurrencyRate(SelectedCurrency, BaseCurrencyRecord); 
 				UpdatedPeriods.Insert(BaseCurrencyRecord.Period, True);
 			EndIf;
-		Else	// Refresh the rate for all dependent currencies.
+		Else	// 
 			DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(BaseCurrencyRecord.Currency, AdditionalProperties);
 			For Each DependentCurrency In DependentCurrencies Do
-				//@skip-check query-in-loop. Batch processing of a large amount of data.
 				UpdateSubordinateCurrencyRate(DependentCurrency, BaseCurrencyRecord); 
 			EndDo;
 		EndIf;
@@ -115,7 +111,7 @@ Procedure UpdateSubordinateCurrencyRate(DependentCurrency, BaseCurrencyRecord)
 	If DependentCurrency.RateSource = Enums.RateSources.MarkupForOtherCurrencyRate Then
 		WriteCurrencyRate.Rate = BaseCurrencyRecord.Rate + BaseCurrencyRecord.Rate * DependentCurrency.Markup / 100;
 		WriteCurrencyRate.Repetition = BaseCurrencyRecord.Repetition;
-	Else // Calculate by formula.
+	Else // 
 		Rate = CurrencyRateByFormula(DependentCurrency.Ref, DependentCurrency.RateCalculationFormula, BaseCurrencyRecord.Period);
 		If Rate <> Undefined Then
 			WriteCurrencyRate.Rate = Rate;
@@ -147,7 +143,7 @@ Procedure UpdateSubordinateCurrencyRate(DependentCurrency, BaseCurrencyRecord)
 	
 EndProcedure
 
-// Clears rates for dependent currencies.
+// Clears the exchange rates of dependent currencies.
 //
 Procedure DeleteDependentCurrencyRates()
 	
@@ -256,7 +252,7 @@ Function CurrencyCodes()
 	Result.Columns.Add("AlphabeticCode", New TypeDescription("String", , , , New StringQualifiers(Metadata.Catalogs.Currencies.DescriptionLength, AllowedLength.Variable)));
 	
 	For Each CurrencyDescription In CurrencyCodes Do
-		// A currency is included in the formula if its char code contains letters.
+		// 
 		If ValueIsFilled(StrConcat(StrSplit(CurrencyDescription.AlphabeticCode, "0123456789", False), "")) Then
 			FillPropertyValues(Result.Add(), CurrencyDescription);
 		EndIf;

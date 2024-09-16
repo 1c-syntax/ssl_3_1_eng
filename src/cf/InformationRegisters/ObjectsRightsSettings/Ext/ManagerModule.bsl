@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Updates available rights for object rights settings and saves the content of the latest changes.
+// Updates possible permissions for configuring object rights and saves the list of recent changes.
 //
 // Parameters:
-//  HasChanges - Boolean - (return value) - if changes are found
-//                  True is set, otherwise, it is not changed.
+//  HasChanges - Boolean -  (return value) - if changes are found,
+//                  it is set to True, otherwise it is not changed.
 //
 Procedure UpdateAvailableRightsForObjectsRightsSettings(HasChanges = Undefined) Export
 	
@@ -50,8 +48,8 @@ Procedure UpdateAvailableRightsForObjectsRightsSettings(HasChanges = Undefined) 
 	
 EndProcedure
 
-// Updates auxiliary register data after changing
-// rights based on access values saved to access restriction parameters.
+// The procedure updates the auxiliary register data based on the result of changing
+// possible access rights based on the access values stored in the access restriction parameters.
 //
 Procedure UpdateAuxiliaryRegisterDataByConfigurationChanges1() Export
 	
@@ -94,32 +92,32 @@ EndProcedure
 
 #Region Private
 
-// Returns the object right settings.
+// Returns the object's rights settings.
 //
 // Parameters:
-//  ObjectReference - DefinedType.RightsSettingsOwner - a reference to the object, for which reading of right settings is required.
+//  ObjectReference - DefinedType.RightsSettingsOwner -  link to the object for which you want to read the rights settings.
 //
 // Returns:
 //  Structure:
-//    * Inherit        - Boolean - a flag of inheriting parent right settings.
+//    * Inherit        - Boolean -  the check box inherit the settings of the parents ' rights.
 //    * Settings          - ValueTable:
-//                         ** SettingsOwner     - DefinedType.RightsSettingsOwner - a reference to an object
-//                                                    or an object parent (from the object parent hierarchy).
-//                         ** InheritanceIsAllowed - Boolean - inheritance allowed.
+//                         ** SettingsOwner     - DefinedType.RightsSettingsOwner -  a reference to the object
+//                                                    or the object's parent (from the hierarchy of the object's parents).
+//                         ** InheritanceIsAllowed - Boolean -  inheritance is allowed.
 //                         ** User          - CatalogRef.Users
 //                                                  - CatalogRef.UserGroups
 //                                                  - CatalogRef.ExternalUsers
 //                                                  - CatalogRef.ExternalUsersGroups
 //
-//                         The access right names specified in the overridable 
-//                         OnFillAvailableRightsForObjectsRightsSettings procedure:
-//                         # <RightName1> = Undefined
-//                                                 = Boolean —
-//                                                       Undefined — the right is not configured,
-//                                                       True — the right is allowed,
-//                                                       False — the right is prohibited.
-//                         # <RightName2> = Undefined
-//                                                 = Boolean — similar.
+//                          
+//                         :
+//                         
+//                                                 
+//                                                       
+//                                                       
+//                                                       
+//                         
+//                                                 
 //
 Function Read(Val ObjectReference) Export
 	
@@ -142,11 +140,11 @@ Function Read(Val ObjectReference) Export
 	
 	RightsSettings = New Structure;
 	
-	// Getting the inheritance setting value.
+	// 
 	RightsSettings.Insert("Inherit",
 		InformationRegisters.ObjectRightsSettingsInheritance.SettingsInheritance(ObjectReference));
 	
-	// Preparing the right settings table structure.
+	// 
 	Settings = New ValueTable;
 	Settings.Columns.Add("User");
 	Settings.Columns.Add("SettingsOwner");
@@ -168,7 +166,7 @@ Function Read(Val ObjectReference) Export
 			ObjectReference, , , False);
 	EndIf;
 	
-	// Reading object settings and settings of parent objects inherited by the object.
+	// 
 	Query = New Query;
 	Query.SetParameter("Object", ObjectReference);
 	Query.SetParameter("SettingsInheritance", SettingsInheritance);
@@ -253,30 +251,30 @@ Function Read(Val ObjectReference) Export
 	
 EndFunction
 
-// Writes the object right settings.
+// Records the object's rights settings.
 //
 // Parameters:
 //  ObjectReference - DefinedType.RightsSettingsOwner
 //  Settings          - ValueTable:
-//                         * SettingsOwner     - DefinedType.RightsSettingsOwner - a reference to an object
-//                                                   or an object parent (from the object parent hierarchy).
-//                         * InheritanceIsAllowed - Boolean - inheritance allowed.
+//                         * SettingsOwner     - DefinedType.RightsSettingsOwner -  a reference to the object
+//                                                   or the object's parent (from the hierarchy of the object's parents).
+//                         * InheritanceIsAllowed - Boolean -  inheritance is allowed.
 //                         * User          - CatalogRef.Users
-//                                                   CatalogRef.UserGroups
-//                                                   CatalogRef.ExternalUsers
-//                                                   CatalogRef.ExternalUsersGroups.
+//                                                   
+//                                                   
+//                                                   
 //
-//                         The access right names specified in the overridable 
-//                         OnFillAvailableRightsForObjectsRightsSettings procedure:
-//                         # <RightName1> = Undefined
-//                                                 = Boolean —
-//                                                       Undefined — the right is not configured,
-//                                                       True — the right is allowed,
-//                                                       False — the right is prohibited.
-//                         # <RightName2> = Undefined
-//                                                 = Boolean — similar.
+//                          
+//                         :
+//                         
+//                                                 
+//                                                       
+//                                                       
+//                                                       
+//                         
+//                                                 
 //
-//  Inherit - Boolean - a flag of inheriting parent right settings.
+//  Inherit - Boolean -  the check box inherit the settings of the parents ' rights.
 //
 Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
 	
@@ -304,7 +302,7 @@ Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
 		LockItem.SetValue("Parent", ObjectReference);
 		Block.Lock();
 		
-		// Setting the inheritance setting flag.
+		// 
 		RecordSet = InformationRegisters.ObjectRightsSettingsInheritance.CreateRecordSet();
 		RecordSet.Filter.Object.Set(ObjectReference);
 		RecordSet.Filter.Parent.Set(ObjectReference);
@@ -321,7 +319,7 @@ Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
 			RecordSet[0].Inherit = Inherit;
 		EndIf;
 		
-		// Prepare new settings.
+		// 
 		NewRightsSettings = AccessManagementInternalCached.BlankRecordSetTable(
 			Metadata.InformationRegisters.ObjectsRightsSettings.FullName()).Get();
 		
@@ -344,7 +342,7 @@ Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
 				RightsSetting.Table               = CommonRightsTable;
 				RightsSetting.RightIsProhibited        = Not Setting[RightDetails.Name];
 				RightsSetting.InheritanceIsAllowed = Setting.InheritanceIsAllowed;
-				// Cache attributes.
+				// 
 				RightsSetting.RightPermissionLevel =
 					?(RightsSetting.RightIsProhibited, 0, ?(RightsSetting.InheritanceIsAllowed, 2, 1));
 				RightsSetting.RightProhibitionLevel =
@@ -390,7 +388,7 @@ Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
 			EndDo;
 		EndDo;
 	
-		// Writing object right settings and an inheritance flag of right settings.
+		// 
 		Data = New Structure;
 		Data.Insert("RecordSet",   InformationRegisters.ObjectsRightsSettings);
 		Data.Insert("NewRecords",    NewRightsSettings);
@@ -435,11 +433,11 @@ Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
 	
 EndProcedure
 
-// Updates auxiliary register data when changing the configuration.
+// The procedure updates the auxiliary register data when the configuration changes.
 //
 // Parameters:
-//  HasChanges - Boolean - (return value) - if recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  (return value) - if a record was made,
+//                  it is set to True, otherwise it is not changed.
 //
 Procedure UpdateAuxiliaryRegisterData(HasChanges = Undefined) Export
 	
@@ -623,7 +621,7 @@ Procedure UpdateAuxiliaryRegisterData(HasChanges = Undefined) Export
 	|FROM
 	|	NewData AS NewData";
 	
-	// Preparing the selected fields with optional filter.
+	// 
 	Fields = New Array;
 	Fields.Add(New Structure("Object"));
 	Fields.Add(New Structure("User"));
@@ -666,7 +664,7 @@ Procedure UpdateAuxiliaryRegisterData(HasChanges = Undefined) Export
 	
 EndProcedure
 
-// See also InformationRegisters.ObjectsRightsSettings.AvailableRights.
+// 
 // 
 //
 // Returns:
@@ -720,11 +718,11 @@ Function RightsForObjectsRightsSettingsAvailable() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// 
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	// Data registration is not required.
+	// 
 	Return;
 	
 EndProcedure
@@ -738,7 +736,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 Procedure AddHierarchyObjects(Ref, ObjectsArray)
 	
@@ -787,13 +785,13 @@ Function PopulatedPossibleSessionPermissions()
 	
 EndFunction
 
-// Intended for procedure "AccessManagementInternalCached.AvailableSessionRightsDetailsForObjectsRightSettings".
-// See also "AccessManagementOverridable.OnFillAvailableRightsForObjectsRightsSettings".
+// 
+// 
 //
 // Parameters:
 //  AccessKindsProperties - See AccessManagementInternal.AccessKindsProperties
-//                       - Undefined.
-//  HashSum - String - Return value.
+//                       - Undefined
+//  HashSum - String -  the return value.
 //
 // Returns:
 //   See AccessManagementInternal.RightsForObjectsRightsSettingsAvailable
@@ -994,7 +992,7 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 	For Each ListItem In OwnersTypes Do
 		OwnerProperties = OwnersProperties.Get(ListItem.Presentation);
 		
-		// Add tables.
+		// 
 		SeparateRights = AdditionalParameters.IndividualOwnersRights.Get(ListItem.Presentation);
 		IndexOf = -1;
 		For Each RightProperties In OwnerProperties.OwnerRightsArray Do
@@ -1018,7 +1016,7 @@ Function CheckedPossibleSessionPermissions(AccessKindsProperties = Undefined, Ha
 			EndIf;
 		EndDo;
 		
-		// Commit and add a version string.
+		// 
 		OwnerRefType = TypeOf(ListItem.Value);
 		OwnerRights = New FixedMap(OwnerProperties.OwnerRights);
 		OwnerRightsArray = New FixedArray(OwnerProperties.OwnerRightsArray);
@@ -1124,7 +1122,7 @@ Function AvailableRightProperties(AvailableRight, RightIndex) Export
 	
 EndFunction
 
-// Intended for function "AvailableRightProperties".
+// 
 Function SortedFixedArray(SourceArray)
 	
 	List = New ValueList;
@@ -1149,11 +1147,11 @@ EndFunction
 
 // Returns:
 //   Map of KeyAndValue:
-//     * Key - String - a full access right name.
+//     * Key - String -  full name of the right.
 //     * Value - FixedStructure:
-//         * Name       - String - a possible access right name.
-//         * Title - String - a column header.
-//         * ToolTip - String - a column hint.
+//         * Name       - String -  name of the possible right.
+//         * Title - String -  the column heading.
+//         * ToolTip - String -  tip of the column.
 //
 Function AvailableRightsPresentation() Export
 	

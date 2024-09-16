@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// Commands for business processes.
+// 
 
-// Marks the specified business processes as suspended.
+// Marks the specified business processes as stopped.
 //
 // Parameters:
 //  CommandParameter  - Array of DefinedType.BusinessProcess
@@ -78,13 +76,13 @@ Procedure Stop(Val CommandParameter) Export
 	
 EndProcedure
 
-// Marks the specified business process as suspended.
-//  The procedure is called from a business process form.
+// Marks the specified business process as stopped.
+//  It is intended for calling a business process from a form.
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - a business process form, where:
-//   * Object - DefinedType.BusinessProcessObject - business process. 
+//        - ManagedFormExtensionForObjects - :
+//   * Object - DefinedType.BusinessProcessObject -  business process. 
 //
 Procedure StopBusinessProcessFromObjectForm(Form) Export
 	Form.Object.State = PredefinedValue("Enum.BusinessProcessStates.Suspended");
@@ -104,7 +102,7 @@ EndProcedure
 // Parameters:
 //  CommandParameter - Array of DefinedType.BusinessProcess
 //                  - DynamicListGroupRow
-//                  - DefinedType.BusinessProcess - business process.
+//                  - DefinedType.BusinessProcess - 
 //
 Procedure Activate(Val CommandParameter) Export
 	
@@ -153,13 +151,13 @@ Procedure Activate(Val CommandParameter) Export
 	
 EndProcedure
 
-// Marks the specified business processes as active.
-// The procedure is intended for calling from a business process form.
+// Marks the specified business process as active.
+// It is intended for calling a business process from a form.
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - a business process form, where:
-//   * Object - DefinedType.BusinessProcessObject - business process.
+//        - ManagedFormExtensionForObjects - :
+//   * Object - DefinedType.BusinessProcessObject -  business process.
 //
 Procedure ContinueBusinessProcessFromObjectForm(Form) Export
 	
@@ -175,7 +173,7 @@ Procedure ContinueBusinessProcessFromObjectForm(Form) Export
 	
 EndProcedure
 
-// Marks the specified task as accepted for execution.
+// Marks the specified tasks as accepted for execution.
 //
 // Parameters:
 //  TaskArray - Array of TaskRef.PerformerTask
@@ -205,18 +203,18 @@ EndProcedure
 //
 // Parameters:
 //  Form               - ClientApplicationForm
-//                      - ManagedFormExtensionForObjects - a task form, where:
-//   * Object - TaskObject - task.
+//                      - ManagedFormExtensionForObjects - :
+//   * Object - TaskObject -  task.
 //  CurrentUser - CatalogRef.ExternalUsers
-//                      - CatalogRef.Users - Reference to the current user.
+//                      - CatalogRef.Users - 
 //                                                        
 //
 Procedure AcceptTaskForExecution(Form, CurrentUser) Export
 	
 	Form.Object.AcceptedForExecution = True;
 	
-	// Keep "AcceptForExecutionDate" empty. 
-	// It will be initialized with the current session date before writing the task.
+	//  
+	// 
 	Form.Object.AcceptForExecutionDate = Date('00010101');
 	If Not ValueIsFilled(Form.Object.Performer) Then
 		Form.Object.Performer = CurrentUser;
@@ -261,8 +259,8 @@ EndProcedure
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - a task form, where:
-//   * Object - TaskObject - task.
+//        - ManagedFormExtensionForObjects - :
+//   * Object - TaskObject -  task.
 //
 Procedure CancelAcceptTaskForExecution(Form) Export
 	
@@ -279,13 +277,13 @@ Procedure CancelAcceptTaskForExecution(Form) Export
 	
 EndProcedure
 
-// Sets availability of commands for accepting for execution.
+// Sets whether accept commands are available for execution.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a task form, where:
-//   * Items - FormAllItems - form items. The form contains:
-//     ** FormAcceptForExecution - TextBox - a command button on the form.
-//     ** FormCancelAcceptForExecution - TextBox - a command button on the form. 
+//  Form - ClientApplicationForm - :
+//   * Items - FormAllItems - :
+//     ** FormAcceptForExecution - TextBox -  command button on the form.
+//     ** FormCancelAcceptForExecution - TextBox -  command button on the form. 
 //
 Procedure UpdateAcceptForExecutionCommandsAvailability(Form) Export
 	
@@ -305,7 +303,7 @@ Procedure UpdateAcceptForExecutionCommandsAvailability(Form) Export
 		
 EndProcedure
 
-// Opens the form to set up deferred start of a business process.
+// Opens a form for setting up a deferred start of the business process.
 //
 // Parameters:
 //  BusinessProcess  - DefinedType.BusinessProcess
@@ -332,17 +330,17 @@ Procedure SetUpDeferredStart(BusinessProcess, TaskDueDate) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Additional procedures and functions.
+// 
 
-// Standard notification handler for task execution forms.
-//  The procedure is intended for calling from the NotificationProcessing form event handler.
+// Standard notification handler for task completion forms.
+//  To call from the event handler of the message Processing form.
 //
 // Parameters:
-//  Form      - ClientApplicationForm - a task execution form, where:
-//   * Object - TaskObject  - Object's task.
-//  EventName - String       - Event name.
-//  Parameter   - Arbitrary - an event parameter.
-//  Source   - Arbitrary - an event source.
+//  Form      - ClientApplicationForm - :
+//   * Object - TaskObject  - 
+//  EventName - String       -  event name.
+//  Parameter   - Arbitrary -  event parameter.
+//  Source   - Arbitrary -  event source.
 //
 Procedure TaskFormNotificationProcessing(Form, EventName, Parameter, Source) Export
 	
@@ -359,20 +357,20 @@ Procedure TaskFormNotificationProcessing(Form, EventName, Parameter, Source) Exp
 	
 EndProcedure
 
-// Standard BeforeAddRow handler for task lists.
-//  The procedure is intended for calling from the BeforeAddRow form table event handler.
+// Standard pre-start handler For adding tasks to lists.
+//  To call from the event handler of the form table before starting the Add-on.
 //
 // Parameters:
-//  Form        - ClientApplicationForm - task form.
-//  Item      - FormTable - form table items.
-//  Cancel        - Boolean - shows whether adding objects is canceled. If the parameter is set to
-//                          True in the handler, the object is not added.
-//  Copy  - Boolean - defines the copy mode. If True, the row is copied. 
+//  Form        - ClientApplicationForm -  task form.
+//  Item      - FormTable -  elements of the form table.
+//  Cancel        - Boolean -  indicates that the object was not added. If this
+//                          parameter is set to True in the body of the handler procedure, the object will not be added.
+//  Copy  - Boolean -  defines the copy mode. If set to True, the string is copied. 
 //  Parent     - Undefined
 //               - CatalogRef
-//               - ChartOfAccountsRef - a reference to the item used
-//                                    as a parent on adding.
-//  Group       - Boolean - shows whether a group is added. True - a group is added. 
+//               - ChartOfAccountsRef - 
+//                                    
+//  Group       - Boolean -  indicates whether to add a group. True - the group will be added. 
 //
 Procedure TaskListBeforeAddRow(Form, Item, Cancel, Copy, Parent, Group) Export
 	
@@ -388,16 +386,16 @@ Procedure TaskListBeforeAddRow(Form, Item, Cancel, Copy, Parent, Group) Export
 	
 EndProcedure
 
-// Writes and closes the task execution form.
+// Write and close the task completion form.
 //
 // Parameters:
-//  Form  - ClientApplicationForm - a task execution form, where:
-//   * Object - TaskObject - a business process task.
-//  ExecuteTask  - Boolean - a task is written in the execution mode.
-//  NotificationParameters - Structure - Additional notification parameters.
+//  Form  - ClientApplicationForm - :
+//   * Object - TaskObject -  the task of the business process.
+//  ExecuteTask  - Boolean -  the task is recorded in run mode.
+//  NotificationParameters - Structure -  additional notification parameters.
 //
 // Returns:
-//   Boolean   - True if the task is written.
+//   Boolean   - 
 //
 Function WriteAndCloseExecute(Form, ExecuteTask = False, NotificationParameters = Undefined) Export
 	
@@ -430,11 +428,11 @@ Function WriteAndCloseExecute(Form, ExecuteTask = False, NotificationParameters 
 	
 EndFunction
 
-// Opens a new job form.
+// Open the form to enter a new task.
 //
 // Parameters:
-//  OwnerForm  - ClientApplicationForm - a form that must be the owner for the form being opened.
-//  FormParameters - Structure - parameters of the form to be opened.
+//  OwnerForm  - ClientApplicationForm -  the form that should be the owner for the one being opened.
+//  FormParameters - Structure -  parameters of the form to open.
 //
 Procedure CreateJob(Val OwnerForm = Undefined, Val FormParameters = Undefined) Export
 	
@@ -442,12 +440,12 @@ Procedure CreateJob(Val OwnerForm = Undefined, Val FormParameters = Undefined) E
 	
 EndProcedure	
 
-// Opens a form for forwarding one or several tasks to another assignee.
+// Open a form to redirect one or more tasks to another performer.
 //
 // Parameters:
 //  RedirectedTasks_SSLs - Array of TaskRef.PerformerTask
-//  OwnerForm - ClientApplicationForm - a form that must be the owner for the task forwarding
-//                                               form being opened.
+//  OwnerForm - ClientApplicationForm -  the form that should be the owner of
+//                                               the task redirection form that is being opened.
 //
 Procedure ForwardTasks(RedirectedTasks_SSLs, OwnerForm) Export
 	
@@ -473,7 +471,7 @@ Procedure ForwardTasks(RedirectedTasks_SSLs, OwnerForm) Export
 		
 EndProcedure
 
-// Opens the form with additional information about the task.
+// Open a form with additional information about the issue.
 //
 // Parameters:
 //  TaskRef - TaskRef.PerformerTask
@@ -495,12 +493,12 @@ Procedure OpenRolesAndTaskPerformersList() Export
 	
 EndProcedure
 
-// Opens the assignee role selection form.
+// 
 // 
 // Parameters:
 //  FormParameters - See PerformerRoleChoiceFormParameters
 //  Owner - Undefined
-//           - ClientApplicationForm - The form where the assignee selection form opens.
+//           - ClientApplicationForm - 
 //
 Procedure OpenPerformerRoleChoiceForm(FormParameters, Owner) Export
 
@@ -508,19 +506,19 @@ Procedure OpenPerformerRoleChoiceForm(FormParameters, Owner) Export
 
 EndProcedure
 
-// The form opening parameters.
+// 
 // 
 // Parameters:
-//  PerformerRole - CatalogRef.PerformerRoles - A role for role-based assignment of the task to business process members. 
-//  MainAddressingObject - Arbitrary - The main business object for forwarding the task.
-//  AdditionalAddressingObject - Arbitrary - An additional business object for forwarding the task.
+//  PerformerRole - CatalogRef.PerformerRoles -  
+//  MainAddressingObject - Arbitrary - 
+//  AdditionalAddressingObject - Arbitrary - 
 // 
 // Returns:
 //  Structure:
-//   * PerformerRole  - CatalogRef.PerformerRoles - A role for role-based assignment of the task to business process members.
-//   * MainAddressingObject - Arbitrary - The main business object for forwarding the task.
-//   * AdditionalAddressingObject - Arbitrary - An additional business object for forwarding the task.
-//   * SelectAddressingObject - Boolean - If set to "True", the main business object is selected in the list.
+//   * PerformerRole  - CatalogRef.PerformerRoles - 
+//   * MainAddressingObject - Arbitrary - 
+//   * AdditionalAddressingObject - Arbitrary - 
+//   * SelectAddressingObject - Boolean - 
 // 
 Function PerformerRoleChoiceFormParameters(PerformerRole, MainAddressingObject = Undefined, 
 		AdditionalAddressingObject = Undefined) Export
@@ -563,11 +561,11 @@ Procedure OpenTaskSubject(List) Export
 	ShowValue(, List.CurrentData.SubjectOf);
 EndProcedure
 
-// Standard handler DeletionMark used in the lists of business processes.
-// The procedure is intended for calling from the DeletionMark list event handler.
+// Standard tag Deletion handler for business process lists.
+// To call from the event handler of the mark-Delete list.
 //
 // Parameters:
-//   List  - FormTable - a form control (form table) with a list of business processes.
+//   List  - FormTable -  the control (table form) with a list of business processes.
 //
 Procedure BusinessProcessesListDeletionMark(List) Export
 	
@@ -581,17 +579,17 @@ Procedure BusinessProcessesListDeletionMark(List) Export
 	
 EndProcedure
 
-// Opens the assignee selection form.
+// Opens the shape selection of the contractor.
 //
 // Parameters:
-//   PerformerItem - FormField - a form item where an assignee is selected. 
-//      The form item is specified as the owner of the assignee selection form.
-//   PerformerAttribute - CatalogRef.Users - a previously selected Assignee value.
-//      Used to set the current row in the assignee selection form.
-//   SimpleRolesOnly - Boolean - If True, only roles without business objects 
-//      are used in the selection.
-//   NoExternalRoles - Boolean - If True, only roles without the ExternalRole flag
-//      are used in the selection.
+//   PerformerItem - FormField -  the element of the form in which the performer is selected, 
+//      which will be specified as the owner of the performer selection form.
+//   PerformerAttribute - CatalogRef.Users -  the previously selected value of the performer.
+//      Used to set the current line in the artist selection form.
+//   SimpleRolesOnly - Boolean -  if True, it indicates that 
+//      only roles without addressing objects should be used for selection.
+//   NoExternalRoles - Boolean -  if True, it indicates that
+//      only roles that do not have the external Role attribute set should be used for selection.
 //
 Procedure SelectPerformer(PerformerItem, PerformerAttribute, SimpleRolesOnly = False, NoExternalRoles = False) Export 
 	

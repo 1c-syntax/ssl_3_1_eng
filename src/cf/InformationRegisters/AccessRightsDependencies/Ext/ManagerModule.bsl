@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Updates register data if the developer
-// changed dependencies in the overridable module.
+// The procedure updates the register data if the application developer
+// has changed the dependencies in the module being overridden.
 //
 // Parameters:
-//  HasChanges - Boolean - (return value) - if recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  (return value) - if a record was made,
+//                  it is set to True, otherwise it is not changed.
 //
 Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	
@@ -42,7 +40,7 @@ Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	|FROM
 	|	NewData AS NewData";
 	
-	// Preparing the selected fields with optional filter.
+	// 
 	Fields = New Array;
 	Fields.Add(New Structure("SubordinateTable"));
 	Fields.Add(New Structure("LeadingTableType"));

@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Opens a form where a user can change a password.
+// Opens a form where the user can change their password.
 Procedure OpenChangePasswordForm(User = Undefined, ContinuationHandler = Undefined, AdditionalParameters = Undefined) Export
 	
 	FormParameters = New Structure;
@@ -49,7 +47,7 @@ Procedure InstallInteractiveDataProcessorOnInsufficientRightsToSignInError(Param
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// For role interface in managed forms.
+// 
 
 // For internal use only.
 //
@@ -67,7 +65,7 @@ Procedure ExpandRoleSubsystems(Form, Unconditionally = True) Export
 		Return;
 	EndIf;
 	
-	// Expand all.
+	// 
 	For Each TableRow In Form.Roles.GetItems() Do
 		Items.Roles.Expand(TableRow.GetID(), True);
 	EndDo;
@@ -127,7 +125,7 @@ Procedure ShowSecurityWarning(Notification, TypeOfWarning, AdditionalParameter =
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// Idle handlers.
+// 
 
 // 
 Procedure ShowSecurityWarningAfterStartupIfNecessary() Export
@@ -145,7 +143,7 @@ Procedure OnControlRestartWhenAccessRightsReduced() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
@@ -163,7 +161,7 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart2(Parameters) Export
 	
-	// Checks user authorization result and generates an error message.
+	// 
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	
 	If ClientParameters.Property("AuthorizationError") Then
@@ -178,7 +176,7 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart3(Parameters) Export
 	
-	// Requires to change a password if necessary.
+	// 
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	
 	If ClientParameters.Property("PasswordChangeRequired") Then
@@ -195,7 +193,7 @@ Procedure AfterStart() Export
 	ClientRunParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	Var_Key = CommonClientServer.StructureProperty(ClientRunParameters, "SecurityWarningKey");
 	If ValueIsFilled(Var_Key) Then
-		// Slight delay so that the platform has time to draw the current window, on top of which a warning window is displayed.
+		// 
 		AttachIdleHandler("ShowSecurityWarningAfterStart", 0.3, True);
 	EndIf;
 	
@@ -253,9 +251,9 @@ EndProcedure
 #Region Private
 
 ///////////////////////////////////////////////////////////////////////////////
-// Notification handlers.
+// 
 
-// Warns the user about the error of the lack of rights to sign in to the application.
+// Warns the user about the error of insufficient rights to log in to the program.
 Procedure InteractiveDataProcessorOnInsufficientRightsToSignInError(Parameters, ErrorDescription) Export
 	
 	ShowMessageBox(
@@ -265,14 +263,14 @@ Procedure InteractiveDataProcessorOnInsufficientRightsToSignInError(Parameters, 
 	
 EndProcedure
 
-// Exit the application after warning the user about the error of the lack of rights to sign in to the application.
+// Shuts down after warning the user about the error of insufficient rights to log in to the program.
 Procedure InteractiveDataProcessorOnInsufficientRightsToSignInErrorAfterWarning(Parameters) Export
 	
 	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
 	
 EndProcedure
 
-// Suggests the user to change a password or exit application.
+// Prompts the user to change their password or exit.
 Procedure InteractiveHandlerOnChangePasswordOnStart(Parameters, Context) Export
 	
 	FormParameters = New Structure;
@@ -283,7 +281,7 @@ Procedure InteractiveHandlerOnChangePasswordOnStart(Parameters, Context) Export
 	
 EndProcedure
 
-// Continue the InteractiveDataProcessorOnChangePasswordOnStart procedure.
+// Continue the interactionprocessing procedure when changing the password on Startup.
 Procedure InteractiveHandlerOnChangePasswordOnStartCompletion(Result, Parameters) Export
 	
 	If Not ValueIsFilled(Result) Then
@@ -294,7 +292,7 @@ Procedure InteractiveHandlerOnChangePasswordOnStartCompletion(Result, Parameters
 	
 EndProcedure
 
-// Prompts to disable OpenID-Connect authentication on startup.
+// 
 Procedure AskAboutDisablingOpenIDConnect(Context) Export
 	
 	CompletionProcessing = New NotifyDescription(
@@ -319,7 +317,7 @@ Procedure AskAboutDisablingOpenIDConnect(Context) Export
 	
 EndProcedure
 
-// Continues the "AskAboutDisablingOpenIDConnect" procedure.
+// 
 Procedure AskAboutDisablingOpenIDConnectCompletion(Result, Parameters) Export
 	
 	Response = ?(Result <> Undefined, Result.Value, "RemindLater");
@@ -332,7 +330,7 @@ Procedure AskAboutDisablingOpenIDConnectCompletion(Result, Parameters) Export
 	
 EndProcedure
 
-// Writes the results of assignment selection in the form.
+// Writes the result of selecting a destination to the form.
 //
 // Parameters:
 //  ClosingResult - Undefined
@@ -388,17 +386,17 @@ Procedure AfterAssignmentChoice(ClosingResult, AdditionalParameters) Export
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for UsersSettings data processor.
+// 
 
-// Opens the report or form that is passed to it.
+// Used to open the submitted report or form.
 //
 // Parameters:
-//  CurrentItem               - FormTable - a selected row of value tree.
-//  User                 - String - the name of an infobase user,
-//  CurrentUser          - String - an infobase user name. To open the form,
-//                                 this value should match the value of the User parameter.
-//  PersonalSettingsFormName - String - a path to open a form of personal settings.
-//                                 The CommonForm.FormName kind.
+//  CurrentItem               - FormTable -  selected row in the value tree.
+//  User                 - String -  name of the database user,
+//  CurrentUser          - String -  the name of the user of the information database to open the form
+//                                 must match the value of the "User" parameter.
+//  PersonalSettingsFormName - String -  path to open the personal settings form.
+//                                 Type " General Form.Form name".
 //
 Procedure OpenReportOrForm(CurrentItem, User, CurrentUser, PersonalSettingsFormName) Export
 	
@@ -494,15 +492,15 @@ Procedure OpenReportOrForm(CurrentItem, User, CurrentUser, PersonalSettingsFormN
 	
 EndProcedure
 
-// Generates a message to display after settings are copied.
+// It is used to generate an explanation string when copying settings.
 //
 // Parameters:
-//  SettingPresentation            - String - a setting name. It is used when a single setting is copied.
-//  SettingsCount                - Number  - settings count. It is used when multiple settings are copied.
-//  SettingsCopiedToNote - String - to whom settings are copied.
+//  SettingPresentation            - String -  name of the setting. Used if a single setting is copied.
+//  SettingsCount                - Number  -  number of settings. Used if two or more settings are copied.
+//  SettingsCopiedToNote - String -  who the settings are copied to.
 //
 // Returns:
-//  String - a note text when copying settings.
+//  String - 
 //
 Function GenerateNoteOnCopy(SettingPresentation, SettingsCount, SettingsCopiedToNote) Export
 	
@@ -531,15 +529,15 @@ Function GenerateNoteOnCopy(SettingPresentation, SettingsCount, SettingsCopiedTo
 	
 EndFunction
 
-// Generates a string that describes the destination users.
+// Generates the configuration recipient string.
 //
 // Parameters:
-//  UsersCount - Number  - used if value is greater than 1.
-//  User            - String - a username. It is used if the number of users
-//                            is 1.
+//  UsersCount - Number  -  used if the value is greater than one.
+//  User            - String -  user name. Used if the number of users
+//                            is equal to one.
 //
 // Returns:
-//  String - a note about the target user.
+//  String - 
 //
 Function UsersNote(UsersCount, User) Export
 	
@@ -556,7 +554,7 @@ Function UsersNote(UsersCount, User) Export
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for restarting the app upon the removal of user roles.
+// 
 
 Procedure InitiateAppRestart()
 	
@@ -565,7 +563,7 @@ Procedure InitiateAppRestart()
 		Return;
 	EndIf;
 	
-	Parameters.RestartDate = CommonClient.SessionDate() + 15*60; // 15 minutes.
+	Parameters.RestartDate = CommonClient.SessionDate() + 15*60; // 
 	
 	AttachIdleHandler("ControlRestartWhenAccessRightsReduced", 60);
 	NotifyAboutAppRestart();
@@ -592,8 +590,8 @@ Procedure NotifyAboutAppRestart()
 		Return;
 	EndIf;
 	
-	WaitTimeout = 10; // 10 minutes.
-	ExitWithConfirmationTimeout = 5; // 10 minutes.
+	WaitTimeout = 10; // 
+	ExitWithConfirmationTimeout = 5; // 
 	CurrentMoment = CommonClient.SessionDate();
 	
 	If Parameters.RestartDate - CurrentMoment < 5 Then

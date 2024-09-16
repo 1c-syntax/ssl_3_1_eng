@@ -1,28 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Fills in the register of updated data to pass to the subordinate DIB nodes.
+// Fills in the register of updated data for transmission to the subordinate nodes of the rib.
 //
 // Parameters:
-//  Queue - Number - the position in the queue for the current handler.
+//  Queue - Number -  the processing queue where the current handler is running.
 //  Data  - AnyRef
 //          - InformationRegisterRecordSet
 //          - AccumulationRegisterRecordSet
 //          - AccountingRegisterRecordSet
 //          - CalculationRegisterRecordSet
-//          - Array of AnyRef - the data the changes to be recorded for.
-//            Registration by the independent information register is not supported.
+//          - Array of AnyRef - 
+//            
 //  AdditionalParameters - See InfobaseUpdate.AdditionalProcessingMarkParameters
 //
 Procedure MarkProcessingCompletion(Queue, Data, AdditionalParameters) Export
@@ -241,7 +239,7 @@ EndProcedure
 
 Procedure WriteSetWithoutStandardChangeRegistration(DataSet, DIBNodes)
 	
-	// Write a set, replacing the standard registration logic by your own.
+	// 
 	For Each Item In DataSet Do
 		RecordableSet = CreateRecordSet();
 		For Each FilterElement In DataSet.Filter Do

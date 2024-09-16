@@ -1,33 +1,31 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Gets details of predefined property sets.
+// Gets a description of predefined sets of properties.
 //
 // Parameters:
 //  Sets - ValueTree:
-//     * Name           - String - a property set name. Generated from the full metadata
-//          object name by replacing a period (".") by an underscore ("_").
-//          For example, Document_SalesOrder.
-//     * Id - UUID - a UUID of the predefined property set.
-//          Should not be repeated in other property sets.
-//          ID format Random UUID (Version 4).
-//          To get an ID, in 1C:Enterprise mode calculate the value of
-//          the "New UniqueID" platform constructor or use an online generator,
+//     * Name           - String -  name of the property set. Formed from the full name
+//          of the metadata object by replacing the "." character with "_".
+//          For Example, "Customer's Document_order".
+//     * Id - UUID -  unique identifier of a predefined set of properties.
+//          Must not be repeated in other property sets.
+//          The format of the Random UUID identifier (Version 4).
+//          To get the ID, you need to use 1C mode:You can calculate the value of
+//          the platform constructor "New Unique Identifier" or use an online generator,
 //          for example, https://www.uuidgenerator.net/version4.
 //     * Used  - Undefined
-//                     - Boolean - indicates whether a property set is used.
-//          For example, you can use it to hide a set by functional options.
-//          Default value - Undefined, matches the True value.
-//     * IsFolder     - Boolean - True if the property set is a folder.
+//                     - Boolean - 
+//          
+//          
+//     * IsFolder     - Boolean -  True if the property set is a group.
 //
 Procedure OnGetPredefinedPropertiesSets(Sets) Export
 	
@@ -35,16 +33,16 @@ Procedure OnGetPredefinedPropertiesSets(Sets) Export
 	
 EndProcedure
 
-// Gets descriptions of second-level property sets in different languages.
+// Gets the names of second-level property sets in different languages.
 //
 // Parameters:
-//  Descriptions - Map of KeyAndValue - a set presentation in the passed language:
-//     * Key     - String - a property set name. For example, Catalog_Partners_Common.
-//     * Value - String - a set description for the passed language code.
-//  LanguageCode - String - a language code. For example, "en".
+//  Descriptions - Map of KeyAndValue - :
+//     * Key     - String -  name of the property set. For Example, " Directory_Partneriba".
+//     * Value - String -  name of the set for the transmitted language code.
+//  LanguageCode - String -  language code. For example, "en".
 //
 // Example:
-//  Descriptions["Catalog_Partners_Common"] = NStr("en='Common';", LanguageCode);
+//  Names ["Directory_Partneriba"] = NBC("EN='General'; en= 'General';", language Code);
 //
 Procedure OnGetPropertiesSetsDescriptions(Descriptions, LanguageCode) Export
 	
@@ -52,26 +50,26 @@ Procedure OnGetPropertiesSetsDescriptions(Descriptions, LanguageCode) Export
 	
 EndProcedure
 
-// Fills object property sets. Usually required if there is more than one set.
+// Fills in the object's property sets. Usually required if there are more than one sets.
 //
 // Parameters:
-//  Object       - AnyRef      - a reference to an object with properties.
-//               - ClientApplicationForm - a form of the object, to which properties are attached.
-//               - FormDataStructure - details of the object, to which properties are attached.
+//  Object       - AnyRef      -  a reference to an object with properties.
+//               - ClientApplicationForm - 
+//               - FormDataStructure - 
 //
-//  RefType    - Type - a type of the property owner reference.
+//  RefType    - Type -  type of property owner reference.
 //
 //  PropertiesSets - ValueTable:
 //     * Set - CatalogRef.AdditionalAttributesAndInfoSets
-//     * SharedSet - Boolean - True if the property set contains properties
-//                             common for all objects.
-//    // Then, form item properties of the FormGroup type and the usual group kind
-//    // or page that is created if there are more than one set excluding
-//    // a blank set that describes properties of deleted attributes group.
+//     * SharedSet - Boolean - 
+//                             
+//    
+//    
+//    
 //
-//    / If the value is Undefined, use the default value.
+//    
 //
-//    // For any managed form group.
+//    
 //     * Height                   - Number
 //     * Title                - String
 //     * ToolTip                - String
@@ -82,35 +80,35 @@ EndProcedure
 //     * Width                   - Number
 //     * TitleFont           - Font
 //                    
-//    // For usual group and page.
+//    
 //     * Group              - ChildFormItemsGroup
 //
-//    // For usual group.
+//    
 //     * Representation              - UsualGroupRepresentation
 //
-//    // For page.
+//    
 //     * Picture                 - Picture
 //     * ShowTitle      - Boolean
 //
-//  StandardProcessing - Boolean - an initial value is True. Indicates whether to get
-//                         the default set when PropertiesSets.Count() is equal to zero.
+//  StandardProcessing - Boolean -  initial value is True. Specifies whether to get
+//                         the main set when the set of Properties is set.The number() is zero.
 //
-//  AssignmentKey   - Undefined - (initial value) - specifies to calculate
-//                      the assignment key automatically and add PurposeUseKey and WindowOptionsKey to
-//                      form property values
-//                      to save form changes (settings, position, and size)
+//  AssignmentKey   - Undefined -  (initial value) - specifies to calculate
+//                      the destination key automatically and add the
+//                      use key And save key to the form property values,
+//                      So that changes to the form (settings, position, and size)are saved
 //                      separately for different sets.
-//                       For example, for each product kind - its own sets.
+//                      For example, each item type has its own set composition.
 //
-//                   - String - (not more than 32 characters) - use the specified assignment key
-//                      to add it to form property values.
-//                      Blank string - do not change form key properties as
-//                      they are set in the form and already consider differences of sets.
+//                   - String - 
+//                      
+//                      
+//                      
 //
-//                    Addition has format "PropertySetKey<AssignmentKey>"
-//                    to be able to update <AssignmentKey> without re-adding.
-//                    Upon automatic calculation, <AssignmentKey> contains reference ID hash
-//                    of ordered property sets.
+//                    
+//                    
+//                    
+//                    
 //
 Procedure FillObjectPropertiesSets(Val Object, RefType, PropertiesSets, StandardProcessing, AssignmentKey) Export
 	
@@ -118,7 +116,7 @@ Procedure FillObjectPropertiesSets(Val Object, RefType, PropertiesSets, Standard
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
+// See also updating the information base undefined.customizingmachine infillingelements
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -127,7 +125,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemsFilling
+// See also updating the information base undefined.At firstfillingelements
 //
 // Parameters:
 //  LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -140,13 +138,13 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.
+// See also updating the information base undefined.customizingmachine infillingelements
 //
 // Parameters:
-//  Object                  - CatalogObject.PerformerRoles - Object to populate.
-//  Data                  - ValueTableRow - object filling data.
+//  Object                  - CatalogObject.PerformerRoles -  the object to fill in.
+//  Data                  - ValueTableRow -  data for filling in the object.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable -  the data filled in in the procedure for the initial filling of the elements.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

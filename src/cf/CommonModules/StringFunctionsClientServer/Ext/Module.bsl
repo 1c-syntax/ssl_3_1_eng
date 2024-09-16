@@ -1,47 +1,45 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Splits the string into several strings by the specified separator. The separator can be any length.
-// If the separator is a single-character string and the TrimNonprintableChars parameter is not used,
-// we recommend that you use the StrSplit platform function.
+// Splits a string into multiple lines by the specified separator. The separator can have any length.
+// In cases where the delimiter is a single-character string and the shorten printable Characters parameter is not used,
+// we recommend using the split platform function.
 //
 // Parameters:
-//  Value               - String - delimited text.
-//  Separator            - String - a text separator, at least 1 character.
-//  SkipEmptyStrings - Boolean - Indicates whether empty strings must be included in the result.
-//    If this parameter is not set, the function executes in compatibility with its earlier version:
-//     > if space is used as a separator, blank strings are not included in the result, for other separators blank strings
-//       are included in the result;
-//     > if String parameter does not contain significant characters (or it is an empty string) and space is used as a separator,
-//       the function returns an array with a single empty string value (""). - if the String parameter does not contain significant characters (or it is an empty string) and
-//       any character except space is used as a separator, the function returns an empty array.
-//  TrimNonprintableChars - Boolean - a flag that shows whether nonprintable characters in the beginning and in the end of the found substrings are trimmed.
+//  Value               - String -  delimited text.
+//  Separator            - String -  text line separator, at least 1 character.
+//  SkipEmptyStrings - Boolean - 
+//    :
+//     
+//       
+//     
+//       
+//       
+//  TrimNonprintableChars - Boolean -  shorten non-printable characters along the edges of each substring found.
 //
 // Returns:
 //  Array of String
 //
 // Example:
-//  StringFunctionsClientServer.SplitStringIntoSubstringsArray(",one,,two", ",")
-//  - returns an array of 5 items, three of which are empty: "", "one", "", "two", "";
-//  StringFunctionsClientServer.SplitStringIntoSubstringsArray(",one,,two,", ",", True)
-//  - returns an array of two items: "one", "two";
-//  StringFunctionsClientServer.SplitStringIntoSubstringsArray(" one   two  ", " ")
-//  - returns an array of two items: "one", "two";
-//  StringFunctionsClientServer.SplitStringIntoSubstringsArray("")
-//  - Returns an empty array;
-//  StringFunctionsClientServer.SplitStringIntoSubstringsArray("",,False)
-//  - returns an array with one item ""(empty string);
-//  StringFunctionsClientServer.SplitStringIntoSubstringsArray("", " ")
-//  - returns an array with one item "" (empty string).
+//  Strokemymouse.Decompose a string into an array of substrings (", one,, two,", ",")
+//  - returns an array of 5 elements, three of which are empty: "", "one","", " two", "";
+//  Strokemymouse.Decompose stringmassive substrings (", one,, two,",",", True)
+//  - returns an array of two elements: "one", " two";
+//  Strokemymouse.Decompose a string into a substring array ("one two "," ")
+//  - returns an array of two elements: "one", " two";
+//  Strokemymouse.Maslojirpisheprom("")
+//  - returns an empty array;
+//  Strokemymouse.Decompose stringmassive substrings ("",, False)
+//  - returns an array with one element: ""(empty string);
+//  Strokemymouse.Decompose stringmassive substrings ("", " ")
+//  - returns an array with one element: "" (empty string).
 //
 Function SplitStringIntoSubstringsArray(Val Value, Val Separator = ",", Val SkipEmptyStrings = Undefined, 
 	TrimNonprintableChars = False) Export
@@ -60,7 +58,7 @@ Function SplitStringIntoSubstringsArray(Val Value, Val Separator = ",", Val Skip
 	
 	Result = New Array;
 	
-	// For backward compatibility purposes.
+	// For backward compatibility.
 	If SkipEmptyStrings = Undefined Then
 		SkipEmptyStrings = ?(Separator = " ", True, False);
 		If IsBlankString(Value) Then 
@@ -101,13 +99,13 @@ EndFunction
 // Determines whether the character is a separator.
 //
 // Parameters:
-//  CharCode      - Number  - code of the char to check;
-//  WordSeparators - String - string consisting of chars treated as separators. If the parameter is not specified, 
-//                             all characters that are not digits, 
-//                             Latin and Cyrillic letters, and an underscore, are considered as separators.
+//  CharCode      - Number  -  code of the character being checked;
+//  WordSeparators - String -  delimiter characters. If this parameter is omitted, 
+//                             all characters other than numbers, 
+//                             Latin and Cyrillic letters, and underscores are considered delimiters.
 //
 // Returns:
-//  Boolean - True if a character with the CharCode code is a separator.
+//  Boolean - 
 //
 Function IsWordSeparator(CharCode, WordSeparators = Undefined) Export
 	
@@ -117,10 +115,10 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined) Export
 		
 	Ranges = New Array;
 	StringFunctionsClientServerLocalization.OnDefineWordChars(Ranges);
-	Ranges.Add(New Structure("Min,Max", 48, 57)); 	// Digits.
-	Ranges.Add(New Structure("Min,Max", 65, 90)); 	// Uppercase Latin characters.
-	Ranges.Add(New Structure("Min,Max", 97, 122)); 	// Lowercase Latin characters.
-	Ranges.Add(New Structure("Min,Max", 95, 95)); 	// Underline ( _ ) character.
+	Ranges.Add(New Structure("Min,Max", 48, 57)); 	// Digits
+	Ranges.Add(New Structure("Min,Max", 65, 90)); 	// 
+	Ranges.Add(New Structure("Min,Max", 97, 122)); 	// 
+	Ranges.Add(New Structure("Min,Max", 95, 95)); 	// 
 	
 	For Each Span In Ranges Do
 		If CharCode >= Span.Min And CharCode <= Span.Max Then
@@ -132,21 +130,21 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined) Export
 	
 EndFunction
 
-// Splits the string into several strings using a specified separator set.
-// If the WordSeparators parameter is not specified, any of the characters 
-// that are not Latin characters, numeric characters, or the underscore character (_) are considered separators.
+// Splits a string into multiple lines using the specified set of delimiters.
+// If the word Separator parameter is omitted, the word separator is considered to be any of the characters that do 
+// not belong to the Latin, Cyrillic, numeric, or underscore characters.
 //
 // Parameters:
-//  Value        - String - a source string to be split into words.
-//  WordSeparators - String - a list of separator characters. For example, ".,;".
+//  Value        - String -  the original string that needs to be decomposed into words.
+//  WordSeparators - String -  list of delimiter characters. For example, ".,;".
 //
 // Returns:
-//  Array - a words list.
+//  Array - 
 //
 // Example:
-//  StringFunctionsClientServer.SplitStringIntoWordsArray("one-@#two2_!three") will return an array of values: "one",
-//  "two2_", "three"; StringFunctionsClientServer.SplitStringIntoWordsArray("one-@#two2_!three", "#@!_") will return an array of
-//  values: "one-", "two2", "three".
+//  Strokemymouse.Decompose the stringmassivslow ("one - @#dva2_!three") returns an array of values: "one",
+//  "dva2_", "three"; Stringfunctionclientserver.Decompose the stringmassivslow ("one - @#dva2_!three","#@!_") returns an array
+//  of values: "one -", "dva2", "three".
 //
 Function SplitStringIntoWordArray(Val Value, WordSeparators = Undefined) Export
 	
@@ -172,13 +170,13 @@ Function SplitStringIntoWordArray(Val Value, WordSeparators = Undefined) Export
 	
 EndFunction
 
-// Substitutes parameters in a string. The maximum number of parameters is 9.
-// Parameters in the string have the following format: %<parameter number>. The parameter numbering starts from 1.
+// Substitutes parameters in a string. The maximum possible number of parameters is 9.
+// Parameters in the string are set as %<parameter number>. Parameters are numbered starting from one.
 //
 // Parameters:
-//  StringPattern  - String - string pattern with parameters formatted as "%<parameter number>", 
-//                           for example, "%1 went to %2");
-//  Parameter1   - String - parameter value to insert.
+//  StringPattern  - String -  string template with parameters (occurrences of the form " %<parameter number>", 
+//                           for example " %1 went to %2");
+//  Parameter1   - String -  the value of the parameter to be substituted.
 //  Parameter2   - String
 //  Parameter3   - String
 //  Parameter4   - String
@@ -189,11 +187,11 @@ EndFunction
 //  Parameter9   - String
 //
 // Returns:
-//  String   - text string with parameters inserted.
+//  String   - 
 //
 // Example:
-//  StringFunctionsClientServer.SubstituteParametersToString(NStr("en='%1 went to %2'"), "Jane", "the zoo") = "Jane went
-//  to the zoo".
+//  Strokemymouse.Substitute the parameter string(NSTR ("ru=' %1 went to %2'"), "Vasya", " Zoo") = "Vasya went
+//  to the Zoo".
 //
 Function SubstituteParametersToString(Val StringPattern,
 	Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined,
@@ -228,24 +226,24 @@ Function SubstituteParametersToString(Val StringPattern,
 	
 EndFunction
 
-// Substitutes parameters in a string. The number of the parameters in the string is unlimited.
-// Parameters in the string have the following format: %<parameter number>. The parameter numbering
-// starts from 1.
+// Substitutes parameters in a string. The number of parameters per line is unlimited.
+// Parameters in the string are set as %<parameter number>. Parameters are numbered
+// starting from one.
 //
 // Parameters:
-//  StringPattern  - String - string pattern with parameters formatted as "%<parameter number>", 
-//                           for example, "%1 went to %2");
-//  Parameters     - Array - parameters values in the StringPattern string.
+//  StringPattern  - String -  string template with parameters (occurrences of the form " %<parameter number>", 
+//                           for example " %1 went to %2");
+//  Parameters     - Array -  parameter values in the template string.
 //
 // Returns:
-//   String - a string with inserted values of parameters.
+//   String - 
 //
 // Example:
-//  ParametersValues = New Array;
-//  ParametersValues.Add("John");
-//  ParametersValues.Add("Zoo");
-//  Result = StringFunctionsClientServer.SubstituteParametersToStringFromArray(NStr("en='%1 went to %2'"), ParametersValues);
-//  - returns the "John went to the Zoo" string.
+//  Parameter Values = New Array;
+//  Parameter values.Add ("Vasya");
+//  Parameter values.Add ("Zoo");
+//  The Result = Strokemymouse.Substitute the parameter string of the array (NSTR ("ru=' %1 went to %2'"), parameter Values);
+//  - returns the string "Vasya went to the Zoo".
 //
 Function SubstituteParametersToStringFromArray(Val StringPattern, Val Parameters) Export
 	
@@ -264,21 +262,21 @@ Function SubstituteParametersToStringFromArray(Val StringPattern, Val Parameters
 	
 EndFunction
 
-// Substitutes parameter values for their names in the string pattern. Parameters in the string are enclosed in square
-// brackets.
+// Replaces parameter names with their values in the string template. Parameters in the string are marked with square
+// brackets on both sides.
 //
 // Parameters:
-//  StringPattern - String    - a string to insert values into.
-//  Parameters    - Structure - Inserted values of parameters, where the key is the name of the parameter without special characters,
-//                             the value is the inserted value.
+//  StringPattern - String    -  the string to insert values in.
+//  Parameters    - Structure -  substituted parameter values, where the key is the parameter name without special characters,
+//                             and the value is the inserted value.
 //
 // Returns:
-//  String - a string with inserted values.
+//  String - 
 //
 // Example:
-//  Values = New Structure("LastName,Name", "Smith", "John");
-//  Result = StringFunctionsClientServer.InsertParametersIntoString("Hello, [Name] [LastName].", Values);
-//  - Returns: "Hello, John Smith".
+//  Values = New Structure ("Last Name, First Name", "Pupkin", " Vasya");
+//  The Result = Strokemymouse.Insert The Parameter String ("Hello, [First Name] [Last Name].", Values);
+//  - returns: "Hello, Vasya Pupkin".
 //
 Function InsertParametersIntoString(Val StringPattern, Val Parameters) Export
 	Result = StringPattern;
@@ -288,28 +286,28 @@ Function InsertParametersIntoString(Val StringPattern, Val Parameters) Export
 	Return Result;
 EndFunction
 
-// Gets parameter values from the string.
+// Retrieves parameter values from a string.
 //
 // Parameters:
-//  ParametersString1 - String - String containing parameters. Each of the parameters is a key-value pair:
-//                              <Parameter name>=<Value>:
-//                                Substrings are separated from each other by the semicolon ( ; ). 
-//                                Values with whitespaces must be enclosed in double quotation marks ( " ). 
-//                              For example:
-//                              "File=""c:\InfoBases\Trade""; Usr=""Director"";"
+//  ParametersString1 - String - 
+//                              :
+//                                 
+//                                 
+//                              
+//                              
 //                              
 //                              
 //                               
-//  Separator - String - Separation character.
+//  Separator - String -  the symbol that separates the fragments from each other.
 //
 // Returns:
-//  Structure - parameters values, where the key is the name of the parameter, the value is the parameter value.
+//  Structure - 
 //
 // Example:
-//  Result = StringFunctionsClientServer.ParametersFromString("File=""c:\InfoBases\Trade""; Usr=""Director"";""", ";");
+//  The Result = Strokemymouse.String parameters ("File=""c:\InfoBases\Trade""; Usr= "" Director"";""", ";");
 //  - returns the structure:
-//     the File key and the c:\InfoBases\Trade"
-//     the Usr key and the Director value.
+//     the key "File" and the value "c:\InfoBases\Trade"
+//     the key is " Usr "and the value is "Director".
 //
 Function ParametersFromString(Val ParametersString1, Val Separator = ";") Export
 	Result = New Structure;
@@ -340,20 +338,20 @@ Function ParametersFromString(Val ParametersString1, Val Separator = ";") Export
 	Return Result;
 EndFunction
 
-// Checks whether the string contains numeric characters only.
+// Checks whether the string contains only numbers.
 //
 // Parameters:
-//  Value         - String - a string to check.
-//  Obsolete1       - Boolean - an obsolete parameter, not used.
-//  SpacesProhibited - Boolean - If False spaces are allowed in the string.
+//  Value         - String -  the string to check.
+//  Obsolete1       - Boolean -  deprecated parameter, not used.
+//  SpacesProhibited - Boolean -  if False, spaces are allowed in the string.
 //
 // Returns:
-//   Boolean - True - the string contains only numbers or is empty, False - the string contains other characters.
+//   Boolean - 
 //
 // Example:
-//  Result = StringFunctionsClientServer.OnlyDigitsInString("0123"); // True
-//  Result = StringFunctionsClientServer.OnlyDigitsInString("0123abc"); // False
-//  Result = StringFunctionsClientServer.OnlyDigitsInString("01 2 3",, False); // True
+//  The Result = Strokemymouse.Tolkotsifryvstroke ("0123"); / / True
+//  The Result = Strokemymouse.Only the digit string ("0123abc"); / / False
+//  The Result = Strokemymouse.Tolkotsifryvstroke ("01 2 3",, False); / / True
 //
 Function OnlyNumbersInString(Val Value, Val Obsolete1 = True, Val SpacesProhibited = True) Export
 	
@@ -369,8 +367,8 @@ Function OnlyNumbersInString(Val Value, Val Obsolete1 = True, Val SpacesProhibit
 		Return True;
 	EndIf;
 	
-	// If it contains only digits, its replacement will result in an empty string.
-	// However, it cannot be validated using "IsBlankString" since the source string may contain whitespaces.
+	// 
+	// 
 	Return StrLen(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace( 
@@ -378,16 +376,16 @@ Function OnlyNumbersInString(Val Value, Val Obsolete1 = True, Val SpacesProhibit
 	
 EndFunction
 
-// Checks whether the string contains Latin characters only.
+// Checks whether the string contains only Latin characters.
 //
 // Parameters:
-//  CheckString - String - a string to check.
-//  WithWordSeparators - Boolean - If True, treat word separators as legit characters.
-//  AllowedChars - String - additional allowed characters except Latin.
+//  CheckString - String -  the string to check.
+//  WithWordSeparators - Boolean -  whether to consider word separators or they are an exception.
+//  AllowedChars - String -  additional allowed characters other than the Latin alphabet.
 //
 // Returns:
-//  Boolean - True if the string contains Latin or allowed chars only;
-//           False otherwise.
+//  Boolean - 
+//           
 //
 Function OnlyRomanInString(Val CheckString, Val WithWordSeparators = True, AllowedChars = "") Export
 	
@@ -418,18 +416,18 @@ Function OnlyRomanInString(Val CheckString, Val WithWordSeparators = True, Allow
 	
 EndFunction
 
-// Validates strings by finding invalid characters.
+// 
 //
 // Parameters:
-//  RowToValidate - String - String to validate.
-//  AdditionalValidChars - Undefined, String - Additional valid characters.
-//                                                           If left blank, only non-printing characters are valid:
-//  	whitespace, non-breaking space, tab, line feed, and form feed. 
+//  RowToValidate - String -  the string to check.
+//  AdditionalValidChars - Undefined, String - 
+//                                                           
+//  	 
 //  	
 //
 // Returns:
-//  Boolean - "True" if the string contains only the valid characters.
-//           Otherwise, "False".
+//  Boolean - 
+//           
 //
 Function IsStringContainsOnlyNationalAlphabetChars(Val RowToValidate, Val AdditionalValidChars = Undefined) Export
 	
@@ -444,13 +442,13 @@ Function IsStringContainsOnlyNationalAlphabetChars(Val RowToValidate, Val Additi
 	
 EndFunction
 
-// Deletes double quotation marks from the beginning and the end of the string, if any.
+// Removes double quotes from the beginning and end of the string, if any.
 //
 // Parameters:
-//  Value - String - a source string.
+//  Value - String -  input string.
 //
 // Returns:
-//  String - a string without double quotation marks.
+//  String - 
 // 
 Function RemoveDoubleQuotationMarks(Val Value) Export
 	
@@ -466,11 +464,11 @@ Function RemoveDoubleQuotationMarks(Val Value) Export
 	
 EndFunction 
 
-// Deletes the specified number of characters from the end of the string.
+// Deletes the specified number of characters from the string to the right.
 //
 // Parameters:
-//  Text         - String - a string where last characters need to be deleted;
-//  CountOfCharacters - Number  - a number of characters to be deleted.
+//  Text         - String -  string to delete the last characters in;
+//  CountOfCharacters - Number  -  the number of characters to delete.
 //
 Procedure DeleteLastCharInString(Text, CountOfCharacters = 1) Export
 	
@@ -478,15 +476,15 @@ Procedure DeleteLastCharInString(Text, CountOfCharacters = 1) Export
 	
 EndProcedure 
 
-// Checks whether a string is a UUID.
-// UUID is a string of the following kind
-// "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", where X = [0..9,a..f].
+// Checks whether the string is a unique identifier.
+// The unique identifier is assumed to be a string of the form
+// "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXX", where X = [0..9, a..f].
 //
 // Parameters:
-//  Value - String - a string to check.
+//  Value - String -  the string to check.
 //
 // Returns:
-//  Boolean - True if the passed string is a UUID.
+//  Boolean - 
 //
 Function IsUUID(Val Value) Export
 	
@@ -509,11 +507,11 @@ Function IsUUID(Val Value) Export
 
 EndFunction
 
-// Generates a string of the specified length filled with the specified character.
+// Generates a string of repeated characters of the specified length.
 //
 // Parameters:
-//  Char      - String - a character used to generated a string.
-//  StringLength - Number  - required length of a resulting row. 
+//  Char      - String -  the character that the string will be formed from.
+//  StringLength - Number  -  required length of the resulting string. 
 //
 // Returns:
 //  String
@@ -527,34 +525,34 @@ Function GenerateCharacterString(Val Char, Val StringLength) Export
 	
 EndFunction
 
-// Adds trailing or leading characters to a string if it is less than the given length.
-// Prior to that, the function removes insignificant leading and trailing characters 
-// (for more details, see the 1C:Enterprise method TrimAll in Syntax Assistant). 
-// By default, the function adds leading zeros.
+// 
+//  
+//  
+// 
 //
 // Parameters:
-//  Value    - String - a source string to be supplemented with characters;
-//  StringLength - Number  - required resulting length of a row;
-//  Char      - String - a character used for supplementing the string;
-//  Mode       - String - "Left" or "Right" - an option to add characters to the source string.
+//  Value    - String -  the original string that needs to be supplemented by symbols;
+//  StringLength - Number  -  required the resulting length of the string;
+//  Char      - String -  the character which you want to format the string;
+//  Mode       - String -  "Left" or" Right " - option for adding characters to the source string.
 // 
 // Returns:
-//  String - a string supplemented with characters.
+//  String - 
 //
 // Example:
-//  1. Result = StringFunctionsClientServer.SupplementString("1234", 10, "0", "Left");
+//  1. The Result = Strokemymouse.Add A Line("1234", 10, "0", "Left");
 //  Returns: "0000001234".
 //
-//  2. Result = StringFunctionsClientServer.SupplementString(" 1234  ", 10, "#", "Right");
-//  String = " 1234  "; StringLength = 10; Char = "#"; Mode = "Right"
+//  2. The Result = Strokemymouse.Add A Line(" 1234 ", 10, "#", "Right");
+//  String = " 1234 "; String Length = 10; Character ="#"; Mode = " Right"
 //  Returns: "1234######".
 //
 Function SupplementString(Val Value, Val StringLength, Val Char = "0", Val Mode = "Left") Export
 	
-	// The parameter must be a single character.
+	// 
 	Char = Left(Char, 1);
 	
-	// Deleting spaces on the left and on the right of the string.
+	// 
 	Value = TrimAll(Value);
 	CharsToAddCount = StringLength - StrLen(Value);
 	
@@ -573,15 +571,15 @@ Function SupplementString(Val Value, Val StringLength, Val Char = "0", Val Mode 
 	
 EndFunction
 
-// Deletes repeating characters on the left or on the right of the string.
+// Deletes the last duplicate characters on the left or right side of the string.
 //
 // Parameters:
-//  Value        - String - a source string where repeating characters on the left or on the right should be deleted;
-//  CharToDelete - String - a required character to be deleted;
-//  Mode           - String - "Left" or "Right" - a mode of character deletion in the source string.
+//  Value        - String -  source string from which you want to remove extreme duplicate characters;
+//  CharToDelete - String -  the desired symbol to delete;
+//  Mode           - String -  "Left" or" Right " - mode for deleting characters in the source string.
 //
 // Returns:
-//  String - a cut string.
+//  String - 
 //
 Function DeleteDuplicateChars(Val Value, Val CharToDelete, Val Mode = "Left") Export
 	
@@ -599,17 +597,17 @@ Function DeleteDuplicateChars(Val Value, Val CharToDelete, Val Mode = "Left") Ex
 	
 EndFunction
 
-// Replaces characters in the string.
-// The function is designed for simple replacement scenarios, for example, for replacing the Ä character with the A character.
+// Replaces characters in a string.
+// It is intended for simple cases - for example, to replace the Latin alphabet with similar Cyrillic characters.
 //
 // Parameters:
-//  CharsToReplace - String - a string of characters to be replaced;
-//  Value          - String - a source string in which character replacement is required;
-//  ReplacementChars     - String - a string of characters to be replaced by the characters of the
-//                               CharsToReplace.
+//  CharsToReplace - String -  a string of characters, each of which requires replacement;
+//  Value          - String -  source string to replace characters in;
+//  ReplacementChars     - String -  a string of characters to replace the parameter characters with each of them
+//                               Substitutable characters.
 // 
 // Returns:
-//  String - a string after characters replacement.
+//  String - 
 //
 Function ReplaceCharsWithOther(CharsToReplace, Value, ReplacementChars) Export
 	
@@ -623,17 +621,17 @@ Function ReplaceCharsWithOther(CharsToReplace, Value, ReplacementChars) Export
 	
 EndFunction
 
-// Converts the Arabic number into a Roman one.
+// Converts an Arabic number to a Roman number.
 //
 // Parameters:
-//  ArabicNumber - Number - a number, integer from 0 to 999;
-//  UseLatinChars - Boolean - use Cyrillic or Latin alphabet as a Roman digits.
+//  ArabicNumber - Number -  number, integer, from 0 to 999;
+//  UseLatinChars - Boolean -  use Cyrillic or Latin letters as Arabic numerals.
 //
 // Returns:
-//  String - a number in Latin notation.
+//  String - 
 //
 // Example:
-//  StringFunctionsClientServer.ConvertNumberIntoRomanNotation("XVII") = 17.
+//  
 //
 Function ConvertNumberIntoRomanNotation(ArabicNumber, UseLatinChars = True) Export
 	
@@ -660,17 +658,17 @@ Function ConvertNumberIntoRomanNotation(ArabicNumber, UseLatinChars = True) Expo
 	
 EndFunction 
 
-// Converts the Roman number into an Arabic one.
+// Converts a Roman number to an Arabic number.
 //
 // Parameters:
-//  RomanNumber - String - a number written in roman numerals;
-//  UseLatinChars - Boolean - use Cyrillic or Latin alphabet as a Roman digits.
+//  RomanNumber - String -  a number written in Roman numerals;
+//  UseLatinChars - Boolean -  use Cyrillic or Latin letters as Arabic numerals.
 //
 // Returns:
-//  Number - Converted number.
+//  Number - 
 //
 // Example:
-//  StringFunctionsClientServer.ConvertNumberIntoArabicNotation("XVII") = 17.
+//  
 //
 Function ConvertNumberIntoArabicNotation(RomanNumber, UseLatinChars = True) Export
 	
@@ -719,20 +717,20 @@ Function ConvertNumberIntoArabicNotation(RomanNumber, UseLatinChars = True) Expo
 	
 EndFunction 
 
-// Deletes HTML tags from the text and returns an unformatted text. 
+// Clears the text in HTML tags, and returns the unformatted text. 
 //
 // Parameters:
-//  SourceText - String - Text in the HTML format.
+//  SourceText - String -  text in HTML format.
 //
 // Returns:
-//  String - Text with removed tags, scripts, and headers.
+//  String - 
 //
 Function ExtractTextFromHTML(Val SourceText) Export
 	Result = "";
 	
 	Text = Lower(SourceText);
 	
-	// Remove everything but the body.
+	// 
 	Position = StrFind(Text, "<body");
 	If Position > 0 Then
 		Text = Mid(Text, Position + 5);
@@ -750,12 +748,12 @@ Function ExtractTextFromHTML(Val SourceText) Export
 		SourceText = Left(SourceText, Position - 1);
 	EndIf;
 	
-	// Remove scripts.
+	// 
 	Position = StrFind(Text, "<script");
 	While Position > 0 Do
 		ClosingTagPosition = StrFind(Text, "</script>");
 		If ClosingTagPosition = 0 Then
-			// The closing tag is not found, cut out the remaining text.
+			// 
 			ClosingTagPosition = StrLen(Text);
 		EndIf;
 		Text = Left(Text, Position - 1) + Mid(Text, ClosingTagPosition + 9);
@@ -763,12 +761,12 @@ Function ExtractTextFromHTML(Val SourceText) Export
 		Position = StrFind(Text, "<script");
 	EndDo;
 	
-	// Remove styles.
+	// 
 	Position = StrFind(Text, "<style");
 	While Position > 0 Do
 		ClosingTagPosition = StrFind(Text, "</style>");
 		If ClosingTagPosition = 0 Then
-			// The closing tag is not found, cut out the remaining text.
+			// 
 			ClosingTagPosition = StrLen(Text);
 		EndIf;
 		Text = Left(Text, Position - 1) + Mid(Text, ClosingTagPosition + 8);
@@ -776,7 +774,7 @@ Function ExtractTextFromHTML(Val SourceText) Export
 		Position = StrFind(Text, "<style");
 	EndDo;
 	
-	// Remove tags.	
+	// 	
 	Position = StrFind(Text, "<");
 	While Position > 0 Do
 		Result = Result + Left(SourceText, Position-1);
@@ -794,18 +792,18 @@ Function ExtractTextFromHTML(Val SourceText) Export
 	Return TrimAll(StrConcat(RowsArray, Chars.LF));
 EndFunction
 
-// Converts the source string into a number without calling exceptions.
+// Converts the source string to a number without calling exceptions.
 //
 // Parameters:
-//   Value - String - a string to be transformed into a number.
-//                       For example, "10", "+10", "010", will return 10;
-//                                 "(10)", "-10", will return -10;
-//                                 "10,2", "10.2", will return 10.2;
-//                                 "000", " ", "",will return 0;
-//                                 "10text", will return Undefined.
+//   Value - String -  string to be converted to a number.
+//                       For example, "10", "+10", "010", return 10;
+//                                 "(10)", "-10",return -10;
+//                                 "A 10.2", "10.2",10.2 will return;
+//                                 "000", " ", "",return 0;
+//                                 "10текст", return Undefined.
 //
 // Returns:
-//   Number, Undefined - received number or Undefined if the string is not a number.
+//   Number, Undefined - 
 //
 Function StringToNumber(Val Value) Export
 	
@@ -827,14 +825,14 @@ Function StringToNumber(Val Value) Export
 	
 EndFunction
 
-// Converts a source string into a date. 
-// If the date can not be recognized, a blank date is returned (01.01.01 00:00:00).
+// Converts the source string to a date. 
+// If the date could not be recognized, an empty date is returned (01.01.01 00:00: 00).
 //
 // Parameters:
-//  Value - String - a string to be transformed into a date.
-//                      Date format must look like DD.MM.YYYY, DD/MM/YY, or DD-MM-YY HH:MM:SS,
-//                      For example, "23.02.1980" or "23/02/80 09:15:45".
-//  DatePart - DateFractions - determines the allowed date parts. The default value is DateParts.Date.
+//  Value - String -  string to be converted to a date.
+//                      The date format should be "DD. MM. YYYY" or "DD/MM/YY" or " DD-MM-YY HH: MM:CC",
+//                      For example, "23.02.1980" or "23/02/80 09: 15: 45".
+//  DatePart - DateFractions -  defines valid parts of the date. By default, Castigate.Date.
 // 
 // Returns:
 //  Date
@@ -1034,50 +1032,50 @@ Function StringToDate(Val Value, DatePart = Undefined) Export
 	
 EndFunction
 
-// Generates the presentation of a number for a certain language and number parameters.
-//  Parameter presentation:
+// Generates a representation of a number for a specific language and number parameters.
+//  Performance parameters:
 //  ┌──────┬──────┬─────────────────┬────────────────┬───────────────────┬───────────────────────┬────────────────┐
 //  │ Lang │ Zero │ One             │ Two            │ Few               │ Many                  │ Other          │
 //  ├──────┼──────┼─────────────────┼────────────────┼───────────────────┼───────────────────────┼────────────────┤
-//  │ ru   │      │ XX1 / X11       │                │ XX2─XX4 / X12─X14 │ XX0, XX5─XX9, X11─X14 │ fractional        │
-//  │ Card.│      │ %1 day left │                │ %1 days left   │ %1 days left      │ %1 days left│
-//  │      │      │ see %1 fish    │                │ see %1 fish     │ see %5 fish           │ see %1 fish  │
+//  │ EN │ │ XX1 / X11 │ │ XX2─XX4 / X12─X14 │ XX0, XX5─XX9, X11─X14 │ decimal │
+//  │ Card.│ │ %1 left the day │ │ %1 left day │ %1 left days │ left %1 day│
+//  │ │ │ see %1 fish │ │ see %1─x fish │ see %5 fish │ see %1 fish │
 //  ├──────┼──────┼─────────────────┼────────────────┼───────────────────┼───────────────────────┼────────────────┤
-//  │ ru   │      │                 │                │                   │                       │ no others     │
-//  │ Ord. │      │                 │                │                   │                       │ %1th day      │
+//  │ EN │ │ │ │ │ │ other no │
+//  │ Ord. │ │ │ │ │ │ % 1st day │
 //  ├──────┼──────┼─────────────────┼────────────────┼───────────────────┼───────────────────────┼────────────────┤
-//  │ en   │      │ for 1           │                │                   │                       │ the rest      │
+//  │ en │ │ 1 │ │ │ │ else │
 //  │ Card.│      │ left %1 day     │                │                   │                       │ left %1 days   │
 //  ├──────┼──────┼─────────────────┼────────────────┼───────────────────┼───────────────────────┼────────────────┤
-//  │ en   │      │ XX1 / X11       │ XX2 / X12      │ XX3 / X13         │                       │ the rest      │
+//  │ en │ │ XX1 / X11 │ XX2 / X12 │ XX3 / X13 │ │ else │
 //  │ Ord. │      │ %1st day        │ %1nd day       │ %1rd day          │                       │ %1th day.      │
 //  └──────┴──────┴─────────────────┴────────────────┴───────────────────┴───────────────────────┴────────────────┘
 //  ┌──────┬───────────────────────────┐
-//  │Card. │ Cardinal ─ cardinal;│
-//  │ Ord. │ Ordinal  - ordinal;    │
+//  │Card.  Card Cardinal - Quantitative;│
+//  │ Ord.  Or Ordinal - Ordinal. │
 //  ├──────┼───────────────────────────┤
-//  │   X  │ any number;              │
-//  │   /  │ except for.                    │
+//  │ X │ any digit; │
+//  │ / │ except.                    │
 //  └──────┴───────────────────────────┘
 //
 // Parameters:
-//  Template          - String - contains semicolon-separated 6 string forms
-//                             for each numeral category: 
-//                             %1 denotes the number position;
-//  Number           - Number - a number to be inserted instead of the "%1" parameter.
-//  Kind             - NumericValueType - defines a kind of the numeric value for which a presentation is formed. 
-//                                           Cardinal (default) or Ordinal.
-//  FormatString - String - a string of formatting parameters. See similar example for StringWithNumber. 
+//  Template          - String - 
+//                             : 
+//                             
+//  Number           - Number -  the number that will be inserted in the string instead of the "%1 " parameter.
+//  Kind             - NumericValueType -  defines the type of numeric value for which the representation is formed. 
+//                                           Quantitative (by default) or Ordinal.
+//  FormatString - String -  a string of formatting parameters. See the similar parameter in the string number. 
 //
 // Returns:
-//  String - presentation of the number string in the requested format.
+//  String - 
 //
 // Example:
 //
-//  String = StringFunctionsClientServer.StringWithNumberForAnyLanguage(
-//		NStr("ru=';%1 day left;;%1 days left;%1 days left;1 days left';
-//		     |en=';%1 day left;;;;%1 days left'"), 
-//		0.05,,"NFD=1);
+//  
+//		
+//		      
+//		
 // 
 Function StringWithNumberForAnyLanguage(Template, Number, Kind = Undefined, FormatString = "NZ=0;") Export
 	
@@ -1095,20 +1093,20 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Instead, use See StringFunctions.FormattedString
-// or See StringFunctionsClient.FormattedString.
+// Deprecated. See StringFunctions.FormattedString
+//  See StringFunctionsClient.FormattedString.
 //
-// Generates a string according to the specified pattern.
-// The possible tag values in the template:
-// - String - Applies the bold formatting.
-// - String - Adds a hyperlink.
-// For example, "Lowest supported version is <b>1.1</b>. <a href = "Update">Update</a> the app."
+// 
+// 
+// 
+// 
+// 
 //
 // Parameters:
-//  StringWithTags - String - a string containing formatting tags.
+//  StringWithTags - String -  a string containing formatting tags.
 //
 // Returns:
-//  FormattedString - a converted string.
+//  FormattedString - 
 //
 Function FormattedString(Val StringWithTags) Export
 	
@@ -1170,7 +1168,7 @@ Function FormattedString(Val StringWithTags) Export
 	For Each RowPart In StringsWithLinks Do
 		
 		If RowPart.Check Then
-			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // ACC:1345 - Obsolete code.
+			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // 
 		ElsIf Not IsBlankString(RowPart.Presentation) Then
 			RowArray.Add(New FormattedString(RowPart.Value,,,, RowPart.Presentation));
 		Else
@@ -1179,33 +1177,33 @@ Function FormattedString(Val StringWithTags) Export
 		
 	EndDo;
 	
-	Return New FormattedString(RowArray);	// ACC:1356 - A compound format string can be used as the string array consists of the passed text.
+	Return New FormattedString(RowArray);	// 
 														// 
 	
 EndFunction
 
-// Deprecated. Instead, use See StringFunctionsClientServer.StringWithNumberForAnyLanguage.
+// Deprecated. See StringFunctionsClientServer.StringWithNumberForAnyLanguage.
 //
-// NumberInDigitsUnitOfMeasurementInWords(1.5, "minute,minutes,minutes");
-// ->StringWithNumberForAnyLanguage(";%1 minute;;%1 minutes;%1 minutes;%1 minutes ", Value);
+// 
+// 
 //
-// NumberInDigitsUnitOfMeasurementInWords(1.5, "minute,minutes,minutes ", False);
-// ->StringWithNumberForAnyLanguage(";minute;;minutes;minutes;minutes", Value);
+// 
+// 
 //
-// Returns a text presentation of the number with a unit of measurement in the correct form (singular or plural).
+// 
 //
 // Parameters:
-//  Value                    - Number  - any integer number.
-//  NumerationItemOptions - String - variants of writing units of measure for one,
-//                                         for two and for five units, the separator is a comma.
-//  AddNumberToResult   - Boolean - when passing False the number will not be added to string.
+//  Value                    - Number  -  any integer.
+//  NumerationItemOptions - String -  spellings of the unit of measurement for one,
+//                                         two, and five units, separated by a comma.
+//  AddNumberToResult   - Boolean -  if the value is False, the number will not be added to the string.
 //
 // Returns:
-//  String - text presentation of unit count, the number is written in numbers.
+//  String - 
 //
 // Example:
-//  NumberInDigitsUnitOfMeasurementInWords(23,  "minute,minutes,minutes") = "23 minutes";
-//  NumberInDigitsUnitOfMeasurementInWords(15,  "minute,minutes,minutes") = "15 minutes".
+//  Numberdeframesubject numberdescription (23, " minute, minutes, minutes") = "23 minutes";
+//  Numberdeframesubject numberdescription (15, " minute, minutes, minutes") = "15 minutes".
 //
 Function NumberInDigitsUnitOfMeasurementInWords(Val Value, Val NumerationItemOptions,
 	Val AddNumberToResult = True) Export
@@ -1230,43 +1228,43 @@ Function NumberInDigitsUnitOfMeasurementInWords(Val Value, Val NumerationItemOpt
 	
 EndFunction
 
-// Deprecated. Instead, use See StringFunctionsClientServer.StringWithNumberForAnyLanguage.
+// Deprecated. See StringFunctionsClientServer.StringWithNumberForAnyLanguage.
 //
-// PluralForm("minute", "minutes", "minutes", 1.5);
-// -> StringWithNumberForAnyLanguage(";minute;;minutes;minutes;minutes", Value);
+// 
+// 
 //
-// Returns the correct declension of the unit considering the preceding number.
+// 
 //
 // Parameters: 
-//  FormFor1 - String - word form for one unit;
-//  FormFor2 - String - word form for two units;
-//  FormFor5 - String - word form for five units;
-//  Value  - Number  - any integer number.
+//  FormFor1 - String -  word form for one unit;
+//  FormFor2 - String -  word form for two units;
+//  FormFor5 - String -  form of the word for five units;
+//  Value  - Number  -  any integer.
 //
 // Returns:
-//  String - unit of measure in the right form.
+//  String - 
 //
 // Example:
-//  StringFunctionsClientServer.PluralForm("cupboard", "cupboard", "cupboards", 3); returns "cupboard".
+//  Strokemymouse.Forms of a set of numbers ("Cabinet", "Cabinet"," cabinets", 3); returns "Cabinet".
 //
 Function InPlural(FormFor1, FormFor2, FormFor5, Val Value) Export
 	Return NumberInDigitsUnitOfMeasurementInWords(Value, FormFor1 + "," + FormFor2 + "," + FormFor5, False);
 EndFunction
 
 
-// Deprecated. Instead, use See StringFunctions.LatinString
-// or See StringFunctionsClient.LatinString.
+// Deprecated. See StringFunctions.LatinString
+//  See StringFunctionsClient.LatinString.
 // 
-// Transliterates the passed string into Latin.
-// Intended for sending the transliterated string as a text message or
-// for naming files and directories for compatibility in different operating systems.
-// Backward transliteration (from Latin letters) is not supported.
+// 
+// 
+// 
+// 
 //
 // Parameters:
-//  Value - String - arbitrary string.
+//  Value - String -  arbitrary string.
 //
 // Returns:
-//  String - a string where Cyrillic is replaced by transliteration.
+//  String - 
 //
 Function LatinString(Val Value) Export
 	
@@ -1279,15 +1277,15 @@ Function LatinString(Val Value) Export
 	
 	For Position = 1 To StrLen(Value) Do
 		Char = Mid(Value, Position, 1);
-		LatinChar = Map[Lower(Char)]; // Search the map regardless the register.
+		LatinChar = Map[Lower(Char)]; // 
 		If LatinChar = Undefined Then
-			// Keep the other characters as is.
+			// 
 			LatinChar = Char;
 		Else
 			If OnlyUppercaseInString Then 
-				LatinChar = Upper(LatinChar); // Restore the register
+				LatinChar = Upper(LatinChar); // 
 			ElsIf Char = Upper(Char) Then
-				LatinChar = Title(LatinChar); // Restore the register
+				LatinChar = Title(LatinChar); // 
 			EndIf;
 		EndIf;
 		Result = Result + LatinChar;
@@ -1386,7 +1384,7 @@ Function GenerateFormattedString(StringPattern, StyleItems,
 					ElsIf StrCompare(AttributeName, "href") = 0 And StrCompare(NameTag, "a") = 0 Then
 						CurrentRef = AttributeValue;
 					ElsIf StrCompare(AttributeName, "src") = 0 And StrCompare(NameTag, "img") = 0 Then
-						RowsSet.Add(FormattedStringNoChangeOfFontSize(New FormattedString(PictureLib[AttributeValue], CurrentFont, CurrentColor, CurrentBackground, CurrentRef)));
+						RowsSet.Add(New FormattedString(PictureLib[AttributeValue], CurrentFont, CurrentColor, CurrentBackground, CurrentRef));
 					EndIf;
 					
 					AttributesDetails = Mid(AttributesDetails, PositionSecondQuote + 1);
@@ -1412,14 +1410,14 @@ Function GenerateFormattedString(StringPattern, StyleItems,
 		
 		StringBody = StrReplace(StringBody, "&lt;", "<");
 		If StrLen(StringBody) > 0 Then
-			RowsSet.Add(FormattedStringNoChangeOfFontSize(New FormattedString(StringBody, CurrentFont, CurrentColor, CurrentBackground, CurrentRef)));
+			RowsSet.Add(New FormattedString(StringBody, CurrentFont, CurrentColor, CurrentBackground, CurrentRef));
 		EndIf; 
 		
 		FragmentFirstChar = "<" ;
 		
 	EndDo;
 	
-	Return New FormattedString(RowsSet);	// ACC:1356 - A compound format string can be used as the string array consists of the passed text.
+	Return New FormattedString(RowsSet);	// 
 														// 
 
 EndFunction
@@ -1446,29 +1444,21 @@ Procedure SetStylesByAttributeValue(Val StyleDetails, StyleItems, CurrentBackgro
 	
 EndProcedure
 
-Function FormattedStringNoChangeOfFontSize(String)
-	FormattedDocument = New FormattedDocument;
-	FormattedDocument.SetFormattedString(String);
-	Return FormattedDocument.GetFormattedString();
-EndFunction
-
 #EndRegion
 
 #Region ConvertNumberIntoRomanNotation
 
-// Converts the Arabic numerals into Roman numerals. 
+// Converts a digit to Roman notation. 
 //
 // Parameters:
-//  Figure - Number - RomanOne, RomanFive, RomanTen - String - Symbols of Roman numerals.
-//                  Returns:
-//                  String - Digit in Roman numerical notation.
-//  RomanOne, RomanFive, RomanTen - String - Symbols of Roman numerals.
+//  Figure - Number -  a number from 0 to 9.
+//  
 //
-// Returns:
-//  String - Digit in Roman numerical notation.
+// 
+//  
 //
 // Example: 
-//	StringFunctionsClientServer.ConvertDigitIntoRomanNotation(7,"I","V","X") = "VII".
+//	Strokemymouse.Convert The Digital Notation(7,"I", "V", " X") = "VII".
 //
 Function ConvertFigureIntoRomanNotation(Figure, RomanOne, RomanFive, RomanTen)
 	
@@ -1500,7 +1490,7 @@ EndFunction
 
 #Region SubstituteParametersToString
 
-// Substitutes parameters in the string for %1, %2, and so on.
+// Inserts parameters into a string, considering that the parameters can use the wildcard words %1, %2, and so on.
 Function SubstituteParametersWithPercentageChar(Val SubstitutionString,
 	Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined,
 	Val Parameter4 = Undefined, Val Parameter5 = Undefined, Val Parameter6 = Undefined,

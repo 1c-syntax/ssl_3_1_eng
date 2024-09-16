@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -154,7 +152,7 @@ EndFunction
 //   * RoleIDs - FixedMap of KeyAndValue:
 //       ** Key - CatalogRef.MetadataObjectIDs
 //               - CatalogRef.ExtensionObjectIDs
-//       ** Value - Boolean - True.
+//       ** Value - Boolean - True
 //
 Function SessionRoleIds() Export
 	
@@ -223,7 +221,7 @@ EndFunction
 // Returns:
 //  FixedMap of KeyAndValue:
 //    * Key - Type
-//    * Value - Boolean - True.
+//    * Value - Boolean - True
 //
 Function TableFieldTypes(FullFieldName1) Export
 	
@@ -243,11 +241,11 @@ Function TableFieldTypes(FullFieldName1) Export
 	
 EndFunction
 
-// Returns types of objects and references used in the specified event subscriptions.
+// Returns the types of objects and links in the specified event subscriptions.
 // 
 // Parameters:
-//  SubscriptionsNames - String - a multiline string
-//                  containing rows of the subscription name beginning.
+//  SubscriptionsNames - String -  a multi
+//                  -line string containing the beginning lines of the subscription name.
 //
 // Returns:
 //  FixedMap of KeyAndValue:
@@ -298,7 +296,7 @@ EndFunction
 // For internal use only.
 //
 // Returns:
-//   ValueStorage - Contains the "ValueTable" type
+//   ValueStorage - 
 //
 Function BlankSpecifiedTypesRefsTable(FullAttributeName) Export
 	
@@ -434,7 +432,7 @@ Function DetailsOfAccessValuesTypesAndRightsSettingsOwners() Export
 	
 EndFunction
 
-// Returns reference types from the "AccessValueObject" type collection.
+// 
 // 
 // Returns:
 //  TypeDescription
@@ -452,7 +450,7 @@ Function RefsTypesFromAccessValueObject() Export
 	
 EndFunction
 
-// See also AccessManagementInternal.ValuesTypesOfAccessKindsAndRightsSettingsOwners()
+// See also Managementsservice Department.Typesvalue Types of accessoryreferencesexternal Links()
 //
 // Returns:
 //   ValueStorage
@@ -471,9 +469,9 @@ EndFunction
 //    * Table - ValueTable:
 //        ** Table - CatalogRef.MetadataObjectIDs
 //                   - CatalogRef.ExtensionObjectIDs
-//        ** Right - String - a right name
+//        ** Right - String -  name of the right
 //        ** AccessKind - CatalogRef
-//        ** Presentation - String - an access kind presentation
+//        ** Presentation - String -  representation of the access type
 //
 Function MetadataObjectsRightsRestrictionsKinds() Export
 	
@@ -506,7 +504,7 @@ EndFunction
 // Parameters:
 //  User - CatalogRef.Users
 //               - CatalogRef.ExternalUsers
-//               - Undefined - Check for the current user.
+//               - Undefined - 
 //
 // Returns:
 //  Boolean
@@ -664,10 +662,10 @@ EndFunction
 
 // Returns:
 //   FixedMap of KeyAndValue:
-//     * Key     - String - a full list (table) name.
-//     * Value - Boolean - True - a restriction text in the manager module.
-//                           False - a restriction text in the overridable
-//                                    module in the OnFillAccessRestriction procedure.
+//     * Key     - String -  full name of the list (table).
+//     * Value - Boolean -  True-text of the restriction in the Manager module,
+//                           False-the text of the restriction in this redefined
+//                                    module in the procedure for filling in access Restrictions.
 //
 Function ListsWithRestriction() Export
 	
@@ -903,7 +901,7 @@ EndFunction
 
 Function MaxBasicRegisterFieldsCount() Export
 	
-	// When changing, synchronously change the access restriction template ForRegister.
+	// 
 	Return Number(5);
 	
 EndFunction
@@ -921,8 +919,8 @@ EndFunction
 
 // Returns:
 //  FixedStructure of KeyAndValue:
-//    * Key - String - Field name
-//    * Value - TypeDescription - Field type
+//    * Key - String - 
+//    * Value - TypeDescription -  field type
 //
 Function RegisterBasicFieldsTypes(Val RegisterName = "") Export
 	
@@ -945,7 +943,7 @@ EndFunction
 
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String - Table's full name.
+//    * Key - String -  full name of the table
 //    * Value - Boolean - True
 //
 Function TablesInSubscriptionsCheckAccess() Export
@@ -1129,11 +1127,11 @@ Function FieldsInMetadataCharsRegister(FullName, Fields) Export
 	
 EndFunction
 
-// Returns a string.
+// 
 //
 // Parameters:
-//  Char - String - A 1-character long string.
-//  Count - Number - The number of characters to return.
+//  Char - String - 
+//  Count - Number - 
 //
 // Returns:
 //  String
@@ -1162,7 +1160,7 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 Procedure AddBlankValueTypeRef(BlankRefsByTypes, GroupAndValueType, ValuesType)
 	
@@ -1229,7 +1227,7 @@ Function SimilarItemsInCollectionCount(Collection, NameBeginning, InitialNumber 
 	
 EndFunction
 
-// For the AllowedAccessKeysValuesTypes function.
+// For the function, valid value types are key Access.
 Procedure ClarifyAllowedTypes(AllowedTypes, Attribute);
 	
 	IndexOf = AllowedTypes.Count() - 1;
@@ -1244,7 +1242,7 @@ Procedure ClarifyAllowedTypes(AllowedTypes, Attribute);
 	
 EndProcedure
 
-// For the LeadingObjectsRefsTypes function.
+// For the function of link types of leading Objects.
 Procedure AddTypes(Types, AddedTypes)
 	
 	For Each Type In AddedTypes Do
@@ -1253,7 +1251,7 @@ Procedure AddTypes(Types, AddedTypes)
 	
 EndProcedure
 
-// Intended for function "TablesInSubscriptionsCheckAccess".
+// 
 Procedure AddTablesFromTypesDetails(Tables, TypeDescription)
 	
 	For Each Type In TypeDescription.Types() Do

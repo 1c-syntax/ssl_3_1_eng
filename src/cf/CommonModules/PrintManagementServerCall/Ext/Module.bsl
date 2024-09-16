@@ -1,33 +1,31 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// Operations with office document templates.
+// 
 
-// Gets all data required for printing within a single call: object template data, binary
-// template data, and template area description.
-// Used for calling print forms based on office document templates from client modules.
+// Gets all the necessary information for printing in one call: object data by layout, binary
+// layout data, and description of layout areas.
+// To call from client modules to print forms based on office document layouts.
 //
 // Parameters:
-//   PrintManagerName - String - Name used for accessing the object manager. For example, "Document.<Document name>".
-//   TemplatesNames       - String - Names of templates used for print form generation.
-//   DocumentsComposition   - Array - References to infobase objects (all references must be of the same type).
+//   PrintManagerName - String -  name for accessing the object Manager, such as " Document.<Document name>".
+//   TemplatesNames       - String -  names of layouts that will be used for forming printed forms.
+//   DocumentsComposition   - Array -  links to information database objects (must be of the same type).
 //
 // Returns:
-//  Map of KeyAndValue - Collection of references to objects and their data.:
-//   * Key - AnyRef - Reference to an infobase object.
+//  Map of KeyAndValue - :
+//   * Key - AnyRef -  link to the information base object;
 //   * Value - Structure:
-//       ** Key - String - Template name.
-//       ** Value - Structure - Object data.
+//       ** Key - String -  layout name;
+//       ** Value - Structure -  object data.
 //
 Function TemplatesAndObjectsDataToPrint(Val PrintManagerName, Val TemplatesNames, Val DocumentsComposition) Export
 	
@@ -39,9 +37,9 @@ EndFunction
 
 #Region Private
 
-// Generates print forms for direct output to a printer.
+// Form printing forms for direct output to the printer.
 //
-// Detailed - See PrintManagement.GeneratePrintFormsForQuickPrint().
+// For more information, see description of the print management.Form a printable form for fast printing().
 //
 Function GeneratePrintFormsForQuickPrint(PrintManagerName, TemplatesNames, ObjectsArray,	PrintParameters) Export
 	
@@ -50,9 +48,9 @@ Function GeneratePrintFormsForQuickPrint(PrintManagerName, TemplatesNames, Objec
 	
 EndFunction
 
-// Generates print forms for direct output to a printer in an ordinary application.
+// Generate printing forms for direct output to the printer in a regular application.
 //
-// Detailed - See PrintManagement.GeneratePrintFormsForQuickPrintOrdinaryApplication().
+// For more information, see description of the print management.Form a printable form for a quick printable custom application().
 //
 Function GeneratePrintFormsForQuickPrintOrdinaryApplication(PrintManagerName, TemplatesNames, ObjectsArray, PrintParameters) Export
 	
@@ -61,7 +59,7 @@ Function GeneratePrintFormsForQuickPrintOrdinaryApplication(PrintManagerName, Te
 	
 EndFunction
 
-// Returns True if the user is authorized to post at least one document.
+// Returns true if there is a holding right for at least one document.
 Function HasRightToPost(DocumentsList) Export
 	Return StandardSubsystemsServer.HasRightToPost(DocumentsList);
 EndFunction
@@ -98,7 +96,7 @@ Function StartGeneratingPrintForms(ParametersForOpeningIncoming) Export
 				 TypeOf(OpeningParameters.CommandParameter)));
 	EndIf;
 
-	// Support of backward compatibility with version 2.1.3.
+	// 
 	PrintParameters = OpeningParameters.PrintParameters;
 	If OpeningParameters.PrintParameters = Undefined Then
 		PrintParameters = New Structure;

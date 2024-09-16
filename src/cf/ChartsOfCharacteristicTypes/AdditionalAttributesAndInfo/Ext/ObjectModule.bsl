@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -111,8 +109,8 @@ Procedure OnWrite(Cancel)
 		EndDo;
 	EndIf;
 	
-	// Check if the deletion mark was toggled not from the list.
-	// Sets of additional attributes and information records.
+	// 
+	// 
 	ObjectProperties = Common.ObjectAttributesValues(Ref, "DeletionMark");
 	Query = New Query;
 	Query.Text =
@@ -183,7 +181,7 @@ Procedure BeforeDelete(Cancel)
 		Block.Lock();
 		
 		CurrentObject = Selection.Ref.GetObject();
-		// Delete additional attributes.
+		// 
 		IndexOf = CurrentObject.AdditionalAttributes.Count()-1;
 		While IndexOf >= 0 Do
 			If CurrentObject.AdditionalAttributes[IndexOf].Property = Ref Then
@@ -191,7 +189,7 @@ Procedure BeforeDelete(Cancel)
 			EndIf;
 			IndexOf = IndexOf - 1;
 		EndDo;
-		// Delete additional information records.
+		// 
 		IndexOf = CurrentObject.AdditionalInfo.Count()-1;
 		While IndexOf >= 0 Do
 			If CurrentObject.AdditionalInfo[IndexOf].Property = Ref Then
@@ -225,11 +223,11 @@ EndProcedure
 
 Procedure ControlIDFillingForFormulas(Cancel)
 	If Not AdditionalProperties.Property("IDCheckForFormulasCompleted") Then
-		// Application record.
+		// 
 		If ValueIsFilled(IDForFormulas) Then
 			ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.CheckIDUniqueness(IDForFormulas, Ref, Cancel);
 		Else
-			// Set an ID.
+			// 
 			IDForFormulas = ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.UUIDForFormulas(
 				TitleForIDGeneration(), Ref);
 		EndIf;

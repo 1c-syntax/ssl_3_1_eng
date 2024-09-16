@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,13 +12,13 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// CloudTechnology.ExportImportData
+// 
 
-// Returns the catalog attributes
-//  that naturally form a catalog item key.
+// Returns the directory details that form the natural key
+//  for the directory elements.
 //
 // Returns:
-//  Array - Array of attribute names used to generate a natural key.
+//  Array - 
 //
 Function NaturalKeyFields() Export
 	
@@ -34,9 +32,9 @@ EndFunction
 
 // End CloudTechnology.ExportImportData
 
-// StandardSubsystems.Print
+// 
 
-// Generates print forms.
+// Generates a printable form.
 //
 // Parameters:
 //  ObjectsArray - See PrintManagementOverridable.OnPrint.ObjectsArray
@@ -72,13 +70,13 @@ EndProcedure
 
 #Region Internal
 
-// Detects the last day for which the data of the specified business calendar is filled in.
+// Identifies the last day for which the specified production calendar data is filled in.
 //
 // Parameters:
-//  BusinessCalendar - CatalogRef.BusinessCalendars - a calendar.
+//  BusinessCalendar - CatalogRef.BusinessCalendars -  calendar.
 //
 // Returns:
-//  Date - a date until which the business calendar is filled in. Undefined if the calendar is not filled in.
+//  Date - 
 //
 Function BusinessCalendarFillingEndDate(BusinessCalendar) Export
 	
@@ -104,11 +102,11 @@ Function BusinessCalendarFillingEndDate(BusinessCalendar) Export
 	
 EndFunction
 
-// Returns information on the day type for each business calendar date.
+// Returns information about the type of day for each production calendar date.
 //
 // Parameters:
-//  BusinessCalendar - CatalogRef.BusinessCalendars - a current catalog item.
-//  Years - Number, Array of Number - a number of the year for which the business calendar is to be read.
+//  BusinessCalendar - CatalogRef.BusinessCalendars -  the current element of the directory.
+//  Years - Number, Array of Number -  the number of the year for which the production calendar should be read.
 //
 // Returns:
 //  ValueTable
@@ -145,10 +143,10 @@ EndFunction
 
 #Region Private
 
-// Updates the Business calendars catalog from an XML file.
+// Updates the production calendars directory from an XML file.
 //
 // Parameters:
-//  CalendarsTable	 - ValueTable	 - a table with business calendar details.
+//  CalendarsTable	 - ValueTable	 -  table with a description of production calendars.
 //
 Procedure UpdateBusinessCalendars(CalendarsTable) Export
 	
@@ -198,7 +196,7 @@ Procedure UpdateBusinessCalendars(CalendarsTable) Export
 		EndIf;
 		If Not ValueIsFilled(Selection.Ref) Then
 			If Not Common.DataSeparationEnabled() And ValueIsFilled(Selection.CodeOfBasicCalendar) Then
-				// Dependent calendars are not created automatically upon update in the local mode.
+				// 
 				Continue;
 			EndIf;
 		EndIf;
@@ -224,15 +222,15 @@ Procedure UpdateBusinessCalendars(CalendarsTable) Export
 	
 EndProcedure
 
-// Updates business calendar data by a data table.
+// Updates production calendar data from the data table.
 // 
 // Parameters:
-//  DataTable - ValueTable - business calendars data.
+//  DataTable - ValueTable -  production calendar data.
 // 
 // Returns:
-//  ValueTable - Changes of business calendar data:
-//   * BusinessCalendarCode - String - a changed calendar code,
-//   * Year - Number - a year for which the calendar was changed.
+//  ValueTable - :
+//   * BusinessCalendarCode - String -  the code of the modified calendar,
+//   * Year - Number -  the year for which the calendar was changed.
 //
 Function UpdateBusinessCalendarsData(Val DataTable) Export
 	
@@ -250,7 +248,7 @@ Function UpdateNonWorkDaysPeriods(PeriodsTable) Export
 	
 	ChangesTable = BusinessCalendarsChangesTable();
 	
-	// ACC:96 -off The result must contain unique values.
+	// 
 	
 	Query = New Query;
 	Query.SetParameter("PeriodsTable", PeriodsTable);
@@ -316,7 +314,7 @@ Function UpdateNonWorkDaysPeriods(PeriodsTable) Export
 		|	CalendarsChanges.BusinessCalendar,
 		|	ClassifierTable.PeriodNumber";
 	
-	// ACC:96-on
+	// 
 	
 	DataLock = New DataLock;
 	DataLock.Add("InformationRegister.CalendarNonWorkDaysPeriods");
@@ -349,20 +347,20 @@ Function UpdateNonWorkDaysPeriods(PeriodsTable) Export
 	
 EndFunction
 
-// The function prepares a result of filling in a business calendar
+// This function prepares the result of filling the production calendar
 // with default data.
-// If the configuration contains a template with predefined
-// business calendar data for this year, the template data is used,
-// otherwise, business calendar data is based on
-// information about holidays and effective holiday replacement rules.
+// If there is a layout with predefined
+// production calendar data for this year in the configuration, the layout data is used
+// . otherwise, the production calendar data is generated based
+// on information about holidays, as well as taking into account the current rules for transferring weekends.
 // 
 // Parameters:
-//  CalendarCode1 - String - a calendar code
-//  YearNumber - Number - a year number.
-//  BasicCalendarCode - String - a source calendar code
+//  CalendarCode1 - String -  calendar code
+//  YearNumber - Number -  year number
+//  BasicCalendarCode - String -  the code of the basic calendar
 // 
 // Returns:
-//  ValueTable - The result of filling the default business calendar:
+//  ValueTable - :
 //   * BusinessCalendarCode - String
 //   * DayKind - EnumRef.BusinessCalendarDaysKinds
 //   * Year - Number
@@ -374,8 +372,8 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 	DaysKinds = New Map;
 	ShiftedDays = New Map;
 	
-	// Use the template data (if present).
-	// If a base calendar is specified, get its data.
+	// 
+	// 
 	CalendarsCodes = New Array;
 	CalendarsCodes.Add(CalendarCode1);
 	HasBasicCalendar = False;
@@ -384,8 +382,8 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 		HasBasicCalendar = True;
 	EndIf;
 	
-	// Select template data from both calendars.
-	// Get only holidays and substitutes.
+	// 
+	// 
 	TemplateData = DefaultBusinessCalendarsData(CalendarsCodes, False);
 	
 	RowFilter = New Structure("BusinessCalendarCode,Year");
@@ -399,7 +397,7 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 		FillDaysKindsWithCalendarData(CalendarData, DaysKinds, ShiftedDays);
 	EndIf;
 	
-	// Check if the template contains basic calendar data.
+	// 
 	HasBasicCalendarData = False;
 	If HasBasicCalendar Then
 		RowFilter.BusinessCalendarCode = BasicCalendarCode;
@@ -412,7 +410,7 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 		EndIf;
 	EndIf;
 	
-	// Add default data for other days.
+	// 
 	DayDate = Date(YearNumber, 1, 1);
 	While DayDate <= Date(YearNumber, 12, 31) Do
 		If DaysKinds[DayDate] = Undefined Then
@@ -421,16 +419,16 @@ Function BusinessCalendarDefaultFillingResult(CalendarCode1, YearNumber, Val Bas
 		DayDate = DayDate + DayLength();
 	EndDo;
 	
-	// If there are no data in the template, fill in permanent holidays.
+	// 
 	If Not HasCalendarData Then
 		If HasBasicCalendar And HasBasicCalendarData Then
-			// Request permanent holidays of the basic calendar only if they are missing in the template.
+			// 
 			BasicCalendarCode = Undefined;
 		EndIf;
 		FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode1, BasicCalendarCode);
 	EndIf;
 	
-	// Convert them to table.
+	// 
 	BusinessCalendarData = NewBusinessCalendarsData();
 	For Each KeyAndValue In DaysKinds Do
 		NewRow = BusinessCalendarData.Add();
@@ -466,7 +464,7 @@ Function BusinessCalendarsDefaultFillingResult(CalendarsCodes) Export
 		|	BusinessCalendars.Code IN(&CalendarsCodes)";
 	QueryResult = Query.Execute();
 	
-	// Request data of all calendars from the template to determine years to be filled in.
+	// 
 	TemplateDataCodes = QueryResult.Unload().UnloadColumn("CalendarCode1");
 	TemplateData = DefaultBusinessCalendarsData(TemplateDataCodes, False);
 	
@@ -479,7 +477,7 @@ Function BusinessCalendarsDefaultFillingResult(CalendarsCodes) Export
 		YearsNumbers = Common.UnloadColumn(TemplateCalendarData, "Year", True);
 		CurrentYear = Year(CurrentSessionDate());
 		If YearsNumbers.Find(CurrentYear) = Undefined Then
-			// Add the current year by default.
+			// 
 			YearsNumbers.Add(CurrentYear);
 		EndIf;
 		For Each YearNumber In YearsNumbers Do
@@ -492,11 +490,11 @@ Function BusinessCalendarsDefaultFillingResult(CalendarsCodes) Export
 	
 EndFunction
 
-// Converts data of 1C-supplied business calendars.
+// Converts production calendar data that is delivered as a layout in the configuration.
 //
 // Parameters:
-//   CalendarsCodes - Array - an optional parameter, an array, if it is not specified, all available data will be got from the template.
-//   GenerateFullSet - Boolean - if false, only data on differences from the default calendar will be generated.
+//   CalendarsCodes - Array -  if omitted, all available data from the layout will be retrieved.
+//   GenerateFullSet - Boolean -  if false, only data on deviations from the default calendar will be generated.
 //
 // Returns:
 //   See BusinessCalendarsDataFromXML.
@@ -518,13 +516,13 @@ Function BusinessCalendarsDataFromTemplate(CalendarsCodes = Undefined, GenerateF
 	
 EndFunction
 
-// Converts business calendar data presented as XML.
+// Converts production calendar data presented as XML.
 //
 // Parameters:
-//   XMLData1 - Structure - extracted from an XML file using the Common.ReadXMLToTable method.
-//   CalendarsTable - ValueTable - a list of business calendars supported in the application.
-//   CalendarsCodes - Array - if it is not set, the filter will not be set.
-//   GenerateFullSet - Boolean - if false, only data on differences from the default calendar will be generated.
+//   XMLData1 - Structure -  extracted from an XML file using the General Purpose method.Read the XML table.
+//   CalendarsTable - ValueTable -  list of production calendars supported in the configuration.
+//   CalendarsCodes - Array -  if not set, the selection will not be set.
+//   GenerateFullSet - Boolean -  if false, only data on deviations from the default calendar will be generated.
 //
 // Returns:
 //  ValueTable:
@@ -655,9 +653,9 @@ Procedure AddCalendarsYearsAccordingToTheCalendarTable(CalendarsYears_, Calendar
 		CalendarYears = CalendarsYears_.FindRows(New Structure("Calendar", CalendarRow.Code));
 		YearsOfTheBaseCalendar = CalendarsYears_.FindRows(New Structure("Calendar", CalendarRow.Base));
 		If CalendarYears.Count() = 0 Then
-			// The template contains no data on this calendar. Instead, take the basic calendar.
+			// 
 			If YearsOfTheBaseCalendar.Count() = 0 Then
-				// The basic calendar contains no data. Add only the current-year data.
+				// 
 				AddACalendarYear(CalendarsYears_, CalendarRow.Code, Year(CurrentSessionDate()));
 				Continue;
 			EndIf;
@@ -666,7 +664,7 @@ Procedure AddCalendarsYearsAccordingToTheCalendarTable(CalendarsYears_, Calendar
 			EndDo;
 			Continue;
 		EndIf;
-		// Populate for all years from the basic calendar but not earlier than the minimal year in the calendar.
+		// 
 		MinimumYear = CalendarYears[0].Year;
 		Years = Common.UnloadColumn(CalendarYears, "Year");
 		For Each TheBaseLine In YearsOfTheBaseCalendar Do
@@ -707,7 +705,7 @@ Function NonWorkDaysPeriodsFromTemplate() Export
 	
 EndFunction
 
-// Gets the table with 1C-supplied business calendars.
+// Retrieves a table of production calendars supplied as part of the program.
 //
 // Returns:
 //   ValueTable
@@ -883,7 +881,7 @@ Procedure UpdateDependentBusinessCalendarsData(CalendarsChanges) Export
 				RowFilter.Year = Selection.Year;
 				FoundRows = TemplateData.FindRows(RowFilter);
 				If FoundRows.Count() > 0 Then
-					// If the template contains data, it is not to be refilled.
+					// 
 					Continue;
 				EndIf;
 				CalendarData = BusinessCalendarDefaultFillingResult(Selection.Code, Selection.Year, Selection.BasicCalendarCode);
@@ -898,7 +896,7 @@ Procedure UpdateDependentBusinessCalendarsData(CalendarsChanges) Export
 				Else
 					RecordSet.Write();
 				EndIf;
-				// Add it to the changes table.
+				// 
 				NewRow = CalendarsChanges.Add();
 				NewRow.BusinessCalendarCode = Selection.Code;
 				NewRow.Year = Selection.Year;
@@ -912,7 +910,7 @@ Procedure UpdateDependentBusinessCalendarsData(CalendarsChanges) Export
 	
 EndProcedure
 
-// Defines a source of the current list of supported business calendars (template or classifier delivery).
+// Defines the source of the current list of supported production calendars (layout or delivery of the classifier).
 //
 // Returns:
 //   ValueTable
@@ -939,11 +937,11 @@ Function DefaultBusinessCalendars() Export
 	
 EndFunction
 
-// Defines a source of relevant business calendar data (template or classifier delivery).
+// Defines the source of current production calendar data (layout or delivery of the classifier).
 //
 // Parameters:
 //   CalendarsCodes - Array
-//   GenerateFullSet - Boolean - if True, missing template data will be filled in for each day.
+//   GenerateFullSet - Boolean -  if True, then the data missing in the layout will be supplemented for each day.
 //
 // Returns:
 //   See Catalogs.BusinessCalendars.BusinessCalendarsDataFromXML.
@@ -1000,7 +998,7 @@ Function NonWorkDaysPeriodsFromClassifierFile()
 	
 EndFunction
 
-// Generates a value table to describe changes of business calendar data.
+// Creates a table of values to describe changes to production calendar data.
 //
 Function BusinessCalendarsChangesTable()
 	
@@ -1012,11 +1010,11 @@ Function BusinessCalendarsChangesTable()
 	
 EndFunction
 
-// The procedure records data of one business calendar for one year.
+// The procedure records data from one production calendar for 1 year.
 //
 // Parameters:
-//  BusinessCalendar - CatalogRef.BusinessCalendars - a current catalog item.
-//  YearNumber - Number - a number of the year for which the business calendar is to be recorded.
+//  BusinessCalendar - CatalogRef.BusinessCalendars -  the current element of the directory.
+//  YearNumber - Number -  the number of the year to record the production calendar for.
 //  BusinessCalendarData - 
 //
 Procedure WriteBusinessCalendarData(BusinessCalendar, YearNumber, BusinessCalendarData) Export
@@ -1044,11 +1042,11 @@ Procedure WriteBusinessCalendarData(BusinessCalendar, YearNumber, BusinessCalend
 	
 EndProcedure
 
-// Defines a map between business calendar day kinds and appearance color
+// The function determines the correspondence of the types of the day of the production calendar and the color of the design
 // of this day in the calendar field.
 // 
 // Returns:
-//  Map - a map between day kinds and appearance colors.
+//  Map - 
 //
 Function BusinessCalendarDayKindsAppearanceColors() Export
 	
@@ -1064,11 +1062,11 @@ Function BusinessCalendarDayKindsAppearanceColors() Export
 	
 EndFunction
 
-// The function creates a list of all possible business calendar day kinds 
-// according to metadata of the BusinessCalendarDaysKinds enumeration.
+// The function makes a list of all possible types of days of the production calendar 
+// based on the metadata of the enumeration of the day of the production calendar.
 // 
 // Returns:
-//  ValueList - a list containing an enumeration value and its synonym as a presentation.
+//  ValueList - 
 //
 Function DayKindsList() Export
 	
@@ -1082,11 +1080,11 @@ Function DayKindsList() Export
 	
 EndFunction
 
-// The function creates an array of business calendars available
-// for using, for example, as a template.
+// This function creates an array of available production calendars
+// to use, for example, as a template.
 //
 // Returns:
-//  Array - the list of business calendars
+//  Array - 
 //
 Function BusinessCalendarsList() Export
 
@@ -1109,7 +1107,7 @@ Function BusinessCalendarsList() Export
 	
 EndFunction
 
-// Fills in an array of holidays according to a business calendar 
+// Fills in an array of holiday dates on the production calendar 
 // for a specific calendar year.
 //
 Function BusinessCalendarHolidays(BusinessCalendarCode, YearNumber)
@@ -1189,34 +1187,34 @@ EndFunction
 
 Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode1, BasicCalendarCode = Undefined)
 	
-	// If not, fill in holidays and their replacements.
+	// 
 	Holidays = BusinessCalendarHolidays(CalendarCode1, YearNumber);
-	// Fill the table with next year's holidays as they influence this year. 
-	// For example, Dec 31 is a holiday eve.
+	//  
+	// 
 	NextYearHolidays = BusinessCalendarHolidays(CalendarCode1, YearNumber + 1);
 	CommonClientServer.SupplementTable(NextYearHolidays, Holidays);
 	
 	If BasicCalendarCode <> Undefined Then
-		// Add basic calendar holidays to the table as well.
+		// 
 		BasicCalendarHolidays = BusinessCalendarHolidays(BasicCalendarCode, YearNumber);
 		CommonClientServer.SupplementTable(BasicCalendarHolidays, Holidays);
 		NextYearHolidays = BusinessCalendarHolidays(BasicCalendarCode, YearNumber + 1);
 		CommonClientServer.SupplementTable(NextYearHolidays, Holidays);
 	EndIf;
 	
-	// When a public holiday falls on a weekend, the weekend is moved to the next working day. 
-	// Except for the weekends that fall on Christmas and New Year holidays. 
-	// (Applicable for the Russian Federation.) 
+	//  
+	//  
+	//  
 	// 	
 	
 	For Each TableRow In Holidays Do
 		PublicHoliday = TableRow.Date;
-		// Mark the day as a preholiday (holiday eve). 
+		//  
 		// 
 		If TableRow.AddPreholiday Then
 			PreholidayDate = PublicHoliday - DayLength();
 			If Year(PreholidayDate) = YearNumber Then
-				// Skip pre-holiday days of another year.
+				// 
 				If DaysKinds[PreholidayDate] = Enums.BusinessCalendarDaysKinds.Work 
 					And Holidays.Find(PreholidayDate, "Date") = Undefined Then
 					DaysKinds.Insert(PreholidayDate, Enums.BusinessCalendarDaysKinds.Preholiday);
@@ -1224,13 +1222,13 @@ Procedure FillPermanentHolidays(DaysKinds, ShiftedDays, YearNumber, CalendarCode
 			EndIf;
 		EndIf;
 		If Year(PublicHoliday) <> YearNumber Then
-			// Also skip holidays of another year.
+			// 
 			Continue;
 		EndIf;
 		If DaysKinds[PublicHoliday] <> Enums.BusinessCalendarDaysKinds.Work 
 			And TableRow.ShiftHoliday Then
-			// If a public holiday falls on a weekend and is substituted, 
-			// move the holiday to the next working day. 
+			//  
+			//  
 			// 
 			DayDate = PublicHoliday;
 			While True Do
@@ -1325,7 +1323,7 @@ Procedure WriteBusinessCalendar(CatalogObject)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Business calendar print form.
+// 
 
 Function BusinessCalendarPrintForm(PrintFormPreparationParameters)
 	
@@ -1345,7 +1343,7 @@ Function BusinessCalendarPrintForm(PrintFormPreparationParameters)
 	PrintTitle.Parameters.Year = Format(YearNumber, "NG=");
 	SpreadsheetDocument.Put(PrintTitle);
 	
-	// Initial values regardless of query execution result.
+	// 
 	ForYear = IndicatorsGroupDetails();
 	
 	NonWorkPeriods = CalendarSchedules.NonWorkDaysPeriods(
@@ -1458,7 +1456,7 @@ Function BusinessCalendarPrintForm(PrintFormPreparationParameters)
 				CumulateColumn(ForYear, ForMonth);
 				MonthColumn = Template.GetArea("MonthColumn");
 				FillAreaParameters(MonthColumn.Parameters, ForMonth);
-				MonthColumn.Parameters.MonthName = Format(Date(YearNumber, SelectionByMonth.CalendarMonth, 1), "DF='MMMM'"); // ACC:1367
+				MonthColumn.Parameters.MonthName = Format(Date(YearNumber, SelectionByMonth.CalendarMonth, 1), "DF='MMMM'"); // 
 				SpreadsheetDocument.Join(MonthColumn);
 			EndDo;
 			MonthColumn = Template.GetArea("MonthColumn");

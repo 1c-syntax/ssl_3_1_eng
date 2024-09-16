@@ -32,6 +32,27 @@
 		</right>
 	</object>
 	<object>
+		<name>WebService.RemoteAdministrationOfExchange.Operation.TestConnection</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>WebService.RemoteAdministrationOfExchange.Operation.GetExchangePlans</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>WebService.RemoteAdministrationOfExchange_2_0_1_6.Operation.PrepareExchangeExecution</name>
+		<right>
+			<name>Use</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -55,27 +76,6 @@
 		</right>
 		<right>
 			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>WebService.RemoteAdministrationOfExchange.Operation.TestConnection</name>
-		<right>
-			<name>Use</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>WebService.RemoteAdministrationOfExchange.Operation.GetExchangePlans</name>
-		<right>
-			<name>Use</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>WebService.RemoteAdministrationOfExchange_2_0_1_6.Operation.PrepareExchangeExecution</name>
-		<right>
-			<name>Use</name>
 			<value>true</value>
 		</right>
 	</object>

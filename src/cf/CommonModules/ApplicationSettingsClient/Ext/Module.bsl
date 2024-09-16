@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 #Region ForCallsFromOtherSubsystems
 
-// Called from the "OnOpen" handler of the SSL/OSL administration panel.
-// Sets up the visibility of the SSL library management elements.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -21,21 +19,21 @@
 //
 Procedure OnlineSupportAndServicesOnOpen(Form, Cancel) Export
 	
-	// Update items states.
+	// 
 	OnlineSupportAndServicesSetAvailability(Form);
 	
 	OnlineSupportAndServicesOnChangeOfChatConnectionStatus(Form);
 	
 EndProcedure
 
-// Called from the "NotificationProcessing" handler of the SSL/OSL administration panel.
-// Sets up the visibility of the SSL library management elements.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
-//  EventName - String - The event name (for identifying messages).
-//  Parameter - Arbitrary - an event parameter.
-//  Source - Arbitrary - Event source.
+//  EventName - String - 
+//  Parameter - Arbitrary -  event parameter.
+//  Source - Arbitrary -  event source.
 //
 Procedure OnlineSupportAndServicesProcessNotification(Form, EventName, Parameter, Source) Export
 	
@@ -45,8 +43,8 @@ Procedure OnlineSupportAndServicesProcessNotification(Form, EventName, Parameter
 	
 EndProcedure
 
-// Handles the "OnChange" event on the following forms of the SSL/OSL "Online support and services" administration panel:
-// "MonitoringCenterAllowSendingData", "MonitoringCenterAllowSendingDataToThirdParty", "MonitoringCenterProhibitSendingData".
+// 
+// 
 // 
 //
 // Parameters:
@@ -69,8 +67,8 @@ Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationPar
 	
 EndProcedure
 
-// Handles the "OnChange" event associated with the constant on
-// the SSL form the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -89,8 +87,8 @@ Procedure OnlineSupportAndServicesOnConstantChange(Form, Item) Export
 	
 EndProcedure
 
-// Handles events of the "AddressClassifierLoading" command of
-// the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -105,8 +103,8 @@ Procedure OnlineSupportAndServicesImportAddressClassifier(Form, Command) Export
 	
 EndProcedure
 
-// Handles events of the "ClearAddressInfoRecords" command of
-// the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -121,8 +119,8 @@ Procedure OnlineSupportAndServicesClearAddressInfoRecords(Form, Command) Export
 	
 EndProcedure
 
-// Handles events of the "ImportCurrenciesRates" command of
-// the "Online support and services" in SSL/OSL administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -137,8 +135,8 @@ Procedure OnlineSupportAndServicesImportExchangeRates(Form, Command) Export
 	
 EndProcedure
 
-// Handles events of the "OpenChangeHistory" command of
-// the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -150,8 +148,8 @@ Procedure OnlineSupportAndServicesSystemChangelog(Form, Command) Export
 	
 EndProcedure
 
-// Handles events of the "ConfigureAccessToMorpher" command of
-// the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -167,8 +165,8 @@ Procedure OnlineSupportAndServicesConfigureAccessToMorpher(Form, Command) Export
 	
 EndProcedure
 
-// Handles events of the "MonitoringCenterSettings" command of
-// the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -186,8 +184,8 @@ Procedure OnlineSupportAndServicesMonitoringCenterSettings(Form, Command) Export
 	
 EndProcedure
 
-// Handles events of the "MonitoringCenterSendContactInformation" command of
-// the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -202,8 +200,8 @@ Procedure OnlineSupportAndServicesMonitoringCenterSendContactInfo(Form, Command)
 	
 EndProcedure
 
-// Handles events of the "OpenAddIns" command of
-// the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -218,8 +216,8 @@ Procedure OnlineSupportAndServicesOpenAddIns(Form, Command) Export
 	
 EndProcedure
 
-// Handles events of the "UpdateResultsAndAdditionalDataProcessing" command of
-// the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -234,8 +232,8 @@ Procedure OnlineSupportAndServicesOpenInfobaseUpdateProgress(Form, Command) Expo
 	
 EndProcedure
 
-// Handles events of the "EnableDisableConversations" command of
-// the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -257,8 +255,8 @@ Procedure OnlineSupportAndServicesToggleConversations(Form, Command) Export
 	
 EndProcedure
 
-// Handles events of the "ConversationsConfigureIntegrationWithExternalSystems" command of
-// the SSL/OSL "Online support and services" administration panel.
+// 
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -323,11 +321,11 @@ Procedure OnlineSupportAndServicesOnChangeOfChatConnectionStatus(
 	
 EndProcedure
 
-// Updates the elements availability on the SSL/OSL "Online support and services" administration panel.
+// 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
-//  ConstantName - String - If filled, the elements associated with the command are updated.
+//  ConstantName - String - 
 //
 Procedure OnlineSupportAndServicesSetAvailability(Form, ConstantName = "")
 	

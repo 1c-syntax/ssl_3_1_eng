@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -22,37 +20,37 @@ Var UnlimitedLengthStringTypeField;
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+// 
 
-// Maps objects from the current infobase to objects from the source Infobase.
-//  Generates a mapping table to be displayed to the user.
-//  Detects the following types of object mapping:
-// - objects mapped using references
-// - objects mapped using InfobaseObjectsMaps information register data
-// - objects mapped using unapproved mapping - mapping items that are not written to the infobase (current changes)
+// Performs the matching between this information base and an information base source.
+//  Generates a mapping table for output to the user.
+//  Detects the following types of object relationships:
+// - objects mapped by reference (hard link)
+// - objects that are mapped according to the information in the register of data correspondenceobjectinformation Databases (non-rigid connection)
+// - objects mapped by unapproved links - links not recorded in the information database (current changes)
 // - unmapped source objects
-// - unmapped destination objects (of the current infobase).
+// - unmapped objects of the receiver (this database).
 //
 // Parameters:
-//     Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
+//     Cancel - Boolean -  failure flag; raised if errors occur during the procedure.
 // 
 Procedure MapObjects(Cancel) Export
 	
 	SetPrivilegedMode(True);
 	
-	// Executing infobase object mapping.
+	// 
 	ExecuteInfobaseObjectMapping(Cancel);
 	
 EndProcedure
 
-// Maps objects automatically using the mapping fields specified by the user (search fields).
-//  Compares mapping fields using strict equality.
-//  Generates a table of automatic mapping to be displayed to the user.
+// Performs automatic mapping of objects based on user-defined mapping fields (search fields).
+//  Comparison of matching fields is performed for strict equality.
+//  Generates an automatic mapping table for output to the user.
 //
 // Parameters:
-//     Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
-//     MappingFieldsList - ValueList - a value list with fields
-//                                                 that will be used to map objects.
+//     Cancel - Boolean -  failure flag; raised if errors occur during the procedure.
+//     MappingFieldsList - ValueList -  a list of values with fields
+//                                                 to match objects by.
 // 
 Procedure ExecuteAutomaticObjectMapping(Cancel, MappingFieldsList) Export
 	
@@ -62,32 +60,32 @@ Procedure ExecuteAutomaticObjectMapping(Cancel, MappingFieldsList) Export
 	
 EndProcedure
 
-// Maps objects automatically using the default search fields.
+// Performs automatic matching based on the default search fields.
 // The list of mapping fields is equal to the list of used fields.
 //
 // Parameters:
-//      Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
+//      Cancel - Boolean -  the opt-out flag is raised if an error occurs.
 // 
 Procedure ExecuteDefaultAutomaticMapping(Cancel) Export
 	
 	SetPrivilegedMode(True);
 	
-	// For default auto-mapping, the list of map fields repeats the list of used fields.
+	// 
 	// 
 	MappingFieldsList = UsedFieldsList.Copy();
 	
 	ExecuteDefaultAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList);
 	
-	// Applying the automatic mapping result.
+	// 
 	ApplyUnapprovedRecordsTable(Cancel);
 	
 EndProcedure
 
-// Writes unapproved mapping references (current changes) into the Infobase.
-// Records are stored in the InfobaseObjectsMaps information register.
+// Writes unapproved mapping relationships (current changes) to the information database.
+// Records are stored in the RS corresponding to the information database Objects.
 //
 // Parameters:
-//      Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
+//      Cancel - Boolean -  the opt-out flag is raised if an error occurs.
 // 
 Procedure ApplyUnapprovedRecordsTable(Cancel) Export
 	
@@ -141,11 +139,11 @@ Procedure ApplyUnapprovedRecordsTable(Cancel) Export
 	
 EndProcedure
 
-// Retrieves object mapping statistic data.
-// The MappingDigest() property is initialized.
+// Gets information about object mapping statistics.
+// The digest Mapping () property is initialized.
 //
 // Parameters:
-//      Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
+//      Cancel - Boolean -  the opt-out flag is raised if an error occurs.
 // 
 Procedure GetObjectMappingDigestInfo(Cancel) Export
 	
@@ -157,26 +155,26 @@ Procedure GetObjectMappingDigestInfo(Cancel) Export
 		Return;
 	EndIf;
 	
-	// Specifying a blank array of user fields because there is no need to select fields.
+	// 
 	UserFields = New Array;
 	
 	TempTablesManager = New TempTablesManager;
 	
-	// Getting object mapping tables (mapped, unmapped).
+	// 
 	ObjectsMappingData(SourceTable2, UserFields, TempTablesManager);
 	
-	// Getting object mapping digest data.
+	// 
 	GetMappingDigest(TempTablesManager);
 	
 	TempTablesManager.Close();
 	
 EndProcedure
 
-// Imports data from an exchange message file to an infobase of the specified object types only.
+// Loads data from the exchange message file to the Information Database of only the specified object types.
 //
 // Parameters:
-//      Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
-//      TablesToImport - Array - array of types to be imported from the exchange message; array element -
+//      Cancel - Boolean -  the opt-out flag is raised if an error occurs.
+//      TablesToImport - Array -  an array of types that must be downloaded from the message exchange; an element of the array
 //                                    String.
 // 
 Procedure ExecuteDataImportForInfobase(Cancel, TablesToImport) Export
@@ -195,7 +193,7 @@ Procedure ExecuteDataImportForInfobase(Cancel, TablesToImport) Export
 	
 	DataExchangeDataProcessor.ExecuteDataImportForInfobase(TablesToImport);
 	
-	// Deleting tables imported to the infobase from the data processor cache, because they are obsolete.
+	// 
 	For Each Item In TablesToImport Do
 		DataExchangeDataProcessor.DataTablesExchangeMessages().Delete(Item);
 	EndDo;
@@ -211,19 +209,19 @@ Procedure ExecuteDataImportForInfobase(Cancel, TablesToImport) Export
 	
 EndProcedure
 
-// Data processor constructor
+// Processing constructor
 //
 Procedure Designer() Export
 	
-	// Filling table field list. Fields from this list can be mapped and displayed (search fields).
+	// 
 	TableFieldsList.LoadValues(StrSplit(DestinationTableFields, ",", False));
 	
 	SearchFieldArray = StrSplit(DestinationTableSearchFields, ",", False);
-	
-	// Deleting fields with indexes exceeding the specified limit from the search array.
+		
+	// 
 	CheckMappingFieldCountInArray(SearchFieldArray);
 	
-	// Selecting search fields in TableFieldsList
+	// 
 	For Each Item In TableFieldsList Do
 		
 		If SearchFieldArray.Find(Item.Value) <> Undefined Then
@@ -236,21 +234,21 @@ Procedure Designer() Export
 	
 	FillListWithAdditionalParameters(TableFieldsList);
 	
-	// Filling UsedFieldsList with selected items of TableFieldsList
+	// 
 	FillListWithSelectedItems(TableFieldsList, UsedFieldsList);
 	
-	// Generating the sorting table.
+	// 
 	FillSortTable(UsedFieldsList);
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties.
+// 
 
 // Object mapping table.
 //
 // Returns:
-//      ValueTable - object mapping table.
+//      ValueTable - 
 //
 Function MappingTable() Export
 	
@@ -265,12 +263,12 @@ Function MappingTable() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties - mapping digest.
+// 
 
-// Retrieves the number of objects of the current data type in the exchange message file.
+// The number of objects of the current data type in the exchange message file.
 //
 // Returns:
-//     Number - retrieves the number of objects of the current data type in the exchange message file.
+//     Number - 
 //
 Function ObjectCountInSource() Export
 	
@@ -278,10 +276,10 @@ Function ObjectCountInSource() Export
 	
 EndFunction
 
-// Number of objects of the current data type in this infobase.
+// The number of objects of the current data type in this information database.
 //
 // Returns:
-//     Number - number of objects of the current data type in this infobase.
+//     Number - 
 //
 Function ObjectCountInDestination() Export
 	
@@ -289,10 +287,10 @@ Function ObjectCountInDestination() Export
 	
 EndFunction
 
-// Number of objects that are mapped for the current data type.
+// The number of objects that are mapped for the current data type.
 //
 // Returns:
-//     Number - number of objects that are mapped for the current data type.
+//     Number - 
 //
 Function MappedObjectCount() Export
 	
@@ -300,10 +298,10 @@ Function MappedObjectCount() Export
 	
 EndFunction
 
-// Number of objects that are not mapped for the current data type.
+// The number of objects that are not mapped for the current data type.
 //
 // Returns:
-//     Number - number of objects that are not mapped for the current data type.
+//     Number - 
 //
 Function UnmappedObjectsCount() Export
 	
@@ -311,10 +309,10 @@ Function UnmappedObjectsCount() Export
 	
 EndFunction
 
-// Retrieves object mapping percentage for the current data type.
+// Percentage of object matching for the current data type.
 //
 // Returns:
-//     Number - retrieves object mapping percentage for the current data type.
+//     Number - 
 //
 Function MappedObjectPercentage() Export
 	
@@ -323,13 +321,13 @@ Function MappedObjectPercentage() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving local properties.
+// 
 
 Function MappingDigest()
 	
 	If TypeOf(MappingDigestField) <> Type("Structure") Then
 		
-		// Initializing object mapping digest structure.
+		// 
 		MappingDigestField = New Structure;
 		MappingDigestField.Insert("ObjectCountInSource",       0);
 		MappingDigestField.Insert("ObjectCountInDestination",       0);
@@ -347,7 +345,7 @@ Function ObjectMappingStatistics()
 	
 	If TypeOf(ObjectMappingStatisticsField) <> Type("Structure") Then
 		
-		// Initializing statistic data structure.
+		// 
 		ObjectMappingStatisticsField = New Structure;
 		ObjectMappingStatisticsField.Insert("MappedByRegisterSourceObjectCount",    0);
 		ObjectMappingStatisticsField.Insert("CountOfMappedByRegisterDestinationObjects",    0);
@@ -371,7 +369,7 @@ Function UnlimitedLengthStringType()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Get map table.
+// 
 
 Procedure ExecuteInfobaseObjectMapping(Cancel)
 	
@@ -381,31 +379,31 @@ Procedure ExecuteInfobaseObjectMapping(Cancel)
 		Return;
 	EndIf;
 	
-	// Getting an array of fields that were selected by the user.
+	// 
 	UserFields = UsedFieldsList.UnloadValues();
 	
-	// The IsFolder field is always present for hierarchical catalogs.
+	// 
 	If UserFields.Find("IsFolder") = Undefined Then
 		AddSearchField(UserFields, "IsFolder");
 	EndIf;
 	
 	TempTablesManager = New TempTablesManager;
 	
-	// Getting object mapping tables (mapped, unmapped).
+	// 
 	ObjectsMappingData(SourceTable2, UserFields, TempTablesManager);
 	
-	// Getting object mapping digest data.
+	// 
 	GetMappingDigest(TempTablesManager);
 	
-	// Generate map table.
+	// 
 	MappingTableField = ObjectMappingResult(SourceTable2, UserFields, TempTablesManager);
 	
 	TempTablesManager.Close();
 	
-	// Sort the table.
+	// 
 	ExecuteTableSortingAtServer();
 	
-	// Adding the SerialNumber field and filling it.
+	// 
 	AddNumberFieldToMappingTable();
 	
 EndProcedure
@@ -418,10 +416,10 @@ Procedure ExecuteAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList)
 		Return;
 	EndIf;
 	
-	// The steps of generating custom fields:
-	// 1. Add the user-selected fields.
-	// 2. Add the rest of the table fields.
-	// The order of the steps affects the display of fields in the table.
+	// 
+	// 
+	// 
+	// 
 	UserFields = New Array;
 	
 	For Each Item In UsedFieldsList Do
@@ -440,7 +438,7 @@ Procedure ExecuteAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList)
 		
 	EndDo;
 	
-	// The mapping field list is filled according to the order of elements in the UserFields array.
+	// 
 	MappingFieldListNew = New ValueList;
 	
 	For Each Item In UserFields Do
@@ -453,13 +451,13 @@ Procedure ExecuteAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList)
 	
 	TempTablesManager = New TempTablesManager;
 	
-	// Getting object mapping tables (mapped, unmapped).
+	// 
 	ObjectsMappingData(SourceTable2, UserFields, TempTablesManager);
 	
-	// Getting the table of automatic mapping.
+	// 
 	AutimaticMappingData(SourceTable2, MappingFieldListNew, UserFields, TempTablesManager);
 	
-	// Loading the table of automatically mapped objects into the form attribute.
+	// 
 	AutomaticallyMappedObjectsTable.Load(AutomaticallyMappedObjectsTableGet(TempTablesManager, UserFields));
 	
 	TempTablesManager.Close();
@@ -474,18 +472,18 @@ Procedure ExecuteDefaultAutomaticInfobaseObjectMapping(Cancel, MappingFieldsList
 		Return;
 	EndIf;
 	
-	// Getting an array of fields that were selected by the user.
+	// 
 	UserFields = UsedFieldsList.UnloadValues();
 	
 	TempTablesManager = New TempTablesManager;
 	
-	// Getting object mapping tables (mapped, unmapped).
+	// 
 	ObjectsMappingData(SourceTable2, UserFields, TempTablesManager);
 	
-	// Getting the table of automatic mapping.
+	// 
 	AutimaticMappingData(SourceTable2, MappingFieldsList, UserFields, TempTablesManager);
 	
-	// Loading updated unapproved mapping table into the object attribute
+	// 
 	UnapprovedMappingTable.Load(MergeUnapprovedMappingTableAndAutomaticMappingTable(TempTablesManager));
 	
 	TempTablesManager.Close();
@@ -494,25 +492,25 @@ EndProcedure
 
 Procedure ObjectsMappingData(SourceTable2, UserFields, TempTablesManager)
 	
-	// Get the following tables:
+	// 
 	//
-	// SourceTable
-	// UnapprovedMappingTable
-	// InfobaseObjectsMapsRegisterTable.
+	// 
+	// 
+	// 
 	//
-	// MappedSourceObjectsTableByRegister
-	// MappedDestinationObjectsTableByRegister
-	// MappedObjectsTableByUnapprovedMapping.
+	// 
+	// 
+	// 
 	//
-	// TableOfMappedObjects.
+	// 
 	//
-	// UnmappedSourceObjectsTable
-	// UnmappedDestinationObjectsTable.
+	// 
+	// 
 	//
 	//
 	
-	// Instead of service clause #any_text#, add to the query text the parameters,
-	// support the constructor operation, and return #any_text#. 
+	// 
+	//  
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {SourceTable2}
@@ -1410,9 +1408,9 @@ EndProcedure
 
 Procedure AutimaticMappingDataByGUID(UserFields, TempTablesManager)
 	
-	// Get the following tables:
+	// 
 	//
-	// AutomaticallyMappedObjectsTable
+	// 
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {AutomaticallyMappedObjectsTable}
@@ -1481,24 +1479,24 @@ EndProcedure
 
 Procedure AutimaticMappingDataByGUIDPlusBySearchFields(SourceTable2, MappingFieldsList, UserFields, TempTablesManager)
 	
-	// Get the following tables:
+	// 
 	//
-	// TheTableOfAutomaticallyMappedObjectsIsComplete
-	// UnmappedDestinationObjectsTableByFields
-	// UnmappedSourceObjectsTableByFields
-	// TableOfIncorrectlyMappedSourceObjects
-	// TableOfIncorrectlyMappedReceiverObjects.
+	// 
+	// 
+	// 
+	// 
+	// 
 	//
-	// TableOfAutomaticallyMappedObjectsByGUID
-	// TableIsAutomaticallyMappedToObjectsInTheFields
-	// AutomaticallyMappedObjectsTable.
+	// 
+	// 
+	// 
 	
-	// Table acquisition formulas:
+	// 
 	//
-	// UnmappedDestinationObjectsTableByFields = UnmappedDestinationObjectsTable — TableOfAutomaticallyMappedObjectsByGUID
-	// UnmappedSourceObjectsTableByFields = UnmappedSourceObjectsTable — TableOfAutomaticallyMappedObjectsByGUID
+	// 
+	// 
 	//
-	// AutomaticallyMappedObjectsTable = TableIsAutomaticallyMappedToObjectsInTheFields + TableOfAutomaticallyMappedObjectsByGUID
+	// 
 	
 	QueryText = "
 	|//////////////////////////////////////////////////////////////////////////////// {ТаблицаАвтоматическиСопоставленныхОбъектовПоGUID}
@@ -1823,7 +1821,7 @@ EndProcedure
 
 Procedure GetMappingDigest(TempTablesManager)
 	
-	// Getting information on the number of mapped objects.
+	// 
 	GetMappedObjectCount(TempTablesManager);
 	
 	MappingDigest().ObjectCountInSource = DataExchangeServer.TempInfobaseTableRecordCount("SourceTable2", TempTablesManager);
@@ -1852,7 +1850,7 @@ EndProcedure
 
 Procedure GetMappedObjectCount(TempTablesManager)
 	
-	// Getting the number of mapped objects.
+	// 
 	QueryText = "
 	|SELECT
 	|	COUNT(*) AS Count
@@ -2066,7 +2064,7 @@ EndFunction
 
 Function SourceInfobaseData(Cancel)
 	
-	// Function return value.
+	// 
 	DataTable = Undefined;
 	
 	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsStructureForInteractiveImportSession(InfobaseNode, ExchangeMessageFileName);
@@ -2079,16 +2077,16 @@ Function SourceInfobaseData(Cancel)
 	
 	DataTableKey = DataExchangeServer.DataTableKey(SourceTypeString, DestinationTypeString, IsObjectDeletion);
 	
-	// Perhaps the data table is already imported and is placed in the DataExchangeDataProcessor data processor cache
+	// 
 	DataTable = DataExchangeDataProcessor.DataTablesExchangeMessages().Get(DataTableKey);
 	
-	// Importing the data table if it is not imported earlier
+	// 
 	If DataTable = Undefined Then
 		
 		TablesToImport = New Array;
 		TablesToImport.Add(DataTableKey);
 		
-		// IMPORTING DATA IN THE MAPPING MODE (importing data into the value table.
+		// 
 		DataExchangeDataProcessor.ExecuteDataImportIntoValueTable(TablesToImport);
 		
 		If DataExchangeDataProcessor.FlagErrors() Then
@@ -2114,7 +2112,7 @@ EndFunction
 
 Function GetUserFields(UserFields, FieldPattern)
 	
-	// Function return value.
+	// 
 	Result = "";
 	
 	For Each Field In UserFields Do
@@ -2135,10 +2133,10 @@ EndFunction
 
 Function GetSortingFieldsAtServer()
 	
-	// Function return value.
+	// 
 	SortFields = "";
 	
-	FieldPattern = "SortFieldNN #SortDirection"; // Do not localize.
+	FieldPattern = "SortFieldNN #SortDirection"; // 
 	
 	For Each TableRow In SortTable Do
 		
@@ -2167,7 +2165,7 @@ EndFunction
 
 Function GetMappingByFieldsCondition(MappingFieldsList)
 	
-	// Function return value.
+	// 
 	Result = "";
 	
 	For Each Item In MappingFieldsList Do
@@ -2201,7 +2199,7 @@ Function GetMappingByFieldsCondition(MappingFieldsList)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Internal auxiliary procedures and functions.
+// 
 
 Procedure FillListWithSelectedItems(SourceList, DestinationList)
 	
@@ -2230,8 +2228,8 @@ Procedure FillSortTable(SourceValueList)
 		TableRow = SortTable.Add();
 		
 		TableRow.FieldName               = Item.Value;
-		TableRow.Use         = IsFirstField; // Default sorting by the first field.
-		TableRow.SortDirection = True; // Ascending.
+		TableRow.Use         = IsFirstField; // 
+		TableRow.SortDirection = True; // 
 		
 	EndDo;
 	

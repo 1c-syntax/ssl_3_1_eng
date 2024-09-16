@@ -1,28 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Returns whether configuration updates installation is supported by this computer.
-// Update installation:
-// - is available only in Windows;
-// - is not available if connected via the web server (update requires batch run of Designer
-//   that directly connects to the infobase);
-// - is available if Designer (full distribution package of 1C:Enterprise technological platform for Windows) is installed;
-// - is available if administration rights are granted.
-// - is not available in SaaS mode (update installation is centralized and executed via Service manager).
+// Returns whether installation of configuration updates is supported on this computer.
+// Install the update:
+// - available only in Windows OS;
+// - not available when connecting via a web server (because the update is performed via a batch launch of the Configurator,
+//   which performs a direct connection to the information database);
+// - possible if the Configurator is installed (full distribution of the 1C technology platform:Enterprise for Windows);
+// - available if you have administrative rights.
+// - not available in the service model (performed centrally via the service Manager).
 //
 // Returns:
 //    Structure:
-//     * Supported - Boolean - True if configuration update installation is supported.
-//     * ErrorDescription - String - error description if update installation is not supported.
+//     * Supported - Boolean -  True if the installation of the configuration updates are supported.
+//     * ErrorDescription - String -  description of the error if not supported.
 //
 Function UpdatesInstallationSupported() Export
 	
@@ -95,13 +93,13 @@ EndFunction
 // Opens the update installation form with the specified parameters.
 //
 // Parameters:
-//    UpdateIntallationParameters - Structure - additional update installation parameters:
-//     * ShouldExitApp - Boolean - True if the application is closed after installing an update. 
-//                                          Default value is False.
-//     * IsConfigurationUpdateReceived - Boolean - True if an update was retrieved 
-//                                          from an online application. The default value is False - regular update installation mode.
-//     * RunUpdate     - Boolean - if True, skip update file selection and proceed
-//                                          to installing an update. The default value is False - offer a choice.
+//    UpdateIntallationParameters - Structure - :
+//     * ShouldExitApp - Boolean -  True if the program terminates after installing the update. 
+//                                          False by default.
+//     * IsConfigurationUpdateReceived - Boolean -  True if the update being installed is received from an application 
+//                                          on the Internet. By default, False is the normal update installation mode.
+//     * RunUpdate     - Boolean -  True if you need to skip selecting the update file and go straight
+//                                          to installing the update. By default, False-offer a choice.
 //
 Procedure ShowUpdateSearchAndInstallation(UpdateIntallationParameters = Undefined) Export
 	
@@ -116,16 +114,16 @@ Procedure ShowUpdateSearchAndInstallation(UpdateIntallationParameters = Undefine
 	
 EndProcedure
 
-// Displays a backup creation settings form.
+// Displays the backup settings form.
 //
 // Parameters:
-//    BackupParameters - Structure - backup form parameters:
-//      * CreateDataBackup - Number - if 0, Do not back up the infobase;
-//                                          1 - create a temporary infobase backup;
-//                                          2, Create an infobase backup.
-//      * IBBackupDirectoryName - String - a backup directory.
-//      * RestoreInfobase - Boolean - roll back in case of update errors.
-//    NotifyDescription - NotifyDescription - a description of form closing notification.
+//    BackupParameters - Structure - :
+//      * CreateDataBackup - Number -  0, Do not create an IB backup;
+//                                          1, Create a temporary backup of the IB;
+//                                          2, Create a backup copy of the IB.
+//      * IBBackupDirectoryName - String -  the folder where the backup is saved.
+//      * RestoreInfobase - Boolean -  perform a rollback in case of an emergency.
+//    NotifyDescription - NotifyDescription -  description of the alert the form is closed.
 //
 Procedure ShowBackup(BackupParameters, NotifyDescription) Export
 	
@@ -135,15 +133,15 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// OnlineUserSupport.GetApplicationUpdates
+// 
 
-// Returns the backup settings title text for displaying in a form.
+// Returns the title text of the backup settings to display on the form.
 //
 // Parameters:
-//    Parameters - Structure - backup parameters.
+//    Parameters - Structure -  backup settings.
 //
 // Returns:
-//    String - backup creation hyperlink title.
+//    String - 
 //
 Function BackupCreationTitle(Parameters) Export
 	
@@ -167,32 +165,32 @@ Function BackupCreationTitle(Parameters) Export
 	
 EndFunction
 
-// Checks whether update installation is possible. If possible, runs
-// the update script or schedules an update for a specified time.
+// Checks whether the update can be installed. If possible, it runs
+// the update script or schedules the update for the specified time.
 //
 // Parameters:
-//    Form - ClientApplicationForm - a form where a user initiates an update (it must be closed at the end). 
-//    Parameters - Structure - update installation parameters:
-//        * UpdateMode - Number - an update installation option. Available values:
-//                                    0 - now, 1 - on exit, 2 - scheduled update.
-//        * UpdateDateTime - Date - a scheduled update date.
-//        * EmailReport - Boolean - shows whether update reports are sent by email.
-//        * Email - String - an email address for sending update reports.
-//        * SchedulerTaskCode - Number - a code of a scheduled update task.
-//        * UpdateFileName - String - the update file name.
-//        * CreateDataBackup - Number - shows whether a backup is created.
-//        * IBBackupDirectoryName - String - a backup directory.
-//        * RestoreInfobase - Boolean - shows whether an infobase is restored from a backup in case of update errors.
-//        * ShouldExitApp - Boolean - shows that an update is installed when the application is closed.
+//    Form - ClientApplicationForm -  the form from which the update is installed and which should be closed at the end. 
+//    Parameters - Structure - :
+//        * UpdateMode - Number - :
+//                                    
+//        * UpdateDateTime - Date -  date of the planned update.
+//        * EmailReport - Boolean -  indicates whether the report should be sent to the email address.
+//        * Email - String -  e-mail address to send the report about the result updates.
+//        * SchedulerTaskCode - Number -  code of the scheduled update task.
+//        * UpdateFileName - String -  name of the update file to install.
+//        * CreateDataBackup - Number -  indicates whether to create a backup.
+//        * IBBackupDirectoryName - String -  the folder where the backup is saved.
+//        * RestoreInfobase - Boolean -  indicates whether the database needs to be restored.
+//        * ShouldExitApp - Boolean -  indicates that the update is being installed at shutdown.
 //        * FilesOfUpdate - Array of Structure:
 //           ** UpdateFileFullName - String
-//           ** RunUpdateHandlers - Boolean - Indicates whether to run the update handlers after migrating to the given version.
+//           ** RunUpdateHandlers - Boolean - 
 //        * Corrections - Structure:
-//           ** Set - Array - Paths to the patch files
-//                                    in a temporary storage.
-//           ** Delete    - Array - UUIDs of patches to be deleted (String).
-//        * PlatformDirectory - String - path to the platform to be updated if it is not specified
-//                                    that the update is running on the current session platform.
+//           ** Set - Array -  paths to patch files in temporary storage
+//                                    that you want to install.
+//           ** Delete    - Array -  unique IDs (string) of the fixes that you want to delete.
+//        * PlatformDirectory - String -  path to the platform on which the update should be run, if not specified
+//                                    runs on the platform of the current session.
 //    AdministrationParameters - See StandardSubsystemsServer.AdministrationParameters.
 //
 Procedure InstallUpdate(Form, Parameters, AdministrationParameters) Export
@@ -221,13 +219,13 @@ Procedure InstallUpdate(Form, Parameters, AdministrationParameters) Export
 		EndIf;
 	EndIf;
 	
-	If Parameters.UpdateMode = 0 Then // Update now.
+	If Parameters.UpdateMode = 0 Then // 
 		RunUpdateScript(Parameters, AdministrationParameters);
-	ElsIf Parameters.UpdateMode = 1 Then // On exit
+	ElsIf Parameters.UpdateMode = 1 Then // 
 		ParameterName = "StandardSubsystems.SuggestInfobaseUpdateOnExitSession";
 		ApplicationParameters.Insert(ParameterName, True);
 		ApplicationParameters.Insert("StandardSubsystems.UpdateFilesNames", UpdateFilesNames(Parameters, Undefined));
-	ElsIf Parameters.UpdateMode = 2 Then // Schedule an update.
+	ElsIf Parameters.UpdateMode = 2 Then // 
 		ScheduleConfigurationUpdate(Parameters, AdministrationParameters);
 	EndIf;
 	
@@ -249,7 +247,7 @@ Procedure ProcessUpdateResult(UpdateResult, ScriptDirectory) Export
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
 			"Warning", StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'See the update log in the temporary file folder: %1.(digits).';"), "%temp%\1Cv8Update"),, True);
-		UpdateResult = True; // Consider the update being successful.
+		UpdateResult = True; // 
 	Else 
 		EventLogClient.AddMessageForEventLog(EventLogEvent(),
 			"Information", 
@@ -271,11 +269,11 @@ Procedure WriteDownTheErrorOfTheNeedToUpdateThePlatform(ErrorText) Export
 	
 EndProcedure
 
-// Updates database configuration.
+// Updates the database configuration.
 //
 // Parameters:
-//  StandardProcessing - Boolean - if False, do not show
-//                                  the manual update instruction.
+//  Standard processing-Boolean - if this parameter is set to False in the procedure, the manual
+//                                  update instruction will not be shown.
 //
 Procedure InstallConfigurationUpdate(ShouldExitApp = False) Export
 	
@@ -294,7 +292,7 @@ Procedure WriteErrorLogFileAndExit(Val DirectoryName, Val DetailErrorDescription
 	If StrFind(LaunchParameter, "UpdateAndExit") > 0 Then
 		
 		Directory = New File(DirectoryName);
-		If Directory.Exists() And Directory.IsDirectory() Then // ACC:566 Synchronous calls outside of the web client are allowed.
+		If Directory.Exists() And Directory.IsDirectory() Then // 
 			
 			ErrorRegistrationFile = New TextWriter(DirectoryName + "error.txt");
 			ErrorRegistrationFile.Close();
@@ -312,7 +310,7 @@ Procedure WriteErrorLogFileAndExit(Val DirectoryName, Val DetailErrorDescription
 	
 EndProcedure
 
-// Opens a form with a list of installed patches.
+// Opens a form with a list of installed fixes.
 //
 Procedure ShowInstalledPatches(Parameters = Undefined, OpeningMode = Undefined) Export
 	
@@ -324,16 +322,16 @@ Procedure ShowInstalledPatches(Parameters = Undefined, OpeningMode = Undefined) 
 	
 EndProcedure
 
-// Determines whether an extension is a patch.
+// Determines whether the extension with the passed name is a patch.
 // Parameters:
-//  PatchName - String - an extension name.
+//  PatchName - String -  name of the extension being checked.
 //
 Function IsPatch(PatchName) Export
 	Return StrStartsWith(PatchName, "EF_");
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonClientOverridable.OnStart.
 Procedure OnStart(Parameters) Export
@@ -348,7 +346,7 @@ EndProcedure
 //
 Procedure BeforeExit(Cancel, Warnings) Export
 	
-	// NOTE: When raising the flag, the subsystem "ConfigurationUpdate" clears the warnings list.
+	// 
 	// 
 	If ApplicationParameters["StandardSubsystems.SuggestInfobaseUpdateOnExitSession"] = True Then
 		WarningParameters = StandardSubsystemsClient.WarningOnExit();
@@ -395,14 +393,14 @@ Function UpdateInstallationPossible(Parameters, AdministrationParameters)
 	
 	If IsFileInfobase And Parameters.CreateDataBackup = 2 Then
 		File = New File(Parameters.IBBackupDirectoryName);
-		If Not File.Exists() Or Not File.IsDirectory() Then // ACC:566 Synchronous calls outside of the web client are allowed.
+		If Not File.Exists() Or Not File.IsDirectory() Then // 
 			ShowMessageBox(,
 				NStr("en = 'Please specify an existing folder for storing the infobase backup.';"));
 			Return False;
 		EndIf;
 	EndIf;
 	
-	If Parameters.UpdateMode = 0 Then // Update now.
+	If Parameters.UpdateMode = 0 Then // 
 		ParameterName = "StandardSubsystems.MessagesForEventLog";
 		If IsFileInfobase
 			And ConfigurationUpdateServerCall.HasActiveConnections(ApplicationParameters[ParameterName]) Then
@@ -626,12 +624,12 @@ Function StringUnicode(String)
 	
 EndFunction
 
-// Returns the event name for writing to the event log.
+// Returns the event name for the log entry.
 Function EventLogEvent() Export
 	Return NStr("en = 'Configuration update';", CommonClient.DefaultLanguageCode());
 EndFunction
 
-// Checks whether a configuration update is available at startup.
+// Checks for configuration updates when the program starts.
 //
 Procedure CheckForConfigurationUpdate()
 	
@@ -647,14 +645,14 @@ Procedure CheckForConfigurationUpdate()
 	
 	ClientRunParameters = StandardSubsystemsClient.ClientParametersOnStart();
 	If ClientRunParameters.Property("ShowInvalidHandlersMessage") Then
-		Return; // Update results form will be shown later.
+		Return; // 
 	EndIf;
 	
 	SettingsOfUpdate = ClientRunParameters.SettingsOfUpdate;
 	UpdateAvailability = SettingsOfUpdate.CheckPreviousInfobaseUpdates;
 	
 	If UpdateAvailability Then
-		// The previous update must be completed.
+		// 
 		OpenForm("DataProcessor.ApplicationUpdateResult.Form.ApplicationUpdateResult");
 		Return;
 	EndIf;
@@ -672,7 +670,7 @@ EndProcedure
 
 Function JobSchedulerSupported()
 	
-	// Task Scheduler is supported for versions 6.0 (Windows Vista) and later.
+	// 
 	
 	SystemInfo = New SystemInfo();
 	
@@ -716,7 +714,7 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 		EndIf;
 		
 		LevelPresentation = "Information";
-		If Mid(CurrentRow, 3, 1) = "." And Mid(CurrentRow, 6, 1) = "." Then // A string with a date.
+		If Mid(CurrentRow, 3, 1) = "." And Mid(CurrentRow, 6, 1) = "." Then // 
 			RowArray = StrSplit(CurrentRow, " ", False);
 			DateArray = StrSplit(RowArray[0], ".");
 			TimeArray = StrSplit(RowArray[1], ":");
@@ -728,11 +726,11 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 			
 			Comment = TrimAll(Mid(CurrentRow, StrFind(CurrentRow, "}") + 2));
 			If StrStartsWith(Comment, "UpdateSuccessful") 
-				Or Comment = "RefreshEnabled completed2" Then // ACC:1297 Do not localize (a part of a log); for compatibility purposes.
+				Or Comment = "RefreshEnabled completed2" Then // 
 				UpdateResult = True;
 				Continue;
 			ElsIf StrStartsWith(Comment, "UpdateNotExecuted")  
-				Or Comment = "RefreshEnabled not completed2" Then // ACC:1297 Do not localize (a part of a log); for compatibility purposes.
+				Or Comment = "RefreshEnabled not completed2" Then // 
 				UpdateResult = False;
 				Continue;
 			EndIf;
@@ -740,7 +738,7 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 			For NextLineNumber = LineNumber + 1 To TextDocument.LineCount() Do
 				CurrentRow = TextDocument.GetLine(NextLineNumber);
 				If Mid(CurrentRow, 3, 1) = "." And Mid(CurrentRow, 6, 1) = "." Then
-					// The next line is a new event line.
+					// 
 					LineNumber = NextLineNumber - 1;
 					Break;
 				EndIf;
@@ -755,10 +753,10 @@ Procedure ReadDataToEventLog(UpdateResult, ScriptDirectory)
 		
 	EndDo;
 	
-	// When updating SSL from a version earlier than 2.3.1.6, then see if update errors
-	// - occur as the following events might be missing from the event log:
-	// - Updated successfully
-	// - Update failed
+	// 
+	// 
+	// 
+	// 
 	If UpdateResult = Undefined Then 
 		UpdateResult = Not ErrorOccurredDuringUpdate;
 	EndIf;
@@ -769,7 +767,7 @@ EndProcedure
 
 Function UpdateProgramFilesEncoding()
 	
-	// wscript.exe can process only UTF-16 LE-encoded files.
+	// 
 	Return TextEncoding.UTF16;
 	
 EndFunction
@@ -862,7 +860,7 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 		InfoBaseConnectionString = Left(InfoBaseConnectionString, StrLen(InfoBaseConnectionString) - 1);
 	EndIf;
 	
-	// Determining path to the infobase.
+	// 
 	InfobasePath = IBConnectionsClientServer.InfobasePath(, AdministrationParameters.ClusterPort);
 	InfobasePathParameter = ?(IsFileInfobase, "/F", "/S") + InfobasePath;
 	InfobasePathString = ?(IsFileInfobase, InfobasePath, "");
@@ -870,8 +868,8 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	
 	Email = ?(Parameters.UpdateMode = 2 And Parameters.EmailReport, Parameters.Email, "");
 	
-	// Instead of "GetTempFileName", use "TempFilesDir" since the directory shouldn't be auto-deleted when the client app exits. 
-	// Reason: the executable files, runtime log, and backup (if configured) are saved to this directory.
+	//  
+	// 
 	// 
 	TempFilesDirForUpdate = TempFilesDir() + "1Cv8Update." + Format(CommonClient.SessionDate(), "DF=yyMMddHHmmss") + "\";
 	
@@ -952,7 +950,7 @@ Function GenerateUpdateScriptFiles(Val InteractiveMode, Parameters, Administrati
 	//
 	WriteTextToFile(TempFilesDirForUpdate + "main.js", TemplatesTexts.ConfigurationUpdateFileTemplate);
 	
-	// Auxiliary file: helpers.js.
+	// 
 	WriteTextToFile(TempFilesDirForUpdate + "helpers.js", TemplatesTexts.AdditionalConfigurationUpdateFile);
 	
 	If InteractiveMode Then
@@ -1049,7 +1047,7 @@ EndProcedure
 //  Context - Structure:
 //   * Parameters - See InstallUpdate.Parameters
 //   * AdministrationParameters - See StandardSubsystemsServer.AdministrationParameters.
-//  Result - Boolean, Undefined
+//  
 //
 Procedure RunUpdateScriptAfterUpdateFileChecked(Result, Context) Export
 	
@@ -1089,7 +1087,7 @@ Procedure RunUpdateScriptOnDataCleanUp(Context)
 EndProcedure
 
 // Parameters:
-//  Result - Boolean, Undefined
+//  Result - 
 //  Context - See RunUpdateScriptAfterUpdateFileChecked.Context
 //
 Procedure RunUpdateScriptAfterObsoleteDataPurge(Result, Context) Export
@@ -1144,7 +1142,7 @@ Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 		ConfigurationUpdateServerCall.DeletePatchesFromScript();
 	EndIf;
 	ReturnCode = Undefined;
-	RunApp(CommandLine1,,, ReturnCode); // ACC:534 Start update script.
+	RunApp(CommandLine1,,, ReturnCode); // 
 	ApplicationParameters.Insert("StandardSubsystems.SkipExitConfirmation", True);
 	Exit(False);
 	
@@ -1182,12 +1180,12 @@ EndProcedure
 
 #EndIf
 
-// Returns True if Designer is available.
+// Returns True if the Configurator is available.
 //
 // See Common.DebugMode
 //
 // Returns:
-//  Boolean - True if Designer is available.
+//  Boolean - 
 //
 Function DesignerBatchModeSupported()
 	
@@ -1196,7 +1194,7 @@ Function DesignerBatchModeSupported()
 #Else
 	Designer1 = BinDir() + StandardSubsystemsClient.ApplicationExecutableFileName(True);
 	DesignerFile = New File(Designer1);
-	Return DesignerFile.Exists(); // ACC:566 Synchronous calls outside of the web client are allowed.
+	Return DesignerFile.Exists(); // 
 #EndIf
 	
 EndFunction

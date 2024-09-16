@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -40,7 +38,7 @@ Procedure OnOpen(Cancel)
 	If TimeConsumingOperation <> Undefined Then
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
-		IdleParameters.Interval = 2; // Faster than a standard interval as it is shown on the home page.
+		IdleParameters.Interval = 2; // 
 		CallbackOnCompletion = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
 		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	EndIf;
@@ -141,7 +139,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for generating a user's to-do list.
+// 
 
 &AtClient
 Procedure UpdateCurrentToDosAutomatically()
@@ -160,8 +158,8 @@ Procedure GenerateToDoList(ToDoList)
 	ToDoList.Sort("IsSection Desc, SectionPresentation Asc, Important Desc, Presentation");
 	PutToTempStorage(ToDoList, UserTasksToStorage);
 	
-	// If the user didn't customize the section positions in the to-do list,
-	// they are auto-sorted according to the procedure "OnDetermineCommandInterfaceSectionsOrder".
+	// 
+	// 
 	If ViewSettings.SectionsVisibility.Count() = 0 Then
 		ToDoListInternal.SetInitialSectionsOrder(ToDoList);
 	EndIf;
@@ -172,14 +170,14 @@ Procedure GenerateToDoList(ToDoList)
 		
 		If ToDoItem.IsSection Then
 			
-			// Create a common section group.
+			// 
 			CommonGroupName = "CommonGroup" + ToDoItem.OwnerID;
 			If CurrentCommonGroup <> CommonGroupName Then
 				
 				SectionCollapsed = CollapsedSections[ToDoItem.OwnerID];
 				If SectionCollapsed = Undefined Then
 					If ViewSettings.SectionsVisibility.Count() = 0 And CurrentCommonGroup <> "" Then
-						// Cannot collapse the first group.
+						// 
 						CollapsedSections.Insert(ToDoItem.OwnerID, True);
 						SectionCollapsed = True;
 					Else
@@ -193,19 +191,19 @@ Procedure GenerateToDoList(ToDoList)
 					SectionVisibleEnabled = True;
 				EndIf;
 				
-				// Creating a common group containing all items required to display the section and its to-do items.
+				// 
 				CommonGroup = Group(CommonGroupName,, "CommonGroup");
 				CommonGroup.Visible = False;
-				// Create a section title group.
+				// 
 				TitleGroupName = "SectionTitle" + ToDoItem.OwnerID;
 				TitleGroup    = Group(TitleGroupName, CommonGroup, "SectionTitle");
-				// Create a section title.
+				// 
 				CreateCaption(ToDoItem, TitleGroup, SectionCollapsed);
 				
 				CurrentCommonGroup = CommonGroupName;
 			EndIf;
 			
-			// Create a to-do items group.
+			// 
 			GroupName = "Group" + ToDoItem.OwnerID;
 			If CurrentGroup <> GroupName Then
 				CurrentGroup = GroupName;
@@ -234,7 +232,7 @@ Procedure GenerateToDoList(ToDoList)
 			
 			NewUserTask(ToDoItem, Var_Group, UserTaskVisibleEnabled);
 			
-			// Turning on the indicator of important to-do items.
+			// 
 			If ToDoItem.HasToDoItems
 				And ToDoItem.Important
 				And UserTaskVisibleEnabled Then
@@ -282,7 +280,7 @@ Procedure OrderToDoList()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Background update.
+// 
 
 &AtServer
 Function GenerateToDoListInBackground()
@@ -300,11 +298,11 @@ Function GenerateToDoListInBackground()
 	EndIf;
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // Run immediately.
+	ExecutionParameters.WaitCompletion = 0; // 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update to-do list';");
 	ExecutionParameters.ResultAddress = UserTasksToStorage;
-	// Always runs in the background to prevent performance degradation.
-	// In file mode, it might be delayed if another background job is running.
+	// 
+	// 
 	ExecutionParameters.RunInBackground = True;
 	
 	Result = TimeConsumingOperations.ExecuteInBackground("ToDoListInternal.GenerateToDoListForUser",
@@ -338,14 +336,14 @@ Procedure ImportToDoList(ToDoListAddress)
 		GenerateToDoList(ToDoList);
 	EndIf;
 	
-	// If there are collapsed sections with important to-do items, highlighting them.
+	// 
 	SetPictureOfSectionsWithImportantToDos();
 	
 	If DisplayedUserTasksAndSections.Count() = 0 Then
 		Items.NoUserTasksPage.Visible = True;
 	Else
 		Items.NoUserTasksPage.Visible = False;
-		// If all displayed to-do items belong to a single section, hiding the section title.
+		// 
 		If DisplayedUserTasksAndSections.Count() = 1 Then
 			DisplaySection = False;
 		Else
@@ -418,7 +416,7 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 &AtClient
 Procedure GoToImportantUserTaskFromNotificationCenter(Id) Export
@@ -434,8 +432,8 @@ EndProcedure
 &AtClient
 Procedure StartToDoListUpdate(AutoUpdate = False, UpdateSilently = False)
 	
-	// Disable the to-do list auto-update handler if the update was triggered manually.
-	// The handler will be enabled once the manual update is completed.
+	// 
+	// 
 	If Not AutoUpdate Then
 		DetachIdleHandler("UpdateCurrentToDosAutomatically");
 	EndIf;
@@ -456,7 +454,7 @@ Procedure StartToDoListUpdate(AutoUpdate = False, UpdateSilently = False)
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
-	IdleParameters.Interval = 2; // Faster than a standard interval as it is shown on the home page.
+	IdleParameters.Interval = 2; // 
 	CallbackOnCompletion = New NotifyDescription("GenerateToDoListInBackgroundCompletion", ThisObject);
 	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackOnCompletion, IdleParameters);
 	
@@ -514,7 +512,7 @@ EndProcedure
 &AtServer
 Procedure CreateCaption(ToDoItem, Var_Group, SectionCollapsed)
 	
-	// Create an icon for the section show/hide button.
+	// 
 	Item = Items.Add("Picture" + ToDoItem.OwnerID, Type("FormDecoration"), Var_Group); // FormFieldExtensionForALabelField
 	Item.Type = FormDecorationType.Picture;
 	Item.Hyperlink = True;
@@ -535,7 +533,7 @@ Procedure CreateCaption(ToDoItem, Var_Group, SectionCollapsed)
 	Item.SetAction("Click", "Attachable_ProcessPictureClick");
 	Item.ToolTip = NStr("en = 'Expand or collapse the section.';");
 	
-	// Create a section title.
+	// 
 	Item = Items.Add("Title" + ToDoItem.OwnerID, Type("FormDecoration"), Var_Group);
 	Item.Type = FormDecorationType.Label;
 	Item.HorizontalAlign = ItemHorizontalLocation.Left;
@@ -565,7 +563,7 @@ Procedure NewChildUserTask(ToDoItem)
 	ItemUserTaskOwner.ExtendedTooltip.SetAction("URLProcessing", "Attachable_URLClickProcessing");
 	ItemUserTaskOwner.ExtendedTooltip.AutoMaxWidth = False;
 	
-	// Turning on the indicator of important to-do items.
+	// 
 	If ToDoItem.HasToDoItems
 		And ToDoItem.Important
 		And ItemUserTaskOwner.Visible Then
@@ -765,7 +763,7 @@ Procedure SetPictureOfSectionsWithImportantToDos()
 	Picture = PictureLib.RedRightArrow;
 	For Each SectionWithImportantToDos In SectionsWithImportantUserTasks Do
 		If SectionWithImportantToDos.Value <> True Then
-			Continue; // Section not collapsed.
+			Continue; // 
 		EndIf;
 		IconName = "Picture" + SectionWithImportantToDos.Key;
 		ItemPicture1 = Items[IconName];

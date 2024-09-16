@@ -474,7 +474,6 @@
 									<SkipOnInput>false</SkipOnInput>
 									<ChangeRowSet>false</ChangeRowSet>
 									<ChangeRowOrder>false</ChangeRowOrder>
-									<SelectionMode>SingleRow</SelectionMode>
 									<Header>false</Header>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<InitialTreeView>ExpandAllLevels</InitialTreeView>
@@ -528,7 +527,7 @@
 														<Title>
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Add roles</v8:content>
+																<v8:content>Include selected roles</v8:content>
 															</v8:item>
 														</Title>
 														<ExtendedTooltip name="RolesSelectAllExtendedTooltip" id="176"/>
@@ -540,7 +539,7 @@
 														<Title>
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Remove roles</v8:content>
+																<v8:content>Exclude selected roles</v8:content>
 															</v8:item>
 														</Title>
 														<ExtendedTooltip name="RolesClearAllExtendedTooltip" id="177"/>
@@ -888,13 +887,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Remove roles</v8:content>
+					<v8:content>Exclude selected roles</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Remove roles</v8:content>
+					<v8:content>Exclude selected roles</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -909,13 +908,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Add roles</v8:content>
+					<v8:content>Include selected roles</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Add roles</v8:content>
+					<v8:content>Include selected roles</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

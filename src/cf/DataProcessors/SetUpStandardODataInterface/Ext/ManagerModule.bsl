@@ -1,25 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// ACC:581-off Called from development tools.
+// 
 
-// Puts a prepared structure to view metadata in the temporary storage.
-// To call from a long-running operation (background job).
+// Places a prepared structure in temporary storage for viewing metadata.
+// To call from a long-running operation (background task).
 //
 // Parameters:
-//  Parameters		 - Structure - Empty structure. 
-//  StorageAddress	 - String - Temporary storage address to return the data to. 
+//  Parameters		 - Structure -  an empty structure. 
+//  StorageAddress	 - String -  the address of the temporary storage where the data will be returned. 
 //
 Procedure PrepareStandardODataInterfaceContentSetupParameters(Parameters, StorageAddress) Export
 	
@@ -28,8 +26,8 @@ Procedure PrepareStandardODataInterfaceContentSetupParameters(Parameters, Storag
 	
 EndProcedure
 
-// Returns a role to be assigned to an infobase user
-// whose username and password will be used upon connection to standard OData Interface.
+// Returns the role intended to be assigned to the user of the information base,
+// whose username and password will be used when connecting to the standard OData interface.
 //
 // Returns:
 //   MetadataObjectRole
@@ -40,14 +38,14 @@ Function RoleForStandardODataInterface() Export
 	
 EndFunction
 
-// Returns authorization settings for standard OData interface (SaaS).
+// Returns authorization settings for the standard OData interface (in the service model).
 //
 // Returns:
 //   FixedStructure:
-//                        * Used - Boolean - OData authorization availability flag.
-//                                         
-//                        * Login - String - Username to access the standard OData interface.
-//                                         
+//                        * Used - Boolean -  enable authorization flag for accessing
+//                                         the standard OData interface,
+//                        * Login - String -  user login for authorization when accessing
+//                                         the standard OData interface.
 //
 Function AuthorizationSettingsForStandardODataInterface() Export
 	
@@ -64,18 +62,18 @@ Function AuthorizationSettingsForStandardODataInterface() Export
 	
 EndFunction
 
-// Writes authorization settings for standard OData interface (SaaS).
+// Records authorization settings for the standard OData interface (in the service model).
 //
 // Parameters:
 //  AuthorizationSettings - Structure:
-//                        * Used - Boolean - OData authorization availability flag.
-//                                         
-//                        * Login - String - Username to authenticate to standard OData interface.
-//                                         
-//                        * Password - String - Password to authenticate to standard OData interface.
-//                                         Passed within the structure only for password change.
-//                                         
-//                                         
+//                        * Used - Boolean -  enable authorization flag for accessing
+//                                         the standard OData interface,
+//                        * Login - String -  user login for authorization when accessing
+//                                         the standard OData interface,
+//                        * Password - String -  the user's password for authorization when accessing
+//                                         the standard OData interface. The value is passed
+//                                         as part of the structure only in cases when it is necessary
+//                                         to change the password.
 //
 Procedure WriteAuthorizationSettingsForStandardODataInterface(Val AuthorizationSettings) Export
 	
@@ -83,7 +81,7 @@ Procedure WriteAuthorizationSettingsForStandardODataInterface(Val AuthorizationS
 	
 	If AuthorizationSettings.Used Then
 		
-		// Create or update an infobase user.
+		// 
 		
 		CheckCanCreateUserForStandardODataInterfaceCalls();
 		
@@ -181,7 +179,7 @@ Procedure WriteAuthorizationSettingsForStandardODataInterface(Val AuthorizationS
 		
 		If ValueIsFilled(UserProperties.User) Then
 			
-			// Lock the infobase user.
+			// 
 			
 			IBUserDetails = New Structure();
 			IBUserDetails.Insert("Action", "Write");
@@ -199,20 +197,20 @@ Procedure WriteAuthorizationSettingsForStandardODataInterface(Val AuthorizationS
 	
 EndProcedure
 
-// Returns a data model for object that can be included in standard
-// OData interface (SaaS).
+// Returns a data model for objects that can be included in the standard
+// OData interface (in the service model).
 //
 // Returns:
 //   ValueTable:
-//                         * MetadataObject - MetadataObject - Metadata object that can
-//                                              be included in standard OData interface,
-//                         * Read - Boolean -  access to write the object can be granted
-//                                              using standard OData interface,
-//                         * Record - Boolean -  access to write the object
-//                                              can be granted using standard OData interface,
-//                         * Dependencies -      Array of MetadataObject - Array of metadata objects.
-//                                              They will be included in standard OData interface when the current object is included.
-//                                              
+//                         * MetadataObject - MetadataObject -  a metadata object that can
+//                                              be included in the standard OData interface,
+//                         * Read - Boolean -    through the standard OData interface
+//                                              , access to reading an object can be provided,
+//                         * Record - Boolean -    through the standard OData interface
+//                                              , access to the object record can be provided,
+//                         * Dependencies -      Array of MetadataObject -  an array of metadata objects that
+//                                              must be included in the standard OData interface when
+//                                              the current object is enabled.
 //
 Function ModelOfDataToProvideForStandardODataInterface() Export
 	
@@ -254,15 +252,15 @@ Function ModelOfDataToProvideForStandardODataInterface() Export
 EndFunction
 
 
-// Returns a reference role to be assigned to an infobase user
-// whose username and password will be used upon connection to standard
-// OData interface (SaaS).
+// Returns the reference composition of the role to assign to the user of the information base,
+// whose username and password will be used when connecting to the standard interface
+// OData (in the service model).
 //
 // Returns:
 //   Map of KeyAndValue:
-//     * Key - MetadataObject - a metadata object.
-//     * Value - Array of String - Array of names of access rights that should be granted to 
-//                                     the metadata object in the role.
+//     * Key - MetadataObject - 
+//     * Value - Array of String -  
+//                                     
 //
 Function ReferenceRoleCompositionForStandardODataInterface() Export
 	
@@ -305,12 +303,12 @@ Function ReferenceRoleCompositionForStandardODataInterface() Export
 	
 EndFunction
 
-// Returns errors in a role to be assigned to an infobase
-// user whose username and password will be used upon connection to standard
-// OData interface (SaaS).
+// Returns errors in the composition of the role intended to be assigned to the user of the information base,
+// whose username and password will be used when connecting to the standard interface
+// OData (in the service model).
 //
 // Returns:
-//   Array - Errors found in the role.
+//   Array - 
 //
 Function ODataRoleCompositionErrors(ErrorsByObjects = Undefined) Export
 	
@@ -377,7 +375,7 @@ Function ODataRoleCompositionErrors(ErrorsByObjects = Undefined) Export
 	
 EndFunction
 
-// ACC:581-on
+// 
 
 #EndRegion
 
@@ -459,7 +457,7 @@ Procedure CheckODataRoleCompositionByMetadataObject(MetadataObject, ReferenceCom
 		EndIf;
 	EndDo;
 	
-	// The rights that are present in reference rights but missing in granted rights are considered lacking.
+	// 
 	MissingRightsByObject = New Array();
 	For Each RightKind In ReferenceRights Do
 		If GrantedRights.Find(RightKind) = Undefined Then
@@ -470,7 +468,7 @@ Procedure CheckODataRoleCompositionByMetadataObject(MetadataObject, ReferenceCom
 		MissingRights.Insert(MetadataObject, MissingRightsByObject);
 	EndIf;
 	
-	// The rights that are present in granted rights but missing in reference rights are considered excessive.
+	// 
 	ExcessRightsByObject = New Array();
 	For Each RightKind In GrantedRights Do
 		If ReferenceRights.Find(RightKind) = Undefined Then
@@ -1013,10 +1011,10 @@ Function AllowedRightsForMetadataObject(Val MetadataObject)
 	
 EndFunction
 
-// Checks whether the passed metadata object is ConfigurationMetadataObject.
+// Checks whether the object passed in metadata object ObjectDataSource.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - Metadata object being checked.
+//  MetadataObject - MetadataObject -  the metadata object to check.
 //
 // Returns:
 //   Boolean
@@ -1030,7 +1028,7 @@ EndFunction
 // Checks whether the passed metadata object is a session parameter.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - Metadata object being checked.
+//  MetadataObject - MetadataObject -  the metadata object to check.
 //
 // Returns:
 //   Boolean
@@ -1042,10 +1040,10 @@ Function IsSessionParameter(Val MetadataObject)
 	
 EndFunction
 
-// Checks whether the passed metadata object is a common attribute.
+// Checks whether the passed metadata object is a shared property.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - Metadata object being checked.
+//  MetadataObject - MetadataObject -  the metadata object to check.
 //
 // Returns:
 //   Boolean
@@ -1060,7 +1058,7 @@ EndFunction
 // Checks whether the passed metadata object is a reference object.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - Metadata object being checked.
+//  MetadataObject - MetadataObject -  the metadata object to check.
 //
 // Returns:
 //   Boolean
@@ -1079,10 +1077,10 @@ Function IsRefData(Val MetadataObject)
 		
 EndFunction
 
-// Checks whether the passed metadata object has a reference type that supports predefined items.
+// Checks whether the passed metadata object is a reference object with support for predefined elements.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - Metadata object being checked.
+//  MetadataObject - MetadataObject -  the metadata object to check.
 //
 // Returns:
 //   Boolean
@@ -1096,10 +1094,10 @@ Function IsRefDataSupportingPredefinedItems(Val MetadataObject)
 	
 EndFunction
 
-// Checks whether the passed metadata object is a record set that supports totals.
+// Checks whether the passed metadata object is a set of records that supports totals.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - Metadata object being checked.
+//  MetadataObject - MetadataObject -  the metadata object to check.
 //
 // Returns:
 //   Boolean

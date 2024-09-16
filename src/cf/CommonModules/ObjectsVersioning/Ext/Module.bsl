@@ -1,24 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Saves the object versioning setting.
+// Writes the configuration versioning of the object.
 //
 // Parameters:
 //  ObjectType - String
 //             - Type
 //             - MetadataObject
-//             - CatalogRef.MetadataObjectIDs - metadata object;
-//  VersioningMode - EnumRef.ObjectsVersioningOptions - version recording condition;
-//  VersionLifetime - EnumRef.VersionsLifetimes - period after which versions must be deleted.
+//             - CatalogRef.MetadataObjectIDs - 
+//  VersioningMode - EnumRef.ObjectsVersioningOptions -  condition for recording versions;
+//  VersionLifetime - EnumRef.VersionsLifetimes -  the period after which versions are to be cleaned up.
 //
 Procedure SaveObjectVersioningConfiguration(Val ObjectType, Val VersioningMode, Val VersionLifetime = Undefined) Export
 	
@@ -58,10 +56,10 @@ Procedure SaveObjectVersioningConfiguration(Val ObjectType, Val VersioningMode, 
 	
 EndProcedure
 
-// Configures a form before enabling the versioning subsystem.
+// Performs actions with the form that are necessary to enable the versioning subsystem.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a form used to enable the versioning mechanism.
+//  Form - ClientApplicationForm -  form for enabling the versioning mechanism.
 //
 Procedure OnCreateAtServer(Form) Export
 	
@@ -80,28 +78,28 @@ Procedure OnCreateAtServer(Form) Export
 	
 EndProcedure
 
-// Returns a flag that shows that versioning is used for the specified metadata object.
+// Returns whether versioning is used for the specified metadata object.
 //
 // Parameters:
-//  ObjectName - String - full path to metadata object. For example, "Catalog.Products".
+//  ObjectName - String -  full path to the metadata object. For Example, " Directory.Nomenclature".
 //
 // Returns:
-//  Boolean - True, if enabled.
+//  Boolean - 
 //
 Function ObjectVersioningEnabled(ObjectName) Export
 	ListOfObjects = CommonClientServer.ValueInArray(ObjectName);
 	Return ObjectVersioningIsEnabled(ListOfObjects)[ObjectName];
 EndFunction
 
-// Returns a flag indicating that versioning is used for the list of objects.
+// Returns whether versioning is used for the list of objects.
 //
 // Parameters:
-//  ListOfObjects - Array - a list of metadata object names.
+//  ListOfObjects - Array -  list of names of metadata objects.
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - String - metadata object name.
-//   * Value - Boolean - indicates whether versioning is enabled or disabled.
+//   * Key - String -  	the name of the metadata object.
+//   * Value - Boolean -  versioning is enabled or disabled.
 //
 Function ObjectVersioningIsEnabled(ListOfObjects) Export
 	
@@ -135,11 +133,11 @@ Function ObjectVersioningIsEnabled(ListOfObjects) Export
 	
 EndFunction
 
-// Enables recording change history for a specified metadata object.
+// Enables recording the change history for the specified metadata object.
 //
 // Parameters:
-//  ObjectName - String - full path to metadata object. For example, "Catalog.Products".
-//  VersioningMode - EnumRef.ObjectsVersioningOptions - object versioning mode.
+//  ObjectName - String -  full path to the metadata object. For Example, " Directory.Nomenclature".
+//  VersioningMode - EnumRef.ObjectsVersioningOptions -  option for object versioning.
 //
 Procedure EnableObjectVersioning(ObjectName, Val VersioningMode = Undefined) Export
 	
@@ -162,12 +160,12 @@ Procedure EnableObjectVersioning(ObjectName, Val VersioningMode = Undefined) Exp
 
 EndProcedure
 
-// Enables recording change history for specified metadata objects.
+// Enables recording the change history for the specified metadata objects.
 //
 // Parameters:
-//  Objects - Map of KeyAndValue - objects for which versioning must be enabled:
-//   * Key    - String - full path to metadata object. For example, "Catalog.Products".
-//   * Value - EnumRef.ObjectsVersioningOptions - object versioning mode.
+//  Objects - Map of KeyAndValue - :
+//   * Key    - String -  full path to the metadata object. For Example, " Directory.Nomenclature".
+//   * Value - EnumRef.ObjectsVersioningOptions -  option for object versioning.
 //
 Procedure EnableObjectsVersioning(Objects) Export
 	
@@ -189,18 +187,18 @@ Procedure EnableObjectsVersioning(Objects) Export
 	
 EndProcedure
 
-// Returns the history retainment flag for the object versioning settings form.
+// 
 //
 // Returns: 
 //   Boolean
 //
 // Example:
-//	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
-//		ModuleObjectVersioning = Common.CommonModule("ObjectsVersioning");
-//		UseObjectVersioning = ModuleObjectVersioning.StoreHistoryCheckBoxValue();
-//	Else 
-//		Items.ObjectsVersioningControlGroup.Visibility = False;
-//	EndIf;
+//	
+//		
+//		
+//	 
+//		
+//	
 //
 Function StoreHistoryCheckBoxValue() Export
 	
@@ -212,16 +210,16 @@ EndFunction
 
 #Region Internal
 
-// Writes an object version to the infobase.
+// Records the version of the object in the information base.
 //
 // Parameters:
-//  Source - CatalogObject, DocumentObject - infobase object to be written.
+//  Source - CatalogObject, DocumentObject -  write the object IB;
 //  WriteMode - DocumentWriteMode
 //
 Procedure WriteObjectVersion(Val Source, WriteMode = Undefined) Export
 	
-	// No need to check for "DataExchange.Load" as when writing the versioned object during exchange,
-	// the current object version is saved.
+	// 
+	// 
 	If Not GetFunctionalOption("UseObjectsVersioning") Then
 		Return;
 	EndIf;
@@ -263,12 +261,13 @@ Procedure WriteObjectVersion(Val Source, WriteMode = Undefined) Export
 	
 EndProcedure
 
-// Writes a version of the object received during the data exchange to the infobase.
+// Writes the version of the object received during data exchange to the information database.
 //
 // Parameters:
-//  Object - CatalogObject, DocumentObject - Object being written.
-//  ObjectVersionInfo - Structure - contains object version information.
-//  RefExists - Boolean - flag specifying whether the referenced object exists in the infobase.
+//  Object - CatalogObject, DocumentObject -  the object being recorded.
+//  ObjectVersionInfo - Structure -  contains information about the object version.
+//  RefExists - Boolean -  indicates whether the object is linked in the information database.
+//  Sender - ExchangePlanObject, ExchangePlanRef - 
 //
 Procedure CreateObjectVersionByDataExchange(Object, ObjectVersionInfo, RefExists, Sender) Export
 	
@@ -294,19 +293,31 @@ Procedure CreateObjectVersionByDataExchange(Object, ObjectVersionInfo, RefExists
 	ObjectVersionInfo.ObjectVersionType = ObjectVersionType;
 	
 	If Not ValueIsFilled(ObjectVersionInfo.VersionAuthor) Then
-		ObjectVersionInfo.VersionAuthor = Users.AuthorizedUser();
+		
+		If Sender <> Undefined
+			And ValueIsFilled(Sender.Ref) Then
+			
+			ObjectVersionInfo.VersionAuthor = Sender.Ref;
+			
+		Else
+			
+			ObjectVersionInfo.VersionAuthor = Users.AuthorizedUser();
+			
+		EndIf;
+		
 	EndIf;
 	
+	InformationRegisters.ObjectsVersions.RemovePreviousWarningExchanges(ObjectVersionInfo);
 	CreateObjectVersion(Object, ObjectVersionInfo, False);
 	
 EndProcedure
 
-// Sets the object version ignoring flag.
+// Sets whether the object version is ignored.
 //
 // Parameters:
-//  Ref - AnyRef - reference to the ignored object.
-//  VersionNumber - Number - version number of the ignored object.
-//  Ignore - Boolean - version ignoring flag.
+//  Ref - AnyRef -  a reference to the object being ignored.
+//  VersionNumber - Number -  version number of the object to ignore.
+//  Ignore - Boolean -  indicates whether the version is ignored.
 //
 Procedure IgnoreObjectVersion(Ref, VersionNumber, Ignore) Export
 	
@@ -389,10 +400,10 @@ Procedure ChangeTheSyncWarning(RegisterEntryParameters, CheckForAnEntry) Export
 		RecordManager.Object = Ref;
 		RecordManager.VersionNumber = VersionNumber;
 		
-		RecordManager.Read(); // Read data to save the attributes that won't be passed to the form.
+		RecordManager.Read(); // 
 		If Not RecordManager.Selected() Then
 			
-			// Use case: A user opened the warning dialog and fixed the issue.
+			// 
 			RollbackTransaction();
 			Return;
 			
@@ -412,18 +423,18 @@ Procedure ChangeTheSyncWarning(RegisterEntryParameters, CheckForAnEntry) Export
 	
 EndProcedure
 
-// Returns the number of conflicts and rejected objects.
+// Returns the number of collisions or rejected objects.
 //
 // Parameters:
 //  ExchangeNodes - ExchangePlanRef
 //             - Array
 //             - ValueList
-//             - Undefined - filter used to display the number of conflicts.
-//  IsConflictsCount - Boolean - If True, returns the number of conflicts. If False, returns the number of rejected objects.
-//  ShowIgnoredItems - Boolean - indicates whether ignored objects are included.
-//  InfobaseNode - ExchangePlanRef - filter by a specific node.
-//  Period - StandardPeriod - filter by period.
-//  SearchString - String - filter by comment.
+//             - Undefined - 
+//  IsConflictsCount - Boolean -  if True, it returns the number of collisions, otherwise the number of rejected ones.
+//  ShowIgnoredItems - Boolean -  indicates whether ignored data should be accounted for.
+//  Hotelinformationen Planesense - the selection of a specific host.
+//  Period - StandardPeriod -  selection by period.
+//  SearchString - String -  selection by comment.
 //
 Function ConflictOrRejectedItemCount(ExchangeNodes, IsConflictsCount,
 	ShowIgnoredItems, Period, SearchString) Export
@@ -494,7 +505,7 @@ Function ConflictOrRejectedItemCount(ExchangeNodes, IsConflictsCount,
 			EndIf;
 		EndIf;
 		
-	Else // Filtering by comment is not supported.
+	Else // 
 		VersionTypes.Add(Enums.ObjectVersionTypes.ConflictDataAccepted);
 		VersionTypes.Add(Enums.ObjectVersionTypes.RejectedConflictData);
 		VersionTypes.Add(Enums.ObjectVersionTypes.RejectedDueToPeriodEndClosingDateObjectExistsInInfobase);
@@ -566,14 +577,14 @@ Function HasRightToReadObjectVersionData() Export
 	Return AccessRight("View", Metadata.CommonCommands.ChangeHistory);
 EndFunction
 
-// Fills parameters of a dynamic list that displays corrupted object versions
-// generated while getting data as a result of data exchange in case of conflicts
-// or if writing documents was canceled due to change closing date check failure.
+// Fills in the parameters of a dynamic list that displays problematic versions of objects
+// that were created when data was received as a result of data exchange in case of collisions,
+// or when documents were refused to be recorded as a result of failure to check the date when changes were forbidden.
 //
 // Parameters:
-//  List - DynamicList - dynamic list to be initialized.
-//  IssueKind - String - list of conflicts is initialized,
-//                         RejectedDueToDate - declined due to date.
+//  List - DynamicList -  initialize the dynamic list.
+//  IssueKind - String -  collisions-initializes the list of collisions,
+//                         Neprikasaemie - missed the date.
 //
 Procedure InitializeDynamicListOfCorruptedVersions(List, IssueKind = "Conflicts") Export
 	
@@ -721,7 +732,7 @@ Function TextOfTheVersionWarningListRequest() Export
 	
 EndFunction
 
-// Returns the command details that are required for adding the command to the "Data integrity check results" report.
+// Returns a description of the command to add to the accounting check Results report.
 // 
 // Parameters:
 //  Form - ClientApplicationForm
@@ -743,7 +754,7 @@ Function ChangeHistoryCommand(Form) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonOverridable.OnAddReferenceSearchExceptions.
 Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
@@ -784,7 +795,7 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Exp
 		RecordSet.Read();
 		
 		If Common.ValueToXMLString(DataElement) = Common.ValueToXMLString(RecordSet) Then
-			// Consider that there are no conflicts.
+			// 
 			ItemReceive = DataItemReceive.Ignore;
 			
 			CommitTransaction();
@@ -804,7 +815,7 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Exp
 				EndIf;
 		EndIf;
 		
-		// Checking if this version is marked for export.
+		// 
 		VersionsToExport = VersionsToExport(Object, Sender.Ref);
 		For Each VersionToExport In VersionsToExport Do
 			If VersionToExport.VersionNumber = VersionNumber Then
@@ -922,7 +933,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 	ReadInfoAboutNode(DataElement[0]);
 	Object = DataElement.Filter.Object.Value;
 	
-	// Mapping incoming numbers of the version and the version owner with numbers in this infobase.
+	// 
 	SerialNumberOfVersionToSynchronize = DataElement.Filter.VersionNumber.Value - DataElement[0].Offset;
 	OwnerVersionSerialNumber = DataElement[0].VersionOwner;
 	
@@ -939,14 +950,14 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 			DataElement[0].VersionOwner = VersionNumberInRegister(Object, OwnerVersionSerialNumber);
 		EndIf;
 		
-		// Comparing with the existing version.
+		// 
 		RecordSet = InformationRegisters.ObjectsVersions.CreateRecordSet();
 		RecordSet.Filter.Object.Set(Object);
 		RecordSet.Filter.VersionNumber.Set(VersionNumber);
 		RecordSet.Read();
 		
 		If Common.ValueToXMLString(DataElement) = Common.ValueToXMLString(RecordSet) Then
-			// Consider that there are no conflicts.
+			// 
 			ItemReceive = DataItemReceive.Ignore;
 			
 			CommitTransaction();
@@ -966,7 +977,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 				EndIf;
 		EndIf;
 		
-		// Checking if this version is marked for export.
+		// 
 		VersionsToExport = VersionsToExport(Object, Sender.Ref);
 		For Each VersionToExport In VersionsToExport Do
 			If VersionToExport.VersionNumber = VersionNumber Then
@@ -974,10 +985,10 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 			EndIf;
 		EndDo;
 		
-		// Writing the resulting version and changing its number taking into account versions that will not be synchronized.
+		// 
 		If Not HasConflict Then
-			// If the object wasn't modified, overwrite the versions without checking it
-			// (as it's unknown if the object was modified in the sender node).
+			// 
+			// 
 			If RecordSet.Count() = 0 Then
 				Record = RecordSet.Add();
 				Record.Object = Object;
@@ -994,7 +1005,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 			Return;
 		EndIf;
 		
-		// Saving data of the last written version.
+		// 
 		LastVersionNumber = LastVersionNumber(Object);
 		LatestVersion1 = InformationRegisters.ObjectsVersions.CreateRecordManager();
 		LatestVersion1.Object = Object;
@@ -1012,7 +1023,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 			Return;
 		EndIf;
 		
-		// Shifting all versions registered for sending to insert a version from the main node.
+		// 
 		
 		For Each VersionDetails In VersionsToExport Do
 			If VersionDetails.VersionNumber >= VersionNumber Then
@@ -1031,7 +1042,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 			Sender.AdditionalProperties.Insert("ObjectVersionConflicts", ObjectVersionConflicts);
 		EndIf;
 		
-		// Recording the version that will be used as an owner of rejected versions.
+		// 
 		ConflictVersionNumber = ObjectVersionConflicts[Object];
 		VersionNumberShift = 1;
 		SetRejectedVersionsOwner = False;
@@ -1073,7 +1084,7 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 			EndIf;
 		EndDo;
 		
-		// Creating a version that will be an owner of rejected versions.
+		// 
 		If ObjectVersionConflicts[Object] = Undefined Then
 			ConflictVersionNumber = VersionNumber + 1;
 			VersionAuthor = Common.ObjectManagerByRef(Sender.Ref).ThisNode();
@@ -1138,13 +1149,13 @@ Procedure OnDefineScheduledJobSettings(Settings) Export
 	
 EndProcedure
 
-// Handler of transition to the object version
+// Processor upgrade to the current version of the object.
 //
 // Parameters:
-//  ObjectRef - AnyRef - a reference to the object that has a version.
-//  NewVersionNumber - Number - a version number to migrate.
-//  IgnoredVersionNumber - Number - a version number to ignore.
-//  SkipPeriodClosingCheck - Boolean - the flag specifying whether period-end closing date check is skipped.
+//  Objectlink-Any Link-a link to an object for which there is a version.
+//  Version numberfor the transition-The number is the number of the version to which you want to switch.
+//  The number of the ignored version is the number of the version to be ignored.
+//  Skipping the check of the changelog-Boolean-indicates that the check of the date of the download ban is skipped.
 //
 Procedure OnStartUsingNewObjectVersion(ObjectReference, Val VersionNumber) Export
 	
@@ -1208,8 +1219,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.InformationRegisters.ObjectVersioningSettings.FullName());
 	
 	ObsoleteVersionsInformation = ObsoleteVersionsInformation();
@@ -1218,10 +1229,10 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	For Each Section In Sections Do
 		ObsoleteObjectsID = "ObsoleteObjectVersions" + StrReplace(Section.FullName(), ".", "");
-		// Add a to-do item.
+		// 
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id = ObsoleteObjectsID;
-		// Displaying a user task if the obsolete data exceeds 1 GB.
+		// 
 		ToDoItem.HasToDoItems      = ObsoleteVersionsInformation.DataSize > (1024 * 1024 * 1024);
 		ToDoItem.Presentation = NStr("en = 'Obsolete object versions';");
 		ToDoItem.Form         = "InformationRegister.ObjectVersioningSettings.Form.HistoryStorageSettings";
@@ -1348,7 +1359,7 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	
 EndProcedure
 
-// Creates an object version and writes it to the infobase.
+// Creates and writes the object version to the information database.
 //
 Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = True)
 	
@@ -1362,9 +1373,9 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 			PostingChanged = ObjectVersionInfo.PostingChanged;
 		EndIf;
 		
-		// Creates an object version and writes it to the infobase.
+		// 
 		If Not Object.IsNew() And (PostingChanged And ObjectVersionInfo.VersionNumber > 1 Or CurrentAndPreviousVersionMismatch(Object)) Then
-			// If versioning is enabled after the object creation, the previous version is written to the infobase.
+			// 
 			If ObjectVersionInfo.VersionNumber = 1 Then
 				If ObjectIsVersioned(Object.Ref) Then
 					VersionParameters = New Structure;
@@ -1375,7 +1386,7 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 				EndIf;
 			EndIf;
 			
-			// Saving the previous object version.
+			// 
 			RecordManager = InformationRegisters.ObjectsVersions.CreateRecordManager();
 			RecordManager.Object = Object.Ref;
 			RecordManager.VersionNumber = PreviousVersionNumber(Object.Ref, ObjectVersionInfo.VersionNumber);
@@ -1395,7 +1406,7 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 			EndIf;
 		EndIf;
 		
-		// Saving current version with no data.
+		// 
 		RecordManager = InformationRegisters.ObjectsVersions.CreateRecordManager();
 		RecordManager.Object = ObjectReference;
 		RecordManager.VersionNumber = ObjectVersionInfo.VersionNumber;
@@ -1413,7 +1424,7 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 		ObjectVersionInfo.Property("SynchronizationWarning", RecordManager.SynchronizationWarning);
 		
 		If Not Object.IsNew() Then
-			// Before calculating the checksum, set the post status to the value expected after writing the document.
+			// 
 			// 
 			If PostingChanged Then
 				Object.Posted = Not Object.Posted;
@@ -1421,13 +1432,13 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 			
 			RecordManager.Checksum = Checksum(DataToStore(Object));
 			
-			// Restore posting status to prevent failure of other functionality depending on this attribute.
+			// 
 			If PostingChanged Then
 				Object.Posted = Not Object.Posted;
 			EndIf;
 		EndIf;
 	Else
-		// Saving the previous object version.
+		// 
 		RecordManager = InformationRegisters.ObjectsVersions.CreateRecordManager();
 		RecordManager.Object = Object.Ref;
 		RecordManager.VersionNumber = PreviousVersionNumber(Object.Ref, ObjectVersionInfo.VersionNumber);
@@ -1448,10 +1459,10 @@ Procedure CreateObjectVersion(Object, ObjectVersionInfo, NormalVersionRecord = T
 	
 EndProcedure
 
-// Writes an object version to the infobase.
+// Records the version of the object in the information base.
 //
 // Parameters:
-//  Object - to create version.
+//  Object - 
 //
 Procedure OnCreateObjectVersion(Object, WriteMode)
 	
@@ -1545,13 +1556,13 @@ Procedure CheckObjectEditRights(MetadataObject)
 	
 EndProcedure
 
-// Returns a spreadsheet document filled with the object data.
+// Returns a table document filled with object data.
 // 
 // Parameters:
 //  ObjectReference - AnyRef
 //
 // Returns:
-//  SpreadsheetDocument - object print form.
+//  SpreadsheetDocument - 
 //
 Function ReportOnObjectVersion(ObjectReference, Val ObjectVersion = Undefined, CustomVersionNumber = Undefined) Export
 	
@@ -1592,13 +1603,13 @@ Function ReportOnObjectVersion(ObjectReference, Val ObjectVersion = Undefined, C
 	
 EndFunction
 
-// Returns number of the last saved object version.
+// Returns the number of the last recorded version of the object.
 //
 // Parameters:
-//  Ref - AnyRef - reference to an infobase object.
+//  Ref - AnyRef -  link to the information base object.
 //
 // Returns:
-//  Number - object version number.
+//  Number -  the version number of the object.
 //
 Function LastVersionNumber(Ref, ChangedByUser = False) Export
 	
@@ -1642,7 +1653,7 @@ Function LastVersionNumber(Ref, ChangedByUser = False) Export
 	
 EndFunction
 
-// Previous version number changed by user.
+// The number of the previous version that the user changed.
 Function PreviousVersionNumber(Ref, VersionCurrentNumber)
 	
 	If Ref.IsEmpty() Then
@@ -1671,10 +1682,10 @@ Function PreviousVersionNumber(Ref, VersionCurrentNumber)
 	
 EndFunction
 
-// Returns a versioning mode enabled for the specified metadata object.
+// Returns the versioning option for the specified metadata object.
 //
 // Parameters:
-//  ObjectType - CatalogRef.MetadataObjectIDs - Object.
+//  ObjectType - CatalogRef.MetadataObjectIDs -  object.
 //
 // Returns:
 //  EnumRef.ObjectsVersioningOptions
@@ -1686,14 +1697,14 @@ Function ObjectVersioningOption(ObjectType)
 		
 EndFunction	
 
-// Gets an object by its serialized XML presentation.
+// Retrieves an object by its serialized XML representation.
 //
 // Parameters:
-//  AddressInTempStorage - String - binary data address in temporary storage.
-//  ErrorMessageText    - String - error text (return value) when the object cannot be restored.
+//  Addressofnameordinals - String - address of binary data in temporary storage.
+//  ErrorMessageText    - String -  the text of the error (return parameter), if you choose to restore the object failed.
 //
 // Returns:
-//  Arbitrary - the object or Undefined if the object cannot be restored.
+//  Arbitrary - 
 //
 Function RestoreObjectByXML(ObjectData, ErrorMessageText = "")
 	
@@ -1723,19 +1734,19 @@ Function RestoreObjectByXML(ObjectData, ErrorMessageText = "")
 	
 EndFunction
 
-// Returns a structure containing object version and additional information.
+// Returns a structure containing the object version and additional information.
 //
 // Parameters:
-//  Ref      - AnyRef - versioned object;
-//  VersionNumber - Number  - object version number.
+//  Ref      - AnyRef -  versioned object;
+//  VersionNumber - Number  -  the version number of the object.
 //
 // Returns:
 //   Structure:
-//                          ObjectVersion - BinaryData - saved version of the infobase object.
-//                          VersionAuthor - CatalogRef.Users
+//                          
+//                          
 //                                        - CatalogRef.ExternalUsers -
-//                                          ObjectVersion - BinaryData - saved version of the infobase object.
-//                          VersionAuthor - CatalogRef.Users
+//                                          
+//                          
 // 
 // :
 //  
@@ -1789,14 +1800,14 @@ Function ObjectVersionInfo(Val Ref, Val VersionNumber) Export
 		
 EndFunction
 
-// Checks versioning settings for the passed object
-// and returns the versioning mode.
-// If versioning is not enabled for the object,
-// the default versioning rules apply.
+// Checks the versioning settings for the passed object
+// and returns the versioning option. If the object is not
+// versioned, it is versioned according to
+// the "default"versioning rules.
 //
 Function ObjectIsVersioned(Val Source, WriteModePosting = False)
 	
-	// Making sure that versioning subsystem is active.
+	// 
 	If Not GetFunctionalOption("UseObjectsVersioning") Then
 		Return False;
 	EndIf;
@@ -1812,7 +1823,7 @@ Function ObjectIsVersioned(Val Source, WriteModePosting = False)
 	
 EndFunction
 
-// MD5 checksum.
+// Checksum by MD5 algorithm.
 Function Checksum(Data) Export
 	DataHashing = New DataHashing(HashFunction.MD5);
 	
@@ -1910,7 +1921,7 @@ Function CurrentAndPreviousVersionMismatch(Object)
 	
 EndFunction
 
-// For internal use only.
+// For official use only.
 Procedure ClearObsoleteObjectVersions() Export
 	
 	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.ClearingObsoleteObjectVersions);
@@ -1953,7 +1964,6 @@ Procedure ClearObsoleteObjectVersions() Export
 			RecordManager.Write();
 		EndDo;
 		
-		//@skip-check query-in-loop - batch selection of a large amount of data
 		QueryResult = Query.Execute();
 	EndDo;
 	
@@ -1999,8 +2009,8 @@ Function ObjectDeletionBoundaries()
 	AllTypes = Metadata.InformationRegisters.ObjectsVersions.Dimensions.Object.Type.Types();
 	VersionedTypes = Metadata.DefinedTypes.VersionedData.Type.Types();
 	
-	// Other objects with missing version retention setting.
-	// The retention period is fixed and equals 1 month.
+	// 
+	// 
 	
 	NonVersionableTypes = CommonClientServer.ArraysDifference(
 		AllTypes, VersionedTypes);
@@ -2014,8 +2024,8 @@ Function ObjectDeletionBoundaries()
 	BoundaryAndObjectTypesMap.DeletionBoundary = DeletionBoundary(Enums.VersionsLifetimes.LastMonth);
 	BoundaryAndObjectTypesMap.TypesList = TypesList;
 	
-	// The versions of the rejected objects.
-	// The retention period is fixed and equals 1 month.
+	// 
+	// 
 	
 	TypesList = New Array;
 	For Each Type In VersionedTypes Do
@@ -2042,7 +2052,7 @@ Function DeletionBoundary(VersionLifetime)
 		Return AddMonth(CurrentSessionDate(), -1);
 	ElsIf VersionLifetime = Enums.VersionsLifetimes.LastWeek Then
 		Return CurrentSessionDate() - 7*24*60*60;
-	Else // VersionLifetime = Enums.VersionsLifetimes.Indefinitely
+	Else // 
 		Return '000101010000';
 	EndIf;
 EndFunction
@@ -2106,8 +2116,8 @@ Procedure OnSendDataToRecipient1(DataElement, ItemSend, Recipient)
 	
 EndProcedure
 
-// For internal use only.
-// The comment is only saved when the user is either version author or administrator.
+// For official use only.
+// A comment is recorded if the user is either the author of the version or the administrator.
 //
 Procedure AddCommentToVersion(ObjectReference, VersionNumber, Comment) Export
 	
@@ -2130,7 +2140,7 @@ Procedure AddCommentToVersion(ObjectReference, VersionNumber, Comment) Export
 	
 EndProcedure
 
-// Provides information on the number and size of obsolete object versions.
+// Provides information about the number and volume of outdated versions of objects.
 Function ObsoleteVersionsInformation() Export
 	
 	SetPrivilegedMode(True);
@@ -2235,7 +2245,7 @@ Procedure PrepareRequestParameters(Query, QueryTemplate, QueriesTexts)
 	
 EndProcedure
 
-// String presentation of data volumes. For example: "1.23 GB".
+// A string representation of the volume data. For Example: "1.23 GB".
 Function DataSizeString(Val DataSize)
 	
 	UnitOfMeasure = NStr("en = 'bytes';");
@@ -2263,15 +2273,15 @@ Function DataSizeString(Val DataSize)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Functions related to object report generation.
+// 
 
-// Returns a serialized object in the binary data format.
+// Returns a serialized object as binary data.
 //
 // Parameters:
-//  Object - Arbitrary - serialized object.
+//  Object - Arbitrary -  a serializable object.
 //
 // Returns:
-//  BinaryData - serialized object.
+//  BinaryData - 
 //
 Function SerializeObject(Object) Export
 	
@@ -2285,7 +2295,7 @@ Function SerializeObject(Object) Export
 
 EndFunction
 
-// Reads XML data from file and fills data structures.
+// The procedure reads XML data from a file and fills in data structures.
 // 
 // Parameters:
 //  VersionData - BinaryData
@@ -2332,27 +2342,27 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 	XMLReader = New FastInfosetReader;
 	XMLReader.SetBinaryData(BinaryData);
 	
-	// The marker position in the XML hierarchy:
-	// 0 - Level not specified.
-	// 1 - The first element (the object's name).
-	// 2 - Details of a table or attribute.
-	// 3 - Details of a table row details.
-	// 4 - Details of a table row field.
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	ReadingLevel = 0;
 	
 	ObjectMetadata = Ref.Metadata();
 	TSFieldValueType = "";
 	
-	// Main XML parsing cycle.
+	// 
 	While XMLReader.Read() Do
 		If XMLReader.NodeType = XMLNodeType.StartElement Then
 			ReadingLevel = ReadingLevel + 1;
-			If ReadingLevel = 1 Then // The pointer points at the first XML element (root).
-				// The object's name is stored in "XMLReader.Name", but it's irrelevant here.
-			ElsIf ReadingLevel = 2 Then // Level-two pointer is an attribute or a tabular section name.
+			If ReadingLevel = 1 Then // 
+				// 
+			ElsIf ReadingLevel = 2 Then // 
 				AttributeName = XMLReader.Name;
 				
-				// Saving the attribute against a possible case that it may be a tabular section.
+				// 
 				TabularSectionName = AttributeName;
 				If TabularSectionMetadata(ObjectMetadata, TabularSectionName) <> Undefined Then
 					TabularSections.Insert(TabularSectionName, New ValueTable);
@@ -2390,7 +2400,7 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 						NewValue.Type = AttributeDetails.Type.Types()[0];
 					EndIf;
 				EndIf;
-			ElsIf (ReadingLevel = 3) And XMLReader.Name = "Row" Then // Pointer to tabular section field.
+			ElsIf (ReadingLevel = 3) And XMLReader.Name = "Row" Then // 
 				If TabularSections[TabularSectionName] = Undefined Then
 					TabularSections.Insert(TabularSectionName, New ValueTable);
 				EndIf;
@@ -2400,7 +2410,7 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 					If NewValue.AttributeValue = Undefined Then
 						NewValue.AttributeValue = "";
 					EndIf;
-				Else // Pointer to tabular section field.
+				Else // 
 					TSFieldValueType = "";
 					TSFieldName = XMLReader.Name;
 					Table   = TabularSections[TabularSectionName];// ValueTable 
@@ -2426,13 +2436,13 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 		ElsIf XMLReader.NodeType = XMLNodeType.EndElement Then
 			ReadingLevel = ReadingLevel - 1;
 		ElsIf XMLReader.NodeType = XMLNodeType.Text Then
-			If (ReadingLevel = 2) Then // Attribute value.
+			If (ReadingLevel = 2) Then // 
 				Try
 					NewValue.AttributeValue = ?(ValueIsFilled(NewValue.Type), XMLValue(NewValue.Type, XMLReader.Value), XMLReader.Value);
 				Except
 					NewValue.AttributeValue = XMLReader.Value;
 				EndTry;
-			ElsIf (ReadingLevel = 4) Then // Attribute value.
+			ElsIf (ReadingLevel = 4) Then // 
 				If NewValue.Type = Type("TypeDescription") Then
 					TypeAsString = String(FromXMLType(New XMLDataType(XMLReader.Value, "")));
 					If IsBlankString(TypeAsString) Then
@@ -2472,12 +2482,12 @@ Function XMLObjectPresentationParsing(VersionData, Ref) Export
 		EndIf;
 	EndDo;
 	
-	// Exclude tabular sections from the attribute list
+	// 
 	For Each Item In TabularSections Do
 		AttributesValues.Delete(AttributesValues.Find(Item.Key));
 	EndDo;
 	
-	// If the object tabular section is empty and column names are not read in, fill the table columns.
+	// 
 	For Each TabularSection In TabularSections Do
 		TableName = TabularSection.Key;  // String - 
 		Table = TabularSection.Value; // ValueTable - 
@@ -2537,7 +2547,7 @@ EndFunction
 //  AttributeName - String
 //
 // Returns:
-//  StandardAttributeDetails, MetadataObjectAttribute, Undefined
+//  Opiniestatement, Objectmanagement Is Undefined
 //
 Function AttributeMetadata(ObjectMetadata, AttributeName)
 	
@@ -2601,7 +2611,7 @@ EndFunction
 //                           - MetadataObjectTabularSection
 //  
 // Returns:
-//  StandardAttributeDescriptions, MetadataObjectCollection
+//  Descriptionstandardrequisits, Collections Of Objectsmetad Data
 //
 Function TabularSectionAttributes(TabularSectionMetadata)
 	If TypeOf(TabularSectionMetadata) = Type("StandardTabularSectionDescription") Then
@@ -3109,7 +3119,6 @@ Function DataToStore(Val Object)
 	If Common.RefTypeValue(Object) Then
 		Object = Object.GetObject();
 	Else
-		//@skip-check reading-attribute-from-database - Data is being read from an object.
 		ObjectReference = Object.Ref;
 	EndIf;
 	
@@ -3582,7 +3591,7 @@ Procedure CreateRejectedItemsOwnerVersion(LastRejectedVersionNumber, ConflictVer
 
 EndProcedure
 
-// For a call from OnReceiveDataFromMaster and OnReceiveDataFromSlave.
+// To call from Prepolycondensation and Prepolycondensation.
 //
 // Parameters:
 //   Sender
@@ -3604,7 +3613,7 @@ Procedure WriteVersionWithNumberChange(DataElement, ItemReceive, Sender, Version
 		Record = RecordSet[0];
 	EndIf;
 	FillPropertyValues(Record, DataElement[0], , "Object,VersionNumber");
-	RecordSet.Write(); // ACC:1327 A lock is not necessary as the procedure is called from a transaction with a previously installed lock.
+	RecordSet.Write(); // 
 	
 	ExchangePlans.DeleteChangeRecords(Sender.Ref, RecordSet);
 	ItemReceive = DataItemReceive.Ignore;

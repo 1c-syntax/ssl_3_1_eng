@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -17,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	MixedImportance = NStr("en = 'Mixed';");
 	
-	// The number of report options is checked before opening the form.
+	// 
 	OptionsToAssign.LoadValues(Parameters.Variants);
 	OptionsCount = OptionsToAssign.Count();
 	FillSections();
@@ -174,7 +172,7 @@ Procedure FillSections()
 	ValueToFormAttribute(DestinationTree, "SubsystemsTree");
 EndProcedure
 
-// Returns the data for populating the sections tree.
+// Returns data for filling in the partition tree.
 //
 // Returns:
 //  Structure:
@@ -212,8 +210,8 @@ EndFunction
 &AtServer
 Function SectionsFillingQueryText()
 	
-	// ACC:70-off - The full join with "SeparatedSettings" just slightly slows down the query 
-	// since the combined tables don't have many records.
+	//  
+	// 
 	Return "SELECT ALLOWED
 			|	ReportsOptions.Ref,
 			|	ReportsOptions.PredefinedOption,
@@ -320,7 +318,7 @@ Function SectionsFillingQueryText()
 			|			THEN &SeeAlsoPresentation
 			|		ELSE """"
 			|	END";
-	// ACC:70-on
+	// 
 EndFunction
 
 &AtServer
@@ -351,7 +349,7 @@ Procedure WriteAtServer()
 
 EndProcedure
 
-// Adds a row to the sections tree recursively.
+// Adds a string recursively to the subsystem tree.
 //
 // Parameters:
 //  DestinationParent - ValueTree:
@@ -399,7 +397,7 @@ Procedure AddSubsystemsToTree(DestinationParent, SourceParent, SubsystemsOccurre
 		ElsIf OccurrencesOfThisSubsystem.Count() = 0 Then
 			Receiver.Importance = "";
 		Else
-			Receiver.Importance = MixedImportance; // Also used in conditional appearance.
+			Receiver.Importance = MixedImportance; // 
 		EndIf;
 
 		OptionsOccurrences = OccurrencesOfThisSubsystem.Total("Count");

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -59,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		UserSelect = Users.CurrentUser();
 	EndIf;
 	
-	// App page
+	// 
 	If Not AccessRight("Update", Metadata.Catalogs.DigitalSignatureAndEncryptionApplications) Then
 		Items.Programs.ChangeRowSet = False;
 		
@@ -89,7 +87,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	// Certificates page
+	// 
 	
 	QueryText = Certificates.QueryText;
 	CertificateIssueRequestAvailable = DigitalSignature.CommonSettings().CertificateIssueRequestAvailable;
@@ -129,8 +127,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CertificatesUpdateFilter(ThisObject, StatusApplicationIsNotInOperation);
 	
 	If Common.IsSubordinateDIBNode() Then
-		// Cannot change the list of allowed apps and their settings.
-		// Can only change the app paths on Linux servers.
+		// 
+		// 
 		Items.Programs.ChangeRowSet = False;
 		Items.ApplicationsMarkForDeletion.Enabled = False;
 		Items.ProgramsContextMenuApplicationsMarkForDeletion.Enabled = False;
@@ -150,7 +148,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FillApplicationsAndSettings();
 	UpdateCurrentItemsVisibility();
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		PlacementParameters = ModuleAttachableCommands.PlacementParameters();
@@ -200,7 +198,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		Return;
 	EndIf;
 	
-	// When changing application components or settings.
+	// 
 	If Upper(EventName) = Upper("Write_DigitalSignatureAndEncryptionApplications")
 	 Or Upper(EventName) = Upper("Write_PathsToDigitalSignatureAndEncryptionApplicationsOnLinuxServers")
 	 Or Upper(EventName) = Upper("WritePersonalSettingsForDigitalSignatureAndEncryption") Then
@@ -215,7 +213,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		Return;
 	EndIf;
 	
-	// When changing usage settings.
+	// 
 	If Upper(EventName) <> Upper("Write_ConstantsSet") Then
 		Return;
 	EndIf;
@@ -431,7 +429,7 @@ Procedure CertificatesOnGetDataAtServer(TagName, Settings, Rows)
 			|BY
 			|	Ref";
 			Query.SetParameter("References", Rows.GetKeys());
-			QueryResult = Query.Execute(); // @skip-check query-in-loop - The query is executed once
+			QueryResult = Query.Execute(); // 
 			If QueryResult.IsEmpty() Then
 				Return;
 			EndIf;
@@ -536,7 +534,12 @@ Procedure ProgramsSelection(Item, RowSelected, Field, StandardProcessing)
 		
 		FormParameters = New Structure;
 		FormParameters.Insert("WarningTitle", NStr("en = 'App check result';"));
-		FormParameters.Insert("ErrorTextClient", CurrentData.CheckResult);
+		If CurrentData.ThisIsToken And StrFind(CurrentData.CheckResult, DigitalSignatureInternalClient.ErrorTokenNotFound()) <> 0 Then
+			FormParameters.Insert("ErrorTextClient", CurrentData.CheckResult + Chars.LF + DigitalSignatureInternalClient.RecommendationsForTokens());
+		Else
+			FormParameters.Insert("ErrorTextClient", CurrentData.CheckResult);
+		EndIf;
+		
 		FormParameters.Insert("ErrorTextServer", CurrentData.CheckResultAtServer);
 		FormParameters.Insert("ShowNeedHelp", True);
 		FormParameters.Insert("ShowInstruction", True);
@@ -544,14 +547,24 @@ Procedure ProgramsSelection(Item, RowSelected, Field, StandardProcessing)
 		DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, ThisObject);
 		
 	ElsIf Not ValueIsFilled(CurrentData.Ref) Then
-	
+		
 		StandardProcessing = False;
-		ApplicationDetails = DigitalSignatureInternalClientServer.NewExtendedApplicationDetails();
-		FillPropertyValues(ApplicationDetails, CurrentData);
-		ApplicationDetails.Presentation = CurrentData.Description;
 		
-		DigitalSignatureInternalClient.OpenAppForm(ApplicationDetails, ThisObject);
-		
+		If CurrentData.ThisIsToken Then
+			If ValueIsFilled(CurrentData.Slot) Then
+				TokenDescription = DigitalSignatureInternalClient.NewTokenProperties();
+				TokenDescription.Presentation = CurrentData.Description;
+				TokenDescription.SerialNumber = CurrentData.ApplicationName;
+				TokenDescription.Slot = CurrentData.Slot;
+				DigitalSignatureInternalClient.OpenToken(TokenDescription, ThisObject);
+			EndIf;
+		Else
+			ApplicationDetails = DigitalSignatureInternalClientServer.NewExtendedApplicationDetails();
+			FillPropertyValues(ApplicationDetails, CurrentData);
+			ApplicationDetails.Presentation = CurrentData.Description;
+
+			DigitalSignatureInternalClient.OpenAppForm(ApplicationDetails, ThisObject);
+		EndIf;
 	EndIf;
 	
 EndProcedure
@@ -673,7 +686,7 @@ Procedure ApplicationsMarkForDeletion(Command)
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
@@ -716,7 +729,8 @@ EndProcedure
 
 &AtClient
 Procedure AddCertificatesInPersonalVaultDynamicListParameter()
-				
+	
+	Items.CertificateListUpdateGroup.Visible = True;
 	DigitalSignatureInternalClient.GetCertificatesPropertiesAtClient(
 		New NotifyDescription("UpdateCertificateListAfterGettingCertificatePropertiesOnClient", ThisObject),
 		True, True, True);
@@ -725,6 +739,8 @@ EndProcedure
 
 &AtClient
 Procedure UpdateCertificateListAfterGettingCertificatePropertiesOnClient(Result, Var_Parameters) Export
+	
+	Items.CertificateListUpdateGroup.Visible = False;
 	
 	For Each KeyAndValue In Result.CertificatesPropertiesAtClient Do
 		CertificatesInPersonalStorage.Add(KeyAndValue.Key); 
@@ -822,7 +838,7 @@ Procedure CertificatesUpdateFilter(Form, StatusApplicationIsNotInOperation, Curr
 	
 	Items = Form.Items;
 	
-	// Filtering certificates All/My.
+	// 
 	ShowOwnCertificates = Form.CertificatesShow <> "AllCertificates";
 	If CurrentUser <> Undefined Then
 		If ShowOwnCertificates Then
@@ -832,13 +848,13 @@ Procedure CertificatesUpdateFilter(Form, StatusApplicationIsNotInOperation, Curr
 		EndIf;
 	EndIf;
 	
-	// Filter by user.
+	// 
 	Items.CertificatesUser.Visible = Not ShowOwnCertificates;
 	Items.UserSelect.Visible = Not ShowOwnCertificates;
 	Form.Certificates.Parameters.SetParameterValue("CertificateUser", ?(ValueIsFilled(
 		Form.UserSelect), Form.UserSelect, Undefined));
 	
-	// Filter by valid certificates.
+	// 
 	SelectionByOperating = Not Form.CertificatesShow = "MyCertificatesWithexpiringValidity" 
 						And Not Form.CertificatesShow = "MyStatementsInProgress";
 							
@@ -863,7 +879,7 @@ Procedure CertificatesUpdateFilter(Form, StatusApplicationIsNotInOperation, Curr
 			And Not Form.CertificatesShow = "MyCertificatesWithexpiringValidity";
 		
 		If Items.CertificatesShowRequests.Visible Then
-			// Filter certificates by the application status.
+			// 
 			FilterByApplicationState = ValueIsFilled(Form.CertificatesShowRequests);
 			CommonClientServer.SetDynamicListFilterItem(Form.Certificates,
 				"RequestStatus", Form.CertificatesShowRequests, , , FilterByApplicationState);
@@ -1023,12 +1039,12 @@ Procedure DefineInstalledApplications()
 	
 EndProcedure
 
-// Continues the DefineInstalledApplications procedure.
+// Continue the procedure to determine the installed Programs.
 &AtClient
 Procedure DetermineApplicationsInstalledAfterAttachExtension(Attached, Context) Export
 	
 	If Attached Then
-		Items.ApplicationsAndRefreshPages.CurrentPage = Items.ApplicationsRefreshPage;
+		Items.UpdateProgramGroup.Visible = True;
 	EndIf;
 	
 	#If WebClient Then
@@ -1047,7 +1063,7 @@ Procedure IdleHandlerDefineInstalledApplications()
 	
 EndProcedure
 
-// Continues the IdleHandlerDefineInstalledApplications procedure.
+// Continue the wait handler procedure to determine the installed Programs.
 &AtClient
 Procedure DefineInstalledApplicationsOnAttachExtension(Attached, Context) Export
 	
@@ -1099,17 +1115,18 @@ Procedure ShowTitleForExtensionInstallation()
 			"CheckCryptographyAppsInstallation");
 EndProcedure
 
-// Continues the IdleHandlerDefineInstalledApplications procedure.
+// Continue the wait handler procedure to determine the installed Programs.
 &AtClient
 Procedure IdleHandlerDefineInstalledApplicationsLoopStart(Context)
 	
 	If Programs.Count() <= Context.IndexOf + 1 Then
-		// After loop.
-		Items.ApplicationsAndRefreshPages.CurrentPage = Items.AppsListPage;
+		// 
+		Items.UpdateProgramGroup.Visible = False;
 		CurrentItem = Items.Programs;
 		UpdateLinuxProgramPath();
 		Return;
 	EndIf;
+	
 	Context.IndexOf = Context.IndexOf + 1;
 	ApplicationDetails = Programs.Get(Context.IndexOf);
 
@@ -1125,7 +1142,7 @@ Procedure IdleHandlerDefineInstalledApplicationsLoopStart(Context)
 	
 EndProcedure
 
-// Continues the IdleHandlerDefineInstalledApplications procedure.
+// Continue the wait handler procedure to determine the installed Programs.
 &AtClient
 Procedure TheHandlerIsWaitingToDetermineTheCurrentlyInstalledProgramsCycleAfterObtainingTheProgramPath(DescriptionOfWay, Context) Export
 	
@@ -1149,6 +1166,9 @@ Procedure TheHandlerIsWaitingToDetermineTheCurrentlyInstalledProgramsCycleAfterO
 		
 		UpdateValue(ApplicationDetails.CheckResult, NStr("en = 'Available.';"));
 		UpdateValue(ApplicationDetails.Use, True);
+		IdleHandlerDefineInstalledApplicationsLoopStart(Context);
+		Return;
+	ElsIf ApplicationDetails.ThisIsToken Then
 		IdleHandlerDefineInstalledApplicationsLoopStart(Context);
 		Return;
 	EndIf;
@@ -1181,7 +1201,7 @@ Procedure TheHandlerIsWaitingToDetermineTheCurrentlyInstalledProgramsCycleAfterO
 	
 EndProcedure
 
-// Continues the IdleHandlerDefineInstalledApplications procedure.
+// Continue the wait handler procedure to determine the installed Programs.
 &AtClient
 Procedure IdleHandlerDefineInstalledApplicationsLoopFollowUp(Manager, Context) Export
 	
@@ -1305,6 +1325,28 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 				NewRow.PictureUsageMode = -1;
 				NewRow.Description = Cryptoprovider.Presentation;
 			EndIf;
+			
+		EndDo;
+		
+		For Each Token In Result.Tokens Do
+			
+			Found4 = Programs.FindRows(New Structure("ApplicationName",Token.SerialNumber));
+			
+			If Found4.Count() = 0 Then 
+				NewRow = Programs.Add();
+			Else
+				NewRow = Found4[0];
+			EndIf;
+			
+			NewRow.LocationType = 1;
+			NewRow.AutoDetect = True;
+			NewRow.PictureUsageMode = -1;
+			NewRow.Description = Token.Presentation;
+			NewRow.ThisIsToken = True;
+			NewRow.ApplicationName = Token.SerialNumber;
+			NewRow.Slot = Token.Slot;
+			NewRow.CheckResult = ?(ValueIsFilled(Token.Error), Token.Error, NStr("en = 'Available.';"));
+			NewRow.MoreDetails = ?(ValueIsFilled(Token.Error), NStr("en = 'Details';") + "...", "");
 			
 		EndDo;
 		
@@ -1462,7 +1504,7 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 				Programs.Move(RowIndex, IndexOf - RowIndex);
 			EndIf;
 		EndIf;
-		// Updating only changed values not to update the form table once again.
+		// 
 		UpdateValue(String.Ref,                       SelectionString.Ref);
 		UpdateValue(String.DeletionMark,              SelectionString.DeletionMark);
 		UpdateValue(String.Description,                 SelectionString.Description);
@@ -1482,7 +1524,7 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 			UpdateValue(String.LocationType, SelectionString.LocationType + ?(SelectionString.DeletionMark, 4, 0));
 		EndIf;
 		
-		If SelectionString.AutoDetect Then // The installed cryptographic service provider.
+		If SelectionString.AutoDetect Then // 
 			UpdateValue(String.LinuxApplicationPath, SelectionString.AppPathAtServerAuto);
 			UpdateValue(String.PictureUsageMode, -1);
 		Else
@@ -1558,7 +1600,7 @@ Procedure SaveSettingsAtServer(SavingSettings)
 	FillPropertyValues(PersonalSettings, SavingSettings);
 	DigitalSignatureInternal.SavePersonalSettings(PersonalSettings);
 	
-	// It is required to update personal settings on the client.
+	// 
 	RefreshReusableValues();
 	
 EndProcedure
@@ -1570,7 +1612,7 @@ Procedure SaveLinuxPathAtServer(Application, LinuxPath)
 	PersonalSettings.PathsToDigitalSignatureAndEncryptionApplications.Insert(Application, LinuxPath);
 	DigitalSignatureInternal.SavePersonalSettings(PersonalSettings);
 	
-	// It is required to update personal settings on the client.
+	// 
 	RefreshReusableValues();
 	
 EndProcedure
@@ -1625,12 +1667,12 @@ Procedure ReportResultConnectionsComponents(Result, AdditionalParameters) Export
 		EndTry;
 	Else
 		If IsBlankString(Result.ErrorDescription) Then 
-			// A user canceled the installation.
+			// 
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Add-in %1 is not installed.';"), "ExtraCryptoAPI");
 			ShowMessageBox(, ErrorText);
 		Else 
-			// Installation failed. The error description is in Result.ErrorDetails.
+			// 
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Add-in %1 is not installed (%2).';"), "ExtraCryptoAPI", Result.ErrorDescription);
 			ShowMessageBox(, ErrorText);

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -210,7 +208,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions related to displaying settings to users.
+// 
 
 &AtClient
 Procedure UpdateSettingsList()
@@ -238,7 +236,7 @@ Function UpdatingSettingsList()
 	TimeConsumingOperationParameters = TimeConsumingOperationParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // Run immediately.
+	ExecutionParameters.WaitCompletion = 0; // 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Update user settings';");
 	
 	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground("UsersInternal.FillSettingsLists",
@@ -298,7 +296,7 @@ Procedure FillSettings(Val ResultAddress)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 &AtClient
 Procedure ChangeMark1(Item)
@@ -336,7 +334,7 @@ Procedure ChangeMark1(Item)
 	EndIf;
 	
 	SettingsCount = ?(CheckMarkValue, SettingsCount, -SettingsCount);
-	// Updating settings page title.
+	// 
 	RefreshPageTitle(SettingsCount);
 	
 EndProcedure

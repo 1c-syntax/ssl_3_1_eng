@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -24,21 +22,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Raise ErrorTextOnOpen;
 	EndIf;
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// StandardSubsystems.ObjectsVersioning
+	// 
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
 		ModuleObjectsVersioning.OnCreateAtServer(ThisObject);
 	EndIf;
 	// End StandardSubsystems.ObjectsVersioning
 	
-	// Set dynamic list filters.
+	// 
 	CommonClientServer.SetDynamicListFilterItem(
 		List, "ExecuteOnSchedule", False,
 		DataCompositionComparisonType.Equal, , False,
@@ -65,7 +63,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.List.CurrentRow = ?(Parameters.CurrentRow <> Undefined, Parameters.CurrentRow, Items.List.CurrentRow);
 	
 	If Not AccessRight("Update", Metadata.Catalogs.ReportMailings) Then
-		// Show only personal mailing. Groups and excess columns are hidden.
+		// 
 		Items.List.Representation = TableRepresentation.List;
 		CommonClientServer.SetDynamicListFilterItem(List, "IsFolder", False, , , True,
 			DataCompositionSettingsItemViewMode.Inaccessible);
@@ -132,7 +130,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -164,7 +162,7 @@ Procedure SetConditionalAppearance()
 	ConditionalAppearanceItem = List.ConditionalAppearance.Items.Add();
 	ConditionalAppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
-	// Unprepared report distribution.
+	// 
 	DataFilterItem = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	DataFilterItem.LeftValue = New DataCompositionField("IsFolder");
 	DataFilterItem.ComparisonType = DataCompositionComparisonType.Equal;
@@ -236,7 +234,7 @@ Procedure Attachable_TitleDistributionAccelerationClick(Item)
 	EndIf;
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then

@@ -66,6 +66,13 @@ ReportsOptions WHERE ReportsOptions.Author = &amp;AuthorizedUser
 		</right>
 	</object>
 	<object>
+		<name>Catalog.ReportsOptions.Command.Open</name>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Configuration.StandardSubsystemsLibrary</name>
 		<right>
 			<name>MainWindowModeNormal</name>
@@ -89,13 +96,6 @@ ReportsOptions WHERE ReportsOptions.Author = &amp;AuthorizedUser
 		</right>
 		<right>
 			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Catalog.ReportsOptions.Command.Open</name>
-		<right>
-			<name>View</name>
 			<value>true</value>
 		</right>
 	</object>

@@ -17,7 +17,6 @@
 		<Event name="BeforeLoadUserSettingsAtServer">BeforeLoadUserSettingsAtServer</Event>
 		<Event name="BeforeClose">BeforeClose</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
-		<Event name="OnClose">OnClose</Event>
 		<Event name="OnUpdateUserSettingSetAtServer">OnUpdateUserSettingSetAtServer</Event>
 	</Events>
 	<ChildItems>

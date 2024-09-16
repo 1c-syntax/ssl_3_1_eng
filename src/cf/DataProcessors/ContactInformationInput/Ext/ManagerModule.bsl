@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -35,15 +33,15 @@ EndProcedure
 
 #Region Private
 
-// Returns a name of the form used to edit contact information type.
+// Returns the name of the form for editing the contact information type.
 //
 // Parameters:
 //      InformationKind - EnumRef.ContactInformationTypes
 //                    - CatalogRef.ContactInformationKinds -
-//                      Requested type.
+//                      
 //
 // Returns:
-//      String - Form full name.
+//      String -  full name of the form.
 //
 Function ContactInformationInputFormName(Val InformationKind)
 	

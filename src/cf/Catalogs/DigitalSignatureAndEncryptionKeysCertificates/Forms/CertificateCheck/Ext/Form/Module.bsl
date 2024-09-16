@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -215,7 +213,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			NStr("en = 'The %1 add-in is installed, check again.';"), "ExtraCryptoAPI");
 	EndIf;
 	
-	// When changing usage settings.
+	// 
 	If Upper(EventName) <> Upper("Write_ConstantsSet") Then
 		Return;
 	EndIf;
@@ -258,6 +256,11 @@ EndProcedure
 
 &AtClient
 Procedure Attachable_LabelURLProcessing(Item, FormattedStringURL, StandardProcessing)
+	
+	If StrEndsWith(Item.Name, "ErrorServerLabel") Or StrEndsWith(Item.Name, "ErrorClientLabel") Then
+		Return;
+	EndIf;
+	
 	DigitalSignatureInternalClient.HandleNaviLinkClassifier(Item,
 		FormattedStringURL, StandardProcessing, AdditionalData());
 EndProcedure
@@ -319,16 +322,17 @@ Procedure SupportInformationURLProcessing(Item, Var_URL, StandardProcessing)
 	DigitalSignatureInternalServerCall.AddADescriptionOfAdditionalData(
 		New Structure("Certificate", Certificate), FilesDetails, ErrorsText);
 	
+	MessageSubject1 = "";
 	ErrorsText = ErrorsText + NStr("en = 'Check result on client';") + ":" + Chars.LF;
-	SupplementTextWithErrors(ErrorsText, ChecksContent);
+	SupplementTextWithErrors(ErrorsText, ChecksContent, False, MessageSubject1);
 	
 	ErrorsText = ErrorsText + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Check result on server ""%1"":';"), ServerName) + Chars.LF;
-	SupplementTextWithErrors(ErrorsText, ChecksContent, True);
+	SupplementTextWithErrors(ErrorsText, ChecksContent, True, MessageSubject1);
 	
 	DigitalSignatureInternalClient.GenerateTechnicalInformation(
 		ErrorsText, New Structure("Subject, Message",
-			NStr("en = 'Issue occurred checking the signature certificate';"),
+			?(IsBlankString(MessageSubject1), NStr("en = 'Issue occurred checking the signature certificate';"), MessageSubject1),
 			DigitalSignatureInternalClient.TechnicalSupportRequestTextUponCertificateCheck()),
 		Undefined, FilesDetails);
 	
@@ -360,7 +364,7 @@ EndProcedure
 
 #Region Private
 
-// Continues the Check procedure.
+// Continue the Check procedure.
 &AtClient
 Procedure ValidateCompletion(NotDefined, Context) Export
 		
@@ -402,10 +406,10 @@ Procedure ValidateCompletion(NotDefined, Context) Export
 	
 EndProcedure
 
-// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
+// APK: 78-off: for secure data transfer on the client between forms, without sending them to the server.
 &AtClient
 Procedure ContinueOpening(Notification, CommonInternalData, IncomingClientParameters) Export
-// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
+// 
 	
 	InternalData = CommonInternalData;
 	ClientParameters = IncomingClientParameters;
@@ -461,7 +465,7 @@ Procedure ContinueOpening(Notification, CommonInternalData, IncomingClientParame
 	
 EndProcedure
 
-// Continues the ContinueOpening procedure.
+// Continue the procedure continue Opening.
 &AtClient
 Procedure ContinueOpeningAfterCertificateCheck(Result, Context) Export
 	
@@ -511,7 +515,7 @@ Procedure CheckCertificate(Notification)
 	TimestampCertificates.Clear();
 	Items.DecorationTimestampCertificate.Visible = False;
 	
-	// Clearing the previous check results.
+	// 
 	If StandardChecks Then
 		
 		BasicChecks = StandardChecks();
@@ -538,7 +542,7 @@ Procedure CheckCertificate(Notification)
 	
 EndProcedure
 
-// Continues the CheckCertificate procedure.
+// Continue the procedure to check the Certificate.
 &AtClient
 Procedure CheckCertificateAfterCheckAtClient(Result, Context) Export
 	
@@ -570,7 +574,7 @@ Procedure CheckCertificateAfterCheckAtClient(Result, Context) Export
 		
 EndProcedure
 
-// Follows the "CheckCertificate" procedure.
+// Continue the procedure to check the Certificate.
 &AtClient
 Procedure AfterErrorClassifierSolutionSupplemented(ClassifierError, ExtensionParameters_) Export
 	
@@ -582,7 +586,7 @@ Procedure AfterErrorClassifierSolutionSupplemented(ClassifierError, ExtensionPar
 
 EndProcedure
 
-// Follows the "CheckCertificate" procedure.
+// Continue the procedure to check the Certificate.
 &AtClient
 Procedure CheckCertificateAfterCheckedOnClientAndSupplemented(Result, Context)
 	
@@ -694,7 +698,7 @@ Procedure CheckAtClientSide(Notification, Context = Undefined)
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterAttachCryptoExtension(Attached, Context) Export
 	
@@ -716,7 +720,7 @@ Procedure CheckAtClientSideAfterAttachCryptoExtension(Attached, Context) Export
 		
 	EndIf;
 	
-	// Checking certificate data.
+	// 
 	Context.Insert("CertificateData", CertificateData);
 	
 	CryptoCertificate = New CryptoCertificate;
@@ -727,7 +731,7 @@ Procedure CheckAtClientSideAfterAttachCryptoExtension(Attached, Context) Export
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterAttemptToCreateCryptoManager(Result, Context) Export
 	
@@ -736,7 +740,7 @@ Procedure CheckAtClientSideAfterAttemptToCreateCryptoManager(Result, Context) Ex
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterCertificateInitializationError(ErrorInfo, StandardProcessing, Context) Export
 	
@@ -749,18 +753,18 @@ Procedure CheckAtClientSideAfterCertificateInitializationError(ErrorInfo, Standa
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterInitializeCertificate(CryptoCertificate, Context) Export
 	
 	Context.Insert("CryptoCertificate", CryptoCertificate);
 	
-	// Verified certificate.
+	// 
 	CheckLegalCertificateAtClient(Context);
 	
 	Context.Insert("ThisOperationInService", False);
 	
-	// Availability of a certificate in the personal list.
+	// 
 	If ThisServiceAccount And Not Context.ServiceCertificateCheckOnClient Then
 		
 		Context.Insert("ThisOperationInService", True);
@@ -788,7 +792,7 @@ Procedure CheckAtClientSideAfterInitializeCertificate(CryptoCertificate, Context
 	ElsIf HasBuiltinCryptoprovider And Context.ValidationInServiceInsteadofValidationOnServer Then
 		
 		Context.Insert("ThisOperationInService", True);
-		// Checking certificate data.
+		// 
 		ModuleCryptographyServiceClient = CommonClient.CommonModule("CryptographyServiceClient");
 			
 		ModuleCryptographyServiceClient.CheckCertificate(New NotifyDescription(
@@ -800,7 +804,7 @@ Procedure CheckAtClientSideAfterInitializeCertificate(CryptoCertificate, Context
 			CreationParameters.SignAlgorithm = Context.SignAlgorithm;
 			CreationParameters.ShowError = False;
 	
-			// Checking certificate data.
+			// 
 			DigitalSignatureInternalClient.CreateCryptoManager(
 				New NotifyDescription("CheckAtClientSideAfterCreateAnyCryptoManager",
 				ThisObject, Context), "CertificateCheck", CreationParameters);
@@ -827,7 +831,7 @@ Procedure CheckLegalCertificateAtClient(Context)
 
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterCertificateSearch(Result, Context) Export
 	
@@ -844,14 +848,14 @@ Procedure CheckAtClientSideAfterCertificateSearch(Result, Context) Export
 	CreationParameters.SignAlgorithm = Context.SignAlgorithm;
 	CreationParameters.ShowError = False;
 	
-	// Checking certificate data.
+	// 
 	DigitalSignatureInternalClient.CreateCryptoManager(New NotifyDescription(
 		"CheckAtClientSideAfterCreateAnyCryptoManager", ThisObject, Context),
 		"CertificateCheck", CreationParameters);
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 // 
 // Parameters:
 //  Result - Structure:
@@ -873,13 +877,13 @@ Procedure CheckAtClientSideAfterCertificateSearchInSaaSMode(Result, Context) Exp
 	EndIf;
 	SetItem(ThisObject, "CertificateExists", True, ErrorDescription, , MergeResults);
 	
-	// If the certificate is not found in the certificate store, checks stop.
+	// 
 	If Not IsBlankString(ErrorDescription) Then
 		ExecuteNotifyProcessing(Context.Notification);
 		Return;
 	EndIf;
 	
-	// Checking certificate data.
+	// 
 	ModuleCryptographyServiceClient = CommonClient.CommonModule("CryptographyServiceClient");
 		
 	ModuleCryptographyServiceClient.CheckCertificate(New NotifyDescription(
@@ -888,7 +892,7 @@ Procedure CheckAtClientSideAfterCertificateSearchInSaaSMode(Result, Context) Exp
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Export
 	
@@ -906,7 +910,7 @@ Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Export
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Async Procedure CheckAtClientSideAfterCertificateCheck(Result, Context) Export
 	
@@ -925,7 +929,7 @@ Async Procedure CheckAtClientSideAfterCertificateCheck(Result, Context) Export
 		Return;
 	EndIf;
 	
-	// App availability.
+	// 
 	If ValueIsFilled(Application) Then
 		
 		CreationParameters = DigitalSignatureInternalClient.CryptoManagerCreationParameters();
@@ -960,7 +964,7 @@ Async Procedure CheckAtClientSideAfterCertificateCheck(Result, Context) Export
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 // 
 // Parameters:
 //  Result - Structure:
@@ -984,7 +988,7 @@ Procedure CheckAtClientSideAfterCertificateCheckInSaaSMode(Result, Context) Expo
 		Return;
 	EndIf;
 	
-	// App availability.
+	// 
 	If ValueIsFilled(Application) Then
 		CheckAtClientSideInSaaSMode("CryptographyService", Context);
 	Else
@@ -994,7 +998,7 @@ Procedure CheckAtClientSideAfterCertificateCheckInSaaSMode(Result, Context) Expo
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Async Procedure CheckAtClientSideAfterCreateCryptoManager(Result, Context) Export
 	
@@ -1021,7 +1025,7 @@ Async Procedure CheckAtClientSideAfterCreateCryptoManager(Result, Context) Expor
 	
 	ErrorDescription = Await AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, False);
 	
-	// Signing
+	// 
 	If ChecksAtClient.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		
 		Try
@@ -1080,7 +1084,7 @@ Async Procedure CheckAtClientSideAfterCreateCryptoManager(Result, Context) Expor
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Async Procedure CheckAtClientSideInSaaSMode(Result, Context)
 	
@@ -1103,7 +1107,7 @@ Async Procedure CheckAtClientSideInSaaSMode(Result, Context)
 	
 	ErrorDescription = Await AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, True);
 	
-	// Signing.
+	// 
 	If ChecksAtClient.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		ModuleCryptographyServiceClient = CommonClient.CommonModule("CryptographyServiceClient");
 		ModuleCryptographyServiceClient.Sign(New NotifyDescription(
@@ -1116,7 +1120,7 @@ Async Procedure CheckAtClientSideInSaaSMode(Result, Context)
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterSigningError(ErrorInfo, StandardProcessing, Context) Export
 	
@@ -1125,7 +1129,7 @@ Procedure CheckAtClientSideAfterSigningError(ErrorInfo, StandardProcessing, Cont
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterSigning(SignatureData, Context)
 	
@@ -1142,7 +1146,7 @@ Procedure CheckAtClientSideAfterSigning(SignatureData, Context)
 		SetItem(ThisObject, "Signing", Context.ThisOperationInService, ErrorDescription, True, MergeResults);
 	EndIf;
 	
-	// Check the signature.
+	// 
 	If SignatureData <> Null And ChecksAtClient.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		Context.Insert("SignatureData", SignatureData);
 		Context.CryptoManager.BeginVerifyingSignature(New NotifyDescription(
@@ -1155,7 +1159,7 @@ Procedure CheckAtClientSideAfterSigning(SignatureData, Context)
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 // 
 // Parameters:
 //  SignatureData - Structure:
@@ -1180,7 +1184,7 @@ Procedure CheckAtClientSideAfterSigningSaaS(SignatureData, Context) Export
 		SetItem(ThisObject, "Signing", True, ErrorDescription, True, MergeResults);
 	EndIf;
 	
-	// Check the signature.
+	// 
 	If SignatureData <> Null And ChecksAtServer.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		ModuleCryptographyServiceClient = CommonClient.CommonModule("CryptographyServiceClient");
 		ModuleCryptographyServiceClient.VerifySignature(New NotifyDescription(
@@ -1193,7 +1197,7 @@ Procedure CheckAtClientSideAfterSigningSaaS(SignatureData, Context) Export
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterCheckSignatureError(ErrorInfo, StandardProcessing, Context) Export
 	
@@ -1202,7 +1206,7 @@ Procedure CheckAtClientSideAfterCheckSignatureError(ErrorInfo, StandardProcessin
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Async Procedure CheckAtClientSideAfterCheckSignature(Certificate, Context) Export
 	
@@ -1262,7 +1266,7 @@ Async Procedure CheckAtClientSideAfterCheckSignature(Certificate, Context) Expor
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 // 
 // Parameters:
 //  Result - Structure:
@@ -1290,7 +1294,7 @@ Procedure CheckAtClientSideAfterCheckSignatureInSaaSMode(Result, Context) Export
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterEncryptionError(ErrorInfo, StandardProcessing, Context) Export
 	
@@ -1299,7 +1303,7 @@ Procedure CheckAtClientSideAfterEncryptionError(ErrorInfo, StandardProcessing, C
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterEncryption(EncryptedData, Context) Export
 	
@@ -1311,7 +1315,7 @@ Procedure CheckAtClientSideAfterEncryption(EncryptedData, Context) Export
 	EndIf;
 	SetItem(ThisObject, "Encryption", Context.ThisOperationInService, ErrorDescription, True, MergeResults);
 	
-	// Decryption.
+	// 
 	If ChecksAtClient.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		Context.CryptoManager.BeginDecrypting(New NotifyDescription(
 				"CheckAtClientSideAfterDecryption", ThisObject, Context,
@@ -1323,7 +1327,7 @@ Procedure CheckAtClientSideAfterEncryption(EncryptedData, Context) Export
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 // 
 // Parameters:
 //  Result - Structure:
@@ -1345,7 +1349,7 @@ Procedure CheckAtClientSideAfterEncryptionInSaaSMode(Result, Context) Export
 	EndIf;
 	SetItem(ThisObject, "Encryption", True, ErrorDescription, True, MergeResults);
 	
-	// Decryption.
+	// 
 	If ChecksAtServer.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		ModuleCryptographyServiceClient = CommonClient.CommonModule("CryptographyServiceClient");
 		ModuleCryptographyServiceClient.Decrypt(New NotifyDescription(
@@ -1358,7 +1362,7 @@ Procedure CheckAtClientSideAfterEncryptionInSaaSMode(Result, Context) Export
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterDecryptionError(ErrorInfo, StandardProcessing, Context) Export
 	
@@ -1367,7 +1371,7 @@ Procedure CheckAtClientSideAfterDecryptionError(ErrorInfo, StandardProcessing, C
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterDecryption(DecryptedData, Context) Export
 	
@@ -1385,7 +1389,7 @@ Procedure CheckAtClientSideAfterDecryption(DecryptedData, Context) Export
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 // 
 // Parameters:
 //  Result - Structure:
@@ -1410,18 +1414,18 @@ Procedure CheckAtClientSideAfterDecryptionInSaaSMode(Result, Context) Export
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAdditionalChecks(Context)
 	
-	// Additional checks.
+	// 
 	Context.Insert("IndexOf", -1);
 	
 	CheckAtClientSideLoopStart(Context);
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideAfterAdditionalCheck(NotDefined, Context) Export
 	
@@ -1439,7 +1443,7 @@ EndProcedure
 
 #EndRegion
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckAtClientSideLoopStart(Context)
 	
@@ -1483,7 +1487,7 @@ EndProcedure
 
 #Region ClientVerificationCloudSignature
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure VerifyOnTheClientSideAfterAuthorizationInTheCloudSignature(CallResult, Context) Export
 	
@@ -1491,7 +1495,7 @@ Procedure VerifyOnTheClientSideAfterAuthorizationInTheCloudSignature(CallResult,
 		ErrorDescription = CallResult.Error;
 	EndIf;
 	
-	// If authentication failed, stop the checks.
+	// 
 	If Not IsBlankString(ErrorDescription) Then
 		Return;
 	EndIf;
@@ -1508,7 +1512,7 @@ Procedure VerifyOnTheClientSideAfterAuthorizationInTheCloudSignature(CallResult,
 	
 EndProcedure
 		
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure CheckOnTheClientSideAfterSearchingForTheCloudSignatureCertificate(CallResult, Context) Export
 	
@@ -1532,7 +1536,7 @@ Procedure CheckOnTheClientSideAfterSearchingForTheCloudSignatureCertificate(Call
 		Return;
 	EndIf;
 	
-	// Checking certificate data.
+	// 
 	HandlerNext = New NotifyDescription(
 			"VerifyOnTheClientSideAfterVerifyingTheCloudSignatureCertificate", ThisObject, Context);
 	
@@ -1542,7 +1546,7 @@ Procedure CheckOnTheClientSideAfterSearchingForTheCloudSignatureCertificate(Call
 	
 EndProcedure
 		
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure VerifyOnTheClientSideAfterVerifyingTheCloudSignatureCertificate(Result, Context) Export
 	
@@ -1562,7 +1566,7 @@ Procedure VerifyOnTheClientSideAfterVerifyingTheCloudSignatureCertificate(Result
 		Return;
 	EndIf;
 	
-	// Application availability.
+	// 
 	If ValueIsFilled(Application) Then
 		VerifyClientSideCloudSignature("CloudSignature", Context);
 	Else
@@ -1573,7 +1577,7 @@ Procedure VerifyOnTheClientSideAfterVerifyingTheCloudSignatureCertificate(Result
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Async Procedure VerifyClientSideCloudSignature(Result, Context)
 	
@@ -1598,7 +1602,7 @@ Async Procedure VerifyClientSideCloudSignature(Result, Context)
 	
 	ErrorDescription = Await AdditionalCheckOnthePossibilityofSigning(Context.CryptoCertificate, True);
 	
-	// Signing
+	// 
 	If ChecksAtServer.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 
 		TheDSSCryptographyServiceModuleClientServer = CommonClient.CommonModule("DSSCryptographyServiceClientServer");
@@ -1629,7 +1633,7 @@ Async Procedure VerifyClientSideCloudSignature(Result, Context)
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure VerifyOnTheClientSideAfterSigningCloudSignature(CallResult, Context) Export
 	
@@ -1653,7 +1657,7 @@ Procedure VerifyOnTheClientSideAfterSigningCloudSignature(CallResult, Context) E
 	
 	SetItem(ThisObject, "Signing", True, ErrorDescription, True, MergeResults);
 	
-	// Check the signature.
+	// 
 	If CallResult <> Undefined And ChecksAtServer.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		HandlerNext = New NotifyDescription(
 					"VerifyOnTheClientSideAfterVerifyingTheSignatureCloudSignature", ThisObject, Context,
@@ -1671,7 +1675,7 @@ Procedure VerifyOnTheClientSideAfterSigningCloudSignature(CallResult, Context) E
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure VerifyOnTheClientSideAfterVerifyingTheSignatureCloudSignature(CallResult, Context) Export
 	
@@ -1703,7 +1707,7 @@ Procedure VerifyOnTheClientSideAfterVerifyingTheSignatureCloudSignature(CallResu
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure VerifyOnTheClientSideAfterEncryptionCloudSignature(CallResult, Context) Export
 	
@@ -1719,7 +1723,7 @@ Procedure VerifyOnTheClientSideAfterEncryptionCloudSignature(CallResult, Context
 	EndIf;
 	SetItem(ThisObject, "Encryption", True, ErrorDescription, True, MergeResults);
 	
-	// Decryption.
+	// 
 	If ChecksAtServer.CertificateExists = True And Not ValueIsFilled(ErrorDescription) Then
 		HandlerNext = New NotifyDescription(
 				"VerifyOnTheClientSideAfterDecryptingTheCloudSignature", ThisObject, Context,
@@ -1742,7 +1746,7 @@ Procedure VerifyOnTheClientSideAfterEncryptionCloudSignature(CallResult, Context
 	
 EndProcedure
 
-// Continues the CheckAtClientSide procedure.
+// Continue the procedure to check the client's Side.
 &AtClient
 Procedure VerifyOnTheClientSideAfterDecryptingTheCloudSignature(CallResult, Context) Export
 	
@@ -1793,10 +1797,10 @@ Procedure CheckAtServerSide(Val PasswordValue)
 		Return;
 	EndTry;
 	
-	// Verified certificate.
+	// 
 	CheckLegalCertificateAtServer(CryptoCertificate);
 	
-	// Availability of a certificate in the personal list.
+	// 
 	Result = New Structure;
 	DigitalSignatureInternal.GetCertificateByThumbprint(
 		Base64String(CryptoCertificate.Thumbprint), True, False, , Result);
@@ -1808,7 +1812,7 @@ Procedure CheckAtServerSide(Val PasswordValue)
 	EndIf;
 	SetItem(ThisObject, "CertificateExists", True, ErrorDescription, , MergeResults);
 	
-	// Check certificate data.
+	// 
 	CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
 	CreationParameters.SignAlgorithm = SignAlgorithm;
 	
@@ -1825,7 +1829,7 @@ Procedure CheckAtServerSide(Val PasswordValue)
 	
 	SetItem(ThisObject, "CertificateData", True, ErrorDescription, True, MergeResults);
 	
-	// App availability.
+	// 
 	If ValueIsFilled(Application) Then
 		CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
 		CreationParameters.Application = Application;
@@ -2050,7 +2054,7 @@ Procedure CheckAtServerSideAdditionalChecks(PasswordValue, CryptoManager = Undef
 	
 	ServerName = ComputerName();
 	
-	// Additional checks.
+	// 
 	For Each ListItem In AdditionalChecks Do
 		
 		ErrorDescription = "";
@@ -2293,7 +2297,12 @@ Procedure SetItem(Form, Action, AtServer,
 	
 		Form.Items[LabelNameSolution].Visible = IsKnownError;
 		If Not IsKnownError Then
+			ElementLabelError.Title = GenerateHeaderInDetail(ErrorDescription);
 			Return;
+		EndIf;
+		
+		If ValueIsFilled(KnownErrorDescription.Cause) Then
+			ElementLabelError.Title = KnownErrorDescription.Cause;
 		EndIf;
 			
 		If ValueIsFilled(Form.Certificate) And ValueIsFilled(KnownErrorDescription.RemedyActions) Then
@@ -2367,6 +2376,32 @@ Procedure SetItem(Form, Action, AtServer,
 EndProcedure
 
 &AtClientAtServerNoContext
+Function GenerateHeaderInDetail(ErrorDescription)
+	
+	URL = "";
+	DigitalSignatureClientServerLocalization.OnDefineRefToSearchByErrorsWhenManagingDigitalSignature(
+		URL, ErrorDescription);
+	If IsBlankString(URL) Then
+		Return ErrorDescription;
+	EndIf;
+
+	Array = New Array;
+	Array.Add(ErrorDescription);
+	Array.Add(" ");
+
+	String = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = '<a href = %1>Поиск решения...</a>';"), URL);
+
+#If Server Then
+	Array.Add(StringFunctions.FormattedString(String));
+#Else
+	Array.Add(StringFunctionsClient.FormattedString(String));
+#EndIf
+	Return New FormattedString(Array);
+	
+EndFunction
+
+&AtClientAtServerNoContext
 Function ItemTitle(AdditionalChecks, TagName, SignatureType)
 	
 	ItemTitle = StandardItemTitle(TagName, SignatureType);
@@ -2428,7 +2463,7 @@ EndFunction
 #EndRegion
 
 &AtClient
-Procedure SupplementTextWithErrors(ErrorsText, Checks, AtServer = False)
+Procedure SupplementTextWithErrors(ErrorsText, Checks, AtServer = False, MessageSubject1 = "")
 	
 	ChecksContent = ThisObject[?(AtServer, "ChecksAtServer", "ChecksAtClient")];
 	For Each Validation In Checks Do
@@ -2443,6 +2478,10 @@ Procedure SupplementTextWithErrors(ErrorsText, Checks, AtServer = False)
 			
 			CheckErrorText = ?(ChecksContent.Property(Validation + "Error"),
 				TrimAll(ChecksAtClient[Validation + "Error"]), "");
+				
+			If IsBlankString(MessageSubject1) And Not IsBlankString(CheckErrorText) Then
+				MessageSubject1 = CheckErrorText;
+			EndIf;
 			
 			ErrorsText = ErrorsText + Validation + ": "
 				+ ?(CheckResult = Undefined, NStr("en = 'Not performed because of previous errors';"),

@@ -1,20 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Sets the application main window caption using the value of the
-// ApplicationCaption constant and application caption by default.
+// Sets the title of the main application window using the constant value
+// App title and default app title.
 //
 // Parameters:
-//   OnStart - Boolean - True if the procedure is called on the application start.
+//   OnStart - Boolean -  True if called when the program starts.
 //
 Procedure SetAdvancedApplicationCaption(OnStart = False) Export
 	
@@ -55,28 +53,28 @@ Procedure SetAdvancedApplicationCaption(OnStart = False) Export
 	
 EndProcedure
 
-// Show the question form.
+// To show the form of a question.
 //
 // Parameters:
-//   NotifyDescriptionOnCompletion - NotifyDescription - Description of the procedures to be called after the question window is closed.
-//                                                        Has the following parameters:
-//                                                          QuestionResult - Structure
-//                                                            Value - User selection: a system enumeration value or
-//                                                                       a value associated with the clicked button.
-//                                                                       "Timeout" value if the dialog is closed after a timeout.
-//                                                                       DontAskAgain - Boolean - Checkbox selection result.
+//   NotifyDescriptionOnCompletion - NotifyDescription - 
+//                                                        :
+//                                                          
+//                                                            
+//                                                                       
+//                                                                       
+//                                                                       
 //                                                                       
 //                                                            
 //                                                                                                  
 //                                                                                                  
 //                                                          AdditionalParameters - Structure 
-//   QuestionText - String - Question text. 
-//   Buttons - QuestionDialogMode
-//                                 - ValueList     - Value list, where:
-//                                       Value - Value connected to the button and returned when the button is clicked. 
-//                                                  Takes a value of the DialogReturnCode enumeration or any XDTO-serializable value.
-//                                                  Presentation - Button text.
-//                                                  AdditionalParameters -
+//    
+//   
+//                                 - ValueList     - :
+//                                        
+//                                                  
+//                                                  
+//                                                  
 //                                       
 //
 //    See StandardSubsystemsClient.QuestionToUserParameters.
@@ -149,25 +147,25 @@ Procedure ShowQuestionToUser(NotifyDescriptionOnCompletion, QueryText, Buttons, 
 	
 EndProcedure
 
-// Returns a new structure with additional parameters for the ShowQuestionToUser procedure.
+// Returns a new structure of additional parameters for the show to User procedure.
 //
 // Returns:
 //  Structure:
-//    * DefaultButton             - Arbitrary - defines the default button by the button type or by the value associated
-//                                                     with it.
-//    * Timeout                       - Number        - a period of time in seconds in which the question
-//                                                     window waits for user to respond.
-//    * TimeoutButton                - Arbitrary - a button (by button type or value associated with it) 
-//                                                     on which the timeout
-//                                                     remaining seconds are displayed.
-//    * Title                     - String       - a question title. 
-//    * PromptDontAskAgain - Boolean - If True, a check box with the same name is available in the window.
-//    * NeverAskAgain    - Boolean       - a value set by the user in the matching
-//                                                     check box.
-//    * LockWholeInterface      - Boolean       - If True, the question window opens locking all
-//                                                     other opened windows including the main one.
-//    * Picture                      - Picture     - a picture displayed in the question window.
-//    * CheckBoxText                   - String       - text of the "Do not ask again" check box.
+//    * DefaultButton             - Arbitrary -  defines the default button by the button type or
+//                                                     by its associated value.
+//    * Timeout                       - Number        -  the time interval in seconds to automatically close the dialog box
+//                                                     question.
+//    * TimeoutButton                - Arbitrary -  a button (by button type or by its associated value) 
+//                                                     that displays the number of seconds remaining before
+//                                                     the timeout expires.
+//    * Title                     - String       -  the question title. 
+//    * PromptDontAskAgain - Boolean -  if True, the same flag will be available in the question window.
+//    * NeverAskAgain    - Boolean       -  takes the value selected by the user in the corresponding
+//                                                     checkbox.
+//    * LockWholeInterface      - Boolean       -  if True, the question form opens, blocking all
+//                                                     other open Windows, including the main window.
+//    * Picture                      - Picture     -  image displayed in the question window.
+//    * CheckBoxText                   - String       - 
 //
 Function QuestionToUserParameters() Export
 	
@@ -186,12 +184,12 @@ Function QuestionToUserParameters() Export
 	
 EndFunction	
 
-// Is called if there is a need to open the list of active users
-// to see who is logged on to the system now.
+// Called when you need to open a form for the list of active users
+// who are currently working with the system.
 //
 // Parameters:
-//    FormParameters - Structure        - See the "Parameters" parameter of the "OpenForm" method in Syntax Assistant.
-//    FormOwner  - ClientApplicationForm - See the "Owner" parameter of the "OpenForm" method in Syntax Assistant.
+//    FormParameters - Structure        - see the description of the parameter Parameters of the Open Form method in the syntax assistant.
+//    FormOwner  - ClientApplicationForm - see the description of the Owner parameter of the Open Form method in the syntax Assistant.
 //
 Procedure OpenActiveUserList(FormParameters = Undefined, FormOwner = Undefined) Export
 	
@@ -228,30 +226,29 @@ EndFunction
 
 #Region ErrorProcessing
 
-// Calls the method "ShowErrorInfo" (object "ErrorProcessing").
-// Intended for catching errors with the extension
-// during automatic testing. 
+// 
+// 
+//  
 //
 // Parameters:
 //  ErrorInfo - ErrorInfo
 //
 // Example:
-//	Parameters:
-//	Result - See TimeConsumingOperationsClient.NewResultLongOperation
-//	AdditionalParameters - Undefined
+//	
+//	 See TimeConsumingOperationsClient.NewResultLongOperation
+//	
 //	//
 //	
-//	&AtClient
-//		Procedure RefreshCurrentListCompletion(Result, AdditionalParameters) Export
-//			If Result = Undefined Then
-//		Return;
-//		EndIf;
-//			If Result.Status = "Error" Then
-//			 StandardSubsystemsClient.OutputErrorInfo(Result.ErrorInfo);
-//		Return;
-//		EndIf;
-//	... // Status = "Completed2"
-// EndProcedure
+//	
+//		
+//			
+//		
+//		
+//			
+//			
+//		
+//		
+//	
 //
 Procedure OutputErrorInfo(ErrorInfo) Export
 	
@@ -259,48 +256,48 @@ Procedure OutputErrorInfo(ErrorInfo) Export
 	
 EndProcedure
 
-// Hides the form element if the error category allows it
-// considering the "IsErrorRequiresRestart" parameter.
-// Sets the text of mandatory reporting if "ErrorInformationSendingMode" is set to "Send".
-// If it is set to "AskUser" or "Auto", it sets the text of optional reporting.
-// We recommend that you call "OnOpen" in custom error forms.
+// 
+// 
+// 
+// 
+// 
 // 
 // 
 //
 // Parameters:
-//  Item - FormField, FormButton - Form element the visibility and title applies to.
-//  ErrorInfo  - ErrorInfo - Error whose category is used to determine the reporting.
-//  IsErrorRequiresRestart - Boolean - The flag is considered when determining the link visibility.
-//    Usually, if an error invokes exit or reboot, its reporting is mandatory.
+//  Item - FormField, FormButton - 
+//  ErrorInfo  - ErrorInfo - 
+//  IsErrorRequiresRestart - Boolean - 
+//    
 //
 // Example:
-//	#Region Variables
-//	&AtClient
-//	Var ErrorReport, ErrorInfoReport;
-//	#EndRegion
-//	#Region EventHandlersForm
-//	&AtClient
-//	Procedure OnOpen(Cancel)
-//		If Parameters.ErrorInfo <> Undefined Then
-//			ErrorInfoReport = Parameters.ErrorInfo;
-//			ErrorReport = New ErrorReport(ErrorInfoReport);
-//			StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
-//				Items.GenerateErrorReport, ErrorInfoReport);
-//		EndIf;
-//	EndProcedure
-//	&AtClient
-//	Procedure OnClose(Exit)
-//		If ErrorReport <> Undefined Then
-//			StandardSubsystemsClient.SendErrorReport(ErrorReport, ErrorInfoReport);
-//		EndIf;
-//	EndProcedure
-//	#EndRegion
-//	#Region FormHeaderItemsEventHandlers
-//	&AtClient
-//	Procedure GenerateErrorReport(Item)
-//		StandardSubsystemsClient.ShowErrorReport(ErrorReport);
-//	EndProcedure
-//	#EndRegion
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//		
+//			
+//			
+//			
+//				
+//		
+//	
+//	
+//	
+//		
+//			
+//		
+//	
+//	
+//	
+//	
+//	
+//		
+//	
+//	
 //
 Procedure ConfigureVisibilityAndTitleForURLSendErrorReport(Item, ErrorInfo, IsErrorRequiresRestart = False) Export
 	
@@ -321,42 +318,42 @@ Procedure ConfigureVisibilityAndTitleForURLSendErrorReport(Item, ErrorInfo, IsEr
 	
 EndProcedure
 
-// Opens an error report for the user to review and configure.
-// The report will be either saved to a file or sent to support
-// (if a service address is specified and "DontSend" is not configured in "ErrorReportingMode").
+// 
+// 
+// 
 // 
 //
 // Parameters:
 //  ReportToSend - ErrorReport
 //
 // Example:
-//	#Region Variables
-//	&AtClient
-//	Var ErrorReport, ErrorInfoReport;
-//	#EndRegion
-//	#Region EventHandlersForm
-//	&AtClient
-//	Procedure OnOpen(Cancel)
-//		If Parameters.ErrorInfo <> Undefined Then
-//			ErrorInfoReport = Parameters.ErrorInfo;
-//			ErrorReport = New ErrorReport(ErrorInfoReport);
-//			StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
-//				Items.GenerateErrorReport, ErrorInfoReport);
-//		EndIf;
-//	EndProcedure
-//	&AtClient
-//	Procedure OnClose(Exit)
-//		If ErrorReport <> Undefined Then
-//			StandardSubsystemsClient.SendErrorReport(ErrorReport, ErrorInfoReport);
-//		EndIf;
-//	EndProcedure
-//	#EndRegion
-//	#Region FormHeaderItemsEventHandlers
-//	&AtClient
-//	Procedure GenerateErrorReport(Item)
-//		StandardSubsystemsClient.ShowErrorReport(ErrorReport);
-//	EndProcedure
-//	#EndRegion
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//		
+//			
+//			
+//			
+//				
+//		
+//	
+//	
+//	
+//		
+//			
+//		
+//	
+//	
+//	
+//	
+//	
+//		
+//	
+//	
 //
 Procedure ShowErrorReport(ReportToSend) Export
 	
@@ -372,46 +369,46 @@ Procedure ShowErrorReport(ReportToSend) Export
 	
 EndProcedure
 
-// Non-interactively sends an error report if the category allows it
-// (considering the "Exit" parameter) and the admin configured "Send" in "ErrorInformationSendingMode".
-// We recommend that you call "OnOpen" in custom error forms.
+// 
+// 
+// 
 // 
 //
 // Parameters:
 //  ReportToSend - ErrorReport
-//  ErrorInfo  - ErrorInfo - Error whose category is used to determine the reporting.
-//  IsErrorRequiresRestart - Boolean - The flag is considered when determining error reporting.
-//    Usually, if an error invokes exit or reboot, reporting is mandatory.
-//    Should be assigned the same value as in "ConfigureVisibilityAndTitleForURLSendErrorReport".
+//  ErrorInfo  - ErrorInfo - 
+//  IsErrorRequiresRestart - Boolean - 
+//    
+//    
 //
 // Example:
-//	#Region Variables
-//	&AtClient
-//	Var ErrorReport, ErrorInfoReport;
-//	#EndRegion
-//	#Region EventHandlersForm
-//	&AtClient
-//	Procedure OnOpen(Cancel)
-//		If Parameters.ErrorInfo <> Undefined Then
-//			ErrorInfoReport = Parameters.ErrorInfo;
-//			ErrorReport = New ErrorReport(ErrorInfoReport);
-//			StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
-//				Items.GenerateErrorReport, ErrorInfoReport);
-//		EndIf;
-//	EndProcedure
-//	&AtClient
-//	Procedure OnClose(Exit)
-//		If ErrorReport <> Undefined Then
-//			StandardSubsystemsClient.SendErrorReport(ErrorReport, ErrorInfoReport);
-//		EndIf;
-//	EndProcedure
-//	#EndRegion
-//	#Region FormHeaderItemsEventHandlers
-//	&AtClient
-//	Procedure GenerateErrorReport(Item)
-//		StandardSubsystemsClient.ShowErrorReport(ErrorReport);
-//	EndProcedure
-//	#EndRegion
+//	
+//	
+//	
+//	
+//	
+//	
+//	
+//		
+//			
+//			
+//			
+//				
+//		
+//	
+//	
+//	
+//		
+//			
+//		
+//	
+//	
+//	
+//	
+//	
+//		
+//	
+//	
 //
 Procedure SendErrorReport(ReportToSend, ErrorInfo, IsErrorRequiresRestart = False) Export
 	
@@ -438,7 +435,7 @@ EndProcedure
 
 #Region ApplicationEventsProcessing
 
-// Disables the exit confirmation.
+// Disables issuing a warning to the user when the program is shut down.
 //
 Procedure SkipExitConfirmation() Export
 	
@@ -446,19 +443,19 @@ Procedure SkipExitConfirmation() Export
 	
 EndProcedure
 
-// Performs the standard actions before the user starts working
-// with a data area or with an infobase in the local mode.
+// Perform standard actions before the user starts working
+// with the data area, or in local mode.
 //
-// Is intended for calling modules of the managed or ordinary application from the BeforeStart handler.
+// It is intended for calling modules of a managed and normal application from the handler before starting work.
 //
 // Parameters:
-//  CompletionNotification - NotifyDescription - Is skipped if managed or ordinary application modules are called from the BeforeStart 
-//                         handler. In other cases, after the application started up, the notification with a parameter of the Structure type
-//                         is called. The structure fields are:
-//                         > Cancel - Boolean - False if the application started successfully, True if authorization is not
-//                         executed;
-//                         > Restart - Boolean - if the application should be restarted;
-//                         > AdditionalParametersOfCommandLine - String - for restart.
+//  CompletionNotification - NotifyDescription -  
+//                         
+//                         :
+//                         
+//                         
+//                         
+//                         
 //
 Procedure BeforeStart(Val CompletionNotification = Undefined) Export
 	
@@ -495,8 +492,8 @@ Procedure BeforeStart(Val CompletionNotification = Undefined) Export
 	EndTry;
 	
 	ISLVersion = ModuleOnlineUserSupportClientServer.LibraryVersion();
-	// Attach the settings request handler for the licensing client
-	// to validate the update's legitimacy.
+	// 
+	// 
 	If CommonClientServer.CompareVersions(ISLVersion, "2.7.1.0") > 0 Then
 		ModuleLicensingClientClient = CommonClient.CommonModule("LicensingClientClient");
 		ModuleLicensingClientClient.AttachLicensingClientSettingsRequest();
@@ -504,23 +501,23 @@ Procedure BeforeStart(Val CompletionNotification = Undefined) Export
 	
 EndProcedure
 
-// Performs the standard actions when the user starts working
-// with a data area or with an infobase in the local mode.
+// To perform a standard action at the beginning of the user experience
+// with a data region or in a local mode.
 //
-// Is intended for calling modules of the managed or ordinary application from the OnStart handler.
+// It is intended for calling modules of a managed and normal application from the handler at the beginning of the Worksystem.
 //
 // Parameters:
-//  CompletionNotification - NotifyDescription - Is skipped if managed or ordinary application modules are called from the OnStart 
-//                         handler. In other cases, after the application started up, the notification with a parameter of the Structure type
-//                         is called. The structure fields are:
-//                         > Cancel - Boolean - False if the application started successfully, True if authorization is not
-//                         executed;
-//                         > Restart - Boolean - if the application should be restarted;
-//                         > AdditionalParametersOfCommandLine - String - for restart.
+//  CompletionNotification - NotifyDescription -  
+//                         
+//                         :
+//                         
+//                         
+//                         
+//                         
 //
-//  ContinuousExecution - Boolean - For internal use only.
-//                          For proceeding from the BeforeStart
-//                          handler executed in the interactive processing mode.
+//  ContinuousExecution - Boolean -  for internal use only.
+//                          To switch from the handler before starting the system Operation
+//                          performed in interactive processing mode.
 //
 Procedure OnStart(Val CompletionNotification = Undefined, ContinuousExecution = True) Export
 	
@@ -543,18 +540,18 @@ Procedure OnStart(Val CompletionNotification = Undefined, ContinuousExecution = 
 	
 EndProcedure
 
-// Performs the standard actions when the user logs off
-// from a data area or exits the application in the local mode.
+// Perform standard actions before the user finishes working
+// with the data area, or in local mode.
 //
-// Is intended for calling modules of the managed or ordinary application from the BeforeExit handler.
+// It is intended for calling modules of a managed and normal application from the handler before completing the work Of the system.
 //
 // Parameters:
-//  Cancel                - Boolean - a return value. A flag indicates whether the exit must be canceled 
-//                         for the BeforeExit event handler, both for program
-//                         or for interactive cases. If the user
-//                         interaction was successful, the application exit can be continued.
+//  Cancel                - Boolean -  returned value. Indicates 
+//                         that the event handler for the system's pre-Completion event failed, either programmatically failed,
+//                         or that interactive processing was required. If the user interaction is successful
+//                         , the shutdown will continue.
 //  WarningText  - String - See BeforeExit
-//                                  () in Syntax Assistant.
+//                                  
 //
 Procedure BeforeExit(Cancel = False, WarningText = "") Export
 	
@@ -588,7 +585,7 @@ Procedure BeforeExit(Cancel = False, WarningText = "") Export
 	
 EndProcedure
 
-// Runs standard actions when handling the acquisition of the Collaboration System user choice form.
+// 
 //
 // Parameters:
 //  ChoicePurpose - CollaborationSystemUsersChoicePurpose
@@ -601,7 +598,7 @@ EndProcedure
 Procedure CollaborationSystemUsersChoiceFormGetProcessing(ChoicePurpose,
 			Form, ConversationID, Parameters, SelectedForm, StandardProcessing) Export
 	
-	// StandardSubsystems.Conversations
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Conversations") Then
 		ModuleConversationsInternalClient = CommonClient.CommonModule("ConversationsInternalClient");
 		ModuleConversationsInternalClient.OnGetCollaborationSystemUsersChoiceForm(ChoicePurpose,
@@ -611,42 +608,42 @@ Procedure CollaborationSystemUsersChoiceFormGetProcessing(ChoicePurpose,
 		
 EndProcedure
 
-// Returns a structure parameters for showing the warnings before exit the application.
-// To use in CommonClientOverridable.BeforeExit.
+// Returns a new parameter structure for displaying a warning before the program terminates.
+// For General use, the client is Undefined.Before completing the system operation.
 //
 // Returns:
 //  Structure:
-//    WarningText - String - Dialog text displayed upon exiting the web or thin client.
-//                                    For example: "Unsaved changes will be lost."
-//                                    The other parameters affect the dialog appearance:
-//                                    CheckBoxText - String - Displays a checkbox with the passed text.
-//    For example: "Finish editing files (5)." 
-//                                    NoteText - String - Text displayed above the control (checkbox or hyperlink).
-//    For example: "Unsaved files".
-//                                    HyperlinkText - String - Text of the hyperlink displayed on the form.
-//    For example: "Files being edited (5)."
-//                                    ExtendedTooltip - String - Text of the tooltip displayed to the right from the control.
-//    For example: "View the list of files being edited".
-//                                    Priorities - Number - Warning's position in the list (the greater, the higher). 
-//                                    OutputSingleWarning - Boolean - If set to "True", other warnings are hidden from the list.
-//    ActionIfFlagSet - Structure with the following fields:
+//    
+//                                    
+//                                    
+//                                    
+//     
+//                                    
+//    
+//                                    
+//    
+//                                    
+//    
+//                                     
+//                                    
+//    
 //    
 //                                         
 //    
-//      * Form          - String    - Form to open if the user selected the checkbox.
-//                                     For example, "DataProcessor.Files.FilesToEdit".
-//      * FormParameters - Structure - Arbitrary structure of form open parameters. 
+//      * Form          - String    - 
+//                                     
+//      * FormParameters - Structure -  
 //    :
-//      * Form          - String    - Form to open if the user selected the checkbox.
-//                                     For example, "DataProcessor.Files.FilesToEdit".
-//      * FormParameters - Structure - Arbitrary structure of form open parameters.
-//      * ApplicationWarningForm - String - a path to the form to be opened
-//                                        instead of the standard form if the current 
-//                                        warning is the only one in the list.
-//                                        For example, "DataProcessor.Files.FilesToEdit".
-//      * ApplicationWarningFormParameters - Structure - an arbitrary structure of
-//                                                 parameters for the form described above.
-//      * WindowOpeningMode - FormWindowOpeningMode - a mode of opening the Form or ApplicationWarningForm forms.
+//      * Form          - String    -  path to the form that should be opened by clicking on the hyperlink.
+//                                     For Example, " Processing.Files.Editable files".
+//      * FormParameters - Structure -  custom structure of parameters for the form to open.
+//      * ApplicationWarningForm - String -  the path to the form that should open immediately
+//                                        instead of the universal form if 
+//                                        only one given warning appears in the list of warnings.
+//                                        For Example, " Processing.Files.Editable files".
+//      * ApplicationWarningFormParameters - Structure -  custom
+//                                                 parameter structure for the form described above.
+//      * WindowOpeningMode - FormWindowOpeningMode -  mode for opening forms Form or Applicationformreferences.
 // 
 Function WarningOnExit() Export
 	
@@ -676,20 +673,20 @@ Function WarningOnExit() Export
 	
 EndFunction
 
-// Returns the values of parameters required for the operation of client-side code
-// when starting configuration for one server call (to minimize client-server interaction
+// Returns the values of parameters required for the client code
+// to work when running the configuration in a single server call (to minimize client-server interaction
 // and reduce startup time). 
-// Using this function, you can access parameters in client-side code called from the event handlers:
-// - BeforeStart,
-// - OnStart.
+// You can use this function to access parameters in client code that are called from event handlers:
+// - Before the system operation starts,
+// - At the beginning of the system's work.
 //
-// In these handlers, when starting the application, do not use cache reset commands
-// of modules that reuse return values because this can lead to
-// unpredictable errors and unneeded server calls.
+// In these handlers, you can't use commands to reset the cache
+// of reusable modules at startup, otherwise running them can lead
+// to unpredictable errors and unnecessary server calls.
 // 
 // Returns:
-//   FixedStructure - Client parameters at startup. 
-//                            See: CommonOverridable.OnAddClientParametersOnStart.
+//   FixedStructure -  
+//                            
 //
 //
 Function ClientParametersOnStart() Export
@@ -698,12 +695,12 @@ Function ClientParametersOnStart() Export
 	
 EndFunction
 
-// Returns parameters values required for the operation of client-side code configuration
-// without additional server calls.
+// Returns the values of parameters required for the client configuration code
+// to work without additional server calls.
 // 
 // Returns:
-//   FixedStructure - client parameters.
-//                            See the content of properties at CommonOverridable.OnAddClientParameters.
+//   FixedStructure - 
+//                            
 //
 Function ClientRunParameters() Export
 	
@@ -715,23 +712,23 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// Called upon receiving a server notification.
-// The notifications are sent on server in the OnSendServerNotification procedures.
-// See the notification list in CommonOverridable.OnAddServerNotifications.
+// 
+// 
+// 
 // 
 // Parameters:
 //  NameOfAlert - See ServerNotifications.SendServerNotification.NameOfAlert
 //  Result     - See ServerNotifications.SendServerNotification.Result
 //
 // Example:
-//	If NotificationName <> "StandardSubsystems.UsersSessions.SessionsLock" Then
-//		Return;
-//	EndIf;
-//	If SessionTerminationInProgress() Then
-//		EndUserSessions(Result);
-//	ElsIf IsUserExitControlEnabled() Then
-//		SessionTerminationModeManagement(Result);
-//	EndIf;
+//	
+//		
+//	
+//	
+//		
+//	
+//		
+//	
 //
 Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	
@@ -768,7 +765,7 @@ Function ClientParameter(ParameterName = Undefined) Export
 	ClientParameters = ApplicationParameters[GlobalParameterName];
 	
 	If ClientParameters = Undefined Then
-		// Filling the permanent parameters of the client.
+		// 
 		StandardSubsystemsClientCached.ClientParametersOnStart();
 		ClientParameters = ApplicationParameters[GlobalParameterName];
 	EndIf;
@@ -822,22 +819,22 @@ Procedure FillClientParameters(ClientParameters) Export
 	
 EndProcedure
 
-// After the warning, calls the procedure with the following parameters: Result, AdditionalParameters.
+// After the warning, calls the procedure with the parameters Result, additional Parameters.
 //
 // Parameters:
-//  Parameters           - Structure - Contains the property:
-//                          ContinuationHandler - NotifyDescription - Contains
-//                          a procedure taking two parameters:
-//                            Result, AdditionalParameters.
+//  Parameters           - Structure - :
+//                          
+//                          
+//                            
 //
-//  WarningDetails - Undefined - warning is not required.
-//  WarningDetails - String - a warning text that should be shown.
-//  WarningDetails - Structure:
-//       * WarningText - String - a warning text that should be shown.
-//       * Buttons              - ValueList - for the ShowQuestionToUser procedure.
-//       * QuestionParameters    - Structure - contains a subset of the properties
-//                                 to be overridden from among ones that
-//                                 returned by the QuestionToUserParameters function.
+//  WarningDetails - Undefined - 
+//  
+//  :
+//       * WarningText - String -  the alert text that you want to show.
+//       * Buttons              - ValueList -  for the procedure show to the User.
+//       * QuestionParameters    - Structure -  contains a subset of properties
+//                                 to be redefined from the number
+//                                 returned by the function to the user parameter.
 //
 Procedure ShowMessageBoxAndContinue(Parameters, WarningDetails) Export
 	
@@ -876,7 +873,7 @@ Procedure ShowMessageBoxAndContinue(Parameters, WarningDetails) Export
 	
 EndProcedure
 
-// Returns a name of the executable file depending on the client type.
+// Returns the name of the executable file depending on the client type.
 //
 // Returns:
 //  String
@@ -895,9 +892,9 @@ Function ApplicationExecutableFileName(GetDesignerFileName = False) Export
 	
 EndFunction
 
-// Sets or cancels managed form reference storing in a global variable.
-// Required when a reference to a form is passed through AdditionalParameters
-// in the NotifyDescription object that does not lock the release of a closed form.
+// Sets / disables storing a reference to a managed form in a global variable.
+// Required for cases when the form reference is passed through additional
+// Parameters in the message Description object, which does not block the release of a closed form.
 //
 Procedure SetFormStorageOption(Form, Location) Export
 	
@@ -915,14 +912,14 @@ Procedure SetFormStorageOption(Form, Location) Export
 	
 EndProcedure
 
-// Checks that the current data is not defined and not a group.
-// Intended for dynamic list form table handlers.
+// Checks that the current data is defined and is not a grouping.
+// It is intended for table handlers of the dynamic list form.
 //
 // Parameters:
-//  TableOrCurrentData - FormTable - a dynamic list form table to check the current data.
+//  TableOrCurrentData - FormTable -  table of the dynamic list form for checking current data.
 //                          - Undefined
 //                          - FormDataStructure
-//                          - Structure - current data to be checked.
+//                          - Structure - 
 //
 // Returns:
 //  Boolean
@@ -948,7 +945,7 @@ Function IsDynamicListItem(TableOrCurrentData) Export
 	
 EndFunction
 
-// Checks whether startup procedures are unsafe disabled for the purposes of automated tests.
+// Checks whether startup procedures have been dangerously disabled for automatic testing purposes.
 //
 // Returns:
 //  Boolean
@@ -957,11 +954,11 @@ Function ApplicationStartupLogicDisabled() Export
 	Return StrFind(LaunchParameter, "DisableSystemStartupLogic") > 0;
 EndFunction
 
-// Returns configuration style elements.
+// 
 //
 // Returns:
 //  Structure:
-//   * Key - String - Name of the style element. For example, "HyperlinkColor".
+//   * Key - String - 
 //   * Value - MetadataObjectStyleItem
 //
 Function StyleItems() Export
@@ -981,7 +978,7 @@ Function StyleItems() Export
 	
 EndFunction
 
-// Modifies the notification without result to the notification with result
+// Redirects an alert with no result to an alert with a result.
 //
 // Returns:
 //  NotifyDescription
@@ -993,7 +990,7 @@ Function NotificationWithoutResult(NotificationWithResult) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See SSLSubsystemsIntegrationClient.BeforeRecurringClientDataSendToServer
 Procedure BeforeRecurringClientDataSendToServer(Parameters) Export
@@ -1029,20 +1026,20 @@ Procedure AfterRecurringReceiptOfClientDataOnServer(Results) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Display runtime result.
+// 
 
-// Expands nodes of the specified tree on the form.
+// Expands the nodes of the specified tree on the form.
 //
 // Parameters:
-//   Form                     - ClientApplicationForm - a form where the control item with a value tree is placed.
-//   FormItemName          - String           - a name of the item with a form table (value tree) and the associated with it
-//                                                  form attribute (should match).
-//   TreeRowID - Arbitrary     - an ID of the tree row to be expanded.
-//                                                  If "*" is passed, only top-level nodes are expanded.
-//                                                  If Undefined is passed, tree rows are not expanded.
-//                                                  By default: "*".
-//   ExpandWithSubordinates   - Boolean           - If True, all subordinate nodes should also be expanded.
-//                                                  Default value is False.
+//   Form                     - ClientApplicationForm -  the form where the control with the value tree is placed.
+//   FormItemName          - String           -  name of the element with the form table (value tree) and associated
+//                                                  form details (must match).
+//   TreeRowID - Arbitrary     -  the row ID of the tree that you want to deploy.
+//                                                  If " * " is specified, all top-level nodes will be expanded.
+//                                                  If Undefined is specified, then the rows of the tree will not be deployed.
+//                                                  The default value is "*".
+//   ExpandWithSubordinates   - Boolean           -  if True, then all subordinate nodes should also be disclosed.
+//                                                  False by default.
 //
 Procedure ExpandTreeNodes(Form, FormItemName, TreeRowID = "*", ExpandWithSubordinates = False) Export
 	
@@ -1058,12 +1055,12 @@ Procedure ExpandTreeNodes(Form, FormItemName, TreeRowID = "*", ExpandWithSubordi
 	
 EndProcedure
 
-// Notifies the forms opening and dynamic lists about mass changes in objects of various types,
-// using Notify and NotifyChange global context methods.
+// Notifies open forms and dynamic lists of mass changes to objects of various types
+// using the Notify and notify Change global context methods.
 //
 // Parameters:
 //  ModifiedObjectTypes - See StandardSubsystemsServer.PrepareFormChangeNotification
-//  FormNotificationParameter - Arbitrary - a message parameter for the Notify method.
+//  FormNotificationParameter - Arbitrary -  message parameter for the Notify method.
 //
 Procedure NotifyFormsAboutChange(ModifiedObjectTypes, FormNotificationParameter = Undefined) Export
 	
@@ -1079,10 +1076,10 @@ EndProcedure
 // Opens the object list form with positioning on the object.
 //
 // Parameters:
-//   Ref - AnyRef - an object to be shown in the list.
-//   ListFormName - String - a list form name.
-//       If Undefined the transfer will automatically defined requires Server call).
-//   FormParameters - Structure - additional list form opening parameters.
+//   Ref - AnyRef -  the object that you want to show in the list.
+//   ListFormName - String -  name of the list form.
+//       If the value is Undefined, it will be determined automatically (you will need to call the server).
+//   FormParameters - Structure -  additional parameters for opening the list form.
 //
 Procedure ShowInList(Ref, ListFormName, FormParameters = Undefined) Export
 	If Ref = Undefined Then
@@ -1108,13 +1105,13 @@ Procedure ShowInList(Ref, ListFormName, FormParameters = Undefined) Export
 	Form.ExecuteNavigation(Ref);
 EndProcedure
 
-// Displays the text, which users can copy.
+// Displays text that the user can copy.
 //
 // Parameters:
-//   Handler - NotifyDescription - description of the procedure to be called after showing the message.
-//       Returns a value like ShowQuestionToUser().
-//   Text     - String - an information text.
-//   Title - String - window title. "Details" by default.
+//   Handler - NotifyDescription -  description of the procedure that will be called after the display is completed.
+//       The return value is similar to show to the User().
+//   Text     - String -  text of information.
+//   Title - String -  the title of the window. By default, "Learn more".
 //
 Procedure ShowDetailedInfo(Handler, Text, Title = Undefined) Export
 	DialogSettings = New Structure;
@@ -1136,7 +1133,7 @@ Procedure ShowDetailedInfo(Handler, Text, Title = Undefined) Export
 	ShowQuestionToUser(Handler, Text, Buttons, DialogSettings);
 EndProcedure
 
-// The file header for technical support.
+// Header of the file for technical support.
 //
 // Returns:
 //  String
@@ -1182,8 +1179,8 @@ EndFunction
 
 #If Not WebClient And Not MobileClient Then
 
-// System application directory, for example "C:\Windows\System32".
-// It is used only in Windows OS.
+// Directory of system applications, for example, "C:\Windows\System32".
+// Used only in Windows OS.
 //
 // Returns:
 //  String
@@ -1194,11 +1191,11 @@ Function SystemApplicationsDirectory() Export
 	
 	SystemInfo = New SystemInfo;
 	If SystemInfo.PlatformType = PlatformType.Windows_x86 Then 
-		// For 32-bit OS: "C:\Windows\System32".
-		// For 64-bit OS: "C:\Windows\SysWOW64".
+		// 
+		// 
 		FolderObject = ShellObject.Namespace(41);
 	ElsIf SystemInfo.PlatformType = PlatformType.Windows_x86_64 Then 
-		// For any system: "C:WindowsSystem32".
+		// 
 		FolderObject = ShellObject.Namespace(37);
 	EndIf;
 	
@@ -1208,15 +1205,15 @@ EndFunction
 
 #EndIf
 
-// The asynchronous alternative of the 1C:Enterprise method ExecuteNotifyProcessing.
-// It handles notifications asynchronously, like 1C:Enterprise methods (for example, StartGetFiles).
-// Intended for cases when notifications should be processed after the synchronous call end.
-// That is, when you need to minimize the delay.
+// 
+// 
+// 
+// 
 // 
 // Parameters:
-//  NotifyDescription - NotifyDescription - Notification to be handled.
-//  Result  - Arbitrary - Value to be passed to the "Result" parameter
-//               of the RunCallback platform method.
+//  NotifyDescription - NotifyDescription - 
+//  Result  - Arbitrary - 
+//               
 //
 Procedure StartNotificationProcessing(NotifyDescription, Result = Undefined) Export
 	
@@ -1230,58 +1227,58 @@ Procedure StartNotificationProcessing(NotifyDescription, Result = Undefined) Exp
 	
 EndProcedure
 
-// Select metadata objects.
+// 
 // 
 // Parameters:
 //  FormParameters - See StandardSubsystemsClientServer.MetadataObjectsSelectionParameters
-//  OnCloseNotifyDescription - NotifyDescription - The notification that is called when the form closes. Has the following parameters:: 
-//			# SelectedMetadataObjects - The full names of the selected metadata objects.
-//				Or references to object IDs if "ChooseRefs" is set to "True". 
-//			# AdditionalParameters - Arbitrary - The parameters that were passed when creating the notification. 
-//		If "OnCloseNotifyDescription" is not specified, a notification is called that can be received 
-//		with the "NotificationProcessing" handler:
-//			# EventName - String - "SelectMetadataObjects"
-//			# Parameter - ValueList - Selected metadata objects.
-//			# Source -
+//  OnCloseNotifyDescription - NotifyDescription - : 
+//			
+//				 
+//			 
+//		 
+//		
+//			
+//			
+//			
 //
 Procedure ChooseMetadataObjects(FormParameters, OnCloseNotifyDescription = Undefined) Export
 	OpenForm("CommonForm.SelectMetadataObjects", FormParameters,,,,, OnCloseNotifyDescription);
 EndProcedure
 
-// Opens a spreadsheet for viewing or editing.
-// When saving an edited spreadsheet, calls a notification 
-// that can be received using the "NotificationProcessing" handler:
-//	# EventName - String - "Write_SpreadsheetDocument" or "CancelEditSpreadsheetDocument"
-//	# Parameter - Structure:
-//	  ## PathToFile - String - The full path to the spreadsheet file.
-//	  ## Presentation - String - The spreadsheet name as specified in "SpreadsheetEditorParameters.DocumentName
-//	# Source - ClientApplicationForm - The editor form.
+// 
+//  
+// 
+//	
+//	
+//	  
+//	  
+//	
 // 
 // Parameters:
-//  SpreadsheetDocument - SpreadsheetDocument - The opened spreadsheet.
+//  SpreadsheetDocument - SpreadsheetDocument - 
 //  FormParameters - See StandardSubsystemsClient.SpreadsheetEditorParameters
 //
 Procedure ShowSpreadsheetEditor(Val SpreadsheetDocument, Val FormParameters = Undefined, 
-	Val OnCloseNotifyDescription = Undefined) Export
+	Val OnCloseNotifyDescription = Undefined, Owner = Undefined) Export
 	
 	If FormParameters = Undefined Then
 		FormParameters = SpreadsheetEditorParameters();
 	EndIf;
 	FormParameters.SpreadsheetDocument = SpreadsheetDocument;
 	
-	OpenForm("CommonForm.EditSpreadsheetDocument", FormParameters);
+	OpenForm("CommonForm.EditSpreadsheetDocument", FormParameters, Owner);
 	
 EndProcedure
 
-// Parameters of the spreadsheet editor for "StandardSubsystemsClient.ShowSpreadsheetEditor".
+// 
 // 
 // Returns:
 //  Structure:
-//   * DocumentName - String - The spreadsheet name (shown in the editor's header). 
-//   * SpreadsheetDocument - SpreadsheetDocument, String - The spreadsheet being displayed or edited.
-//                         Also, you can specify the address of the spreadsheet in the temporary storage.
-//   * PathToFile - String - The full path to the spreadsheet (optional).
-//   * Edit - Boolean - If set to "True", the spreadsheet is editable. By default, "False".
+//   * DocumentName - String -  
+//   * SpreadsheetDocument - SpreadsheetDocument, String - 
+//                         
+//   * PathToFile - String - 
+//   * Edit - Boolean - 
 //
 Function SpreadsheetEditorParameters() Export
 	
@@ -1294,11 +1291,11 @@ Function SpreadsheetEditorParameters() Export
 	
 EndFunction
 
-// Opens a form where you can compare spreadsheets and view the difference.
+// 
 // 
 // Parameters:
-//  SpreadsheetDocumentLeft - SpreadsheetDocument - The first spreadsheet to compare.
-//  SpreadsheetDocumentRight - SpreadsheetDocument - The second spreadsheet to compare.
+//  SpreadsheetDocumentLeft - SpreadsheetDocument - 
+//  SpreadsheetDocumentRight - SpreadsheetDocument - 
 //  Parameters - See SpreadsheetComparisonParameters
 //
 Procedure ShowSpreadsheetComparison(SpreadsheetDocumentLeft, SpreadsheetDocumentRight, Parameters) Export
@@ -1315,14 +1312,14 @@ Procedure ShowSpreadsheetComparison(SpreadsheetDocumentLeft, SpreadsheetDocument
 	
 EndProcedure
 
-// Parameters for comparing spreadsheets using "ShowSpreadsheetsDiff".
+// 
 // 
 // Returns:
 //  Structure:
-//    * SpreadsheetDocumentsAddress - String - The addresses in the temporary storage of the spreadsheets being compared.
-//    * Title - String - The form's title. If not specified, then "Compare spreadsheet documents".
-//    * TitleLeft - String - The title of the first spreadsheet (on the left).
-//    * TitleRight - String - The title of the second spreadsheet (on the right).
+//    * SpreadsheetDocumentsAddress - String - 
+//    * Title - String - 
+//    * TitleLeft - String - 
+//    * TitleRight - String - 
 //
 Function SpreadsheetComparisonParameters() Export
 	
@@ -1342,17 +1339,17 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // BeforeStart
 
-// Continues the BeforeStart procedure.
+// 
 Procedure ActionsBeforeStart(CompletionNotification)
 	
 	Parameters = ProcessingParametersBeforeStartSystem();
 	
-	// External parameters of the result description.
+	// 
 	Parameters.Insert("Cancel", False);
 	Parameters.Insert("Restart", False);
 	Parameters.Insert("AdditionalParametersOfCommandLine", "");
 	
-	// External parameters of the execution management.
+	// 
 	Parameters.Insert("InteractiveHandler", Undefined); // NotifyDescription
 	Parameters.Insert("ContinuationHandler",   Undefined); // NotifyDescription
 	Parameters.Insert("ContinuousExecution", True);
@@ -1361,20 +1358,20 @@ Procedure ActionsBeforeStart(CompletionNotification)
 	Parameters.Insert("NameOfLastProcedure", "");
 	InstallLatestProcedure(Parameters, "StandardSubsystemsClient", "BeforeStart");
 	
-	// Internal parameters.
+	// 
 	Parameters.Insert("CompletionNotification", CompletionNotification);
 	Parameters.Insert("CompletionProcessing", New NotifyDescription(
 		"ActionsBeforeStartCompletionHandler", ThisObject));
 	
 	UpdateClientParameters(Parameters, True, CompletionNotification <> Undefined);
 	
-	// Preparing to proceed to the next procedure
+	// 
 	Parameters.Insert("ContinuationHandler", New NotifyDescription(
 		"ActionsBeforeStartInIntegrationProcedure", ThisObject));
 	
 	If ApplicationStartupLogicDisabled() Then
 		Try
-			// Check the right to disable the startup logic. Specify server parameters.
+			// 
 			ClientProperties = New Structure;
 			FillInTheClientParametersOnTheServer(ClientProperties);
 			StandardSubsystemsServerCall.CheckDisableStartupLogicRight(ClientProperties);
@@ -1396,8 +1393,8 @@ Procedure ActionsBeforeStart(CompletionNotification)
 		Return;
 	EndIf;
 	
-	// The standard initial server call in order to
-	// pre-populate the client operating parameters on the server.
+	// 
+	// 
 	Try
 		CommonClient.SubsystemExists("StandardSubsystems.Core");
 	Except
@@ -1411,7 +1408,7 @@ Procedure ActionsBeforeStart(CompletionNotification)
 	
 EndProcedure
 
-// For internal use only. Continues the execution of BeforeStart procedure.
+// For internal use only. Continue the procedure before starting the system.
 Procedure ActionsBeforeStartInIntegrationProcedure(NotDefined, Context) Export
 	
 	Parameters = ProcessingParametersBeforeStartSystem();
@@ -1443,7 +1440,7 @@ Procedure ActionsBeforeStartInIntegrationProcedure(NotDefined, Context) Export
 	
 EndProcedure
 
-// For internal use only. Continues the execution of BeforeStart procedure.
+// For internal use only. Continue the procedure before starting the system.
 Procedure ActionsBeforeStartInIntegrationProcedureModules(NotDefined, Context) Export
 	
 	While True Do
@@ -1491,7 +1488,7 @@ Procedure ActionsBeforeStartInIntegrationProcedureModules(NotDefined, Context) E
 	
 EndProcedure
 
-// For internal use only. Continues the execution of BeforeStart procedure.
+// For internal use only. Continue the procedure before starting the system.
 Procedure ActionsBeforeStartInOverridableProcedure(NotDefined, Context)
 	
 	Parameters = ProcessingParametersBeforeStartSystem();
@@ -1528,7 +1525,7 @@ Procedure ActionsBeforeStartInOverridableProcedure(NotDefined, Context)
 	
 EndProcedure
 
-// For internal use only. Continues the execution of BeforeStart procedure.
+// For internal use only. Continue the procedure before starting the system.
 Procedure ActionsBeforeStartInOverridableProcedureModules(NotDefined, Context) Export
 	
 	While True Do
@@ -1562,7 +1559,7 @@ Procedure ActionsBeforeStartInOverridableProcedureModules(NotDefined, Context) E
 	
 EndProcedure
 
-// For internal use only. Continues the execution of BeforeStart procedure.
+// For internal use only. Continue the procedure before starting the system.
 Procedure ActionsBeforeStartAfterAllProcedures(NotDefined, Context)
 	
 	Parameters = ProcessingParametersBeforeStartSystem();
@@ -1588,7 +1585,7 @@ Procedure ActionsBeforeStartAfterAllProcedures(NotDefined, Context)
 	
 EndProcedure
 
-// For internal use only. The BeforeStart procedure completion.
+// For internal use only. Completing the procedure before starting the system.
 Procedure ActionsBeforeStartCompletionHandler(NotDefined, Context) Export
 	
 	Parameters = ProcessingParametersBeforeStartSystem(True);
@@ -1654,29 +1651,29 @@ Function ProcessingParametersBeforeStartSystem(Delete = False)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// OnAppStart
+// OnStart
 
-// Continues the OnStart procedure.
+// 
 Procedure ActionsOnStart(CompletionNotification, ContinuousExecution)
 	
 	Parameters = ProcessingParametersOnStartSystem();
 	
-	// External parameters of the result description.
+	// 
 	Parameters.Insert("Cancel", False);
 	Parameters.Insert("Restart", False);
 	Parameters.Insert("AdditionalParametersOfCommandLine", "");
 	
-	// External parameters of the execution management.
+	// 
 	Parameters.Insert("InteractiveHandler", Undefined); // NotifyDescription
 	Parameters.Insert("ContinuationHandler",   Undefined); // NotifyDescription
 	Parameters.Insert("ContinuousExecution", ContinuousExecution);
 	
-	// Internal parameters.
+	// 
 	Parameters.Insert("CompletionNotification", CompletionNotification);
 	Parameters.Insert("CompletionProcessing", New NotifyDescription(
 		"ActionsOnStartCompletionHandler", ThisObject));
 	
-	// Preparing to proceed to the next procedure
+	// 
 	Parameters.Insert("ContinuationHandler", New NotifyDescription(
 		"ActionsOnStartInIntegrationProcedure", ThisObject));
 	
@@ -1702,7 +1699,7 @@ Procedure ActionsOnStart(CompletionNotification, ContinuousExecution)
 	EndIf;
 	
 	Try
-		SetAdvancedApplicationCaption(True); // For the main window.
+		SetAdvancedApplicationCaption(True); // 
 		
 		If Not ProcessStartParameters() Then
 			Parameters.Cancel = True;
@@ -1720,7 +1717,7 @@ Procedure ActionsOnStart(CompletionNotification, ContinuousExecution)
 	
 EndProcedure
 
-// For internal use only. Continues the execution of OnStart procedure.
+// For internal use only. Continuation of the procedure at the beginning of the system's Work.
 Procedure ActionsOnStartInIntegrationProcedure(NotDefined, Context) Export
 	
 	Parameters = ProcessingParametersOnStartSystem();
@@ -1750,7 +1747,7 @@ Procedure ActionsOnStartInIntegrationProcedure(NotDefined, Context) Export
 	
 EndProcedure
 
-// For internal use only. Continues the execution of OnStart procedure.
+// For internal use only. Continuation of the procedure at the beginning of the system's Work.
 Procedure ActionsOnStartInIntegrationProcedureModules(NotDefined, Context) Export
 	
 	While True Do
@@ -1793,7 +1790,7 @@ Procedure ActionsOnStartInIntegrationProcedureModules(NotDefined, Context) Expor
 	
 EndProcedure
 
-// For internal use only. Continues the execution of OnStart procedure.
+// For internal use only. Continuation of the procedure at the beginning of the system's Work.
 Procedure ActionsOnStartInOverridableProcedure(NotDefined, Context)
 	
 	Parameters = ProcessingParametersOnStartSystem();
@@ -1823,7 +1820,7 @@ Procedure ActionsOnStartInOverridableProcedure(NotDefined, Context)
 	
 EndProcedure
 
-// For internal use only. Continues the execution of OnStart procedure.
+// For internal use only. Continuation of the procedure at the beginning of the system's Work.
 Procedure ActionsOnStartInOverridableProcedureModules(NotDefined, Context) Export
 	
 	While True Do
@@ -1855,7 +1852,7 @@ Procedure ActionsOnStartInOverridableProcedureModules(NotDefined, Context) Expor
 	
 EndProcedure
 
-// For internal use only. Continues the execution of OnStart procedure.
+// For internal use only. Continuation of the procedure at the beginning of the system's Work.
 Procedure ActionsOnStartAfterAllProcedures(NotDefined, Context)
 	
 	Parameters = ProcessingParametersOnStartSystem();
@@ -1880,7 +1877,7 @@ Procedure ActionsOnStartAfterAllProcedures(NotDefined, Context)
 	
 EndProcedure
 
-// For internal use only. The OnStart procedure completion.
+// For internal use only. Completion of the procedure at the beginning of the system Work.
 Procedure ActionsOnStartCompletionHandler(NotDefined, Context) Export
 	
 	Parameters = ProcessingParametersOnStartSystem(True);
@@ -1946,10 +1943,10 @@ Function ProcessingParametersOnStartSystem(Delete = False)
 	
 EndFunction
 
-// Processes the application start parameters.
+// To handle the startup parameters for the program.
 //
 // Returns:
-//   Boolean   - True if the OnStart procedure execution should be aborted.
+//   Boolean   - 
 //
 Function ProcessStartParameters()
 
@@ -1957,7 +1954,7 @@ Function ProcessStartParameters()
 		Return True;
 	EndIf;
 	
-	// The parameter can be separated with the semicolons symbol (;).
+	// 
 	StartupParameters = StrSplit(LaunchParameter, ";", False);
 	
 	Cancel = False;
@@ -1978,12 +1975,12 @@ EndFunction
 //
 // Returns:
 //   Structure:
-//     Cancel - Boolean
-//     Warning - Array of See StandardSubsystemsClient.WarningOnExit.
-//     InteractiveHandler - NotifyDescription, Undefined
-//     ContinuationHandler - NotifyDescription, Undefined
-//     ContinuousExecution - Boolean
-//     CompletionProcessing - NotifyDescription
+//     
+//      See StandardSubsystemsClient.WarningOnExit.
+//     
+//     
+//     
+//     
 //
 Function ParametersOfActionsBeforeShuttingDownTheSystem(ReCreate = False) Export
 	
@@ -1997,23 +1994,23 @@ Function ParametersOfActionsBeforeShuttingDownTheSystem(ReCreate = False) Export
 		Return Parameters;
 	EndIf;
 	
-	// External parameters of the result description.
+	// 
 	Parameters.Insert("Cancel", False);
 	Parameters.Insert("Warnings", ClientParameter("ExitWarnings"));
 	
-	// External parameters of the execution management.
+	// 
 	Parameters.Insert("InteractiveHandler", Undefined); // NotifyDescription
 	Parameters.Insert("ContinuationHandler",   Undefined); // NotifyDescription
 	Parameters.Insert("ContinuousExecution", True);
 	
-	// Internal parameters.
+	// 
 	Parameters.Insert("CompletionProcessing", New NotifyDescription(
 		"ActionsBeforeExitCompletionHandler", StandardSubsystemsClient));
 	Return Parameters;
 	
 EndFunction	
 	
-// For internal use only. Continues the execution of BeforeExit procedure.
+// For internal use only. Continue the procedure before completing the system Operation.
 //
 // Parameters:
 //   Parameters - See StandardSubsystemsClient.ParametersOfActionsBeforeShuttingDownTheSystem
@@ -2037,7 +2034,7 @@ Procedure ActionsBeforeExit(Parameters) Export
 	
 EndProcedure
 
-// For internal use only. The BeforeExit procedure completion.
+// For internal use only. Completing the procedure before completing the system Operation.
 //
 // Parameters:
 //   NotDefined - Undefined
@@ -2061,7 +2058,7 @@ Procedure ActionsBeforeExitCompletionHandler(NotDefined, Parameters) Export
 	
 EndProcedure
 
-// For internal use only. The BeforeExit procedure completion.
+// For internal use only. Completing the procedure before completing the system Operation.
 // 
 // Parameters:
 //  NotDefined - Undefined
@@ -2082,15 +2079,15 @@ Procedure ActionsBeforeExitAfterErrorProcessing(NotDefined, ContinuationHandler)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Other procedures and functions for application start and exit.
+// 
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart2(Parameters) Export
 	
-	// Checks the minimum required 1C:Enterprise version.
-	// If the current version is earlier than "RecommendedPlatformVersion",
-	// the user is shown a warning.
-	// If "ClientParameters.MustExit" is set to "True", the session will be terminated.
+	// 
+	// 
+	// 
+	// 
 	
 	ClientParameters = ClientParametersOnStart();
 	
@@ -2104,7 +2101,7 @@ Procedure BeforeStart2(Parameters) Export
 	
 EndProcedure
 
-// For internal use only. Continuation of the BeforeStart2 procedure.
+// 
 Procedure Check1CEnterpriseVersionOnStartup(Parameters, Context) Export
 	
 	ClientParameters = ClientParametersOnStart();
@@ -2175,7 +2172,7 @@ Procedure Check1CEnterpriseVersionOnStartup(Parameters, Context) Export
 	
 EndProcedure
 
-// For internal use only. Continues the execution of CheckPlatformVersionOnStart procedure.
+// For internal use only. Continue the procedure to check the version of the platform on Startup.
 Procedure AfterClosingDeprecatedPlatformVersionForm(Result, Parameters) Export
 	
 	If Result <> "Continue" Then
@@ -2188,7 +2185,7 @@ Procedure AfterClosingDeprecatedPlatformVersionForm(Result, Parameters) Export
 	
 EndProcedure
 
-// For internal use only. Continuation of the BeforeStart2 procedure.
+// 
 Procedure WarnAboutInvalidPlatformVersion(Parameters, Context) Export
 
 	ClosingNotification1 = New NotifyDescription("AfterCloseInvalidPlatformVersionForm", ThisObject, Parameters);
@@ -2202,7 +2199,7 @@ Procedure WarnAboutInvalidPlatformVersion(Parameters, Context) Export
 	
 EndProcedure
 
-// For internal use only. Continues the execution of CheckPlatformVersionOnStart procedure.
+// For internal use only. Continue the procedure to check the version of the platform on Startup.
 Procedure AfterCloseInvalidPlatformVersionForm(Result, Parameters) Export
 	
 	ExecuteNotifyProcessing(Parameters.ContinuationHandler);
@@ -2212,8 +2209,8 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart3(Parameters) Export
 	
-	// Checks if the connection with the master node is broken.
-	// If case it is, the procedure restores it.
+	// 
+	// 
 	
 	ClientParameters = ClientParametersOnStart();
 	
@@ -2229,8 +2226,8 @@ EndProcedure
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart4(Parameters) Export
 	
-	// Checks if the main language and time zone are set up.
-	// If they are not set up, the procedure opens the regional settings form.
+	// 
+	// 
 	
 	ClientParameters = ClientParametersOnStart();
 	
@@ -2243,7 +2240,7 @@ Procedure BeforeStart4(Parameters) Export
 	
 EndProcedure
 
-// For internal use only. Continues the execution of CheckReconnectToMasterNodeRequired procedure.
+// For internal use only. Continue the procedure to check the need to restore the connection to the main Node.
 Procedure MasterNodeReconnectionInteractiveHandler(Parameters, Context) Export
 	
 	ClientParameters = ClientParametersOnStart();
@@ -2267,7 +2264,7 @@ Procedure MasterNodeReconnectionInteractiveHandler(Parameters, Context) Export
 	
 EndProcedure
 
-// For internal use only. Continuation of the BeforeStart4 procedure.
+// For internal use only. Continue the procedure before starting the System4.
 Procedure InteractiveInitialRegionalInfobaseSettingsProcessing(Parameters, Context) Export
 	
 	ClientParameters = ClientParametersOnStart();
@@ -2295,7 +2292,7 @@ Procedure InteractiveInitialRegionalInfobaseSettingsProcessing(Parameters, Conte
 	
 EndProcedure
 
-// For internal use only. Continues the execution of CheckReconnectToMasterNodeRequired procedure.
+// For internal use only. Continue the procedure to check the need to restore the connection to the main Node.
 Procedure ReconnectToMasterNodeAfterCloseForm(Result, Parameters) Export
 	
 	If TypeOf(Result) <> Type("Structure") Or Result.Cancel Then
@@ -2308,7 +2305,7 @@ Procedure ReconnectToMasterNodeAfterCloseForm(Result, Parameters) Export
 	
 EndProcedure
 
-// For internal use only. Continuation of the BeforeStart4 procedure.
+// For internal use only. Continue the procedure before starting the System4.
 Procedure AfterCloseInitialRegionalInfobaseSettingsChoiceForm(Result, Parameters) Export
 	
 	If TypeOf(Result) <> Type("Structure") Or Result.Cancel Then
@@ -2321,19 +2318,19 @@ Procedure AfterCloseInitialRegionalInfobaseSettingsChoiceForm(Result, Parameters
 	
 EndProcedure
 
-// Hides the desktop when the application starts using flag
-// that prevents form creation on the desktop.
-// Makes the desktop visible and updates it when possible
-// if the desktop is hidden.
+// Sets the hide desktop flag when starting the system,
+// which blocks the creation of forms on the desktop.
+// Removes the hide flag and updates the desktop when it becomes possible,
+// if the hide was performed.
 //
 // Parameters:
-//  Hide - Boolean - pass False to make desktop
-//           visible if it is hidden.
+//  Hide - Boolean -  if the message is False, then if the desktop is hidden
+//           , it will be shown again.
 //
-//  AlreadyDoneAtServer - Boolean - pass True if the method was already executed
-//           in the StandardSubsystemsServerCall module and it should not be
-//           executed again here but only set the flag showing that desktop
-//           is hidden and it will be shown lately.
+//  AlreadyDoneAtServer - Boolean -  if the pass is True, then the method has already been called
+//           in the standardsystem module of the server Call, and it does not need
+//           to be called, but only needs to be set on the client that the desktop
+//           was hidden and needs to be shown later.
 //
 Procedure HideDesktopOnStart(Hide = True, AlreadyDoneAtServer = False) Export
 	
@@ -2424,7 +2421,7 @@ Procedure AfterStart() Export
 	EndIf;
 	
 	If DisplayWarningsBeforeShuttingDownTheSystem(False) Then
-		// Pre-compilate the client modules to avoid implicit server calls in the "BeforeExit" handler.
+		// 
 		// 
 		WarningsBeforeSystemShutdown(False); 
 	EndIf;
@@ -2440,21 +2437,21 @@ Function DisplayWarningsBeforeShuttingDownTheSystem(Cancel)
 	ApplicationStartParameters = ApplicationParameters["StandardSubsystems.ApplicationStartParameters"];
 	
 	If ApplicationStartParameters.Property("HideDesktopOnStart") Then
-		// An exit attempt had been made before the startup was completed.
-		// For the web client, it can be a standard behavior if the user closes the browser tab.
-		// Therefore, the closure is blocked since it can be force-closed if needed.
-		// And in case the user closes the tab by accident, they should be able to stay on that tab.
-		// For other clients, it can be caused by errors in the modeless startup sequence.
-		// That is, there are no windows that overlap the entire UI.
-		// In this case, the closure should be allowed without the standard exit procedures
-		// as they may cause errors since the startup process is not completed.
+		// 
+		// 
+		// 
+		// 
+		// 
+		// 
+		// 
+		// 
 #If Not WebClient Then
 		Cancel = True;
 #EndIf
 		Return False;
 	EndIf;
 	
-	// In thick client (standard application) mode, warning list is not displayed.
+	// 
 #If ThickClientOrdinaryApplication Then
 	Return False;
 #EndIf
@@ -2480,7 +2477,7 @@ Function WarningsBeforeSystemShutdown(Cancel)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// For the MetadataObjectIDs catalog.
+// 
 
 // For internal use only.
 Procedure MetadataObjectIDsListFormListValueChoice(Form, Item, Value, StandardProcessing) Export
@@ -2536,8 +2533,8 @@ Procedure FillInTheClientParametersOnTheServer(Parameters) Export
 	Parameters.Insert("MainDisplayResolotion", MainDisplayResolotion());
 	Parameters.Insert("SystemInfo", ClientSystemInfo());
 	
-	// Set the client date right before the call to reduce error.
-	Parameters.Insert("CurrentDateOnClient", CurrentDate()); // ACC:143-off To calculate SessionTimeOffset, CurrentDate is required.
+	// 
+	Parameters.Insert("CurrentDateOnClient", CurrentDate()); // 
 	Parameters.Insert("CurrentUniversalDateInMillisecondsOnClient", CurrentUniversalDateInMilliseconds());
 	
 EndProcedure
@@ -2691,7 +2688,7 @@ Function MainDisplayResolotion()
 	
 	ClientDisplaysInformation = GetClientDisplaysInformation();
 	If ClientDisplaysInformation.Count() > 0 Then
-		DPI = ClientDisplaysInformation[0].DPI; // ACC:1353 - Don't translate to Russian.
+		DPI = ClientDisplaysInformation[0].DPI; // 
 		MainDisplayResolotion = ?(DPI = 0, 72, DPI);
 	Else
 		MainDisplayResolotion = 72;
@@ -2752,7 +2749,7 @@ EndFunction
 
 #EndRegion
 
-// Continues the StartNotificationProcessing procedure.
+// 
 //
 // Parameters:
 //  Size - Number
@@ -2767,7 +2764,7 @@ Procedure StartNotificationProcessingCompletion(Size, Context) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 Procedure SignInToDataArea()
 	
@@ -2805,7 +2802,7 @@ Procedure SignInToDataArea()
 	
 EndProcedure
 
-// Updates the client parameters after interactive data processing on application start.
+// Updates the settings of the client after the next interactive processing when you run.
 Procedure UpdateClientParameters(Parameters, InitialCall = False, RefreshReusableValues = True)
 	
 	If InitialCall Then
@@ -2832,15 +2829,15 @@ Procedure UpdateClientParameters(Parameters, InitialCall = False, RefreshReusabl
 	
 EndProcedure
 
-// Checks the result of the interactive processing. If False, calls the exit handler.
-// If a new received client parameter is added, it updates the client operation parameters.
+// Check the result of the interactive process, if a Failure, then causes the processing is completed.
+// If a new received client parameter is added, updates the client's operation parameters.
 //
 // Parameters:
 //   Parameters - See CommonClientOverridable.BeforeStart.Parameters.
 //
 // Returns:
-//   Boolean - True if the execution can continue and, accordingly, the notification
-//            handler specified in the CompletionProcessing properties has not been executed.
+//   Boolean - 
+//            
 //
 Function ContinueActionsBeforeStart(Parameters)
 	
@@ -2855,12 +2852,12 @@ Function ContinueActionsBeforeStart(Parameters)
 	
 EndFunction
 
-// Processes the error found when calling the OnStart event handler.
+// Handles an error found when calling the event handler at the beginning of the system's Work.
 //
 // Parameters:
 //   Parameters          - See CommonClientOverridable.OnStart.Parameters.
-//   ErrorInfo - ErrorInfo - an error description.
-//   Shutdown   - Boolean - If True is set, you will not be able to continue operation in case of startup error.
+//   ErrorInfo - ErrorInfo -  information about the error.
+//   Shutdown   - Boolean -  if set to True, you will not be able to continue working if a startup error occurs.
 //
 Procedure HandleErrorBeforeStart(Parameters, ErrorInfo, Shutdown = False)
 	
@@ -2868,15 +2865,15 @@ Procedure HandleErrorBeforeStart(Parameters, ErrorInfo, Shutdown = False)
 	
 EndProcedure
 
-// Checks the result of the BeforeStart event handler and executes the notification handler.
+// Checks the result of the event handler before starting the system And executes the alert handler.
 //
 // Parameters:
 //   Parameters - See CommonClientOverridable.BeforeStart.Parameters.
 //
 // Returns:
-//   Boolean - True if the notification handler, specified
-//            CompletionProcessing CompletionProcessing or planned moving to the execution of
-//            the interactive processing specified in the InteractiveProcessing property, was executed.
+//   Boolean - 
+//            
+//            
 //
 Function BeforeStartInteractiveHandler(Parameters)
 	
@@ -2899,23 +2896,23 @@ Function BeforeStartInteractiveHandler(Parameters)
 		ExecuteNotifyProcessing(InteractiveHandler, Parameters);
 		
 	Else
-		// The UI should be prepared before starting the interactive data processor requested
-		// in the "BeforeStart" handler runtime. The preparation hides the desktop and refreshes the IU
 		// 
-		//  proceeding with the first call to "OnAppStart".
+		// 
+		// 
+		// 
 		ApplicationStartParameters.Insert("ProcessingParameters", Parameters);
 		HideDesktopOnStart();
 		ApplicationStartParameters.Insert("SkipClearingDesktopHiding");
 		
 		If Parameters.CompletionNotification = Undefined Then
-			// "BeforeExit" was called by 1C:Enterprise as an event handler
-			// before opening the main 1C:Enterprise window.
+			// 
+			// 
 			If Not ApplicationStartupLogicDisabled() Then
 				SetInterfaceFunctionalOptionParametersOnStart();
 			EndIf;
 		Else
-			// "BeforeExit" was called programmatically as access to a data area.
-			// Therefore, after refreshing the UI, use an idle handler to resume.
+			// 
+			// 
 			AttachIdleHandler("OnStartIdleHandler", 0.1, True);
 		EndIf;
 	EndIf;
@@ -2968,14 +2965,14 @@ Function FullNameOfLastProcedureBeforeStartingSystem() Export
 	
 EndFunction
 
-// Checks the result of the interactive processing. If False, calls the exit handler.
+// Check the result of the interactive process, if a Failure, then causes the processing is completed.
 //
 // Parameters:
 //   Parameters - See CommonClientOverridable.OnStart.Parameters.
 //
 // Returns:
-//   Boolean - True if the execution can continue and, accordingly, the notification
-//            handler specified in the CompletionProcessing properties has not been executed.
+//   Boolean - 
+//            
 //
 Function ContinueActionsOnStart(Parameters)
 	
@@ -2988,12 +2985,12 @@ Function ContinueActionsOnStart(Parameters)
 	
 EndFunction
 
-// Processes the error found when calling the OnStart event handler.
+// Handles an error found when calling the event handler at the beginning of the system's Work.
 //
 // Parameters:
 //   Parameters          - See CommonClientOverridable.OnStart.Parameters.
-//   ErrorInfo - ErrorInfo - an error description.
-//   Shutdown   - Boolean - If True is set, you will not be able to continue operation in case of startup error.
+//   ErrorInfo - ErrorInfo -  information about the error.
+//   Shutdown   - Boolean -  if set to True, you will not be able to continue working if a startup error occurs.
 //
 Procedure HandleErrorOnStart(Parameters, ErrorInfo, Shutdown = False)
 	
@@ -3001,14 +2998,14 @@ Procedure HandleErrorOnStart(Parameters, ErrorInfo, Shutdown = False)
 	
 EndProcedure
 
-// Checks the result of the OnStart event handler and executes the notification handler.
+// Checks the result of the event handler at the beginning of the system And executes the notification handler.
 //
 // Parameters:
 //   Parameters - See CommonClientOverridable.OnStart.Parameters.
 //
 // Returns:
-//   Boolean - True if notification handler, specified in
-//            the CompletionProcessing or InteractiveHandler properties, was executed.
+//   Boolean - 
+//            
 //
 Function OnStartInteractiveHandler(Parameters)
 	
@@ -3094,8 +3091,8 @@ Function InteractiveHandlerBeforeExit(Parameters)
 		ExecuteNotifyProcessing(InteractiveHandler, Parameters);
 		
 	Else
-		// The "BeforeExit" event handler made a call to prepare for running
-		// the interactive data processor via the idle handler.
+		// 
+		// 
 		ApplicationParameters["StandardSubsystems.ApplicationStartParameters"].Insert("ExitProcessingParameters", Parameters);
 		Parameters.ContinuousExecution = False;
 		AttachIdleHandler(
@@ -3106,7 +3103,7 @@ Function InteractiveHandlerBeforeExit(Parameters)
 	
 EndFunction
 
-// Displays a user message form or a message.
+// Displays a form of messages to the user when the program is closed, or displays a message.
 Procedure OpenMessageFormOnExit(Parameters)
 	
 	AdditionalParameters = New Structure;
@@ -3139,7 +3136,7 @@ Procedure OpenMessageFormOnExit(Parameters)
 	
 EndProcedure
 
-// Continues the execution of OpenOnExitMessageForm procedure.
+// Continuation of the procedure openformatedpredictionsperformance of work.
 Procedure WarningInteractiveHandlerOnExit(Parameters, FormOpenParameters) Export
 	
 	OpenForm(
@@ -3150,7 +3147,7 @@ Procedure WarningInteractiveHandlerOnExit(Parameters, FormOpenParameters) Export
 	
 EndProcedure
 
-// Continues the execution of ShowMessageBoxAndContinue procedure.
+// Continuation of the procedure showprediction and Continue.
 Procedure ShowMessageBoxAndContinueCompletion(Result, Parameters) Export
 	
 	If Result <> Undefined Then
@@ -3165,19 +3162,19 @@ Procedure ShowMessageBoxAndContinueCompletion(Result, Parameters) Export
 	
 EndProcedure
 
-// Generates representation of a single question.
+// Generates a single question display.
 //
-//	If UserWarning has the HyperlinkText property, IndividualOpeningForm is opened from
-//	the Structure of the question.
-//	If UserWarning has the CheckBoxText property,
-//	the CommonForm.QuestionBeforeExit form will be opened.
+//	If the warning to the User has the "Text_perlinks" property, then the "individual opening Form" opens from
+//	The structure of the question.
+//	If the warning to the User has the "Textflag" property, the "General Form
+//	" form opens.Questionsperforming the system".
 //
 // Parameters:
 //  Parameters - See StandardSubsystemsClient.ParametersOfActionsBeforeShuttingDownTheSystem.
-//  ResponseHandler - NotifyDescription - to continue once the user answered the question.
+//  ResponseHandler - NotifyDescription -  to continue after receiving the user's response.
 //  UserWarning - See StandardSubsystemsClient.WarningOnExit.
-//  FormName - String - a name of the common form with questions.
-//  FormParameters - Structure - parameters for the form with questions.
+//  FormName - String -  name of the General form with questions.
+//  FormParameters - Structure -  parameters for the form with questions.
 //
 Procedure OpenApplicationWarningForm(Parameters, ResponseHandler, UserWarning, FormName, FormParameters)
 	
@@ -3241,7 +3238,7 @@ Procedure OpenApplicationWarningForm(Parameters, ResponseHandler, UserWarning, F
 	
 EndProcedure
 
-// If Shutdown = True is specified, abort the further execution of client-side code and shut down the application.
+// If stop Working = True is specified, then abort further execution of the client code and stop working.
 //
 Procedure HandleErrorOnStartOrExit(Parameters, ErrorInfo, Event, Shutdown = False)
 	
@@ -3277,7 +3274,7 @@ Procedure SetInterfaceFunctionalOptionParametersOnStart()
 	
 	If TypeOf(ApplicationStartParameters) <> Type("Structure")
 	 Or Not ApplicationStartParameters.Property("InterfaceOptions") Then
-		// Startup error processing.
+		// 
 		Return;
 	EndIf;
 	
@@ -3287,7 +3284,7 @@ Procedure SetInterfaceFunctionalOptionParametersOnStart()
 	
 	InterfaceOptions = New Structure(ApplicationStartParameters.InterfaceOptions);
 	
-	// Parameters of the functional options are set only if they are specified
+	// 
 	If InterfaceOptions.Count() > 0 Then
 		SetInterfaceFunctionalOptionParameters(InterfaceOptions);
 	EndIf;

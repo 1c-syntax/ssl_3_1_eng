@@ -37,6 +37,11 @@
 			<ContextMenu name="ActionContextMenu" id="17"/>
 			<ExtendedTooltip name="ActionExtendedTooltip" id="18"/>
 		</InputField>
+		<InputField name="TaskCheckTime" id="34">
+			<DataPath>Record.TaskCheckTime</DataPath>
+			<ContextMenu name="TaskCheckTimeContextMenu" id="35"/>
+			<ExtendedTooltip name="TaskCheckTimeExtendedTooltip" id="36"/>
+		</InputField>
 		<CheckBoxField name="OperationSuccessful" id="19">
 			<DataPath>Record.OperationSuccessful</DataPath>
 			<CheckBoxType>Auto</CheckBoxType>
@@ -49,6 +54,16 @@
 			<ContextMenu name="OperationFailedContextMenu" id="23"/>
 			<ExtendedTooltip name="OperationFailedExtendedTooltip" id="24"/>
 		</CheckBoxField>
+		<InputField name="Mode" id="37">
+			<DataPath>Record.Mode</DataPath>
+			<ContextMenu name="ModeContextMenu" id="38"/>
+			<ExtendedTooltip name="ModeExtendedTooltip" id="39"/>
+		</InputField>
+		<InputField name="CorrespondentDataArea" id="40">
+			<DataPath>Record.CorrespondentDataArea</DataPath>
+			<ContextMenu name="CorrespondentDataAreaContextMenu" id="41"/>
+			<ExtendedTooltip name="CorrespondentDataAreaExtendedTooltip" id="42"/>
+		</InputField>
 		<InputField name="Error" id="25">
 			<DataPath>Record.Error</DataPath>
 			<MultiLine>true</MultiLine>

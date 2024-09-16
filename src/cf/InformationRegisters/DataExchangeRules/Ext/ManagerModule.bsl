@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -100,29 +98,29 @@ EndFunction
 	
 #Region Private
 
-// Imports 1C-supplied rules for the exchange plan.
+// Loads the supplied rules for the exchange plan.
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan for which the rules are being imported.
-//  RulesFileName - String - a full name of exchange rules file (ZIP).
+//  ExchangePlanName - String -  name of the exchange plan that the rules are being loaded for.
+//  RulesFileName - String -  full name of the exchange rules file (*. zip).
 //
 Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	
 	File = New File(RulesFileName);
 	FileName = File.Name;
 	
-	// Extract data from archive.
+	// 
 	TempDirectoryName = GetTempFileName("");
 	If DataExchangeServer.UnpackZipFile(RulesFileName, TempDirectoryName) Then
 		
 		UnpackedFileList = FindFiles(TempDirectoryName, GetAllFilesMask(), True);
 		
-		// Canceling import if the archive contains no files.
+		// 
 		If UnpackedFileList.Count() = 0 Then
 			Raise NStr("en = 'Rule file not found in archive.';");
 		EndIf;
 		
-		// Canceling import if number of files in the archive does not match the expected number.
+		// 
 		If UnpackedFileList.Count() <> 3 Then
 			Raise NStr("en = 'Invalid rule set. Three files are expected:
 			|ExchangeRules.xml. Contains conversion rules for this application.
@@ -130,7 +128,7 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 			|RegistrationRules.xml. Contains registration rules for this application.';");
 		EndIf;
 		
-		// Saving received file to the binary data.
+		// 
 		For Each ReceivedFile In UnpackedFileList Do
 			
 			If ReceivedFile.Name = "ExchangeRules.xml" Then
@@ -149,24 +147,24 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 		EndDo;
 		
 	Else
-		// Canceling import if unpacking the file failed.
+		// 
 		Raise NStr("en = 'Extraction failed.';");
 	EndIf;
 	
-	// Delete the temp archive and temp directory.
+	// 
 	FileSystem.DeleteTempFile(TempDirectoryName);
 	
 	ConversionRulesInformation = "[SourceRulesInformation]
 		|
 		|[CorrespondentRulesInformation]";
 		
-	// Getting the temporary conversion file name in the local file system at server.
+	// 
 	TempFileName = GetTempFileName("xml");
 	
-	// Getting the conversion rule file.
+	// 
 	BinaryData.Write(TempFileName);
 	
-	// Read conversion rules.
+	// 
 	InfobaseObjectConversion = NewDataProcessorInfobaseObjectConversion("Upload0", ExchangePlanName);
 	
 	DataExchangeServer.SetExportDebugSettingsForExchangeRules(InfobaseObjectConversion, ExchangePlanName, False);
@@ -175,15 +173,15 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	
 	SourceRulesInformation = InfobaseObjectConversion.RulesInformation(False);
 	
-	// Getting name of the temporary correspondent conversion file in the local file system on the server.
+	// 
 	CorrespondentTempFileName = GetTempFileName("xml");
-	// Getting the conversion rule file.
+	// 
 	CorrespondentBinaryData.Write(CorrespondentTempFileName);
 	
-	// Read conversion rules.
+	// 
 	InfobaseObjectConversion = NewDataProcessorInfobaseObjectConversion("Load", ExchangePlanName);
 	
-	// Data processor methods.
+	// 
 	ReadCorrespondentRules = InfobaseObjectConversion.ExchangeRules(CorrespondentTempFileName);
 	
 	CorrespondentRulesInformation = InfobaseObjectConversion.RulesInformation(True);
@@ -191,11 +189,11 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	ConversionRulesInformation = StrReplace(ConversionRulesInformation, "[SourceRulesInformation]", SourceRulesInformation);
 	ConversionRulesInformation = StrReplace(ConversionRulesInformation, "[CorrespondentRulesInformation]", CorrespondentRulesInformation);
 	
-	// Deleting temporary rule files.
+	// 
 	FileSystem.DeleteTempFile(TempFileName);
 	FileSystem.DeleteTempFile(CorrespondentTempFileName);
 	
-	// Writing conversion rules.
+	// 
 	CovnersionRuleWriting = CreateRecordManager();
 	CovnersionRuleWriting.ExchangePlanName = ExchangePlanName;
 	CovnersionRuleWriting.RulesKind = Enums.DataExchangeRulesTypes.ObjectsConversionRules;
@@ -217,11 +215,11 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 		
 EndProcedure
 
-// Imports 1C-supplied object registration rules for the given exchange plan.
+// 
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan for which the rules are being imported.
-//  RulesFileName - String - The full name of the object registration rules file (XML).
+//  ExchangePlanName - String -  name of the exchange plan that the rules are being loaded for.
+//  RulesFileName - String - 
 //
 Procedure DownloadSuppliedObjectRegistrationRules(ExchangePlanName, RulesFileName) Export
 	
@@ -236,18 +234,18 @@ EndProcedure
 
 Procedure ImportObjectRegistrationRules(BinaryData, FileName, ExchangePlanName)
 	
-	// Getting the temporary registration file name in the local file system on the server.
+	// 
 	TempRegistrationFileName = GetTempFileName("xml");
-	// Getting the conversion rule file.
+	// 
 	BinaryData.Write(TempRegistrationFileName);
 	
-	// Read registration rules.
+	// 
 	ChangeRecordRuleImport = DataProcessors.ObjectsRegistrationRulesImport.Create();
 	
-	// Data processor properties.
+	// 
 	ChangeRecordRuleImport.ExchangePlanNameForImport = ExchangePlanName;
 	
-	// Data processor methods.
+	// 
 	ChangeRecordRuleImport.ImportRules(TempRegistrationFileName);
 	ReadRegistrationRules   = ChangeRecordRuleImport.ObjectsRegistrationRules;
 	RegistrationRulesInformation = ChangeRecordRuleImport.RulesInformation();
@@ -256,10 +254,10 @@ Procedure ImportObjectRegistrationRules(BinaryData, FileName, ExchangePlanName)
 		Raise NStr("en = 'An error occurred when importing registration rules.';");
 	EndIf;
 	
-	// Deleting temporary rule files.
+	// 
 	FileSystem.DeleteTempFile(TempRegistrationFileName);
 	
-	// Writing registration rules.
+	// 
 	RegistrationRuleWriting = CreateRecordManager();
 	RegistrationRuleWriting.ExchangePlanName = ExchangePlanName;
 	RegistrationRuleWriting.RulesKind = Enums.DataExchangeRulesTypes.ObjectsRegistrationRules;
@@ -275,10 +273,10 @@ Procedure ImportObjectRegistrationRules(BinaryData, FileName, ExchangePlanName)
 	
 EndProcedure
 
-// Deletes 1C-supplied rules for the exchange plan (clears data in the register).
+// Deletes the supplied rules for the exchange plan (clears the data in the register).
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan for which the rules are being deleted.
+//  ExchangePlanName - String -  name of the exchange plan for which the rules are being deleted.
 //
 Procedure DeleteSuppliedRules(ExchangePlanName) Export
 	
@@ -288,10 +286,10 @@ Procedure DeleteSuppliedRules(ExchangePlanName) Export
 	
 EndProcedure
 
-// Deletes 1C-supplied object registration rules for the given exchange plan (clears up data in the register).
+// 
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan for which the rules are being deleted.
+//  ExchangePlanName - String -  name of the exchange plan for which the rules are being deleted.
 //
 Procedure DeleteSuppliedObjectRegistrationRules(ExchangePlanName) Export
 	
@@ -316,13 +314,13 @@ Procedure DeleteRules(ExchangePlanName, RulesKind)
 	
 EndProcedure
 
-// Determines whether standard conversion rules are used for the exchange plan.
+// Determines whether the standard conversion rules are used for the exchange plan.
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan for which the rules are being imported.
+//  ExchangePlanName - String -  name of the exchange plan that the rules are being loaded for.
 //
 // Returns:
-//   Boolean - if True, the rules are used. Otherwise, False.
+//   Boolean - 
 //
 Function StandardRulesUsed(ExchangePlanName) Export
 	QueryText = "
@@ -394,26 +392,26 @@ Function NewDataProcessorInfobaseObjectConversion(ExchangeMode, ExchangePlanName
 	
 EndFunction
 
-// Imports rules to the register.
+// Loads the rules in the register.
 //
 // Parameters:
-//  Cancel - Boolean - cancel recording.
-//  Record - InformationRegisterRecord.DataExchangeRules - register record where data will be placed.
-//  TempStorageAddress - String - an address of temporary storage, from which XML rules are imported.
-//  RulesFileName - String - a name of the file, from which the files are imported (it is also written to the register).
-//  BinaryData - BinaryData - data that will store the XML file (including XML files unpacked from a ZIP archive).
-//  IsArchive - Boolean - indicates that rules are imported from a ZIP archive, not from an XML file.
+//  Cancel - Boolean -  refusal to write to the register.
+//  Record - InformationRegisterRecord.DataExchangeRules -  a register entry where the data will be placed.
+//  TempStorageAddress - String -  address of the temporary storage from which the XML rules will be loaded.
+//  RulesFileName - String -  the name of the file from which the files were downloaded(it is also case-sensitive).
+//  Binary data-binary Data - data to which an XML file is saved (including the one extracted from a ZIP archive).
+//  IsArchive - Boolean -  indicates that the rules are loaded from a ZIP archive and not from an XML file.
 //
 Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "", IsArchive = False) Export
 	
-	// Checking if the exchange plan exists.
+	// 
 	ExchangePlansList = DataExchangeCached.SSLExchangePlans();
 	If ExchangePlansList.Find(Record.ExchangePlanName) = Undefined Then
 		NString = NStr("en = 'Exchange plan %1 is not used for data synchronization, the rules are not updated.';");
 		NString = StringFunctionsClientServer.SubstituteParametersToString(NString, Record.ExchangePlanName);
 		DataExchangeServer.ReportError(NString, Cancel);
 	Else
-		// Checking whether record mandatory fields are filled.
+		// 
 		CheckFieldsFilled(Cancel, Record);
 	EndIf;
 	
@@ -423,7 +421,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 	
 	AreConversionRules = (Record.RulesKind = Enums.DataExchangeRulesTypes.ObjectsConversionRules);
 	
-	// Getting rule binary data from file or configuration template.
+	// 
 	If Record.RulesSource = Enums.DataExchangeRulesSources.ConfigurationTemplate Then
 		
 		BinaryData = BinaryDataFromConfigurationTemplate(Cancel, Record.ExchangePlanName, Record.RulesTemplateName);
@@ -443,20 +441,20 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 		
 	EndIf;
 	
-	// If rules are packed into an archive, unpacking the archive and converting the rules data to binary.
+	// 
 	If IsArchive Then
 		
-		// Getting the archive file from binary data.
+		// 
 		TemporaryArchiveName = GetTempFileName("zip");
 		BinaryData.Write(TemporaryArchiveName);
 		
-		// Extract data from archive.
+		// 
 		TempDirectoryName = GetTempFileName("");
 		If DataExchangeServer.UnpackZipFile(TemporaryArchiveName, TempDirectoryName) Then
 			
 			UnpackedFileList = FindFiles(TempDirectoryName, GetAllFilesMask(), True);
 			
-			// Canceling import if the archive contains no files.
+			// 
 			If UnpackedFileList.Count() = 0 Then
 				NString = NStr("en = 'Rule file not found in archive.';");
 				DataExchangeServer.ReportError(NString, Cancel);
@@ -464,7 +462,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 			
 			If AreConversionRules Then
 				
-				// Saving received file to the binary data.
+				// 
 				If UnpackedFileList.Count() = 2 Then
 					
 					If UnpackedFileList[0].Name = "ExchangeRules.xml" 
@@ -488,13 +486,13 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 						
 					EndIf;
 					
-				// Obsolete format.
+				// 
 				ElsIf UnpackedFileList.Count() = 1 Then
 					NString = NStr("en = 'The archive contains only a conversion rules file. Two files are expected:
 						|ExchangeRules.xml. Contains conversion rules for this application.
 						|CorrespondentExchangeRules.xml. Contains conversion rules for the peer application.';");
 					DataExchangeServer.ReportError(NString, Cancel);
-				// Canceling import if there are several files in the archive, but a single file is expected.
+				// 
 				ElsIf UnpackedFileList.Count() > 1 Then
 					NString = NStr("en = 'Multiple files are found in the archive. Only one file is expected.';");
 					DataExchangeServer.ReportError(NString, Cancel);
@@ -502,11 +500,11 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 				
 			Else
 				
-				// Saving received file to the binary data.
+				// 
 				If UnpackedFileList.Count() = 1 Then
 					BinaryData = New BinaryData(UnpackedFileList[0].FullName);
 					
-				// Canceling import if there are several files in the archive, but a single file is expected.
+				// 
 				ElsIf UnpackedFileList.Count() > 1 Then
 					NString = NStr("en = 'Multiple files are found in the archive. Only one file is expected.';");
 					DataExchangeServer.ReportError(NString, Cancel);
@@ -514,12 +512,12 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 				
 			EndIf;
 			
-		Else // Canceling import if unpacking the file failed.
+		Else // 
 			NString = NStr("en = 'Extraction failed.';");
 			DataExchangeServer.ReportError(NString, Cancel);
 		EndIf;
 		
-		// Delete the temp archive and temp directory.
+		// 
 		FileSystem.DeleteTempFile(TempDirectoryName);
 		FileSystem.DeleteTempFile(TemporaryArchiveName);
 		
@@ -529,20 +527,20 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 		Return;
 	EndIf;
 	
-	// Getting the temporary file name in the local file system on the server.
+	// 
 	TempFileName = GetTempFileName("xml");
 	
-	// Getting the conversion rule file.
+	// 
 	BinaryData.Write(TempFileName);
 	
 	If AreConversionRules Then
 		
-		// Read conversion rules.
+		// 
 		InfobaseObjectConversion = NewDataProcessorInfobaseObjectConversion("Upload0", Record.ExchangePlanName);
 		
 		DataExchangeServer.SetExportDebugSettingsForExchangeRules(InfobaseObjectConversion, Record.ExchangePlanName, Record.DebugMode);
 		
-		// Data processor methods.
+		// 
 		RulesAreRead = InfobaseObjectConversion.ExchangeRules(TempFileName);
 		
 		RulesInformation = InfobaseObjectConversion.RulesInformation(False);
@@ -551,15 +549,15 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 			Cancel = True;
 		EndIf;
 		
-		// Getting the temporary file name in the local file system on the server.
+		// 
 		CorrespondentTempFileName = GetTempFileName("xml");
-		// Getting the conversion rule file.
+		// 
 		CorrespondentBinaryData.Write(CorrespondentTempFileName);
 		
-		// Read conversion rules.
+		// 
 		InfobaseObjectConversion = NewDataProcessorInfobaseObjectConversion("Load", Record.ExchangePlanName);
 		
-		// Data processor methods.
+		// 
 		ReadCorrespondentRules = InfobaseObjectConversion.ExchangeRules(CorrespondentTempFileName);
 		
 		DeleteFiles(CorrespondentTempFileName);
@@ -574,13 +572,13 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 		
 	Else // ObjectsRegistrationRules
 		
-		// Read registration rules.
+		// 
 		ChangeRecordRuleImport = DataProcessors.ObjectsRegistrationRulesImport.Create();
 		
-		// Data processor properties.
+		// 
 		ChangeRecordRuleImport.ExchangePlanNameForImport = Record.ExchangePlanName;
 		
-		// Data processor methods.
+		// 
 		ChangeRecordRuleImport.ImportRules(TempFileName);
 		
 		RulesAreRead = ChangeRecordRuleImport.ObjectsRegistrationRules;
@@ -593,7 +591,7 @@ Procedure ImportRules(Cancel, Record, TempStorageAddress = "", RulesFileName = "
 		
 	EndIf;
 	
-	// Deleting the temporary rule file.
+	// 
 	FileSystem.DeleteTempFile(TempFileName);
 	
 	If Not Cancel Then
@@ -622,7 +620,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 	CovnersionRuleWriting = DataToWrite.CovnersionRuleWriting;
 	RegistrationRuleWriting = DataToWrite.RegistrationRuleWriting;
 	
-	// Getting rule binary data from file or configuration template.
+	// 
 	If CovnersionRuleWriting.RulesSource = Enums.DataExchangeRulesSources.ConfigurationTemplate Then
 		
 		BinaryData               = BinaryDataFromConfigurationTemplate(Cancel, CovnersionRuleWriting.ExchangePlanName, CovnersionRuleWriting.RulesTemplateName);
@@ -637,23 +635,23 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 	
 	If CovnersionRuleWriting.RulesSource = Enums.DataExchangeRulesSources.File Then
 		
-		// Getting the archive file from binary data.
+		// 
 		TemporaryArchiveName = GetTempFileName("zip");
 		BinaryData.Write(TemporaryArchiveName);
 		
-		// Extract data from archive.
+		// 
 		TempDirectoryName = GetTempFileName("");
 		If DataExchangeServer.UnpackZipFile(TemporaryArchiveName, TempDirectoryName) Then
 			
 			UnpackedFileList = FindFiles(TempDirectoryName, GetAllFilesMask(), True);
 			
-			// Canceling import if the archive contains no files.
+			// 
 			If UnpackedFileList.Count() = 0 Then
 				NString = NStr("en = 'Rule file not found in archive.';");
 				DataExchangeServer.ReportError(NString, Cancel);
 			EndIf;
 			
-			// Canceling import if number of files in the archive does not match the expected number.
+			// 
 			If UnpackedFileList.Count() <> 3 Then
 				NString = NStr("en = 'Invalid rule set. Three files are expected:
 					|ExchangeRules.xml. Contains conversion rules for this application.
@@ -662,7 +660,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 				DataExchangeServer.ReportError(NString, Cancel);
 			EndIf;
 				
-			// Saving received file to the binary data.
+			// 
 			For Each ReceivedFile In UnpackedFileList Do
 				
 				If ReceivedFile.Name = "ExchangeRules.xml" Then
@@ -683,12 +681,12 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 			EndDo;
 			
 		Else 
-			// Canceling import if unpacking the file failed.
+			// 
 			NString = NStr("en = 'Extraction failed.';");
 			DataExchangeServer.ReportError(NString, Cancel);
 		EndIf;
 		
-		// Delete the temp archive and temp directory.
+		// 
 		FileSystem.DeleteTempFile(TempDirectoryName);
 		FileSystem.DeleteTempFile(TemporaryArchiveName);
 		
@@ -702,18 +700,18 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 		|
 		|[CorrespondentRulesInformation]";
 		
-	// Getting the temporary conversion file name in the local file system at server.
+	// 
 	TempFileName = GetTempFileName("xml");
 	
-	// Getting the conversion rule file.
+	// 
 	BinaryData.Write(TempFileName);
 	
-	// Read conversion rules.
+	// 
 	InfobaseObjectConversion = NewDataProcessorInfobaseObjectConversion("Upload0", CovnersionRuleWriting.ExchangePlanName);
 	
 	DataExchangeServer.SetExportDebugSettingsForExchangeRules(InfobaseObjectConversion, CovnersionRuleWriting.ExchangePlanName, CovnersionRuleWriting.DebugMode);
 	
-	// Data processor methods.
+	// 
 	If CovnersionRuleWriting.RulesSource = Enums.DataExchangeRulesSources.File And ErrorDescription = Undefined
 		And Not ConversionRulesCompatibleWithCurrentVersion(CovnersionRuleWriting.ExchangePlanName, ErrorDescription, RulesInformationFromFile(TempFileName)) Then
 		
@@ -730,15 +728,15 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 		Cancel = True;
 	EndIf;
 	
-	// Getting name of the temporary correspondent conversion file in the local file system on the server.
+	// 
 	CorrespondentTempFileName = GetTempFileName("xml");
-	// Getting the conversion rule file.
+	// 
 	CorrespondentBinaryData.Write(CorrespondentTempFileName);
 	
-	// Read conversion rules.
+	// 
 	InfobaseObjectConversion = NewDataProcessorInfobaseObjectConversion("Load", CovnersionRuleWriting.ExchangePlanName);
 	
-	// Data processor methods.
+	// 
 	ReadCorrespondentRules = InfobaseObjectConversion.ExchangeRules(CorrespondentTempFileName);
 	
 	CorrespondentRulesInformation = InfobaseObjectConversion.RulesInformation(True);
@@ -750,19 +748,19 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 	ConversionRulesInformation = StrReplace(ConversionRulesInformation, "[SourceRulesInformation]", SourceRulesInformation);
 	ConversionRulesInformation = StrReplace(ConversionRulesInformation, "[CorrespondentRulesInformation]", CorrespondentRulesInformation);
 	
-	// Getting the temporary registration file name in the local file system on the server.
+	// 
 	TempRegistrationFileName = GetTempFileName("xml");
-	// Getting the conversion rule file.
+	// 
 	RegistrationBinaryData.Write(TempRegistrationFileName);
 
 	
-	// Read registration rules.
+	// 
 	ChangeRecordRuleImport = DataProcessors.ObjectsRegistrationRulesImport.Create();
 	
-	// Data processor properties.
+	// 
 	ChangeRecordRuleImport.ExchangePlanNameForImport = RegistrationRuleWriting.ExchangePlanName;
 	
-	// Data processor methods.
+	// 
 	ChangeRecordRuleImport.ImportRules(TempRegistrationFileName);
 	ReadRegistrationRules   = ChangeRecordRuleImport.ObjectsRegistrationRules;
 	RegistrationRulesInformation = ChangeRecordRuleImport.RulesInformation();
@@ -771,14 +769,14 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 		Cancel = True;
 	EndIf;
 	
-	// Deleting temporary rule files.
+	// 
 	FileSystem.DeleteTempFile(TempFileName);
 	FileSystem.DeleteTempFile(CorrespondentTempFileName);
 	FileSystem.DeleteTempFile(TempRegistrationFileName);
 	
 	If Not Cancel Then
 		
-		// Writing conversion rules.
+		// 
 		CovnersionRuleWriting.XMLRules                      = New ValueStorage(BinaryData, New Deflation());
 		CovnersionRuleWriting.RulesAreRead               = New ValueStorage(RulesAreRead);
 		CovnersionRuleWriting.XMLCorrespondentRules        = New ValueStorage(CorrespondentBinaryData, New Deflation());
@@ -788,7 +786,7 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 		CovnersionRuleWriting.RulesAreImported                = True;
 		CovnersionRuleWriting.ExchangePlanNameFromRules          = CovnersionRuleWriting.ExchangePlanName;
 		
-		// Writing registration rules.
+		// 
 		RegistrationRuleWriting.XMLRules             = New ValueStorage(RegistrationBinaryData, New Deflation());
 		RegistrationRuleWriting.RulesAreRead      = New ValueStorage(ReadRegistrationRules);
 		RegistrationRuleWriting.RulesInformation    = RegistrationRulesInformation;
@@ -800,18 +798,18 @@ Procedure ImportRulesSet(Cancel, DataToWrite, ErrorDescription, TempStorageAddre
 	
 EndProcedure
 
-// Gets read object conversion rules from the infobase for an exchange plan.
+// Gets the read-out rules for converting objects from the information security system for the exchange plan.
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan as a metadata object.
+//  ExchangePlanName - String -  name of the exchange plan as a metadata object.
 // 
 // Returns:
-//  ПравилаЗачитанные - ValueStorage - read object conversion rules.
-//  Undefined - if conversion rules were not imported to the base for an exchange plan.
+//  ПравилаЗачитанные - 
+//  
 //
 Function ParsedRulesOfObjectConversion(Val ExchangePlanName, GetCorrespondentRules = False) Export
 	
-	// Function return value.
+	// 
 	RulesAreRead = Undefined;
 	
 	QueryTextTemplate2 = 
@@ -886,12 +884,12 @@ EndFunction
 
 Function BinaryDataFromConfigurationTemplate(Cancel, ExchangePlanName, TemplateName)
 	
-	// Getting the temporary file name in the local file system on the server.
+	// 
 	TempFileName = GetTempFileName("xml");
 	
 	ExchangePlanManager = DataExchangeCached.GetExchangePlanManagerByName(ExchangePlanName);
 	
-	// Getting the template of the standard rules.
+	// 
 	Try
 		RulesTemplate = ExchangePlanManager.GetTemplate(TemplateName);
 	Except
@@ -907,7 +905,7 @@ Function BinaryDataFromConfigurationTemplate(Cancel, ExchangePlanName, TemplateN
 	
 	BinaryData = New BinaryData(TempFileName);
 	
-	// Deleting the temporary rule file.
+	// 
 	FileSystem.DeleteTempFile(TempFileName);
 	
 	Return BinaryData;
@@ -968,7 +966,7 @@ Function RulesInformationFromFile(RulesFileName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Security profiles.
+// 
 
 // See SafeModeManagerOverridable.OnFillPermissionsToAccessExternalResources.
 Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
@@ -1110,7 +1108,7 @@ Procedure RequestToUseExternalResources(PermissionsRequests, Record, HasConverti
 	If HasConvertionRules Then
 		
 		If Not Record.DebugMode Then
-			// Requesting the personal profile is not required.
+			// 
 		Else
 			
 			If Not RegistrationRulesFromFile Then

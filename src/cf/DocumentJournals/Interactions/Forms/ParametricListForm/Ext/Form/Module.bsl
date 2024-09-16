@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -339,10 +337,10 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Changes filter by the type of interaction in the list.
+// Changes the selection by interaction type in the list.
 // 
 // Parameters:
-//  Command - FormCommand - a running command.
+//  Command - FormCommand -  executed command.
 //
 &AtClient
 Procedure Attachable_ChangeFilterInteractionType(Command)
@@ -844,13 +842,13 @@ Procedure FillInteractionsTree()
 		
 	EndIf;
 	
-	// The EmployeeResponsible quick filter.
+	// 
 	If Not EmployeeResponsible.IsEmpty() Then
 		CommonClientServer.AddCompositionItem(CompositionCustomizerFilter,"EmployeeResponsible",
 			DataCompositionComparisonType.Equal, EmployeeResponsible);
 	EndIf;
 	
-	// Quick filter "Status"
+	// 
 	If Status = "ToReview" Then
 		CommonClientServer.AddCompositionItem(CompositionCustomizerFilter,
 			"Reviewed", DataCompositionComparisonType.Equal, False);
@@ -866,7 +864,7 @@ Procedure FillInteractionsTree()
 			"Reviewed" ,DataCompositionComparisonType.Equal, True);
 	EndIf;
 	
-	// The "Interaction type" quick filter.
+	// 
 	If InteractionType = "AllEmails" Or OnlyEmail Then
 		
 		EmailTypesList = New ValueList;
@@ -961,14 +959,14 @@ Procedure FillInteractionsTree()
 	DataCompositionTemplate = TemplateComposer.Execute(FilterScheme, SettingsComposer.GetSettings(),,,
 		Type("DataCompositionValueCollectionTemplateGenerator"));
 	
-	// Initialize composition processor.
+	// 
 	DataCompositionProcessor = New DataCompositionProcessor;
 	DataCompositionProcessor.Initialize(DataCompositionTemplate);
 	
 	TreeObject = FormAttributeToValue("InteractionsTree");
 	TreeObject.Rows.Clear();
 	
-	// Get the result.
+	// 
 	DataCompositionResultValueCollectionOutputProcessor =
 		New DataCompositionResultValueCollectionOutputProcessor;
 	DataCompositionResultValueCollectionOutputProcessor.SetObject(TreeObject);
@@ -1024,10 +1022,10 @@ Procedure ProcessDeletionMarkChangeInTree(Val SelectedRows,ClearMark);
 	
 EndProcedure 
 
-// Gets an array that is passed as a query parameter when getting contact interactions.
+// Gets an array that is passed as a request parameter when receiving interactions by contact.
 //
 // Parameters:
-//  Contact  - AnyRef - a contact for which linked contacts are to be searched.
+//  Contact  - AnyRef -  the contact for which you want to search for related contacts.
 //
 // Returns:
 //  Array

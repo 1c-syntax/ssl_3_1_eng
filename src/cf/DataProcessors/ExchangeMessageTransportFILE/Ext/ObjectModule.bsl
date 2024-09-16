@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,12 +12,12 @@
 Var ErrorMessageString Export;
 Var ErrorMessageStringEL Export;
 
-Var ErrorsMessages; // Map that contains error messages.
-Var ObjectName; // Metadata object name.
+Var ErrorsMessages; // 
+Var ObjectName; // 
 
-Var TempExchangeMessageFile; // A temporary exchange message file.
-Var TempExchangeMessagesDirectory; // A temporary exchange directory.
-Var DataExchangeDirectory; // A network exchange directory.
+Var TempExchangeMessageFile; // 
+Var TempExchangeMessagesDirectory; // 
+Var DataExchangeDirectory; // 
 
 Var DirectoryID;
 #EndRegion
@@ -27,15 +25,15 @@ Var DirectoryID;
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+// 
 
-// Creates a temporary directory in the temporary file directory of the operating system user.
+// Creates a temporary directory in the temporary files directory of the operating system user.
 //
 // Parameters:
 //  No.
 // 
 //  Returns:
-//    Boolean - True if the function is executed successfully, False if an error occurred.
+//    Boolean - 
 // 
 Function ExecuteActionsBeforeProcessMessage() Export
 	
@@ -47,13 +45,13 @@ Function ExecuteActionsBeforeProcessMessage() Export
 	
 EndFunction
 
-// Sends the exchange message to the specified resource from the temporary exchange message directory.
+// Sends an exchange message to the specified resource from the temporary directory of the exchange message.
 //
 // Parameters:
 //  No.
 // 
 //  Returns:
-//    Boolean - True if the function is executed successfully, False if an error occurred.
+//    Boolean - 
 // 
 Function SendMessage() Export
 	
@@ -77,13 +75,13 @@ Function SendMessage() Export
 	
 EndFunction
 
-// Gets an exchange message from the specified resource and puts it in the temporary exchange message directory.
+// Retrieves the exchange message from the specified resource to the temporary directory of the exchange message.
 //
 // Parameters:
 //   ExistenceCheck - Boolean
 // 
 //  Returns:
-//    Boolean - True if the function is executed successfully, False if an error occurred.
+//    Boolean - 
 // 
 Function GetMessage(ExistenceCheck = False) Export
 	
@@ -98,7 +96,7 @@ Function GetMessage(ExistenceCheck = False) Export
 	Return Result;
 EndFunction
 
-// Deletes the temporary exchange message directory after performing data import or export.
+// Removes the temporary directory the message exchange after performing the upload or download of data.
 //
 // Parameters:
 //  No.
@@ -119,7 +117,7 @@ Function ExecuteActionsAfterProcessMessage() Export
 	Return True;
 EndFunction
 
-// Initializes data processor properties with initial values and constants.
+// Initializes processing properties with initial values and constants.
 //
 // Parameters:
 //  No.
@@ -130,13 +128,13 @@ Procedure Initialize() Export
 	
 EndProcedure
 
-// Checks whether the connection to the specified resource can be established.
+// Checks whether a connection can be established to the specified resource.
 //
 // Parameters:
 //  No.
 // 
 //  Returns:
-//    Boolean - True if connection can be established. Otherwise, False.
+//    Boolean - 
 //
 Function ConnectionIsSet() Export
 	
@@ -172,12 +170,12 @@ Function ConnectionIsSet() Export
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties.
+// 
 
-// Retrieves the full name of the exchange message file.
+// Function property: the fully qualified file name of the message exchange.
 //
 // Returns:
-//  String - full exchange message file name.
+//  String - 
 //
 Function ExchangeMessageFileName() Export
 	
@@ -193,10 +191,10 @@ Function ExchangeMessageFileName() Export
 	
 EndFunction
 
-// Retrieves the full name of the exchange message directory.
+// Function-property: full name of the exchange message folder.
 //
 // Returns:
-//  String - full exchange message directory name.
+//  String - 
 //
 Function ExchangeMessageDirectoryName() Export
 	
@@ -212,10 +210,10 @@ Function ExchangeMessageDirectoryName() Export
 	
 EndFunction
 
-// Retrieves the full name of the data exchange directory local or network.
+// Function-property: full name of the information exchange directory (network or local resource).
 //
 // Returns:
-//  String - the full name of the information exchange directory (local or network).
+//  String - 
 //
 Function DataExchangeDirectoryName() Export
 	
@@ -231,10 +229,10 @@ Function DataExchangeDirectoryName() Export
 	
 EndFunction
 
-// Function for retrieving property: the time of changing the exchange file message.
+// Function-property: time when the exchange message file was changed.
 //
 // Returns:
-//  Date - time exchange message file changed.
+//  Date - 
 //
 Function ExchangeMessageFileDate() Export
 	
@@ -254,13 +252,13 @@ Function ExchangeMessageFileDate() Export
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+// 
 
 Function CreateTempExchangeMessagesDirectory()
 	
 	If UseTempDirectoryToSendAndReceiveMessages Then
 		
-		// Creating the temporary exchange message directory.
+		// 
 		Try
 			TempDirectoryName = DataExchangeServer.CreateTempExchangeMessagesDirectory(DirectoryID);
 		Except
@@ -313,7 +311,7 @@ Function SendExchangeMessage()
 	
 	If CompressOutgoingMessageFile() Then
 		
-		// Getting the temporary archive file name.
+		// 
 		ArchiveTempFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName(), MessageFileNameTemplate + ".zip");
 		
 		Try
@@ -332,7 +330,7 @@ Function SendExchangeMessage()
 		
 		If Result Then
 			
-			// Copying the archive file to the data exchange directory.
+			// 
 			If Not ExecuteFileCopying(ArchiveTempFileName, OutgoingMessageFileName) Then
 				Result = False;
 			EndIf;
@@ -341,7 +339,7 @@ Function SendExchangeMessage()
 		
 	Else
 		
-		// Copying the message file to the data exchange directory.
+		// 
 		If Not ExecuteFileCopying(ExchangeMessageFileName(), OutgoingMessageFileName) Then
 			Result = False;
 		EndIf;
@@ -363,25 +361,25 @@ Function GetExchangeMessage(ExistenceCheck)
 	
 	For Each CurrentFile In FoundFileArray Do
 		
-		// Checking the required extension.
+		// 
 		If ((Upper(CurrentFile.Extension) <> ".ZIP")
 			And (Upper(CurrentFile.Extension) <> ".XML")) Then
 			
 			Continue;
 			
-		// Checking that it is a file, not a directory.
+		// 
 		ElsIf Not CurrentFile.IsFile() Then
 			
 			Continue;
 			
-		// Checking that the file size is greater than 0.
+		// 
 		ElsIf (CurrentFile.Size() = 0) Then
 			
 			Continue;
 			
 		EndIf;
 		
-		// The file is a required exchange message. Adding the file to the table.
+		// 
 		TableRow = ExchangeMessagesFilesTable.Add();
 		TableRow.File           = CurrentFile;
 		TableRow.Modified = CurrentFile.GetModificationTime();
@@ -411,11 +409,11 @@ Function GetExchangeMessage(ExistenceCheck)
 		
 		ExchangeMessagesFilesTable.Sort("Modified Desc");
 		
-		// Obtaining the newest exchange message file from the table.
+		// 
 		IncomingMessageFile = ExchangeMessagesFilesTable[0].File;
 		FilePacked = (Upper(IncomingMessageFile.Extension) = ".ZIP");
 		If Not StrStartsWith(IncomingMessageFile.Name, MessageFileNameTemplate) Then
-			// The file doesn't match the template. To continue, adjust the template.
+			// 
 			FileNameStructure = CommonClientServer.ParseFullFileName(IncomingMessageFile.Name,False);
 			MessageFileNameTemplate = FileNameStructure.BaseName;
 		EndIf;
@@ -424,15 +422,15 @@ Function GetExchangeMessage(ExistenceCheck)
 		
 		If FilePacked Then
 			
-			// Getting the temporary archive file name.
+			// 
 			ArchiveTempFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName(), MessageFileNameTemplate + ".zip");
 			
-			// Copy the archive file from the network directory to the temporary one.
+			// 
 			If Not ExecuteFileCopying(IncomingMessageFile.FullName, ArchiveTempFileName) Then
 				Return False;
 			EndIf;
 			
-			// Unpacking the temporary archive file.
+			// 
 			SuccessfullyUnpacked = DataExchangeServer.UnpackZipFile(ArchiveTempFileName, ExchangeMessageDirectoryName(), ArchivePasswordExchangeMessages);
 			
 			If Not SuccessfullyUnpacked Then
@@ -440,11 +438,11 @@ Function GetExchangeMessage(ExistenceCheck)
 				Return False;
 			EndIf;
 			
-			// Checking that the message file exists.
+			// 
 			File = New File(ExchangeMessageFileName());
 			
 			If Not File.Exists() Then
-				// The archive name probably does not match name of the file inside.
+				// 
 				ArchiveFileNameStructure = CommonClientServer.ParseFullFileName(IncomingMessageFile.Name,False);
 				MessageFileNameStructure = CommonClientServer.ParseFullFileName(ExchangeMessageFileName(),False);
 
@@ -466,7 +464,7 @@ Function GetExchangeMessage(ExistenceCheck)
 			
 		Else
 			
-			// Copy the file of the incoming message from the exchange directory to the temporary file directory.
+			// 
 			If UseTempDirectoryToSendAndReceiveMessages And Not ExecuteFileCopying(IncomingMessageFile.FullName, ExchangeMessageFileName()) Then
 				
 				Return False;
@@ -562,7 +560,7 @@ Procedure SupplementErrorMessage(Message)
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties.
+// 
 
 Function CompressOutgoingMessageFile()
 	
@@ -571,7 +569,7 @@ Function CompressOutgoingMessageFile()
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// Initialization.
+// Initialize
 
 Procedure InitMessages()
 	

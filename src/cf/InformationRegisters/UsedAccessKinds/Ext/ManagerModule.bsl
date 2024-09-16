@@ -1,26 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Updates register data after changing the access kind.
+// The procedure updates the register data when the use of access types changes.
 //
 // Parameters:
-//  HasChanges - Boolean - (return value) - if recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  (return value) - if a record was made,
+//                  it is set to True, otherwise it is not changed.
 //
-//  WithoutUpdatingDependentData - Boolean - if True, 
-//                  do not call the OnChangeAccessKindsUse procedure and
-//                  do not schedule the update of the access restriction parameters.
+//  WithoutUpdatingDependentData - Boolean -  if True, then
+//                  do not call the procedure for changing the use of the Access view and
+//                  do not plan to update the access restriction parameters.
 //
 Procedure UpdateRegisterData(HasChanges = Undefined, WithoutUpdatingDependentData = False) Export
 	
@@ -33,7 +31,7 @@ Procedure UpdateRegisterData(HasChanges = Undefined, WithoutUpdatingDependentDat
 		
 		If AccessKindProperties.Name = "ExternalUsers"
 		 Or AccessKindProperties.Name = "Users" Then
-			// These access kinds cannot be disabled by functional options.
+			// 
 			Used = True;
 		Else
 			Used = True;
@@ -136,7 +134,7 @@ EndProcedure
 Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// SWP right settings are locked for editing. Cannot import them into the data area.
+		// 
 		Return;
 	EndIf;
 	
@@ -155,7 +153,7 @@ Procedure ScheduleUpdateOnChangeAccessKindsUsage() Export
 	UsersInternal.RegisterRefs("UsedAccessKinds", Undefined);
 EndProcedure
 
-// For the UpdateRegisterData, ProcessChangeRecordedOnImport procedures.
+// For procedures, update the register data, process the change of the registered reload.
 Procedure WhenChangingTheUseOfAccessTypes(PlanToUpdateAccessRestrictionSettings = False) Export
 	
 	InformationRegisters.AccessGroupsValues.UpdateRegisterData();

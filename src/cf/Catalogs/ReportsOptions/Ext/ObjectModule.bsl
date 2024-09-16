@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -219,7 +217,7 @@ Procedure CheckPutting()
 
 	EndIf;
 	
-	// Remove the subsystems marked for deletion from the table.
+	// 
 	LinesToDelete = New Array;
 	Subsystems = Location.UnloadColumn("Subsystem");
 	Subsystems = Common.ObjectsAttributeValue(Subsystems, "DeletionMark");
@@ -238,7 +236,7 @@ Procedure CheckPutting()
 
 EndProcedure
 
-// Populate the FieldDescriptions and FilterParameterDescriptions attributes.
+// Filling in the details of field Names and parameter names of Selections.
 Procedure FillFieldsForSearch()
 
 	Additional = (ReportType = Enums.ReportsTypes.Additional);
@@ -260,7 +258,7 @@ Procedure FillFieldsForSearch()
 
 EndProcedure
 
-// This procedure populates the parent report option based on the report reference and predefined settings.
+// Fills in the parent of the report variant based on the report link and predefined settings.
 Procedure FillInParent() Export
 
 	Query = New Query(
@@ -338,7 +336,7 @@ Procedure FillInThePlacementByParent()
 
 EndProcedure
 
-// Basic validation of predefined report options.
+// Basic data validation checks for predefined report variants.
 Procedure CheckPredefinedReportOptionFilling(Cancel)
 
 	If DeletionMark Or Not Predefined Then

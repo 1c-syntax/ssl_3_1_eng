@@ -1,28 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Defines the list of configuration and library modules that provide
-// the following general details: name, version, update handler list,
-// and its dependence on other libraries.
+// Defines a list of library modules and configurations that provide
+// basic information about themselves: name, version, list of update handlers
+// , as well as dependencies on other libraries.
 //
-// See the composition of the mandatory procedures of such a module in the InfobaseUpdateSSL common module
-// (Public area).
-// There is no need to add
-// the InfobaseUpdateSSL module of the Library of standard subsystems to the SubsystemModules array.
+// The composition of the mandatory procedures of such a module can be found in the general module Updating the information database
+// (Software interface area).
+// At the same time, the module of the Library of standard subsystems for
+// updating the information database itself does not need to be explicitly added to the array of modules of the subsystems.
 //
 // Parameters:
-//  SubsystemsModules - Array - names of the common server library modules and the configurations.
-//                             For example, CRLInfobaseUpdate - library,
-//                                       EAInfobaseUpdate - configuration.
+//  SubsystemsModules - Array -  the names of the server-side common modules, libraries and configuration.
+//                             For example: "Obnovlenchestvo" library
+//                                       "Obnovleniyami" - configuration.
 //                    
 Procedure OnAddSubsystems(SubsystemsModules) Export
 	

@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// List of objects, in which the filling commands are used.
+// A list of objects that use fill commands.
 //
 // Returns:
-//   Array of MetadataObject - metadata objects with filling commands.
+//   Array of MetadataObject -  metadata objects with fill-in commands.
 //
 Function ObjectsWithFillingCommands() Export
 	Array = New Array;
@@ -22,7 +20,7 @@ Function ObjectsWithFillingCommands() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See AttachableCommandsOverridable.OnDefineAttachableObjectsSettingsComposition
 Procedure OnDefineAttachableObjectsSettingsComposition(InterfaceSettings4) Export
@@ -78,7 +76,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	EndIf;
 	
 	If AllowedTypes.Count() = 0 Then
-		Return; // Everything is closed and there will be no extension commands with allowed types.
+		Return; // 
 	EndIf;
 	
 	FoundItems = AttachedReportsAndDataProcessors.FindRows(New Structure("AddFillCommands", True));
@@ -107,7 +105,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary for the internal
+// 
 
 Procedure OnAddFillingCommands(Commands, ObjectInfo, FormSettings, AllowedTypes = Undefined)
 	ObjectInfo.Manager.AddFillCommands(Commands, FormSettings);

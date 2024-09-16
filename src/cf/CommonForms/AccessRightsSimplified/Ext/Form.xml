@@ -455,7 +455,57 @@
 									</CommandSet>
 									<RowFilter xsi:nil="true"/>
 									<ContextMenu name="AccessValuesContextMenu" id="28"/>
-									<AutoCommandBar name="AccessValuesCommandBar" id="29"/>
+									<AutoCommandBar name="AccessValuesCommandBar" id="29">
+										<Autofill>false</Autofill>
+										<ChildItems>
+											<Button name="AccessValuesSelectAccessValues_" id="159">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.SelectAccessValues_</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Pick</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="AccessValuesSelectAccessValues_ExtendedTooltip" id="160"/>
+											</Button>
+											<Button name="AccessValuesAdd" id="166">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.AccessValues.StandardCommand.Add</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="AccessValuesAddExtendedTooltip" id="167"/>
+											</Button>
+											<Button name="AccessValuesDelete" id="168">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.AccessValues.StandardCommand.Delete</CommandName>
+												<ExtendedTooltip name="AccessValuesDeleteExtendedTooltip" id="169"/>
+											</Button>
+											<ButtonGroup name="AccessValuesStandardCommands" id="161">
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Access value standard commands</v8:content>
+													</v8:item>
+												</Title>
+												<CommandSource>Item.AccessValues</CommandSource>
+												<ExtendedTooltip name="AccessValuesStandardCommandsExtendedTooltip" id="162"/>
+											</ButtonGroup>
+											<SearchStringAddition name="AccessValuesSearch" id="163">
+												<AdditionSource>
+													<Item>AccessValues</Item>
+													<Type>SearchStringRepresentation</Type>
+												</AdditionSource>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Search</v8:content>
+													</v8:item>
+												</Title>
+												<ContextMenu name="AccessValuesSearchContextMenu" id="164"/>
+												<ExtendedTooltip name="AccessValuesSearchExtendedTooltip" id="165"/>
+											</SearchStringAddition>
+										</ChildItems>
+									</AutoCommandBar>
 									<ExtendedTooltip name="AccessValuesExtendedTooltip" id="104"/>
 									<SearchStringAddition name="AccessValuesSearchString" id="130">
 										<AdditionSource>
@@ -483,6 +533,7 @@
 									</SearchControlAddition>
 									<Events>
 										<Event name="OnEditEnd">AccessValuesOnEditEnd</Event>
+										<Event name="ChoiceProcessing">AccessValuesChoiceProcessing</Event>
 										<Event name="OnStartEdit">AccessValuesOnStartEdit</Event>
 										<Event name="OnChange">AccessValuesOnChange</Event>
 									</Events>
@@ -517,7 +568,6 @@
 												<Event name="StartChoice">AccessValueStartChoice</Event>
 												<Event name="Clearing">AccessValueClearing</Event>
 												<Event name="TextEditEnd">AccessValueTextInputCompletion</Event>
-												<Event name="ChoiceProcessing">AccessValueChoiceProcessing</Event>
 											</Events>
 										</InputField>
 										<CheckBoxField name="AccessValuesIncludeSubordinateAccessValues" id="139">
@@ -854,6 +904,21 @@
 			</Picture>
 			<Action>ReportUserRights</Action>
 			<Representation>TextPicture</Representation>
+		</Command>
+		<Command name="SelectAccessValues_" id="5">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Pick</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Pick</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>SelectAccessValues_</Action>
 		</Command>
 	</Commands>
 	<Parameters>

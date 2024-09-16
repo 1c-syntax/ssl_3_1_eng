@@ -66,22 +66,6 @@
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
-				<InputField name="ErrorTextClient" id="9">
-					<DataPath>ErrorTextClient</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Error text client</v8:content>
-						</v8:item>
-					</Title>
-					<TitleLocation>None</TitleLocation>
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<MultiLine>true</MultiLine>
-					<BorderColor>style:FormBackColor</BorderColor>
-					<ContextMenu name="ErrorTextClientContextMenu" id="10"/>
-					<ExtendedTooltip name="ErrorTextClientExtendedTooltip" id="11"/>
-				</InputField>
 				<UsualGroup name="PossibleReasonsAndSolutionsClient" id="53">
 					<Title>
 						<v8:item>
@@ -95,33 +79,6 @@
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="PossibleReasonsAndSolutionsClientExtendedTooltip" id="54"/>
 					<ChildItems>
-						<UsualGroup name="PossibleReasonsClient" id="12">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Possible reasons</v8:content>
-								</v8:item>
-							</Title>
-							<Behavior>Usual</Behavior>
-							<Representation>None</Representation>
-							<ExtendedTooltip name="PossibleReasonsClientExtendedTooltip" id="13"/>
-							<ChildItems>
-								<LabelDecoration name="ReasonsClientText" id="14">
-									<AutoMaxWidth>false</AutoMaxWidth>
-									<Title formatted="false">
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Possible reasons (client)</v8:content>
-										</v8:item>
-									</Title>
-									<ContextMenu name="ReasonsClientTextContextMenu" id="15"/>
-									<ExtendedTooltip name="ReasonsClientTextExtendedTooltip" id="16"/>
-									<Events>
-										<Event name="URLProcessing">ReasonsClientTextURLProcessing</Event>
-									</Events>
-								</LabelDecoration>
-							</ChildItems>
-						</UsualGroup>
 						<UsualGroup name="PossibleSolutionsClient" id="17">
 							<Title>
 								<v8:item>
@@ -149,8 +106,52 @@
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
+						<UsualGroup name="PossibleReasonsClient" id="12">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Possible reasons</v8:content>
+								</v8:item>
+							</Title>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ExtendedTooltip name="PossibleReasonsClientExtendedTooltip" id="13"/>
+							<ChildItems>
+								<LabelDecoration name="ReasonsClientText" id="14">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Possible reasons (client)</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="ReasonsClientTextContextMenu" id="15"/>
+									<ExtendedTooltip name="ReasonsClientTextExtendedTooltip" id="16"/>
+									<Events>
+										<Event name="URLProcessing">ReasonsClientTextURLProcessing</Event>
+									</Events>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
+				<InputField name="ErrorTextClient" id="9">
+					<DataPath>ErrorTextClient</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Error text client</v8:content>
+						</v8:item>
+					</Title>
+					<TitleTextColor>style:AccentColor</TitleTextColor>
+					<TitleLocation>Top</TitleLocation>
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<MultiLine>true</MultiLine>
+					<BorderColor>style:FormBackColor</BorderColor>
+					<ContextMenu name="ErrorTextClientContextMenu" id="10"/>
+					<ExtendedTooltip name="ErrorTextClientExtendedTooltip" id="11"/>
+				</InputField>
 				<LabelDecoration name="InstructionClient" id="24">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Title formatted="false">
@@ -229,22 +230,6 @@
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
-				<InputField name="ErrorTextServer" id="37">
-					<DataPath>ErrorTextServer</DataPath>
-					<ReadOnly>true</ReadOnly>
-					<Title>
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Error text server</v8:content>
-						</v8:item>
-					</Title>
-					<TitleLocation>None</TitleLocation>
-					<AutoMaxWidth>false</AutoMaxWidth>
-					<MultiLine>true</MultiLine>
-					<BorderColor>style:FormBackColor</BorderColor>
-					<ContextMenu name="ErrorTextServerContextMenu" id="38"/>
-					<ExtendedTooltip name="ErrorTextServerExtendedTooltip" id="39"/>
-				</InputField>
 				<UsualGroup name="PossibleReasonsAndSolutionsServer" id="55">
 					<Title>
 						<v8:item>
@@ -258,33 +243,6 @@
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="PossibleReasonsAndSolutionsServerExtendedTooltip" id="56"/>
 					<ChildItems>
-						<UsualGroup name="PossibleReasonsServer" id="40">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Possible reasons</v8:content>
-								</v8:item>
-							</Title>
-							<Behavior>Usual</Behavior>
-							<Representation>None</Representation>
-							<ExtendedTooltip name="PossibleReasonsServerExtendedTooltip" id="41"/>
-							<ChildItems>
-								<LabelDecoration name="ReasonsServerText" id="42">
-									<AutoMaxWidth>false</AutoMaxWidth>
-									<Title formatted="false">
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Possible reasons (server)</v8:content>
-										</v8:item>
-									</Title>
-									<ContextMenu name="ReasonsServerTextContextMenu" id="43"/>
-									<ExtendedTooltip name="ReasonsServerTextExtendedTooltip" id="44"/>
-									<Events>
-										<Event name="URLProcessing">ReasonsServerTextURLProcessing</Event>
-									</Events>
-								</LabelDecoration>
-							</ChildItems>
-						</UsualGroup>
 						<UsualGroup name="PossibleSolutionsServer" id="45">
 							<Title>
 								<v8:item>
@@ -312,8 +270,52 @@
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
+						<UsualGroup name="PossibleReasonsServer" id="40">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Possible reasons</v8:content>
+								</v8:item>
+							</Title>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ExtendedTooltip name="PossibleReasonsServerExtendedTooltip" id="41"/>
+							<ChildItems>
+								<LabelDecoration name="ReasonsServerText" id="42">
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Possible reasons (server)</v8:content>
+										</v8:item>
+									</Title>
+									<ContextMenu name="ReasonsServerTextContextMenu" id="43"/>
+									<ExtendedTooltip name="ReasonsServerTextExtendedTooltip" id="44"/>
+									<Events>
+										<Event name="URLProcessing">ReasonsServerTextURLProcessing</Event>
+									</Events>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
+				<InputField name="ErrorTextServer" id="37">
+					<DataPath>ErrorTextServer</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Error text server</v8:content>
+						</v8:item>
+					</Title>
+					<TitleTextColor>style:AccentColor</TitleTextColor>
+					<TitleLocation>Top</TitleLocation>
+					<AutoMaxWidth>false</AutoMaxWidth>
+					<MultiLine>true</MultiLine>
+					<BorderColor>style:FormBackColor</BorderColor>
+					<ContextMenu name="ErrorTextServerContextMenu" id="38"/>
+					<ExtendedTooltip name="ErrorTextServerExtendedTooltip" id="39"/>
+				</InputField>
 				<LabelDecoration name="InstructionServer" id="50">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<Title formatted="false">
@@ -356,33 +358,6 @@
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="PossibleReasonsAndSolutionsExtendedTooltip" id="100"/>
 					<ChildItems>
-						<UsualGroup name="PossibleReasons" id="86">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>Possible reasons</v8:content>
-								</v8:item>
-							</Title>
-							<Behavior>Usual</Behavior>
-							<Representation>None</Representation>
-							<ExtendedTooltip name="PossibleReasonsExtendedTooltip" id="87"/>
-							<ChildItems>
-								<InputField name="ReasonsText" id="101">
-									<DataPath>ReasonsText</DataPath>
-									<Title>
-										<v8:item>
-											<v8:lang>en</v8:lang>
-											<v8:content>Reasons text</v8:content>
-										</v8:item>
-									</Title>
-									<TitleLocation>None</TitleLocation>
-									<AutoMaxWidth>false</AutoMaxWidth>
-									<MultiLine>true</MultiLine>
-									<ContextMenu name="ReasonsTextContextMenu" id="102"/>
-									<ExtendedTooltip name="ReasonsTextExtendedTooltip" id="103"/>
-								</InputField>
-							</ChildItems>
-						</UsualGroup>
 						<UsualGroup name="PossibleSolutions" id="91">
 							<Title>
 								<v8:item>
@@ -408,6 +383,33 @@
 										<Event name="URLProcessing">DecisionsClientTextURLProcessing</Event>
 									</Events>
 								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="PossibleReasons" id="86">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Possible reasons</v8:content>
+								</v8:item>
+							</Title>
+							<Behavior>Usual</Behavior>
+							<Representation>None</Representation>
+							<ExtendedTooltip name="PossibleReasonsExtendedTooltip" id="87"/>
+							<ChildItems>
+								<InputField name="ReasonsText" id="101">
+									<DataPath>ReasonsText</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Reasons text</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>None</TitleLocation>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<MultiLine>true</MultiLine>
+									<ContextMenu name="ReasonsTextContextMenu" id="102"/>
+									<ExtendedTooltip name="ReasonsTextExtendedTooltip" id="103"/>
+								</InputField>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>

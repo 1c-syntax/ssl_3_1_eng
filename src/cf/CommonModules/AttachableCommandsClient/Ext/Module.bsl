@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Form command handler.
+// The command handler of the form.
 //
 // Parameters:
-//   Form - ClientApplicationForm - a form where the command is executed.
-//   Command - FormCommand - a running command.
+//   Form - ClientApplicationForm -  the form in which the command is executed.
+//   Command - FormCommand -  executed command.
 //   Source - FormTable
-//            - FormDataStructure - an object or a form list with the Reference field.
+//            - FormDataStructure - 
 //
 Procedure StartCommandExecution(Form, Command, Val Source = Undefined) Export
 	CommandName = Command.Name;
@@ -33,7 +31,7 @@ Procedure StartCommandExecution(Form, Command, Val Source = Undefined) Export
 	ExecutionParameters.Source        = Source;
 	
 	ExecutionParameters.IsObjectForm = TypeOf(Source) = Type("FormDataStructure");
-	// Service parameters.
+	// 
 	ExecutionParameters.WritingRequired         = ExecutionParameters.IsObjectForm And CommandDetails.WriteMode <> "NotWrite";
 	ExecutionParameters.PostingRequired     = (CommandDetails.WriteMode = "Post");
 	ExecutionParameters.FilesOperationsRequired = CommandDetails.FilesOperationsRequired;
@@ -42,16 +40,16 @@ Procedure StartCommandExecution(Form, Command, Val Source = Undefined) Export
 	ContinueCommandExecution(ExecutionParameters);
 EndProcedure
 
-// Form command handler.
+// The command handler of the form.
 //
 // Parameters:
-//   Form - ClientApplicationForm - a form where the command is executed.
-//   Command - FormCommand - a running command.
+//   Form - ClientApplicationForm -  the form in which the command is executed.
+//   Command - FormCommand -  executed command.
 //   Source - FormTable
 //            - FormDataStructure
 //            - AnyRef
-//            - Array - an object or a form list with the Reference field,
-//                       Reference or array of references.
+//            - Array - 
+//                       
 //
 Procedure ExecuteCommand(Form, Command, Source) Export
 	CommandName = Command.Name;
@@ -63,7 +61,7 @@ Procedure ExecuteCommand(Form, Command, Source) Export
 	ExecutionParameters.Form           = Form;
 	ExecutionParameters.Source        = Source;
 	ExecutionParameters.IsObjectForm = TypeOf(Source) = Type("FormDataStructure");
-	// Service parameters.
+	// 
 	ExecutionParameters.WritingRequired  = ExecutionParameters.IsObjectForm And CommandDetails.WriteMode <> "NotWrite";
 	ExecutionParameters.PostingRequired = (CommandDetails.WriteMode = "Post");
 	ExecutionParameters.FilesOperationsRequired = CommandDetails.FilesOperationsRequired;
@@ -71,7 +69,7 @@ Procedure ExecuteCommand(Form, Command, Source) Export
 	ContinueCommandExecution(ExecutionParameters);
 EndProcedure
 
-// Updates the list of commands depending on the current form context.
+// Updates the list of commands depending on the current context of the form.
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -81,13 +79,13 @@ Procedure StartCommandUpdate(Form) Export
 	Form.AttachIdleHandler("Attachable_UpdateCommands", 0.2, True);
 EndProcedure
 
-// Continues executing the command if the execution was interrupted in the BeforeWrite form event handler.
+// Continues executing the command if execution was interrupted in the form event handler before writing.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a form where the command is executed.
+//  Form - ClientApplicationForm -  the form in which the command is executed.
 //  Object - FormDataStructure
-//         - AnyRef - a form object with the Reference field.
-//  WriteParameters - Structure - arbitrary save parameters. See the AfterWrite event details in Syntax Assistant.
+//         - AnyRef - 
+//  WriteParameters - Structure -  arbitrary recording parameters. See the description of the post-recording event in the syntax Assistant.
 //
 Procedure AfterWrite(Form, Object, WriteParameters) Export
 	
@@ -105,28 +103,28 @@ Procedure AfterWrite(Form, Object, WriteParameters) Export
 	
 EndProcedure
 
-// Properties of the second handler parameter of the attachable command executed on the client.
+// Properties of the second parameter of the handler for the connected command executed on the client.
 //
 // Returns:
 //  Structure:
-//   * CommandDetails - Structure - properties match the value table columns of the Commands parameter
-///of the AttachableCommandsOverridable.OnDefineCommandsAttachedToObject procedure.
-//                                   Key properties:
-//      ** Id  - String - Command ID.
-//      ** Presentation  - String - Command presentation in a form.
-//      ** Name            - String - a command name on a form.
-//      ** AdditionalParameters - Structure - additional properties defined by 
-//                                   the kind of a specific command.
-//   * Form - ClientApplicationForm - a form the command is called from.
+//   * CommandDetails - Structure - 
+//
+//                                   :
+//      ** Id  - String -  command ID.
+//      ** Presentation  - String -  representation of the team in the form.
+//      ** Name            - String -  name of the team in the form.
+//      ** AdditionalParameters - Structure -  additional properties whose composition is determined by the type 
+//                                   of specific command.
+//   * Form - ClientApplicationForm -  the form from which the command is called.
 //           - ManagedFormExtensionForDocuments
-//   * IsObjectForm - Boolean - True if the command is called from the object form.
+//   * IsObjectForm - Boolean -  True if the command is called from an object form.
 //   * Source - FormTable
-//              - FormDataStructure - An object or a form list with the "Ref" field:
+//              - FormDataStructure - :
 //     ** Ref - AnyRef
 //
 Function CommandExecuteParameters() Export
 	Result = AttachableCommandsClientServer.CommandExecuteParameters();
-	// Service parameters.
+	// 
 	Result.Insert("WritingRequired", False);
 	Result.Insert("PostingRequired", False);
 	Result.Insert("FilesOperationsRequired", False);
@@ -140,7 +138,7 @@ EndFunction
 
 #Region Private
 
-// Executes the command attached to the form.
+// Executes the command connected to the form.
 //
 // Parameters:
 //  ExecutionParameters - See CommandExecuteParameters
@@ -155,7 +153,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	Source = ExecutionParameters.Source;
 	CommandDetails = ExecutionParameters.CommandDetails;
 	
-	// Install 1C:Enterprise Extension.
+	// 
 	If ExecutionParameters.FilesOperationsRequired Then
 		ExecutionParameters.FilesOperationsRequired = False;
 		Handler = New NotifyDescription("ContinueExecutionCommandAfterSetFileExtension", ThisObject, ExecutionParameters);
@@ -164,7 +162,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// Writing in the object form.
+	// 
 	If ExecutionParameters.WritingRequired Then
 		ExecutionParameters.WritingRequired = False;
 		If Source.Ref.IsEmpty()
@@ -194,7 +192,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 		ExecutionParameters.ReferencesArrray = SelectedObjects(Source, CommandDetails);
 	EndIf;
 	
-	// Post documents.
+	// 
 	If ExecutionParameters.PostingRequired Then
 		ExecutionParameters.PostingRequired = False;
 		DocumentsInfo = AttachableCommandsServerCall.DocumentsInfo(ExecutionParameters.ReferencesArrray);
@@ -223,7 +221,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 		EndIf;
 	EndIf;
 	
-	// Command runtime.
+	// 
 	If CommandDetails.MultipleChoice Then
 		CommandParameter = ExecutionParameters.ReferencesArrray;
 	ElsIf ExecutionParameters.ReferencesArrray.Count() = 0 Then
@@ -256,9 +254,9 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 			SubstringsArray = StrSplit(CommandDetails.Handler, ".");
 			If SubstringsArray.Count() = 1 Then
 				FormParameters = FormParameters(ExecutionParameters, CommandParameter);
-				// ACC:65-off GetForm is intended to call the notification details handler.
+				// 
 				ModuleClient = GetForm(CommandDetails.FormName, FormParameters, ExecutionParameters.Form, True);
-				// ACC:65-on
+				// 
 				ProcedureName = CommandDetails.Handler;
 			Else
 				ModuleClient = CommonClient.CommonModule(SubstringsArray[0]);
@@ -273,7 +271,7 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	EndIf;
 EndProcedure
 
-// The procedure branch that is going after the writing confirmation dialog.
+// A branch of the procedure that appears after the record confirmation dialog.
 // 
 // Parameters:
 //  Response - DialogReturnCode
@@ -294,7 +292,7 @@ Procedure ProceedRunningCommandAfterRecordConfirmed(Response, Context) Export
 		Context.Form.Write(New Structure("WriteMode,AttachableCommandExecutionParameters", WriteMode, AttachableCommandExecutionParameters));
 		
 		If Context.Source.Ref.IsEmpty() Or Context.Form.Modified Then
-			Return; // Failed to write, the platform shows an error message.
+			Return; // 
 		EndIf;
 	ElsIf Response = DialogReturnCode.Cancel Then
 		Return;
@@ -304,7 +302,7 @@ Procedure ProceedRunningCommandAfterRecordConfirmed(Response, Context) Export
 	EndIf;
 EndProcedure
 
-// The procedure branch that is going after the posting confirmation dialog.
+// A branch of the procedure that appears after the confirmation dialog.
 Procedure ContinueCommandExecutionAfterConfirmPosting(Response, Context) Export
 	If Response <> DialogReturnCode.Yes Then
 		Return;
@@ -327,7 +325,7 @@ Procedure ContinueCommandExecutionAfterConfirmPosting(Response, Context) Export
 	
 	Context.ReferencesArrray = CommonClientServer.ArraysDifference(Context.ReferencesArrray, UnpostedDocuments);
 	
-	// Notifying form opening that the documents were posted.
+	// 
 	PostedDocumentTypes = New Map;
 	For Each PostedDocument In Context.ReferencesArrray Do
 		PostedDocumentTypes.Insert(TypeOf(PostedDocument));
@@ -336,7 +334,7 @@ Procedure ContinueCommandExecutionAfterConfirmPosting(Response, Context) Export
 		NotifyChanged(Type.Key);
 	EndDo;
 	
-	// If the command is called from a form, read the up-to-date (posted) copy from the infobase.
+	// 
 	If TypeOf(Context.Form) = Type("ClientApplicationForm") Then
 		If Context.IsObjectForm Then
 			Context.Form.Read();
@@ -344,7 +342,7 @@ Procedure ContinueCommandExecutionAfterConfirmPosting(Response, Context) Export
 	EndIf;
 	
 	If UnpostedDocuments.Count() > 0 Then
-		// Asking the user whether the procedure execution must be continued even if there are unposted documents.
+		// 
 		DialogText = NStr("en = 'Failed to post one or several documents.';");
 		
 		DialogButtons = New ValueList;
@@ -364,7 +362,7 @@ Procedure ContinueCommandExecutionAfterConfirmPosting(Response, Context) Export
 	ContinueCommandExecution(Context);
 EndProcedure
 
-// The procedure branch that is going after the continuation confirmation dialog when unposted documents exist.
+// A branch of the procedure that occurs after the confirmation dialog when there are unverified documents.
 Procedure ContinueCommandExecutionAfterConfirmContinuation(Response, Context) Export
 	If Response <> DialogReturnCode.Ignore Then
 		Return;
@@ -372,7 +370,7 @@ Procedure ContinueCommandExecutionAfterConfirmContinuation(Response, Context) Ex
 	ContinueCommandExecution(Context);
 EndProcedure
 
-// Branch of the procedure that triggers after 1C:Enterprise Extension is installed.
+// 
 Procedure ContinueExecutionCommandAfterSetFileExtension(FileSystemExtensionAttached1, Context) Export
 	If Not FileSystemExtensionAttached1 Then
 		Return;
@@ -380,7 +378,7 @@ Procedure ContinueExecutionCommandAfterSetFileExtension(FileSystemExtensionAttac
 	ContinueCommandExecution(Context);
 EndProcedure
 
-// Gets a reference from the table row, checks whether the reference meets the type and adds it to the array.
+// Gets a reference from a table row, checks that the reference matches the type, and adds it to the array.
 Procedure AddRefToList(FormDataStructure, ReferencesArrray, ParameterType)
 	Ref = CommonClientServer.StructureProperty(FormDataStructure, "Ref");
 	If ParameterType <> Undefined And Not ParameterType.ContainsType(TypeOf(Ref)) Then
@@ -391,7 +389,7 @@ Procedure AddRefToList(FormDataStructure, ReferencesArrray, ParameterType)
 	ReferencesArrray.Add(Ref);
 EndProcedure
 
-// Generates form parameters of the attached object in the context of the command being executed.
+// Generates form parameters for the connected object in the context of the executed command.
 Function FormParameters(Context, CommandParameter)
 	Result = Context.CommandDetails.FormParameters;
 	If TypeOf(Result) <> Type("Structure") Then
@@ -417,13 +415,13 @@ Function FormParameters(Context, CommandParameter)
 	Return Result;
 EndFunction
 
-// Refreshes the destination object form when the command has been executed.
+// Updates the target object form after the command is completed.
 Procedure UpdateForm(Context)
 	If Context.IsObjectForm And Context.CommandDetails.WriteMode <> "NotWrite" And Not Context.Form.Modified Then
 		Try
 			Context.Form.Read();
 		Except
-			// If the Read method is unavailable, printing was executed from a location other than the object form.
+			// 
 		EndTry;
 	EndIf;
 	If Context.CommandDetails.WriteMode <> "NotWrite" Then

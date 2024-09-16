@@ -1,87 +1,85 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Determines the list of configuration objects in whose manager modules this procedure is available 
-// AddFillCommands that generates object filling commands.
-// See the manual for the AddFillCommands procedure syntax.
+// Defines a list of configuration objects, in the modules of managers of which the procedure is provided 
+// Add a fill command that forms commands for filling objects.
+// For the syntax of the Add Completion Commands procedure, see the documentation.
 //
 // Parameters:
-//   Objects - Array of MetadataObject - metadata objects with filling commands.
+//   Objects - Array of MetadataObject -  metadata objects with fill-in commands.
 //
 // Example:
-//  Objects.Add(Metadata.Catalogs.Companies);
+//  Objects.Add (Metadata.Guides.Companies);
 //
 Procedure OnDefineObjectsWithFIllingCommands(Objects) Export
 	
 EndProcedure
 
-// Defines common population commands.
+// Defines General fill-in commands.
 //
 // Parameters:
-//   FillingCommands - ValueTable - Generated commands to be shown in the submenu:
+//   FillingCommands - ValueTable - :
 //     
-//     Common settings
-//       * Id - String - a command ID.
 //     
-//     Appearance settings:
-//       * Presentation - String   - Command presentation in a form.
-//       * Importance      - String   - a submenu group to display the command in.
-//                                    Options: "Important", "Ordinary" and "SeeAlso".
-//       * Order       - Number    - an order of placing the command in the submenu. It is used to set up a particular
+//       * Id - String - 
+//     
+//     :
+//       * Presentation - String   -  representation of the team in the form.
+//       * Importance      - String   -  the group in the submenu to display this command in.
+//                                    Options: "Important", "Normal" and "Stacie".
+//       * Order       - Number    -  the order in which the command is placed in the submenu. Used for setting up for a specific
 //                                    workplace.
-//       * Picture      - Picture - a command picture.
+//       * Picture      - Picture - 
 //     
-//     Visibility and availability settings:
-//       * ParameterType - TypeDescription - types of objects that the command is intended for.
-//       * VisibilityInForms    - String - comma-separated names of forms on which the command is to be displayed.
-//                                        Used when commands differ for various forms.
-//       * FunctionalOptions - String - Comma-delimited names of functional options that affect the command visibility.
-//       * VisibilityConditions    - Array - defines the command visibility depending on the context.
-//                                        To register conditions, use procedure
-//                                        AttachableCommands.AddCommandVisibilityCondition.
-//                                        The conditions are combined by "And".
+//     :
+//       * ParameterType - TypeDescription -  types of objects that this command is intended for.
+//       * VisibilityInForms    - String -  comma-separated form names that the command should be displayed in.
+//                                        Used when the composition of the teams is different for different shapes.
+//       * FunctionalOptions - String -  comma-separated names of functional options that define the visibility of the command.
+//       * VisibilityConditions    - Array - 
+//                                        
+//                                        
+//                                        
 //     
 //     :
 //       * MultipleChoice - Boolean
-//                            - Undefined - if True (default value), the command supports multiple choice.
-//             In this case, a list of references will be passed in the execution parameter.
-//       * WriteMode - String - actions associated with object writing that are executed before the command handler:
-//            "Write"            - write only new and modified objects (default).
-//                                      Before writing or posting the object, users are asked for confirmation.
-//            "DoNotWrite"          - do not write the object and pass
-//                                      the full form in the handler parameters instead of references. In this mode, we recommend that you operate directly with a form
-//                                      that is passed in the structure of parameter 2 of the command handler.
-//            "WriteNewOnly" - write only new objects.
-//            "Post"             - post documents.
-//       * FilesOperationsRequired - Boolean - If True, in the web client, users are prompted
-//             to install 1C:Enterprise Extension. The default value is False.
+//                            - Undefined - 
+//             
+//       * WriteMode - String - :
+//            
+//                                      
+//            
+//                                      
+//                                      
+//            
+//            
+//       * FilesOperationsRequired - Boolean - 
+//             
 //     
-//     Handler settings:
-//       * Manager - String - an object responsible for executing the command.
-//       * FormName - String - name of the form to be retrieved for the command execution.
-//             If Handler is not specified, the "Open" form method is called.
+//     :
+//       * Manager - String -  the object responsible for executing the command.
+//       * FormName - String -  name of the form to get for executing the command.
+//             If no Handler is specified, the "Open" method is called for the form.
 //       * FormParameters - Undefined
-//                        - FixedStructure - Parameters of the form specified in FormName.
-//       * Handler - String - details of the procedure that handles the main action of the command.
-//             Format "<CommonModuleName>.<ProcedureName>" is used when the procedure is in a common module.
-//             Format "<ProcedureName>" is used in the following cases:
-//               if FormName is filled, a client procedure is expected in the specified form module;
-//               if FormName is not filled, a server procedure is expected in the manager module.
-//       * AdditionalParameters - FixedStructure - Handler parameters specified in Handler.
+//                        - FixedStructure - 
+//       * Handler - String - 
+//             
+//             :
+//               
+//               
+//       * AdditionalParameters - FixedStructure -  parameters of the handler specified in the Handler.
 //   
-//   Parameters - Structure - information about execution context:
-//       * FormName - String - Form full name.
-//   StandardProcessing - Boolean - if False, the AddFillCommands event of the object manager
-//                                   is not called.
+//   Parameters - Structure - :
+//       * FormName - String -  full name of the form.
+//   StandardProcessing - Boolean -  if set to False, then the event Dobasefinalization Manager object is not
+//                                   be invoked.
 //
 Procedure BeforeAddFillCommands(FillingCommands, Parameters, StandardProcessing) Export
 	

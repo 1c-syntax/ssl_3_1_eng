@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -20,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.TypeCommonGroup.ReadOnly = Object.DenyEditingByUser;
 		Items.IDForFormulas.ReadOnly = True;
 	Else
-		// Object attribute lock subsystem handler.
+		// 
 		If Common.SubsystemExists("StandardSubsystems.ObjectAttributesLock") Then
 			ModuleObjectAttributesLock = Common.CommonModule("ObjectAttributesLock");
 			ModuleObjectAttributesLock.LockAttributes(ThisObject,, NStr("en = 'Allow edit type and group';"));
@@ -104,7 +102,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleAddressManager.FillInPhoneNumberMasks(Items.PhoneNumberMaskTemplate.ChoiceList);
 	EndIf;
 	
-	// StandardSubsystems.ObjectsVersioning
+	// 
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
 		ModuleObjectsVersioning.OnCreateAtServer(ThisObject);
@@ -149,7 +147,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed")
 		And ValueIsFilled(Object.IDForFormulas) Then
-		// Fill formula ID and check if there's a property with the same name.
+		// 
 		// 
 		QueryText = IDForFormulasAlreadyUsed(
 			Object.IDForFormulas, Object.Ref, Object.Parent);
@@ -187,7 +185,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		
 	EndIf;
 	
-	// Generate ID for additional attribute (information record) formulas.
+	// 
 	If Not ValueIsFilled(CurrentObject.IDForFormulas)
 		Or WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed") Then
 		
@@ -213,7 +211,7 @@ EndProcedure
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
 	If Not CurrentObject.Predefined Then
-		// Object attribute lock subsystem handler.
+		// 
 		If Common.SubsystemExists("StandardSubsystems.ObjectAttributesLock") Then
 			ModuleObjectAttributesLock = Common.CommonModule("ObjectAttributesLock");
 			ModuleObjectAttributesLock.LockAttributes(ThisObject);

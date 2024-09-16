@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,10 +12,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.BatchEditObjects
+// 
 
-// Returns the object attributes that are not recommended to be edited
-// using a bulk attribute modification data processor.
+// Returns the details of an object that is not recommended to edit
+// by processing a batch update of account details.
 //
 // Returns:
 //  Array of String
@@ -36,7 +34,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.AccessManagement
+// 
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -60,9 +58,9 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// CloudTechnology.ExportImportData
+// 
 
-// Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
+// It is connected to the offload of the unloaded data, which is undetectable.When registering the data handlers, the data loads.
 //
 // Parameters:
 //   Container - DataProcessorObject.ExportImportDataContainerManager
@@ -100,12 +98,12 @@ EndProcedure
 
 #Region Internal
 
-// The procedure updates descriptions of built-in profiles in
-// access restriction parameters when a configuration is modified.
+// This procedure Updates the description of the supplied profiles in
+// the access restriction settings when the configuration changes.
 //
 // Parameters:
-//  HasChanges - Boolean - a return value. If recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  the return value. If a record was made,
+//                  the Truth is set, otherwise it does not change.
 //
 Procedure UpdateSuppliedProfilesDescription(HasChanges = Undefined) Export
 	
@@ -141,12 +139,12 @@ Procedure UpdateSuppliedProfilesDescription(HasChanges = Undefined) Export
 	
 EndProcedure
 
-// The procedure updates content of the predefined profiles in
-// the access restriction options when a configuration is modified.
+// This procedure Updates the predefined profiles in
+// the access restriction settings when the configuration changes.
 //
 // Parameters:
-//  HasChanges - Boolean - a return value. If recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  the return value. If a record was made,
+//                  the Truth is set, otherwise it does not change.
 //
 Procedure UpdatePredefinedProfileComposition(HasChanges = Undefined) Export
 	
@@ -186,8 +184,8 @@ Procedure UpdatePredefinedProfileComposition(HasChanges = Undefined) Export
 	
 EndProcedure
 
-// The procedure updates built-in catalog profiles following the change of the checksum of extension standard roles.
-// The checksum is stored in access restriction parameters.
+// 
+// 
 //
 Procedure UpdateSuppliedProfilesByConfigurationChanges() Export
 	
@@ -233,8 +231,8 @@ Procedure UpdateSuppliedProfilesByConfigurationChanges() Export
 	
 EndProcedure
 
-// The procedure updates custom catalog profiles following the change of the checksum of extension standard roles.
-// The checksum is stored in access restriction parameters.
+// 
+// 
 //
 Procedure UpdateNonSuppliedProfilesOnConfigurationChanges() Export
 	
@@ -258,24 +256,24 @@ Procedure UpdateNonSuppliedProfilesOnConfigurationChanges() Export
 	
 EndProcedure
 
-// Updates 1C-supplied profiles and profile folders.
-// Updates the access groups of the updated profiles if necessary.
-// If any 1C-supplied profile folders or access group profiles are not found, they are created.
+// 
+// 
+// 
 //
-// Update details are configured in the OnFillSuppliedAccessGroupProfiles procedure of
-// the AccessManagementOverridable common module (see the comment to the procedure).
+// 
+// 
 //
 // Parameters:
-//  HasChanges - Boolean - a return value. If recorded,
-//                  True is set, otherwise, it does not change.
-//  Trash     - Array - Names of predefined deleted items.
-//                  Used to remove the deletion flag from the built-in data  with the same names.
+//  HasChanges - Boolean -  the return value. If a record was made,
+//                  the Truth is set, otherwise it does not change.
+//  Trash     - Array - 
+//                  
 //                - Undefined
 //
 Procedure UpdateSuppliedProfiles(HasChanges = Undefined, Trash = Undefined) Export
 	
-	// Cache all role IDs at once to reduce database requests,
-	// as almost all role IDs will be obtained when updating 1C-supplied profiles.
+	// 
+	// 
 	AllRoles = New Array;
 	For Each Role In Metadata.Roles Do
 		AllRoles.Add(Role);
@@ -297,11 +295,11 @@ Procedure UpdateSuppliedProfiles(HasChanges = Undefined, Trash = Undefined) Expo
 	
 EndProcedure
 
-// Update main custom profiles.
+// 
 //
 // Parameters:
-//  HasChanges - Boolean - a return value. If recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  the return value. If a record was made,
+//                  the Truth is set, otherwise it does not change.
 //
 Procedure UpdateUnshippedProfiles(HasChanges = Undefined) Export
 	
@@ -351,7 +349,7 @@ Procedure UpdateAuxiliaryProfilesData(Profiles = Undefined, HasChanges = False) 
 		InformationRegisters.AccessGroupsTables.UpdateRegisterData(ProfilesAccessGroups, , HasChanges);
 		InformationRegisters.AccessGroupsValues.UpdateRegisterData(ProfilesAccessGroups, HasChanges);
 		
-		// Updating user roles.
+		// 
 		UsersForUpdate =
 			Catalogs.AccessGroups.UsersForRolesUpdateByProfile(Profiles);
 		
@@ -371,8 +369,8 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.AccessGroupProfiles.FullName());
 	IncompatibleAccessGroupsProfilesCount = IncompatibleAccessGroupsProfiles().Count();
 	
@@ -401,12 +399,12 @@ Procedure OnFillToDoList(ToDoList) Export
 EndProcedure
 
 // Parameters:
-//  ProfileRoles - Array of String - Role names.
+//  ProfileRoles - Array of String - 
 //              - TabularSection:
 //                 * Role - CatalogRef.MetadataObjectIDs
 //                        - CatalogRef.ExtensionObjectIDs
 //              - FormDataCollection:
-//                 * Role - String - Role name.
+//                 * Role - String -  role name.
 //
 Procedure FillStandardExtensionRoles(ProfileRoles, StandardExtensionRoles = Undefined) Export
 	
@@ -415,34 +413,34 @@ Procedure FillStandardExtensionRoles(ProfileRoles, StandardExtensionRoles = Unde
 	EndIf;
 	StandardProfileRoles = StandardProfileRoles(ProfileRoles);
 	
-	// SystemAdministrator.
+	// 
 	SetRolesInProfile(ProfileRoles,
 		StandardExtensionRoles.SystemAdministrator,
 		StandardProfileRoles.SystemAdministrator);
 	
-	// FullAccess.
+	// 
 	SetRolesInProfile(ProfileRoles,
 		StandardExtensionRoles.FullAccess,
 		StandardProfileRoles.FullAccess);
 	
-	// BasicAccessSSL.
+	// 
 	SetRolesInProfile(ProfileRoles,
 		StandardExtensionRoles.BasicAccess,
 		StandardProfileRoles.BasicAccessSSL);
 	
-	// BasicAccessExternalUserSSL.
+	// 
 	SetRolesInProfile(ProfileRoles,
 		StandardExtensionRoles.BasicAccessExternalUsers,
 		StandardProfileRoles.BasicAccessExternalUserSSL);
 	
-	// Common rights.
+	// 
 	SetRolesInProfile(ProfileRoles,
 		StandardExtensionRoles.CommonRights,
 		StandardProfileRoles.FullAccess
 			Or StandardProfileRoles.BasicAccessSSL
 			Or StandardProfileRoles.BasicAccessExternalUserSSL);
 	
-	// Clean up deleted roles.
+	// 
 	ClearRemovedStandardExtensionRoles(ProfileRoles);
 	
 EndProcedure
@@ -451,11 +449,11 @@ EndProcedure
 
 #Region Private
 
-// Returns a string UUID
-// of the built-in and predefined Administrator profile.
+// Returns a string of the unique ID
+// of the supplied and predefined Administrator profile.
 //
 // Returns:
-//  String - a UUID string.
+//  String - 
 //
 Function AdministratorProfileID() Export
 	
@@ -582,7 +580,7 @@ Function ProfileAdministrator() Export
 	
 EndFunction
 
-// For the ProfileAdministrator function.
+// For the Profiladministrator function.
 Function ProfileByName(Description)
 	
 	Query = New Query;
@@ -607,19 +605,19 @@ Function ProfileByName(Description)
 	
 EndFunction
 
-// Returns a reference to the built-in profile or profile folder by ID.
+// Returns a link to the supplied profile or profile folder by ID.
 //
 // Parameters:
-//  Id - String - the name or UUID of the built-in profile or profile folder
-//                  as specified in the OnFillSuppliedAccessGroupProfiles procedure
-//                  of the AccessManagementOverridable common module.
+//  Id - String -  the name or unique identifier of the supplied profile or profile folder,
+//                  as specified in the procedure for filling in the supplied profiles of the Access group of the
+//                  general Access Management module is undetectable.
 //
 //  RaiseExceptionIfMissingInDatabase - Boolean
 //  WithoutFolders      - Boolean
 //
 // Returns:
-//  CatalogRef.AccessGroupProfiles - — if the built-in profile or profile folder is found in the catalog.
-//  Undefined — if the built-in profile or profile folder does not exist in the catalog.
+//  CatalogRef.AccessGroupProfiles - 
+//  
 //
 Function SuppliedProfileByID(Id, RaiseExceptionIfMissingInDatabase = False, WithoutFolders = False) Export
 	
@@ -669,8 +667,8 @@ Function SuppliedProfileByID(Id, RaiseExceptionIfMissingInDatabase = False, With
 	
 EndFunction
 
-// Returns a string UUID
-// of built-in profile data.
+// Returns a string of the unique
+// data ID of the supplied profile.
 //
 // Returns:
 //  String
@@ -704,15 +702,15 @@ Function SuppliedProfileID(Profile) Export
 	
 EndFunction
 
-// Checks whether the built-in profile or profile folder is changed compared to the description of
-// the AccessManagementOverridable.OnFillSuppliedAccessGroupProfiles() procedure.
+// Checks whether the supplied profile or profile folder has been changed compared to the description from the procedure
+// Control access is undetectable.When filling in the supplied profiles of the Access group().
 //
 // Parameters:
 //  Profile      - CatalogRef.AccessGroupProfiles
-//                     (returns the SuppliedProfileChanged attribute),
+//                     (returns the details of the deliverableprofile Changed),
 //               - CatalogObject.AccessGroupProfiles
-//                     (returns the result of object filling comparison
-//                      to description in the overridable common module).
+//                     (returns the result of comparing the object's fill
+//                      with the description in the shared module being redefined).
 //
 // Returns:
 //  Boolean
@@ -806,10 +804,10 @@ Function SuppliedProfileChanged(Profile) Export
 	
 EndFunction
 
-// Compares a part of an object in the infobase with the same part in the memory.
+// 
 //
 // Parameters:
-//  Profile - CatalogObject.AccessGroupProfiles - Object in the memory.
+//  
 //
 //  PreviousValues1 - Structure:
 //    * Description    - String
@@ -892,7 +890,7 @@ Function Are1CSuppliedProfileAreasModified(NewProfile, PreviousValues1) Export
 	
 EndFunction
 
-// Checks whether initial filling is done for an access group profile in an overridable module.
+// Determines whether there is an initial padding for the access group profile in the module being overridden.
 //
 // Parameters:
 //  Profile      - CatalogRef.AccessGroupProfiles
@@ -916,16 +914,16 @@ Function HasInitialProfileFilling(Val Profile) Export
 	
 EndFunction
 
-// Determines whether the built-in profile is prohibited from editing.
-// Custom profiles cannot be prohibited from editing.
+// Specifies whether changes to the supplied profile are prohibited.
+// A profile that is not delivered cannot have a change ban.
 //
 // Parameters:
 //  Profile      - CatalogObject.AccessGroupProfiles
-//               - FormDataStructure - generated according to the object.
+//               - FormDataStructure - 
 //
-// ParentViewOnly - Boolean - a return value — set to True,
-//                 if the built-in profile parent is filled in and
-//                 the built-in profile modification is not allowed.
+// ParentViewOnly - Boolean -  the return value is set to True
+//                 if the parent is filled in at the supplied profile and
+//                 changing the supplied profile is prohibited.
 //
 // Returns:
 //  Boolean
@@ -938,7 +936,7 @@ Function ProfileChangeProhibition(Val Profile, ParentViewOnly = False) Export
 	
 	If Profile.SuppliedDataID =
 			New UUID(AdministratorProfileID()) Then
-		// Changing the Administrator profile is always prohibited.
+		// 
 		Return True;
 	EndIf;
 	
@@ -959,7 +957,7 @@ Function ProfileChangeProhibition(Val Profile, ParentViewOnly = False) Export
 	
 EndFunction
 
-// Returns the built-in profile assignment description.
+// Returns a description of the purpose of the supplied profile.
 //
 // Parameters:
 //  Profile - CatalogRef.AccessGroupProfiles
@@ -978,17 +976,17 @@ Function SuppliedProfileNote(Profile) Export
 	
 EndFunction
 
-// Creates a built-in profile in the AccessGroupProfiles catalog.
-// Repopulates the previously created built-in profile by its built-in description.
-// Searches the initial data population by the profile UUID.
-//  
+// Creates a supplied profile in the access Profilegroup reference that is specific
+// to the application solution and allows you to re-fill the previously created supplied profile
+// with its supplied description.
+//  The initial fill is searched by the unique profile ID string.
 //
 // Parameters:
 //  Profile      - CatalogRef.AccessGroupProfiles
-//                 If initial filling description is found for the profile,
-//                 the profile content is completely replaced.
+//                 If the initial fill description is found for the specified profile
+//                 , the profile content is completely replaced.
 //
-//  UpdateAccessGroups - Boolean - if True, access kinds of profile access groups are updated.
+//  UpdateAccessGroups - Boolean -  if True, the access types of the profile's access groups will be updated.
 //
 Procedure FillSuppliedProfile(Val Profile, Val UpdateAccessGroups) Export
 	
@@ -1009,10 +1007,10 @@ Procedure FillSuppliedProfile(Val Profile, Val UpdateAccessGroups) Export
 	
 EndProcedure
 
-// Returns a list of references to profiles containing unavailable roles or roles marked for deletion.
+// Returns a list of links to profiles containing unavailable roles or roles marked for deletion.
 //
 // Returns:
-//  Array - an array of elements CatalogRef.AccessGroupsProfiles.
+//  Array - 
 //
 Function IncompatibleAccessGroupsProfiles() Export
 	
@@ -1040,7 +1038,7 @@ Function IncompatibleAccessGroupsProfiles() Export
 		For Each RoleDetails In RolesDetails Do
 			MetadataObject = RoleDetails.Value; // MetadataObject
 			If MetadataObject = Undefined Then
-				// A role, which is not available until the application restart, is not a problem.
+				// 
 				Continue;
 			EndIf;
 			
@@ -1058,7 +1056,7 @@ Function IncompatibleAccessGroupsProfiles() Export
 	
 EndFunction
 
-// AccessManagementInternal.SuppliedProfiles.
+// 
 // 
 // 
 // Returns:
@@ -1161,7 +1159,7 @@ EndFunction
 //
 Procedure WhenChangingTheLanguageOfTheInformationBase(ChangingLanguages) Export
 	
-	AccessManagementInternal.SuppliedProfiles(); // Check the relevance of metadata.
+	AccessManagementInternal.SuppliedProfiles(); // 
 	ProfilesDetails = FilledSuppliedProfiles().ProfilesDetails;
 	
 	NewProfileNames = New ValueTable;
@@ -1275,14 +1273,14 @@ Procedure RestoreNonexistentViewsFromAccessValue(PreviousValues1, NewValues) Exp
 	EndDo;
 	
 	If HaveRefurbished Then
-		// Intended to calculate changes when updating 1C-supplied profiles
-		// with attached extensions in order to update auxiliary data.
+		// 
+		// 
 		NewValues.AccessKinds.Add();
 	EndIf;
 	
 EndProcedure
 
-// Intended for procedure "UpdateStandardExtensionsRoles".
+// 
 Function StandardProfileRoles(ProfileRoles)
 	
 	Result = New Structure;
@@ -1302,7 +1300,7 @@ Function StandardProfileRoles(ProfileRoles)
 	
 EndFunction
 
-// Intended for procedure "UpdateStandardExtensionsRoles".
+// 
 Function HasRoleInProfile(ProfileRoles, Role)
 	
 	Result = False;
@@ -1328,7 +1326,7 @@ Function HasRoleInProfile(ProfileRoles, Role)
 	
 EndFunction
 
-// Intended for procedure "UpdateStandardExtensionsRoles".
+// 
 Procedure SetRolesInProfile(ProfileRoles, RolesNames, Set)
 	
 	If Not ValueIsFilled(RolesNames) Then
@@ -1426,7 +1424,7 @@ Procedure ClearRemovedStandardExtensionRoles(ProfileRoles)
 	
 EndProcedure
 
-// To be called only from AccessManagementInternal.StandardExtensionsRoles.
+// 
 // 
 // Returns:
 //   See AccessManagementInternal.StandardExtensionRoles
@@ -1478,10 +1476,10 @@ Function StandardExtensionRoles() Export
 	
 EndFunction
 
-// Intended to be called from AccessManagementInternalCached.
+// 
 // 
 // Parameters:
-//  HashSum - String - Returns value.
+//  HashSum - String -  the return value.
 //
 // Returns:
 //   See AccessManagementInternal.StandardExtensionRoles
@@ -1807,7 +1805,7 @@ Function RepresentationOfTheReference(Ref)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions to support data exchange in DIB.
+// 
 
 // For internal use only.
 //
@@ -1829,7 +1827,7 @@ Procedure RestoreExtensionsRolesComponents(DataElement) Export
 	|	ProfilesRoles.Ref = &Profile
 	|	AND VALUETYPE(ProfilesRoles.Role) = TYPE(Catalog.ExtensionObjectIDs)";
 	
-	// Adding extension roles to new components of configuration roles.
+	// 
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
 		DataElement.Roles.Add().Role = Selection.Role;
@@ -1864,11 +1862,11 @@ Procedure DeleteExtensionsRolesInAllAccessGroupsProfiles() Export
 	
 	HasChanges = False;
 	
-	// ACC:1328-off - No.648.1.1. It is acceptable to read without setting a managed shared lock
-	// since it's intended for cleaning and any session can clean it.
+	//  
+	// 
 	// 
 	Selection = Query.Execute().Select();
-	// ACC:1328-on.
+	// 
 	
 	Block = New DataLock;
 	LockItem = Block.Add("Catalog.AccessGroupProfiles");
@@ -1911,8 +1909,8 @@ Procedure RegisterChangeUponDataImport(DataElement) Export
 		FillStandardExtensionRoles(DataElement.Roles);
 	EndIf;
 	
-	// Register profiles for whose access groups the user roles and the following registers should be updated:
-	// "AccessGroupsTables", "AccessGroupsValues", "DefaultAccessGroupsValues".
+	// 
+	// 
 	
 	PreviousValues1 = Common.ObjectAttributesValues(DataElement.Ref,
 		"Ref, DeletionMark, Roles, Purpose, AccessKinds, AccessValues");
@@ -1984,7 +1982,7 @@ EndProcedure
 Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// Changes to profiles in SWP are blocked and are not imported into the data area.
+		// 
 		Return;
 	EndIf;
 	
@@ -2027,9 +2025,9 @@ Procedure ProcessChangeRegisteredUponDataImport() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Initial population.
+// 
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
+// See also updating the information base undefined.customizingmachine infillingelements
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -2040,7 +2038,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemsFilling
+// See also updating the information base undefined.At firstfillingelements
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -2058,21 +2056,21 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 Function FilledSuppliedProfiles()
 	
 	ParametersOfUpdate = New Structure;
-	// Properties of built-in profile updates.
+	// 
 	ParametersOfUpdate.Insert("UpdateModifiedProfiles", True);
 	ParametersOfUpdate.Insert("DenyProfilesChange", True);
-	// Properties of update of built-in profile access groups.
+	// 
 	ParametersOfUpdate.Insert("UpdatingAccessGroups", True);
 	ParametersOfUpdate.Insert("UpdatingAccessGroupsWithObsoleteSettings", False);
 	
 	ProfilesDetails = New Array;
 	
-	// Description for filling the Administrator predefined profile.
+	// 
 	AdministratorProfileDetails = AccessManagement.NewAccessGroupProfileDescription();
 	FillAdministratorProfile(AdministratorProfileDetails);
 	ProfilesDetails.Add(AdministratorProfileDetails);
@@ -2102,7 +2100,7 @@ Function FilledSuppliedProfiles()
 	
 EndFunction
 
-// For the FilledSuppliedProfiles function.
+// For the function, filled-in Deliverableprofiles.
 //
 // Parameters:
 //    AdministratorProfileDetails - See AccessManagement.NewAccessGroupProfileDescription
@@ -2134,10 +2132,10 @@ Procedure FillAdministratorProfile(AdministratorProfileDetails, ExcludeDetails =
 	
 EndProcedure
 
-// For the FilledSuppliedProfiles function.
+// For the function, filled-in Deliverableprofiles.
 //
 // Parameters:
-//    AdministratorProfileDetails - See AccessManagement.NewDescriptionOfTheAccessGroupProfilesFolder
+//    Descriptionprofile Administrator -  See AccessManagement.NewDescriptionOfTheAccessGroupProfilesFolder
 //
 Procedure FillInTheProfilesFolderAdditionalProfiles(FolderDescription_)
 	
@@ -2148,13 +2146,13 @@ Procedure FillInTheProfilesFolderAdditionalProfiles(FolderDescription_)
 	
 EndProcedure
 
-// Intended for procedure "AccessManagementInternalCached.Session1CSuppliedProfilesDetails".
-// See also "AccessManagementOverridable.OnFillSuppliedAccessGroupProfiles".
+// 
+// 
 //
 // Parameters:
 //  AccessKindsProperties - See AccessManagementInternal.AccessKindsProperties
-//                       - Undefined.
-//  HashSum - String - Return value.
+//                       - Undefined
+//  HashSum - String -  the return value.
 //
 // Returns:
 //   See AccessManagementInternal.SuppliedProfiles
@@ -2192,7 +2190,7 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, Hash
 		AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
 	EndIf;
 	
-	// Convert details into ID–property map for storing and faster processing.
+	// 
 	// 
 	AllNames           = New Map;
 	AllIDs  = New Map;
@@ -2410,7 +2408,7 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, Hash
 	
 EndFunction
 
-// For the SuppliedProfiles function.
+// For the function supplied profiles.
 Procedure PrepareThePurposeOfTheSuppliedProfile(ProfileProperties, ProfileDetails, ErrorTitle)
 	
 	If ProfileDetails.Purpose.Count() = 0 Then
@@ -2458,7 +2456,7 @@ Procedure PrepareThePurposeOfTheSuppliedProfile(ProfileProperties, ProfileDetail
 	
 EndProcedure
 
-// For the SuppliedProfiles function.
+// For the function supplied profiles.
 Procedure PrepareTheRolesOfTheSuppliedProfile(ProfileProperties, ProfileDetails,
 			ProfileAssignment, AllRoles, ErrorTitle)
 	
@@ -2468,7 +2466,7 @@ Procedure PrepareTheRolesOfTheSuppliedProfile(ProfileProperties, ProfileDetails,
 	While RoleIndex > 0 Do
 		RoleIndex = RoleIndex - 1;
 		Role = ProfileDetails.Roles[RoleIndex];
-		// Checking whether the metadata contains roles.
+		// 
 		If AllRoles.Get(Role) = Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Role ""%3"" provided in profile
@@ -2478,13 +2476,13 @@ Procedure PrepareTheRolesOfTheSuppliedProfile(ProfileProperties, ProfileDetails,
 				Role);
 			Raise ErrorText;
 		EndIf;
-		// Delete role duplicates.
+		// 
 		If CheckedRoles.Get(Upper(Role)) <> Undefined Then
 			ProfileDetails.Roles.Delete(RoleIndex);
 			Continue;
 		EndIf;
 		CheckedRoles.Insert(Upper(Role), True);
-		// Checking correspondence between the assignment of roles and a profile.
+		// 
 		If UnavailableRoles.Get(Role) <> Undefined Then
 			ErrorText = ErrorTitle + StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Role ""%3"" provided in profile
@@ -2509,15 +2507,15 @@ Procedure PrepareTheRolesOfTheSuppliedProfile(ProfileProperties, ProfileDetails,
 		New FixedArray(RolesList.UnloadValues()));
 	
 	If Common.DataSeparationEnabled() Then
-		// Populate a list of unavailable roles in SaaS to determine
-		// whether 1C-supplied roles should be updated.
+		// 
+		// 
 		ProfileProperties.Insert("RolesUnavailableInService",
 			ProfileRolesUnavailableInService(ProfileDetails, ProfileAssignment));
 	EndIf;
 	
 EndProcedure
 
-// For the SuppliedProfiles function.
+// For the function supplied profiles.
 Procedure PrepareTheTypesOfAccessForTheSuppliedProfile(ProfileProperties, ProfileDetails,
 			ProfileAssignment, AccessKindsProperties, ErrorTitle)
 	
@@ -2582,10 +2580,10 @@ Procedure PrepareTheTypesOfAccessForTheSuppliedProfile(ProfileProperties, Profil
 	
 EndProcedure
 
-// For the SuppliedProfiles function.
+// For the function supplied profiles.
 Procedure PrepareTheAccessValuesOfTheSuppliedProfile(ProfileProperties, ProfileDetails, AccessKindsProperties, ErrorTitle);
 	
-	// Delete duplicate values.
+	// 
 	AccessValues = New Array;
 	AccessValuesTable = New ValueTable;
 	AccessValuesTable.Columns.Add("AccessKind",      Metadata.DefinedTypes.AccessValue.Type);
@@ -2697,13 +2695,13 @@ Procedure PrepareTheAccessValuesOfTheSuppliedProfile(ProfileProperties, ProfileD
 
 EndProcedure
 
-// Returns the profile properties specified in the overridable module and
-// converted into the fixed save format in the database.
-// See the detailed property description in the NewAccessGroupProfileDescription
-// and NewAccessGroupsProfilesFolderDetails functions of the AccessManagement common module.
+// Returns the profile properties specified in the module being overridden,
+// converted to a fixed save format in the database.
+// For a detailed description of the properties, see the functions of the New description of the Access Group Profile and the new description of the Access Group Profile folder of
+// the general Access Control module.
 // 
 // Parameters:
-//   Id - String - the name or ID of the built-in profile.
+//   Id - String -  name or ID of the supplied profile.
 // 
 // Returns:
 //   FixedStructure:
@@ -2720,7 +2718,7 @@ EndProcedure
 //          * AccessKind - String
 //          * AccessValue - String
 //   
-//   Undefined — the profile does not exist.
+//   Undefined - the profile does not exist.
 //
 Function SuppliedProfileProperties(Id) Export
 	
@@ -2732,8 +2730,8 @@ EndFunction
 
 // Returns:
 //   FixedMap of KeyAndValue:
-//     * Key - String - a string ID of the built-in profile
-//     * Value - String - built-in profile details
+//     * Key - String -  string ID of the supplied profile
+//     * Value - String -  description of the supplied profile
 //
 Function SuppliedProfilesNote() Export
 	
@@ -2753,7 +2751,7 @@ Function SuppliedProfilesNote() Export
 	
 EndFunction
 
-// For the SuppliedProfiles procedure.
+// We supply Profiles for the procedure.
 Function ProfileAssignmentPresentation(ProfileAssignment)
 	
 	If ProfileAssignment = "BothForUsersAndExternalUsers" Then
@@ -2767,7 +2765,7 @@ Function ProfileAssignmentPresentation(ProfileAssignment)
 	
 EndFunction
 
-// For the UpdatePredefinedProfileComposition procedure.
+// For the procedure, update the composition of the defined profiles.
 Function PredefinedProfilesMatch(NewProfiles, OldProfiles, Trash)
 	
 	If TypeOf(NewProfiles) <> TypeOf(OldProfiles) Then
@@ -2788,7 +2786,7 @@ Function PredefinedProfilesMatch(NewProfiles, OldProfiles, Trash)
 	
 EndFunction
 
-// For the UpdateSuppliedProfiles procedure.
+// For the procedure, update the supplied profiles.
 Procedure UpdateTheSuppliedProfileFolders(Parent, CurrentProfileFolders, SuppliedProfiles, Trash, HasChanges)
 	
 	ParentFolders = SuppliedProfiles.FoldersByParents.Get(Parent);
@@ -2804,18 +2802,18 @@ Procedure UpdateTheSuppliedProfileFolders(Parent, CurrentProfileFolders, Supplie
 		If LineOfTheCurrentFolder <> Undefined Then
 			LineOfTheCurrentFolder.Found = True;
 		EndIf;
-		// @skip-check query-in-loop - Batch-wise data processing within a transaction
+		// 
 		If UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True) Then
 			HasChanges = True;
 		EndIf;
-		// @skip-check query-in-loop - Batch-wise data processing within a transaction
+		// 
 		UpdateTheSuppliedProfileFolders(KeyAndValue.Key,
 			CurrentProfileFolders, SuppliedProfiles, Trash, HasChanges);
 	EndDo;
 	
 EndProcedure
 
-// For the UpdateSuppliedProfiles procedure.
+// For the procedure, update the supplied profiles.
 Procedure MarkForDeletionObsoleteSuppliedData(FoldersOrProfiles, HasChanges, UpdatedProfiles = Undefined)
 	
 	If Not Catalogs.ExtensionsVersions.AllExtensionsConnected() Then
@@ -2855,7 +2853,7 @@ Procedure MarkForDeletionObsoleteSuppliedData(FoldersOrProfiles, HasChanges, Upd
 	
 EndProcedure
 
-// For the UpdateSuppliedProfiles procedure.
+// For the procedure, update the supplied profiles.
 Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfiles,
 			CurrentProfileFolders, SuppliedProfiles, Trash, HasChanges)
 	
@@ -2874,12 +2872,12 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 		ProfileUpdated = False;
 		
 		If CurrentProfileRow = Undefined Then
-			// Create a 1C-supplied profile.
-			// @skip-check query-in-loop - Batch-wise data processing within a transaction.
+			// 
+			// 
 			If UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True) Then
 				HasChanges = True;
 			EndIf;
-			// @skip-check query-in-loop - Batch-wise data processing within a transaction
+			// 
 			Profile = SuppliedProfileByID(ProfileProperties.Id);
 			
 		Else
@@ -2888,8 +2886,8 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 			Profile = CurrentProfileRow.Ref;
 			If Not CurrentProfileRow.SuppliedProfileChanged
 			 Or ParametersOfUpdate.UpdateModifiedProfiles Then
-				// Update the 1C-supplied profile.
-				// @skip-check query-in-loop - Batch-wise data processing within a transaction.
+				// 
+				// 
 				ProfileUpdated = UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True);
 			EndIf;
 		EndIf;
@@ -2909,10 +2907,10 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 	
 EndProcedure
 
-// For the UpdateSuppliedProfilesFolders, UpdateSuppliedProfilesWithoutFolders and
-// FillSuppliedProfile procedures.
+// For procedures, update the supplied file folders, update the supplied file folders, and
+// Fill in the supplied profile.
 //
-// Replaces the existing built-in access group profile or creates a new one by its description.
+// Replaces the existing or creates a new supplied access group profile according to its description.
 //
 // Parameters:
 //  ProfileProperties - See SuppliedProfileProperties
@@ -2921,7 +2919,7 @@ EndProcedure
 //  DoNotUpdateUsersRoles - Boolean
 //
 // Returns:
-//  Boolean -  "True" if the profile was modified.
+//  Boolean -  
 //
 Function UpdateTheProfileOrProfileFolder(ProfileProperties, Trash = Undefined, DoNotUpdateUsersRoles = False)
 	
@@ -2999,10 +2997,10 @@ Function UpdateTheProfileOrProfileFolder(ProfileProperties, Trash = Undefined, D
 		EndIf;
 		
 		If ProfileReference = Undefined Then
-			// The built-in item is not found and must be created.
+			// 
 			ProfileObject = ?(ProfileProperties.IsFolder, CreateFolder(), CreateItem());
 		Else
-			// The built-in item is associated with a predefined item.
+			// 
 			ProfileObject = ProfileReference.GetObject();
 		EndIf;
 		
@@ -3100,7 +3098,7 @@ Function UpdateTheProfileOrProfileFolder(ProfileProperties, Trash = Undefined, D
 	
 EndFunction
 
-// For the SuppliedProfileChanged and UpdateAccessGroupsProfile functions.
+// For the functions supplied, the profile is changed and the Access profile group is updated.
 Function ProfileRolesDetails(ProfileDetails)
 	
 	ProfileAssignment = AccessManagementInternalClientServer.ProfileAssignment(ProfileDetails);
@@ -3120,7 +3118,7 @@ Function ProfileRolesDetails(ProfileDetails)
 	
 EndFunction
 
-// For the PrepareSuppliedProfileRoles procedure.
+// For the procedure, prepare the supplied profile.
 Function ProfileRolesUnavailableInService(ProfileDetails, ProfileAssignment)
 	
 	UnavailableRoles = UsersInternalCached.UnavailableRoles(ProfileAssignment, True);
@@ -3136,7 +3134,7 @@ Function ProfileRolesUnavailableInService(ProfileDetails, ProfileAssignment)
 	
 EndFunction
 
-// For the UpdateSuppliedProfiles procedure.
+// For the procedure, update the supplied profiles.
 //
 // Returns:
 //  ValueTable:
@@ -3166,7 +3164,7 @@ Function CurrentProfileFolders()
 	
 EndFunction
 
-// For the UpdateSuppliedProfiles procedure.
+// For the procedure, update the supplied profiles.
 //
 // Returns:
 //  ValueTable:
@@ -3245,7 +3243,7 @@ Function BasicNonSuppliedProfiles()
 	
 EndFunction
 
-// For the IncompatibleAccessGroupsProfiles function.
+// The Access group profile is incompatible for the function.
 //
 // Returns:
 //  ValueTable:

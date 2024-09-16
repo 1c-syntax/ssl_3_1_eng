@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -38,7 +36,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Access rights: %1 (%2)';"), String(ObjectReference), String(ObjectRefType));
 	
-	// Checking the permissions to open a form
+	// 
 	ValidatePermissionToManageRights();
 	
 	UseExternalUsers =
@@ -89,7 +87,7 @@ Procedure InheritParentsRightsOnChangeAtServer()
 		AddInheritedRights();
 		FillUserPictureNumbers();
 	Else
-		// Clearing settings inherited from the hierarchical parents.
+		// 
 		IndexOf = RightsGroups.Count()-1;
 		While IndexOf >= 0 Do
 			If RightsGroups.Get(IndexOf).ParentSetting Then
@@ -191,7 +189,7 @@ Procedure RightsGroupsOnStartEdit(Item, NewRow, Copy)
 	
 	If NewRow Then
 		
-		// Set initial values.
+		// 
 		Items.RightsGroups.CurrentData.SettingsOwner     = Parameters.ObjectReference;
 		Items.RightsGroups.CurrentData.InheritanceIsAllowed = True;
 		Items.RightsGroups.CurrentData.ParentSetting     = False;
@@ -435,7 +433,7 @@ Procedure RereadCompletion(Response, Context) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 &AtClient
 Procedure UpdateDependentRights(Val Data, Val Right, Val PreviousValue2, Val RecursionDepth = 0)
@@ -454,26 +452,26 @@ Procedure UpdateDependentRights(Val Data, Val Right, Val PreviousValue2, Val Rec
 	
 	If Data[Right] = True Then
 		
-		// Permissions were leveled up (from "False" or "Undefined" to "True").
-		// Therefore, level up permissions for the parent access rights.
+		// 
+		// 
 		DirectRightsDependencies.Property(Right, DependentRights);
 		DependentRightValue = True;
 		
 	ElsIf Data[Right] = False Then
 		
-		// Restrictions were leveled up (from "True" or "Undefined" to "False").
-		// Therefore, level up restrictions for the child access rights.
+		// 
+		// 
 		ReverseRightsDependencies.Property(Right, DependentRights);
 		DependentRightValue = False;
 	Else
 		If PreviousValue2 = False Then
-			// Restrictions were leveled down (from "False" to "Undefined").
-			// Therefore, level down restrictions for the parent rights.
+			// 
+			// 
 			DirectRightsDependencies.Property(Right, DependentRights);
 			DependentRightValue = Undefined;
 		Else
-			// Permissions were leveled down (from "True" to "Undefined").
-			// Therefore, level down permissions for the child rights.
+			// 
+			// 
 			ReverseRightsDependencies.Property(Right, DependentRights);
 			DependentRightValue = Undefined;
 		EndIf;
@@ -536,7 +534,7 @@ Procedure AddAttributesOrFormItems(NewAttributes = Undefined)
 	PseudoFlagTypesDetails = New TypeDescription("Boolean, Number",
 		New NumberQualifiers(1, 0, AllowedSign.Nonnegative));
 	
-	// Adding available rights restricted by an owner (by an access value table).
+	// 
 	For Each RightDetails In AvailableRightsDetails1 Do
 		RightPresentations = InformationRegisters.ObjectsRightsSettings.AvailableRightPresentation(RightDetails);
 		
@@ -547,7 +545,7 @@ Procedure AddAttributesOrFormItems(NewAttributes = Undefined)
 			
 			AvailableRights.Insert(RightPresentations.Name);
 			
-			// Adding direct and reverse rights dependencies.
+			// 
 			DirectRightsDependencies.Insert(RightPresentations.Name, RightDetails.RequiredRights1);
 			For Each RequiredRight In RightDetails.RequiredRights1 Do
 				If ReverseRightsDependencies.Property(RequiredRight) Then
@@ -583,7 +581,7 @@ Procedure AddAttributesOrFormItems(NewAttributes = Undefined)
 	EndDo;
 	
 	If NewAttributes = Undefined And Parameters.ObjectReference.Metadata().Hierarchical Then
-		// Item RightsGroupsInheritanceAllowed.
+		// 
 		Item = AddItem("RightsGroupsInheritanceAllowed", Type("FormField"), Items.RightsGroups);
 		Item.Type                           = FormFieldType.LabelField;
 		Item.HeaderHorizontalAlign = ItemHorizontalLocation.Center;
@@ -599,7 +597,7 @@ Procedure AddAttributesOrFormItems(NewAttributes = Undefined)
 		SetCheckboxStyle("RightsGroupsInheritanceAllowed", 1, "RightsGroups.InheritanceIsAllowed", True);
 		SetCheckboxStyle("RightsGroupsInheritanceAllowed", 2, "RightsGroups.InheritanceIsAllowed", False);
 		
-		// Item RightsGroupsOwnerSettings.
+		// 
 		Item = AddItem("RightsGroupsOwnerSettings", Type("FormField"), Items.RightsGroups);
 		Item.Type         = FormFieldType.LabelField;
 		Item.DataPath = "RightsGroups.SettingsOwner";
@@ -666,7 +664,7 @@ Procedure SetCheckboxStyle(TagName, ColorOption, Var_AttributeName, RightValue);
 		Char     = Items.ImageRightForbidden.Title;
 	EndIf;
 	
-	// Color.
+	// Color
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	ConditionalAppearanceItem.Appearance.SetParameterValue("TextColor",  TextColor);
 	
@@ -687,7 +685,7 @@ Procedure SetCheckboxStyle(TagName, ColorOption, Var_AttributeName, RightValue);
 	FormattedField = ConditionalAppearanceItem.Fields.Items.Add();
 	FormattedField.Field = New DataCompositionField(TagName);
 	
-	// Font and text.
+	// 
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	ConditionalAppearanceItem.Appearance.SetParameterValue("Font", Font);
 	ConditionalAppearanceItem.Appearance.SetParameterValue("Text", Char);
@@ -714,10 +712,10 @@ Procedure FillRights()
 	NewAttributes = New Array;
 	AddAttributesOrFormItems(NewAttributes);
 	
-	// Adding form attributes.
+	// 
 	ChangeAttributes(NewAttributes);
 	
-	// Adding form items
+	// 
 	AddAttributesOrFormItems();
 	
 	ReadRights();
@@ -773,7 +771,7 @@ Procedure FillCheckProcessing(Cancel)
 	While Not Cancel And LineNumber >= 0 Do
 		CurrentRow = RightsGroups.Get(LineNumber);
 		
-		// Checking whether the rights check boxes are filled.
+		// 
 		NoFilledRight = True;
 		FirstRightName = "";
 		For Each AvailableRight In AvailableRights Do
@@ -795,10 +793,10 @@ Procedure FillCheckProcessing(Cancel)
 			Return;
 		EndIf;
 		
-		// Validate users and user groups, access values, and their duplicates.
+		// 
 		// 
 		
-		// Validate value population.
+		// 
 		If Not ValueIsFilled(CurrentRow["User"]) Then
 			CommonClient.MessageToUser(
 				NStr("en = 'A user or a group is required.';"),
@@ -809,7 +807,7 @@ Procedure FillCheckProcessing(Cancel)
 			Return;
 		EndIf;
 		
-		// Check for duplicates.
+		// 
 		Filter = New Structure;
 		Filter.Insert("SettingsOwner", CurrentRow["SettingsOwner"]);
 		Filter.Insert("User",      CurrentRow["User"]);

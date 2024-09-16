@@ -1,30 +1,28 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Gets the exchange plan setting value by the setting name.
-// For non-existent settings, Undefined is returned.
+// Gets the value of the exchange plan setting by its name.
+// For a non-existent settings returns Undefined.
 // 
 // Parameters:
-//   ExchangePlanName         - String - a name of the exchange plan from the metadata.
-//   ParameterName           - String - an exchange plan parameter name or list of parameters separated by commas.
-//                                     For the list of allowed values, see functions DefaultExchangePlanSettings,
-//                                     ExchangeSettingOptionDetailsByDefault.
-//   SettingID - String - a name of a predefined setting of exchange plan.
-//   CorrespondentVersion   - String - correspondent configuration version.
+//   ExchangePlanName         - String -  name of the exchange plan from the metadata.
+//   ParameterName           - String -  the name of the exchange plan parameter or a comma-separated list of parameters.
+//                                     For a list of acceptable values, see the functions of the Exchange Plan settings,
+//                                     Descriptionvariantanastroykiobjection of silence.
+//   SettingID - String -  name of the predefined exchange plan setting.
+//   CorrespondentVersion   - String -  version of the correspondent configuration.
 // 
 // Returns:
-//   Arbitrary, Structure - type of a value to return depends on the type of value of the setting being received.
-//                             Arbitrary if a single parameter was passed as ParameterName
-//                             Structure if ParameterName contains a list of comma-separated parameters.
+//   Arbitrary, Structure - 
+//                             
+//                             
 //
 Function ExchangePlanSettingValue(ExchangePlanName, ParameterName, SettingID = "", CorrespondentVersion = "") Export
 	
@@ -61,13 +59,13 @@ Function ExchangePlanSettingValue(ExchangePlanName, ParameterName, SettingID = "
 	
 EndFunction
 
-// OnCreateAtServer event handler for the exchange plan node form.
+// Procedure-handler for the "join Server" event for the exchange plan node form.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a form the procedure is called from:
+//  Form - ClientApplicationForm - :
 //    * Object - FormDataStructure:
-//      ** Ref - ExchangePlanRef - an exchange plan node.
-//  Cancel - Boolean           - a flag showing whether form creation is denied. If this parameter is set to True, the form is not created.
+//      ** Ref - ExchangePlanRef -  the site plan of exchange.
+//  Cancel - Boolean           -  indicates that the form was not created. If set to True, the form will not be created.
 // 
 Procedure NodeFormOnCreateAtServer(Form, Cancel) Export
 	
@@ -92,13 +90,13 @@ Procedure NodeFormOnCreateAtServer(Form, Cancel) Export
 	
 EndProcedure
 
-// OnWriteAtServer event handler for the exchange plan node form.
+// Procedure-handler of the event "Recordserver" for the exchange plan node form.
 //
 // Parameters:
-//  CurrentObject - ExchangePlanObject - an exchange plan node to be written.
-//  Cancel         - Boolean           - the incoming parameter showing whether writing the exchange node is canceled.
-//                                     If it is set to True, synchronization setup completion is not
-//                                     committed for the node.
+//  CurrentObject - ExchangePlanObject -  the recorded site plan of exchange.
+//  Cancel         - Boolean           -  incoming, indicates that the exchange node refused to write.
+//                                     If set to True, the node will not be
+//                                     registered for completing the synchronization configuration.
 //
 Procedure NodeFormOnWriteAtServer(CurrentObject, Cancel) Export
 	
@@ -112,11 +110,11 @@ Procedure NodeFormOnWriteAtServer(CurrentObject, Cancel) Export
 	
 EndProcedure
 
-// OnCreateAtServer event handler for the node setup form.
+// Procedure-handler for the "join Server" event for the node configuration form.
 //
 // Parameters:
-//  Form          - ClientApplicationForm - a form the procedure is called from.
-//  ExchangePlanName - String           - a name of the exchange plan the form is created for.
+//  Form          - ClientApplicationForm -  the form from which the procedure is called.
+//  ExchangePlanName - String           -  name of the exchange plan that the form was created for.
 // 
 Procedure NodeSettingsFormOnCreateAtServer(Form, ExchangePlanName) Export
 	
@@ -135,14 +133,14 @@ Procedure NodeSettingsFormOnCreateAtServer(Form, ExchangePlanName) Export
 	
 EndProcedure
 
-// Determines whether the AfterDataExport event handler must be executed on exchange in the DIB.
+// Determines whether the handler for the "post-data Upload" event must be executed when exchanging data to the rib.
 //
 // Parameters:
-//  Object - ExchangePlanObject - an exchange plan for which the handler is executed.
-//  Ref - ExchangePlanRef - a reference to an exchange plan for which the handler is executed.
+//  Object - ExchangePlanObject -  the exchange plan node that the handler is running for.
+//  Ref - ExchangePlanRef -  link to the exchange plan node that the handler is running for.
 //
 // Returns:
-//   Boolean - True if the AfterDataExport handler must be executed. Otherwise, False.
+//   Boolean - 
 //
 Function MustExecuteHandlerAfterDataExport(Object, Ref) Export
 	
@@ -150,14 +148,14 @@ Function MustExecuteHandlerAfterDataExport(Object, Ref) Export
 	
 EndFunction
 
-// Determines whether the AfterDataImport event handler is to be executed upon exchange in DIB.
+// Determines whether the "post-load Data" event handler must be executed when exchanging data to the rib.
 //
 // Parameters:
-//  Object - ExchangePlanObject - an exchange plan for which the handler is executed.
-//  Ref - ExchangePlanRef - a reference to an exchange plan for which the handler is executed.
+//  Object - ExchangePlanObject -  the exchange plan node that the handler is running for.
+//  Ref - ExchangePlanRef -  link to the exchange plan node that the handler is running for.
 //
 // Returns:
-//   Boolean - True if the AfterDataImport handler must be executed. Otherwise, False.
+//   Boolean - 
 //
 Function MustExecuteHandlerAfterDataImport(Object, Ref) Export
 	
@@ -165,10 +163,10 @@ Function MustExecuteHandlerAfterDataImport(Object, Ref) Export
 	
 EndFunction
 
-// Returns a prefix of the current infobase.
+// Returns the prefix of this information base.
 //
 // Returns:
-//   String - this infobase prefix.
+//   String - 
 //
 Function InfobasePrefix() Export
 	
@@ -176,18 +174,18 @@ Function InfobasePrefix() Export
 	
 EndFunction
 
-// Returns the correspondent configuration version.
-// If the correspondent configuration version is not defined, returns an empty version - 0.0.0.0.
+// Returns the version of the correspondent configuration.
+// If the correspondent configuration version is not defined, it returns an empty version - "0.0.0.0".
 //
 // Parameters:
-//  Peer - ExchangePlanRef - a reference to an exchange plan for which you need to get the configuration version.
+//  Peer - ExchangePlanRef -  the site plan of exchange, for which to get the configuration version.
 // 
 // Returns:
-//  String - correspondent configuration version.
+//  String -  version of the correspondent configuration.
 //
 // Example:
-//  If CommonClientServer.CompareVersions(DataExchangeServer.CorrespondentVersion(Correspondent), "2.1.5.1")
-//  >= 0 Then …
+//  If The General Purpose Is The Clientserver.Compare Versions(Recommended By The Server.Version Of The Correspondent (Correspondent), "2.1.5.1")
+//  > = 0 Then ...
 //
 Function CorrespondentVersion(Val Peer) Export
 	
@@ -196,10 +194,10 @@ Function CorrespondentVersion(Val Peer) Export
 	Return InformationRegisters.CommonInfobasesNodesSettings.CorrespondentVersion(Peer);
 EndFunction
 
-// Sets prefix for the current infobase.
+// Sets the prefix of this information base.
 //
 // Parameters:
-//   Prefix - String - a new value of the infobase prefix.
+//   Prefix - String -  new value of the information database prefix.
 //
 Procedure SetInfobasePrefix(Val Prefix) Export
 	
@@ -213,9 +211,9 @@ Procedure SetInfobasePrefix(Val Prefix) Export
 		ModuleObjectsPrefixesInternal.ChangeIBPrefix(PrefixChangeParameters);
 		
 	Else
-		// Do not modify data in order to re-index catalogs and documents in case: 
-		// - The prefixing subsystem is not integrated.
-		// - This is the initial startup of a child node.
+		//  
+		// 
+		// 
 		Constants.DistributedInfobaseNodePrefix.Set(TrimAll(Prefix));
 	EndIf;
 	
@@ -223,27 +221,27 @@ Procedure SetInfobasePrefix(Val Prefix) Export
 	
 EndProcedure
 
-// Checks whether the current infobase is restored from backup.
-// If the infobase is restored from backup, numbers of sent and
-// received messages must be synchronized for the infobases. Number of a sent message in the current infobase is set equal to the
-// received message number in the correspondent infobase.
-// If the infobase is restored from backup, we recommend that you do not delete change registration on the
-// current infobase node because this data might not have been sent to the correspondent infobase yet.
+// Checks whether this database is restored from a backup.
+// If the database was restored from backup, you must synchronize the numbers sent and
+// received messages for two bases (the number of sent messages in the database is given a number value
+// received message from the base-correspondent).
+// If the database was restored from a backup, we recommend that you do not de-register data changes on
+// the current node, because this data may not have been sent yet.
 //
 // Parameters:
-//   Sender    - ExchangePlanRef - a node on behalf of which the exchange message was created and sent.
-//   ReceivedNo - Number            - received message number in the peer infobase.
+//   Sender    - ExchangePlanRef -  the node on whose behalf the exchange message was generated and sent.
+//   ReceivedNo - Number            -  number of the received message in the corresponding database.
 //
 // Returns:
 //   FixedStructure:
 //     * Sender                 - ExchangePlanRef - see the Sender parameter above.
-//     * ReceivedNo              - Number            - see the ReceivedMessageNumber parameter above.
-//     * BackupRestored - Boolean - True if the infobase is restored from backup.
+//     * ReceivedNo              - Number            - see the Accepted number parameter above.
+//     * BackupRestored - Boolean -  True if it is detected that this database was restored from a backup.
 //
 Function BackupParameters(Val Sender, Val ReceivedNo) Export
 	
-	// For restored infobases, the outgoing message number is greater than the incoming message number in the peer.
-	// We can say that the infobase receives a message from the future (a message it hasn't sent).
+	// 
+	// 
 	// 
 	// 
 	Result = New Structure("Sender, ReceivedNo, BackupRestored");
@@ -254,16 +252,16 @@ Function BackupParameters(Val Sender, Val ReceivedNo) Export
 	Return New FixedStructure(Result);
 EndFunction
 
-// Synchronizes numbers of sent and received messages
-// for both infobases. In the current infobase, sent message number is set to the value of the received message number in
-// the correspondent infobase.
+// Synchronizes the numbers of sent and received messages
+// for two databases (the number of the sent message in this database is assigned the value of the number of the received message from
+// the corresponding database).
 //
 // Parameters:
 //   BackupParameters - FixedStructure:
-//     * Sender                 - ExchangePlanRef - a node on behalf of which the
-//                                                        exchange message was created and sent.
-//     * ReceivedNo              - Number            - received message number in the peer infobase.
-//     * BackupRestored - Boolean           - shows whether the current infobase is restored from the backup.
+//     * Sender                 - ExchangePlanRef -  the node on whose behalf
+//                                                        the exchange message was generated and sent.
+//     * ReceivedNo              - Number            -  number of the received message in the corresponding database.
+//     * BackupRestored - Boolean           -  indicates whether to restore this database from a backup.
 //
 Procedure OnRestoreFromBackup(Val BackupParameters) Export
 	
@@ -293,13 +291,13 @@ Procedure OnRestoreFromBackup(Val BackupParameters) Export
 	
 EndProcedure
 
-// Returns an ID of the saved exchange plan setting option.
+// Returns the ID of the saved exchange plan configuration option.
 // Parameters:
-//   ExchangePlanNode         - ExchangePlanRef - an exchange plan node to get predefined
+//   ExchangePlanNode         - ExchangePlanRef -  the exchange plan node that you want to get an overridable
 //                                                name for.
 //
 // Returns:
-//  String - saved setting ID as it is set in Designer.
+//  String - 
 //
 Function SavedExchangePlanNodeSettingOption(ExchangePlanNode) Export
 	
@@ -316,10 +314,10 @@ Function SavedExchangePlanNodeSettingOption(ExchangePlanNode) Export
 	
 EndFunction
 
-// Returns an array of all exchange message transport types available in the configuration.
+// Returns an array of all exchange message transport modes defined in the configuration.
 //
 // Returns:
-//   Array of EnumRef.ExchangeMessagesTransportTypes - all exchange message transport types.
+//   Array of EnumRef.ExchangeMessagesTransportTypes - 
 //
 Function AllConfigurationExchangeMessagesTransports() Export
 	
@@ -334,21 +332,21 @@ Function AllConfigurationExchangeMessagesTransports() Export
 	Return Result;
 EndFunction
 
-// Sends or receives data for an infobase node using any of the communication channels 
-// available for the exchange plan, except for COM connection and web service.
+// Sends or receives data for an information database node using any of 
+// the communication channels available for the exchange plan, except for the COM connection and web service.
 //
 // Parameters:
-//  Cancel                        - Boolean - a cancellation flag. True if
-//                                 errors occurred when running the procedure.
-//  InfobaseNode       - УзелОбменаСсылка - ExchangePlanRef - an exchange plan node,
-//                                 for which data is being exchanged.
-//  ActionOnExchange            - EnumRef.ActionsOnExchange - a running data exchange action.
-//  ExchangeMessagesTransportKind - ПеречислениеСсылка.Перечисления.ВидыТранспортаСообщенийОбмена - Transport type
-//                                 used in the data exchange. If not specified, 
-//                                 it is taken from transport parameters specified for the exchange plan node during
-//                                 exchange setup. Optional, the default value is Undefined.
-//  ParametersOnly              - Boolean - indicates that data are imported selectively on DIB exchange.
-//  AdditionalParameters      - Structure - reserved for internal use.
+//  Cancel                        - Boolean -  the failure flag is set to True if
+//                                 the procedure fails.
+//  InfobaseNode       - УзелОбменаСсылка -  Panamenista site plan of exchange,
+//                                 being operated on data exchange.
+//  ActionOnExchange            - EnumRef.ActionsOnExchange -  the data exchange action that is being performed.
+//  ExchangeMessagesTransportKind - ПеречислениеСсылка.Перечисления.ВидыТранспортаСообщенийОбмена -  the type of transport
+//                                 that will be used in the data exchange process. If omitted, 
+//                                 it is determined from the transport parameters set for the exchange plan node when
+//                                 setting up the exchange. Optional, the default value is Undefined.
+//  ParametersOnly              - Boolean -  contains a flag for selective data loading during rib exchange.
+//  AdditionalParameters      - Structure -  reserved for service use.
 // 
 Procedure ExecuteExchangeActionForInfobaseNode(
 		Cancel,
@@ -364,14 +362,14 @@ Procedure ExecuteExchangeActionForInfobaseNode(
 		
 	SetPrivilegedMode(True);
 	
-	// DATA EXCHANGE INITIALIZATION
+	// 
 	ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(
 		InfobaseNode, ActionOnExchange, ExchangeMessagesTransportKind);
 	RecordExchangeStartInInformationRegister(ExchangeSettingsStructure);
 	
 	If ExchangeSettingsStructure.Cancel Then
 		
-		// If a setting contains errors, canceling the exchange, Canceled status.
+		// 
 		WriteExchangeFinish(ExchangeSettingsStructure);
 		
 		Cancel = True;
@@ -389,7 +387,7 @@ Procedure ExecuteExchangeActionForInfobaseNode(
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ExchangeSettingsStructure.InfobaseNodeDescription);
 	WriteEventLogDataExchange(MessageString, ExchangeSettingsStructure);
 	
-	// DATA EXCHANGE
+	// 
 	ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure, ParametersOnly);
 	
 	WriteExchangeFinish(ExchangeSettingsStructure);
@@ -406,15 +404,15 @@ Procedure ExecuteExchangeActionForInfobaseNode(
 	
 EndProcedure
 
-// It determines whether the FTP server has the directory.
+// Determines whether the folder exists on the FTP server.
 //
 // Parameters:
-//  Path - String - directory path.
-//  DirectoryName - String - a directory name.
-//  FTPConnection - FTPConnection - FTPConnection used to connect to the FTP server.
+//  Path - String -  directory path.
+//  DirectoryName - String -  directory name.
+//  FTPConnection - FTPConnection -  Ftpconnection used to connect to the FTP server.
 // 
 // Returns:
-//  Boolean - if True, the directory exists. Otherwise, False.
+//  Boolean - 
 //
 Function FTPDirectoryExist(Val Path, Val DirectoryName, Val FTPConnection) Export
 	
@@ -431,14 +429,14 @@ Function FTPDirectoryExist(Val Path, Val DirectoryName, Val FTPConnection) Expor
 	Return False;
 EndFunction
 
-// Returns table data for exchange node attributes.
+// Returns the data tables for details of the exchange site.
 // 
 // Parameters:
-//   Tables        - Array of String - names of the exchange plan node attributes.
-//   ExchangePlanName - String - an exchange plan name.
+//   Tables        - Array of String -  names and details of site plan of exchange.
+//   ExchangePlanName - String -  name of the exchange plan.
 // 
 // Returns:
-//   Map - a map of tables and their data.
+//   Map - 
 //
 Function CorrespondentTablesData(Tables, Val ExchangePlanName) Export
 	
@@ -483,16 +481,16 @@ Function CorrespondentTablesData(Tables, Val ExchangePlanName) Export
 		
 	EndDo;
 	
-	Result.Insert("{AdditionalData}", New Structure); // For backward compatibility with 2.4.x.
+	Result.Insert("{AdditionalData}", New Structure); // 
 	
 	Return Result;
 	
 EndFunction
 
-// Sets the number of items in a data import transaction as the constant value.
+// Sets the number of items in a data upload transaction in a constant.
 //
 // Parameters:
-//  Count - Number - the number of items in transaction.
+//  Count - Number -  the number of items in the transaction.
 // 
 Procedure SetDataImportTransactionItemsCount(Count) Export
 	
@@ -501,13 +499,13 @@ Procedure SetDataImportTransactionItemsCount(Count) Export
 	
 EndProcedure
 
-// Returns the synchronization date presentation.
+// Returns a representation of the sync date.
 //
 // Parameters:
-//  SynchronizationDate - Date - absolute date of data synchronization.
+//  SynchronizationDate - Date -  absolute date of data synchronization.
 //
 // Returns:
-//  String - a string presentation of date.
+//  String - 
 //
 Function SynchronizationDatePresentation(Val SynchronizationDate) Export
 	
@@ -518,24 +516,24 @@ Function SynchronizationDatePresentation(Val SynchronizationDate) Export
 	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Last synchronized on: %1';"), RelativeSynchronizationDate(SynchronizationDate));
 EndFunction
 
-// Returns presentation for the relative synchronization date.
+// Returns a representation of the relative sync date.
 //
 // Parameters:
-//  SynchronizationDate - Date - absolute date of data synchronization.
+//  SynchronizationDate - Date -  absolute date of data synchronization.
 //
 // Returns:
-//  String - Presentation for the relative sync date:
-//    *Never             (T = blank date).
-//    *Now              (T < 5 min)
-//    *5 minutes ago       (5 min  < T < 15 min).
-//    *15 minutes ago      (15 min  < T < 30 min).
-//    *30 minutes ago      (30 min  < T < 1 hour).
-//    *1 1 hour ago         (1 hour  < T < 2 hours).
-//    *2 hours ago        (2 hours  < T < 3 hours).
-//    *Today, 12:44:12   (3 hours  < T < yesterday).
-//    *Yesterday, 22:30:45     (yesterday  < T < one day ago).
-//    *DayBeforeYesterday, 21:22:54 (one day ago  < T < two days ago).
-//    *<12 March 2012>   (two days ago < T).
+//  String - :
+//    *Never              (T = empty date).
+//    *Now               (T < 5 min.)
+//    *5 minutes ago (5 min < T < 15 min)
+//    *15 minutes ago (15 min < T < 30 min)
+//    *30 minutes ago (30 min < T < 1 hour)
+//    *1 an hour ago (1 hour < T < 2 hours)
+//    *2 hours ago (2 hours < T < 3 hours).
+//    *Today, 12: 44: 12 (3 hours < T < yesterday).
+//    *Yesterday, 22: 30: 45 (yesterday < T < the day before).
+//    *DayBeforeYesterday, 21: 22: 54 (the day before yesterday < T < pose-the day before yesterday).
+//    *<12 March 2012> (pose-the day before yesterday < T).
 //
 Function RelativeSynchronizationDate(Val SynchronizationDate) Export
 	
@@ -549,31 +547,31 @@ Function RelativeSynchronizationDate(Val SynchronizationDate) Export
 	
 	Interval = DateCurrent - SynchronizationDate;
 	
-	If Interval < 0 Then // 0 min.
+	If Interval < 0 Then // 
 		
 		Result = Format(SynchronizationDate, "DLF=DD");
 		
-	ElsIf Interval < 60 * 5 Then // 5 min.
+	ElsIf Interval < 60 * 5 Then // 
 		
 		Result = NStr("en = 'Now';");
 		
-	ElsIf Interval < 60 * 15 Then // 15 min.
+	ElsIf Interval < 60 * 15 Then // 
 		
 		Result = NStr("en = '5 minutes ago';");
 		
-	ElsIf Interval < 60 * 30 Then // 30 min.
+	ElsIf Interval < 60 * 30 Then // 
 		
 		Result = NStr("en = '15 minutes ago';");
 		
-	ElsIf Interval < 60 * 60 * 1 Then // 1 hour.
+	ElsIf Interval < 60 * 60 * 1 Then // 
 		
 		Result = NStr("en = '30 minutes ago';");
 		
-	ElsIf Interval < 60 * 60 * 2 Then // 2 hours.
+	ElsIf Interval < 60 * 60 * 2 Then // 
 		
 		Result = NStr("en = '1 hour ago';");
 		
-	ElsIf Interval < 60 * 60 * 3 Then // 3 hours.
+	ElsIf Interval < 60 * 60 * 3 Then // 
 		
 		Result = NStr("en = '2 hours ago';");
 		
@@ -581,19 +579,19 @@ Function RelativeSynchronizationDate(Val SynchronizationDate) Export
 		
 		DifferenceDaysCount = DifferenceDaysCount(SynchronizationDate, DateCurrent);
 		
-		If DifferenceDaysCount = 0 Then // Today.
+		If DifferenceDaysCount = 0 Then // Today
 			
 			Result = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Today, %1';"), Format(SynchronizationDate, "DLF=T"));
 			
-		ElsIf DifferenceDaysCount = 1 Then // Yesterday.
+		ElsIf DifferenceDaysCount = 1 Then // Yesterday
 			
 			Result = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Yesterday, %1';"), Format(SynchronizationDate, "DLF=T"));
 			
-		ElsIf DifferenceDaysCount = 2 Then // Day before yesterday.
+		ElsIf DifferenceDaysCount = 2 Then // 
 			
 			Result = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Day before yesterday, %1';"), Format(SynchronizationDate, "DLF=T"));
 			
-		Else // Long ago.
+		Else // 
 			
 			Result = Format(SynchronizationDate, "DLF=DD");
 			
@@ -604,10 +602,10 @@ Function RelativeSynchronizationDate(Val SynchronizationDate) Export
 	Return Result;
 EndFunction
 
-// Returns the ID of the 1C-supplied profile of the "Data synchronization with other applications" access groups.
+// Returns the ID of the supplied access group profile "data Synchronization with other programs".
 //
 // Returns:
-//  String - ID of the supplied access group profile.
+//  String - 
 //
 Function DataSynchronizationWithOtherApplicationsAccessProfile() Export
 	
@@ -618,7 +616,7 @@ EndFunction
 // Checks whether the current user can administer exchanges.
 //
 // Returns:
-//  Boolean - True if the user has rights. Otherwise, False.
+//  Boolean - 
 //
 Function HasRightsToAdministerExchanges() Export
 	
@@ -626,21 +624,21 @@ Function HasRightsToAdministerExchanges() Export
 	
 EndFunction
 
-// The function returns the WSProxy object of the Exchange web service created with the passed parameters.
+// The function returns The wsproxy object of the Exchange web service created with the passed parameters.
 //
 // Parameters:
 //  SettingsStructure_ - Structure:
-//    * WSWebServiceURL - String - the wsdl location.
-//    * WSServiceName - String - a service name.
-//    * WSServiceNamespaceURL - String - web service namespace URI.
-//    * WSUserName - String - a username to sign in to the server.
-//    * WSPassword - String - User password.
-//    * WSTimeout - Number - the timeout for operations executed over the proxy.
-//  ErrorMessageString - String - contains detailed error description in case of unsuccessful connection;
-//  UserMessage - String - contains brief error description in case of unsuccessful connection.
+//    * WSWebServiceURL - String -  the location of the wsdl.
+//    * WSServiceName - String -  service name.
+//    * WSServiceNamespaceURL - String -  URI of the web service namespace.
+//    * WSUserName - String -  name of the user to log in to the server.
+//    * WSPassword - String -  user password.
+//    * WSTimeout - Number -  timeout for operations performed through the received proxy.
+//  ErrorMessageString - String -  contains a detailed description of the error if the connection failed;
+//  UserMessage - String -  contains a brief description of the error if the connection failed.
 //
 // Returns:
-//  WSProxy - a WSProxy object of the Exchange web service.
+//  WSProxy - 
 //
 Function GetWSProxy(SettingsStructure_, ErrorMessageString = "", UserMessage = "") Export
 	
@@ -653,21 +651,21 @@ Function GetWSProxy(SettingsStructure_, ErrorMessageString = "", UserMessage = "
 	Return GetWSProxyByConnectionParameters(SettingsStructure_, ErrorMessageString, UserMessage);
 EndFunction
 
-// The function returns the WSProxy object of the Exchange_2_0_1_6 web service created with the passed parameters.
+// The function returns a Wsproxy object of the Exchange_2_0_1_6 web service created with the passed parameters.
 //
 // Parameters:
 //  SettingsStructure_ - Structure:
-//    * WSWebServiceURL - String - the wsdl location.
-//    * WSServiceName - String - a service name.
-//    * WSServiceNamespaceURL - String - web service namespace URI.
-//    * WSUserName - String - a username to sign in to the server.
-//    * WSPassword - String - User password.
-//    * WSTimeout - Number - the timeout for operations executed over the proxy.
-//  ErrorMessageString - String - contains detailed error description in case of unsuccessful connection;
-//  UserMessage - String - contains brief error description in case of unsuccessful connection.
+//    * WSWebServiceURL - String -  the location of the wsdl.
+//    * WSServiceName - String -  service name.
+//    * WSServiceNamespaceURL - String -  URI of the web service namespace.
+//    * WSUserName - String -  name of the user to log in to the server.
+//    * WSPassword - String -  user password.
+//    * WSTimeout - Number -  timeout for operations performed through the received proxy.
+//  ErrorMessageString - String -  contains a detailed description of the error if the connection failed;
+//  UserMessage - String -  contains a brief description of the error if the connection failed.
 //
 // Returns:
-//  WSProxy - a WSProxy object of the Exchange_2_0_1_6 web service.
+//  WSProxy - 
 //
 Function GetWSProxy_2_0_1_6(SettingsStructure_, ErrorMessageString = "", UserMessage = "") Export
 	
@@ -680,22 +678,22 @@ Function GetWSProxy_2_0_1_6(SettingsStructure_, ErrorMessageString = "", UserMes
 	Return GetWSProxyByConnectionParameters(SettingsStructure_, ErrorMessageString, UserMessage);
 EndFunction
 
-// The function returns the WSProxy object of the Exchange_2_0_1_7 web service created with the passed parameters.
+// The function returns a Wsproxy object of the Exchange_2_0_1_7 web service created with the passed parameters.
 //
 // Parameters:
 //  SettingsStructure_ - Structure:
-//    * WSWebServiceURL - String - the wsdl location.
-//    * WSServiceName - String - a service name.
-//    * WSServiceNamespaceURL - String - web service namespace URI.
-//    * WSUserName - String - a username to sign in to the server.
-//    * WSPassword - String - User password.
-//    * WSTimeout - Number - the timeout for operations executed over the proxy.
-//  ErrorMessageString - String - contains detailed error description in case of unsuccessful connection;
-//  UserMessage - String - contains brief error description in case of unsuccessful connection.
-//  Timeout - Number - timeout. 
+//    * WSWebServiceURL - String -  the location of the wsdl.
+//    * WSServiceName - String -  service name.
+//    * WSServiceNamespaceURL - String -  URI of the web service namespace.
+//    * WSUserName - String -  name of the user to log in to the server.
+//    * WSPassword - String -  user password.
+//    * WSTimeout - Number -  timeout for operations performed through the received proxy.
+//  ErrorMessageString - String -  contains a detailed description of the error if the connection failed;
+//  UserMessage - String -  contains a brief description of the error if the connection failed.
+//  Timeout - Number -  timeout. 
 //
 // Returns:
-//  WSProxy - a WSProxy object of the Exchange_2_0_1_7 web service.
+//  WSProxy - 
 //
 Function GetWSProxy_2_1_1_7(SettingsStructure_, ErrorMessageString = "", UserMessage = "", Timeout = 600) Export
 	
@@ -708,22 +706,22 @@ Function GetWSProxy_2_1_1_7(SettingsStructure_, ErrorMessageString = "", UserMes
 	Return GetWSProxyByConnectionParameters(SettingsStructure_, ErrorMessageString, UserMessage, True);
 EndFunction
 
-// The function returns the WSProxy object of the Exchange_3_0_1_1 web service created with the passed parameters.
+// The function returns a Wsproxy object of the Exchange_3_0_1_1 web service created with the passed parameters.
 //
 // Parameters:
 //  SettingsStructure_ - Structure:
-//    * WSWebServiceURL - String - the wsdl location.
-//    * WSServiceName - String - a service name.
-//    * WSServiceNamespaceURL - String - web service namespace URI.
-//    * WSUserName - String - a username to sign in to the server.
-//    * WSPassword - String - User password.
-//    * WSTimeout - Number - the timeout for operations executed over the proxy.
-//  ErrorMessageString - String - contains detailed error description in case of unsuccessful connection;
-//  UserMessage - String - contains brief error description in case of unsuccessful connection.
-//  Timeout - Number - timeout. 
+//    * WSWebServiceURL - String -  the location of the wsdl.
+//    * WSServiceName - String -  service name.
+//    * WSServiceNamespaceURL - String -  URI of the web service namespace.
+//    * WSUserName - String -  name of the user to log in to the server.
+//    * WSPassword - String -  user password.
+//    * WSTimeout - Number -  timeout for operations performed through the received proxy.
+//  ErrorMessageString - String -  contains a detailed description of the error if the connection failed;
+//  UserMessage - String -  contains a brief description of the error if the connection failed.
+//  Timeout - Number -  timeout. 
 //
 // Returns:
-//  WSProxy - a WSProxy object of the Exchange_3_0_1_1 web service.
+//  WSProxy - 
 //
 Function GetWSProxy_3_0_1_1(SettingsStructure_, ErrorMessageString = "", UserMessage = "", Timeout = 600) Export
 	
@@ -737,22 +735,22 @@ Function GetWSProxy_3_0_1_1(SettingsStructure_, ErrorMessageString = "", UserMes
 	
 EndFunction
 
-// The function returns the WSProxy object of the Exchange_3_0_1_1 web service created with the passed parameters.
+// The function returns a Wsproxy object of the Exchange_3_0_1_1 web service created with the passed parameters.
 //
 // Parameters:
 //  SettingsStructure_ - Structure:
-//    * WSWebServiceURL - String - the wsdl location.
-//    * WSServiceName - String - a service name.
-//    * WSServiceNamespaceURL - String - web service namespace URI.
-//    * WSUserName - String - a username to sign in to the server.
-//    * WSPassword - String - User password.
-//    * WSTimeout - Number - the timeout for operations executed over the proxy.
-//  ErrorMessageString - String - contains detailed error description in case of unsuccessful connection;
-//  UserMessage - String - contains brief error description in case of unsuccessful connection.
-//  Timeout - Number - A timeout. 
+//    * WSWebServiceURL - String -  the location of the wsdl.
+//    * WSServiceName - String -  service name.
+//    * WSServiceNamespaceURL - String -  URI of the web service namespace.
+//    * WSUserName - String -  name of the user to log in to the server.
+//    * WSPassword - String -  user password.
+//    * WSTimeout - Number -  timeout for operations performed through the received proxy.
+//  ErrorMessageString - String -  contains a detailed description of the error if the connection failed;
+//  UserMessage - String -  contains a brief description of the error if the connection failed.
+//  Timeout - Number -  timeout. 
 //
 // Returns:
-//  WSProxy - A WSProxy object of the Exchange_2_0_1_6 web service.
+//  WSProxy - 
 //
 Function GetWSProxy_3_0_2_1(SettingsStructure_, ErrorMessageString = "", UserMessage = "", Timeout = 600) Export
 	
@@ -766,22 +764,22 @@ Function GetWSProxy_3_0_2_1(SettingsStructure_, ErrorMessageString = "", UserMes
 	
 EndFunction
 
-// The function returns the WSProxy object of the Exchange_3_0_1_1 web service created with the passed parameters.
+// The function returns a Wsproxy object of the Exchange_3_0_1_1 web service created with the passed parameters.
 //
 // Parameters:
 //  SettingsStructure_ - Structure:
-//    * WSWebServiceURL - String - the wsdl location.
-//    * WSServiceName - String - a service name.
-//    * WSServiceNamespaceURL - String - web service namespace URI.
-//    * WSUserName - String - a username to sign in to the server.
-//    * WSPassword - String - User password.
-//    * WSTimeout - Number - the timeout for operations executed over the proxy.
-//  ErrorMessageString - String - contains detailed error description in case of unsuccessful connection;
-//  UserMessage - String - contains brief error description in case of unsuccessful connection.
-//  Timeout - Number - A timeout. 
+//    * WSWebServiceURL - String -  the location of the wsdl.
+//    * WSServiceName - String -  service name.
+//    * WSServiceNamespaceURL - String -  URI of the web service namespace.
+//    * WSUserName - String -  name of the user to log in to the server.
+//    * WSPassword - String -  user password.
+//    * WSTimeout - Number -  timeout for operations performed through the received proxy.
+//  ErrorMessageString - String -  contains a detailed description of the error if the connection failed;
+//  UserMessage - String -  contains a brief description of the error if the connection failed.
+//  Timeout - Number -  timeout. 
 //
 // Returns:
-//  WSProxy - A WSProxy object of the Exchange_2_0_1_6 web service.
+//  WSProxy - 
 //
 Function GetWSProxy_3_0_2_2(SettingsStructure_, ErrorMessageString = "", UserMessage = "", Timeout = 600) Export
 	
@@ -795,10 +793,10 @@ Function GetWSProxy_3_0_2_2(SettingsStructure_, ErrorMessageString = "", UserMes
 	
 EndFunction
 
-// Returns allowed number of items processed in a single data import transaction.
+// 
 //
 // Returns:
-//   Number - allowed number of items processed in a single data import transaction.
+//   Number - 
 // 
 Function DataImportTransactionItemCount() Export
 	
@@ -807,10 +805,10 @@ Function DataImportTransactionItemCount() Export
 	
 EndFunction
 
-// Returns allowed number of items processed in a single data export transaction.
+// Returns the allowed number of items processed in a single data upload transaction.
 //
 // Returns:
-//   Number - allowed number of items processed in a single data export transaction.
+//   Number - 
 // 
 Function DataExportTransactionItemsCount() Export
 	
@@ -818,13 +816,13 @@ Function DataExportTransactionItemsCount() Export
 	
 EndFunction
 
-// Returns a table with data of nodes of all configured SSL exchanges.
+// Returns a table with node data for all configured BSP exchanges.
 //
 // Returns:
 //   ValueTable:
-//     * InfobaseNode - ExchangePlanRef - a reference to the exchange plan node.
-//     * Description - String - description of the exchange plan node.
-//     * ExchangePlanName - String - an exchange plan name.
+//     * InfobaseNode - ExchangePlanRef -  link to the exchange plan node.
+//     * Description - String -  name of the exchange plan node.
+//     * ExchangePlanName - String -  name of the exchange plan.
 //
 Function SSLExchangeNodes() Export
 	
@@ -837,13 +835,13 @@ Function SSLExchangeNodes() Export
 	
 EndFunction
 
-// Determines whether standard conversion rules are used for the exchange plan.
+// Determines whether the standard conversion rules are used for the exchange plan.
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan for which the rules are being imported.
+//  ExchangePlanName - String -  name of the exchange plan that the rules are being loaded for.
 //
 // Returns:
-//   Boolean - if True, the rules are used. Otherwise, False.
+//   Boolean - 
 //
 Function StandardRulesUsed(ExchangePlanName) Export
 	
@@ -851,49 +849,49 @@ Function StandardRulesUsed(ExchangePlanName) Export
 	
 EndFunction
 
-// Sets an external connection with the infobase and returns the connection description.
+// Establishes an external connection to the database and returns a description of the connection.
 //
 // Parameters:
-//  Parameters - Structure - external connection parameters.
-//                          For the properties, see function
-//                          CommonClientServer.ParametersStructureForExternalConnection:
+//  Parameters - Structure - 
+//                          
+//                          :
 //
-//    * InfobaseOperatingMode             - Number  -  the infobase operation mode. File mode - 0.
-//	                                                           Client/server mode - 1;
-//    * InfobaseDirectory                   - String - the infobase directory;
-//    * NameOf1CEnterpriseServer                     - String - the name of the 1C:Enterprise server;
-//    * NameOfInfobaseOn1CEnterpriseServer - String - a name of the infobase on 1C Enterprise server;
-//    * OperatingSystemAuthentication           - Boolean - indicates whether the operating system is authenticated on establishing
-//	                                                           a connection to the infobase;
-//    * UserName                             - String - the name of an infobase user;
-//    * UserPassword                          - String - the user password.
+//    * InfobaseOperatingMode             - Number  -   version of the information base: 0 - file; 1-
+//	                                                           client-server;
+//    * InfobaseDirectory                   - String -  directory of the information base for the file mode of operation;
+//    * NameOf1CEnterpriseServer                     - String -  server1c name:Companies;
+//    * NameOfInfobaseOn1CEnterpriseServer - String -  name of the information base on server1c:Companies;
+//    * OperatingSystemAuthentication           - Boolean -  indicates whether the operating system is authenticated when creating
+//	                                                           an external connection to the database;
+//    * UserName                             - String -  name of the database user;
+//    * UserPassword                          - String -  password of the database user.
 //
 // Returns:
 //  Structure:
 //    * Join                  - COMObject
-//                                  - Undefined - if the connection is established, returns a COM object reference.
-//                                    Otherwise, returns Undefined;
-//    * BriefErrorDetails       - String - brief error description;
-//    * DetailedErrorDetails     - String - detailed error description;
-//    * AddInAttachmentError - Boolean - a COM connection error flag.
+//                                  - Undefined - 
+//                                    
+//    * BriefErrorDetails       - String -  short description of the error;
+//    * DetailedErrorDetails     - String -  detailed description of the error;
+//    * AddInAttachmentError - Boolean -  COM connection error flag.
 //
 Function ExternalConnectionToInfobase(Parameters) Export
 	
-	// Converting external connection parameters to transport parameters.
+	// 
 	TransportSettings = TransportSettingsByExternalConnectionParameters(Parameters);
 	Return EstablishExternalConnectionWithInfobase(TransportSettings);
 	
 EndFunction
 
-// An entry point to iterate data exchange (import and export) with the external system by the exchange plan node.
+// Entry point for performing an iteration of data exchange (loading and unloading) with an external system on the exchange plan node.
 //
 // Parameters:
-//  Peer - ExchangePlanRef - an exchange plan node matching the external system.
-//  ExchangeParameters - Structure - it must contain the following parameters:
-//    * ExecuteImport1 - Boolean - indicates whether data export is required.
-//    * ExecuteSettingsSending - Boolean - indicates that it is necessary to send XDTO settings.
-//  FlagError - Boolean - True if an error occurs during the exchange.
-//                        See technical information on the error in the event log.
+//  Peer - ExchangePlanRef -  exchange plan node corresponding to the external system.
+//  ExchangeParameters - Structure - :
+//    * ExecuteImport1 - Boolean -  flag for whether to load data.
+//    * ExecuteSettingsSending - Boolean -  the flag need to be sent XDTO settings.
+//  FlagError - Boolean -  True, if an error occurs during the exchange.
+//                        Detailed information about the error is recorded in the log.
 // 
 Procedure ExecuteDataExchangeWithExternalSystem(Peer, ExchangeParameters, FlagError) Export
 	
@@ -934,59 +932,59 @@ Procedure ExecuteDataExchangeWithExternalSystem(Peer, ExchangeParameters, FlagEr
 	
 EndProcedure
 
-// Determines default settings for the exchange plan. Later, they can be changed
-// in the exchange plan manager module in the OnReceiveSettings() procedure.
+// Defines the default settings for the exchange plan, which can then be overridden
+// in the exchange plan Manager module in the get Settings () procedure.
 // 
 // Parameters:
-//   ExchangePlanName         - String - a name of the exchange plan from the metadata.
+//   ExchangePlanName         - String -  name of the exchange plan from the metadata.
 //   
 // Returns:
 //   Structure:
 //      * ExchangeSettingsOptions                 - See ExchangeSettingsOptionsCollection
-//      * GroupTypeForSettingsOptions          - FormGroupType - a group type option for displaying in
-//                                                 the tree of creation commands for settings option exchange.
-//      * SourceConfigurationName               - String - a source configuration name displayed to
-//                                                 user.
-//      * DestinationConfigurationName               - Structure - a list of IDs of correspondent configurations
-//                                                 exchange with which is possible via this exchange plan.
-//      * ExchangeFormatVersions                    - Map of KeyAndValue - Supported format versions mapped with references to IFDE common modules.
-//                                                 Intended for Interim Format Data Exchange only
+//      * GroupTypeForSettingsOptions          - FormGroupType -  a variant of the group type to display in
+//                                                 the command tree for creating and exchanging settings.
+//      * SourceConfigurationName               - String -  name of the source configuration displayed in
+//                                                 the user interface.
+//      * DestinationConfigurationName               - Structure -  list of IDs of correspondent configurations
+//                                                 that can be exchanged through this exchange plan.
+//      * ExchangeFormatVersions                    - Map of KeyAndValue - 
+//                                                 
 //                                                 :
-//         ** Key - Number - Format version.
-//         ** Value - CommonModule - A reference to a common module.
-//      * ExchangeFormat                             - String - the XDTO package namespace that contains 
-//                                                   a universal format without the version specified.
-//                                                   It is used for exchange using a universal format only.
+//         ** Key - Number - 
+//         ** Value - CommonModule - 
+//      * ExchangeFormat                             - String -  the XDTO namespace of the package that contains 
+//                                                   the universal format, without specifying the format version.
+//                                                   Used only for exchanges via the universal format.
 //      * ExchangeFormatExtensions                  - Map of KeyAndValue:
-//        ** Key                                  - String - URL of the format extension schema namespace.
-//        ** Value                              - String - the number of the extended format version.
-//      * ExchangePlanUsedInSaaS     - Boolean - indicates whether the exchange plan is used to organize
-//                                                   exchange in SaaS.
-//      * IsXDTOExchangePlan                        - Boolean - indicates whether this is a plan of exchange via the
+//        ** Key                                  - String -  URI of the format extension schema namespace.
+//        ** Value                              - String -  number of the extensible version of the format.
+//      * ExchangePlanUsedInSaaS     - Boolean -  indicates whether the exchange plan is used to organize
+//                                                   the exchange in the service model.
+//      * IsXDTOExchangePlan                        - Boolean -  indicates that this is an exchange plan using a
 //                                                   universal format.
-//      * WarnAboutExchangeRuleVersionMismatch - Boolean - indicates whether it is required to check versions for
-//                                                                  discrepancy in the conversion rules.
-//                                                                  The checking is performed on rule
-//                                                                  set importing, on data sending, and on data receiving.
-//      * ExchangePlanNameToMigrateToNewExchange    - String - if the property is set for an exchange plan, 
-//                                                   this exchange kind is not available for setup 
-//                                                   in the settings management workplaces.
-//                                                   Existing exchanges of this kind will be still visible
-//                                                   in the configured exchange list.
-//                                                   Getting an exchange message in a new format will initiate
-//                                                   migration to a new exchange kind.
-//      * ExchangePlanPurpose                    - String - an exchange plan purpose option.
-//      * Algorithms                                - Structure - a list of export procedures and functions
-//                                                   declared in the exchange plan manager module
+//      * WarnAboutExchangeRuleVersionMismatch - Boolean -  indicates whether you need to check for
+//                                                                  version discrepancies in the conversion rules.
+//                                                                  Validation is performed when loading a set
+//                                                                  of rules, when sending data, and when receiving data.
+//      * ExchangePlanNameToMigrateToNewExchange    - String -  if this property is set for the exchange plan 
+//                                                   , you will not be 
+//                                                   prompted to configure this type of exchange in the settings management workstations.
+//                                                   Existing exchanges of this type will continue
+//                                                   to be displayed in the list of configured exchanges.
+//                                                   Receiving an exchange message in a new format will
+//                                                   initiate the transition to a new type of exchange.
+//      * ExchangePlanPurpose                    - String -  option for assigning an exchange plan.
+//      * Algorithms                                - Structure -  list of export procedures and functions that
+//                                                   are declared in the exchange plan Manager module
 //                                                   and used by the data exchange subsystem.
-//      *RulesForRegisteringInManager              - Boolean - Indicates the usage of the registration rules 
-//                                                   located in the common module (registration manager)
-//      *RegistrationManagerName                   - String - The name of the module containing registration rules
-//      *UseCacheOfPublicIdentifiers   - Boolean - Indicates that cache should be used for searching
-//                                                   references during data import
-//      *Global                                - Boolean - If set to True, the exchange plan supports exchange with 
-//                                                   exchange plans that have a different name.
-//                                                   Intended for EnterpriseData exchange only
+//      *RulesForRegisteringInManager              - Boolean -  
+//                                                   
+//      *RegistrationManagerName                   - String - 
+//      *UseCacheOfPublicIdentifiers   - Boolean - 
+//                                                   
+//      *Global                                - Boolean -  
+//                                                   
+//                                                   
 //
 Function DefaultExchangePlanSettings(ExchangePlanName) Export
 	
@@ -1045,69 +1043,69 @@ Function DefaultExchangePlanSettings(ExchangePlanName) Export
 	
 EndFunction
 
-// Determines default settings for the exchange setting option that can later be overridden
-// in the exchange plan manager module in the OnReceiveSettingOptionsDetails() procedure.
+// Defines the default settings for the exchange configuration option, which can then be overridden
+// in the exchange plan Manager module in the procedure for getting a description of the configuration Option().
 //
 // Parameters:
-//   ExchangePlanName - String - contains an exchange plan name.
+//   ExchangePlanName - String -  contains the name of the exchange plan.
 // 
 // Returns:
 //   Structure:
-//      * Filters                                    - Structure - filters on the exchange plan node 
-//                                                    to be filled with default values.
-//      * DefaultValues                       - Structure - default values on the exchange plan node. 
-//      * CommonNodeData                          - String - returns comma-separated names of attributes and exchange plan 
-//                                                    tabular sections that are common for both data 
-//                                                    exchange participants. 
-//      * UseDataExchangeCreationWizard - Boolean - a flag showing whether the wizard will be used to
+//      * Filters                                    - Structure -  selections on the exchange plan node 
+//                                                    must be filled in with default values.
+//      * DefaultValues                       - Structure -  default values on the exchange plan node. 
+//      * CommonNodeData                          - String -  comma-separated names of details and table parts of the exchange plan 
+//                                                    that are shared by a pair 
+//                                                    of exchanging configurations. 
+//      * UseDataExchangeCreationWizard - Boolean -  indicates whether the assistant will be used to
 //                                                    create new exchange plan nodes.
-//      * InitialImageCreationFormName          - String - a name of initial image creation form to use in
-//                                                    distributed infobase.
-//      * DataSyncSettingsWizardFormName - String - a name of the form that will be used instead of a standard
-//                                                        form to configure data sending
-//                                                        and receiving rules.
-//      * AccountingSettingsSetupNote      - String - hints on sequence of user actions 
-//                                                    to setup accounting parameters in the current
-//                                                    infobase.
-//      * PathToRulesSetFileOnUserSite - String - the path to the archive of the rule set file
-//                                                           on the user site, in the configuration section.
-//      * PathToRulesSetFileInTemplateDirectory - String - a relative path to the rule set file in
-//                                                     the 1C:Enterprise template directory.
-//      * NewDataExchangeCreationCommandTitle - String - a command presentation displayed to user 
-//                                                         upon creating a new data
-//                                                                         exchange setup.
-//      * ExchangeCreateWizardTitle          - String - a presentation of the heading of the form
-//                                                    of the data exchange creation wizard displayed
-//                                                    to user.
-//      * ExchangePlanNodeTitle                  - String - the exchange plan node presentation
-//                                                    displayed to user.
-//      * CorrespondentConfigurationName             - String - the peer infobase configuration ID.
-//      * CorrespondentConfigurationDescription    - String - presentation of the correspondent configuration name  
-//                                                    displayed to user.
+//      * InitialImageCreationFormName          - String -  name of the form used to create the initial
+//                                                    image of a distributed information system.
+//      * DataSyncSettingsWizardFormName - String -  name of the form that will be used to configure
+//                                                        the rules for sending and receiving data instead
+//                                                        of the standard form.
+//      * AccountingSettingsSetupNote      - String -  explanation of the sequence of user actions 
+//                                                    for configuring accounting parameters in the current
+//                                                    information database.
+//      * PathToRulesSetFileOnUserSite - String -  the path to the rule set file as an archive
+//                                                           on the user site in the configuration section.
+//      * PathToRulesSetFileInTemplateDirectory - String -  relative path to the ruleset file in
+//                                                     the template directory.
+//      * NewDataExchangeCreationCommandTitle - String -  the command view that is displayed in the user 
+//                                                         interface when creating a new
+//                                                                         data exchange setting.
+//      * ExchangeCreateWizardTitle          - String -  view of the header
+//                                                    of the data exchange creation assistant form displayed in
+//                                                    the user interface.
+//      * ExchangePlanNodeTitle                  - String -  view of the exchange plan node
+//                                                    displayed in the user interface.
+//      * CorrespondentConfigurationName             - String -  ID of the correspondent configuration.
+//      * CorrespondentConfigurationDescription    - String -  representation of the name of the correspondent configuration  
+//                                                    displayed in the user interface.
 //      * UsedExchangeMessagesTransports     - Array of EnumRef.ExchangeMessagesTransportTypes 
-//                                                    - A list of used message transports. 
-//                                                    If empty, all transport types are available.
-//      * BriefExchangeInfo                 - String - data exchange brief info
-//                                                    displayed on the first page of the exchange
-//                                                    creation wizard.
-//      * DetailedExchangeInformation               - String - a web page URL or a full path to
-//                                                    the form within the configuration as a string to
-//                                                    display in the exchange creation wizard.
-//      * SettingsFileNameForDestination              - String - the file name for the connection settings save
-//                                                    upon setting up an exchange via offline channels.
-//      * DataMappingSupported         - Boolean - If True, the setting option supports interactive data mapping. 
-//                                                    Otherwise, the infobase will receive the messages "as is".
+//                                                    -  
+//                                                    
+//      * BriefExchangeInfo                 - String -  a brief description of the data exchange that
+//                                                    is displayed on the first page
+//                                                    of the exchange creation assistant.
+//      * DetailedExchangeInformation               - String -  a link to a web page or the full path to
+//                                                    the form inside the configuration as a string to
+//                                                    display in the exchange creation assistant.
+//      * SettingsFileNameForDestination              - String -  name of the file for saving connection settings
+//                                                    when setting up exchange via offline channels.
+//      * DataMappingSupported         - Boolean -  
 //                                                    
 //                                                    
 //                                                    
-//      * FormatExtension                         - String - A format extension name applicable for the setting option.
-//                                                    It is created from the URL of the format extension schema namespace,
-//                                                    excluding the version. For example, for the namespace "http://v8.1c.ru/edi/edi_stnd/_DemoEnterpriseDataExt/1.1", the format extension name will be "http://v8.1c.ru/edi/edi_stnd/_DemoEnterpriseDataExt".
+//                                                    
+//      * FormatExtension                         - String - 
+//                                                    
+//                                                    
 //                                                    
 //                                                     
 //                                                     
 //                                                    
-//      * CorrespondentExchangePlanName              - String - The name of the peer infobase's exchange plan. 
+//      * CorrespondentExchangePlanName              - String -  
 //
 Function DefaultExchangeSettingOptionDetails(ExchangePlanName) Export
 	
@@ -1146,16 +1144,16 @@ Function DefaultExchangeSettingOptionDetails(ExchangePlanName) Export
 	
 EndFunction
 
-// Prepares the structure to pass to the handler that gets the option details.
+// It is intended for preparing the structure and then passing it to the handler to get a description of the variant.
 //
 // Parameters:
-//  CorrespondentName - String - a correspondent configuration name.
-//  CorrespondentVersion - String - a correspondent configuration version.
+//  CorrespondentName - String -  name of the corresponding configuration.
+//  CorrespondentVersion - String -  version of the corresponding configuration.
 //
 // Returns:
 //   Structure:
-//     * CorrespondentName - String - a correspondent configuration name.
-//     * CorrespondentVersion - String - a number of the peer infobase configuration version.
+//     * CorrespondentName - String -  name of the correspondent configuration.
+//     * CorrespondentVersion - String -  version number of the correspondent configuration.
 //
 Function ContextParametersOfSettingOptionDetailsReceipt(CorrespondentName, CorrespondentVersion) Export
 	
@@ -1167,52 +1165,39 @@ Function ContextParametersOfSettingOptionDetailsReceipt(CorrespondentName, Corre
 	
 EndFunction
 
-// Returns a flag indicating whether a data import is running in the subordinate node.
-//
-// Returns:
-//   Boolean
-//
-Function IsDIBDataImportInProgress() Export
-
-	SetPrivilegedMode(True);
-	
-	Return Constants.IsDIBDataImportInProgress.Get();
-	
-EndFunction
-
 #Region ConnectionToExternalSystemSettings
 
-// Saves connection settings to exchange with external system via EnterpriseData. 
+// Saves connection settings for sharing with an external system via EnterpriseData. 
 //
 // Parameters:
-//  Context - Structure - operation execution context:
-//    * Mode - String - a mode in which a handler is called.
-//                       Possible values: NewConnection | EditConnectionParameters.
+//  Context - Structure - :
+//    * Mode - String -  the mode in which the handler is called.
+//                       Possible values: "new Connection" | "edit connection Parameters".
 //    * Peer - ExchangePlanRef
-//                    - Undefined - an exchange node matching the correspondent.
-//                                     For the NewConnection mode it equals Undefined;
+//                    - Undefined - 
+//                                     
 //    * ExchangePlanName - String
-//                     - Undefined - a name of the exchange plan where node is created.
+//                     - Undefined - 
 //    * SettingID - String
-//                             - Undefined - a setting option ID
-//                                              as it is specified in the exchange plan manager module.
-//  ConnectionParameters - Structure - a structure of connection parameters:
-//    * CorrespondentID - String - a 36-character-long string
-//                                  - Undefined - a correspondent UUID.
+//                             - Undefined - 
+//                                              
+//  ConnectionParameters - Structure - :
+//    * CorrespondentID - String -  a 36-character string
+//                                  - Undefined -  unique identifier of the correspondent.
 //    * CorrespondentDescription - String
-//                                 - Undefined - a correspondent name as it will be displayed
-//                                                  in the list of configured synchronizations.
+//                                 - Undefined - 
+//                                                  
 //    * TransportSettings - Arbitrary
-//                          - Undefined - an arbitrary value describing connection parameters.
+//                          - Undefined - 
 //    * SynchronizationSchedule - JobSchedule
-//                              - Undefined - a schedule of synchronization startup.
+//                              - Undefined - 
 //    * XDTOSettings - Structure
-//                    - Undefined - A structure of peer's XDTO settings:
-//      ** SupportedVersions - Array - a list of format versions supported by the correspondent.
+//                    - Undefined - :
+//      ** SupportedVersions - Array -  list of the format versions supported by the correspondent.
 //      ** SupportedObjects - See DataExchangeXDTOServer.SupportedObjectsInFormat
 //  Result - Structure:
-//    * ExchangeNode - ExchangePlanRef - an exchange plan node matching the correspondent.
-//    * CorrespondentID - String - a correspondent UUID.
+//    * ExchangeNode - ExchangePlanRef -  exchange plan node corresponding to the correspondent.
+//    * CorrespondentID - String -  unique identifier of the correspondent.
 //
 Procedure OnSaveExternalSystemConnectionSettings(Context, ConnectionParameters, Result) Export
 	
@@ -1409,7 +1394,7 @@ Procedure OnSaveExternalSystemConnectionSettings(Context, ConnectionParameters, 
 	EndTry;
 	
 	If Context.Mode = "New_Connection" Then
-		// Sending formalized XDTO settings.
+		// 
 		ExchangeParameters = New Structure;
 		ExchangeParameters.Insert("ExecuteImport1",         False);
 		ExchangeParameters.Insert("ExecuteSettingsSending", True);
@@ -1451,20 +1436,20 @@ Procedure OnSaveExternalSystemConnectionSettings(Context, ConnectionParameters, 
 	
 EndProcedure
 
-// Fills saved parameter structure of connection to external system.
+// Fills in the structure of saved connection parameters to the external system.
 //
 // Parameters:
-//  Context - Structure - operation execution context:
-//    * Peer - ExchangePlanRef - an exchange node matching the correspondent.
-//  ConnectionParameters - Structure - a structure of connection parameters:
-//    * CorrespondentID - String - a 36-character-long string, a peer UUID.
-//    * CorrespondentDescription - String - a correspondent name as it is displayed
-//                                            in the list of configured synchronizations.
-//    * TransportSettings - Arbitrary - saved transport settings of external system exchange messages.
-//    * SynchronizationSchedule - JobSchedule - a schedule of automatic exchange startup.
+//  Context - Structure - :
+//    * Peer - ExchangePlanRef -  the exchange node corresponding to the correspondent.
+//  ConnectionParameters - Structure - :
+//    * CorrespondentID - String -  a 36-character string with a unique correspondent ID.
+//    * CorrespondentDescription - String -  the name of the correspondent, as it appears
+//                                            in the list of configured syncs.
+//    * TransportSettings - Arbitrary -  saved settings for the transport of exchange messages from the external system.
+//    * SynchronizationSchedule - JobSchedule -  schedule for automatic start of the exchange.
 //    * XDTOSettings - Structure
-//                    - Undefined - A structure of peer's XDTO settings:
-//      ** SupportedVersions - Array - a list of format versions supported by the correspondent.
+//                    - Undefined - :
+//      ** SupportedVersions - Array -  list of the format versions supported by the correspondent.
 //      ** SupportedObjects - See DataExchangeXDTOServer.SupportedObjectsInFormat.
 //
 Procedure OnGetExternalSystemConnectionSettings(Context, ConnectionParameters) Export
@@ -1488,12 +1473,12 @@ Procedure OnGetExternalSystemConnectionSettings(Context, ConnectionParameters) E
 	
 EndProcedure
 	
-// A table of exchange transport settings for all set data exchanges with external systems.
+// Table of exchange transport settings for all configured data exchanges with external systems.
 //
 // Returns:
 //  ValueTable:
-//    * Peer - ExchangePlanRef - an exchange node matching the correspondent.
-//    * TransportSettings - Arbitrary - saved transport settings of external system exchange messages.
+//    * Peer - ExchangePlanRef -  the exchange node corresponding to the correspondent.
+//    * TransportSettings - Arbitrary -  saved settings for the transport of exchange messages from the external system.
 //
 Function AllTransportSettingsOfExchangeWithExternalSystems() Export
 	
@@ -1558,23 +1543,23 @@ EndFunction
 
 #Region SaveDataSynchronizationSettings
 
-// Starts saving data synchronization settings in long-running operation.
-// On saving the settings, the data is transferred to the node of passed filling data exchange,
-// and synchronization setup completion flag is set.
-// We recommend you to use it in data synchronization setup wizard.
+// Starts saving data synchronization settings in a long operation.
+// When the settings are saved, the transmitted fill data is transferred to the exchange node,
+// and a sign is set that the synchronization configuration is completed.
+// We recommend using data synchronization settings in the assistant.
 // 
 // Parameters:
-//  SynchronizationSettings - Structure - parameter structure to save the settings:
-//   * ExchangeNode - ExchangePlanRef - an exchange plan node for which synchronization settings are being saved.
-//   * FillingData - Structure - arbitrary structure to fill settings on the node.
-//                                    It is passed to the OnSaveDataSynchronizationSettings algorithm, if any.
-//  HandlerParameters   - Structure - outgoing internal parameter. Reserved for internal use.
-//                                       It is intended to track the state of long-running operation.
-//                                       Initial value must be a form attribute of the Arbitrary type
-//                                       which is not used in any other operation.
-//  ContinueWait     - Boolean    - outgoing parameter. True, if setting saving is running in a long-running operation.
-//                                       In this case, to track the state, use procedure 
-//                                       DataExchangeServer.OnWaitSaveSynchronizationSettings.
+//  SynchronizationSettings - Structure - :
+//   * ExchangeNode - ExchangePlanRef -  the exchange plan node for which synchronization settings are saved.
+//   * FillingData - Structure -  custom structure for filling in settings on the node.
+//                                    It will be passed to the algorithm for "saving the data in sync" (if available).
+//  HandlerParameters   - Structure -  outgoing service parameter. Reserved for internal use.
+//                                       Used to track the status of a long-running operation.
+//                                       You should pass the "Custom" form details to the input
+//                                       , which are not used in any other operations.
+//  ContinueWait     - Boolean    -  outgoing parameter. True if saving the setting is started in a long operation.
+//                                       To track the status in this case, use the procedure 
+//                                       Abendanimation.When waiting for the save set-up to sync.
 //
 Procedure OnStartSaveSynchronizationSettings(SynchronizationSettings, HandlerParameters, ContinueWait = True) Export
 	
@@ -1584,19 +1569,19 @@ Procedure OnStartSaveSynchronizationSettings(SynchronizationSettings, HandlerPar
 	
 EndProcedure
 
-// It is used when waiting for data synchronization setup to complete.
-// Checks the status of a long-running operation of saving the settings. Returns a flag
-// indicating that it is necessary to continue waiting or reports that the saving operation is completed.
+// Used when waiting for the completion of the synchronization configuration data.
+// Checks the status of a long-running operation to save the setting, and returns a sign
+// that you need to continue waiting, or reports that the operation to save the setting is completed.
 // 
 // Parameters:
-//  HandlerParameters   - Structure - incoming/outgoing service parameter. Reserved for internal use.
-//                                       It is intended to track the state of long-running operation.
-//                                       Initial value must be a form attribute of the Arbitrary type
-//                                       used on starting synchronization setup
-//                                       by calling the DataExchangeServer.OnStartSaveSynchronizationSettings method.
-//  ContinueWait     - Boolean    - outgoing parameter. True if it is necessary to continue waiting for completion of
-//                                       synchronization settings saving, False - if
-//                                       synchronization setup is completed.
+//  HandlerParameters   - Structure -  incoming / outgoing service parameter. Reserved for internal use.
+//                                       Used to track the status of a long-running operation.
+//                                       The input should be passed the "Custom" form details
+//                                       that were used when starting the synchronization settings
+//                                       by calling the method Obmendannymiserver.At the beginning of saving, the synchronization settings are set up.
+//  ContinueWait     - Boolean    -  outgoing parameter. True if you need to continue waiting
+//                                       for the save sync setting operation to complete, False if
+//                                       the sync setting is completed.
 //
 Procedure OnWaitForSaveSynchronizationSettings(HandlerParameters, ContinueWait) Export
 
@@ -1605,22 +1590,22 @@ Procedure OnWaitForSaveSynchronizationSettings(HandlerParameters, ContinueWait) 
 	
 EndProcedure
 
-// Gets the status of synchronization setup completion. It is called, when procedure
-// DataExchangeServer.OnStartSaveSynchronizationSettings or DataExchangeServer.OnWaitSaveSynchronizationSettings
-// sets the ContinueWaiting flag to False.
+// Gets the status of completion of the synchronization setup operation. Invoked when the procedure
+// Abendanimation.At the beginning of the save, set up the sync or command Server.When
+// waiting for saving, the sync settings set the continue Waiting flag to False.
 // 
 // Parameters:
-//  HandlerParameters   - Structure - incoming service parameter. Reserved for internal use.
-//                                       It is intended to get the state of a long-running operation.
-//                                       Initial value must be a form attribute of the Arbitrary type
-//                                       used on starting synchronization setup
-//                                       by calling the DataExchangeServer.OnStartSaveSynchronizationSettings method.
-//  CompletionStatus       - Structure - an outgoing parameter that returns the state of completion of a long-running operation:
-//   * Cancel             - Boolean - True if an error occurred on startup or on execution of a long-running operation.
-//   * ErrorMessage - String - text of the error that occurred on executing a long-running operation if Cancel = True.
-//   * Result         - Structure - a state of synchronization settings saving:
-//    ** SettingsSaved - Boolean - True, if synchronization setup is successfully completed.
-//    ** ErrorMessage  - String - text of the error that occurred right in the synchronization settings saving transaction.
+//  HandlerParameters   - Structure -  incoming service parameter. Reserved for internal use.
+//                                       Used to get the status of a long operation.
+//                                       The input should be passed the "Custom" form details
+//                                       that were used when starting the synchronization settings
+//                                       by calling the method Obmendannymiserver.At the beginning of saving, the synchronization settings are set up.
+//  CompletionStatus       - Structure - :
+//   * Cancel             - Boolean -  True if an error occurred during startup or during a long operation.
+//   * ErrorMessage - String -  text of the error that occurred during a long operation, if Failure = True.
+//   * Result         - Structure - :
+//    ** SettingsSaved - Boolean -  True if the synchronization setup was completed successfully.
+//    ** ErrorMessage  - String -  text of the error that occurred directly in the transaction for saving the synchronization setting.
 //
 Procedure OnCompleteSaveSynchronizationSettings(HandlerParameters, CompletionStatus) Export
 	
@@ -1633,10 +1618,10 @@ EndProcedure
 
 #Region CommonInfobasesNodesSettings
 
-// Sets a flag of completing data synchronization setup.
+// Sets whether the data synchronization configuration is completed.
 //
 // Parameters:
-//   ExchangeNode - ExchangePlanRef - an exchange node to set the flag for.
+//   ExchangeNode - ExchangePlanRef -  the exchange node to set the attribute for.
 //
 Procedure CompleteDataSynchronizationSetup(ExchangeNode) Export
 	
@@ -1646,21 +1631,18 @@ Procedure CompleteDataSynchronizationSetup(ExchangeNode) Export
 		Return;
 	EndIf;
 	
+	SynchronizationSetupCompleted = True;
+	
 	BeginTransaction();
 	Try
 		
 		If Not SynchronizationSetupCompleted(ExchangeNode) Then
-			// Changes registered before syncing is configured are considered invalid as filters were not applied.
+			
+			SynchronizationSetupCompleted = False;
+			
+			// 
 			// 
 			ExchangePlans.DeleteChangeRecords(ExchangeNode);
-			
-			// You need to reset the flag of changes registration to send a message to the service manager again.
-			If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
-				
-				ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
-				ModuleDataExchangeSaaS.ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(False);
-				
-			EndIf;
 			
 		EndIf;
 		
@@ -1672,15 +1654,24 @@ Procedure CompleteDataSynchronizationSetup(ExchangeNode) Export
 		Raise;
 	EndTry;
 	
+	// 
+	If Not SynchronizationSetupCompleted
+		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
+		
+		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
+		ModuleDataExchangeSaaS.ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(False);	
+			
+	EndIf;
+	
 EndProcedure
 
-// Returns a flag of completing data synchronization setup for the exchange node.
+// Returns whether synchronization settings for the exchange node have been completed.
 //
 // Parameters:
-//   ExchangeNode - ExchangePlanRef - an exchange node to get a flag for.
+//   ExchangeNode - ExchangePlanRef -  the exchange node to get the attribute for.
 //
 // Returns:
-//   Boolean - True if synchronization setup for the passed node is completed.
+//   Boolean - 
 //
 Function SynchronizationSetupCompleted(ExchangeNode) Export
 	
@@ -1694,10 +1685,10 @@ Function SynchronizationSetupCompleted(ExchangeNode) Export
 	
 EndFunction
 
-// Indicates that DIB node initial image is created successfully.
+// Sets whether the initial image of the rib node was created successfully.
 //
 // Parameters:
-//   ExchangeNode - ExchangePlanRef - an exchange node to set the flag for.
+//   ExchangeNode - ExchangePlanRef -  the exchange node to set the attribute for.
 //
 Procedure CompleteInitialImageCreation(ExchangeNode) Export
 	
@@ -1709,18 +1700,18 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.SaaSOperations.DataExchangeSaaS
+// 
 
-// Returns a reference to the exchange plan node found by its code.
-// If the node is not found, Undefined is returned.
+// Returns a link to the exchange plan node found by its code.
+// If the node is not found, it returns Undefined.
 //
 // Parameters:
-//  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
-//  NodeCode - String - an exchange plan node code.
+//  ExchangePlanName - String -  name of the exchange plan as specified in the Configurator.
+//  NodeCode - String -  code of the exchange plan node.
 //
 // Returns:
-//  ExchangePlanRef - a reference to the found exchange plan node.
-//  Undefined - if the exchange plan node is not found.
+//  ExchangePlanRef - 
+//  
 //
 Function ExchangePlanNodeByCode(ExchangePlanName, NodeCode) Export
 	
@@ -1734,9 +1725,9 @@ Function ExchangePlanNodeByCode(ExchangePlanName, NodeCode) Export
 	
 EndFunction
 
-// Returns True if the session is started on a standalone workplace.
+// Returns True if the session is started in an offline workplace.
 // Returns:
-//  Boolean - indicates whether the session is started on a standalone workplace.
+//  Boolean - 
 //
 Function IsStandaloneWorkplace() Export
 	
@@ -1744,13 +1735,13 @@ Function IsStandaloneWorkplace() Export
 	
 EndFunction
 
-// Determines whether the passed exchange plan node is a standalone workstation.
+// Determines whether the transferred exchange plan node is a stand-alone workplace.
 //
 // Parameters:
-//  InfobaseNode - ExchangePlanRef - a node to be checked.
+//  InfobaseNode - ExchangePlanRef -  the node being checked.
 //
 // Returns:
-//  Boolean - indicates whether the passed node is a standalone workplace.
+//  Boolean - 
 //
 Function IsStandaloneWorkstationNode(Val InfobaseNode) Export
 	
@@ -1758,10 +1749,10 @@ Function IsStandaloneWorkstationNode(Val InfobaseNode) Export
 	
 EndFunction
 
-// Deletes a record set for the passed structure values from the register.
+// Deletes a set of entries in the register based on the passed structure values.
 //
 // Parameters:
-//  RecordStructure - Structure - a structure whose values are used to delete a record set.
+//  RecordStructure - Structure -  structure to delete a set of records based on its values.
 // 
 Procedure DeleteDataExchangesStateRecords(RecordStructure) Export
 	
@@ -1769,10 +1760,10 @@ Procedure DeleteDataExchangesStateRecords(RecordStructure) Export
 	
 EndProcedure
 
-// Deletes a record set for the passed structure values from the register.
+// Deletes a set of entries in the register based on the passed structure values.
 //
 // Parameters:
-//  RecordStructure - Structure - a structure whose values are used to delete a record set.
+//  RecordStructure - Structure -  structure to delete a set of records based on its values.
 // 
 Procedure DeleteSuccessfulDataExchangesStatesRecords(RecordStructure) Export
 	
@@ -1780,10 +1771,10 @@ Procedure DeleteSuccessfulDataExchangesStatesRecords(RecordStructure) Export
 	
 EndProcedure
 
-// Deletes 1C-supplied rules for the exchange plan (clears data in the register).
+// Deletes the supplied rules for the exchange plan (clears the data in the register).
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan for which the rules are being deleted.
+//  ExchangePlanName - String -  name of the exchange plan for which the rules are being deleted.
 //
 Procedure DeleteSuppliedRules(ExchangePlanName) Export
 	
@@ -1791,11 +1782,11 @@ Procedure DeleteSuppliedRules(ExchangePlanName) Export
 	
 EndProcedure
 
-// Imports 1C-supplied rules for the exchange plan.
+// Loads the supplied rules for the exchange plan.
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan for which the rules are being imported.
-//  RulesFileName - String - a full name of exchange rules file (ZIP).
+//  ExchangePlanName - String -  name of the exchange plan that the rules are being loaded for.
+//  RulesFileName - String -  full name of the exchange rules file (*. zip).
 //
 Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	
@@ -1803,16 +1794,16 @@ Procedure ImportSuppliedRules(ExchangePlanName, RulesFileName) Export
 	
 EndProcedure
 
-// Returns exchange setting ID matching the specific correspondent.
+// Returns the ID of the exchange setting corresponding to a specific correspondent.
 // 
 // Parameters:
-//   ExchangePlanName       - String - a name of an exchange plan used for exchange setup.
-//   CorrespondentVersion - String - a number of version of the correspondent to setup data exchange with.
-//   CorrespondentName    - String - a correspondent name (see the SourceConfigurationName function
-//                          in the correspondent configuration).
+//   ExchangePlanName       - String -  name of the exchange plan that is used to configure the exchange.
+//   CorrespondentVersion - String -  the version number of the correspondent with which the exchange is configured.
+//   CorrespondentName    - String -  the name of the correspondent (see the function configurename of the source
+//                          on the side of the correspondent configuration).
 //
 // Returns:
-//   Array of String - an array of strings with setting IDs for the correspondent.
+//   Array of String - 
 // 
 Function CorrespondentExchangeSettingsOptions(ExchangePlanName, CorrespondentVersion, CorrespondentName) Export
 	
@@ -1825,15 +1816,15 @@ Function CorrespondentExchangeSettingsOptions(ExchangePlanName, CorrespondentVer
 	
 EndFunction
 
-// Returns exchange setting ID matching the specific correspondent.
+// Returns the ID of the exchange setting corresponding to a specific correspondent.
 // 
 // Parameters:
-//  ExchangePlanName    - String - a name of an exchange plan used for exchange setup.
-//  CorrespondentName - String - a correspondent name (see the SourceConfigurationName function
-//                               in the correspondent configuration).
+//  ExchangePlanName    - String -  name of the exchange plan that is used to configure the exchange.
+//  CorrespondentName - String -  the name of the correspondent (see the function configurename of the source
+//                               on the side of the correspondent configuration).
 //
 // Returns:
-//  String - ID of data exchange setup.
+//  String - 
 // 
 Function ExchangeSetupOptionForCorrespondent(ExchangePlanName, CorrespondentName) Export
 	
@@ -1846,10 +1837,10 @@ Function ExchangeSetupOptionForCorrespondent(ExchangePlanName, CorrespondentName
 	
 EndFunction
 
-// Deletes 1C-supplied object registration rules for the given exchange plan (clears up data in the register).
+// 
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan for which the rules are being deleted.
+//  ExchangePlanName - String -  name of the exchange plan for which the rules are being deleted.
 //
 Procedure DeleteSuppliedObjectRegistrationRules(ExchangePlanName) Export
 	
@@ -1857,11 +1848,11 @@ Procedure DeleteSuppliedObjectRegistrationRules(ExchangePlanName) Export
 	
 EndProcedure
 
-// Imports 1C-supplied object registration rules for the given exchange plan.
+// 
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan for which the rules are being imported.
-//  RulesFileName - String - The full name of the object registration rules file (XML).
+//  ExchangePlanName - String -  name of the exchange plan that the rules are being loaded for.
+//  RulesFileName - String - 
 //
 Procedure DownloadSuppliedObjectRegistrationRules(ExchangePlanName, RulesFileName) Export
 	
@@ -1871,17 +1862,17 @@ Procedure DownloadSuppliedObjectRegistrationRules(ExchangePlanName, RulesFileNam
 	
 EndProcedure
 
-// End StandardSubsystems.SaaSOperations.DataExchangeSaaS
+// 
 
 #EndRegion
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Adds information on number of items per transaction set in the constant
-// to the structure that contains parameters of exchange message transport.
+// Deprecated. Adds information about the number of elements in a transaction set in a constant
+// to the structure containing parameters for the transport of exchange messages.
 //
 // Parameters:
-//  Result - Structure - contains parameters of exchange message transport.
+//  Result - Structure -  contains parameters for the transport of exchange messages.
 // 
 Procedure AddTransactionItemsCountToTransportSettings(Result) Export
 	
@@ -1889,13 +1880,13 @@ Procedure AddTransactionItemsCountToTransportSettings(Result) Export
 	
 EndProcedure
 
-// Deprecated. Obsolete. Returns the area number by the exchange plan node code (message exchange).
+// Deprecated. Returns the area number based on the node code of the exchange plan (messaging).
 // 
 // Parameters:
-//  NodeCode - String - an exchange plan node code.
+//  NodeCode - String -  code of the exchange plan node.
 // 
 // Returns:
-//  Number - area number.
+//  Number - 
 //
 Function DataAreaNumberFromExchangePlanNodeCode(Val NodeCode) Export
 	
@@ -1903,13 +1894,13 @@ Function DataAreaNumberFromExchangePlanNodeCode(Val NodeCode) Export
 	
 EndFunction
 
-// Deprecated. Obsolete. Returns data of the first record of query result as a structure.
+// Deprecated. Returns data from the first record of the query result as a structure.
 // 
 // Parameters:
-//  QueryResult - QueryResult - a query result containing the data to be processed.
+//  QueryResult - QueryResult -  the result of the request containing the data to be processed.
 // 
 // Returns:
-//  Structure - a structure with the result.
+//  Structure - 
 //
 Function QueryResultToStructure(Val QueryResult) Export
 	
@@ -1917,23 +1908,23 @@ Function QueryResultToStructure(Val QueryResult) Export
 	
 EndFunction
 
-// Deprecated. Obsolete. Use the ExchangePlanSettingValue function
-// by setting ParameterName to one of the following values:
-//  - NewDataExchangeCreationCommandTitle;
-//  - ExchangeCreateWizardTitle;
-//  - ExchangePlanNodeTitle;
-//  - CorrespondentConfigurationDescription.
+// Deprecated.
+// 
+//  
+//  
+//  
+//  
 //
-// Returns an overridable exchange plan name if set, 
-// depending on the predefined exchange setting.
+//  
+// 
 // Parameters:
-//   ExchangePlanNode         - ExchangePlanRef - an exchange plan node to get predefined
+//   ExchangePlanNode         - ExchangePlanRef -  the exchange plan node that you want to get an overridable
 //                                                name for.
-//   ParameterNameWithNodeName - String - a name of default parameter to get the node name from.
-//   SettingsMode        - String - exchange setup option.
+//   ParameterNameWithNodeName - String -  name of the parameter, in the default settings, from which to get the node name.
+//   SettingsMode        - String -  exchange settings option.
 //
 // Returns:
-//  String - a predefined exchange plan name as it is set in Designer.
+//  String - 
 //
 Function OverridableExchangePlanNodeName(Val ExchangePlanNode, ParameterNameWithNodeName, SettingsMode = "") Export
 	
@@ -1950,15 +1941,15 @@ Function OverridableExchangePlanNodeName(Val ExchangePlanNode, ParameterNameWith
 	
 EndFunction
 
-// Deprecated. Obsolete. Returns the count of unresolved data exchange issues. It is used to display
-// the number of exchange issues in the user interface. For example, it can be used in a hyperlink title
-// to navigate to the exchange issue monitor.
+// Deprecated.
+// 
+// 
 //
 // Parameters:
-//   Nodes - Array of ExchangePlanRef - exchange nodes.
+//   Nodes - Array of ExchangePlanRef -  exchange nodes.
 //
 // Returns:
-//   Number - the number of unresolved data exchange issues.
+//   Number - 
 // 
 Function UnresolvedIssuesCount(Nodes = Undefined) Export
 	
@@ -1966,15 +1957,15 @@ Function UnresolvedIssuesCount(Nodes = Undefined) Export
 	
 EndFunction
 
-// Deprecated. Obsolete. Returns a structure of title of the hyperlink to navigate to the data exchange issue monitor.
+// Deprecated.
 // 
 // Parameters:
-//   Nodes - Array of ExchangePlanRef - exchange nodes.
+//   Nodes - Array of ExchangePlanRef -  exchange nodes.
 //
 // Returns:
 //   Structure:
-//     * Title - String   - a hyperlink title.
-//     * Picture  - Picture - a picture for the hyperlink.
+//     * Title - String   -  the title of the hyperlink.
+//     * Picture  - Picture -  image for the hyperlink.
 //
 Function IssueMonitorHyperlinkTitleStructure(Nodes = Undefined) Export
 	
@@ -2009,7 +2000,7 @@ EndFunction
 
 #Region DifferentPurpose
 
-// Imports the priority data received from the master DIB node.
+// Loads priority data received from the main rib node.
 Procedure ImportPriorityDataToSubordinateDIBNode(Cancel = False) Export
 	
 	If DataExchangeInternal.DataExchangeMessageImportModeBeforeStart(
@@ -2076,7 +2067,7 @@ Procedure ImportPriorityDataToSubordinateDIBNode(Cancel = False) Export
 						DataExchangeCached.GetExchangePlanName(InfobaseNode));
 				EndIf;
 				
-				// Importing application parameters only.
+				// 
 				ExchangeParameters = ExchangeParameters();
 				ExchangeParameters.ExchangeMessagesTransportKind = TransportKind;
 				ExchangeParameters.ExecuteImport1 = True;
@@ -2128,8 +2119,8 @@ Procedure ImportPriorityDataToSubordinateDIBNode(Cancel = False) Export
 	
 EndProcedure
 
-// Sets the RetryDataExchangeMessageImportBeforeStart constant value to True.
-// Clears exchange messages received from the master node.
+// Sets whether the download will be repeated if there is a download or update error.
+// Clears the storage of the exchange message received from the main rib node.
 //
 Procedure EnableDataExchangeMessageImportRecurrenceBeforeStart() Export
 	
@@ -2139,8 +2130,8 @@ Procedure EnableDataExchangeMessageImportRecurrenceBeforeStart() Export
 	
 EndProcedure
 
-// Initializes the XML file to write information on objects
-// marked for update processing, to pass them to a subordinate DIB node.
+// Initializes an XML file to record information about objects
+// marked for update processing and pass them to a subordinate rib node.
 //
 Procedure InitializeUpdateDataFile(Parameters) Export
 	
@@ -2163,7 +2154,7 @@ Procedure InitializeUpdateDataFile(Parameters) Export
 	
 EndProcedure
 
-// Initializes the XML file to write information on objects.
+// Initializes an XML file to record information about objects.
 //
 Procedure WriteUpdateDataToFile(Parameters, Data, DataKind, FullObjectName = "") Export
 	
@@ -2228,8 +2219,8 @@ Procedure WriteUpdateDataToFile(Parameters, Data, DataKind, FullObjectName = "")
 
 EndProcedure
 
-// Executes registration in the subordinate DIB node with filtered
-// objects registered for deferred update in the master DIB node.
+// Performs registration in the subordinate rib node with filters
+// of objects registered for deferred update in the main rib node.
 //
 Procedure ProcessDataToUpdateInSubordinateNode(Val ConstantValue) Export
 	
@@ -2390,7 +2381,7 @@ Procedure ProcessDataToUpdateInSubordinateNode(Val ConstantValue) Export
 	
 EndProcedure
 
-// Closes the XML file with written information on objects
+// Closes an XML file with recorded information about objects
 // registered for deferred update.
 //
 Procedure CompleteWriteUpdateDataFile(Parameters) Export
@@ -2403,14 +2394,14 @@ Procedure CompleteWriteUpdateDataFile(Parameters) Export
 	
 EndProcedure
 
-// Closes the XML file with written information on objects
-// registered for deferred update and returns file content.
+// Closes an XML file with recorded information about objects
+// registered for deferred update and returns the contents of the file.
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters
 //
 // Returns:
-//  ValueStorage - file content.
+//  ValueStorage -  file contents.
 //
 Function CompleteWriteFileAndGetUpdateData(Parameters) Export
 	
@@ -2435,12 +2426,12 @@ Function CompleteWriteFileAndGetUpdateData(Parameters) Export
 	
 EndFunction
 
-// Saves file content from CompleteWriteFileAndGetUpdateData()
-// to the DataForDeferredUpdate constant.
+// Saves the contents of the file from finalrecordfile and get update Data()
+// to the data constant for the delayed Update.
 //
 // Parameters:
-//  UpdateData - ValueStorage - file content.
-//  NameOfChangedFile - String - a name of data file.
+//  UpdateData - ValueStorage -  file contents.
+//  NameOfChangedFile - String -  name of the file where the data was stored.
 //
 Procedure SaveUpdateData(UpdateData, NameOfChangedFile) Export
 	
@@ -2476,7 +2467,7 @@ Procedure SaveUpdateData(UpdateData, NameOfChangedFile) Export
 	
 EndProcedure
 
-// Clears the WriteChangesForSubordinateDIBNodeWithFilters constant value on update.
+// Resets the value of the write-change constant for the associated node Filters when updating.
 //
 Procedure ResetConstantValueWithChangesForSubordinateDIBNodeWithFilters() Export
 	
@@ -2484,8 +2475,8 @@ Procedure ResetConstantValueWithChangesForSubordinateDIBNodeWithFilters() Export
 	
 EndProcedure
 
-// Returns True if the DIB node setup is not completed and
-// it is required to update the application parameters that are not used in DIB.
+// Returns True if the configuration of the subordinate rib node is not completed and
+// the program parameters that are not involved in the rib need to be updated.
 //
 Function SubordinateDIBNodeSetup() Export
 	
@@ -2496,14 +2487,14 @@ Function SubordinateDIBNodeSetup() Export
 	
 EndFunction
 
-// Updates object conversion or registration rules.
-// Update is performed for all exchange plans that use SSL functionality.
-// Updates only standard rules.
-// Rules loaded from a file are not updated.
+// Updates the rules for converting/registering objects.
+// The update is performed for all exchange plans connected to the subsystem.
+// Rules are updated only for standard rules.
+// If the rules for the exchange plan were downloaded from a file, these rules are not updated.
 //
 Procedure UpdateDataExchangeRules() Export
 	
-	// If an exchange plan was renamed or deleted from the configuration.
+	// 
 	DeleteObsoleteRecordsFromDataExchangeRulesRegister();
 	
 	If Not Constants.UseDataSynchronization.Get()
@@ -2528,24 +2519,24 @@ Function TempFilesStorageDirectory() Export
 	
 EndFunction
 
-// Verifies the transport processor connection by the specified settings.
+// Checks whether transport processing is enabled according to the specified settings.
 //
 Procedure CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
 		SettingsStructure_, TransportKind, ErrorMessage = "", NewPasswords = Undefined) Export
 	
 	SetPrivilegedMode(True);
 	
-	// Creating a data processor object instance.
+	// 
 	DataProcessorObject = DataProcessors[DataExchangeMessageTransportDataProcessorName(TransportKind)].Create();
 	
-	// Initializing data processor properties by the passed settings parameters.
+	// 
 	FillPropertyValues(DataProcessorObject, SettingsStructure_);
 	
 	Peer = Undefined;
 	ThereIsCorrespondent = SettingsStructure_.Property("Peer", Peer)
 		Or SettingsStructure_.Property("CorrespondentEndpoint", Peer);
 		
-	// Privileged mode is set above.
+	// 
 	If ThereIsCorrespondent Then
 
 		ParametersString1 = "COMUserPassword, FTPConnectionPassword, WSPassword, ArchivePasswordExchangeMessages,
@@ -2568,10 +2559,10 @@ Procedure CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
 		
 	EndIf;
 	
-	// Initialize the exchange transport.
+	// 
 	DataProcessorObject.Initialize();
 	
-	// Check the connection.
+	// 
 	If Not DataProcessorObject.ConnectionIsSet() Then
 		
 		Cancel = True;
@@ -2596,15 +2587,15 @@ Procedure CheckExchangeManagementRights() Export
 	
 EndProcedure
 
-// Returns the current infobase master node
-// if the distributed infobase is created based on the exchange plan that is supported in the SSL data exchange subsystem.
+// Gets the node of the distributed information base that is the main one for the current information base, provided
+// that the distributed information base is created on the basis of the exchange plan served by the BSP data exchange subsystem.
 //
 // Returns:
-//  ПланОбменаСсылка.<ИмяПланаОбмена>, Undefined - this method returns Undefined in the following cases: - the current infobase is not
-//   a DIB node, -
-//   the master node is not defined (this infobase is the master node), -
-//   distributed infobase is created based on an exchange plan that is not supported in the SSL data
-//   exchange subsystem.
+//  ПланОбменаСсылка.<ИмяПланаОбмена>, Undefined - 
+//   
+//   
+//   
+//   
 //
 Function MasterNode() Export
 	
@@ -2630,15 +2621,15 @@ Procedure OnContinueSubordinateDIBNodeSetup() Export
 	
 EndProcedure
 
-// Returns the flag that shows whether a user has rights to perform the data synchronization.
-// A user can perform data synchronization if it has either full access
-// or rights of the "Data synchronization with other applications" 1C-supplied profile.
+// Returns whether the user has rights to perform data synchronization.
+// Data synchronization can be performed either by a full-fledged user,
+// or by a user with the rights of the supplied profile "data Synchronization with other programs".
 //
 //  Parameters:
 // User - InfoBaseUser
 //              - Undefined
-// This user is used to define whether the data synchronization is available.
-// If this parameter is not set, the current infobase user is used to calculate the function result.
+// The user for whom you want to calculate the attribute for allowing the use of data synchronization.
+// If the parameter is not specified, the function is calculated for the current user of the information database.
 //
 Function DataSynchronizationPermitted(Val User = Undefined) Export
 	
@@ -2664,9 +2655,9 @@ EndFunction
 
 // Parameters:
 //   Receiver - ValueTable
-//            - TabularSection -  destination data.
+//            - TabularSection - 
 //   Source - ValueTable
-//            - TabularSection - data source.
+//            - TabularSection -  data source.
 //
 Procedure FillValueTable(Receiver, Val Source) Export
 	Receiver.Clear();
@@ -2736,7 +2727,7 @@ Function ExchangePlanNodeCodeString(Value) Export
 	Return Value;
 EndFunction
 
-// Gets the secure connection parameter.
+// Receives the option of a secured connection.
 //
 Function SecureConnection(Path) Export
 	
@@ -2748,7 +2739,7 @@ Procedure RegisterDataForInitialExport(InfobaseNode, Data = Undefined, DeleteMap
 	
 	SetPrivilegedMode(True);
 	
-	// Updating cached object registration mechanism values.
+	// 
 	DataExchangeInternal.CheckObjectsRegistrationMechanismCache();
 	
 	StandardProcessing = True;
@@ -2781,7 +2772,7 @@ Procedure RegisterDataForInitialExport(InfobaseNode, Data = Undefined, DeleteMap
 		
 	EndIf;
 	
-	// Setting the initial data export flag for the node.
+	// 
 	InformationRegisters.CommonInfobasesNodesSettings.SetInitialDataExportFlag(InfobaseNode);
 	
 EndProcedure
@@ -2868,7 +2859,7 @@ Function GetFilterSettingsValues(ExternalConnectionSettingsStructure) Export
 	
 	Result = New Structure;
 	
-	// Object types.
+	// 
 	For Each FilterSettings In ExternalConnectionSettingsStructure Do
 		
 		If TypeOf(FilterSettings.Value) = Type("Structure") Then
@@ -2927,7 +2918,7 @@ Function GetFilterSettingsValues(ExternalConnectionSettingsStructure) Export
 		
 	EndDo;
 	
-	// Primitive types.
+	// 
 	For Each FilterSettings In ExternalConnectionSettingsStructure Do
 		
 		If TypeOf(FilterSettings.Value) = Type("Structure") Then
@@ -2976,7 +2967,7 @@ Function GetFilterSettingsValues(ExternalConnectionSettingsStructure) Export
 				
 			EndIf;
 			
-			// Escape the enumeration.
+			// 
 			If TypeOf(FilterSettings.Value) = Type("String")
 				And (     StrFind(FilterSettings.Value, "Enum.") <> 0
 					Or StrFind(FilterSettings.Value, "Enumeration.") <> 0) Then
@@ -3010,11 +3001,11 @@ Function InfoBaseAdmParams(Val ExchangePlanName,
 	Result.Insert("DefaultInfobaseDescription", "");
 	Result.Insert("AccountingParametersSettingsAreSpecified",            False);
 	Result.Insert("ThisNodeCode",                              "");
-	// SSL version 2.1.5.1 or later.
+	// 
 	Result.Insert("ConfigurationVersion",                        Metadata.Version);
-	// SSL version 2.4.2(?) or later.
+	// 
 	Result.Insert("NodeExists",                            False);
-	// SSL version 3.0.1.1 or later.
+	// 
 	Result.Insert("DataExchangeSettingsFormatVersion",        ModuleDataExchangeCreationWizard().DataExchangeSettingsFormatVersion());
 	Result.Insert("UsePrefixesForExchangeSettings",    True);
 	Result.Insert("ExchangeFormat",                              "");
@@ -3034,7 +3025,10 @@ Function InfoBaseAdmParams(Val ExchangePlanName,
 		And AdditionalParameters <> Undefined
 		And AdditionalParameters.Property("IsXDTOExchangePlan") Then
 		
-		ExchangePlan = FindNameOfExchangePlanThroughUniversalFormat(ExchangePlanName);
+		SettingID = Undefined;
+		AdditionalParameters.Property("SettingID", SettingID);
+		
+		ExchangePlan = FindNameOfExchangePlanThroughUniversalFormat(ExchangePlanName, SettingID);
 			
 		Result.ExchangePlanExists = ValueIsFilled(ExchangePlan);
 		Result.ExchangePlanName = ExchangePlan;
@@ -3100,10 +3094,10 @@ Function InfoBaseAdmParams(Val ExchangePlanName,
 	
 EndFunction
 
-// Returns True if update is required for the subordinate DIB node infobase configuration.
-// Always False for the master node.
+// Returns True if the configuration of the information base of the subordinate rib node needs to be updated.
+// In the main node, it is always False.
 // 
-// Copy of the Common.SubordinateDIBNodeConfigurationUpdateRequired function.
+// A copy of the General purpose function.You need to update the configuration of the assigned node.
 // 
 Function UpdateInstallationRequired() Export
 	
@@ -3112,19 +3106,19 @@ Function UpdateInstallationRequired() Export
 	
 EndFunction
 
-// Prepares the structure to pass to the handler that gets the setting options.
+// It is intended for preparing the structure and then passing it to the handler for getting configuration options.
 //
 // Parameters:
-//  CorrespondentName - String - a correspondent configuration name.
-//  CorrespondentVersion - String - a correspondent configuration version.
+//  CorrespondentName - String -  name of the corresponding configuration.
+//  CorrespondentVersion - String -  version of the corresponding configuration.
 //  CorrespondentInSaaS - Boolean
-//                              - Undefined - shows that correspondent is in SaaS.
+//                              - Undefined -  indicates that the correspondent is in the service model.
 //
 // Returns:
 //   Structure:
-//     * CorrespondentVersion - String - a number of the peer infobase configuration version.
-//     * CorrespondentName - String - a correspondent configuration name.
-//     * CorrespondentInSaaS - Boolean - True if the peer operates in SaaS mode.
+//     * CorrespondentVersion - String -  version number of the correspondent configuration.
+//     * CorrespondentName - String -  name of the correspondent configuration.
+//     * CorrespondentInSaaS - Boolean -  True if the correspondent works in the service model.
 //
 Function ContextParametersOfSettingsOptionsReceipt(CorrespondentName, CorrespondentVersion, CorrespondentInSaaS) Export
 	
@@ -3137,15 +3131,15 @@ Function ContextParametersOfSettingsOptionsReceipt(CorrespondentName, Correspond
 	
 EndFunction
 
-// Returns an empty table of the exchange setup options.
+// Returns an empty table of exchange configuration options.
 //
 // Returns:
 //   ValueTable:
-//     * SettingID        - String - setting ID.
-//     * CorrespondentInSaaS   - Boolean - True if a setup of the exchange 
-//                                                with a peer working in SaaS mode is supported.
-//     * CorrespondentInLocalMode - Boolean - True if a setup of the exchange 
-//                                                with a peer working in a hosted mode is supported.
+//     * SettingID        - String -  ID of the setting.
+//     * CorrespondentInSaaS   - Boolean -  True if the exchange setting
+//                                                with a correspondent working in the service model is supported.
+//     * CorrespondentInLocalMode - Boolean -  True if the exchange setting
+//                                                with a correspondent working in local mode is supported.
 //
 Function ExchangeSettingsOptionsCollection() Export
 	
@@ -3158,15 +3152,15 @@ Function ExchangeSettingsOptionsCollection() Export
 	
 EndFunction
 
-// Getting file by its ID.
+// Getting a file by its ID.
 //
 // Parameters:
-//  FileID - UUID - an ID of the file being received.
-//  WSPassiveModeFileIB - Boolean - indicates that the file is received in the file infobase upon setting up the WS
-//                                        connection in a passive mode
+//  FileID - UUID -  ID of the received file.
+//  WSPassiveModeFileIB - Boolean -  a sign that the file is received in the file information system when configuring the WS
+//                                        connection in passive mode
 //
 // Returns:
-//  ИмяФайла - String - a file name.
+//  ИмяФайла - 
 //
 Function GetFileFromStorage(Val FileID, WSPassiveModeFileIB = False) Export
 	
@@ -3197,12 +3191,12 @@ EndFunction
 // Saving file.
 //
 // Parameters:
-//  FileName               - String - a file name.
-//  FileID     - UUID - a file ID. If the ID is specified,
-//                           it is used on saving the file. Otherwise, a new value is generated.
+//  FileName               - String - 
+//  FileID     - UUID -  file identifier. If set,
+//                           this value will be used when saving the file, otherwise a new one will be generated.
 //
 // Returns:
-//  UUID - file ID.
+//  UUID -   file identifier.
 //
 Function PutFileInStorage(Val FileName, Val FileID = Undefined) Export
 	
@@ -3230,10 +3224,10 @@ Function PutFileInStorage(Val FileName, Val FileID = Undefined) Export
 	
 EndFunction
 
-// Structure of details of the standard export addition options.
+// Structure of the description of standard options for uploading extensions.
 //
 // Returns:
-//   Structure - A set of export add-on options:
+//   Structure - :
 //     * OptionDoNotAdd - See StandardOptionDetailsWithoutAddition
 //     * AllDocumentsOption - See StandardOptionDetailsAllDocuments
 //     * ArbitraryFilterOption - See StandardOptionDetailsCustomFilter
@@ -3256,7 +3250,7 @@ Procedure CheckWhetherTheExchangeCanBeStarted(ExchangeNode, Cancel) Export
 	
 	Try
 		
-		// The check mustn't set or remove locks.
+		// 
 		LockDataForEdit(ExchangeNode);
 		UnlockDataForEdit(ExchangeNode);
 		
@@ -3329,11 +3323,11 @@ Function DataTransferRestrictionsDetails(Val ExchangePlanName, Val Setting, Val 
 	
 EndFunction
 
-// Returns the flag indicating whether the specified procedure or function is available in the exchange plan manager module.
-// Calculated by exchange plan settings, the Algorithms property (see the comment to "DefaultExchangePlanSettings").
+// 
+// 
 // Parameters:
-//  AlgorithmName - String - a name of procedure / function.
-//  ExchangePlanName - String - an exchange plan name.
+//  AlgorithmName - String -  name of the procedure / function.
+//  ExchangePlanName - String -  name of the exchange plan.
 // Returns:
 //   Boolean
 //
@@ -3352,15 +3346,15 @@ EndFunction
 
 #Region ProgressBar
 
-// Calculates export progress and writes as a message to user.
+// Calculates the upload percentage and writes it as a message to the user.
 //
 // Parameters:
-//  ExportedCount       - Number - a number of objects exported at the moment.
-//  ObjectsToExportCount - Number - number of objects to export.
+//  ExportedCount       - Number -  the number of objects currently uploaded.
+//  ObjectsToExportCount - Number -  the number of objects to be uploaded.
 //
 Procedure CalculateExportPercent(ExportedCount, ObjectsToExportCount) Export
 	
-	// Showing export progress message every 100 objects.
+	// 
 	If ExportedCount = 0 Or ExportedCount / 100 <> Int(ExportedCount / 100) Then
 		Return;
 	EndIf;
@@ -3370,7 +3364,7 @@ Procedure CalculateExportPercent(ExportedCount, ObjectsToExportCount) Export
 		Template = NStr("en = '%1 objects processed.';");
 		Text = StringFunctionsClientServer.SubstituteParametersToString(Template, Format(ExportedCount, "NZ=0; NG="));
 	Else
-		// Reserving 5% of the bar for export by references, calculating the number percent basing on 95.
+		// 
 		ProgressPercent = Round(Min(ExportedCount * 95 / ObjectsToExportCount, 95));
 		Template = NStr("en = '%1 out of %2 objects processed.';");
 		Text = StringFunctionsClientServer.SubstituteParametersToString(
@@ -3379,33 +3373,33 @@ Procedure CalculateExportPercent(ExportedCount, ObjectsToExportCount) Export
 			Format(ObjectsToExportCount, "NZ=0; NG="));
 	EndIf;
 	
-	// Register a message to read it from the client session.
+	// 
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("DataExchange", True);
 	
 	TimeConsumingOperations.ReportProgress(ProgressPercent, Text, AdditionalParameters);
 EndProcedure
 
-// Calculates import progress and writes as a message to user.
+// Calculates the download percentage and writes it as a message to the user.
 //
 // Parameters:
-//  ExportedCount1       - Number - a number of objects imported at the moment.
-//  ObjectsToImportCount - Number - a number of objects to import.
-//  ExchangeMessageFileSize  - Number - the size of exchange message file in megabytes.
+//  ExportedCount1       - Number -  the number of currently loaded objects.
+//  ObjectsToImportCount - Number -  the number of objects to load.
+//  ExchangeMessageFileSize  - Number -  the size of the exchange message file, in megabytes.
 //
 Procedure CalculateImportPercent(ExportedCount1, ObjectsToImportCount, ExchangeMessageFileSize) Export
-	// Showing import progress message every 10 objects.
+	// 
 	If ExportedCount1 = 0 Or ExportedCount1 / 10 <> Int(ExportedCount1 / 10) Then
 		Return;
 	EndIf;
 
 	If ObjectsToImportCount = 0 Then
-		// It is possible when importing through COM connection if progress bar is not used on the other side.
+		// 
 		ProgressPercent = 95;
 		Template = NStr("en = '%1 objects processed.';");
 		Text = StringFunctionsClientServer.SubstituteParametersToString(Template, Format(ExportedCount1, "NZ=0; NG="));
 	Else
-		// Reserving 5% of the bar for deferred filling, calculating number percent based on 95.
+		// 
 		ProgressPercent = Round(Min(ExportedCount1 * 95 / ObjectsToImportCount, 95));
 		
 		Template = NStr("en = '%1 out of %2 objects processed.';");
@@ -3415,14 +3409,14 @@ Procedure CalculateImportPercent(ExportedCount1, ObjectsToImportCount, ExchangeM
 			Format(ObjectsToImportCount, "NZ=0; NG="));
 	EndIf;
 	
-	// Add file size.
+	// 
 	If ExchangeMessageFileSize <> 0 Then
 		Template = NStr("en = 'Message size: %1 MB';");
 		TextAddition = StringFunctionsClientServer.SubstituteParametersToString(Template, ExchangeMessageFileSize);
 		Text = Text + " " + TextAddition;
 	EndIf;
 	
-	// Register a message to read it from the client session.
+	// 
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("DataExchange", True);
 	
@@ -3430,7 +3424,7 @@ Procedure CalculateImportPercent(ExportedCount1, ObjectsToImportCount, ExchangeM
 
 EndProcedure
 
-// Increasing counter of exported objects and calculating export percent. Only for DIB.
+// Increasing the counter of uploaded objects and calculating the percentage of uploads. Only for rib.
 //
 // Parameters:
 //   Recipient - ExchangePlanObject
@@ -3443,13 +3437,13 @@ Procedure CalculateDIBDataExportPercentage(Recipient, InitialImageCreating) Expo
 		Return;
 	EndIf;
 	
-	// Counting the number of objects to be exported.
+	// 
 	If Not Recipient.AdditionalProperties.Property("ObjectsToExportCount") Then
 		ObjectsToExportCount = 0;
 		If InitialImageCreating Then
 			ObjectsToExportCount = CalculateObjectsCountInInfobase(Recipient);
 		Else
-			// Extracting the total number of objects to be exported.
+			// 
 			CurrentSessionParameter = Undefined;
 			SetPrivilegedMode(True);
 			Try
@@ -3468,7 +3462,7 @@ Procedure CalculateDIBDataExportPercentage(Recipient, InitialImageCreating) Expo
 		EndIf;
 		Recipient.AdditionalProperties.Insert("ObjectsToExportCount", ObjectsToExportCount);
 		Recipient.AdditionalProperties.Insert("ExportedObjectCounter", 1);
-		Return; // In this case, there is no need to calculate export percent. This is the very beginning of export.
+		Return; // 
 	Else
 		If Recipient.AdditionalProperties.Property("ExportedObjectCounter") Then
 			Recipient.AdditionalProperties.ExportedObjectCounter = Recipient.AdditionalProperties.ExportedObjectCounter + 1;
@@ -3481,7 +3475,7 @@ Procedure CalculateDIBDataExportPercentage(Recipient, InitialImageCreating) Expo
 		Recipient.AdditionalProperties.ObjectsToExportCount);
 EndProcedure
 
-// Increasing counter of imported objects and calculating import percent. Only for DIB.
+// Increasing the counter of loaded objects and calculating the percentage of loading. Only for rib.
 //
 // Parameters:
 //   Sender - ExchangePlanObject
@@ -3494,7 +3488,7 @@ Procedure CalculateDIBDataImportPercentage(Sender) Export
 	EndIf;
 	If Not Sender.AdditionalProperties.Property("ObjectsToImportCount")
 		Or Not Sender.AdditionalProperties.Property("ExchangeMessageFileSize") Then
-		// Extracting a total number of objects to be imported and the size of the exchange message file.
+		// 
 		CurrentSessionParameter = Undefined;
 		SetPrivilegedMode(True);
 		Try
@@ -3527,19 +3521,19 @@ Procedure CalculateDIBDataImportPercentage(Sender) Export
 	
 EndProcedure
 
-// Analyzes data to import:
-// Calculates the number of objects to be imported, the size of exchange message file, and other service data.
+// Analyzes data to upload:
+// Calculates the number of objects to upload, the size of the exchange message file, and other service data.
 // Parameters:
-//  ExchangeFileName - String - exchange message file name.
-//  IsXDTOExchange - Boolean - indicates that exchange via universal format is being executed.
+//  ExchangeFileName - String -   the file name of the exchange message.
+//  IsXDTOExchange - Boolean -  indicates that the exchange is being performed using a universal format.
 // 
 // Returns:
 //  Structure:
-//    * ExchangeMessageFileSize  - Number - the size of the exchange message file in megabytes, 0 by default.
-//    * ObjectsToImportCount - Number - number of objects to import, 0 by default.
-//    * From - String - code of message sender node.
-//    * To - String - code of message recipient node.
-//    * NewFrom - String - a sender node code in new format (to convert current exchanges to a new encoding).
+//    * ExchangeMessageFileSize  - Number -  the file size, in megabytes, is 0 by default.
+//    * ObjectsToImportCount - Number -  the number of objects to load, by default 0.
+//    * From - String -  code of the sending node.
+//    * To - String -  code of the recipient node of the message.
+//    * NewFrom - String -  code of the sending node in the new format (for converting existing exchanges to the new encoding).
 //
 Function DataAnalysisResultToExport(Val ExchangeFileName, IsXDTOExchange, IsDIBExchange1 = False) Export
 	
@@ -3561,21 +3555,21 @@ Function DataAnalysisResultToExport(Val ExchangeFileName, IsXDTOExchange, IsDIBE
 	
 	ExchangeFile = New XMLReader;
 	Try
-		// Converting the size to megabytes.
+		// 
 		Result.ExchangeMessageFileSize = Round(FileWithData.Size() / 1048576, 1);
 		ExchangeFile.OpenFile(ExchangeFileName);
 	Except
 		Return Result;
 	EndTry;
 	
-	// The algorithm of exchange file analysis depends on exchange kind.
+	// 
 	If IsXDTOExchange Then
 		ExchangeFile.Read(); // Message.
-		ExchangeFile.Read();  // Header start.
+		ExchangeFile.Read();  // 
 		StartObjectsAccount = False;
 		While ExchangeFile.Read() Do
 			If ExchangeFile.LocalName = "Header" Then
-				// Header is read.
+				// 
 				StartObjectsAccount = True;
 				ExchangeFile.Skip(); 
 			ElsIf ExchangeFile.LocalName = "Confirmation" Then
@@ -3603,9 +3597,9 @@ Function DataAnalysisResultToExport(Val ExchangeFileName, IsXDTOExchange, IsDIBE
 
 	ElsIf IsDIBExchange1 Then
 		ExchangeFile.Read(); // Message.
-		ExchangeFile.Read();  // Header start.
-		ExchangeFile.Skip(); // Header end.
-		ExchangeFile.Read(); //Body start.
+		ExchangeFile.Read();  // 
+		ExchangeFile.Skip(); // 
+		ExchangeFile.Read();
 		While ExchangeFile.Read() Do
 			If ExchangeFile.LocalName = "Changes"
 				Or ExchangeFile.LocalName = "Data" Then
@@ -3621,15 +3615,15 @@ Function DataAnalysisResultToExport(Val ExchangeFileName, IsXDTOExchange, IsDIBE
 		EndDo;	
 	Else
 		
-		ExchangeFile.Read(); // Exchange file.
-		ExchangeFile.Read();  // ExchangeRules start.
-		ExchangeFile.Skip(); // ExchangeRules end.
+		ExchangeFile.Read(); // 
+		ExchangeFile.Read();  // 
+		ExchangeFile.Skip(); // 
 
-		ExchangeFile.Read();  // DataTypes start.
-		ExchangeFile.Skip(); // DataTypes end.
+		ExchangeFile.Read();  // 
+		ExchangeFile.Skip(); // 
 
-		ExchangeFile.Read();  // Exchange data start.
-		ExchangeFile.Skip(); // Exchange data end.
+		ExchangeFile.Read();  // 
+		ExchangeFile.Skip(); // 
 		While ExchangeFile.Read() Do
 			If ExchangeFile.LocalName = "Object"
 				Or ExchangeFile.LocalName = "RegisterRecordSet"
@@ -3677,25 +3671,25 @@ Function FTPConnectionSetup(Val Timeout = 180) Export
 	Return Result;
 EndFunction
 
-// Returns server name and FTP server path. This data is gotten from FTP server connection string.
+// Returns the server name and path on the FTP server obtained from the connection string to the FTP resource.
 //
 // Parameters:
-//  StringForConnection - String - an FTP resource connection string.
+//  StringForConnection - String -  connection string for the FTP resource.
 // 
 // Returns:
-//  Structure - FTP server connection settings. Structure fields are::
-//              Server - String - The server name.
-//              Path - String - The server path.
+//  Structure - :
+//              
+//              
 //
-//  Example 1:
-// Result = FTPServerNameAndPath("ftp://server");
-// Result.Server = "server";
-// Result.Path = "/";
+//  
+// 
+// 
+// 
 //
-//  Example 2:
-// Result = FTPServerNameAndPath("ftp://server/saas/obmen");
-// Result.Server = "server";
-// Result.Path = "/saas/obmen/";
+//  
+// 
+// 
+// 
 //
 Function FTPServerNameAndPath(Val StringForConnection) Export
 	
@@ -3812,8 +3806,8 @@ Function NodeIDForExchange(ExchangeNode) Export
 		
 		If Not IsBlankString(ThisNodePrefix)
 			And StrLen(NodeCode) <= 2 Then
-			// For identification purposes, treat the prefix specified
-			// during the connection setting creation as a code.
+			// 
+			// 
 			NodeCode = ThisNodePrefix;
 		EndIf;
 		
@@ -3832,8 +3826,8 @@ Function CorrespondentNodeIDForExchange(ExchangeNode) Export
 		
 		If StrLen(NodeCode) <= 2
 			And Not IsBlankString(NodePrefixes.CorrespondentPrefix) Then
-			// For identification purposes, treat the prefix specified
-			// during the connection setting creation as a code.
+			// 
+			// 
 			NodeCode = TrimAll(NodePrefixes.CorrespondentPrefix);
 		EndIf;
 	EndIf;
@@ -3842,13 +3836,13 @@ Function CorrespondentNodeIDForExchange(ExchangeNode) Export
 	
 EndFunction
 
-// Determines whether the SSL exchange plan is a separated one.
+// Determines whether the BSP exchange plan is split.
 //
 // Parameters:
-//  ExchangePlanName - String - a name of the exchange plan to check.
+//  ExchangePlanName - String -  name of the exchange plan being checked.
 //
 // Returns:
-//  Type - boolean
+//  Type - Boolean
 //
 Function IsSeparatedSSLExchangePlan(Val ExchangePlanName) Export
 	
@@ -3856,9 +3850,9 @@ Function IsSeparatedSSLExchangePlan(Val ExchangePlanName) Export
 	
 EndFunction
 
-// Creates a dataset of modified data for passing to an exchange plan node.
-// If the method is called from an active transaction, an exception is raised.
-// See the "ExchangePlansManager.SelectChanges" method in Syntax Assistant.
+// 
+// 
+// 
 //
 Function SelectChanges(Val Node, Val MessageNo, Val SelectionFilter = Undefined) Export
 	
@@ -4116,7 +4110,7 @@ Function ExchangeParameters() Export
 	
 EndFunction
 
-// Obsolete. Instead, use DataExchangeWebService.GetWSProxyByConnectionParameters 
+//  
 Function GetWSProxyByConnectionParameters(
 					SettingsStructure_,
 					ErrorMessageString = "",
@@ -4133,13 +4127,13 @@ Function GetWSProxyByConnectionParameters(
 	
 EndFunction
 
-// Determines whether the exchange plan is in the list of exchange plans that use XDTO data exchange.
+// Determines whether the exchange plan is included in the list of exchange plans that use data exchange in the XDTO format.
 //
 // Parameters:
-//  ExchangePlan - ExchangePlanRef - a reference to the exchange plan node or the exchange plan name.
+//  ExchangePlan - ExchangePlanRef -  link to the exchange plan node or exchange plan name.
 //
 // Returns:
-//  Boolean - True if an exchange plan is used to exchange data by XDTO format.
+//  Boolean - 
 //
 Function IsXDTOExchangePlan(ExchangePlan) Export
 	
@@ -4147,10 +4141,10 @@ Function IsXDTOExchangePlan(ExchangePlan) Export
 	
 EndFunction
 
-// Deletes data synchronization setting.
+// Performs actions to delete the data synchronization setting.
 // 
 // Parameters:
-//   InfobaseNode - ExchangePlanRef - a reference to the exchange plan node to be deleted.
+//   InfobaseNode - ExchangePlanRef -  link to the exchange plan node to delete.
 // 
 Procedure DeleteSynchronizationSetting(InfobaseNode) Export
 	
@@ -4188,10 +4182,10 @@ Procedure DeleteSynchronizationSetting(InfobaseNode) Export
 	
 EndProcedure
 
-// Deletes setting of data synchronization with master DIB node.
+// Performs the procedure to delete configuration data synchronization with the main node of the rib.
 // 
 // Parameters:
-//   InfobaseNode - ExchangePlanRef - a reference to the master node.
+//   InfobaseNode - ExchangePlanRef -  link to the main node.
 // 
 Procedure DeleteSynchronizationSettingsForMasterDIBNode(InfobaseNode) Export
 	
@@ -4206,13 +4200,13 @@ Procedure DeleteSynchronizationSettingsForMasterDIBNode(InfobaseNode) Export
 	
 EndProcedure
 
-// Sets the Load parameter value for the DataExchange object property.
+// Sets the value of the "Load" parameter for the object's "Tricked" property.
 //
 // Parameters:
-//  Object - Arbitrary - an object whose property is being set.
-//  Value - Boolean - a value of the Import property being set.
-//  SendBack - Boolean - shows that data must be registered to send it back.
-//  ExchangeNode - ExchangePlanRef - shows that data must be registered to send it back.
+//  Object - Arbitrary -  the object for which the property is set.
+//  Value - Boolean -  the value of the "Upload" property to set.
+//  SendBack - Boolean -  indicates whether data needs to be registered for sending back.
+//  ExchangeNode - ExchangePlanRef -  indicates whether data needs to be registered for sending back.
 //
 Procedure SetDataExchangeLoad(Object, Value = True, SendBack = False, ExchangeNode = Undefined) Export
 	
@@ -4239,10 +4233,10 @@ Function ExchangePlanPurpose(ExchangePlanName) Export
 	
 EndFunction
 
-// Procedure of deleting existing document register records upon reposting (posting cancellation).
+// The procedure for removal of the existing movements of the document when reposting (cancel conduct).
 //
 // Parameters:
-//   DocumentObject - DocumentObject - a document whose register records must be deleted.
+//   DocumentObject - DocumentObject -  the document whose movements you want to delete.
 //
 Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 	
@@ -4252,11 +4246,11 @@ Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 		DocumentObject.AdditionalProperties.Property("DataSynchronizationViaAUniversalFormatDeletingRegisteredRecords")
 			And (DocumentObject.AdditionalProperties.DataSynchronizationViaAUniversalFormatDeletingRegisteredRecords = True);
 	
-	// Getting a list of registers with existing records.
+	// 
 	RegisterRecordTable = DetermineDocumentHasRegisterRecords(DocumentObject.Ref);
 	
 	For Each RegisterRecordRow In RegisterRecordTable Do
-		// Pass the register's name as a value obtained by the "FullName" function.
+		// 
 		// 
 		FullRegisterName = RegisterRecordRow.RegisterTableName;
 		
@@ -4265,7 +4259,7 @@ Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 		Set = Common.ObjectManagerByFullName(FullRegisterName).CreateRecordSet();
 		
 		If Not AccessRight("Update", Set.Metadata()) Then
-			// Insufficient access rights for the entire register table.
+			// 
 			ExceptionText = NStr("en = 'Access rights violation: %1';");
 			ExceptionText = StringFunctionsClientServer.SubstituteParametersToString(ExceptionText, FullRegisterName);
 			Raise ExceptionText;
@@ -4273,8 +4267,8 @@ Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 		
 		DataExchangeInternal.SetFilterItemValue(Set.Filter, "Recorder", DocumentObject.Ref);
 		
-		// Hold off on writing the set to avoid rolling back the transaction
-		// in case the user has insufficient rights.
+		// 
+		// 
 		RegisterRecordRow.RecordSet = Set;
 		
 	EndDo;
@@ -4285,7 +4279,7 @@ Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 		For Each RegisterRecordRow In RecordTableRowToProcessArray Do
 			Try
 				
-				Set = RegisterRecordRow.RecordSet; // AccumulationRegisterRecordSet and others.
+				Set = RegisterRecordRow.RecordSet; // 
 				If InsertAnAdditionalParameterForDeletingRegisteredRecords Then
 					
 					Set.AdditionalProperties.Insert("DataSynchronizationViaAUniversalFormatDeletingRegisteredRecords", True);
@@ -4296,7 +4290,7 @@ Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 				
 			Except
 				
-				// Probably, the record-level restriction or the Period-end closing date subsystem was triggered.
+				// 
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Operation failed: %1
 					|%2';"),
@@ -4317,7 +4311,7 @@ Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 		EndIf;
 	EndDo;
 	
-	// Deleting registration records from all sequences.
+	// 
 	If DocumentObject.Metadata().SequenceFilling = Metadata.ObjectProperties.SequenceFilling.AutoFill Then
 		For Each SequenceRecordSet In DocumentObject.BelongingToSequences Do
 			If SequenceRecordSet.Count() > 0 Then
@@ -4328,10 +4322,10 @@ Procedure DeleteDocumentRegisterRecords(DocumentObject) Export
 
 EndProcedure
 
-// Indicates whether it is necessary to import data exchange message.
+// Returns whether the data exchange message needs to be loaded.
 //
 // Returns:
-//   Boolean - if True, the message is to be imported. Otherwise, False.
+//   Boolean - 
 //
 Function LoadDataExchangeMessage() Export
 	
@@ -4341,7 +4335,7 @@ Function LoadDataExchangeMessage() Export
 	
 EndFunction
 
-// Initializes columns of object registration rule table by properties.
+// Initializes columns in the registration rules table by properties.
 //
 //  Returns:
 //    ValueTree
@@ -4352,7 +4346,7 @@ Function FilterByExchangePlanPropertiesTableInitialization() Export
 
 EndFunction
 
-// Initializes columns of object registration rule table by properties.
+// Initializes columns in the registration rules table by properties.
 //
 //  Returns:
 //    ValueTree
@@ -4568,7 +4562,7 @@ EndProcedure
 // See AccessManagementOverridable.OnFillSuppliedAccessGroupProfiles
 Procedure OnFillSuppliedAccessGroupProfiles(ProfilesDetails, ParametersOfUpdate) Export
 	
-	// "Data synchronization with other applications" profile.
+	// 
 	ProfileDetails = Common.CommonModule("AccessManagement").NewAccessGroupProfileDescription();
 	ProfileDetails.Parent      = "AdditionalProfiles";
 	ProfileDetails.Id = DataSynchronizationWithOtherApplicationsAccessProfile();
@@ -4578,7 +4572,7 @@ Procedure OnFillSuppliedAccessGroupProfiles(ProfilesDetails, ParametersOfUpdate)
 		NStr("en = 'The profile is assigned to users that are allowed
 		           |to run and monitor data synchronization.';");
 	
-	// Basic profile features.
+	// 
 	ProfileRoles = StrSplit(DataSynchronizationWithOtherApplicationsAccessProfileRoles(), ",");
 	For Each Role In ProfileRoles Do
 		ProfileDetails.Roles.Add(TrimAll(Role));
@@ -4629,6 +4623,7 @@ EndProcedure
 // See CommonOverridable.OnAddReferenceSearchExceptions.
 Procedure OnAddReferenceSearchExceptions(RefSearchExclusions) Export
 	
+	RefSearchExclusions.Add(Metadata.InformationRegisters.ObjectsDataToRegisterInExchanges.FullName());
 	RefSearchExclusions.Add(Metadata.InformationRegisters.DataExchangeResults.FullName());
 	
 EndProcedure
@@ -4785,7 +4780,7 @@ Function ExchangeSettingsForInfobaseNode(
 	ExchangeMessagesTransportKind,
 	UseTransportSettings = True) Export
 	
-	// Function return value.
+	// 
 	ExchangeSettingsStructure = BaseExchangeSettingsStructure();
 	
 	ExchangeSettingsStructure.InfobaseNode = InfobaseNode;
@@ -4797,22 +4792,22 @@ Function ExchangeSettingsForInfobaseNode(
 	
 	SetDebugModeSettingsForStructure(ExchangeSettingsStructure);
 	
-	// Validate settings structure values for the data exchange. Log errors.
+	// 
 	CheckExchangeStructure(ExchangeSettingsStructure, UseTransportSettings);
 	
-	// Canceling if settings contain errors.
+	// 
 	If ExchangeSettingsStructure.Cancel Then
 		Return ExchangeSettingsStructure;
 	EndIf;
 	
 	If UseTransportSettings Then
 		
-		// Initializing the exchange message transport data processor.
+		// 
 		InitExchangeMessageTransportDataProcessor(ExchangeSettingsStructure);
 		
 	EndIf;
 	
-	// Initializing the exchange data processor.
+	// 
 	If ExchangeSettingsStructure.IsDIBExchange Then
 		
 		InitDataExchangeDataProcessor(ExchangeSettingsStructure);
@@ -4899,7 +4894,7 @@ Procedure ExecuteDataExchangeForInfobaseNodeOverFileOrString(ExchangeParameters)
 		Raise ErrorMessageString;
 	EndIf;
 	
-	// DATA EXCHANGE INITIALIZATION
+	// 
 	ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(
 		ExchangeParameters.InfobaseNode, ExchangeParameters.ActionOnExchange, Undefined, False);
 	If ValueIsFilled(ExchangeParameters.OperationStartDate) Then
@@ -4934,7 +4929,7 @@ Procedure ExecuteDataExchangeForInfobaseNodeOverFileOrString(ExchangeParameters)
 		
 		ReadMessageWithNodeChanges(ExchangeSettingsStructure, ExchangeParameters.FullNameOfExchangeMessageFile, ExchangeParameters.ExchangeMessage);
 		
-		// {Handler: AfterReadExchangeMessage} Start
+		// 
 		StandardProcessing = True;
 		
 		AfterReadExchangeMessage(
@@ -4942,7 +4937,7 @@ Procedure ExecuteDataExchangeForInfobaseNodeOverFileOrString(ExchangeParameters)
 					ExchangeParameters.FullNameOfExchangeMessageFile,
 					ExchangeExecutionResultCompleted(ExchangeSettingsStructure.ExchangeExecutionResult),
 					StandardProcessing);
-		// {Handler: AfterReadExchangeMessage} End
+		// 
 		
 		If TemporaryFileCreated Then
 			
@@ -4968,22 +4963,22 @@ Procedure ExecuteDataExchangeForInfobaseNodeOverFileOrString(ExchangeParameters)
 	
 EndProcedure
 
-// Writes infobase node changes to file in the temporary directory.
+// Writes changes to the database node to a file in the temporary directory.
 //
 // Parameters:
-//  ExchangeSettingsStructure - Structure - a structure with all necessary data and objects to execute exchange.
+//  ExchangeSettingsStructure - Structure -  a structure with all the necessary data and objects to perform the exchange.
 // 
 Procedure WriteMessageWithNodeChanges(ExchangeSettingsStructure, Val ExchangeMessageFileName = "", ExchangeMessage = "") Export
 	
-	If ExchangeSettingsStructure.IsDIBExchange Then // DIB data exchange.
+	If ExchangeSettingsStructure.IsDIBExchange Then // 
 		
 		Cancel = False;
 		ErrorMessage = "";
 		
-		// Getting the exchange data processor.
+		// 
 		DataExchangeDataProcessor = ExchangeSettingsStructure.DataExchangeDataProcessor;
 		
-		// Specifying a name of the exchange message file to be read.
+		// 
 		DataExchangeDataProcessor.SetExchangeMessageFileName(ExchangeMessageFileName);
 		
 		DataExchangeDataProcessor.RunDataExport(Cancel, ErrorMessage);
@@ -4997,7 +4992,7 @@ Procedure WriteMessageWithNodeChanges(ExchangeSettingsStructure, Val ExchangeMes
 		
 	Else
 		
-		// {Handler: OnDataExport} Start. Override the standard export processing.
+		// 
 		StandardProcessing         = True;
 		ProcessedObjectsCount = 0;
 		
@@ -5039,9 +5034,9 @@ Procedure WriteMessageWithNodeChanges(ExchangeSettingsStructure, Val ExchangeMes
 			ExchangeSettingsStructure.ProcessedObjectsCount = ProcessedObjectsCount;
 			Return;
 		EndIf;
-		// {Handler: OnDataExport} End
+		// 
 		
-		// Universal exchange (exchange using conversion rules).
+		// 
 		If ExchangeSettingsStructure.ExchangeByObjectConversionRules Then
 			
 			GenerateExchangeMessage = IsBlankString(ExchangeMessageFileName);
@@ -5049,11 +5044,11 @@ Procedure WriteMessageWithNodeChanges(ExchangeSettingsStructure, Val ExchangeMes
 				ExchangeMessageFileName = GetTempFileName(".xml");
 			EndIf;
 			
-			// Get the initialized data exchange processor.
+			// 
 			DataExchangeXMLDataProcessor = ExchangeSettingsStructure.DataExchangeDataProcessor; //DataProcessorObject.ConvertXTDOObjects
 			DataExchangeXMLDataProcessor.ExchangeFileName = ExchangeMessageFileName;
 			
-			// Export data.
+			// 
 			Try
 				DataExchangeXMLDataProcessor.RunDataExport();
 			Except
@@ -5076,12 +5071,12 @@ Procedure WriteMessageWithNodeChanges(ExchangeSettingsStructure, Val ExchangeMes
 			
 			ExchangeSettingsStructure.ExchangeExecutionResult = DataExchangeXMLDataProcessor.ExchangeExecutionResult();
 			
-			// Committing data exchange state.
+			// 
 			ExchangeSettingsStructure.ProcessedObjectsCount = DataExchangeXMLDataProcessor.ExportedObjectCounter();
 			ExchangeSettingsStructure.MessageOnExchange           = DataExchangeXMLDataProcessor.CommentOnDataExport;
 			ExchangeSettingsStructure.ErrorMessageString      = DataExchangeXMLDataProcessor.ErrorMessageString();
 			
-		Else // Standard exchange (platform serialization).
+		Else // 
 			
 			Cancel = False;
 			ProcessedObjectsCount = 0;
@@ -5118,22 +5113,22 @@ Procedure WriteMessageWithNodeChanges(ExchangeSettingsStructure, Val ExchangeMes
 	
 EndProcedure
 
-// Gets an exchange message with new data and imports the data to the infobase.
+// Receives an exchange message with new data and uploads the data to the information database.
 //
 // Parameters:
-//  ExchangeSettingsStructure - Structure - a structure with all necessary data and objects to execute exchange.
+//  ExchangeSettingsStructure - Structure -  a structure with all the necessary data and objects to perform the exchange.
 // 
 Procedure ReadMessageWithNodeChanges(ExchangeSettingsStructure,
 		Val ExchangeMessageFileName = "", ExchangeMessage = "", Val ParametersOnly = False) Export
 	
-	If ExchangeSettingsStructure.IsDIBExchange Then // DIB data exchange.
+	If ExchangeSettingsStructure.IsDIBExchange Then // 
 		
 		Cancel = False;
 		
-		// Getting the exchange data processor.
+		// 
 		DataExchangeDataProcessor = ExchangeSettingsStructure.DataExchangeDataProcessor; //DataProcessorObject.DistributedInfobasesObjectsConversion
 		
-		// Specifying a name of the exchange message file to be read.
+		// 
 		DataExchangeDataProcessor.SetExchangeMessageFileName(ExchangeMessageFileName);
 		
 		ErrorMessage = "";
@@ -5146,7 +5141,7 @@ Procedure ReadMessageWithNodeChanges(ExchangeSettingsStructure,
 		
 	Else
 		
-		// {Handler: OnDataImport} Start. Override the standard import processing.
+		// 
 		StandardProcessing         = True;
 		ProcessedObjectsCount = 0;
 		
@@ -5187,16 +5182,16 @@ Procedure ReadMessageWithNodeChanges(ExchangeSettingsStructure,
 			ExchangeSettingsStructure.ProcessedObjectsCount = ProcessedObjectsCount;
 			Return;
 		EndIf;
-		// {Handler: OnDataImport} End
+		// 
 		
-		// Universal exchange (exchange using conversion rules).
+		// 
 		If ExchangeSettingsStructure.ExchangeByObjectConversionRules Then
 			
-			// Get the initialized data exchange processor.
+			// 
 			DataExchangeXMLDataProcessor = ExchangeSettingsStructure.DataExchangeDataProcessor; //DataProcessorObject.ConvertXTDOObjects
 			DataExchangeXMLDataProcessor.ExchangeFileName = ExchangeMessageFileName;
 			
-			// Importing data.
+			// 
 			If DataExchangeCached.IsXDTOExchangePlan(ExchangeSettingsStructure.ExchangePlanName) Then
 				ImportParameters = New Structure;
 				ImportParameters.Insert("DataExchangeWithExternalSystem",
@@ -5216,12 +5211,12 @@ Procedure ReadMessageWithNodeChanges(ExchangeSettingsStructure,
 			
 			ExchangeSettingsStructure.ExchangeExecutionResult = DataExchangeXMLDataProcessor.ExchangeExecutionResult();
 			
-			// Committing data exchange state.
+			// 
 			ExchangeSettingsStructure.ProcessedObjectsCount = DataExchangeXMLDataProcessor.ImportedObjectCounter();
 			ExchangeSettingsStructure.MessageOnExchange           = DataExchangeXMLDataProcessor.CommentOnDataImport;
 			ExchangeSettingsStructure.ErrorMessageString      = DataExchangeXMLDataProcessor.ErrorMessageString();
 			
-		Else // Standard exchange (platform serialization).
+		Else // 
 			
 			ProcessedObjectsCount = 0;
 			ExchangeExecutionResult = Undefined;
@@ -5248,12 +5243,12 @@ EndProcedure
 
 #Region InteractiveExportChange
 
-// Saves settings with the specified name, according to the ExportAddition values.
+// Saves the settings with the specified name according to the data of the upload Add-on.
 //
 // Parameters:
 //     ExportAddition     - Structure
-//                            - РеквизитФормыКоллекция - export parameters details.
-//     SettingPresentation - String                            - a name of the setting to save.
+//                            - РеквизитФормыКоллекция - 
+//     SettingPresentation - String                            -  name of the saved setting.
 //
 Procedure InteractiveExportChangeSaveSettings(ExportAddition, Val SettingPresentation) Export
 	
@@ -5264,7 +5259,7 @@ Procedure InteractiveExportChangeSaveSettings(ExportAddition, Val SettingPresent
 	FillValueTable(AdditionDataProcessor.AdditionalRegistration,             ExportAddition.AdditionalRegistration);
 	FillValueTable(AdditionDataProcessor.AdditionalNodeScenarioRegistration, ExportAddition.AdditionalNodeScenarioRegistration);
 	
-	// Specifying settings composer options again.
+	// 
 	Data = AdditionDataProcessor.CommonFilterSettingsComposer();
 	
 	If IsBlankString(ExportAddition.AllDocumentsComposerAddress) Then
@@ -5278,25 +5273,25 @@ Procedure InteractiveExportChangeSaveSettings(ExportAddition, Val SettingPresent
 	AdditionDataProcessor.AllDocumentsFilterComposer.Initialize( New DataCompositionAvailableSettingsSource(Data.CompositionSchema) );
 	AdditionDataProcessor.AllDocumentsFilterComposer.LoadSettings(SettingsSource);
 	
-	// Save.
+	// 
 	AdditionDataProcessor.SaveCurrentValuesInSettings(SettingPresentation);
 	
-	// Current presentation of saved settings.
+	// 
 	ExportAddition.CurrentSettingsItemPresentation = SettingPresentation;
 	
 EndProcedure
 
-// Name to save and restore settings upon interactive export addition.
+// Name for saving and restoring settings for an interactive upload extension.
 //
 Function ExportAdditionSettingsAutoSavingName() Export
 	Return NStr("en = 'Last data sent (autosaved)';");
 EndFunction
 
-// Carries out additional registration of objects by settings.
+// Performs additional registration of objects by settings.
 //
 // Parameters:
 //     ExportAddition     - Structure
-//                            - FormDataCollection - export parameters details.
+//                            - FormDataCollection - 
 //
 Procedure InteractiveExportChangeRegisterAdditionalData(Val ExportAddition) Export
 	
@@ -5308,17 +5303,17 @@ Procedure InteractiveExportChangeRegisterAdditionalData(Val ExportAddition) Expo
 	FillPropertyValues(ObjectOfReport, ExportAddition,,"AdditionalRegistration, AdditionalNodeScenarioRegistration");
 		
 	If ObjectOfReport.ExportOption=1 Then
-		// Period with filter, additional option is empty.
+		// 
 		
 	ElsIf ExportAddition.ExportOption=2 Then
-		// Detailed settings.
+		// 
 		ObjectOfReport.AllDocumentsFilterComposer = Undefined;
 		ObjectOfReport.AllDocumentsFilterPeriod      = Undefined;
 		
 		FillValueTable(ObjectOfReport.AdditionalRegistration, ExportAddition.AdditionalRegistration);
 		
 	ElsIf ExportAddition.ExportOption=3 Then
-		// According to the node scenario, simulating a detailed option.
+		// 
 		ObjectOfReport.ExportOption = 2;
 		
 		ObjectOfReport.AllDocumentsFilterComposer = Undefined;
@@ -5334,19 +5329,19 @@ EndProcedure
 
 #Region Common
 
-// Registers that the exchange was carried out and records information in the protocol.
+// Registers that the exchange was made and records the information in the Protocol.
 //
 // Parameters:
-//  ExchangeSettingsStructure - Structure - a structure with all necessary data and objects to execute exchange.
+//  ExchangeSettingsStructure - Structure -  a structure with all the necessary data and objects to perform the exchange.
 // 
 Procedure WriteExchangeFinish(ExchangeSettingsStructure) Export
 	
-	// The Undefined status at the end of exchange indicates that the exchange has been performed successfully.
+	// 
 	If ExchangeSettingsStructure.ExchangeExecutionResult = Undefined Then
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Completed2;
 	EndIf;
 	
-	// Generating a final message to be written.
+	// 
 	If ExchangeSettingsStructure.IsDIBExchange Then
 		MessageString = NStr("en = '%1, %2';", Common.DefaultLanguageCode());
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString,
@@ -5364,10 +5359,10 @@ Procedure WriteExchangeFinish(ExchangeSettingsStructure) Export
 	
 	SetPrivilegedMode(True);
 	
-	// Writing the exchange state to the information register.
+	// 
 	WriteExchangeFinishToInformationRegister(ExchangeSettingsStructure);
 	
-	// If the data exchange has been completed successfully.
+	// 
 	If ExchangeExecutionResultCompleted(ExchangeSettingsStructure.ExchangeExecutionResult) Then
 		
 		AddSuccessfulDataExchangeMessageToInformationRegister(ExchangeSettingsStructure);
@@ -5392,7 +5387,7 @@ Procedure RecordExchangeStartInInformationRegister(ExchangeSettingsStructure) Ex
 	
 EndProcedure
 
-// Creates a record in the event log about a data exchange event or an exchange message transport.
+// Creates a log entry about the data exchange event/transport of exchange messages.
 //
 Procedure WriteEventLogDataExchange(Comment, ExchangeSettingsStructure, IsError = False) Export
 	
@@ -5412,7 +5407,7 @@ Procedure WriteEventLogDataExchange(Comment, ExchangeSettingsStructure, IsError 
 	
 EndProcedure
 
-// Returns the flag of successful data exchange completion.
+// Returns whether the data exchange was successful.
 //
 Function ExchangeExecutionResultCompleted(ExchangeExecutionResult) Export
 	
@@ -5431,24 +5426,33 @@ Function UniqueExchangeMessageFileName(Extension = "xml") Export
 	Return Result;
 EndFunction
 
-Function FindNameOfExchangePlanThroughUniversalFormat(Val OriginalNameOfExchangePlan) Export
+Function FindNameOfExchangePlanThroughUniversalFormat(ExchangePlanName, SettingID) Export
 	
-	ExchangePlanName = DataExchangeFormatTranslationCached.BroadcastName(OriginalNameOfExchangePlan, "en");
+	FoundName = DataExchangeFormatTranslationCached.BroadcastName(ExchangePlanName, "en");
 	
-	If Metadata.ExchangePlans.Find(ExchangePlanName) <> Undefined Then
-		Return ExchangePlanName;
+	If Metadata.ExchangePlans.Find(FoundName) = Undefined Then
+		FoundName = "";
 	EndIf;
+	
+	If FoundName = "" Then
 
-	For Each ExchangePlan In DataExchangeCached.SSLExchangePlans() Do
-		
-		If DataExchangeCached.IsXDTOExchangePlan(ExchangePlan)
-			And DataExchangeCached.ThisIsGlobalExchangeThroughUniversalFormat(ExchangePlan) Then
-				
-			Return ExchangePlan;
+		For Each ExchangePlan In DataExchangeCached.SSLExchangePlans() Do
 			
-		EndIf;
+			If DataExchangeCached.IsXDTOExchangePlan(ExchangePlan)
+				And DataExchangeCached.ThisIsGlobalExchangeThroughUniversalFormat(ExchangePlan) Then
+					
+				FoundName = ExchangePlan;
+				
+			EndIf;
+			
+		EndDo;
 		
-	EndDo;
+	EndIf;
+	
+	DataExchangeOverridable.WhenSearchingForNameOfExchangePlanThroughUniversalFormat(
+		ExchangePlanName, SettingID, FoundName);
+		
+	Return FoundName;
 	
 EndFunction
 
@@ -5619,13 +5623,13 @@ Procedure ExecuteDeferredDocumentsPosting(
 		ExchangeComponents = Undefined) Export
 	
 	If DocumentsForDeferredPosting.Count() = 0 Then
-		Return; // The queue is empty
+		Return; // 
 	EndIf;
 	
-	// Collapsing the table by unique fields.
+	// 
 	DocumentsForDeferredPosting.GroupBy("DocumentRef, DocumentDate");
 	
-	// Sorting the documents by dates ascending.
+	// 
 	ObjectOfComparison = New CompareValues;
 	DocumentsForDeferredPosting.Sort("DocumentDate, DocumentRef", ObjectOfComparison);
 	
@@ -5689,8 +5693,8 @@ Procedure ExecuteDocumentPostingOnImport(
 		
 		Object = DocumentRef.GetObject();
 		
-		// Set the sender node to prevent registering objects on the import node.
-		// Post documents using the non-import mode.
+		// 
+		// 
 		SetDataExchangeLoad(Object, False, False, CorrespondentNode);
 		
 		If AdditionalObjectProperties <> Undefined Then
@@ -5703,15 +5707,15 @@ Procedure ExecuteDocumentPostingOnImport(
 		
 		If Object.CheckFilling() Then
 			
-			// When posting a document, allow running the object registration rules
-			// (the rules are ignored during the ordinary recording to optimize data writing speed).
+			// 
+			// 
 			If Object.AdditionalProperties.Property("DisableObjectChangeRecordMechanism") Then
 				Object.AdditionalProperties.Delete("DisableObjectChangeRecordMechanism");
 			EndIf;
 			
 			Object.AdditionalProperties.Insert("SkipPeriodClosingCheck");
 			
-			// Trying to post a document.
+			// 
 			Object.Write(DocumentWriteMode.Posting);
 			
 			DocumentPostedSuccessfully = Object.Posted;
@@ -5739,7 +5743,7 @@ EndProcedure
 Procedure ExecuteDeferredObjectsWrite(ObjectsForDeferredPosting, CorrespondentNode, ExchangeComponents = Undefined) Export
 	
 	If ObjectsForDeferredPosting.Count() = 0 Then
-		Return; // No objects in the queue.
+		Return; // 
 	EndIf;
 	
 	PeriodEndClosingDatesCheckDisabled = PeriodEndClosingDatesCheckDisabled();
@@ -5769,8 +5773,8 @@ Procedure ExecuteDeferredObjectsWrite(ObjectsForDeferredPosting, CorrespondentNo
 				
 				Object = MapObject.Key.GetObject();
 			
-				// Set the sender node to prevent registering objects on the import node.
-				// Post documents using the non-import mode.
+				// 
+				// 
 				SetDataExchangeLoad(Object, False, False, CorrespondentNode);
 				
 				AdditionalProperties = MapObject.Value;
@@ -5785,15 +5789,15 @@ Procedure ExecuteDeferredObjectsWrite(ObjectsForDeferredPosting, CorrespondentNo
 				
 				If Object.CheckFilling() Then
 					
-					// When posting a document, allow running the object registration rules
-					// (the rules are ignored during the ordinary recording to optimize data writing speed).
+					// 
+					// 
 					If Object.AdditionalProperties.Property("DisableObjectChangeRecordMechanism") Then
 						Object.AdditionalProperties.Delete("DisableObjectChangeRecordMechanism");
 					EndIf;
 					
 					Object.AdditionalProperties.Insert("SkipPeriodClosingCheck");
 					
-					// Attempting to write the object.
+					// 
 					ObjectVersionInfo = Undefined;
 					If Object.AdditionalProperties.Property("ObjectVersionInfo", ObjectVersionInfo) Then
 						DataExchangeEvents.OnCreateObjectVersion(Object, ObjectVersionInfo, True, CorrespondentNode);
@@ -5919,10 +5923,10 @@ Procedure SetDefaultDataImportTransactionItemsCount() Export
 	
 EndProcedure
 
-// Fills in separated data handler that depends on shared data change.
+// Fills in the split data handler that depends on changes to the undivided data.
 //
 // Parameters:
-//   Parameters - Structure - parameters of the update handler:
+//   Parameters - Structure - :
 //     * SeparatedHandlers - See InfobaseUpdate.NewUpdateHandlerTable
 // 
 Procedure FillSeparatedDataHandlers(Parameters = Undefined) Export
@@ -5977,9 +5981,9 @@ Procedure SetPredefinedNodeCodes() Export
 			
 			PredefinedNodeCode = TrimAll(Common.ObjectAttributeValue(NodeRef1, "Code"));
 			If Not ValueIsFilled(PredefinedNodeCode)
-				// Migration to a new node encoding was not carried out.
+				// 
 				Or StrLen(PredefinedNodeCode) < 36
-				// Re-encoding is required because the code is generated using CTL logic.
+				// 
 				Or PredefinedNodeCode = CodeFromSaaSMode Then
 				
 				DataExchangeUUID = String(New UUID);
@@ -5992,7 +5996,7 @@ Procedure SetPredefinedNodeCodes() Export
 				ObjectNode.Write();
 				
 				If ValueIsFilled(PredefinedNodeCode) Then
-					// Saving the previous node code to the register of virtual codes.
+					// 
 					QueryText = 
 					"SELECT
 					|	T.Ref AS Ref
@@ -6030,7 +6034,7 @@ Procedure SetPredefinedNodeCodes() Export
 	
 EndProcedure
 
-// Deletes the DataSynchronizationSetup role from all profiles that include it.
+// Deletes the data synchronization Settings role from all profiles that it belongs to.
 Procedure DeleteDataSynchronizationSetupRole() Export
 	
 	If Not Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -6066,7 +6070,7 @@ Procedure SetUpMessageArchivingAutomatedWorkstation() Export
 			Settings.FilesCount = 1;
 			Settings.StoreOnDisk = False;
 			Settings.ShouldCompressFiles = True;
-			Settings.Write();  // ACC:1363 - The settings are excluded from the exchange scope 
+			Settings.Write();  //  
 			
 		EndIf;
 	
@@ -6078,25 +6082,25 @@ EndProcedure
 
 #Region ExchangeMessages
 
-// Gets an exchange message to OS user's temporary directory.
+// Gets the exchange message to the temporary directory of the OS user.
 //
 // Parameters:
-//  Cancel                        - Boolean - indicates whether an error occurred on data exchange.
-//  InfobaseNode       - ExchangePlanRef - an exchange plan node for which the
-//                                                    exchange message is being received.
-//  ExchangeMessagesTransportKind - EnumRef.ExchangeMessagesTransportTypes - Transport type used to receive
-//                                                                                    exchange messages.
-//  OutputMessages            - Boolean - if True, user messages are displayed.
+//  Cancel                        - Boolean -  failure flag; raised if an error occurs.
+//  InfobaseNode       - ExchangePlanRef -  the exchange plan node for which the exchange message is being received
+//                                                    .
+//  ExchangeMessagesTransportKind - EnumRef.ExchangeMessagesTransportTypes -  mode of transport for receiving
+//                                                                                    the exchange message.
+//  OutputMessages            - Boolean -  if True, messages are displayed to the user.
 //
 //  Returns:
 //   Structure with the following keys:
-//     * TempExchangeMessagesDirectoryName - a full name of the exchange directory that stores the exchange message.
-//     * ExchangeMessageFileName              - a full name of the exchange message file.
-//     * DataPackageFileID       - date of changing the exchange message file.
+//     * time_name of the exchange message Catalog - the full name of the exchange folder where the exchange message was uploaded.
+//     * Exchange message file_name - the full file name of the exchange message.
+//     * ID of the data packagefile - the date when the exchange message file was modified.
 //
 Function GetExchangeMessageToTemporaryDirectory(Cancel, InfobaseNode, ExchangeMessagesTransportKind, OutputMessages = True) Export
 	
-	// Function return value.
+	// 
 	Result = New Structure;
 	Result.Insert("TempExchangeMessagesDirectoryName", "");
 	Result.Insert("ExchangeMessageFileName",              "");
@@ -6106,7 +6110,7 @@ Function GetExchangeMessageToTemporaryDirectory(Cancel, InfobaseNode, ExchangeMe
 	
 	ExchangeSettingsStructure.ExchangeExecutionResult = Undefined;
 	
-	// If the setting contains errors, canceling exchange message receiving and setting the exchange status to Canceled.
+	// 
 	If ExchangeSettingsStructure.Cancel Then
 		
 		If OutputMessages Then
@@ -6118,12 +6122,12 @@ Function GetExchangeMessageToTemporaryDirectory(Cancel, InfobaseNode, ExchangeMe
 		Return Result;
 	EndIf;
 	
-	// Create a temporary directory.
+	// 
 	ExecuteExchangeMessageTransportBeforeProcessing(ExchangeSettingsStructure);
 	
 	If ExchangeSettingsStructure.ExchangeExecutionResult = Undefined Then
 		
-		// Receiving a message and putting it in the temporary directory.
+		// 
 		ExecuteExchangeMessageTransportReceiving(ExchangeSettingsStructure);
 		
 	EndIf;
@@ -6135,7 +6139,7 @@ Function GetExchangeMessageToTemporaryDirectory(Cancel, InfobaseNode, ExchangeMe
 			Common.MessageToUser(NString,,,, Cancel);
 		EndIf;
 		
-		// Deleting a temporary directory with all its content.
+		// 
 		ExecuteExchangeMessageTransportAfterProcessing(ExchangeSettingsStructure);
 		
 		WriteExchangeFinish(ExchangeSettingsStructure);
@@ -6149,23 +6153,23 @@ Function GetExchangeMessageToTemporaryDirectory(Cancel, InfobaseNode, ExchangeMe
 	Return Result;
 EndFunction
 
-// Gets an exchange message from the correspondent infobase to OS user's temporary directory.
+// Receives an exchange message from the correspondent's information base to the temporary directory of the OS user.
 //
 // Parameters:
-//  Cancel                        - Boolean - indicates whether an error occurred on data exchange.
-//  InfobaseNode       - ExchangePlanRef - an exchange plan node for which the
-//                                                    exchange message is being received.
-//  OutputMessages            - Boolean - if True, user messages are displayed.
+//  Cancel                        - Boolean -  failure flag; raised if an error occurs.
+//  InfobaseNode       - ExchangePlanRef -  the exchange plan node for which the exchange message is being received
+//                                                    .
+//  OutputMessages            - Boolean -  if True, messages are displayed to the user.
 //
 //  Returns:
 //   Structure with the following keys:
-//     * TempExchangeMessagesDirectoryName - a full name of the exchange directory that stores the exchange message.
-//     * ExchangeMessageFileName              - a full name of the exchange message file.
-//     * DataPackageFileID       - date of changing the exchange message file.
+//     * time_name of the exchange message Catalog - the full name of the exchange folder where the exchange message was uploaded.
+//     * Exchange message file_name - the full file name of the exchange message.
+//     * ID of the data packagefile - the date when the exchange message file was modified.
 //
 Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, InfobaseNode, OutputMessages = True) Export
 	
-	// Function return value.
+	// 
 	Result = New Structure;
 	Result.Insert("TempExchangeMessagesDirectoryName", "");
 	Result.Insert("ExchangeMessageFileName",              "");
@@ -6179,7 +6183,7 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, Info
 
 	MessageFileNameTemplate = MessageFileNameTemplate(CurrentExchangePlanNode, InfobaseNode, False);
 	
-	// Parameters to be defined in the function.
+	// 
 	ExchangeMessageFileDate = Date('00010101');
 	ExchangeMessageDirectoryName = "";
 	ErrorMessageString = "";
@@ -6196,7 +6200,7 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, Info
 		Return Result;
 	EndTry;
 	
-	// Getting external connection for the infobase node.
+	// 
 	ConnectionData = DataExchangeCached.ExternalConnectionForInfobaseNode(InfobaseNode);
 	ExternalConnection = ConnectionData.Join;
 	
@@ -6208,7 +6212,7 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, Info
 			Common.MessageToUser(MessageForUser,,,, Cancel);
 		EndIf;
 		
-		// Adding two records to the event log: one for data import and one for data export.
+		// 
 		ExchangeSettingsStructure = New Structure("EventLogMessageKey");
 		ExchangeSettingsStructure.EventLogMessageKey = EventLogMessageKey(InfobaseNode, Enums.ActionsOnExchange.DataImport);
 		
@@ -6222,8 +6226,8 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, Info
 	
 	NodeAlias = PredefinedNodeAlias(InfobaseNode);
 	If ValueIsFilled(NodeAlias) Then
-		// Check if the node code in the peer infobase was changed.
-		// If this is the case, the alias is not required.
+		// 
+		// 
 		ExchangePlanManager = ExternalConnection.ExchangePlans[CorrespondentExchangePlanName];
 		If ExchangePlanManager.FindByCode(NodeAlias) <> ExchangePlanManager.EmptyRef() Then
 			CurrentExchangePlanNodeCode = NodeAlias;
@@ -6236,7 +6240,7 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, Info
 	If Cancel Then
 		
 		If OutputMessages Then
-			// Displaying error message.
+			// 
 			Message = NStr("en = 'Data export failed: %1';");
 			Message = StringFunctionsClientServer.SubstituteParametersToString(Message, ConnectionData.BriefErrorDetails);
 			Common.MessageToUser(Message,,,, Cancel);
@@ -6257,10 +6261,10 @@ Function GetExchangeMessageToTempDirectoryFromCorrespondentInfobase(Cancel, Info
 	Return Result;
 EndFunction
 
-// Deletes exchange message files that are not deleted due to system failures.
-// Exchange files placed earlier than 24 hours ago from the current universal date
-// and mapping files placed earlier than 7 days ago from the current universal date are to be deleted.
-// Analyzing IR.DataExchangeMessages and IR.DataAreasDataExchangeMessages.
+// Performs the file deletion messages exchange that were not removed due to failures in the system.
+// Exchange files with a placement date more than a day from the current universal date,
+// and files for matching with a placement date more than 7 days from the current universal date are subject to deletion.
+// RS is analyzed.Messages are exchanged by data and RS.Messages are exchanged in the data domain.
 //
 // Parameters:
 //   No.
@@ -6278,7 +6282,7 @@ Procedure DeleteObsoleteExchangeMessages() Export
 	SetPrivilegedMode(True);
 	
 	If Common.SeparatedDataUsageAvailable() Then
-		// Deleting obsolete exchange messages marked in IR.DataExchangeMessages.
+		// 
 		QueryText =
 		"SELECT
 		|	DataExchangeMessages.MessageID AS MessageID,
@@ -6336,7 +6340,7 @@ Procedure DeleteObsoleteExchangeMessages() Export
 				EndTry;
 			EndIf;
 			
-			// Deleting information about message file from the storage.
+			// 
 			RecordStructure = New Structure;
 			RecordStructure.Insert("MessageID", String(Selection.MessageID));
 			InformationRegisters.DataExchangeMessages.DeleteRecord(RecordStructure);
@@ -6353,7 +6357,7 @@ Procedure DeleteObsoleteExchangeMessages() Export
 		
 	EndIf;
 	
-	// Deleting obsolete exchange messages marked in IR.DataAreasDataExchangeMessages.
+	// 
 	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
 		ModuleDataExchangeSaaS.OnDeleteObsoleteExchangeMessages();
@@ -6361,12 +6365,12 @@ Procedure DeleteObsoleteExchangeMessages() Export
 	
 EndProcedure
 
-// Exports the exchange message that contained
-// configuration changes before infobase update.
+// Uploads an exchange message that contains
+// configuration changes before updating the database.
 //
 Procedure ExportMessageAfterInfobaseUpdate()
 	
-	// The repeat mode can be disabled if messages are imported and the infobase is updated successfully.
+	// 
 	DisableDataExchangeMessageImportRepeatBeforeStart();
 	
 	Try
@@ -6393,7 +6397,7 @@ Procedure ExportMessageAfterInfobaseUpdate()
 				
 				If ExecuteExport Then
 					
-					// Export only.
+					// 
 					Cancel = False;
 					
 					ExchangeParameters = ExchangeParameters();
@@ -6420,8 +6424,8 @@ EndProcedure
 
 #Region SerializationMethodsExchangeExecution
 
-// Records changes for the exchange message.
-// Can be applied if the infobases have the same metadata structure for all objects involved in the exchange.
+// Procedure for recording changes for an exchange message.
+// It is applicable for cases when the metadata structure of the exchanged databases is the same for all objects participating in the exchange.
 //
 Procedure ExecuteStandardNodeChangesExport(Cancel,
 							InfobaseNode,
@@ -6439,7 +6443,7 @@ Procedure ExecuteStandardNodeChangesExport(Cancel,
 	EndIf;
 	XMLWriter.WriteXMLDeclaration();
 	
-	// Create a new message.
+	// 
 	WriteMessage1 = ExchangePlans.CreateMessageWriter();
 	
 	WriteMessage1.BeginWrite(XMLWriter, InfobaseNode);
@@ -6450,7 +6454,7 @@ Procedure ExecuteStandardNodeChangesExport(Cancel,
 	PredefinedDataTable.Columns.Add("Export", New TypeDescription("Boolean"));
 	PredefinedDataTable.Indexes.Add("Ref");
 	
-	// Getting changed data selection.
+	// 
 	ChangesSelection = SelectChanges(WriteMessage1.Recipient, WriteMessage1.MessageNo);
 	
 	If IsBlankString(EventLogMessageKey) Then
@@ -6523,10 +6527,10 @@ Procedure ExecuteStandardDataBatchExport(ChangesSelection, ExportingParameters, 
 		
 		Data = ChangesSelection.Get();
 		
-		// Check if the object passed the ORR filter. If it doesn't, then:
-		// - Send the object deletion to the destination infobase.
-		// - For record sets, apply the filter to every record.
-		// - Export all sets (even empty ones), which is similar to object deletion.
+		// 
+		// 
+		// 
+		// 
 		ItemSend = DataItemSend.Auto;
 		
 		StandardSubsystemsServer.OnSendDataToSlave(Data, ItemSend, ExportingParameters.InitialDataExport, ExportingParameters.Recipient);
@@ -6535,7 +6539,7 @@ Procedure ExecuteStandardDataBatchExport(ChangesSelection, ExportingParameters, 
 			
 			If Common.IsRegister(Data.Metadata()) Then
 				
-				// Sending an empty record set upon the register deletion.
+				// 
 				
 			Else
 				
@@ -6549,7 +6553,7 @@ Procedure ExecuteStandardDataBatchExport(ChangesSelection, ExportingParameters, 
 			
 		EndIf;
 		
-		// Writing data to the message.
+		// 
 		WriteXML(ExportingParameters.XMLWriter, Data);
 		WrittenItemsCount = WrittenItemsCount + 1;
 		
@@ -6597,8 +6601,8 @@ Procedure ExportPredefinedItemsTable(ExportingParameters)
 	
 EndProcedure
 
-// The procedure for reading changes from the exchange message.
-// Can be applied if the infobases have the same metadata structure for all objects involved in the exchange.
+// Procedure for reading changes from an exchange message.
+// It is applicable for cases when the metadata structure of the exchanged databases is the same for all objects participating in the exchange.
 //
 Procedure ExecuteStandardNodeChangeImport(
 		InfobaseNode,
@@ -6658,7 +6662,7 @@ Procedure ExecuteStandardNodeChangeImport(
 	
 	BackupParameters = BackupParameters(MessageReader.Sender, MessageReader.ReceivedNo);
 	
-	// Deleting a change registration for the sender node.
+	// 
 	If Not BackupParameters.BackupRestored Then
 		ExchangePlans.DeleteChangeRecords(MessageReader.Sender, MessageReader.ReceivedNo);
 		InformationRegisters.CommonInfobasesNodesSettings.ClearInitialDataExportFlag(
@@ -6707,7 +6711,7 @@ Procedure ExecuteStandardNodeChangeImport(
 	If ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error Then
 		MessageReader.CancelRead();
 	Else
-		// Skipping all non-standard items in a message body.
+		// 
 		CurrentNodeName = "";
 		While MessageReader.XMLReader.NodeType = XMLNodeType.StartElement
 			Or (MessageReader.XMLReader.NodeType = XMLNodeType.EndElement
@@ -6736,7 +6740,7 @@ EndProcedure
 Procedure FillInitialRefsInPredefinedDataTable(ImportParameters, ErrorMessage)
 	
 	XMLReader = New XMLReader;
-	ReaderSettings = New XMLReaderSettings(, , , , , , , False); // Read considering the comments
+	ReaderSettings = New XMLReaderSettings(, , , , , , , False); // 
 	Try
 		If Not IsBlankString(ImportParameters.ExchangeMessage) Then
 			XMLReader.SetString(ImportParameters.ExchangeMessage, ReaderSettings);
@@ -6771,7 +6775,7 @@ Procedure FillInitialRefsInPredefinedDataTable(ImportParameters, ErrorMessage)
 			ElsIf IsBody And XMLReader.NodeType = XMLNodeType.Comment Then
 				XMLReaderComment = New XMLReader;
 				XMLReaderComment.SetString(XMLReader.Value);
-				XMLReaderComment.Read(); // PredefinedData - ElementStart
+				XMLReaderComment.Read(); // 
 				
 				ProcessPredefinedItemsSectionInExchangeMessage(
 					XMLReaderComment, ImportParameters.PredefinedDataTable);
@@ -6817,7 +6821,7 @@ Procedure InitializeMessageReaderForStandardImport(ImportParameters, ExchangeExe
 	EndTry;
 	
 	If MessageReader.Sender <> ImportParameters.InfobaseNode Then
-		// The message is not intended for this node.
+		// 
 		ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 		
 		ErrorMessage = NStr("en = 'The exchange message contains data for another infobase node.';",
@@ -6855,8 +6859,8 @@ Procedure ExecuteStandardDataBatchImport(ImportParameters, ContinueImport)
 			Continue;
 		EndIf;
 			
-		// Override the default behavior triggered by an object deletion:
-		// Mark it for deletion instead of permanently deleting it without reference integrity control. 
+		// 
+		//  
 		// 
 		If TypeOf(Data) = Type("ObjectDeletion") Then
 			Data = Data.Ref.GetObject();
@@ -6922,7 +6926,7 @@ Function FullNameOfFileOfDeferredUpdateData()
 	
 EndFunction
 
-// Returns the name of exchange message file by sender node and recipient node data.
+// Returns the file name of the data exchange message based on the data of the sending node and the receiving node.
 //
 Function ExchangeMessageFileName(SenderNodeCode, RecipientNodeCode, IsOutgoingMessage)
 	
@@ -6941,16 +6945,16 @@ Function ExchangeMessageFileName(SenderNodeCode, RecipientNodeCode, IsOutgoingMe
 	Return NameTemplate;
 EndFunction
 
-// Returns the name of temporary directory for data exchange messages.
-// The directory name is written in the following way:
+// Returns the name of the temporary folder for data exchange messages.
+// The folder name matches the template:
 // "Exchange82 {GUID}", 
-// where GUID is a UUID string.
+// where GUID is a string of unique identifier.
 //
 // Parameters:
 //  No.
 // 
 // Returns:
-//  String - a name of temporary directory for data exchange messages.
+//  String - 
 //
 Function TempExchangeMessagesDirectoryName()
 	
@@ -6958,14 +6962,14 @@ Function TempExchangeMessagesDirectoryName()
 	
 EndFunction
 
-// Returns the name of exchange message transport data processor.
+// Returns the name of the exchange message transport processing.
 //
 // Parameters:
-//  TransportKind - EnumRef.ExchangeMessagesTransportTypes - Transport type for which a data processor name
-//                                                                     is returned.
+//  TransportKind - EnumRef.ExchangeMessagesTransportTypes -  type of transport that you want to
+//                                                                     the name of the treatment.
 // 
 //  Returns:
-//    String - Data processor name.
+//    String - 
 //
 Function DataExchangeMessageTransportDataProcessorName(TransportKind)
 	
@@ -6982,7 +6986,7 @@ Function DataExchangeMessageTransportDataProcessorName(TransportKind)
 		
 EndFunction
 
-// The DataExchangeClient.MaxObjectMappingFieldsCount() procedure duplicate at server.
+// Double procedures on the server Abendanimation.Maximum number of fields of object comparison().
 //
 // Returns:
 //   Number
@@ -6993,10 +6997,10 @@ Function MaxObjectsMappingFieldsCount() Export
 	
 EndFunction
 
-// Returns the unlimited length string literal.
+// Property function: returns a literal for a string of unlimited length.
 //
 // Returns:
-//  String - an unlimited length string literal.
+//  String - 
 //
 Function UnlimitedLengthString() Export
 	
@@ -7004,10 +7008,10 @@ Function UnlimitedLengthString() Export
 	
 EndFunction
 
-// Function for retrieving property: returns literal of the XML node that contains the ORR constant value.
+// Property function: returns the literal of the node designation-XML, which contains the value of the PRO constant.
 //
 // Returns:
-//  String - literal of the XML node that contains the ORR constant value.
+//  String - 
 //
 Function FilterItemPropertyConstantValue() Export
 	
@@ -7015,10 +7019,10 @@ Function FilterItemPropertyConstantValue() Export
 	
 EndFunction
 
-// Function for retrieving property: returns literal of the XML node that contains the value getting algorithm.
+// Property function: returns the literal of the node designation-XML, which contains the algorithm for getting the value.
 //
 // Returns:
-//  String - returns an XML node literal that contains the value getting algorithm.
+//  String - 
 //
 Function FilterItemPropertyValueAlgorithm() Export
 	
@@ -7026,10 +7030,10 @@ Function FilterItemPropertyValueAlgorithm() Export
 	
 EndFunction
 
-// Function for retrieving property: returns a name of the file that is used for checking whether transport data processor is attached.
+// Property function: returns the name of the file that is used to check whether transport processing is enabled.
 //
 // Returns:
-//  String - returns a name of the file that is used for checking whether transport data processor is attached.
+//  String - 
 //
 Function TempConnectionTestFileName() Export
 	FilePostfix = String(New UUID());
@@ -7049,10 +7053,10 @@ EndFunction
 
 Procedure ExecuteExchangeMessageTransportBeforeProcessing(ExchangeSettingsStructure)
 	
-	// Getting the initialized message transport data processor.
-	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor;
+	// 
+	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor; // DataProcessorObject.ExchangeMessageTransportEMAIL,  DataProcessorObject.ExchangeMessageTransportFILE,  DataProcessorObject.ExchangeMessageTransportFTP
 	
-	// Getting a new temporary file name.
+	// 
 	If Not ExchangeMessageTransportDataProcessor.ExecuteActionsBeforeProcessMessage() Then
 		
 		WriteEventLogDataExchange(ExchangeMessageTransportDataProcessor.ErrorMessageStringEL, ExchangeSettingsStructure, True);
@@ -7065,10 +7069,10 @@ EndProcedure
 
 Procedure ExecuteExchangeMessageTransportSending(ExchangeSettingsStructure)
 	
-	// Getting the initialized message transport data processor.
-	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor;
+	// 
+	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor; // DataProcessorObject.ExchangeMessageTransportEMAIL,  DataProcessorObject.ExchangeMessageTransportFILE,  DataProcessorObject.ExchangeMessageTransportFTP
 	
-	// Sending the exchange message from a temporary directory.
+	// 
 	If Not ExchangeMessageTransportDataProcessor.ConnectionIsSet()
 		Or Not ExchangeMessageTransportDataProcessor.SendMessage() Then
 		
@@ -7086,18 +7090,18 @@ Procedure ExecuteExchangeMessageTransportReceiving(ExchangeSettingsStructure, Us
 		ErrorsStack = New Array;
 	EndIf;
 	
-	// Getting the initialized message transport data processor.
-	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor;
+	// 
+	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor; // DataProcessorObject.ExchangeMessageTransportEMAIL,  DataProcessorObject.ExchangeMessageTransportFILE,  DataProcessorObject.ExchangeMessageTransportFTP
 	ExchangeMessageTransportDataProcessor.InfobaseNode = ExchangeSettingsStructure.InfobaseNode;
 	
-	// Receiving an exchange message to a temporary directory.
+	// 
 	If Not ExchangeMessageTransportDataProcessor.ConnectionIsSet()
 		Or Not ExchangeMessageTransportDataProcessor.GetMessage() Then
 		
 		ErrorsStack.Add(ExchangeMessageTransportDataProcessor.ErrorMessageStringEL);
 		
 		If Not UseAlias Then
-			// There will be no more attempts to search for the file. Registering all accumulated errors.
+			// 
 			For Each CurrentError In ErrorsStack Do
 				WriteEventLogDataExchange(CurrentError, ExchangeSettingsStructure, True);
 			EndDo;
@@ -7109,7 +7113,7 @@ Procedure ExecuteExchangeMessageTransportReceiving(ExchangeSettingsStructure, Us
 	
 	If UseAlias
 		And ExchangeSettingsStructure.ExchangeExecutionResult <> Undefined Then
-		// Probably the message can be received if you apply the virtual code (alias) of the node.
+		// 
 		
 		Transliteration = Undefined;
 		If ExchangeSettingsStructure.ExchangeTransportKind = Enums.ExchangeMessagesTransportTypes.FILE Then
@@ -7129,11 +7133,11 @@ Procedure ExecuteExchangeMessageTransportReceiving(ExchangeSettingsStructure, Us
 				Transliteration, 
 				True);
 		If FileNameTemplatePrevious <> ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor.MessageFileNameTemplate Then
-			// Retrying the transport with a new template.
+			// 
 			ExchangeSettingsStructure.ExchangeExecutionResult = Undefined;
 			ExecuteExchangeMessageTransportReceiving(ExchangeSettingsStructure, False, ErrorsStack);
 		Else
-			// There will be no more attempts to search for the file. Registering all accumulated errors.
+			// 
 			For Each CurrentError In ErrorsStack Do
 				WriteEventLogDataExchange(CurrentError, ExchangeSettingsStructure, True);
 			EndDo;
@@ -7145,15 +7149,15 @@ EndProcedure
 
 Procedure ExecuteExchangeMessageTransportAfterProcessing(ExchangeSettingsStructure)
 	
-	// Getting the initialized message transport data processor.
-	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor;
+	// 
+	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor; // DataProcessorObject.ExchangeMessageTransportEMAIL,  DataProcessorObject.ExchangeMessageTransportFILE,  DataProcessorObject.ExchangeMessageTransportFTP
 	
-	// Performing actions after sending the message.
+	// 
 	ExchangeMessageTransportDataProcessor.ExecuteActionsAfterProcessMessage();
 	
 EndProcedure
 
-// Gets proxy server settings.
+// Gets the proxy server settings.
 //
 Function ProxyServerSettings(SecureConnection)
 	
@@ -7171,13 +7175,13 @@ EndFunction
 
 #Region FileTransferService
 
-// Gets a file from the storage by the file ID.
-// If a file with the specified ID is not found, an exception is thrown.
-// If the file is found, its name is returned, and the information about the file is deleted from the storage.
+// Getting the file name by its ID from the storage.
+// If there is no file with the specified ID, an exception is thrown.
+// If a file is found, its name is returned, and information about this file is deleted from the storage.
 //
 // Parameters:
-//  FileID  - UUID - an ID of the file being received.
-//  FileName            - String - a file name from the storage.
+//  FileID  - UUID -  ID of the received file.
+//  FileName            - String -  the name of the file from the repository.
 //
 Procedure OnReceiveFileFromStorage(Val FileID, FileName)
 	
@@ -7204,14 +7208,14 @@ Procedure OnReceiveFileFromStorage(Val FileID, FileName)
 	Selection.Next();
 	FileName = Selection.FileName;
 	
-	// Deleting information about message file from the storage.
+	// 
 	RecordStructure = New Structure;
 	RecordStructure.Insert("MessageID", String(FileID));
 	InformationRegisters.DataExchangeMessages.DeleteRecord(RecordStructure);
 	
 EndProcedure
 
-// Stores a file to a storage.
+// Putting a file in storage.
 //
 Procedure OnPutFileToStorage(Val RecordStructure)
 	
@@ -7223,34 +7227,34 @@ EndProcedure
 
 #Region InitialDataExportChangesRegistration
 
-// Registers changes for initial data export considering export start date and the list of companies.
-// The procedure is universal and can be used for registering data changes by export start date and the list of companies for object data types
-// and register record sets.
-// If the list of companies is not specified (Companies = Undefined), changes are registered only by export
-// start date.
-// The procedure registers data of all metadata objects included in the exchange plan.
-// The procedure registers data unconditionally in the following cases:
-// - The autoregistration flag of the metadata object is set.
-// - The autoregistration flag is not set and registration rules are not specified.
-// If registration rules are specified for the metadata object, changes are registered 
-// based on export start date and the list of companies.
-// Document changes can be registered based on export start date and the list of companies.
-// Business process changes and task changes can be registered based on export start date.
-// Register record set changes can be registered based on export start date and the list of companies.
-// The procedure can be used as a prototype for developing procedures of changes registration
-// for initial data export.
+// Registers changes for the initial data upload, taking into account the upload start date and the list of companies.
+// The procedure is universal and can be used to register data changes by the upload start date
+// and the list of companies for object data types and register record sets.
+// If the list of companies is not specified (Companies = Undefined), changes are registered only by
+// the upload start date.
+// Data for all metadata objects included in the exchange plan must be registered.
+// If the autoregistration flag is set for the metadata object in the exchange plan
+// , or if the autoregistration flag is not set and registration rules
+// are not set, changes will be registered for all data of this type.
+// If registration rules are set for the metadata object, changes will be 
+// registered based on the upload start date and the list of companies.
+// For documents, changes can be registered by the upload start date and by the list of companies.
+// For business processes and tasks, changes can be registered by the upload start date.
+// For register record sets, changes can be registered by the upload start date and by the list of companies.
+// This procedure can serve as a prototype for developing your own change registration procedures
+// for the initial data upload.
 //
 // Parameters:
 //
-//  Recipient - ExchangePlanRef - an exchange plan node
-//               whose changes are to be registered.
-//  ExportStartDate - Date - changes made since this date
-//               and time are to be registered. Changes are registered for the data
-//               located after this date on the time scale.
+//  Recipient - ExchangePlanRef -  the exchange plan node
+//               that you want to register data changes for.
+//  ExportStartDate - Date -  the date on which you need to
+//               register data changes for uploading. Changes will be registered for data
+//               that is located on the time axis after this date.
 //  Companies - Array
-//              - Undefined - a list of companies
-//               data changes are to be registered for. If this parameter is not specified, companies are not taken into
-//               account on changes registration.
+//              - Undefined - 
+//               
+//               
 //
 Procedure RegisterDataByExportStartDateAndCompanies(Val Recipient, ExportStartDate,
 	Companies = Undefined,
@@ -7303,7 +7307,7 @@ Procedure RegisterDataByExportStartDateAndCompanies(Val Recipient, ExportStartDa
 			If Common.IsDocument(ExchangePlanContentItem.Metadata) Then // Documents
 				
 				If FilterByExportStartDateAndCompanies
-					// Registration by date and companies.
+					// 
 					And ExchangePlanContentItem.Metadata.Attributes.Find("Organization") <> Undefined Then
 					
 					Selection = DocumentsSelectionByExportStartDateAndCompanies(FullObjectName, ExportStartDate, Companies);
@@ -7316,7 +7320,7 @@ Procedure RegisterDataByExportStartDateAndCompanies(Val Recipient, ExportStartDa
 					
 					Continue;
 					
-				Else // Register by date.
+				Else // 
 					
 					Selection = ObjectsSelectionByExportStartDate(FullObjectName, ExportStartDate);
 					
@@ -7331,9 +7335,9 @@ Procedure RegisterDataByExportStartDateAndCompanies(Val Recipient, ExportStartDa
 				EndIf;
 				
 			ElsIf Common.IsBusinessProcess(ExchangePlanContentItem.Metadata)
-				Or Common.IsTask(ExchangePlanContentItem.Metadata) Then // Business processes and tasks.
+				Or Common.IsTask(ExchangePlanContentItem.Metadata) Then // 
 				
-				// Register by date.
+				// 
 				Selection = ObjectsSelectionByExportStartDate(FullObjectName, ExportStartDate);
 				
 				While Selection.Next() Do
@@ -7346,7 +7350,7 @@ Procedure RegisterDataByExportStartDateAndCompanies(Val Recipient, ExportStartDa
 				
 			ElsIf Common.IsRegister(ExchangePlanContentItem.Metadata) Then // Registers
 				
-				// Information registers (independent).
+				// 
 				If Common.IsInformationRegister(ExchangePlanContentItem.Metadata)
 					And ExchangePlanContentItem.Metadata.WriteMode = Metadata.ObjectProperties.RegisterWriteMode.Independent Then
 					
@@ -7355,16 +7359,16 @@ Procedure RegisterDataByExportStartDateAndCompanies(Val Recipient, ExportStartDa
 					FilterByPeriod     = (MainFilter.Find("Period") <> Undefined);
 					FilterByCompany = (MainFilter.Find("Organization") <> Undefined);
 					
-					// Registration by date and companies.
+					// 
 					If FilterByExportStartDateAndCompanies And FilterByPeriod And FilterByCompany Then
 						
 						Selection = MainInformationRegisterFilterValuesSelectionByExportStartDateAndCompanies(MainFilter, FullObjectName, ExportStartDate, Companies);
 						
-					ElsIf FilterByExportStartDate And FilterByPeriod Then // Register by date.
+					ElsIf FilterByExportStartDate And FilterByPeriod Then // 
 						
 						Selection = MainInformationRegisterFilterValuesSelectionByExportStartDate(MainFilter, FullObjectName, ExportStartDate);
 						
-					ElsIf FilterByCompanies And FilterByCompany Then // Register by companies.
+					ElsIf FilterByCompanies And FilterByCompany Then // 
 						
 						Selection = MainInformationRegisterFilterValuesSelectionByCompanies(MainFilter, FullObjectName, Companies);
 						
@@ -7395,7 +7399,7 @@ Procedure RegisterDataByExportStartDateAndCompanies(Val Recipient, ExportStartDa
 						
 					EndIf;
 					
-				Else // Registers (miscellaneous).
+				Else // 
 					HasPeriodInRegister = Common.IsAccountingRegister(ExchangePlanContentItem.Metadata)
 							Or Common.IsAccumulationRegister(ExchangePlanContentItem.Metadata)
 							Or (Common.IsInformationRegister(ExchangePlanContentItem.Metadata)
@@ -7403,7 +7407,7 @@ Procedure RegisterDataByExportStartDateAndCompanies(Val Recipient, ExportStartDa
 									<> Metadata.ObjectProperties.InformationRegisterPeriodicity.Nonperiodical);
 					If FilterByExportStartDateAndCompanies
 						And HasPeriodInRegister
-						// Registration by date and companies.
+						// 
 						And ExchangePlanContentItem.Metadata.Dimensions.Find("Organization") <> Undefined Then
 						
 						Selection = RecordSetsRecordersSelectionByExportStartDateAndCompanies(FullObjectName, ExportStartDate, Companies);
@@ -7421,7 +7425,7 @@ Procedure RegisterDataByExportStartDateAndCompanies(Val Recipient, ExportStartDa
 						
 						Continue;
 						
-					// Register by date.
+					// 
 					ElsIf HasPeriodInRegister Then
 						
 						Selection = RecordSetsRecordersSelectionByExportStartDate(FullObjectName, ExportStartDate);
@@ -7651,12 +7655,12 @@ Procedure OnConnectToCorrespondent(Val ExchangePlanName, Val CorrespondentVersio
 	
 EndProcedure
 
-// Fills settings for the exchange plan which are then used by the data exchange subsystem.
+// Fills in the settings for the exchange plan, which are then used by the data exchange subsystem.
 // Parameters:
-//   ExchangePlanName              - String - an exchange plan name.
-//   CorrespondentVersion        - String - a correspondent configuration version.
-//   CorrespondentName           - String - a correspondent configuration name.
-//   CorrespondentInSaaS - Boolean, Undefined - shows that correspondent is in SaaS.
+//   ExchangePlanName              - String -  name of the exchange plan.
+//   CorrespondentVersion        - String -  version of the corresponding configuration.
+//   CorrespondentName           - String -  name of the correspondent configuration.
+//   CorrespondentInSaaS - Boolean, Undefined -  indicates that the correspondent is in the service model.
 // Returns:
 //   See DefaultExchangePlanSettings.
 //
@@ -7665,12 +7669,12 @@ Function ExchangePlanSettings(ExchangePlanName, CorrespondentVersion, Correspond
 	SetPrivilegedMode(True);
 	ExchangePlans[ExchangePlanName].OnGetSettings(ExchangePlanSettings);
 	HasOptionsReceivingHandler = ExchangePlanSettings.Algorithms.OnGetExchangeSettingsOptions;
-	// Option initialization is required.
+	// 
 	If HasOptionsReceivingHandler Then
 		FilterParameters = ContextParametersOfSettingsOptionsReceipt(CorrespondentName, CorrespondentVersion, CorrespondentInSaaS);
 		ExchangePlans[ExchangePlanName].OnGetExchangeSettingsOptions(ExchangePlanSettings.ExchangeSettingsOptions, FilterParameters);
 	Else
-		// Options are not used. Add an internal option.
+		// 
 		SettingsMode = ExchangePlanSettings.ExchangeSettingsOptions.Add();
 		SettingsMode.SettingID = "";
 		SettingsMode.CorrespondentInSaaS = Common.DataSeparationEnabled() 
@@ -7682,13 +7686,13 @@ Function ExchangePlanSettings(ExchangePlanName, CorrespondentVersion, Correspond
 	Return ExchangePlanSettings;
 EndFunction
 
-// Fills in the settings related to the exchange setup option. Later these settings are used by the data exchange subsystem.
+// Fills in the settings related to the exchange configuration option, which are then used by the data exchange subsystem.
 //
 // Parameters:
-//   ExchangePlanName         - String - an exchange plan name.
-//   SettingID - String - ID of data exchange setup option.
-//   CorrespondentVersion   - String - a correspondent configuration version.
-//   CorrespondentName      - String - a correspondent configuration name.
+//   ExchangePlanName         - String -  name of the exchange plan.
+//   SettingID - String -  ID of the exchange configuration option.
+//   CorrespondentVersion   - String -  version of the corresponding configuration.
+//   CorrespondentName      - String -  name of the correspondent configuration.
 //
 // Returns:
 //   See DefaultExchangeSettingOptionDetails
@@ -7709,11 +7713,11 @@ EndFunction
 
 #Region DataSynchronizationPasswordsOperations
 
-// Returns the data synchronization password for the specified node.
-// If the password is not set, the function returns Undefined.
+// Returns the value of the password synchronization for the specified node.
+// If there is no password, it is returned Undefined.
 //
 // Returns:
-//  String, Undefined - data synchronization password value.
+//  String, Undefined - 
 //
 Function DataSynchronizationPassword(Val InfobaseNode) Export
 	
@@ -7722,7 +7726,7 @@ Function DataSynchronizationPassword(Val InfobaseNode) Export
 	Return SessionParameters.DataSynchronizationPasswords.Get(InfobaseNode);
 EndFunction
 
-// Returns the flag that shows whether the data synchronization password is set by a user.
+// Returns an indication that the data synchronization password was set by the user.
 //
 Function DataSynchronizationPasswordSpecified(Val InfobaseNode) Export
 	
@@ -7734,7 +7738,7 @@ EndFunction
 
 #Region SharedDataControl
 
-// Checks whether it is possible to write separated data item. Raises exception if the data item cannot be written.
+// Called when checking whether undivided data is available for writing.
 //
 Procedure ExecuteSharedDataOnWriteCheck(Val Data) Export
 	
@@ -7773,19 +7777,19 @@ EndFunction
 
 #Region DataExchangeMonitorOperations
 
-// Returns the structure with the last exchange data for the specified infobase node.
+// Returns a structure with data from the last exchange for the specified database node.
 //
 // Parameters:
 //  No.
 // 
 // Returns:
-//  СостоянияОбменовДанными - Structure - a structure with the last exchange data for the specified infobase node.
+//  СостоянияОбменовДанными - 
 //
 Function DataExchangesStatesForInfobaseNode(Val InfobaseNode) Export
 	
 	SetPrivilegedMode(True);
 	
-	// Function return value.
+	// 
 	DataExchangesStates = New Structure;
 	DataExchangesStates.Insert("InfobaseNode");
 	DataExchangesStates.Insert("DataImportResult", "Undefined");
@@ -7877,17 +7881,17 @@ Function DataExchangesStatesForInfobaseNode(Val InfobaseNode) Export
 	Return DataExchangesStates;
 EndFunction
 
-// Returns the structure with the last exchange data for the specified infobase node and actions on exchange.
+// Returns a structure with data from the last exchange for the specified node of the information base and actions during the exchange.
 //
 // Parameters:
 //  No.
 // 
 // Returns:
-//  СостоянияОбменовДанными - Structure - a structure with the last exchange data for the specified infobase node.
+//  СостоянияОбменовДанными - 
 //
 Function DataExchangesStates(Val InfobaseNode, ActionOnExchange) Export
 	
-	// Function return value.
+	// 
 	DataExchangesStates = New Structure;
 	DataExchangesStates.Insert("StartDate",    Date('00010101'));
 	DataExchangesStates.Insert("EndDate", Date('00010101'));
@@ -7931,18 +7935,18 @@ EndFunction
 
 #Region SessionInitialization
 
-// Retrieves an array of all exchange plans that take part in the data exchange.
-// The return array contains all exchange plans that have exchange nodes except the predefined one.
+// Gets an array of all exchange plans for which data is exchanged.
+// The presence of an exchange with any exchange plan is determined by the presence of nodes in this exchange plan other than the predefined one.
 //
 // Parameters:
 //  No.
 // 
 // Returns:
-//  МассивПлановОбмена - Array - an array of strings (names) of all exchange plans that take part in the data exchange.
+//  МассивПлановОбмена - 
 //
 Function GetExchangePlansInUse() Export
 	
-	// Return value.
+	//  returned value
 	ExchangePlansArray = New Array;
 	
 	For Each ExchangePlanName In DataExchangeCached.SSLExchangePlans() Do
@@ -7959,17 +7963,17 @@ Function GetExchangePlansInUse() Export
 	
 EndFunction
 
-// Receives the object registration rules table from the infobase.
+// Retrieves a table of object registration rules from the information database.
 //
 // Parameters:
 //  No.
 // 
 // Returns:
-//  ПравилаРегистрацииОбъектов - ValueTable - a table of common object registration rules for ORM.
+//  ПравилаРегистрацииОбъектов - 
 // 
 Function GetObjectsRegistrationRules() Export
 	
-	// Function return value.
+	// 
 	ObjectsRegistrationRules = ObjectsRegistrationRulesTableInitialization();
 	
 	QueryText = 
@@ -8029,7 +8033,7 @@ EndFunction
 
 Function ObjectsRegistrationRulesTableInitialization() Export
 	
-	// Function return value.
+	// 
 	Rules = New ValueTable;
 	
 	Columns = Rules.Columns;
@@ -8045,10 +8049,10 @@ Function ObjectsRegistrationRulesTableInitialization() Export
 	
 	Columns.Add("ObjectPropertiesAsString", New TypeDescription("String"));
 	
-	// Flag that shows whether rules are empty.
+	// 
 	Columns.Add("RuleByObjectPropertiesEmpty", New TypeDescription("Boolean"));
 	
-	// Event handlers.
+	// 
 	Columns.Add("BeforeProcess",            New TypeDescription("String"));
 	Columns.Add("OnProcess",               New TypeDescription("String"));
 	Columns.Add("OnProcessAdditional", New TypeDescription("String"));
@@ -8062,10 +8066,10 @@ Function ObjectsRegistrationRulesTableInitialization() Export
 	
 	Columns.Add("FilterByObjectProperties", New TypeDescription("ValueTree"));
 	
-	// This field is used for temporary storing data from the object or reference.
+	// 
 	Columns.Add("SelectionByProperties", New TypeDescription("ValueTree"));
 	
-	// Add index.
+	// 
 	Rules.Indexes.Add("ExchangePlanName, MetadataObjectName3");
 	
 	Columns.Add("FilterByExchangePlanProperties", New TypeDescription("ValueTree"));
@@ -8159,7 +8163,7 @@ EndFunction
 
 Procedure SetDataExchangeMessageImportModeBeforeStart(Val Property, Val EnableMode) Export
 	
-	// You have to set the privileged mode before the procedure call.
+	// 
 	
 	If IsSubordinateDIBNode() Then
 		
@@ -8239,37 +8243,37 @@ Function QueryParametersVersioningIssuesCount() Export
 	
 EndFunction
 
-// Registers errors upon deferred document posting in the exchange issue monitor.
+// Registers errors when a document is delayed in the exchange issue monitor.
 //
 // Parameters:
-//  Object - DocumentObject - errors occurred during deferred posting of this document.
-//  ExchangeNode - ExchangePlanRef - The infobase node the document was received from.
-//  ErrorMessage - String - Logging text.
-//    It is recommended that this parameter takes the result of BriefErrorDescription(ErrorInfo()).
-//    The display message is compiled from the system user messages that are not yet shown to the user.
-//    Therefore, we recommend that the app clears the cached messages before calling this method.
+//  Object - DocumentObject -  a document where errors occurred during deferred processing.
+//  ExchangeNode - ExchangePlanRef - 
+//  
 //    
-//  RecordIssuesInExchangeResults - Boolean - issues must be registered.
+//    
+//    
+//    
+//  RecordIssuesInExchangeResults - Boolean -  it is necessary to record the problem.
 //
 // Example:
-// Procedure PostDocumentOnImport(Document, ExchangeNode)
-// Document.DataExchange.Import = True;
-// Document.Write();
-// Document.DataExchange.Import = False;
-// Cancel = False;
+// 
+// 
+// 
+// 
+// 
 //
-// Try
-// 	Document.Write(DocumentWriteMode.Posting);
-// Except
-// 	ErrorMessage = ErrorsProcessing.BriefErrorPresentation(ErrorInformation());
-// 	Cancel = True;
-// EndTry;
+// 
+// 	
+// 
+// 	
+// 	
+// 
 //
-// If Cancel Then
-// 	DataExchangeServer.RecordDocumentWriteError(Document, ExchangeNode, ErrorMessage);
-// EndIf;
+// 
+// 	
+// 
 //
-// EndProcedure;
+// 
 //
 Procedure RecordDocumentPostingError(
 		Object,
@@ -8328,36 +8332,36 @@ Procedure RecordDocumentPostingError(
 	
 EndProcedure
 
-// Registers errors upon deferred object writing in the exchange issue monitor.
+// Registers errors when an object is being recorded in the exchange problem monitor.
 //
 // Parameters:
-//   Object - CatalogObject, ДокументОбъект и т.п. - errors occurred during deferred writing of this object.
-//   ExchangeNode - ExchangePlanRef - The infobase node the object was received from.
-//   ErrorMessage - String - Logging text.
-//     It is recommended that this parameter takes the result of BriefErrorDescription(ErrorInfo()).
-//     The display message is compiled from the system user messages that are not yet shown to the user.
-//     Therefore, we recommend that the app clears the cached messages before calling this method.
+//   Object - CatalogObject, ДокументОбъект и т.п. -  the object that errors occurred during deferred recording.
+//   ExchangeNode - ExchangePlanRef - 
+//   
+//     
+//     
+//     
 //     
 //
 // Example:
-// Procedure WriteObjectOnImport(Object, ExchangeNode)
-// Object.DataExchange.Import = True;
-// Object.Write();
-// Object.DataExchange.Import = False;
-// Cancel = False;
+// 
+// 
+// 
+// 
+// 
 //
-// Try
-// 	Object.Write();
-// Except
-// 	ErrorMessage = ErrorsProcessing.BriefErrorPresentation(ErrorInformation());
-// 	Cancel = True;
-// EndTry;
+// 
+// 	
+// 
+// 	
+// 	
+// 
 //
-// If Cancel Then
-// 	DataExchangeServer.RecordObjectWriteError(Object, ExchangeNode, ErrorMessage);
-// EndIf;
+// 
+// 	
+// 
 //
-// EndProcedure;
+// 
 //
 Procedure RecordObjectWriteError(
 		Object,
@@ -8413,10 +8417,10 @@ EndProcedure
 
 #Region ProgressBar
 
-// Calculate the number of infobase objects to be exported when creating the initial image.
+// Counting the number of information security objects to be uploaded when creating the initial image.
 //
 // Parameters:
-//   Recipient - ExchangePlanObject - an exchange plan node matching the recipient.
+//   Recipient - ExchangePlanObject -  the exchange plan node corresponding to the recipient.
 //
 // Returns:
 //   Number
@@ -8427,7 +8431,7 @@ Function CalculateObjectsCountInInfobase(Recipient)
 	ObjectsCounter = 0;
 	ExchangePlanContent = Metadata.ExchangePlans[ExchangePlanName].Content;
 	
-	// 1. Reference objects.
+	// 
 	RefObjectsStructure = New Structure;
 	RefObjectsStructure.Insert("Catalog", Metadata.Catalogs);
 	RefObjectsStructure.Insert("Document", Metadata.Documents);
@@ -8469,7 +8473,7 @@ Function CalculateObjectsCountInInfobase(Recipient)
 		
 	EndDo;
 	
-	// 2. Constants.
+	// 
 	For Each MetadataObject In Metadata.Constants Do
 		If ExchangePlanContent.Find(MetadataObject) = Undefined Then
 			Continue;
@@ -8477,7 +8481,7 @@ Function CalculateObjectsCountInInfobase(Recipient)
 		ObjectsCounter = ObjectsCounter + 1;
 	EndDo;
 
-	// 3. Information registers.
+	// 
 	RequestTextTemplateWithoutARegistrar = 
 	"SELECT
 	|	COUNT(*) AS ObjectCount
@@ -8519,7 +8523,7 @@ Function CalculateObjectsCountInInfobase(Recipient)
 		
 	EndDo;
 	
-	// 4. Subordinate registers and sequences.
+	// 
 	RegistersStructure = New Structure;
 	RegistersStructure.Insert("AccumulationRegister", Metadata.AccumulationRegisters);
 	RegistersStructure.Insert("CalculationRegister", Metadata.CalculationRegisters);
@@ -8555,7 +8559,7 @@ Function CalculateObjectsCountInInfobase(Recipient)
 	
 EndFunction
 
-// Calculating a number of objects registered in the exchange plan.
+// Counting the number of objects registered in the exchange plan.
 //
 // Parameters:
 //   Recipient - ExchangePlanObject
@@ -8578,11 +8582,11 @@ EndFunction
 
 #Region ExchangeMessageFromMasterNodeConstantOperations
 
-// Reads infobase information on a data exchange message.
+// Reads information about the data exchange message from the information database.
 //
 // Returns:
-//   Structure - Information about location of the exchange message file (current format).
-//                       - BinaryData - Information about location of the exchange message file (current format).
+//   Structure - 
+//                       - BinaryData - 
 //
 Function DataExchangeMessageFromMasterNode() Export
 	
@@ -8590,12 +8594,12 @@ Function DataExchangeMessageFromMasterNode() Export
 	
 EndFunction
 
-// Writes an exchange message file from the master node to the hard drive.
-// Saves the path to the written message to the DataExchangeMessageFromMasterNode constant.
+// Writes the exchange message file received from the master node to disk.
+// Saves the path to the recorded message in the constant message exchange of the main Node.
 //
 // Parameters:
-//  ExchangeMessage - BinaryData - a read exchange message.
-//  MasterNode - ExchangePlanRef - a node used to receive the message.
+//  ExchangeMessage - BinaryData -  a read exchange message.
+//  MasterNode - ExchangePlanRef -  the node from which the message was received.
 //
 Procedure SetDataExchangeMessageFromMasterNode(ExchangeMessage, MasterNode) Export
 	
@@ -8614,7 +8618,7 @@ Procedure SetDataExchangeMessageFromMasterNode(ExchangeMessage, MasterNode) Expo
 	
 EndProcedure
 
-// Deletes the exchange message file from the hard drive and clears the DataExchangeMessageFromMasterNode constant.
+// Deletes the exchange message file from disk and clears the constant of the exchange message from the main Node.
 //
 Procedure ClearDataExchangeMessageFromMasterNode() Export
 	
@@ -8655,8 +8659,8 @@ Procedure CreateRequestsToUseExternalResources(PermissionsRequests)
 EndProcedure
 
 // Parameters:
-//   PermissionsRequests - Array of UUID - a permission request collection.
-//   Object - ConstantValueManager - a data object value manager.
+//   PermissionsRequests - Array of UUID -  collection of permission requests.
+//   Object - ConstantValueManager -  the Manager of the value of the data object.
 //
 Procedure RequestExternalResourcesForDataExchangeMessagesDirectory(PermissionsRequests, Object) Export
 	
@@ -8676,29 +8680,30 @@ Procedure RequestExternalResourcesForDataExchangeMessagesDirectory(PermissionsRe
 	
 EndProcedure
 
-// Returns a template of a security profile name for an external module.
-// The function must return the same value every time it is called.
+// Returns the security profile name template for the external module.
+// The function must return the same value when called multiple times.
 //
 // Parameters:
-//  ExternalModule - AnyRef - a reference to an external module.
+//  ExternalModule - MetadataObjectExchangePlan - 
 //
 // Returns:
-//   String - a template of a security profile name containing characters
-//  "%1". These characters are replaced with a unique ID later.
+//   String - 
+//  
 //
 Function SecurityProfileNameTemplate(Val ExternalModule) Export
 	
-	Template = "Exchange_[ExchangePlanName]_%1"; // Do not localize.
+	Template = "Exchange_[ExchangePlanName]_%1"; // 
 	Return StrReplace(Template, "[ExchangePlanName]", ExternalModule.Name);
 	
 EndFunction
 
-// Returns an external module icon.
-//
-//  ExternalModule - AnyRef, a reference to an external module,
-//
+// Returns an icon displaying the external module.
+// 
+// Parameters:
+//  ExternalModule- AnyRef -  link to the external module
+// 
 // Returns:
-//   Picture
+//  Picture - 
 //
 Function ExternalModuleIcon(Val ExternalModule) Export
 	
@@ -8736,7 +8741,7 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 	
 	SetPrivilegedMode(True);
 	
-	// DATA EXCHANGE INITIALIZATION
+	// 
 	ExchangeSettingsStructure = ExchangeSettingsForExternalConnection(
 		InfobaseNode,
 		ActionOnExchange,
@@ -8745,7 +8750,7 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 	WriteLogEventDataExchangeStart(ExchangeSettingsStructure);
 	
 	If ExchangeSettingsStructure.Cancel Then
-		// If a setting contains errors, canceling the exchange, Canceled status.
+		// 
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Canceled;
 		WriteExchangeFinish(ExchangeSettingsStructure);
 		Cancel = True;
@@ -8754,34 +8759,34 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 	
 	ErrorMessageString = "";
 	
-	// Getting external connection for the infobase node.
+	// 
 	ExternalConnection = DataExchangeCached.GetExternalConnectionForInfobaseNode(
 		InfobaseNode,
 		ErrorMessageString);
 	
 	If ExternalConnection = Undefined Then
 		
-		// Adding the event log entry.
+		// 
 		WriteEventLogDataExchange(ErrorMessageString, ExchangeSettingsStructure, True);
 		
-		// If a setting contains errors, canceling the exchange, Canceled status.
+		// 
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Canceled;
 		WriteExchangeFinish(ExchangeSettingsStructure);
 		Cancel = True;
 		Return;
 	EndIf;
 	
-	// Getting remote infobase version.
+	// 
 	SSLVersionByExternalConnection = ExternalConnection.StandardSubsystemsServer.LibraryVersion();
 	ExchangeWithSSL20 = CommonClientServer.CompareVersions("2.1.1.10", SSLVersionByExternalConnection) > 0;
 	
-	// INITIALIZING DATA EXCHANGE (USING EXTERNAL CONNECTION)
+	// 
 	Structure = New Structure("ExchangePlanName, CorrespondentExchangePlanName, 
 		|CurrentExchangePlanNodeCode1, TransactionItemsCount");
 	
 	FillPropertyValues(Structure, ExchangeSettingsStructure);
 	
-	// Reversing enumeration values.
+	// 
 	ActionOnStringExchange = ?(ActionOnExchange = Enums.ActionsOnExchange.DataExport,
 								Common.EnumerationValueName(Enums.ActionsOnExchange.DataImport),
 								Common.EnumerationValueName(Enums.ActionsOnExchange.DataExport));
@@ -8793,13 +8798,13 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 	
 	IsXDTOExchangePlan = IsXDTOExchangePlan(InfobaseNode);
 	If IsXDTOExchangePlan Then
-		// Checking a predefined node alias.
+		// 
 		PredefinedNodeAlias = PredefinedNodeAlias(InfobaseNode);
 		ExchangePlanManager = ExternalConnection.ExchangePlans[Structure.CorrespondentExchangePlanName];
 		CheckNodeExistenceInCorrespondent = True;
 		If ValueIsFilled(PredefinedNodeAlias) Then
-			// Check if the node code in the peer infobase was changed.
-			// If this is the case, the alias is not required.
+			// 
+			// 
 			If ExchangePlanManager.FindByCode(PredefinedNodeAlias) <> ExchangePlanManager.EmptyRef() Then
 				Structure.CurrentExchangePlanNodeCode1 = PredefinedNodeAlias;
 				CheckNodeExistenceInCorrespondent = False;
@@ -8808,7 +8813,7 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 		If CheckNodeExistenceInCorrespondent Then
 			ExchangePlanRef = ExchangePlanManager.FindByCode(Structure.CurrentExchangePlanNodeCode1);
 			If Not ValueIsFilled(ExchangePlanRef.Code) Then
-				// If necessary, start migration to data synchronization via universal format.
+				// 
 				MessageText = NStr("en = 'Switch the peer infobase to Interim Format Data Exchange.';");
 				WriteEventLogDataExchange(MessageText, ExchangeSettingsStructure, False);
 
@@ -8903,15 +8908,15 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 	ExchangeSettingsStructureExternalConnection.Insert("StartDate", ExternalConnection.CurrentSessionDate());
 	
 	ExternalConnection.DataExchangeExternalConnection.WriteLogEventDataExchangeStart(ExchangeSettingsStructureExternalConnection);
-	// DATA EXCHANGE
+	// 
 	If ExchangeSettingsStructure.DoDataImport Then
 		If Not IsXDTOExchangePlan Then
-			// Getting exchange rules from the second infobase.
+			// 
 			ObjectsConversionRules = ExternalConnection.DataExchangeExternalConnection.GetObjectConversionRules(ExchangeSettingsStructureExternalConnection.ExchangePlanName);
 			
 			If ObjectsConversionRules = Undefined Then
 				
-				// Exchange rules must be specified.
+				// 
 				NString = NStr("en = 'Conversion rules are not specified for exchange plan %1 in the second infobase. The exchange is canceled.';",
 					Common.DefaultLanguageCode());
 				ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(NString, ExchangeSettingsStructureExternalConnection.ExchangePlanName);
@@ -8921,14 +8926,14 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 			EndIf;
 		EndIf;
 		
-		// Data processor for importing data.
+		// 
 		DataProcessorForDataImport = ExchangeSettingsStructure.DataExchangeDataProcessor;
 		DataProcessorForDataImport.ExchangeFileName = "";
 		DataProcessorForDataImport.ObjectCountPerTransaction = ExchangeSettingsStructure.TransactionItemsCount;
 		DataProcessorForDataImport.UseTransactions = (DataProcessorForDataImport.ObjectCountPerTransaction <> 1);
 		DataProcessorForDataImport.DataImportedOverExternalConnection = True;
 		
-		// Getting the initialized data processor for exporting data.
+		// 
 		If IsXDTOExchangePlan Then
 			DataExchangeDataProcessorExternalConnection = ExternalConnection.DataProcessors.ConvertXTDOObjects.Create();
 			DataExchangeDataProcessorExternalConnection.ExchangeMode = "Upload0";
@@ -8944,13 +8949,13 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 					StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Error occurred in peer infobase: %1';"),
 					ErrorProcessing.DetailErrorDescription(ErrorInfo())), ExchangeSettingsStructure, True);
 				
-				// If a setting contains errors, canceling the exchange, Canceled status.
+				// 
 				ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Canceled;
 				WriteExchangeFinish(ExchangeSettingsStructure);
 				Cancel = True;
 				Return;
 			EndTry;
-			// Specify exchange nodes.
+			// 
 			DataExchangeDataProcessorExternalConnection.BackgroundExchangeNode = Undefined;
 			DataExchangeDataProcessorExternalConnection.DontExportObjectsByRefs = True;
 			DataExchangeDataProcessorExternalConnection.ExchangeRulesFileName = "1";
@@ -8987,10 +8992,10 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 				
 			EndIf;
 		EndIf;
-		// EXPORT (CORRESPONDENT) - IMPORT (CURRENT INFOBASE)
+		// 
 		DataExchangeDataProcessorExternalConnection.RunDataExport(DataProcessorForDataImport);
 		
-		// Committing data exchange state.
+		// 
 		ExchangeSettingsStructure.ExchangeExecutionResult    = DataProcessorForDataImport.ExchangeExecutionResult();
 		ExchangeSettingsStructure.ProcessedObjectsCount = DataProcessorForDataImport.ImportedObjectCounter();
 		ExchangeSettingsStructureExternalConnection.ExchangeExecutionResultString = DataExchangeDataProcessorExternalConnection.ExchangeExecutionResultString();
@@ -9004,7 +9009,7 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 		
 	ElsIf ExchangeSettingsStructure.DoDataExport Then
 				
-		// Data processor for importing data.
+		// 
 		If IsXDTOExchangePlan Then
 			DataProcessorForDataImport = ExternalConnection.DataProcessors.ConvertXTDOObjects.Create();
 		Else
@@ -9044,7 +9049,7 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 		DataProcessorForDataImport.ObjectCountPerTransaction = ExchangeSettingsStructure.TransactionItemsCount;
 		DataProcessorForDataImport.UseTransactions = (DataProcessorForDataImport.ObjectCountPerTransaction <> 1);
 		
-		// Getting the initialized data processor for exporting data.
+		// 
 		DataExchangeXMLDataProcessor = ExchangeSettingsStructure.DataExchangeDataProcessor; //DataProcessorObject.ConvertXTDOObjects
 		DataExchangeXMLDataProcessor.ExchangeFileName = "";
 		
@@ -9055,10 +9060,10 @@ Procedure ExecuteExchangeActionForInfobaseNodeUsingExternalConnection(Cancel, In
 			
 		EndIf;
 		
-		// EXPORT (THIS INFOBASE) - IMPORT (PEER INFOBASE)
+		// 
 		DataExchangeXMLDataProcessor.RunDataExport(DataProcessorForDataImport);
 		
-		// Committing data exchange state.
+		// 
 		ExchangeSettingsStructure.ExchangeExecutionResult    = DataExchangeXMLDataProcessor.ExchangeExecutionResult();
 		ExchangeSettingsStructure.ProcessedObjectsCount = DataExchangeXMLDataProcessor.ExportedObjectCounter();
 		ExchangeSettingsStructureExternalConnection.ExchangeExecutionResultString = DataProcessorForDataImport.ExchangeExecutionResultString();
@@ -9092,12 +9097,12 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure, Val Par
 			Return;
 		EndIf;
 		
-		// {Handler: BeforeReadExchangeMessage} Start
+		// 
 		ExchangeMessage = "";
 		StandardProcessing = True;
 		
 		BeforeReadExchangeMessage(ExchangeSettingsStructure.InfobaseNode, ExchangeMessage, StandardProcessing);
-		// {Handler: BeforeReadExchangeMessage} End
+		// 
 		
 		If StandardProcessing Then
 			
@@ -9117,7 +9122,7 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure, Val Par
 			
 		EndIf;
 			
-		// Data is imported only if the exchange message is received successfully.
+		// 
 		If ExchangeSettingsStructure.ExchangeExecutionResult = Undefined Then
 			
 			HasMapSupport = ExchangePlanSettingValue(
@@ -9133,7 +9138,7 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure, Val Par
 					TempFilesStorageDirectory(),
 					UniqueExchangeMessageFileName());
 					
-				// Saving a new message for data mapping.
+				// 
 				FileID = PutFileInStorage(NameOfFileToPutInStorage);
 				MoveFile(ExchangeMessage, NameOfFileToPutInStorage);
 				
@@ -9145,7 +9150,7 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure, Val Par
 				
 				ReadMessageWithNodeChanges(ExchangeSettingsStructure, ExchangeMessage, , ParametersOnly);
 				
-				// {Handler: AfterReadExchangeMessage} Start
+				// 
 				StandardProcessing = True;
 				
 				AfterReadExchangeMessage(
@@ -9154,13 +9159,13 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure, Val Par
 							ExchangeExecutionResultCompleted(ExchangeSettingsStructure.ExchangeExecutionResult),
 							StandardProcessing,
 							Not ParametersOnly);
-				// {Handler: AfterReadExchangeMessage} End
+				// 
 				
 			EndIf;
 			
 		EndIf;
 		
-		// {Handler: AfterReadExchangeMessage} Start
+		// 
 		StandardProcessing = True;
 		
 		AfterReadExchangeMessage(
@@ -9169,7 +9174,7 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure, Val Par
 					ExchangeExecutionResultCompleted(ExchangeSettingsStructure.ExchangeExecutionResult),
 					StandardProcessing,
 					Not ParametersOnly);
-		// {Handler: AfterReadExchangeMessage} End
+		// 
 		
 		If StandardProcessing Then
 			
@@ -9186,14 +9191,14 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure, Val Par
 		
 		ExecuteExchangeMessageTransportBeforeProcessing(ExchangeSettingsStructure);
 		
-		// Export data.
+		// 
 		If ExchangeSettingsStructure.ExchangeExecutionResult = Undefined Then
 			
 			WriteMessageWithNodeChanges(ExchangeSettingsStructure, ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor.ExchangeMessageFileName());
 			
 		EndIf;
 		
-		// Sending an exchange message only if data is exported successfully.
+		// 
 		If ExchangeExecutionResultCompleted(ExchangeSettingsStructure.ExchangeExecutionResult) Then
 			
 			ExecuteExchangeMessageTransportSending(ExchangeSettingsStructure);
@@ -9206,25 +9211,25 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure, Val Par
 	
 EndProcedure
 
-// Executes data exchange process separately for each exchange scenario (setting) line.
-// Data exchange process consists of two stages:
-// - Exchange initialization - preparation of data exchange subsystem to perform data exchange
-// - Data exchange       - a process of reading a message file and then importing this data to infobase 
-//                          or exporting changes to the message file.
-// The initialization stage is performed once per session and is saved to the session cache at server 
-// until the session is restarted or cached values of data exchange subsystem are reset.
-// Cached values are reset when data that affects the data exchange process is changed
-// (transport settings, exchange settings, filter settings on exchange plan nodes).
+// Performs the data exchange process separately for each line of the exchange script (settings).
+// The data exchange process consists of two stages:
+// - initialization of the exchange - preparation of the data exchange subsystem for the exchange process
+// - data exchange is the process of reading a message file with subsequent loading of this data into the information system 
+//                          or uploading changes to the message file.
+// The initialization stage is performed once per session and is stored in the session cache on the server 
+// until the session is restarted or the values of the data exchange subsystem are reset.
+// Reset of reused values occurs when data changes that affect the data exchange process
+// (transport settings, exchange execution settings, selection settings on exchange plan nodes).
 //
-// The exchange can be executed completely for all scenario lines
-// or can be executed for a single row of the exchange scenario TS.
+// The exchange can be performed completely for all lines of the script,
+// or it can be performed for a separate line of the PM exchange script.
 //
 // Parameters:
-//  Cancel                     - Boolean - a cancellation flag. It appears when scenario execution errors occur.
-//  ExchangeExecutionSettings - CatalogRef.DataExchangeScenarios - a catalog item
-//                              whose attribute values are used to perform data exchange.
-//  LineNumber               - Number - a number of the line to use for performing data exchange.
-//                              If it is not specified, all lines are involved in data exchange.
+//  Cancel                     - Boolean -  failure flag; raised if an error occurs during script execution.
+//  ExchangeExecutionSettings - CatalogRef.DataExchangeScenarios -  a reference
+//                              list element that will be used for data exchange.
+//  LineNumber               - Number -  number of the line that will be used for data exchange.
+//                              If not specified, then the data exchange will be executed for all rows.
 // 
 Procedure ExecuteDataExchangeByDataExchangeScenario(Cancel, ExchangeExecutionSettings, LineNumber = Undefined) Export
 	
@@ -9317,10 +9322,10 @@ Procedure ExecuteDataExchangeByDataExchangeScenario(Cancel, ExchangeExecutionSet
 			
 		Else
 			
-			// DATA EXCHANGE INITIALIZATION
+			// 
 			ExchangeSettingsStructure = DataExchangeSettings(Selection.ExchangeExecutionSettings, Selection.LineNumber);
 			
-			// If a setting contains errors, canceling the exchange, Canceled status.
+			// 
 			If ExchangeSettingsStructure.Cancel Then
 				
 				CancelByScenarioString = True;
@@ -9329,19 +9334,19 @@ Procedure ExecuteDataExchangeByDataExchangeScenario(Cancel, ExchangeExecutionSet
 				
 				ExchangeSettingsStructure.ExchangeExecutionResult = Undefined;
 				
-				// Adding data exchange message to the event log.
+				// 
 				MessageString = NStr("en = 'Data exchange started. Setting: %1';", Common.DefaultLanguageCode());
 				MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ExchangeSettingsStructure.ExchangeExecutionSettingDescription);
 				WriteEventLogDataExchange(MessageString, ExchangeSettingsStructure);
 				
-				// DATA EXCHANGE
+				// 
 				ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure);
 				
 				CancelByScenarioString = (ExchangeExecutionResultCompleted(ExchangeSettingsStructure.ExchangeExecutionResult) <> True);
 				
 			EndIf;
 			
-			// Registering data exchange log in the event log.
+			// 
 			WriteExchangeFinish(ExchangeSettingsStructure);
 			
 		EndIf;
@@ -9358,11 +9363,11 @@ Procedure ExecuteDataExchangeByDataExchangeScenario(Cancel, ExchangeExecutionSet
 	
 EndProcedure
 
-// An entry point for data exchange using scheduled job exchange scenario.
+// The entry point for executing data exchange according to the scenario of sharing a regular job.
 //
 // Parameters:
-//  ExchangeScenarioCode - String - a code of the Data exchange scenarios catalog item for which data
-//                               exchange is to be executed.
+//  ExchangeScenarioCode - String -  code of the "data exchange Scenarios" reference element for which data exchange will be performed
+//                               .
 // 
 Procedure ExecuteDataExchangeByScheduledJob(ExchangeScenarioCode) Export
 	
@@ -9405,33 +9410,33 @@ Procedure ExecuteDataExchangeByScheduledJob(ExchangeScenarioCode) Export
 	
 EndProcedure
 
-// An entry point to iterate data exchange, that is export and import data for the exchange plan node.
+// The entry point for performing the data exchange iteration is loading and unloading data for the exchange plan node.
 //
 // Parameters:
-//  InfobaseNode - ExchangePlanRef - an exchange plan node for which data exchange iteration is being executed.
+//  InfobaseNode - ExchangePlanRef -  the exchange plan node for which the data exchange iteration is performed.
 //  ExchangeParameters - Structure:
-//    * ExecuteImport1 - Boolean - indicates whether data export is required.
+//    * ExecuteImport1 - Boolean -  flag of the need to load data.
 //        Optional, the default value is True.
-//    * ExecuteExport2 - Boolean - indicates whether data export is required.
+//    * ExecuteExport2 - Boolean -  flag of the need to perform data unloading.
 //        Optional, the default value is True.
-//    * ExchangeMessagesTransportKind - EnumRef.ExchangeMessagesTransportTypes - Transport type 
-//        used in the data exchange. 
-//        If the value is not set in the information register, the default is Enums.ExchangeMessagesTransportTypes.FILE.
+//    * ExchangeMessagesTransportKind - EnumRef.ExchangeMessagesTransportTypes -  the type of transport 
+//        that will be used in the data exchange process. 
+//        If the value is not set in the PC, then the default value is Enumerations.viewtransportcommunication exchange.FILE.
 //        Optional, the default value is Undefined.
-//    * TimeConsumingOperation - Boolean - indicates whether it is a long-running operation.
+//    * TimeConsumingOperation - Boolean -  contains information about whether the operation is lengthy.
 //        Optional, the default value is False.
-//    * OperationID - String - contains a long-running operation ID as a string.
-//        Optional, default value is an empty string.
-//    * FileID - String - message file ID in the service.
-//        Optional, default value is an empty string.
-//    * TimeConsumingOperationAllowed - Boolean - indicates whether long-running operation is allowed.
+//    * OperationID - String -  contains the ID of a long-running operation in the form of a string.
+//        Optional, the default value is an empty string.
+//    * FileID - String -  id of the message file in the service.
+//        Optional, the default value is an empty string.
+//    * TimeConsumingOperationAllowed - Boolean -  contains a sign that a long-term operation is allowed.
 //        Optional, the default value is False.
-//    * AuthenticationParameters - Structure - contains authentication parameters for exchange via Web service.
+//    * AuthenticationParameters - Structure -  contains authentication parameters for exchange via a Web service.
 //        Optional, the default value is Undefined.
-//    * ParametersOnly - Boolean - indicates that data are imported selectively on DIB exchange.
+//    * ParametersOnly - Boolean -  contains a sign of selective data loading during the exchange of RIB.
 //        Optional, the default value is False.
-//  Cancel - Boolean - a cancel flag, appears if errors occur on data exchange.
-//  AdditionalParameters - Structure - reserved for internal use.
+//  Cancel - Boolean -  failure flag; raised if an error occurs during the exchange.
+//  AdditionalParameters - Structure -  reserved for service use.
 // 
 Procedure ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, Cancel, AdditionalParameters = Undefined) Export
 	
@@ -9452,7 +9457,7 @@ Procedure ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, C
 		
 	EndIf;
 	
-	// Exchanging data through external connection.
+	// 
 	If ExchangeParameters.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM Then
 		
 		CheckExternalConnectionAvailability();
@@ -9467,7 +9472,7 @@ Procedure ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, C
 				InfobaseNode, ActionExport, Undefined, ExchangeParameters.MessageForDataMapping);
 		EndIf;
 		
-	ElsIf ExchangeParameters.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS Then // Exchange data via web service.
+	ElsIf ExchangeParameters.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS Then // 
 		
 		If ExchangeParameters.ExecuteImport1 Then
 			DataExchangeWebService.ExecuteExchangeActionForInfobaseNodeUsingWebService(Cancel,
@@ -9479,7 +9484,7 @@ Procedure ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, C
 				InfobaseNode, ActionExport, ExchangeParameters);
 		EndIf;
 			
-	Else // Exchanging data through ordinary channels.
+	Else // 
 		
 		ParametersOnly = ExchangeParameters.ParametersOnly;
 		ExchangeMessagesTransportKind = ExchangeParameters.ExchangeMessagesTransportKind;
@@ -9651,7 +9656,7 @@ Procedure ExecuteDataExchangeWithExternalSystemDataImport(ExchangeSettingsStruct
 	MessageFileName = CommonClientServer.GetFullFileName(
 		TempDirectoryName, UniqueExchangeMessageFileName());
 		
-	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor;
+	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor; // 
 	
 	MessageReceived = False;
 	Try
@@ -9729,7 +9734,7 @@ EndProcedure
 
 Procedure ExecuteDataExchangeWithExternalSystemExportXDTOSettings(ExchangeSettingsStructure)
 	
-	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor;
+	ExchangeMessageTransportDataProcessor = ExchangeSettingsStructure.ExchangeMessageTransportDataProcessor; // 
 	
 	ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExchangeSettingsStructure.InfobaseNode);
 		
@@ -9759,8 +9764,8 @@ Procedure BeforeReadExchangeMessage(Val Recipient, ExchangeMessage, StandardProc
 		SavedExchangeMessage = DataExchangeMessageFromMasterNode();
 		
 		If TypeOf(SavedExchangeMessage) = Type("BinaryData") Then
-			// Convert the value of the constant "DataExchangeMessageFromMasterNode"
-			// into a new storage format and re-read it.
+			// 
+			// 
 			SetDataExchangeMessageFromMasterNode(SavedExchangeMessage, Recipient);
 			SavedExchangeMessage = DataExchangeMessageFromMasterNode();
 		EndIf;
@@ -9799,7 +9804,7 @@ Procedure AfterReadExchangeMessage(Val Recipient, Val ExchangeMessage, Val Messa
 		
 		If Not MessageRead
 		   And DataExchangeInternal.DataExchangeMessageImportModeBeforeStart("MessageReceivedFromCache") Then
-			// Cannot read the message received from cache. Cache requires cleanup.
+			// 
 			ClearDataExchangeMessageFromMasterNode();
 			Return;
 		EndIf;
@@ -9808,9 +9813,9 @@ Procedure AfterReadExchangeMessage(Val Recipient, Val ExchangeMessage, Val Messa
 		
 		If ConfigurationChanged() Or DataExchangeInternal.LoadExtensionsThatChangeDataStructure() Then
 			
-			// Update the cache if it has an outdated message,
-			// not only at the initial import of configuration changes.
-			// (In case the configuration is modified again.)
+			// 
+			// 
+			// 
 			UpdateCachedMessage = True;
 			
 			If Not MessageRead Then
@@ -9831,8 +9836,8 @@ Procedure AfterReadExchangeMessage(Val Recipient, Val ExchangeMessage, Val Messa
 				EndIf;
 				
 			Else
-				// As an exchange message may be read without importing metadata,
-				// save the message after the app operating parameters are read to prevent re-importing.
+				// 
+				// 
 				// 
 				UpdateCachedMessage = True;
 			EndIf;
@@ -9883,16 +9888,16 @@ EndProcedure
 
 #Region InitializeExchangeSettingsStructure_Private
 
-// Initializes the data exchange subsystem to execute the exchange process.
+// Initializes the data exchange subsystem to perform the exchange process.
 //
 // Parameters:
 // 
 // Returns:
-//  Structure - a structure with all necessary data and objects to execute exchange.
+//  Structure -  a structure with all the necessary data and objects to perform the exchange.
 //
 Function ExchangeSettingsForExternalConnection(InfobaseNode, ActionOnExchange, TransactionItemsCount)
 	
-	// Function return value.
+	// 
 	ExchangeSettingsStructure = BaseExchangeSettingsStructure();
 	
 	ExchangeSettingsStructure.InfobaseNode = InfobaseNode;
@@ -9912,7 +9917,7 @@ Function ExchangeSettingsForExternalConnection(InfobaseNode, ActionOnExchange, T
 	
 	ExchangeSettingsStructure.TransactionItemsCount = TransactionItemsCount;
 	
-	// CALCULATED VALUES
+	// 
 	ExchangeSettingsStructure.DoDataImport = (ExchangeSettingsStructure.ActionOnExchange = Enums.ActionsOnExchange.DataImport);
 	ExchangeSettingsStructure.DoDataExport = (ExchangeSettingsStructure.ActionOnExchange = Enums.ActionsOnExchange.DataExport);
 	
@@ -9923,37 +9928,37 @@ Function ExchangeSettingsForExternalConnection(InfobaseNode, ActionOnExchange, T
 	ExchangeSettingsStructure.CurrentExchangePlanNode = DataExchangeCached.GetThisExchangePlanNode(ExchangeSettingsStructure.ExchangePlanName);
 	ExchangeSettingsStructure.CurrentExchangePlanNodeCode1 = NodeIDForExchange(ExchangeSettingsStructure.InfobaseNode);
 	
-	// Getting the message key for the event log.
+	// 
 	ExchangeSettingsStructure.EventLogMessageKey = EventLogMessageKey(ExchangeSettingsStructure.InfobaseNode, ExchangeSettingsStructure.ActionOnExchange);
 	
 	ExchangeSettingsStructure.ExchangeTransportKind = Enums.ExchangeMessagesTransportTypes.COM;
 	
 	SetDebugModeSettingsForStructure(ExchangeSettingsStructure);
 	
-	// Validate settings structure values for the data exchange. Log errors.
+	// 
 	CheckExchangeStructure(ExchangeSettingsStructure);
 	
-	// Canceling if settings contain errors.
+	// 
 	If ExchangeSettingsStructure.Cancel Then
 		Return ExchangeSettingsStructure;
 	EndIf;
 	
-	// Initializing the exchange data processor.
+	// 
 	InitDataExchangeDataProcessorByConversionRules(ExchangeSettingsStructure);
 	
 	Return ExchangeSettingsStructure;
 EndFunction
 
-// Initializes the data exchange subsystem to execute the exchange process.
+// Initializes the data exchange subsystem to perform the exchange process.
 //
 // Parameters:
 // 
 // Returns:
-//  СтруктураНастроекОбмена - Structure - a structure with all necessary data and objects to execute exchange.
+//  СтруктураНастроекОбмена - 
 //
 Function DataExchangeSettings(ExchangeExecutionSettings, LineNumber)
 	
-	// Function return value.
+	// 
 	ExchangeSettingsStructure = BaseExchangeSettingsStructure();
 	
 	InitExchangeSettingsStructure(ExchangeSettingsStructure, ExchangeExecutionSettings, LineNumber);
@@ -9964,18 +9969,18 @@ Function DataExchangeSettings(ExchangeExecutionSettings, LineNumber)
 	
 	SetDebugModeSettingsForStructure(ExchangeSettingsStructure);
 	
-	// Validate settings structure values for the data exchange. Log errors.
+	// 
 	CheckExchangeStructure(ExchangeSettingsStructure);
 	
-	// Canceling if settings contain errors.
+	// 
 	If ExchangeSettingsStructure.Cancel Then
 		Return ExchangeSettingsStructure;
 	EndIf;
 	
-	// Initializing the exchange message transport data processor.
+	// 
 	InitExchangeMessageTransportDataProcessor(ExchangeSettingsStructure);
 	
-	// Initializing the exchange data processor.
+	// 
 	If ExchangeSettingsStructure.IsDIBExchange Then
 		
 		InitDataExchangeDataProcessor(ExchangeSettingsStructure);
@@ -9989,11 +9994,11 @@ Function DataExchangeSettings(ExchangeExecutionSettings, LineNumber)
 	Return ExchangeSettingsStructure;
 EndFunction
 
-// Gets the transport settings structure for data exchange.
+// Retrieves the structure of transport settings for data exchange.
 //
 Function ExchangeTransportSettings(InfobaseNode, ExchangeMessagesTransportKind) Export
 	
-	// Function return value.
+	// 
 	ExchangeSettingsStructure = BaseExchangeSettingsStructure();
 	
 	ExchangeSettingsStructure.InfobaseNode = InfobaseNode;
@@ -10002,25 +10007,25 @@ Function ExchangeTransportSettings(InfobaseNode, ExchangeMessagesTransportKind) 
 	
 	InitExchangeSettingsStructureForInfobaseNode(ExchangeSettingsStructure, True);
 	
-	// Validate settings structure values for the data exchange. Log errors.
+	// 
 	CheckExchangeStructure(ExchangeSettingsStructure);
 	
-	// Canceling if settings contain errors.
+	// 
 	If ExchangeSettingsStructure.Cancel Then
 		Return ExchangeSettingsStructure;
 	EndIf;
 	
-	// Initializing the exchange message transport data processor.
+	// 
 	InitExchangeMessageTransportDataProcessor(ExchangeSettingsStructure);
 	
 	Return ExchangeSettingsStructure;
 EndFunction
 
-// Exchange settings structure for the interactive import session.
+// The structure of the exchange settings for the interactive download session.
 // 
 // Parameters:
-//  InfobaseNode - ExchangePlanRef - infobase node.
-//  ExchangeMessageFileName - String -  exchange message file name.
+//  InfobaseNode - ExchangePlanRef -  the node information base.
+//  ExchangeMessageFileName - String -    the file name of the exchange message.
 // 
 // Returns:
 //   See BaseExchangeSettingsStructure.
@@ -10064,14 +10069,14 @@ Procedure InitExchangeSettingsStructure(ExchangeSettingsStructure, ExchangeExecu
 	Selection = Query.Execute().Select();
 	Selection.Next();
 	
-	// Filling structure property value.
+	// 
 	FillPropertyValues(ExchangeSettingsStructure, Selection);
 	
 	ExchangeSettingsStructure.IsDIBExchange = DataExchangeCached.IsDistributedInfobaseNode(ExchangeSettingsStructure.InfobaseNode);
 	
 	ExchangeSettingsStructure.EventLogMessageKey = NStr("en = 'Data exchange';");
 	
-	// Checking whether basic exchange settings structure fields are filled.
+	// 
 	CheckMainExchangeSettingsStructureFields(ExchangeSettingsStructure);
 	
 	If ExchangeSettingsStructure.Cancel Then
@@ -10083,11 +10088,12 @@ Procedure InitExchangeSettingsStructure(ExchangeSettingsStructure, ExchangeExecu
 	ExchangeSettingsStructure.ExchangeByObjectConversionRules = DataExchangeCached.IsUniversalDataExchangeNode(ExchangeSettingsStructure.InfobaseNode);
 	
 	ExchangeSettingsStructure.CurrentExchangePlanNode    = ExchangePlans[ExchangeSettingsStructure.ExchangePlanName].ThisNode();
-	ExchangeSettingsStructure.CurrentExchangePlanNodeCode1 = ExchangeSettingsStructure.CurrentExchangePlanNode.Code;
+	ExchangeSettingsStructure.CurrentExchangePlanNodeCode1 = 
+		Common.ObjectAttributeValue(ExchangeSettingsStructure.CurrentExchangePlanNode, "Code");
 	
 	ExchangeSettingsStructure.DataExchangeMessageTransportDataProcessorName = DataExchangeMessageTransportDataProcessorName(ExchangeSettingsStructure.ExchangeTransportKind);
 	
-	// Getting the message key for the event log.
+	// 
 	ExchangeSettingsStructure.EventLogMessageKey = EventLogMessageKey(ExchangeSettingsStructure.InfobaseNode, ExchangeSettingsStructure.ActionOnExchange);
 	
 	If DataExchangeCached.IsMessagesExchangeNode(ExchangeSettingsStructure.InfobaseNode) Then
@@ -10110,7 +10116,7 @@ Procedure InitExchangeSettingsStructureForInfobaseNode(
 	ExchangeSettingsStructure.InfobaseNodeCode1 = CorrespondentNodeIDForExchange(ExchangeSettingsStructure.InfobaseNode);
 	ExchangeSettingsStructure.InfobaseNodeDescription = PropertyStructure.Description;
 	
-	// Getting exchange transport settings.
+	// 
 	If DataExchangeCached.IsMessagesExchangeNode(ExchangeSettingsStructure.InfobaseNode) Then
 		ModuleMessagesExchangeTransportSettings = Common.CommonModule("InformationRegisters.MessageExchangeTransportSettings");
 		ExchangeSettingsStructure.TransportSettings = ModuleMessagesExchangeTransportSettings.TransportSettingsWS(
@@ -10123,12 +10129,12 @@ Procedure InitExchangeSettingsStructureForInfobaseNode(
 		
 		If UseTransportSettings Then
 			
-			// Use the default value if the transport type is not specified.
+			// 
 			If ExchangeSettingsStructure.ExchangeTransportKind = Undefined Then
 				ExchangeSettingsStructure.ExchangeTransportKind = ExchangeSettingsStructure.TransportSettings.DefaultExchangeMessagesTransportKind;
 			EndIf;
 			
-			// Use the FILE transport if the transport type is not specified.
+			// 
 			If Not ValueIsFilled(ExchangeSettingsStructure.ExchangeTransportKind) Then
 				
 				ExchangeSettingsStructure.ExchangeTransportKind = Enums.ExchangeMessagesTransportTypes.FILE;
@@ -10147,11 +10153,11 @@ Procedure InitExchangeSettingsStructureForInfobaseNode(
 		
 	EndIf;
 	
-	// DEFAULT VALUES
+	// 
 	ExchangeSettingsStructure.ExchangeExecutionSettings             = Undefined;
 	ExchangeSettingsStructure.ExchangeExecutionSettingDescription = "";
 	
-	// CALCULATED VALUES
+	// 
 	ExchangeSettingsStructure.DoDataImport = (ExchangeSettingsStructure.ActionOnExchange = Enums.ActionsOnExchange.DataImport);
 	ExchangeSettingsStructure.DoDataExport = (ExchangeSettingsStructure.ActionOnExchange = Enums.ActionsOnExchange.DataExport);
 	
@@ -10165,27 +10171,27 @@ Procedure InitExchangeSettingsStructureForInfobaseNode(
 	ExchangeSettingsStructure.CurrentExchangePlanNode    = ExchangePlans[ExchangeSettingsStructure.ExchangePlanName].ThisNode();
 	ExchangeSettingsStructure.CurrentExchangePlanNodeCode1 = NodeIDForExchange(ExchangeSettingsStructure.InfobaseNode);
 	
-	// Getting the message key for the event log.
+	// 
 	ExchangeSettingsStructure.EventLogMessageKey = EventLogMessageKey(ExchangeSettingsStructure.InfobaseNode, ExchangeSettingsStructure.ActionOnExchange);
 	
 EndProcedure
 
-// Base exchange settings structure.
+// The structure of the exchange settings is basic.
 // 
 // Returns:
 //  Structure:
 //   * StartDate - Date
 //   * EndDate - Date
 //   * LineNumber - Number 
-//   * ExchangeExecutionSettings - CatalogRef.DataExchangeScenarios - a catalog item
-//	                             whose attribute values are used to perform data exchange.
-//   * ExchangeExecutionSettingDescription - String - exchange setup description.
-//   * InfobaseNode - ExchangePlanRef - an exchange plan node, for which data is being exchanged.
+//   * ExchangeExecutionSettings - CatalogRef.DataExchangeScenarios -  a reference
+//	                             list element that will be used for data exchange.
+//   * ExchangeExecutionSettingDescription - String -  the name of the exchange execution setting.
+//   * InfobaseNode - ExchangePlanRef -  the node of the exchange plan for which the data exchange action is performed.
 //   * InfobaseNodeCode1 - String
 //   * InfobaseNodeDescription - String
-//   * ExchangeTransportKind - EnumRef.ExchangeMessagesTransportTypes - Transport type
-//	                       that will be used in the data exchange. 
-//   * ActionOnExchange - EnumRef.ActionsOnExchange - a running data exchange action.
+//   * ExchangeTransportKind - EnumRef.ExchangeMessagesTransportTypes -  the type of transport
+//	                       that will be used in the data exchange process. 
+//   * ActionOnExchange - EnumRef.ActionsOnExchange -  the data exchange action that is being performed.
 //   * TransactionItemsCount - Number
 //   * DoDataImport - Boolean
 //   * DoDataExport - Boolean
@@ -10203,9 +10209,9 @@ EndProcedure
 //   * ConversionRulesAreRequired - Boolean
 //   * DataExchangeMessageTransportDataProcessorName - String 
 //   * EventLogMessageKey - String
-//   * TransportSettings - Arbitrary - saved transport settings of external system exchange messages. 
-//   * ObjectsConversionRules - ValueStorage - read object conversion rules.
-//                              - Undefined - if conversion rules were not imported to the base for 
+//   * TransportSettings - Arbitrary -  saved settings for the transport of exchange messages from the external system. 
+//   * ObjectsConversionRules - ValueStorage -  the read-out rules for converting objects.
+//                              - Undefined -  
 //   * RulesAreImported - Boolean
 //   * ExportHandlersDebug - Boolean
 //   * ImportHandlersDebug - Boolean
@@ -10216,7 +10222,7 @@ EndProcedure
 //   * ContinueOnError - Boolean
 //   * AdditionalParameters - Structure
 //   * ExchangeExecutionResult - EnumRef.ExchangeExecutionResults
-//   * ActionOnExchange - EnumRef.ActionsOnExchange - a running data exchange action.
+//   * ActionOnExchange - EnumRef.ActionsOnExchange -  the data exchange action that is being performed.
 //   * ProcessedObjectsCount - Number
 //   * MessageOnExchange - String
 //   * ErrorMessageString - String
@@ -10225,7 +10231,7 @@ Function BaseExchangeSettingsStructure()
 	
 	ExchangeSettingsStructure = New Structure;
 	
-	// Structure of settings by query fields.
+	// 
 	
 	ExchangeSettingsStructure.Insert("StartDate", CurrentSessionDate());
 	ExchangeSettingsStructure.Insert("EndDate");
@@ -10238,12 +10244,12 @@ Function BaseExchangeSettingsStructure()
 	ExchangeSettingsStructure.Insert("InfobaseNodeDescription", "");
 	ExchangeSettingsStructure.Insert("ExchangeTransportKind");
 	ExchangeSettingsStructure.Insert("ActionOnExchange");
-	ExchangeSettingsStructure.Insert("TransactionItemsCount", 1); // each item requires a single transaction.
+	ExchangeSettingsStructure.Insert("TransactionItemsCount", 1); // 
 	ExchangeSettingsStructure.Insert("DoDataImport", False);
 	ExchangeSettingsStructure.Insert("DoDataExport", False);
 	ExchangeSettingsStructure.Insert("UseLargeVolumeDataTransfer", True);
 	
-	// Additional settings structure.
+	// 
 	ExchangeSettingsStructure.Insert("Cancel", False);
 	ExchangeSettingsStructure.Insert("IsDIBExchange", False);
 	
@@ -10275,10 +10281,10 @@ Function BaseExchangeSettingsStructure()
 	ExchangeSettingsStructure.Insert("ExchangeProtocolFileName", "");
 	ExchangeSettingsStructure.Insert("ContinueOnError", False);
 	
-	// Structure for passing arbitrary additional parameters.
+	// 
 	ExchangeSettingsStructure.Insert("AdditionalParameters", New Structure);
 	
-	// Structure for adding event log entries.
+	// 
 	ExchangeSettingsStructure.Insert("ExchangeExecutionResult");
 	ExchangeSettingsStructure.Insert("ActionOnExchange");
 	ExchangeSettingsStructure.Insert("ProcessedObjectsCount", 0);
@@ -10292,7 +10298,7 @@ Procedure CheckMainExchangeSettingsStructureFields(ExchangeSettingsStructure)
 	
 	If Not ValueIsFilled(ExchangeSettingsStructure.InfobaseNode) Then
 		
-		// The infobase node must be specified.
+		// 
 		ErrorMessageString = NStr(
 		"en = 'Peer infobase node is not specified. The data exchange is canceled.';",
 			Common.DefaultLanguageCode());
@@ -10323,7 +10329,7 @@ Procedure CheckExchangeStructure(ExchangeSettingsStructure, UseTransportSettings
 	
 	If Not ValueIsFilled(ExchangeSettingsStructure.InfobaseNode) Then
 		
-		// The infobase node must be specified.
+		// 
 		ErrorMessageString = NStr(
 		"en = 'Peer infobase node is not specified. The data exchange is canceled.';",
 			Common.DefaultLanguageCode());
@@ -10346,9 +10352,9 @@ Procedure CheckExchangeStructure(ExchangeSettingsStructure, UseTransportSettings
 		
 		WriteExchangeInitializationFinish(ExchangeSettingsStructure);
 		
-	ElsIf ExchangeSettingsStructure.InfobaseNode.DeletionMark Then
+	ElsIf Common.ObjectAttributeValue(ExchangeSettingsStructure.InfobaseNode, "DeletionMark") Then
 		
-		// The infobase node cannot be marked for deletion.
+		// 
 		ErrorMessageString = NStr("en = 'The infobase node is marked for deletion. The data exchange is canceled.';",
 			Common.DefaultLanguageCode());
 		WriteEventLogDataExchange(ErrorMessageString, ExchangeSettingsStructure, True);
@@ -10357,7 +10363,7 @@ Procedure CheckExchangeStructure(ExchangeSettingsStructure, UseTransportSettings
 	
 	ElsIf ExchangeSettingsStructure.InfobaseNode = ExchangeSettingsStructure.CurrentExchangePlanNode Then
 		
-		// The exchange with the current infobase node cannot be provided.
+		// 
 		ErrorMessageString = NStr(
 		"en = 'Cannot exchange data with the infobase node. The data exchange is canceled.';",
 			Common.DefaultLanguageCode());
@@ -10368,7 +10374,7 @@ Procedure CheckExchangeStructure(ExchangeSettingsStructure, UseTransportSettings
 	ElsIf IsBlankString(ExchangeSettingsStructure.InfobaseNodeCode1)
 		  Or IsBlankString(ExchangeSettingsStructure.CurrentExchangePlanNodeCode1) Then
 		
-		// The infobase codes must be specified.
+		// 
 		ErrorMessageString = NStr("en = 'An exchange node contains no code. The data exchange is canceled.';",
 			Common.DefaultLanguageCode());
 		WriteEventLogDataExchange(ErrorMessageString, ExchangeSettingsStructure, True);
@@ -10409,15 +10415,15 @@ EndProcedure
 
 Procedure InitDataExchangeDataProcessor(ExchangeSettingsStructure)
 	
-	// Canceling initialization if settings contain errors.
+	// 
 	If ExchangeSettingsStructure.Cancel Then
 		Return;
 	EndIf;
 	
-	// Create a data exchange processor.
+	// Creating
 	DataExchangeDataProcessor = DataProcessors.DistributedInfobasesObjectsConversion.Create();
 	
-	// Initialize properties.
+	// 
 	DataExchangeDataProcessor.InfobaseNode          = ExchangeSettingsStructure.InfobaseNode;
 	DataExchangeDataProcessor.TransactionItemsCount  = ExchangeSettingsStructure.TransactionItemsCount;
 	DataExchangeDataProcessor.EventLogMessageKey = ExchangeSettingsStructure.EventLogMessageKey;
@@ -10430,7 +10436,7 @@ Procedure InitDataExchangeDataProcessorByConversionRules(ExchangeSettingsStructu
 	
 	Var DataExchangeDataProcessor;
 	
-	// Canceling initialization if settings contain errors.
+	// 
 	If ExchangeSettingsStructure.Cancel Then
 		Return;
 	EndIf;
@@ -10456,7 +10462,7 @@ Procedure InitExchangeMessageTransportDataProcessor(ExchangeSettingsStructure)
 		Return;
 	EndIf;
 	
-	// Create a transport data processor.
+	// 
 	ExchangeMessageTransportDataProcessor = DataProcessors[ExchangeSettingsStructure.DataExchangeMessageTransportDataProcessorName].Create();
 	
 	IsOutgoingMessage = ExchangeSettingsStructure.DoDataExport;
@@ -10474,17 +10480,17 @@ Procedure InitExchangeMessageTransportDataProcessor(ExchangeSettingsStructure)
 	
 	Transliteration = ?(Transliteration = Undefined, False, Transliteration);
 	
-	// Filling in common attributes (the same for all transport data processors).
+	// 
 	ExchangeMessageTransportDataProcessor.MessageFileNameTemplate = MessageFileNameTemplate(
 		ExchangeSettingsStructure.CurrentExchangePlanNode,
 		ExchangeSettingsStructure.InfobaseNode,
 		IsOutgoingMessage,
 		Transliteration);
 	
-	// Filling in transport settings (various for each transport data processor).
+	// 
 	FillPropertyValues(ExchangeMessageTransportDataProcessor, ExchangeSettingsStructure.TransportSettings);
 	
-	// Initialize the transport.
+	// 
 	ExchangeMessageTransportDataProcessor.Initialize();
 	
 	ExchangeSettingsStructure.Insert("ExchangeMessageTransportDataProcessor", ExchangeMessageTransportDataProcessor);
@@ -10501,14 +10507,14 @@ Function DataExchangeDataProcessorForExport(ExchangeSettingsStructure)
 	
 	DataExchangeDataProcessor.ExchangeMode = "Upload0";
 	
-	// If the data processor supports the conversion rule mechanism, the following actions can be executed.
+	// 
 	If DataExchangeDataProcessor.Metadata().Attributes.Find("ExchangeRulesFileName") <> Undefined Then
 		SetDataExportExchangeRules(DataExchangeDataProcessor, ExchangeSettingsStructure);
 		DataExchangeDataProcessor.DontExportObjectsByRefs = True;
 		DataExchangeDataProcessor.ExchangeRulesFileName        = "1";
 	EndIf;
 	
-	// If the data processor supports the background exchange, the following actions can be executed.
+	// 
 	If DataExchangeDataProcessor.Metadata().Attributes.Find("BackgroundExchangeNode") <> Undefined Then
 		DataExchangeDataProcessor.BackgroundExchangeNode = Undefined;
 	EndIf;
@@ -10566,7 +10572,7 @@ Procedure SetDataExportExchangeRules(DataExchangeXMLDataProcessor, ExchangeSetti
 	
 	If ObjectsConversionRules = Undefined Then
 		
-		// Exchange rules must be specified.
+		// 
 		ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Conversion rules are not specified. Exchange plan: %1. The data export is canceled.';", Common.DefaultLanguageCode()),
 			ExchangeSettingsStructure.ExchangePlanName);
@@ -10597,7 +10603,7 @@ Procedure SetDataImportExchangeRules(DataExchangeXMLDataProcessor, ExchangeSetti
 		If Not ExchangeSettingsStructure.Property("ConversionRulesAreRequired")
 			Or ExchangeSettingsStructure.ConversionRulesAreRequired = True Then
 		
-			// Exchange rules must be specified.
+			// 
 			NString = NStr("en = 'Conversion rules are not specified. Exchange plan: %1. The data import is canceled.';",
 				Common.DefaultLanguageCode());
 			ErrorMessageString = StringFunctionsClientServer.SubstituteParametersToString(NString, ExchangeSettingsStructure.ExchangePlanName);
@@ -10622,7 +10628,7 @@ Procedure SetDataImportExchangeRules(DataExchangeXMLDataProcessor, ExchangeSetti
 	
 EndProcedure
 
-// Reads debugging settings from the infobase and sets them for the exchange structure.
+// Reads debugging settings from the IB and sets them for the exchange structure.
 //
 Procedure SetDebugModeSettingsForStructure(ExchangeSettingsStructure, IsExternalConnection = False)
 	
@@ -10699,7 +10705,7 @@ Procedure SetDebugModeSettingsForStructure(ExchangeSettingsStructure, IsExternal
 	
 EndProcedure
 
-// Reads debugging settings from the infobase and sets them for the structure of exchange settings.
+// Reads debugging settings from the IB and sets them for the exchange settings structure.
 //
 Procedure SetDebugModeSettingsForDataProcessor(DataExchangeDataProcessor, ExchangeSettingsStructure)
 	
@@ -10732,7 +10738,7 @@ Procedure SetDebugModeSettingsForDataProcessor(DataExchangeDataProcessor, Exchan
 	
 EndProcedure
 
-// Sets up export settings for the data processor.
+// Sets the upload settings for processing.
 //
 Procedure SetExportDebugSettingsForExchangeRules(DataExchangeDataProcessor, ExchangePlanName, DebugMode) Export
 	
@@ -10787,8 +10793,8 @@ Function MessageFileNameTemplate(CurrentExchangePlanNode, InfobaseNode, IsOutgoi
 	EndIf;
 	
 	If IsOutgoingMessage Or UseVirtualNodeCodeOnGet Then
-		// This is an exchange with a peer infobase that is unaware of the predefined node's new code.
-		// Instead, use the code from the register when generating the exchange message filename.
+		// 
+		// 
 		PredefinedNodeAlias = PredefinedNodeAlias(InfobaseNode);
 		If ValueIsFilled(PredefinedNodeAlias) Then
 			If IsOutgoingMessage Then
@@ -10801,7 +10807,7 @@ Function MessageFileNameTemplate(CurrentExchangePlanNode, InfobaseNode, IsOutgoi
 	
 	MessageFileName = ExchangeMessageFileName(SenderCode, RecipientCode, IsOutgoingMessage);
 	
-	// Considering the transliteration setting for the exchange plan node.
+	// 
 	If Transliteration Then
 		MessageFileName = StringFunctions.LatinString(MessageFileName);
 	EndIf;
@@ -10819,7 +10825,7 @@ Procedure InitMessagesOfExchangeWithExternalSystemTransportProcessing(ExchangeSe
 		ConnectionParameters = InformationRegisters.DataExchangeTransportSettings.ExternalSystemTransportSettings(
 			ExchangeSettingsStructure.InfobaseNode);
 		
-		// Initialize the transport.
+		// 
 		ExchangeMessageTransportDataProcessor.Initialize(ConnectionParameters);
 		
 		ExchangeSettingsStructure.Insert("ExchangeMessageTransportDataProcessor", ExchangeMessageTransportDataProcessor);
@@ -10921,8 +10927,8 @@ Procedure OnFillToDoListSynchronizationWarnings(ToDoList)
 		
 	EndIf;
 	
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.CommonForms.DataSyncSettings.FullName());
 	
 	For Each Section In Sections Do
@@ -10952,8 +10958,8 @@ Procedure CheckLoopingWhenFillingOutToDoList(ToDoList)
 	SSLExchangePlans = DataExchangeCached.SSLExchangePlans();
 	HasLoop = SSLExchangePlans.Count() > 0 And DataExchangeLoopControl.HasLoop();
 		
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.CommonForms.DataSyncSettings.FullName());
 	
 	For Each Section In Sections Do
@@ -10980,7 +10986,7 @@ Procedure OnFillToDoListCheckCompatibilityWithCurrentVersion(ToDoList)
 		Return;
 	EndIf;
 	
-	// If in the command interface there is no section, to which the information register belongs, a to-do item is not added.
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject("InformationRegister.DataExchangeRules");
 	If Sections.Count() = 0 Then 
 		Return;
@@ -10992,7 +10998,7 @@ Procedure OnFillToDoListCheckCompatibilityWithCurrentVersion(ToDoList)
 		ArrayVersion  = StrSplit(Metadata.Version, ".");
 		CurrentVersion = ArrayVersion[0] + ArrayVersion[1] + ArrayVersion[2];
 		If VersionChecked = CurrentVersion Then
-			OutputToDoItem = False; // Additional reports and data processors were checked on the current version.
+			OutputToDoItem = False; // 
 		EndIf;
 	EndIf;
 	
@@ -11001,7 +11007,7 @@ Procedure OnFillToDoListCheckCompatibilityWithCurrentVersion(ToDoList)
 	For Each Section In Sections Do
 		SectionID = "CheckCompatibilityWithCurrentVersion" + StrReplace(Section.FullName(), ".", "");
 		
-		// Add a to-do item.
+		// 
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id = "ExchangeRules";
 		ToDoItem.HasToDoItems      = OutputToDoItem And ExchangePlansWithRulesFromFile > 0;
@@ -11010,7 +11016,7 @@ Procedure OnFillToDoListCheckCompatibilityWithCurrentVersion(ToDoList)
 		ToDoItem.Form         = "InformationRegister.DataExchangeRules.Form.DataSynchronizationCheck";
 		ToDoItem.Owner      = SectionID;
 		
-		// Check for the to-do's group. If the group is missing, add it.
+		// 
 		ToDoGroup = ToDoList.Find(SectionID, "Id");
 		If ToDoGroup = Undefined Then
 			ToDoGroup = ToDoList.Add();
@@ -11129,8 +11135,8 @@ Function ExchangePlansFilterByStandaloneModeFlag(ExchangePlansArray1)
 	Return Result;
 EndFunction
 
-// Deletes obsolete records from the information register.
-// The record is obsolete if the exchange plan that includes the record
+// This procedure deletes outdated entries in the information register.
+// A record is considered outdated if the exchange plan for which the record was created
 // was renamed or deleted.
 //
 // Parameters:
@@ -11196,7 +11202,7 @@ Procedure GetExchangePlansForDashboard(TempTablesManager, ExchangePlansArray1, V
 	Query = New Query;
 	Query.TempTablesManager = TempTablesManager;
 	
-	// The logic for the query generation is in a separate function.
+	// 
 	QueryOptions = ExchangePlansForMonitorQueryParameters();
 	QueryOptions.ExchangePlansArray1                 = ExchangePlansArray1;
 	QueryOptions.AdditionalExchangePlanProperties = AdditionalExchangePlanProperties;
@@ -11206,7 +11212,7 @@ Procedure GetExchangePlansForDashboard(TempTablesManager, ExchangePlansArray1, V
 	
 EndProcedure
 
-// Function for declaring the parameter structure of the ExchangePlansForMonitorQueryText function.
+// Function for declaring the structure of parameters of the textquery function of the exchange plan for the Monitor.
 //
 // Parameters:
 //   No.
@@ -11225,15 +11231,15 @@ Function ExchangePlansForMonitorQueryParameters()
 	
 EndFunction
 
-// Returns a query text to get data of exchange plan nodes.
+// Returns the text of the query to retrieve data nodes of the exchange plans.
 //
 // Parameters:
 //   QueryOptions - See ExchangePlansForMonitorQueryParameters
-//   ExcludeStandaloneModeExchangePlans  - Boolean - if True,
-//                                                    standalone mode exchange plans are excluded from a query text.
+//   ExcludeStandaloneModeExchangePlans  - Boolean -  if True, the request body excluded the exchange plans
+//                                                    Autonomous operation.
 //
 // Returns:
-//   String - a query resulting text.
+//   String - 
 //
 Function ExchangePlansForMonitorQueryText(QueryOptions = Undefined, ExcludeStandaloneModeExchangePlans = True) Export
 	
@@ -11254,7 +11260,7 @@ Function ExchangePlansForMonitorQueryText(QueryOptions = Undefined, ExcludeStand
 	If DataExchangeCached.StandaloneModeSupported()
 		And ExcludeStandaloneModeExchangePlans Then
 		
-		// A separate monitor is used for the exchange plan of a standalone mode.
+		// 
 		MethodExchangePlans = ExchangePlansFilterByStandaloneModeFlag(MethodExchangePlans);
 		
 	EndIf;
@@ -11296,7 +11302,7 @@ Function ExchangePlansForMonitorQueryText(QueryOptions = Undefined, ExcludeStand
 			ExchangePlanQueryText = StrReplace(ExchangePlanQueryText, "&ExchangePlanNameSynonym", Metadata.ExchangePlans[ExchangePlanName].Synonym);
 			ExchangePlanQueryText = StrReplace(ExchangePlanQueryText, "&AdditionalExchangePlanProperties,", AdditionalExchangePlanPropertiesAsString);
 			
-			// Deleting a join literal for the first table.
+			// 
 			If IsBlankString(QueryText) Then
 				
 				ExchangePlanQueryText = StrReplace(ExchangePlanQueryText, "UNION ALL", "");
@@ -11581,7 +11587,7 @@ Procedure CheckExternalConnectionAvailability()
 	
 EndProcedure
 
-// Fills in a value list with available transport types for the exchange plan node.
+// Populates the list of values for available modes of transport for the exchange plan node.
 //
 Procedure FillChoiceListWithAvailableTransportTypes(InfobaseNode, FormItem, Filter = Undefined) Export
 	
@@ -11611,14 +11617,14 @@ Procedure FillChoiceListWithAvailableTransportTypes(InfobaseNode, FormItem, Filt
 	
 EndProcedure
 
-// Records the data exchange state in the DataExchangesStates information register.
+// Records the state of data exchange in the data Exchange state information register.
 //
 // Parameters:
-//  ExchangeSettingsStructure - Structure - a structure with all necessary data and objects to execute exchange.
+//  ExchangeSettingsStructure - Structure -  a structure with all the necessary data and objects to perform the exchange.
 // 
 Procedure WriteExchangeFinishToInformationRegister(ExchangeSettingsStructure)
 	
-	// Generating a structure for a new information register record.
+	// 
 	RecordStructure = New Structure;
 	RecordStructure.Insert("InfobaseNode",    ExchangeSettingsStructure.InfobaseNode);
 	RecordStructure.Insert("ActionOnExchange",         ExchangeSettingsStructure.ActionOnExchange);
@@ -11633,7 +11639,7 @@ EndProcedure
 
 Procedure AddSuccessfulDataExchangeMessageToInformationRegister(ExchangeSettingsStructure)
 	
-	// Generating a structure for a new information register record.
+	// 
 	RecordStructure = New Structure;
 	RecordStructure.Insert("InfobaseNode", ExchangeSettingsStructure.InfobaseNode);
 	RecordStructure.Insert("ActionOnExchange",      ExchangeSettingsStructure.ActionOnExchange);
@@ -11707,7 +11713,7 @@ EndProcedure
 
 Function FormAttributesNames(Form)
 	
-	// Function return value.
+	// 
 	Result = New Array;
 	
 	For Each FormAttribute In Form.GetAttributes() Do
@@ -11719,15 +11725,15 @@ Function FormAttributesNames(Form)
 	Return Result;
 EndFunction
 
-// Unpacks the ZIP archive file to the specified directory and extracts all archive files.
+// Unpacks the ZIP archive file to the specified directory; Extracts all archive files.
 //
 // Parameters:
-//  FullArchiveFileName  - String - an archive file name being extracted.
-//  FilesUnpackPath  - String - a path by which the files are extracted.
-//  ArchivePassword          - String - a password for unpacking the archive. Default value: empty string.
+//  FullArchiveFileName  - String -  the file name of the archive that must be decompressed.
+//  FilesUnpackPath  - String -  the way in which you need to extract the files.
+//  ArchivePassword          - String -  password for unpacking the archive. By default, an empty string.
 // 
 // Returns:
-//  Результат - Boolean - True if it is successful. Otherwise, False.
+//  Результат - 
 //
 Function UnpackZipFile(Val FullArchiveFileName, Val FilesUnpackPath, Val ArchivePassword = "") Export
 	
@@ -11759,22 +11765,22 @@ Function UnpackZipFile(Val FullArchiveFileName, Val FilesUnpackPath, Val Archive
 	
 EndFunction
 
-// Packs the specified directory into a ZIP file.
+// Packs the specified folder into a ZIP file.
 //
 // Parameters:
-//  FullArchiveFileName  - String - a name of an archive file being packed.
-//  FilesPackingMask    - String - a name of a file to archive or mask.
-//			It is prohibited that you name files and directories using characters that can be 
-//			converted to UNICODE characters and back incorrectly. 
-//			It is recommended that you use only roman characters to name files and folders. 
-//  ArchivePassword          - String - a password for the archive. Default value: empty string.
+//  FullArchiveFileName  - String -  name of the archive file to be Packed in.
+//  FilesPackingMask    - String -  name of the file to be archived, or mask.
+//			It is not allowed to use letters of national alphabets in the names of files and folders, which 
+//			can be converted from UNICODE characters to narrow characters with loss of information. 
+//			We recommend using Latin characters in file and folder names. 
+//  ArchivePassword          - String -  password for the archive. By default, an empty string.
 // 
 // Returns:
-//  Результат - Boolean - True if it is successful. Otherwise, False.
+//  Результат - 
 //
 Function PackIntoZipFile(Val FullArchiveFileName, Val FilesPackingMask, Val ArchivePassword = "") Export
 	
-	// Function return value.
+	// 
 	Result = True;
 	
 	Try
@@ -11812,13 +11818,13 @@ Function PackIntoZipFile(Val FullArchiveFileName, Val FilesPackingMask, Val Arch
 	
 EndFunction
 
-// Returns the number of records in the infobase table.
+// Returns the number of records in the database table.
 //
 // Parameters:
-//  TableName - String - a full name of the infobase table. For example: Catalog.Counterparties.Orders.
+//  TableName - String -  full name of the database table. For Example: "Directory.Contractors.Orders".
 // 
 // Returns:
-//  Number - a number of records in the infobase table.
+//  Number - 
 //
 Function RecordsCountInInfobaseTable(Val TableName) Export
 	
@@ -11841,14 +11847,14 @@ Function RecordsCountInInfobaseTable(Val TableName) Export
 	
 EndFunction
 
-// Returns the number of records in the temporary infobase table.
+// Returns the number of records in the temporary database table.
 //
 // Parameters:
-//  TableName - String - a name of the table. For example: "TemporaryTable1".
-//  TempTablesManager - a temporary table manager containing a reference to the TableName temporary table.
+//  TableName - String -  table name. For example: "Temporary Table1".
+//  TempTablesManager - 
 // 
 // Returns:
-//  Number - a number of records in the infobase table.
+//  Number - 
 //
 Function TempInfobaseTableRecordCount(Val TableName, TempTablesManager) Export
 	
@@ -11872,7 +11878,7 @@ Function TempInfobaseTableRecordCount(Val TableName, TempTablesManager) Export
 	
 EndFunction
 
-// Returns the event log message key.
+// Returns the key of the log message.
 //
 Function EventLogMessageKey(InfobaseNode, ActionOnExchange) Export
 	
@@ -11888,14 +11894,14 @@ Function EventLogMessageKey(InfobaseNode, ActionOnExchange) Export
 	
 EndFunction
 
-// Returns a flag indicating whether the attribute is a standard attribute.
+// Returns an indication that the item is part of a subset of standard items.
 // 
 // Parameters:
-//   StandardAttributes - StandardAttributeDescriptions - Standard attributes collection.
-//   AttributeName - String - a name of the attribute being checked.
+//   StandardAttributes - StandardAttributeDescriptions -  collection of standard Bank details.
+//   AttributeName - String -  name of the item to check.
 // 
 // Returns:
-//   Boolean - True if the specified attribute is standard.
+//   Boolean - 
 //
 Function IsStandardAttribute(StandardAttributes, AttributeName) Export
 	
@@ -11913,8 +11919,8 @@ Function IsStandardAttribute(StandardAttributes, AttributeName) Export
 	
 EndFunction
 
-// Generates and returns a data table key.
-// The table key is used for importing data selectively from the exchange message by the specified key.
+// Generates and returns the key of the data table.
+// The table key is used to selectively load data from the exchange message using the specified key.
 //
 Function DataTableKey(Val SourceType, Val DestinationType, Val IsObjectDeletion) Export
 	
@@ -12056,8 +12062,8 @@ Procedure WriteExchangeFinishWithError(Val InfobaseNode,
 	
 EndProcedure
 
-// Checks whether the specified attributes are on the form.
-// If at least one attribute is absent, the exception is raised.
+// Checks the presence of the specified details in the form.
+// If at least one of the details is missing, it raises an exception.
 //
 Procedure CheckMandatoryFormAttributes(Form, Val Attributes)
 	
@@ -12320,13 +12326,13 @@ Function NonhierarchicalCatalogItems(Val FullTableName)
 EndFunction
 
 // Parameters:
-//   Query - Query - request to build a tree.
+//   Query - Query -  request for building a tree.
 // 
 // Returns:
 //   ValueTree:
-//     * Ref - AnyRef - reference to object.
-//     * Presentation - String - object presentation.
-//     * PictureIndex - Number - an object icon index.
+//     * Ref - AnyRef -  object reference.
+//     * Presentation - String -  representation of objects.
+//     * PictureIndex - Number -  index of the object's icon.
 //
 Function ItemsTree(Val Query)
 	
@@ -12351,7 +12357,7 @@ Function QueryResultToXMLTree(Val Query)
 EndFunction
 
 // Parameters:
-//   TreeRows - ValueTreeRowCollection - strings of the object ID tree.
+//   TreeRows - ValueTreeRowCollection -  rows in the object ID tree.
 //
 Procedure FillRefIDInTree(TreeRows)
 	
@@ -12380,10 +12386,10 @@ Function StatisticsInformation(StatisticsInformation, Val EnableObjectDeletion =
 	
 	Filter = New Structure("FullName", FilterString);
 	
-	// Get a tree of metadata objects.
+	// 
 	StatisticsInformationTree = DataExchangeCached.ConfigurationMetadata(Filter).Copy(); //ValueTree
 	
-	// Add columns
+	// 
 	StatisticsInformationTree.Columns.Add("Key");
 	StatisticsInformationTree.Columns.Add("ObjectCountInSource");
 	StatisticsInformationTree.Columns.Add("ObjectCountInDestination");
@@ -12401,7 +12407,7 @@ Function StatisticsInformation(StatisticsInformation, Val EnableObjectDeletion =
 	StatisticsInformationTree.Columns.Add("DataImportedSuccessfully");
 	
 	
-	// Indexes for searching in the statistics.
+	// 
 	Indexes = StatisticsInformation.Indexes;
 	If Indexes.Count() = 0 Then
 		If EnableObjectDeletion Then
@@ -12416,7 +12422,7 @@ Function StatisticsInformation(StatisticsInformation, Val EnableObjectDeletion =
 	
 	ProcessedRows = New Map;
 	
-	// Normal strings.
+	// 
 	Filter = New Structure("OneToMany", False);
 	If Not EnableObjectDeletion Then
 		Filter.Insert("IsObjectDeletion", False);
@@ -12431,27 +12437,27 @@ Function StatisticsInformation(StatisticsInformation, Val EnableObjectDeletion =
 		ProcessedRows[TableRow] = True;
 	EndDo;
 	
-	// Adding rows of OneToMany type.
+	// 
 	Filter = New Structure("OneToMany", True);
 	If Not EnableObjectDeletion Then
 		Filter.Insert("IsObjectDeletion", False);
 	EndIf;
 	FillStatisticsTreeOneToMany(StatisticsInformationTree, StatisticsInformation, Filter, ProcessedRows);
 	
-	// Add classifier rows.
+	// 
 	Filter = New Structure("IsClassifier", True);
 	If Not EnableObjectDeletion Then
 		Filter.Insert("IsObjectDeletion", False);
 	EndIf;
 	FillStatisticsTreeOneToMany(StatisticsInformationTree, StatisticsInformation, Filter, ProcessedRows);
 	
-	// Adding rows for object deletion.
+	// 
 	If EnableObjectDeletion Then
 		Filter = New Structure("IsObjectDeletion", True);
 		FillStatisticsTreeOneToMany(StatisticsInformationTree, StatisticsInformation, Filter, ProcessedRows);
 	EndIf;
 	
-	// Remove empty rows.
+	// 
 	StatisticsRows = StatisticsInformationTree.Rows;
 	GroupPosition = StatisticsRows.Count() - 1;
 	While GroupPosition >=0 Do
@@ -12490,7 +12496,7 @@ Procedure FillStatisticsTreeOneToMany(StatisticsInformationTree, StatisticsInfor
 	
 	StringsToProcess = StatisticsInformation.FindRows(Filter);
 	
-	// Ignoring processed source rows.
+	// 
 	Position = StringsToProcess.UBound();
 	While Position >= 0 Do
 		Candidate = StringsToProcess[Position];
@@ -12603,19 +12609,19 @@ Procedure CheckLoadedFromFileExchangeRulesAvailability(ExchangeRulesImportedFrom
 	
 EndProcedure
 
-// Main function that is used to perform the data exchange over the external connection.
+// The main function for using an external connection when exchanging.
 //
 // Parameters: 
-//  SettingsStructure_ - structure of COM exchange transport settings.
+//  SettingsStructure_ - 
 //
 // Returns:
 //  Structure:
 //    * Join                  - COMObject
-//                                  - Undefined - if the connection is established, returns a COM object reference.
-//                                    Otherwise, returns Undefined;
-//    * BriefErrorDetails       - String - brief error description;
-//    * DetailedErrorDetails     - String - detailed error description;
-//    * AddInAttachmentError - Boolean - a COM connection error flag.
+//                                  - Undefined - 
+//                                    
+//    * BriefErrorDetails       - String -  short description of the error;
+//    * DetailedErrorDetails     - String -  detailed description of the error;
+//    * AddInAttachmentError - Boolean -  COM connection error flag.
 //
 Function EstablishExternalConnectionWithInfobase(SettingsStructure_) Export
 	
@@ -12624,11 +12630,11 @@ Function EstablishExternalConnectionWithInfobase(SettingsStructure_) Export
 	
 	ExternalConnection = Result.Join;
 	If ExternalConnection = Undefined Then
-		// Connection establish error.
+		// 
 		Return Result;
 	EndIf;
 	
-	// COM connection cannot connect configurations with mismatching 1C:Enterprise language versions.
+	// 
 	
 	VariantOfBuiltInCorrespondentLanguage = "";
 	EmbeddedLanguageOptionsAreDifferent = False;
@@ -12657,7 +12663,7 @@ Function EstablishExternalConnectionWithInfobase(SettingsStructure_) Export
 		
 	EndIf;
 		
-	// Checking whether it is possible to operate with an external infobase.
+	// 
 	
 	Try
 		NoFullAccess = Not ExternalConnection.DataExchangeExternalConnection.RoleAvailableFullAccess();
@@ -12689,7 +12695,7 @@ EndFunction
 
 Function TransportSettingsByExternalConnectionParameters(Parameters)
 	
-	// Converting external connection parameters to transport parameters.
+	// 
 	TransportSettings = New Structure;
 	
 	TransportSettings.Insert("COMUserPassword",
@@ -12725,11 +12731,11 @@ Procedure DeleteInsignificantCharactersInConnectionSettings(Settings) Export
 	
 EndProcedure
 
-// Displays the error message and sets the Cancellation flag to True.
+// Displays an error message and sets the Failure parameter to "True".
 //
 // Parameters:
-//  MessageText - String - message text.
-//  Cancel          - Boolean - a cancellation flag
+//  MessageText - String -  message text.
+//  Cancel          - Boolean -  sign of failure
 //
 Procedure ReportError(MessageText, Cancel = False) Export
 	
@@ -12739,7 +12745,7 @@ Procedure ReportError(MessageText, Cancel = False) Export
 	
 EndProcedure
 
-// Imports data exchange rules (ORR or OCR) into the infobase.
+// Loads rules for data exchange (PRO or PKO) in the information security system.
 // 
 Procedure ImportDataExchangeRules(Cancel,
 										Val ExchangePlanName,
@@ -12767,16 +12773,16 @@ Procedure ImportDataExchangeRules(Cancel,
 		
 	EndIf;
 	
-	// Creating a register record set.
+	// 
 	RecordSet = DataExchangeInternal.CreateInformationRegisterRecordSet(RecordStructure, "DataExchangeRules");
 	
-	// Adding a single record to a new record set.
+	// 
 	NewRecord = RecordSet.Add();
 	
-	// Filling record properties with values from the structure.
+	// 
 	FillPropertyValues(NewRecord, RecordStructure);
 	
-	// Importing data exchange rules into the infobase.
+	// 
 	InformationRegisters.DataExchangeRules.ImportRules(Cancel, RecordSet[0]);
 	
 	If Not Cancel Then
@@ -12803,13 +12809,13 @@ Procedure DownloadDataExchangeRegistrationManager(Cancel, Val ExchangePlanName)
 	Manager = Common.CommonModule(RegistrationManagerName);
 	RecordStructure.Insert("RulesInformation", Manager.RulesInformation());
 	
-	// Creating a register record set.
+	// 
 	RecordSet = DataExchangeInternal.CreateInformationRegisterRecordSet(RecordStructure, "DataExchangeRules");
 	
-	// Adding a single record to a new record set.
+	// 
 	NewRecord = RecordSet.Add();
 	
-	// Filling record properties with values from the structure.
+	// 
 	FillPropertyValues(NewRecord, RecordStructure);
 		
 	If Not Cancel Then
@@ -12859,7 +12865,7 @@ Procedure UpdateStandardDataExchangeRuleVersion(ExchangeRulesImportedFromFile, R
 	For Each ExchangePlanRecord In Result Do
 		
 		If ExchangePlanRecord.Count <= 1 
-			And Not Common.DataSeparationEnabled() Then // ThisNode only.
+			And Not Common.DataSeparationEnabled() Then // 
 			Continue;
 		EndIf;
 		
@@ -12939,7 +12945,7 @@ Procedure UpdateStandardDataExchangeRuleVersion(ExchangeRulesImportedFromFile, R
 	
 EndProcedure
 
-// Receives a picture index to display it in the object mapping statistics table.
+// Gets the index of the image to display in the object mapping statistics table.
 //
 Function StatisticsTablePictureIndex(Val UnmappedObjectsCount, Val DataImportedSuccessfully) Export
 	
@@ -12947,14 +12953,14 @@ Function StatisticsTablePictureIndex(Val UnmappedObjectsCount, Val DataImportedS
 	
 EndFunction
 
-// Checks whether the exchange message size exceed the maximum allowed size.
+// Checks that the file size of the exchange message exceeds the allowed size.
 //
 //  Returns:
-//   Истина - if the file size exceeds the maximum allowed size. Otherwise, False.
+//   Истина - 
 //
 Function ExchangeMessageSizeExceedsAllowed(Val FileName, Val MaxMessageSize) Export
 	
-	// Function return value.
+	// 
 	Result = False;
 	
 	File = New File(FileName);
@@ -12989,8 +12995,8 @@ Function InitialDataExportFlagIsSet(InfobaseNode) Export
 	
 EndFunction
 
-// Imports the exchange message that contains
-// configuration changes before infobase update.
+// Loads an exchange message that contains
+// configuration changes before updating the database.
 //
 Procedure ImportMessageBeforeInfobaseUpdate()
 	
@@ -13010,7 +13016,7 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 			SetPrivilegedMode(False);
 			
 			Try
-				// Updating object registration rules before importing data.
+				// 
 				UpdateDataExchangeRules();
 				
 				TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(InfobaseNode);
@@ -13023,15 +13029,15 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 				ExchangeParameters.ExecuteExport2 = False;
 				ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, Cancel);
 				
-				// The repeat mode should be enabled in the following cases:
-				// 1. Metadata with a later configuration version is imported (an infobase update required).
-				// - If "Cancel" is set to "True", it cannot proceed as duplicates of generated data might occur.
-				// - If "Cancel" is set to "False", an infobase update error might occur requiring re-import of the message.
-				// 2. Metadata with the same configuration version is imported (no infobase update required).
-				// - If "Cancel" is set to "True" and the startup proceeds, an error might occur
-				//   (for example, because predefined items were not imported).
-				// - If "Cancel" is set to "False", you can proceed as the import can be done later
-				//   (if import fails, you can also import a new exchange message later).
+				// 
+				// 
+				// 
+				// 
+				// 
+				// 
+				//   
+				// 
+				//   
 				
 				If Cancel Or InfobaseUpdate.InfobaseUpdateRequired() Then
 					EnableDataExchangeMessageImportRecurrenceBeforeStart();
@@ -13055,7 +13061,7 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 	
 EndProcedure
 
-// Sets to False the import repeat flag. It is called if errors occurred during message import or infobase updating.
+// Resets the reload flag if there is a download or update error.
 Procedure DisableDataExchangeMessageImportRepeatBeforeStart() Export
 	
 	SetPrivilegedMode(True);
@@ -13066,23 +13072,23 @@ Procedure DisableDataExchangeMessageImportRepeatBeforeStart() Export
 	
 EndProcedure
 
-// Performs import and export of an exchange message that
-// contains configuration changes but
-// configuration update is not required.
+// Loads and unloads an exchange message that
+// contains configuration changes that did not require
+// updating the database.
 //
 Procedure RunSyncIfInfobaseNotUpdated(
 		OnClientStart, Restart)
 	
 	If Not LoadDataExchangeMessage() Then
-		// If the exchange message import is canceled and the configuration version is
-		// not upgraded in the metadata, disable re-import.
+		// 
+		// 
 		DisableDataExchangeMessageImportRepeatBeforeStart();
 		Return;
 	EndIf;
 		
 	If ConfigurationChanged() Then
-		// Configuration changes are imported but not applied.
-		// Do not import the message yet.
+		// 
+		// 
 		Return;
 	EndIf;
 	
@@ -13094,16 +13100,16 @@ Procedure RunSyncIfInfobaseNotUpdated(
 		If ConfigurationChanged() Then
 			If Not DataExchangeInternal.DataExchangeMessageImportModeBeforeStart(
 				"MessageReceivedFromCache") Then
-				// Migration from a configuration that didn't cache exchange messages.
-				// The new imported message might contain configuration changes.
-				// It's impossible to detect if it's a reset to the infobase configuration.
-				// Therefore, commit the transaction and resume the startup without importing the new message.
+				// 
+				// 
+				// 
+				// 
 				// 
 				CommitTransaction();
 				Return;
 			Else
-				// Configuration changes are re-obtained due to restoration to
-				// the infobase configuration. Undo the import.
+				// 
+				// 
 				// 
 				RollbackTransaction();
 				SetPrivilegedMode(True);
@@ -13116,10 +13122,10 @@ Procedure RunSyncIfInfobaseNotUpdated(
 				Return;
 			EndIf;
 		EndIf;
-		// If restored to the infobase configuration, this means Designer is open.
-		// Therefore, a new message was not imported.
-		// Switch to the repeat mode and click "Do not synchronize and continue".
-		// After that, restoration to the infobase configuration will be completed.
+		// 
+		// 
+		// 
+		// 
 		// 
 		CommitTransaction();
 		EnableDataExchangeMessageImportRecurrenceBeforeStart();
@@ -13140,13 +13146,13 @@ Function IsSubordinateDIBNode() Export
 	
 EndFunction
 
-// Returns an array of version numbers supported by correspondent API for the DataExchange subsystem.
+// Returns an array of version numbers supported by the correspondent interface for the search engine subsystem.
 // 
 // Parameters:
-//   ExternalConnection - объект COM-connection that is used for working with the correspondent.
+//   ExternalConnection - объект COM-the connection that is used for working with the correspondent.
 //
 // Returns:
-//   Array of version numbers that are supported by correspondent API.
+//   Array of version numbers supported by the correspondent interface.
 //
 Function InterfaceVersionsThroughExternalConnection(ExternalConnection) Export
 	
@@ -13154,8 +13160,8 @@ Function InterfaceVersionsThroughExternalConnection(ExternalConnection) Export
 	
 EndFunction
 
-// Creates a temporary directory for exchange messages.
-// Writes the directory name to the register for further deletion.
+// Creates a temporary directory of exchange messages.
+// Records the directory name in the register for its subsequent removal.
 //
 Function CreateTempExchangeMessagesDirectory(DirectoryID = Undefined) Export
 	
@@ -13212,8 +13218,8 @@ Function DataExchangeOption(Val Peer) Export
 EndFunction
 
 // Parameters:
-//   Context - Structure - a structure with values to transfer to the object.
-//   Object - DataProcessorObject.InfobasesObjectsMapping - a destination data object.
+//   Context - Structure -  structure with values to transfer to the object.
+//   Object - DataProcessorObject.InfobasesObjectsMapping -  object-the receiver of the data.
 // 
 Procedure ImportObjectContext(Val Context, Val Object) Export
 	
@@ -13242,11 +13248,11 @@ EndProcedure
 // For internal use.
 //
 // Parameters:
-//   Object - CatalogObject, ДокументОбъект и т.п. - a data object.
+//   Object - CatalogObject, ДокументОбъект и т.п. -  data object.
 // 
 // Returns:
-//   Structure - the data object as a structure. Keys match the names of attributes and tables.
-//               Values match their values.
+//   Structure - 
+//               
 //
 Function GetObjectContext(Val Object) Export
 	
@@ -13270,8 +13276,8 @@ Function GetObjectContext(Val Object) Export
 EndFunction
 
 // Parameters:
-//   Table - ValueTable - a destination data object.
-//   Tree - ValueTreeRowCollection - an object is a data source.
+//   Table - ValueTable -  object-the receiver of the data.
+//   Tree - ValueTreeRowCollection -  data source object.
 //
 Procedure ExpandValueTree(Table, Tree)
 	
@@ -13296,7 +13302,7 @@ Function DifferenceDaysCount(Val Date1, Val Date2)
 EndFunction
 
 // Parameters:
-//   ValueTable - ValueTable - Source value table.
+//   ValueTable - ValueTable -  table of values to convert
 //
 Function TableIntoStructuresArray(Val ValueTable)
 	Result = New Array;
@@ -13316,7 +13322,7 @@ Function TableIntoStructuresArray(Val ValueTable)
 	Return Result;
 EndFunction
 
-// Check the current and another application's rules for a mismatch in peer infobase versions.
+// Checking for differences between the correspondent version in the rules of the current and another program.
 //
 Function DifferentCorrespondentVersions(ExchangePlanName, EventLogMessageKey, VersionInCurrentApplication,
 	VersionInOtherApplication, MessageText, ExternalConnectionParameters = Undefined) Export
@@ -13425,7 +13431,7 @@ Function CorrespondentVersionInRules(ExchangePlanName)
 	
 EndFunction
 
-// Returns an extended object presentation.
+// Returns an extended representation of the object.
 //
 Function ObjectPresentation(ParameterObject) Export
 	
@@ -13434,7 +13440,7 @@ Function ObjectPresentation(ParameterObject) Export
 	EndIf;
 	ObjectMetadata = ?(TypeOf(ParameterObject) = Type("String"), Metadata.FindByFullName(ParameterObject), ParameterObject);
 	
-	// There can be no presentation attributes, iterating through structure.
+	// 
 	Presentation = New Structure("ExtendedObjectPresentation, ObjectPresentation");
 	FillPropertyValues(Presentation, ObjectMetadata);
 	If Not IsBlankString(Presentation.ExtendedObjectPresentation) Then
@@ -13446,7 +13452,7 @@ Function ObjectPresentation(ParameterObject) Export
 	Return ObjectMetadata.Presentation();
 EndFunction
 
-// Returns an extended object list presentation.
+// Returns an extended view of the list of objects.
 //
 Function ObjectsListPresentation(ParameterObject) Export
 	
@@ -13455,7 +13461,7 @@ Function ObjectsListPresentation(ParameterObject) Export
 	EndIf;
 	ObjectMetadata = ?(TypeOf(ParameterObject) = Type("String"), Metadata.FindByFullName(ParameterObject), ParameterObject);
 	
-	// There can be no presentation attributes, iterating through structure.
+	// 
 	Presentation = New Structure("ExtendedListPresentation, ListPresentation");
 	FillPropertyValues(Presentation, ObjectMetadata);
 	If Not IsBlankString(Presentation.ExtendedListPresentation) Then
@@ -13467,15 +13473,15 @@ Function ObjectsListPresentation(ParameterObject) Export
 	Return ObjectMetadata.Presentation();
 EndFunction
 
-// Returns the flag showing whether export is available for the specified reference on the node.
+// Returns the upload availability flag for the specified link on the node.
 //
 //  Parameters:
-//      ExchangeNode             - ExchangePlanRef - an exchange plan node to check whether the data export is available.
-//      Ref                 - Arbitrary     - an object to be checked.
-//      AdditionalProperties - Structure        - additional properties passed in the object.
+//      ExchangeNode             - ExchangePlanRef -  node of the exchange plan that is being checked for uploading.
+//      Ref                 - Arbitrary     -  the object being checked.
+//      AdditionalProperties - Structure        -  additional properties passed through the object.
 //
 // Returns:
-//  Boolean - an enabled flag
+//  Boolean - 
 //
 Function RefExportAllowed(ExchangeNode, Ref, AdditionalProperties = Undefined) Export
 	
@@ -13485,7 +13491,7 @@ Function RefExportAllowed(ExchangeNode, Ref, AdditionalProperties = Undefined) E
 	
 	RegistrationObject = Ref.GetObject();
 	If RegistrationObject = Undefined Then
-		// Object is deleted. It is always possible.
+		// 
 		Return True;
 	EndIf;
 	
@@ -13501,25 +13507,25 @@ Function RefExportAllowed(ExchangeNode, Ref, AdditionalProperties = Undefined) E
 		EndIf;
 	EndIf;
 	
-	// Check whether the data export is available.
+	// 
 	Send = DataItemSend.Auto;
 	DataExchangeEvents.OnSendDataToRecipient(RegistrationObject, Send, , ExchangeNode);
 	Return Send = DataItemSend.Auto;
 EndFunction
 
-// Returns the flag showing whether manual export is available for the specified reference on the node.
+// Returns the manual upload availability flag for the specified link on the node.
 //
 //  Parameters:
-//      ExchangeNode - ExchangePlanRef - an exchange plan node to check whether the data export is available.
-//      Ref     - Arbitrary     -  an object to be checked.
+//      ExchangeNode - ExchangePlanRef -  node of the exchange plan that is being checked for uploading.
+//      Ref     - Arbitrary     -   the object being checked.
 //
 // Returns:
-//  Boolean - an enabled flag
+//  Boolean - 
 //
 Function RefExportFromInteractiveAdditionAllowed(ExchangeNode, Ref) Export
 	
-	// If a call is made from a data composition schema when the supplement import mechanism is running,
-	// the safe mode is enabled, and it should be disabled for the function's runtime.
+	// 
+	// 
 	SetSafeModeDisabled(True);
 	
 	AdditionalProperties = New Structure("InteractiveExportAddition", True);
@@ -13527,7 +13533,7 @@ Function RefExportFromInteractiveAdditionAllowed(ExchangeNode, Ref) Export
 	
 EndFunction
 
-// Wrappers for background procedures of changing export interactively.
+// Wrappers for background procedures for interactively modifying uploads.
 //
 Procedure InteractiveExportModificationGenerateUserTableDocument(Parameters, ResultAddress) Export
 	
@@ -13555,7 +13561,7 @@ Function InteractiveExportChangeObjectBySettings(Val Settings)
 	
 	FillPropertyValues(ObjectOfReport, Settings, , "AllDocumentsFilterComposer");
 	
-	// Setting up the composer fractionally.
+	// 
 	Data = ObjectOfReport.CommonFilterSettingsComposer();
 	Composer = New DataCompositionSettingsComposer;
 	Composer.Initialize(New DataCompositionAvailableSettingsSource(Data.CompositionSchema));
@@ -13571,7 +13577,7 @@ Function InteractiveExportChangeObjectBySettings(Val Settings)
 	Return ObjectOfReport;
 EndFunction
 
-// Returns the role list of the profile of the "Data synchronization with other applications" access groups.
+// Returns a list of roles in the access group profile "Syncing data with other programs".
 // 
 Function DataSynchronizationWithOtherApplicationsAccessProfileRoles()
 	
@@ -13607,8 +13613,8 @@ Procedure OnFillToDoListUpdateRequired(ToDoList)
 	
 	UpdateInstallationRequired = UpdateInstallationRequired();
 	
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.CommonForms.DataSyncSettings.FullName());
 	
 	For Each Section In Sections Do
@@ -13643,7 +13649,7 @@ Function StatisticsTreeRowDataSynonym(TreeRow, SourceTypeString)
 	Existing = TreeRow.Owner().Rows.FindRows(Filter, True);
 	Count   = Existing.Count();
 	If Count = 0 Or (Count = 1 And Existing[0] = TreeRow) Then
-		// There has been no such description in this tree.
+		// 
 		Return Synonym;
 	EndIf;
 	
@@ -13656,12 +13662,12 @@ Function StatisticsTreeRowDataSynonym(TreeRow, SourceTypeString)
 EndFunction
 
 // Returns:
-//   ValueTable - A collection of registers with the specified recorder records:
-//     * RegisterTableName - String - a full name of a register table.
+//   ValueTable - :
+//     * RegisterTableName - String -  full name of the register table.
 //     * RecordSet - InformationRegisterRecordSet
 //                    - AccumulationRegisterRecordSet
-//                    - и т.п. - record set.
-//     * ForceDelete - Boolean - indicates that records are deleted unconditionally.
+//                    - и т.п. - 
+//     * ForceDelete - Boolean -  indicates whether records are deleted unconditionally.
 //
 Function DetermineDocumentHasRegisterRecords(DocumentRef)
 	
@@ -13676,7 +13682,7 @@ Function DetermineDocumentHasRegisterRecords(DocumentRef)
 	EndIf;
 	
 	QueryText = "";
-	// To prevent failure of documents to post by more than 256 tables.
+	// 
 	TablesCounter = 0;
 	
 	QueryTextTemplate2 = 
@@ -13688,11 +13694,11 @@ Function DetermineDocumentHasRegisterRecords(DocumentRef)
 	|	AliasOfTheMetadataTable.Recorder = &Recorder";
 	
 	For Each Movement In MetadataOfDocument.RegisterRecords Do
-		// Retrieve the names of the registers that have at least one record. Example:
-		// SELECT First 1 "AccumulationRegister.ProductStock"
-		// FROM AccumulationRegister.ProductStock
-		// WHERE Recorder = &Recorder.
-		// Convert the register name to String(200).
+		// 
+		// 
+		// 
+		// 
+		// 
 		// 
 		
 		If Not IsBlankString(QueryText) Then
@@ -13704,8 +13710,8 @@ Function DetermineDocumentHasRegisterRecords(DocumentRef)
 		SubqueryText = StrReplace(QueryTextTemplate2, "&MetadataTableName", Movement.FullName());
 		QueryText = QueryText + SubqueryText;
 		
-		// Split the result if the query gets more than 256 tables.
-		// A case with more than 512 tables is considered impractical.
+		// 
+		// 
 		TablesCounter = TablesCounter + 1;
 		If TablesCounter = 256 Then
 			
@@ -13717,21 +13723,21 @@ Function DetermineDocumentHasRegisterRecords(DocumentRef)
 	
 	Query = New Query(QueryText);
 	Query.SetParameter("Recorder", DocumentRef);
-	// When exporting the "Name" column, its type is adjusted to the longest query row.
-	// If the name exceeds the length, it is converted to String(200) on a later iteration.
+	// 
+	// 
 	// 
 	QueryTable = Query.Execute().Unload();
 	QueryTable.Columns.Add("RecordSet");
 	QueryTable.Columns.Add("ForceDelete", New TypeDescription("Boolean"));
 	
-	// If the number of tables is not more than 256, return the table.
+	// 
 	If TablesCounter = MetadataOfDocument.RegisterRecords.Count() Then
 		
 		Return QueryTable;
 		
 	EndIf;
 	
-	// If the number of tables is more than 256, make an additional query and supplement the table with rows.	
+	// 	
 	QueryText = "";
 	For Each Movement In MetadataOfDocument.RegisterRecords Do
 		
@@ -13766,25 +13772,25 @@ Function DetermineDocumentHasRegisterRecords(DocumentRef)
 	
 EndFunction
 
-// Gets a configuration metadata tree with the specified filter by metadata objects.
+// Retrieves the configuration metadata tree with the specified selection by metadata objects.
 //
 // Parameters:
-//   Filter - Structure - Contains filter item values.
-//						If this parameter is specified, a metadata tree will be retrieved according to the set filter:
-//            Key - String - The metadata item property name.
-//            Value - Array - An array of filter values.
+//   Filter - Structure - 
+//						:
+//            
+//            
 //
-// An example of "Filter" variable initialization
+// 
 //
-// Array = New Array;
-// Array.Add("Constant.UseDataSynchronization");
-// Array.Add("Catalog.Currencies");
-// Array.Add("Catalog.Companies");
-// Filter = New Structure;
-// Filter.Insert("FullName", Array);
+// 
+// 
+// 
+// 
+// 
+// 
 // 
 // Returns:
-//   ValueTree - a configuration metadata tree.
+//   ValueTree - 
 //
 Function ConfigurationMetadataTree(Filter = Undefined) Export
 	
@@ -13809,7 +13815,7 @@ Function ConfigurationMetadataTree(Filter = Undefined) Export
 	NewMetadataObjectsCollectionRow("BusinessProcesses",          NStr("en = 'Business processes';"),           PictureLib.BusinessProcess,          PictureLib.BusinessProcessObject,          MetadataObjectsCollections);
 	NewMetadataObjectsCollectionRow("Tasks",                  NStr("en = 'Tasks';"),                    PictureLib.Task,                 PictureLib.TaskObject,                 MetadataObjectsCollections);
 	
-	// Function return value.
+	// 
 	MetadataTree = New ValueTree;
 	MetadataTree.Columns.Add("Name");
 	MetadataTree.Columns.Add("FullName");
@@ -13851,10 +13857,10 @@ Function ConfigurationMetadataTree(Filter = Undefined) Export
 		
 	EndDo;
 	
-	// Deleting rows that have no subordinate items.
+	// 
 	If UseFilter1 Then
 		
-		// Using a reverse order of the value tree iteration.
+		// 
 		CollectionItemsCount = MetadataTree.Rows.Count();
 		
 		For ReverseIndex = 1 To CollectionItemsCount Do
@@ -13893,13 +13899,13 @@ Function PredefinedExchangePlanNodeCode(ExchangePlanName) Export
 	
 EndFunction
 
-// Returns an array of all nodes of the specified exchange plan but the predefined node.
+// Returns an array of all nodes for the specified exchange plan except the predefined node.
 //
 // Parameters:
-//  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
+//  ExchangePlanName - String - 
 // 
 // Returns:
-//  МассивУзлов - Array - an array of all nodes of the specified exchange plan but the predefined node.
+//  МассивУзлов - 
 //
 Function ExchangePlanNodes(ExchangePlanName) Export
 	
@@ -13930,11 +13936,11 @@ Function TheFullNameOfTheFileToBeMappedIsFileInformationSystem(FileName) Export
 	
 EndFunction
 
-// Stops coding for a specified period of time.
-// Method is duplicated from CTL as the subsystem can be used without the specified library.
+// Stops code execution for a specified time.
+// The method is duplicated from the BTS, because p/s can be used without the specified library.
 //
 // Parameters:
-//  Seconds - Number - Suspend time in seconds.
+//  Seconds - Number -  waiting time in seconds.
 //
 Procedure Pause(Seconds) Export
 	
@@ -13957,23 +13963,23 @@ EndProcedure
 
 #Region InteractiveExportChange_Private
 
-// Initializes export addition for the step-by-step exchange wizard.
+// Initializes the upload extension for the step-by-step exchange wizard.
 //
 // Parameters:
-//     InfobaseNode - ExchangePlanRef                - a reference to the node to be configured.
+//     InfobaseNode - ExchangePlanRef                -  link to the node that is being configured.
 //     FormStorageAddress    - String
-//                            - UUID - an address for saving data between server calls.
-//     HasNodeScenario       - Boolean                          - a flag showing whether additional setup is required.
+//                            - UUID - 
+//     HasNodeScenario       - Boolean                          -  flag for additional configuration.
 //
 // Returns:
-//   Structure - Data required for handling the import difference:
-//     * InfobaseNode - ExchangePlanRef - a reference to the node to be configured.
-//     * ExportOption - Number - current export option.
-//     * AllDocumentsFilterPeriod - StandardPeriod - document filter period. The default value is last month.
-//     * AllDocumentsComposerAddress - String - an address of Settings Composer for a document filter.
+//   Structure - :
+//     * InfobaseNode - ExchangePlanRef -  link to the node that is being configured.
+//     * ExportOption - Number -  the current option of discharge.
+//     * AllDocumentsFilterPeriod - StandardPeriod -  document selection period. The default is the last month.
+//     * AllDocumentsComposerAddress - String -  address of the document selection settings linker.
 //     * AdditionalRegistration - See AdditionalExportOptionRegistrationDetails
 //     * AdditionScenarioParameters - See StandardExportAdditionOptionsDetails
-//     * FormStorageAddress - UUID - UUID of the form for temporary storage.
+//     * FormStorageAddress - UUID -  unique ID of the form for temporary storage.
 //
 Function InteractiveExportChange(Val InfobaseNode, Val FormStorageAddress, Val HasNodeScenario = Undefined) Export
 	
@@ -13990,7 +13996,7 @@ Function InteractiveExportChange(Val InfobaseNode, Val FormStorageAddress, Val H
 	AdditionDataProcessor.InfobaseNode = InfobaseNode;
 	AdditionDataProcessor.ExportOption        = 0;
 	
-	// Specifying composer options.
+	// 
 	Data = AdditionDataProcessor.CommonFilterSettingsComposer(FormStorageAddress);
 	Result.Insert("AllDocumentsComposerAddress", PutToTempStorage(Data, FormStorageAddress));
 	
@@ -14001,7 +14007,7 @@ Function InteractiveExportChange(Val InfobaseNode, Val FormStorageAddress, Val H
 	ExchangePlanName = DataExchangeCached.GetExchangePlanName(InfobaseNode);
 	
 	If HasNodeScenario = Undefined Then
-		// Additional setup is not required.
+		// 
 		HasNodeScenario = False;
 	EndIf;
 	
@@ -14018,21 +14024,21 @@ Function InteractiveExportChange(Val InfobaseNode, Val FormStorageAddress, Val H
 EndFunction
 
 // Returns:
-//   ValueTable - Contains rows with details of detailed filters by node scenario:
-//     * FullMetadataName - String - a full metadata name of an object being registered whose filter is described by the string.
-//                                      For example, Document.GoodsReceipt. You can
-//                                      use special values, such as "AllDocuments" and
-//                                      AllCatalogs to filter respectively all
-//                                      documents and all catalogs that are being registered on the "Recipient" node.
-//     * Filter - DataCompositionFilter - a default filter. Filter fields are generated according to common
-//                                       rules of generating composition fields. For example, to set
-//                                       a filter by the Company document attribute,
-//                                       use the Ref.Company field.
-//     * Period - StandardPeriod - a common filter period value for row metadata that is offered by default.
-//     * PeriodSelection - Boolean - indicates that this string describes a filter with a common period.
-//     * Presentation - String - filter presentation.
-//     * FilterAsString - String - the filter value as a string.
-//     * Count - String - the number of items in filter.
+//   ValueTable - :
+//     * FullMetadataName - String - 
+//                                      
+//                                      
+//                                      
+//                                      
+//     * Filter - DataCompositionFilter -  the selection by default. Selection fields are formed in accordance with the General
+//                                       rules for forming layout fields. For example, to specify
+//                                       the selection based on the details of the document "Company", you must
+//                                       use the field " Link.Company".
+//     * Period - StandardPeriod -  the value of the General selection period for the default row metadata.
+//     * PeriodSelection - Boolean -  indicates that this line describes a selection with a common period.
+//     * Presentation - String -  the view selection.
+//     * FilterAsString - String -  the selection value as a string.
+//     * Count - String -  the number of items in the selection.
 //
 Function AdditionalExportOptionRegistrationDetails()
 	
@@ -14051,11 +14057,11 @@ Function AdditionalExportOptionRegistrationDetails()
 EndFunction
 
 // Returns:
-//   Structure - Settings of the default export add-on option "Do not add":
-//     * Use - Boolean - indicates that the option is allowed to use. The default value is True.
-//     * Order - Number - an order of placing the option on the wizard form, top down. The default value is 1.
-//     * Title - String - allows to override a standard option name.
-//     * Explanation - String - allows to override the option explanation text for the user.
+//   Structure - :
+//     * Use - Boolean -  indicates whether the option is allowed to be used. By default, True.
+//     * Order - Number -  the order in which the option is placed on the assistant form, from top to bottom. By default, 1.
+//     * Title - String -  allows you to redefine the name of a typical variant.
+//     * Explanation - String -  allows you to redefine the text of the explanation of the option for the user.
 //
 Function StandardOptionDetailsWithoutAddition()
 	
@@ -14070,11 +14076,11 @@ Function StandardOptionDetailsWithoutAddition()
 EndFunction
 
 // Returns:
-//   Structure - Settings of the default export add-on option "Add all documents for the period":
-//     * Use - Boolean - indicates that the option is allowed to use. The default value is True.
-//     * Order - Number - an order of placing the option on the wizard form, top down. The default value is 2.
-//     * Title - String - allows to override a standard option name.
-//     * Explanation - String - allows to override the option explanation text for the user.
+//   Structure - :
+//     * Use - Boolean -  indicates whether the option is allowed to be used. By default, True.
+//     * Order - Number -  the order in which the option is placed on the assistant form, from top to bottom. By default, 2.
+//     * Title - String -  allows you to redefine the name of a typical variant.
+//     * Explanation - String -  allows you to redefine the text of the explanation of the option for the user.
 //
 Function StandardOptionDetailsAllDocuments()
 	
@@ -14089,11 +14095,11 @@ Function StandardOptionDetailsAllDocuments()
 EndFunction
 
 // Returns:
-//   Structure - Settings of the default export add-on option "Add data with arbitrary filter":
-//     * Use - Boolean - indicates that the option is allowed to use. The default value is True.
-//     * Order - Number - an order of placing the option on the wizard form, top down. The default value is 3.
-//     * Title - String - allows to override a standard option name.
-//     * Explanation - String - allows to override the option explanation text for the user.
+//   Structure - :
+//     * Use - Boolean -  indicates whether the option is allowed to be used. By default, True.
+//     * Order - Number -  the order in which the option is placed on the assistant form, from top to bottom. By default, 3.
+//     * Title - String -  allows you to redefine the name of a typical variant.
+//     * Explanation - String -  allows you to redefine the text of the explanation of the option for the user.
 //
 Function StandardOptionDetailsCustomFilter()
 	
@@ -14107,18 +14113,18 @@ Function StandardOptionDetailsCustomFilter()
 	
 EndFunction
 
-// Structure of details of the standard "AdditionalOption" export addition option.
+// Structure describing the standard version of the add-on upload "Variantcopyind".
 //
 // Returns:
-//   Structure - Settings of the default export add-on option by the node scenario:
-//     * Use - Boolean - indicates that the option is allowed to use. The default value is False.
-//     * Order - Number - an order of placing the option on the wizard form, top down. The default value is 4.
-//     * Title - String - allows to override a standard option name.
-//     * Explanation - String - allows to override the option explanation text for the user.
-//     * UseFilterPeriod - Boolean - indicates that a common filter by period is required. The default value is False.
-//     * FilterPeriod1 - StandardPeriod - a period value of the common filter that is offered by default.
-//     * FilterFormName - String - name of the form called to edit settings.
-//     * FormCommandTitle - String - a title to show a setting form opening command in the form.
+//   Structure - :
+//     * Use - Boolean -  indicates whether the option is allowed to be used. False by default.
+//     * Order - Number -  the order in which the option is placed on the assistant form, from top to bottom. By default, 4.
+//     * Title - String -  allows you to redefine the name of a typical variant.
+//     * Explanation - String -  allows you to redefine the text of the explanation of the option for the user.
+//     * UseFilterPeriod - Boolean -  indicates that a General selection by period is required. False by default.
+//     * FilterPeriod1 - StandardPeriod -  the value of the General selection period offered by default.
+//     * FilterFormName - String -  name of the form that is called to edit settings.
+//     * FormCommandTitle - String -  title for drawing on the form of the command to open the settings form.
 //     * Filter - See AdditionalExportOptionRegistrationDetails
 //
 Function StandardOptionDetailsMore()
@@ -14139,11 +14145,11 @@ Function StandardOptionDetailsMore()
 	
 EndFunction
 
-// Clearing filter for all documents.
+// Clearing the selection of all documents.
 //
 // Parameters:
 //     ExportAddition - Structure
-//                        - FormDataStructure - Export parameters details:
+//                        - FormDataStructure - :
 //       * AllDocumentsFilterComposer - DataCompositionSettingsComposer
 //       * AllDocumentsComposerAddress - String
 //       * FormStorageAddress - String
@@ -14165,24 +14171,24 @@ Procedure InteractiveExportChangeClearGeneralFilter(ExportAddition) Export
 	
 EndProcedure
 
-// Clears the detailed filter
+// Clearing detailed selection
 //
 // Parameters:
 //     ExportAddition - Structure
-//                        - РеквизитФормыКоллекция - export parameters details.
+//                        - РеквизитФормыКоллекция - 
 //
 Procedure InteractiveExportChangeDetailsClearing(ExportAddition) Export
 	ExportAddition.AdditionalRegistration.Clear();
 EndProcedure
 
-// Defines general filter details. If the filter is not filled, returning the empty string.
+// Defines a description of the General selection. Returns an empty string if the selection is empty.
 //
 // Parameters:
 //     ExportAddition - Structure
-//                        - РеквизитФормыКоллекция - export parameters details.
+//                        - РеквизитФормыКоллекция - 
 //
 // Returns:
-//     String - filter details.
+//     String - 
 //
 Function InteractiveExportChangeGeneralFilterAdditionDetails(Val ExportAddition) Export
 	
@@ -14196,27 +14202,27 @@ Function InteractiveExportChangeGeneralFilterAdditionDetails(Val ExportAddition)
 	Return ExportAdditionFilterPresentation(Undefined, Composer, "");
 EndFunction
 
-// Define the description of the detailed filter. If the filter is not filled, returning the empty string.
+// Defines a description of the detailed selection. Returns an empty string if the selection is empty.
 //
 // Parameters:
 //     ExportAddition - Structure
-//                        - РеквизитФормыКоллекция - export parameters details.
+//                        - РеквизитФормыКоллекция - 
 //
 // Returns:
-//     String - filter details.
+//     String - 
 //
 Function InteractiveExportChangeDetailedFilterDetails(Val ExportAddition) Export
 	Return DetailedExportAdditionPresentation(ExportAddition.AdditionalRegistration, "");
 EndFunction
 
-// Analyzes the filter settings history saved by the user for the node.
+// Analyzes the history of settings-selections saved by the user for the node.
 //
 // Parameters:
 //     ExportAddition - Structure
-//                        - РеквизитФормыКоллекция - export parameters details.
+//                        - РеквизитФормыКоллекция - 
 //
 // Returns:
-//     Список значений, где представление - a setting name and value is setting data.
+//     Список значений, где представление - 
 //
 Function InteractiveExportChangeSettingsHistory(Val ExportAddition) Export
 	AdditionDataProcessor = DataProcessors.InteractiveExportChange.Create();
@@ -14226,15 +14232,15 @@ Function InteractiveExportChangeSettingsHistory(Val ExportAddition) Export
 	Return AdditionDataProcessor.ReadSettingsListPresentations(ExportAddition.InfobaseNode, OptionFilter);
 EndFunction
 
-// Restores settings in the ExportAddition attributes by the name of the saved setting.
+// Restores the settings in the add-on details of the Upload by the name of the saved setting.
 //
 // Parameters:
 //     ExportAddition     - Structure
-//                            - РеквизитФормыКоллекция - export parameters details.
-//     SettingPresentation - String                            - a name of a setting to restore.
+//                            - РеквизитФормыКоллекция - 
+//     SettingPresentation - String                            -  name of the setting to restore.
 //
 // Returns:
-//     Boolean - True - restored, False - the setting is not found.
+//     Boolean - 
 //
 Function InteractiveExportChangeRestoreSettings(ExportAddition, Val SettingPresentation) Export
 	
@@ -14243,40 +14249,40 @@ Function InteractiveExportChangeRestoreSettings(ExportAddition, Val SettingPrese
 	
 	OptionFilter = InteractiveExportChangeOptionFilter(ExportAddition);
 	
-	// Restore object state.
+	// 
 	Result = AdditionDataProcessor.RestoreCurrentAttributesFromSettings(SettingPresentation, OptionFilter, ExportAddition.FormStorageAddress);
 	
 	If Result Then
 		FillPropertyValues(ExportAddition, AdditionDataProcessor, "ExportOption, AllDocumentsFilterPeriod, AllDocumentsFilterComposer");
 		
-		// Always updating a composer address.
+		// 
 		Data = AdditionDataProcessor.CommonFilterSettingsComposer();
 		Data.Settings = ExportAddition.AllDocumentsFilterComposer.Settings;
 		ExportAddition.AllDocumentsComposerAddress = PutToTempStorage(Data, ExportAddition.FormStorageAddress);
 		
 		FillValueTable(ExportAddition.AdditionalRegistration, AdditionDataProcessor.AdditionalRegistration);
 		
-		// Update node scenario settings only if they are defined in the read message. Otherwise, keep the current settings.
+		// 
 		If AdditionDataProcessor.AdditionalNodeScenarioRegistration.Count() > 0 Then
 			FillPropertyValues(ExportAddition, AdditionDataProcessor, "NodeScenarioFilterPeriod, NodeScenarioFilterPresentation");
 			FillValueTable(ExportAddition.AdditionalNodeScenarioRegistration, AdditionDataProcessor.AdditionalNodeScenarioRegistration);
-			// Normalize period settings.
+			// 
 			InteractiveExportChangeSetNodeScenarioPeriod(ExportAddition);
 		EndIf;
 		
-		// The current presentation of saved settings.
+		// 
 		ExportAddition.CurrentSettingsItemPresentation = SettingPresentation;
 	EndIf;
 
 	Return Result;
 EndFunction
 
-// Fills in the form attribute according to settings structure data.
+// Fills in the form details according to the settings structure.
 //
 // Parameters:
-//     Form                       - ClientApplicationForm - an attribute setup form.
+//     Form                       - ClientApplicationForm -  a form for setting up props.
 //     ExportAdditionSettings - See InteractiveExportChange
-//     AdditionAttributeName      - String - a name of the form attribute for creation and filling in.
+//     AdditionAttributeName      - String -  name of the form details to create or fill out.
 //
 Procedure InteractiveExportChangeAttributeBySettings(Form, Val ExportAdditionSettings, Val AdditionAttributeName="ExportAddition") Export
 	
@@ -14284,7 +14290,7 @@ Procedure InteractiveExportChangeAttributeBySettings(Form, Val ExportAdditionSet
 	
 	AdditionScenarioParameters = ExportAdditionSettings.AdditionScenarioParameters;
 	
-	// Process the attributes.
+	// 
 	AdditionAttribute = Undefined;
 	AttributesCollection = Form.GetAttributes(); // Array of FormAttribute
 	For Each Attribute In AttributesCollection Do
@@ -14294,7 +14300,7 @@ Procedure InteractiveExportChangeAttributeBySettings(Form, Val ExportAdditionSet
 		EndIf;
 	EndDo;
 	
-	// Checking and adding the attribute.
+	// 
 	ItemsToAdd = New Array;
 	If AdditionAttribute=Undefined Then
 		AdditionAttribute = New FormAttribute(AdditionAttributeName, 
@@ -14304,7 +14310,7 @@ Procedure InteractiveExportChangeAttributeBySettings(Form, Val ExportAdditionSet
 		Form.ChangeAttributes(ItemsToAdd);
 	EndIf;
 	
-	// Checking and adding columns of the general additional registration.
+	// 
 	TableAttributePath = AdditionAttribute.Name + ".AdditionalRegistration";
 	If Form.GetAttributes(TableAttributePath).Count()=0 Then
 		ItemsToAdd.Clear();
@@ -14315,7 +14321,7 @@ Procedure InteractiveExportChangeAttributeBySettings(Form, Val ExportAdditionSet
 		Form.ChangeAttributes(ItemsToAdd);
 	EndIf;
 	
-	// Checking and adding additional registration columns of the node scenario.
+	// 
 	TableAttributePath = AdditionAttribute.Name + ".AdditionalNodeScenarioRegistration";
 	If Form.GetAttributes(TableAttributePath).Count() = 0 Then
 		ItemsToAdd.Clear();
@@ -14328,10 +14334,10 @@ Procedure InteractiveExportChangeAttributeBySettings(Form, Val ExportAdditionSet
 		Form.ChangeAttributes(ItemsToAdd);
 	EndIf;
 	
-	// Add data.
+	// 
 	AttributeValue = Form[AdditionAttributeName];
 	
-	// Process value tables.
+	// 
 	ValueToFormData(AdditionScenarioParameters.AdditionalOption.Filter,
 		AttributeValue.AdditionalNodeScenarioRegistration);
 	
@@ -14359,15 +14365,15 @@ Procedure InteractiveExportChangeAttributeBySettings(Form, Val ExportAdditionSet
 	
 EndProcedure
 
-// Returns export by settings details.
+// Returns a description of the upload by settings.
 //
 // Parameters:
 //     ExportAddition - Structure
-//                        - FormDataCollection - Export parameters details:
-//       * InfobaseNode - ExchangePlanRef - an exchange plan node.
+//                        - FormDataCollection - :
+//       * InfobaseNode - ExchangePlanRef -  the site plan of exchange.
 //
 // Returns:
-//     String - presentation.
+//     String - 
 // 
 Function ExportAdditionPresentationByNodeScenario(Val ExportAddition)
 	ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExportAddition.InfobaseNode);
@@ -14385,15 +14391,15 @@ Function ExportAdditionPresentationByNodeScenario(Val ExportAddition)
 	Return ManagerModule.InteractiveExportFilterPresentation(ExportAddition.InfobaseNode, Parameters);
 EndFunction
 
-// Returns period and filter details as string.
+// Returns a description of the period and selection as a string.
 //
 //  Parameters:
-//      Period:                a period to describe filter.
-//      Filter:                 a data composition filter to describe.
-//      EmptyFilterDetails: the function returns this value if an empty filter is passed.
+//      Period:                period for describing the selection.
+//      Selection:                 selecting the data layout for the description.
+//      Empty selection descriptor: the value returned if the selection is empty.
 //
 //  Returns:
-//      String - description of period and filter.
+//      String - 
 //
 Function ExportAdditionFilterPresentation(Val Period, Val Filter, Val EmptyFilterDetails=Undefined) Export
 	
@@ -14417,12 +14423,12 @@ Function ExportAdditionFilterPresentation(Val Period, Val Filter, Val EmptyFilte
 	Return FilterAsString;
 EndFunction
 
-// Returns details of the detailed filter by the AdditionalRegistration attribute.
+// Returns a description of the detailed selection for the "additional Registration"item.
 //
 //  Parameters:
 //      AdditionalRegistration - ValueTable
-//                                - Array - strings or structures that describe the filter.
-//      EmptyFilterDetails     - String                  - the function returns this value if an empty filter is passed.
+//                                - Array - 
+//      EmptyFilterDetails     - String                  -  the value returned if the selection is empty.
 //
 Function DetailedExportAdditionPresentation(Val AdditionalRegistration, Val EmptyFilterDetails=Undefined) Export
 	
@@ -14442,44 +14448,44 @@ Function DetailedExportAdditionPresentation(Val AdditionalRegistration, Val Empt
 	Return EmptyFilterDetails;
 EndFunction
 
-// The "All documents" metadata object internal group ID.
+// The identifier of the service object group metadata to All documents.
 //
 Function ExportAdditionAllDocumentsID() Export
-	// The ID must not be identical to the full metadata name.
+	// 
 	Return "AllDocuments";
 EndFunction
 
-// The "All catalogs" metadata object internal group ID.
+// ID of the service group of metadata objects "All directories".
 //
 Function ExportAdditionAllCatalogsID() Export
-	// The ID must not be identical to the full metadata name.
+	// 
 	Return "AllCatalogs";
 EndFunction
 
-// Sets the general period for all filter sections.
+// Sets the total period for all selection sections.
 //
 // Parameters:
 //     ExportAddition - Structure
-//                        - FormDataCollection - export parameters details.
+//                        - FormDataCollection - 
 //
 Procedure InteractiveExportChangeSetNodeScenarioPeriod(ExportAddition) Export
 	For Each String In ExportAddition.AdditionalNodeScenarioRegistration Do
 		String.Period = ExportAddition.NodeScenarioFilterPeriod;
 	EndDo;
 	
-	// Update the presentation.
+	// 
 	ExportAddition.NodeScenarioFilterPresentation = ExportAdditionPresentationByNodeScenario(ExportAddition);
 EndProcedure
 
-// Returns used filter options by settings data.
+// Returns the selection options used based on the settings data.
 //
 // Parameters:
 //     ExportAddition - Structure
-//                        - FormDataCollection - export parameters details.
+//                        - FormDataCollection - 
 //
 // Returns:
-//     Array of Number - The numbers of the used filters: 
-//               0 - No filters. 1 - Filter all documents. 2 - Detailed filter. 3 - A node scenario.
+//     Array of Number - : 
+//               
 //
 Function InteractiveExportChangeOptionFilter(Val ExportAddition) Export
 	
@@ -14489,7 +14495,7 @@ Function InteractiveExportChangeOptionFilter(Val ExportAddition) Export
 	FillPropertyValues(DataTest, ExportAddition);
 	AdditionScenarioParameters = DataTest.AdditionScenarioParameters;
 	If TypeOf(AdditionScenarioParameters)<>Type("Structure") Then
-		// If there are no settings specified, using all options as the default settings.
+		// 
 		Return Undefined;
 	EndIf;
 	
@@ -14514,7 +14520,7 @@ Function InteractiveExportChangeOptionFilter(Val ExportAddition) Export
 	EndIf;
 	
 	If Result.Count() = 4 Then
-		// All options are selected, removing a filter.
+		// 
 		Return Undefined;
 	EndIf;
 
@@ -14576,12 +14582,14 @@ Procedure SetUpLoopFormElements(Form)
 	PictureDecoration.PictureSize = PictureSize.Proportionally;
 
 	TextTemplate1 = NStr("en = '<br>Synchronization loop is found. For more information, follow the 
-			  |<a href=ФормаЗацикливаниеСинхронизации>link</a>.
+			  |<a href=""%1"">link</a>.
 			  |<br><br>
-			  |<a href=ФормаОбъектыНезарегистрированныеПриЗацикливании>Objects not registered upon looping</a>.';");
+			  |<a href=""%2"">Objects not registered upon looping</a>.';");
+	WarningText = StringFunctionsClientServer.SubstituteParametersToString(TextTemplate1, 
+		"FormSynchronizationLoop", "FormObjectsUnregisteredWhileLooping" );
 
 	FormattedDoc = New FormattedDocument;
-	FormattedDoc.SetHTML("<html>" + TextTemplate1 + "</html>", New Structure);
+	FormattedDoc.SetHTML("<html>" + WarningText + "</html>", New Structure);
 	
 	LabelDecoration = Items.Add("Label" + PanelName, Type("FormDecoration"), Group);
 	LabelDecoration.Type 						= FormDecorationType.Label;

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,10 +12,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.BatchEditObjects
-
-// Returns object attributes that can be edited using the bulk attribute modification data processor.
 // 
+
+// Returns object details that can be edited
+// by processing group changes to details.
 //
 // Returns:
 //  Array of String
@@ -96,12 +94,12 @@ EndProcedure
 
 #Region Internal
 
-// Updates descriptions of predefined sets in
-// parameters of additional attributes and info.
+// Updates the list of names of predefined sets in
+// the parameters of additional details and information.
 //
 // Parameters:
-//  HasChanges - Boolean - a return value. If recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  the return value. If a record was made,
+//                  the Truth is set, otherwise it does not change.
 //
 Procedure RefreshPredefinedSetsDescriptionsContent(HasChanges = Undefined) Export
 	
@@ -187,7 +185,7 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 			LockItem.SetValue("Ref", NewSet);
 			Block.Lock();
 			
-			// Populate a new set.
+			// 
 			NewSetObject = NewSet.GetObject();
 			If SetToUpdate.IsFolder <> NewSetObject.IsFolder Then
 				RollbackTransaction();
@@ -201,7 +199,7 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 				FillPropertyValues(NewStringAttributes, StringAttribute);
 				NewStringAttributes.PredefinedSetName = NewSetObject.PredefinedSetName;
 				
-				// Update the property set depending on an additional attribute.
+				// 
 				Property = NewStringAttributes.Property;
 				Block = New DataLock;
 				LockItem = Block.Add("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo");
@@ -248,7 +246,7 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 			
 			InfobaseUpdate.WriteObject(NewSetObject);
 			
-			// Clean up the old set.
+			// 
 			ObsoleteSetObject = SetToUpdate.Ref.GetObject();
 			ObsoleteSetObject.AdditionalAttributes.Clear();
 			ObsoleteSetObject.AdditionalInfo.Clear();
@@ -267,7 +265,7 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 					|WHERE
 					|	AdditionalAttributesAndInfoSets.Parent = &Parent
 					|	AND AdditionalAttributesAndInfoSets.Predefined = FALSE";
-				SetsToTransfer = Query.Execute().Unload(); // @skip-check query-in-loop - Batch-wise data processing.
+				SetsToTransfer = Query.Execute().Unload(); // 
 				For Each String In SetsToTransfer Do
 					SetObject = String.Ref.GetObject();
 					SetObject.Parent = NewSet;
@@ -301,9 +299,9 @@ Procedure ProcessPropertiesSetsForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// Initial population.
+// 
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
+// See also updating the information base undefined.customizingmachine infillingelements
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -318,7 +316,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemsFilling
+// See also updating the information base undefined.At firstfillingelements
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -332,13 +330,13 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 EndProcedure
 
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.
+// See also updating the information base undefined.customizingmachine infillingelements
 //
 // Parameters:
-//  Object                  - CatalogObject.ContactInformationKinds - Object to populate.
-//  Data                  - ValueTableRow - object filling data.
+//  Object                  - CatalogObject.ContactInformationKinds -  the object to fill in.
+//  Data                  - ValueTableRow -  data for filling in the object.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable -  the data filled in in the procedure for the initial filling of the elements.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	
@@ -415,7 +413,7 @@ EndFunction
 // 
 // Parameters:
 //  PropertiesSets - Map of KeyAndValue:
-//     * Key - String, CatalogRef.AdditionalAttributesAndInfoSets
+//     * Key - 
 //     * Value - See New_SetProperties
 //  Set - ValueTreeRow:
 //     * Name           - String
@@ -614,7 +612,7 @@ EndFunction
 
 #EndIf
 
-// ACC:361-disable server code was not accessed.
+// APK:361-off no access to server code.
 Function UpperLevelSetPresentation(PredefinedItemName, SetProperties = Undefined)
 	
 	Presentation = "";

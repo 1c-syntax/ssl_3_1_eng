@@ -1,17 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+		
+	// 
+	If Not Parameters.Property("ExchangePlanName") Then
+		
+		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		
+	EndIf;
 	
 	DataExchangeServer.CheckExchangeManagementRights();
 	
@@ -44,7 +49,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	If ValueIsFilled(ExchangeNode) Then
 		SettingCompleted = SynchronizationSetupCompleted(ExchangeNode, RefExists);
 		If Not RefExists Then
-			// Closing form when deleting synchronization setup.
+			// 
 			Return;
 		EndIf;
 	EndIf;
@@ -181,7 +186,7 @@ Procedure ConfigureDataExportImportRules(Command)
 	
 	ContinueNotification = New NotifyDescription("SetDataSendingAndReceivingRulesFollowUp", ThisObject);
 	
-	// For XDTO exchange plans, get the peer infobase's settings before configuring the exchange rules.
+	// 
 	// 
 	If XDTOSetup Then
 		AbortSetup = False;
@@ -270,8 +275,8 @@ Procedure BeforePerformingTheInitialUpload(Cancel)
 	ArrayOfValues = New Array(3);
 	ArrayOfValues[0] = PredefinedValue("Enum.ExchangeMessagesTransportTypes.COM");
 	ArrayOfValues[1] = PredefinedValue("Enum.ExchangeMessagesTransportTypes.WS");
-	// Skip the check for "WSPassiveMode".
-	//                    The peer infobase can get the info when establishing a passive connection.
+	// 
+	//                    
 	
 	ModeOfTransportSupportsDirectConnection = (ArrayOfValues.Find(TransportKind) <> Undefined);
 	If Not ModeOfTransportSupportsDirectConnection
@@ -304,10 +309,11 @@ Function CorrespondentSetupIsComplete(ExchangeNode, TransportKind)
 	If TransportKind = Enums.ExchangeMessagesTransportTypes.WS Then
 	
 		ConnectionParameters = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(ExchangeNode, Undefined);
-		
-		
+				
 		HasConnection = DataExchangeWebService.CorrespondentConnectionEstablished(ExchangeNode,
 			ConnectionParameters, CheckData.ErrorMessageToUser, CheckData.SettingCompleted, CheckData.DataReceivedForMapping);
+		
+		CorrespondentDescription = Common.ObjectAttributeValue(ExchangeNode, "Description");
 			
 		If Not HasConnection Then
 			
@@ -318,13 +324,14 @@ Function CorrespondentSetupIsComplete(ExchangeNode, TransportKind)
 				| - The application is available.
 				| - Web app synchronization is configured.
 				|Then, restart synchronization.';", Common.DefaultLanguageCode());
-			CheckData.ErrorMessage = StrTemplate(MessageTemplate, ExchangeNode.Description, CheckData.ErrorMessageToUser);
+			CheckData.ErrorMessage = StrTemplate(MessageTemplate, CorrespondentDescription, 
+				CheckData.ErrorMessageToUser);
 			
 		ElsIf Not CheckData.SettingCompleted Then
 			
 			MessageTemplate = NStr("en = 'To continue, set up synchronization in ""%1"". 
 				|The data exchange is canceled.';", Common.DefaultLanguageCode());
-			CheckData.ErrorMessage = StrTemplate(MessageTemplate, ExchangeNode.Description);
+			CheckData.ErrorMessage = StrTemplate(MessageTemplate,CorrespondentDescription);
 			
 		EndIf;
 		
@@ -347,7 +354,7 @@ Function CorrespondentSetupIsComplete(ExchangeNode, TransportKind)
 			
 			MessageTemplate = NStr("en = 'Error. In the ""%1"" application, the synchronization setting for this application is not found.
 					|The data exchange is canceled.';", Common.DefaultLanguageCode());
-			CheckData.ErrorMessage = StrTemplate(MessageTemplate, ExchangeNode.Description);
+			CheckData.ErrorMessage = StrTemplate(MessageTemplate, CorrespondentDescription);
 			
 		EndIf;
 		
@@ -356,7 +363,7 @@ Function CorrespondentSetupIsComplete(ExchangeNode, TransportKind)
 				
 			MessageTemplate = NStr("en = 'To continue, set up synchronization in ""%1"". 
 				|The data exchange is canceled.';", Common.DefaultLanguageCode());
-			CheckData.ErrorMessage = StrTemplate(MessageTemplate, ExchangeNode.Description);
+			CheckData.ErrorMessage = StrTemplate(MessageTemplate, CorrespondentDescription);
 			
 		EndIf;
 		
@@ -581,18 +588,18 @@ EndProcedure
 &AtClient
 Procedure UpdateCurrentSettingsStateDisplay()
 	
-	// Visibility of setup items.
+	// 
 	For Each SetupStage In SetupSteps Do 		
 		CommonClientServer.SetFormItemProperty(Items, SetupStage.Group, "Visible", SetupStage.Used);
 	EndDo;
 	
 	If IsBlankString(CurrentSetupStep) Then
-		// All stages are completed.
+		// 
 		For Each SetupStage In SetupSteps Do
 			Items[SetupStage.Group].Enabled = True;
 			Items[SetupStage.Button].Font = CommonClient.StyleFont("SynchronizationSetupWizardCommandStandardFont");
 					
-			// Green flag is only for the main setting stages.
+			// 
 			If SetupStage.IsMain Then
 				Items[SetupStage.Panel].CurrentPage = Items[SetupStage.PageSuccessfully];
 			Else
@@ -821,7 +828,7 @@ Procedure InitializeFormAttributes()
 		
 	DIBSetup                  = DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName);
 	XDTOSetup                 = DataExchangeServer.IsXDTOExchangePlan(ExchangePlanName);
-	UniversalExchangeSetup = DataExchangeCached.IsStandardDataExchangeNode(ExchangePlanName); // No conversion rules.
+	UniversalExchangeSetup = DataExchangeCached.IsStandardDataExchangeNode(ExchangePlanName); // 
 	
 	InteractiveSendingAvailable = Not DIBSetup And Not UniversalExchangeSetup;
 	
@@ -905,7 +912,7 @@ Procedure FillSetupStagesTable()
 	
 	SetupSteps.Clear();
 
-	// Configure connection.
+	// 
 	TheStageIsUsed = TransportSettingsAvailable Or NewSYnchronizationSetting;
 	
 	FormItems = New Structure;
@@ -917,7 +924,7 @@ Procedure FillSetupStagesTable()
 	
 	AddSetupStage("ConnectionSetup", "SetUpConnectionParameters", FormItems, TheStageIsUsed);
 
-	// Confirm connection.	
+	// 	
 	TheStageIsUsed = DataExchangeWithExternalSystem;
 	
 	FormItems = New Structure;
@@ -929,7 +936,7 @@ Procedure FillSetupStagesTable()
 	
 	AddSetupStage("ConfirmConnection", "GetConnectionConfirmation", FormItems, TheStageIsUsed);
 		
-	// Configure synchronization rules.
+	// 
 	FormItems = New Structure;
 	FormItems.Insert("Group"			, Items.RulesSetupGroup.Name);
 	FormItems.Insert("Panel"			, Items.RulesSetupPanel.Name);
@@ -939,7 +946,7 @@ Procedure FillSetupStagesTable()
 	
 	AddSetupStage("RulesSetting", "SetSendingAndReceivingRules", FormItems, True);
 		
-	// Initial DIB image	
+	// 	
 	TheStageIsUsed = Not DataExchangeWithExternalSystem
 		And DIBSetup
 		And Not ContinueSetupInSubordinateDIBNode
@@ -954,7 +961,7 @@ Procedure FillSetupStagesTable()
 	
 	AddSetupStage("InitialDIBImage", "CreateInitialDIBImage", FormItems, TheStageIsUsed);
 		
-	// Map and import data	
+	// 	
 	TheStageIsUsed = Not DataExchangeWithExternalSystem 
 		And Not DIBSetup
 		And Not UniversalExchangeSetup
@@ -970,7 +977,7 @@ Procedure FillSetupStagesTable()
 	
 	AddSetupStage("MapAndImport", "MapAndExportData", FormItems, TheStageIsUsed);
 		
-	// Initial data export
+	// 
 	TheStageIsUsed = Not DataExchangeWithExternalSystem
 		And InteractiveSendingAvailable
 		And (TransportSettingsAvailable

@@ -1,47 +1,45 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Creates a message based on a subject from message template.
+// Creates a message based on the subject based on the message template.
 //
 // Parameters:
-//  Template                   - CatalogRef.MessageTemplates - a reference to a message template.
-//  SubjectOf                  - Arbitrary - a base object for a message template. Object types are listed in
-//                                            the MessageTemplateSubject type to define.
-//  UUID  - UUID - a form ID required to place attachments into a
-//                                             temporary storage upon a client/server call. If a call
-//                                            occurs only on the server, any ID can be used.
-//  AdditionalParameters  - Structure - A list of additional parameters to be passed to the "Message" parameter
-//                                         in "OnCreateMessage" procedures upon creating an email message.:
-//      * DCSParametersValues - Structure - Values of the DCS parameters, the set of attributes and their values
-//                                            for the template being generated are determined by the DCS mechanisms.
-//      * ConvertHTMLForFormattedDocument - Boolean - optional, False by default, determines
-//                      whether it is necessary to convert an HTML message text that contains pictures in an email text because of
-//                      picture output features in the formatted document.
+//  Template                   - CatalogRef.MessageTemplates -  link to the message template.
+//  SubjectOf                  - Arbitrary -  the object is the base for the message template. the object types are listed in
+//                                            the subject type of the message Template that is being defined.
+//  UUID  - UUID -  form ID required for placing attachments in
+//                                            temporary storage during a client-server call. If the call
+//                                            occurs only on the server, you can use any ID.
+//  AdditionalParameters  - Structure - 
+//                                         :
+//      * DCSParametersValues - Structure - 
+//                                            
+//      * ConvertHTMLForFormattedDocument - Boolean -  optional, False by default, determines
+//                      whether it is necessary to convert the HTML text of the message containing images to the text of the message due to the
+//                      peculiarities of displaying images in a formatted document.
 // 
 // Returns:
-//  Structure - Message created from a template.:
-//    * Subject - String - an email subject.
-//    * Text - String - an email text.
-//    * Recipient - ValueList - Message recipients. The value contains the email address,
-//                                    the presentation contains the recipient name.
-//                 - Array of See NewEmailRecipients - If the property "ExtendedRecipientsList" of the procedure 
-//                   "OnDefineSettings.MessageTemplatesOverridable" is set to "True".
-//    * AdditionalParameters - Structure - message template parameters.
+//  Structure - :
+//    * Subject - String -  message subject
+//    * Text - String -  the text of the letter
+//    * Recipient - ValueList - 
+//                                    
+//                 - Array of See NewEmailRecipients -  
+//                   
+//    * AdditionalParameters - Structure -  parameters of the message template.
 //    * Attachments - ValueTable:
-//       ** Presentation - String - an attachment file name.
-//       ** AddressInTempStorage - String - a binary data address of an attachment in a temporary storage.
-//       ** Encoding - String - an attachment encoding (used if it differs from the message encoding).
-//       ** Id - String - optional, an attachment ID, used to store 
-//                                   pictures displayed in the email body.
+//       ** Presentation - String -  name of the attachment file.
+//       ** AddressInTempStorage - String -  address of the attachment's binary data in temporary storage.
+//       ** Encoding - String -  encoding of the attachment (used if it differs from the encoding of the message).
+//       ** Id - String -  optional, attachment ID, used for storing 
+//                                   images displayed in the message body.
 //
 Function GenerateMessage(Template, SubjectOf, UUID, AdditionalParameters = Undefined) Export
 
@@ -50,14 +48,14 @@ Function GenerateMessage(Template, SubjectOf, UUID, AdditionalParameters = Undef
 
 EndFunction
 
-// Sends an email or a text message based on the subject from message template.
+// Sends an email or SMS message based on the subject using the message template.
 //
 // Parameters:
-//  Template                   - CatalogRef.MessageTemplates - a reference to a message template.
-//  SubjectOf                  - Arbitrary - a base object for a message template. Object types are listed in
-//                                            the MessageTemplateSubject type to define.
-//  UUID  - UUID - a form ID required to place attachments into
-//                                                       a temporary storage.
+//  Template                   - CatalogRef.MessageTemplates -  link to the message template.
+//  SubjectOf                  - Arbitrary -  the object is the base for the message template. the object types are listed in
+//                                            the subject type of the message Template that is being defined.
+//  UUID  - UUID -  ID of the form that is required for placing attachments in
+//                                                       temporary storage.
 //  AdditionalParameters  - See ParametersForSendingAMessageUsingATemplate
 // 
 // Returns:
@@ -71,23 +69,23 @@ Function GenerateMessageAndSend(Template, SubjectOf, UUID,
 
 EndFunction
 
-// Returns the list of the required additional parameters for the GenerateMessageAndSend procedure.
-// You can extend the list of parameters to pass through the
-// OnCreateMessage procedures within the Message parameter and to subsequently use their values when creating a message.
+// Returns a list of required additional parameters for the Generate Message and Send procedure.
+// The list of parameters can be expanded, for end-to-end transmission as part of the Message parameter of the message
+// formation procedures and subsequent use of their values when creating a message.
 // 
 // Returns:
 //  Structure:
-//   * ConvertHTMLForFormattedDocument - Boolean - optional, False by default, determines
-//                      whether it is necessary to convert an HTML message text that contains pictures in an email text because of
-//                      picture output features in the formatted document.
+//   * ConvertHTMLForFormattedDocument - Boolean -  optional, False by default, determines
+//                      whether the HTML text of a message containing images in the message text needs to be converted due to the
+//                      way images are output in a formatted document.
 //   * Account - Undefined
-//                 - CatalogRef.EmailAccounts - Recipient's email address.
+//                 - CatalogRef.EmailAccounts - 
 //                       
-//   * SendImmediately - Boolean - if False, the email message will be placed in the Outbox folder 
-//                                  and sent with other email messages. When sending via Interaction only.
-//                                  Default value: False.
-//   * DCSParametersValues - Structure - Values of the DCS parameters, the set of attributes and their values
-//                                         for the template being generated are determined by the DCS mechanisms.
+//   * SendImmediately - Boolean -  if False, the email will be placed in the Outgoing folder 
+//                                  and sent during the general sending of emails. Only when sending via Interaction.
+//                                  The default value is False.
+//   * DCSParametersValues - Structure - 
+//                                         
 //
 Function ParametersForSendingAMessageUsingATemplate() Export
 
@@ -102,11 +100,11 @@ Function ParametersForSendingAMessageUsingATemplate() Export
 
 EndFunction
 
-// Fills in a list of message template attributes based on a DCS template.
+// 
 //
 // 	Parameters:
-//    Attributes  - ValueTree - an attribute list being filled in.
-//    Template      - DataCompositionSchema - a DCS template.
+//    Attributes  - ValueTree -  a list of Bank details to fill in.
+//    Template      - DataCompositionSchema -  the layout of the CDS.
 //
 Procedure GenerateAttributesListByDCS(Attributes, Template) Export
 	
@@ -114,11 +112,11 @@ Procedure GenerateAttributesListByDCS(Attributes, Template) Export
 	
 EndProcedure
 
-// Fills in a list of message template attributes based on a DCS template.
+// Fills in the list of message template details based on the SKD layout.
 //
 // Parameters:
-//  Attributes        - Map - an attribute list.
-//  SubjectOf          - Arbitrary - a reference to a base object for the message template.
+//  Attributes        - Map -  list of Bank details.
+//  SubjectOf          - Arbitrary -  reference to the base object for the message template.
 //  TemplateParameters - See TemplateParameters.
 //
 Procedure FillAttributesByDCS(Attributes, SubjectOf, TemplateParameters) Export
@@ -128,11 +126,11 @@ EndProcedure
 // Create a message template.
 //
 // Parameters:
-//  Description     - String - a template description.
+//  Description     - String -  name of the template.
 //  TemplateParameters - See MessageTemplates.TemplateParametersDetails
 //
 // Returns:
-//  CatalogRef.MessageTemplates - a reference to the created template.
+//  CatalogRef.MessageTemplates - 
 //
 Function CreateTemplate(Description, TemplateParameters) Export
 
@@ -178,8 +176,8 @@ Function CreateTemplate(Description, TemplateParameters) Export
 					Try
 						ModuleFilesOperations.AppendFile(FileAddingOptions, Attachment.Value);
 					Except
-						// An exception is thrown when the files are stored in volumes that are unacceptable during writing.
-						// If an exception is thrown, create a template without attachments.
+						// 
+						// 
 						ErrorInfo = ErrorInfo();
 						WriteLogEvent(EventLogEventName, EventLogLevel.Error,,,
 							ErrorProcessing.DetailErrorDescription(ErrorInfo));
@@ -204,37 +202,37 @@ Function CreateTemplate(Description, TemplateParameters) Export
 
 EndFunction
 
-// Returns details of template parameters.
+// Returns a description of the template parameters.
 // 
 // Returns:
 //  Structure:
-//   * Description - String - a message template description.
-//   * Text        - String - a text of an email template or a text message template.
-//   * Subject         - String - an email subject text. For email templates only.
-//   * TemplateType   - String - a template type. Options: Email and SMSMessage.
-//   * Purpose   - String - a presentation of a message template subject. For example, Sales order.
-//   * FullAssignmentTypeName - String - a message template subject. If a full path to a metadata object is specified, the template will have
-//                                        all its attributes available as parameters. For example, Document.SalesOrder.
-//   * EmailFormat1    - EnumRef.EmailEditingMethods- an HTML email format or a plain text.
-//                                         For email templates only.
-//   * PackToArchive - Boolean - If True, forms and attachments are archived when sent.
-//                                For email templates only.
-//   * TransliterateFileNames - Boolean - Names of print forms and files attached to an email will contain 
-//                                             only Latin letters and digits to ensure compatibility
-//                                             with different operating systems.
-//                                             For email templates only.
-//   * AttachmentsFormats - ValueList - a list of attachment formats. For email templates only.
+//   * Description - String -  name of the message template.
+//   * Text        - String -  text of the message template or SMS message.
+//   * Subject         - String -  text of the email subject. Only for email templates.
+//   * TemplateType   - String -  template type. Options: "Email", "SMS".
+//   * Purpose   - String -  view the subject of the message template. For example, a customer's Order.
+//   * FullAssignmentTypeName - String -  subject of the message template. If the full path to the metadata object
+//                                        is specified, all its details will be available in the template as parameters. For Example, A Document.Customer's order.
+//   * EmailFormat1    - EnumRef.EmailEditingMethods-  the email format is HTML or plain text.
+//                                         Only for email templates.
+//   * PackToArchive - Boolean -  if True, then print the form and attachments will be Packed into the archive when sending.
+//                                Only for email templates.
+//   * TransliterateFileNames - Boolean -  printed forms and files attached to the email will have names that contain 
+//                                             only Latin letters and numbers, so that you can transfer them between
+//                                             different operating systems. For example, the file " Invoice for payment.pdf" will
+//                                             be saved with the name "Schet na oplaty. pdf". Only for email templates.
+//   * AttachmentsFormats - ValueList -  list of attachment formats. Only for email templates.
 //   * Attachments - Map of KeyAndValue:
-//      ** Key - String - Full filename. For example, "image.png". The description is the filename without the extension.
-//                         Or an image id in the HTML message (without a cid).
-//      ** Value - String - Address in a temporary storage that points to binary data.
-//   * PrintCommands - Array of String - Print form UUIDs.
-//   * TemplateOwner - DefinedType.MessageTemplateOwner - a context template owner.
-//   * TemplateByExternalDataProcessor - Boolean - if True, a template is generated by an external data processor.
-//   * ExternalDataProcessor - CatalogRef.AdditionalReportsAndDataProcessors - external data processor the template belongs to.
-//   * SignatureAndSeal   - Boolean - adds the facsimile signature and seal to the print form. For email
-//                                 templates only.
-//   * AddAttachedFiles - Boolean - If set to "True", the owner's attachments will be added to the message attachments. 
+//      ** Key - String - 
+//                         
+//      ** Value - String - 
+//   * PrintCommands - Array of String - 
+//   * TemplateOwner - DefinedType.MessageTemplateOwner -  the owner of the context template.
+//   * TemplateByExternalDataProcessor - Boolean -  if True, the template is generated by external processing.
+//   * ExternalDataProcessor - CatalogRef.AdditionalReportsAndDataProcessors -  external processing that contains the template.
+//   * SignatureAndSeal   - Boolean -  adds a facsimile signature and stamp to the printed form. Only for
+//                                 email templates.
+//   * AddAttachedFiles - Boolean -  
 //                                              
 //
 Function TemplateParametersDetails() Export
@@ -246,30 +244,30 @@ Function TemplateParametersDetails() Export
 
 EndFunction
 
-// Creates subordinate attributes for a reference attribute in the value tree
+// Creates subordinate details for reference details in the value tree
 //
 // Parameters:
-//  Name					 - String - a name of a reference attribute, to whose value tree subordinate attributes must be added.
-//  Node				 - ValueTreeRowCollection - a node in the value tree that requires creation of child items.
-//  AttributesList	 - String - a list of comma separated attributes to add. If specified, only they will be added.
-//  ExcludingAttributes	 - String - a list of comma separated attributes to exclude.
+//  Name					 - String -  name of the reference detail to add subordinate details to in the value tree.
+//  Node				 - ValueTreeRowCollection -  a node in the tree values which you want to create child elements.
+//  AttributesList	 - String -  list of added details, separated by commas, if specified, will be added to them.
+//  ExcludingAttributes	 - String -  comma-separated list of excluded Bank details.
 //
 Procedure ExpandAttribute(Name, Node, AttributesList = "", ExcludingAttributes = "") Export
 	MessageTemplatesInternal.ExpandAttribute(Name, Node, AttributesList, ExcludingAttributes);
 EndProcedure
 
-// Adds relevant email addresses or phone numbers from the object contact information to the list of recipients.
-// Only relevant information gets into the selection of email addresses or phone numbers 
-// since there is no point in sending emails or text messages to archival data. 
+// Adds current email addresses or phone numbers from the object's contact information to the list of recipients.
+// Only up-to-date information is included in the selection of email addresses or phone numbers, 
+// because there is no point in sending emails or SMS messages to archived data. 
 //
 // Parameters:
-//  EmailRecipients        - ValueTable - a list of email or text message recipients.
-//  MessageSubject        - Arbitrary - a parent object that has attributes containing the contact information.
-//  AttributeName            - String - an attribute name in the parent object, from which you need to get email addresses or
-//                                     phone numbers.
-//  ContactInformationType - EnumRef.ContactInformationTypes - if the type is Address, adds postal
-//                                                                          addresses. If the type is Phone, adds phone numbers.
-//  SendingOption - String - Messaging options: "Whom" (To), "Copy" (CC), "HiddenCopy" (BCC), and "ReplyTo".
+//  EmailRecipients        - ValueTable -  list of recipients of an email or SMS message
+//  MessageSubject        - Arbitrary -  a parent object that has banking details containing contact information.
+//  AttributeName            - String -  name of the detail in the parent object to get email addresses or
+//                                     phone numbers from.
+//  ContactInformationType - EnumRef.ContactInformationTypes -  if the type is Address, then
+//                                                                          email addresses will be added, if Phone, then phone numbers.
+//  SendingOption - String - 
 //
 Procedure FillRecipients(EmailRecipients, MessageSubject, AttributeName,
 	ContactInformationType = Undefined, SendingOption = "Whom") Export
@@ -323,10 +321,10 @@ Procedure FillRecipients(EmailRecipients, MessageSubject, AttributeName,
 
 EndProcedure
 
-// Toggles the ability to create messages from templates.
+// 
 //
 // Parameters:
-//   Value - Boolean - If returns "True", the "Message templates" mechanism is available.
+//   Value - Boolean - 
 //
 Procedure SetUsageOfMessagesTemplates(Value) Export
 
@@ -334,10 +332,10 @@ Procedure SetUsageOfMessagesTemplates(Value) Export
 
 EndProcedure
 
-// Checks if "Message templates" mechanism is available.
+// 
 //
 // Returns:
-//   Boolean - If returns "True", the "Message templates" mechanism is available.
+//   Boolean - 
 //
 Function MessageTemplatesUsed() Export
 
@@ -345,12 +343,12 @@ Function MessageTemplatesUsed() Export
 
 EndFunction
 
-// API for external data processors.
+// 
 
-// Creates details of the message template parameter table.
+// Creates a description of the message template parameter table.
 //
 // Returns:
-//   ValueTable   - a generated blank value table.
+//   ValueTable   - 
 //
 Function ParametersTable() Export
 
@@ -367,14 +365,14 @@ Function ParametersTable() Export
 
 EndFunction
 
-// Add a template parameter for an external data processor.
+// Add a template parameter for external processing.
 //
 // Parameters:
-//  ParametersTable - ValueTable - a table with the list of parameters.
-//  ParameterName - String - a name of the parameter to be added.
-//  TypeDetails - TypeDescription - a parameter type.
-//  IsPredefinedParameter - Boolean - if True, the parameter is predefined.
-//  ParameterPresentation - String - a parameter presentation.
+//  ParametersTable - ValueTable -  table with a list of parameters.
+//  ParameterName - String -  name of the parameter to add.
+//  TypeDetails - TypeDescription -  parameter type.
+//  IsPredefinedParameter - Boolean -  if True, the parameter is predefined.
+//  ParameterPresentation - String -  representation of the argument.
 //
 Procedure AddTemplateParameter(ParametersTable, ParameterName, TypeDetails, IsPredefinedParameter,
 	ParameterPresentation = "") Export
@@ -388,10 +386,10 @@ Procedure AddTemplateParameter(ParametersTable, ParameterName, TypeDetails, IsPr
 
 EndProcedure
 
-// Initializes the Recipients structure to fill in possible message recipients.
+// Initializes the Recipients structure to populate possible message recipients.
 //
 // Returns:
-//   Structure  - a created structure.
+//   Structure  - 
 //
 Function InitializeRecipientsStructure() Export
 
@@ -399,10 +397,10 @@ Function InitializeRecipientsStructure() Export
 
 EndFunction
 
-// Initializes the message structure that has to be returned by the external data processor from the template.
+// Initializes the template message structure to be returned by external processing.
 //
 // Returns:
-//   Structure  - a created structure.
+//   Structure  - 
 //
 Function InitializeMessageStructure() Export
 
@@ -410,14 +408,14 @@ Function InitializeMessageStructure() Export
 
 EndFunction
 
-// Returns details of message template parameters according to form data, a reference to a catalog item of the message
-// template, or defining a context template by its owner. If the template is not found, a structure will be returned
-// with blank message template fields, by filling which you can create a new message template.
+// Returns a description of the message template parameters based on form data, a reference to the message template reference element
+// , or by defining a context template by its owner. If the template is not found, the
+// structure will be returned with empty fields of the message template, which can be used to create a new message template.
 //
 // Parameters:
 //  Template - FormDataStructure
 //         - CatalogRef.MessageTemplates
-//         - AnyRef - a reference to a message template or an owner of a context template.
+//         - AnyRef - 
 //
 // Returns:
 //   See MessageTemplatesClientServer.TemplateParametersDetails.
@@ -452,53 +450,53 @@ Function TemplateParameters(Val Template) Export
 	Return Result;
 EndFunction
 
-// Backward compatibility.
+// 
 
-// Inserts message parameter values into a template and generates a message text.
+// Inserts the values of message parameters into the template and generates the message text.
 //
 // Parameters:
-//  StringPattern        - String - a template to which values will be inserted according to the parameter table.
-//  ValuesToInsert - Map - mapping that contains parameter keys and values.
-//  Prefix             - String - a parameter prefix.
+//  StringPattern        - String -  the template that values will be inserted into, according to the parameter table.
+//  ValuesToInsert - Map -  a match containing parameter keys and parameter values.
+//  Prefix             - String -  the prefix parameter.
 //
 // Returns:
-//   String - a string, to which template parameter values were inserted.
+//   String - 
 //
 Function InsertParametersInRowAccordingToParametersTable(Val StringPattern, ValuesToInsert, Val Prefix = "") Export
 	Return MessageTemplatesInternal.InsertParametersInRowAccordingToParametersTable(StringPattern,
 		ValuesToInsert, Prefix);
 EndFunction
 
-// Returns mapping of template message text parameters.
+// Returns whether the template message text parameters match.
 //
 // Parameters:
-//  TemplateParameters - Structure - template information.
+//  TemplateParameters - Structure -  information about the template.
 //
 // Returns:
-//  Map - mapping of message text parameters.
+//  Map - 
 //
 Function ParametersFromMessageText(TemplateParameters) Export
 	Return MessageTemplatesInternal.ParametersFromMessageText(TemplateParameters);
 EndFunction
 
-// Fills in common attributes with values from the application.
-// After the procedure is executed, the mapping will contain the following values:
-//  CurrentDate, SystemTitle, InfobaseInternetAddress, InfobaseLocalAddress,
-//   and CurrentUser
+// Fills in the General details with values from the program.
+// After performing the procedure, the match will contain the following values:
+//  current Date, system Header, address Baseinternet, address baseinlocal Network
+//  Current user
 //
 // Parameters:
 //  CommonAttributes - Map of KeyAndValue:
-//   * Key - String - a name of a common attribute.
-//   * Value - String - the filled attribute value.
+//   * Key - String -  name of the shared property
+//   * Value - String -  the value of the completed banking details.
 //
 Procedure FillCommonAttributes(CommonAttributes) Export
 	MessageTemplatesInternal.FillCommonAttributes(CommonAttributes);
 EndProcedure
 
-// Returns a common attribute node name.
+// Returns the name of the shared details node.
 // 
 // Returns:
-//  String - — a common attribute name of the upper level.
+//  String - 
 //
 Function CommonAttributesNodeName() Export
 	Return "CommonAttributes";
@@ -508,13 +506,13 @@ EndFunction
 
 #Region Internal
 
-// Determines whether the passed reference is an item of the "Message templates" catalog.
+// Determines whether the passed link is an element of the message templates directory.
 //
 // Parameters:
-//  TemplateRef1 - CatalogRef.MessageTemplates - a reference to the "Message templates" catalog item.
+//  TemplateRef1 - CatalogRef.MessageTemplates -  the reference to the element of the dictionary templates.
 // 
 // Returns:
-//  Boolean - if True, a reference is an item of the "Message templates" catalog.
+//  Boolean - 
 //
 Function IsTemplate1(TemplateRef1) Export
 	Return TypeOf(TemplateRef1) = Type("CatalogRef.MessageTemplates");
@@ -542,7 +540,7 @@ EndProcedure
 
 #Region Private
 
-// Text message parameters
+// Sending parameters
 // 
 // Parameters:
 //  Template - CatalogRef.MessageTemplates
@@ -574,7 +572,7 @@ Function GenerateSendOptions(Template, SubjectOf, UUID, AdditionalParameters = U
 	If TypeOf(AdditionalParameters) = Type("Structure") Then
 		SendOptions.AdditionalParameters.MessageParameters = AdditionalParameters;
 		
-		// If additional parameters are passed, substitute them for the default values.
+		// 
 		For Each Item In AdditionalParameters Do
 			If SendOptions.AdditionalParameters.Property(Item.Key) Then
 				SendOptions.AdditionalParameters.Insert(Item.Key, Item.Value);
@@ -589,9 +587,9 @@ EndFunction
 
 // Returns:
 //  Structure:
-//    * Address - String - Recipient's email address.
-//    * Presentation - String - Recipient presentation.
-//    * ContactInformationSource - DefinedType.MessageTemplateSubject - a contact information owner.
+//    * Address - String - 
+//    * Presentation - String - 
+//    * ContactInformationSource - DefinedType.MessageTemplateSubject -  owner of the contact information.
 //                                   - Undefined
 //
 Function NewEmailRecipients() Export
@@ -606,7 +604,7 @@ Function NewEmailRecipients() Export
 EndFunction
 
 // Parameters:
-//  Attachments - ValueTable
+//  Attachments-Value Tables
 // Returns:
 //   ValueTableRow:
 //   * Ref - CatalogRef.MessageTemplatesAttachedFiles

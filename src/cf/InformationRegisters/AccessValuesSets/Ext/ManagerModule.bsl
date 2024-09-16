@@ -1,18 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// The procedure updates register cache attributes based on the result of changing the content
+// The procedure updates the register cache details based on the result of changing the composition
 // of value types and access value groups.
 //
 Procedure UpdateAuxiliaryRegisterDataByConfigurationChanges1() Export
@@ -29,11 +27,11 @@ EndProcedure
 
 #Region Private
 
-// The procedure updates the register data during the full update of auxiliary data.
+// The procedure updates the register data when the auxiliary data is fully updated.
 //
 // Parameters:
-//  HasChanges - Boolean - (return value) - if recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  (return value) - if a record was made,
+//                  it is set to True, otherwise it is not changed.
 //
 Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	

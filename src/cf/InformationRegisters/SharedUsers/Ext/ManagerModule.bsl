@@ -1,21 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Returns a list of shared administrators
+// Returns a list of undivided administrators
 //
 // Returns:
-//   ValueList   - a list of UUIDs with presentations (usernames).
+//   ValueList   - 
 //
 Function AdministratorsList() Export
 	
@@ -51,7 +49,7 @@ Function AdministratorsList() Export
 	
 EndFunction
 
-// Returns a maximum sequence number of a shared infobase user.
+// Returns the maximum sequential number of an undivided user in the information database.
 //
 // Returns:
 //  Number
@@ -72,10 +70,10 @@ Function MaxSequenceNumber() Export
 	
 EndFunction
 
-// Returns a sequence number of a shared infobase user
+// Returns the sequence number of an undivided user in the information database
 //
 // Parameters:
-//  Id - an infobase user UUID.
+//  Id - unique user ID of the information database.
 //
 // Returns:
 //  Number

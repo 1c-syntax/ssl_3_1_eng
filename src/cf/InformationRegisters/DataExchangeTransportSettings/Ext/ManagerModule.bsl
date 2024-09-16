@@ -1,18 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Adds a record to the register by the passed structure values.
+// The procedure adds an entry to the register based on the passed structure values.
+// 
+// Parameters:
+//  RecordStructure - Structure - 
+//
 Procedure AddRecord(RecordStructure) Export
 	
 	BeginTransaction();
@@ -37,7 +39,11 @@ Procedure AddRecord(RecordStructure) Export
 	
 EndProcedure
 
-// Updates a register record by the passed structure values.
+// The procedure updates the register entry based on the passed structure values.
+// 
+// Parameters:
+//  RecordStructure - Structure - 
+//
 Procedure UpdateRecord(RecordStructure) Export
 	
 	BeginTransaction();
@@ -59,6 +65,16 @@ EndProcedure
 
 // For internal use.
 // 
+// Parameters:
+//  Peer - ExchangePlanRef - 
+//  AuthenticationParameters - Undefined, Structure - 
+// 
+// Returns:
+//  Structure - :
+//   * SourceInfobaseID - String 
+//   * WSPassword - String -
+//              - Undefined - 
+//
 Function TransportSettingsWS(Peer, AuthenticationParameters = Undefined) Export
 	
 	SetPrivilegedMode(True);
@@ -90,7 +106,7 @@ Function TransportSettingsWS(Peer, AuthenticationParameters = Undefined) Export
 		Raise NStr("en = 'An error occurred while extracting a password from a secure storage.';");
 	EndIf;
 	
-	If TypeOf(AuthenticationParameters) = Type("Structure") Then // Initializing exchange using the current user name.
+	If TypeOf(AuthenticationParameters) = Type("Structure") Then // 
 		
 		If AuthenticationParameters.UseCurrentUser Then
 			
@@ -101,11 +117,11 @@ Function TransportSettingsWS(Peer, AuthenticationParameters = Undefined) Export
 		Password = Undefined;
 		
 		If AuthenticationParameters.Property("Password", Password)
-			And Password <> Undefined Then // The password is specified on the client
+			And Password <> Undefined Then // 
 			
 			Result.WSPassword = Password;
 			
-		Else // The password is not specified on the client.
+		Else // 
 			
 			Password = DataExchangeServer.DataSynchronizationPassword(Peer);
 			
@@ -162,6 +178,10 @@ EndProcedure
 #Region Private
 
 // See SafeModeManagerOverridable.OnFillPermissionsToAccessExternalResources
+// 
+// Parameters:
+//  PermissionsRequests - Array of See SafeModeManager.RequestToUseExternalResources
+//
 Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
 	TransportSettings = SavedTransportSettings();
@@ -250,7 +270,7 @@ Procedure RequestToUseExternalResources(PermissionsRequests, Record, QueryOption
 		
 	EndIf;
 	
-	// Permissions to perform synchronization by email are requested in the Email operations subsystem.
+	// 
 	
 	If Permissions.Count() > 0 Then
 		
@@ -272,11 +292,18 @@ Procedure WritePassword(PasswordNameInStructure, PasswordNameOnWrite, RecordStru
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// The functions of receiving setting values for exchange plan node.
+// 
 
-// Gets settings for the specified transport type.
-// If the transport type is not specified (ExchangeTransportKind = Undefined),
-// it retrieves settings for all transport types in the system.
+// Gets the values of transport settings of a certain type.
+// If the type of transport is not specified (type of transport Exchange = Undefined),
+// then gets the settings for all modes of transport that are set up in the system.
+// 
+// Parameters:
+//  Peer - ExchangePlanRef - 
+//  ExchangeTransportKind - Undefined, EnumRef.ExchangeMessagesTransportTypes - 
+// 
+// Returns:
+//   See ExchangeTransportSettings
 //
 Function TransportSettings(Val Peer, Val ExchangeTransportKind = Undefined) Export
 	
@@ -305,7 +332,7 @@ Function DefaultExchangeMessagesTransportKind(Peer) Export
 	
 	SetPrivilegedMode(True);
 	
-	// Function return value.
+	// 
 	MessagesTransportKind = Undefined;
 	
 	Query = New Query(
@@ -338,7 +365,7 @@ EndFunction
 
 Function DataExchangeDirectoryName(ExchangeMessagesTransportKind, InfobaseNode) Export
 	
-	// Function return value.
+	// 
 	Result = "";
 	
 	If ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FILE Then
@@ -405,23 +432,26 @@ Function ConfiguredTransportKinds(InfobaseNode) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+// 
 
-// Gets settings for the specified transport type.
-// If the transport type is not specified (ExchangeTransportKind = Undefined),
-// it retrieves settings for all transport types in the system.
-//
+// Gets the values of transport settings of a certain type.
+// If the type of transport is not specified (type of transport Exchange = Undefined),
+// then gets the settings for all modes of transport that are set up in the system.
+// 
 // Parameters:
-//  No.
+//  Peer - ExchangePlanRef - 
+//  ExchangeTransportKind - Undefined, EnumRef.ExchangeMessagesTransportTypes - 
 // 
 // Returns:
-//  
-//
+//  Structure - :
+//   * UseTempDirectoryToSendAndReceiveMessages - Boolean
+//   * SourceInfobaseID - String
+// 
 Function ExchangeTransportSettings(Peer, ExchangeTransportKind)
 	
 	SettingsStructure_ = New Structure;
 	
-	// Common settings for all transport types.
+	// 
 	SettingsStructure_.Insert("DefaultExchangeMessagesTransportKind");
 	PasswordsList = "ArchivePasswordExchangeMessages";
 	
@@ -479,7 +509,7 @@ Function GetRegisterDataByStructure(Peer, SettingsStructure_)
 		Return SettingsStructure_;
 	EndIf;
 	
-	// Generate a query text only for the fields (parameters) required for the given transport.
+	// 
 	// 
 	SelectedFields = "";
 	For Each SettingItem In SettingsStructure_ Do
@@ -488,7 +518,7 @@ Function GetRegisterDataByStructure(Peer, SettingsStructure_)
 		
 	EndDo;
 	
-	// Delete the last comma ( , ).
+	// 
 	StringFunctionsClientServer.DeleteLastCharInString(SelectedFields, 2);
 	
 	QueryTextTemplate2 = 
@@ -505,7 +535,7 @@ Function GetRegisterDataByStructure(Peer, SettingsStructure_)
 	Query.SetParameter("Peer", Peer);
 	Selection = Query.Execute().Select();
 	
-	// Filling the structure if settings for the node are filled.
+	// 
 	If Selection.Next() Then
 		
 		For Each SettingItem In SettingsStructure_ Do
@@ -525,7 +555,7 @@ Function ExchangeTransportSettingsContent(SearchSubstring)
 	TransportSettingsStructure = New Structure;
 	
 	RecordSet = CreateRecordSet();
-	Record = RecordSet.Add(); // For default values.
+	Record = RecordSet.Add(); // 
 	
 	For Each Resource In RecordSet.Metadata().Resources Do
 		

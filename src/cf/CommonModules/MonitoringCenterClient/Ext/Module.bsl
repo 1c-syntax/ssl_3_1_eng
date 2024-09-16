@@ -1,25 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 #Region PublicBusinessStatistics
 
-// Saves a business statistics operation to the client's cache.
-// In the infobase, it is saved by the "StandardPeriodicCheckIdleHandler" handler
-// (from the StandardSubsystemsGlobal global module).
-// If the application is closed, the data will not be written.
+// 
+// 
+// 
+// 
 //
 // Parameters:
-//  OperationName	- String	- a statistics operation name, if it is missing, a new one is created.
-//  Value	- Number		- a quantitative value of the statistics operation.
+//  OperationName	- String	-  the name of the statistics operation, in case of absence, a new one is created.
+//  Value	- Number		-  the quantitative value of the statistics operation.
 //
 Procedure WriteBusinessStatisticsOperation(OperationName, Value) Export
     
@@ -34,22 +32,22 @@ Procedure WriteBusinessStatisticsOperation(OperationName, Value) Export
     
 EndProcedure
 
-// Writes a unique business statistics operation by hour in cache on the client.
-// Uniqueness is checked upon writing.
-// In the infobase,  the operation is saved by the "OnReceiptRecurringClientDataOnServer" handler
-// (from the "CommonOverridable" global module).
-// If the application is closed, the data will not be written.
+// 
+// 
+// 
+// 
+// 
 //
 // Parameters:
-//  OperationName      - String - a statistics operation name, if it is missing, a new one is created.
-//  Value         - Number  - a quantitative value of the statistics operation.
-//  Replace         - Boolean - determines a replacement mode of an existing record.
-//                              True - an existing record will be deleted before writing.
-//                              False - if a record already exists, new data is ignored.
-//                              The default value is False.
-//  UniqueKey - String - a key used to check whether a record is unique. Its maximum length is 100. If it is not set,
-//                              the MD5 hash of user UUID and session number is used.
-//                              The default value is Undefined.
+//  OperationName      - String -  the name of the statistics operation, in case of absence, a new one is created.
+//  Value         - Number  -  the quantitative value of the statistics operation.
+//  Replace         - Boolean -  defines the replacement mode of an existing record.
+//                              True - before recording, the existing record will be deleted.
+//                              False - if the record already exists, the new data is ignored.
+//                              Default value: False.
+//  UniqueKey - String -  the key to control the uniqueness of the record, the maximum length is 100. If omitted,
+//                              an MD5 hash of the unique user ID and session number is used.
+//                              Default value: Undefined.
 //
 Procedure WriteBusinessStatisticsOperationHour(OperationName, Value, Replace = False, UniqueKey = Undefined) Export
     
@@ -66,22 +64,22 @@ Procedure WriteBusinessStatisticsOperationHour(OperationName, Value, Replace = F
     
 EndProcedure
 
-// Writes a unique business statistics operation by days in cache on the client.
-// Uniqueness is checked upon writing.
-// In the infobase,  the operation is saved by the "OnReceiptRecurringClientDataOnServer" handler
-// (from the "CommonOverridable" global module).
-// If the application is closed, the data will not be written.
+// 
+// 
+// 
+// 
+// 
 //
 // Parameters:
-//  OperationName      - String - a statistics operation name, if it is missing, a new one is created.
-//  Value         - Number  - a quantitative value of the statistics operation.
-//  Replace         - Boolean - determines a replacement mode of an existing record.
-//                              True - an existing record will be deleted before writing.
-//                              False - if a record already exists, new data is ignored.
-//                              The default value is False.
-//  UniqueKey - String - a key used to check whether a record is unique. Its maximum length is 100. If it is not set,
-//                              the MD5 hash of user UUID and session number is used.
-//                              The default value is Undefined.
+//  OperationName      - String -  the name of the statistics operation, in case of absence, a new one is created.
+//  Value         - Number  -  the quantitative value of the statistics operation.
+//  Replace         - Boolean -  defines the replacement mode of an existing record.
+//                              True - before recording, the existing record will be deleted.
+//                              False - if the record already exists, the new data is ignored.
+//                              Default value: False.
+//  UniqueKey - String -  the key to control the uniqueness of the record, the maximum length is 100. If omitted,
+//                              an MD5 hash of the unique user ID and session number is used.
+//                              Default value: Undefined.
 //
 Procedure WriteBusinessStatisticsOperationDay(OperationName, Value, Replace = False, UniqueKey = Undefined) Export
     

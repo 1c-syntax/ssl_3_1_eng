@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -277,7 +275,7 @@ Function PropertyAccessRights(Property, UniversalRestriction, AllowedProperties,
 	EndIf;
 	
 	Result.CanBeRead = True;
-	BeginTransaction(); // ACC:326 - Commit of the transaction is not required; this is a check for write permissions.
+	BeginTransaction(); // 
 	Try
 		RecordSet = TestRecordSet(Property);
 		RecordSet.DataExchange.Load = True;
@@ -413,7 +411,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.PropertyValueTableValue.Name);
 	
-	// Date format - time.
+	// 
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("PropertyValueTable.ValueType");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
@@ -426,7 +424,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.PropertyValueTableValue.Name);
 	
-	// Date format - date.
+	// 
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("PropertyValueTable.ValueType");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
@@ -438,7 +436,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.PropertyValueTableValue.Name);
 	
-	// Field availability if you have no change rights.
+	// 
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("PropertyValueTable.IsEditable");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;

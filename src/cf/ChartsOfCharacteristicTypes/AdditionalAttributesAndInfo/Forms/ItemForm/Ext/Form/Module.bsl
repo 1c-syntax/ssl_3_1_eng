@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -42,7 +40,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	Else
 		FillPropertyCard();
-		// Object attribute lock subsystem handler.
+		// 
 		ObjectAttributesLock.LockAttributes(ThisObject);
 	EndIf;
 	
@@ -81,7 +79,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 	If TypeOf(ValueSelected) = Type("ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo") Then
 		Close();
 		
-		// Open the property form.
+		// 
 		FormParameters = New Structure;
 		FormParameters.Insert("Key", ValueSelected);
 		FormParameters.Insert("CurrentPropertiesSet", CurrentPropertiesSet);
@@ -118,8 +116,8 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenDescriptionAlreadyInUse") Then
 	
-		// Fill the description from the property set and check if
-		// there's a property with the same description.
+		// 
+		// 
 		If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 			QueryText = DescriptionAlreadyUsed(
 				Object.Title, Object.Ref, CurrentPropertiesSet, Object.Description, Object.TitleLanguage1, Object.TitleLanguage2);
@@ -145,7 +143,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenNameAlreadyInUse")
 		And ValueIsFilled(Object.Name) Then
-		// Check whether there is a property with the same name.
+		// 
 		QueryText = NameAlreadyUsed(
 			Object.Name, Object.Ref, Object.Description);
 		
@@ -165,7 +163,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	If Not WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed")
 		And ValueIsFilled(Object.IDForFormulas) Then
-		// Fill formula ID and check if there's a property with the same ID.
+		// 
 		// 
 		QueryText = IDForFormulasAlreadyUsed(
 			Object.IDForFormulas, Object.Ref);
@@ -228,7 +226,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		EndIf;
 	EndIf;
 	
-	// Generating additional attribute or info name.
+	// 
 	If Not ValueIsFilled(CurrentObject.Name)
 		Or WriteParameters.Property("WhenNameAlreadyInUse") Then
 		CurrentObject.Name = "";
@@ -248,7 +246,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		CurrentObject.Name = CurrentObject.Name + "_" + UIDString;
 	EndIf;
 	
-	// Generate ID for additional attribute (information record) formulas.
+	// 
 	If Not ValueIsFilled(CurrentObject.IDForFormulas)
 		Or WriteParameters.Property("WhenIDForFormulasIsAlreadyUsed") Then
 			
@@ -313,7 +311,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -324,7 +322,7 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 		WriteAdditionalAttributeValuesOnCopy(CurrentObject);
 	EndIf;
 	
-	// Object attribute lock subsystem handler.
+	// 
 	ObjectAttributesLock.LockAttributes(ThisObject);
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
@@ -407,7 +405,7 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -772,7 +770,7 @@ EndProcedure
 Procedure Change(Command)
 	
 	If Items.Properties.CurrentData <> Undefined Then
-		// Open the property form.
+		// 
 		FormParameters = New Structure;
 		FormParameters.Insert("Key", Items.Properties.CurrentData.Property);
 		FormParameters.Insert("CurrentPropertiesSet", SelectedPropertiesSet);
@@ -1202,7 +1200,7 @@ Procedure FillPropertyCard()
 	PropertyKind = Object.PropertyKind;
 	
 	If CreateAttributeByCopying Then
-		// For cases when the attribute is copied from its card using the Copy command.
+		// 
 		If Not ValueIsFilled(PassedFormParameters.AdditionalValuesOwner) Then
 			PassedFormParameters.AdditionalValuesOwner = PassedFormParameters.CopyingValue;
 		EndIf;
@@ -1495,7 +1493,7 @@ Procedure ValuesBeforeRowChangeCompletion(Cancel, Context) Export
 	EndIf;
 	
 	If Items.Values.CurrentRow <> Undefined Then
-		// Opening a value form or a value set.
+		// 
 		FormParameters = New Structure;
 		FormParameters.Insert("HideOwner", True);
 		FormParameters.Insert("ShowWeight", Object.AdditionalValuesWithWeight);
@@ -1878,7 +1876,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 		ValuesOwner = Object.AdditionalValuesOwner;
 		ValuesWithWeight   = OwnerProperties.AdditionalValuesWithWeight;
 	Else
-		// Checking possibility to delete an additional value type.
+		// 
 		If PropertyManagerInternal.ValueTypeContainsPropertyValues(OldValueType) Then
 			Query = New Query;
 			Query.SetParameter("Owner", Object.Ref);
@@ -1938,7 +1936,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 			EndIf;
 		EndIf;
 		
-		// Checking that not more than one additional value type is set.
+		// 
 		If Object.ValueType.ContainsType(Type("CatalogRef.ObjectPropertyValueHierarchy"))
 		   And Object.ValueType.ContainsType(Type("CatalogRef.ObjectsPropertiesValues")) Then
 			
@@ -1953,7 +1951,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 					String(Type("CatalogRef.ObjectsPropertiesValues")),
 					String(Type("CatalogRef.ObjectPropertyValueHierarchy")) );
 				
-				// Deletion of the second type.
+				// 
 				Object.ValueType = New TypeDescription(
 					Object.ValueType,
 					,
@@ -1968,7 +1966,7 @@ Procedure RefreshFormItemsContent(WarningText = "")
 					String(Type("CatalogRef.ObjectsPropertiesValues")),
 					String(Type("CatalogRef.ObjectPropertyValueHierarchy")) );
 				
-				// Deletion of the first type.
+				// 
 				Object.ValueType = New TypeDescription(
 					Object.ValueType,
 					,
@@ -2395,7 +2393,7 @@ Procedure WriteAdditionalAttributeValuesOnCopyRecursively(Owner, TreeRow, Parent
 		ObjectCopy = TreeItem.Ref.GetObject().Copy();
 		ObjectCopy.Owner = Owner;
 		ObjectCopy.Parent = Parent;
-		ObjectCopy.Write(); // ACC:1327 New object record.
+		ObjectCopy.Write(); // 
 		
 		SubordinateItems = TreeItem.GetItems();
 		WriteAdditionalAttributeValuesOnCopyRecursively(Owner, SubordinateItems, ObjectCopy.Ref)

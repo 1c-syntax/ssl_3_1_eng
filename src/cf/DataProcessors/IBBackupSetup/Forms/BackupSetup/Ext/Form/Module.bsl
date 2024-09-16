@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -46,7 +44,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.ModifySchedule.Title = String(Schedule);
 	Object.BackupDirectory = BackupSettings1.BackupStorageDirectory;
 	
-	// Filling settings for storing old copies.
+	// 
 	
 	FillPropertyValues(Object, BackupSettings1.DeletionParameters);
 	
@@ -304,7 +302,7 @@ Function CheckDirectoryWithBackups()
 			Try
 				DeleteFiles(Object.BackupDirectory, "*.test1From1");
 			Except
-				// ACC:280 Not an error if files are not deleted at this step.
+				// 
 			EndTry;
 			
 		EndIf;
@@ -327,7 +325,7 @@ EndFunction
 
 &AtServerNoContext
 Procedure StopNotificationService(CurrentUser)
-	// Stops notifications of backup.
+	// 
 	BackupSettings1 = IBBackupServer.BackupSettings1();
 	BackupSettings1.CreateBackupAutomatically = False;
 	BackupSettings1.BackupConfigured = True;
@@ -393,7 +391,7 @@ Procedure ModifyScheduleCompletion(ScheduleResult, AdditionalParameters) Export
 EndProcedure
 
 /////////////////////////////////////////////////////////
-// Data presentation on the form.
+// 
 
 &AtServer
 Procedure SetVisibilityAvailability()

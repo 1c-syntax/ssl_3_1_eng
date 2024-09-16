@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Common and personal file management settings.
+// 
 
-// Returns a structure that contains CommonSettings and PersonalSettings.
+// Returns a structure containing General And personal Settings.
 Function FilesOperationSettings() Export
 	
 	CommonSettings        = New Structure;
@@ -31,12 +29,12 @@ Function FilesOperationSettings() Export
 	
 EndFunction
 
-// Sets common and personal file function settings.
+// Sets General and personal settings for file functions.
 Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	
 	SetPrivilegedMode(True);
 	
-	// Populate common settings.
+	// 
 	
 	CommonSettings.Insert(
 		"ExtractTextFilesOnServer", FilesOperationsInternal.ExtractTextFilesOnServer());
@@ -53,12 +51,12 @@ Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	CommonSettings.Insert("FilesExtensionsListOpenDocument", FilesExtensionsListOpenDocument());
 	CommonSettings.Insert("TextFilesExtensionsList", TextFilesExtensionsList());
 	
-	// Populate personal settings.
+	// 
 	
 	LocalFileCacheMaxSize = Common.CommonSettingsStorageLoad(
 		"LocalFileCache", "LocalFileCacheMaxSize");
 	If LocalFileCacheMaxSize = Undefined Then
-		LocalFileCacheMaxSize = 100*1024*1024; // 100 MB.
+		LocalFileCacheMaxSize = 100*1024*1024; // 
 		Common.CommonSettingsStorageSave("LocalFileCache",
 			"LocalFileCacheMaxSize", LocalFileCacheMaxSize);
 	EndIf;
@@ -67,8 +65,8 @@ Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	
 	PathToLocalFileCache = Common.CommonSettingsStorageLoad(
 		"LocalFileCache", "PathToLocalFileCache");
-	// Do not get the variable directly.
-	// Use the getter function "FilesOperationsInternalClient.UserWorkingDirectory".
+	// 
+	// 
 	PersonalSettings.Insert("PathToLocalFileCache", PathToLocalFileCache);
 	
 	DeleteFileFromLocalFileCacheOnCompleteEdit =
@@ -100,7 +98,7 @@ Procedure AddFilesOperationsSettings(CommonSettings, PersonalSettings)
 	PersonalSettings.Insert("ShowFileNotModifiedFlag",
 		ShowFileNotModifiedFlag);
 	
-	// File open settings.
+	// 
 	
 	TextFilesExtension = Common.CommonSettingsStorageLoad(
 		"OpenFileSettings\TextFiles",
@@ -192,13 +190,13 @@ Function TextFilesExtensionsList()
 
 EndFunction
 
-// Returns the flag showing whether the node belongs to DIB exchange plan.
+// Returns whether the node belongs to the rib exchange plan.
 //
 // Parameters:
-//  FullExchangePlanName - String - an exchange plan string that requires receiving the function value.
+//  FullExchangePlanName - String -  the exchange plan that you want to get the function value for.
 //
 //  Returns:
-//    Boolean - If True, the node belongs to the exchange plan of the distributed infobase. Otherwise, False.
+//    Boolean - 
 //
 Function IsDistributedInfobaseNode(FullExchangePlanName) Export
 
@@ -206,7 +204,7 @@ Function IsDistributedInfobaseNode(FullExchangePlanName) Export
 	
 EndFunction
 
-// For the function, see FullVolumePath.
+// For the function, see Full of Thom.
 // 
 // Returns:
 //  Boolean
@@ -215,10 +213,10 @@ Function VolumePathIgnoreRegionalSettings() Export
 	Return Constants.VolumePathIgnoreRegionalSettings.Get();
 EndFunction
 
-// Returns the flag indicating whether data migrated to a new register.
+// 
 //
 //  Returns:
-//    Boolean - If "True", data was migrated. Otherwise, "False".
+//    Boolean - 
 // 
 Function IsDeduplicationCompleted() Export
 	

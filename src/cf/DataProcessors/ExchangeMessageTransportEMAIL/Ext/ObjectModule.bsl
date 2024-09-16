@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -17,19 +15,19 @@ Var ErrorMessageStringEL Export;
 // 
 Var ErrorsMessages;                 // Map
 
-Var ObjectName;                      // Metadata object name
+Var ObjectName;                      // 
 
-Var TempExchangeMessageFile;    // A temporary exchange message file.
+Var TempExchangeMessageFile;    // 
 
-Var TempExchangeMessagesDirectory; // A temporary exchange directory.
+Var TempExchangeMessagesDirectory; // 
 
-Var MessageSubject1;                   // A subject template
+Var MessageSubject1;                   // 
 
-Var SimpleBody;            // Message body text with an attached XML file.
+Var SimpleBody;            // 
 
-Var CompressedBody;             // Message body with an attached archive.
+Var CompressedBody;             // 
 
-Var BatchBody;           // Message body with an archive of files.
+Var BatchBody;           // 
 
 Var EmailOperationsCommonModule;
 Var DirectoryID;
@@ -39,15 +37,15 @@ Var DirectoryID;
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+// 
 
-// Creates a temporary directory in the temporary file directory of the operating system user.
+// Creates a temporary directory in the temporary files directory of the operating system user.
 //
 // Parameters:
 //  No.
 // 
 //  Returns:
-//    Boolean - True if the function is executed successfully, False if an error occurred.
+//    Boolean - 
 // 
 Function ExecuteActionsBeforeProcessMessage() Export
 	
@@ -59,13 +57,13 @@ Function ExecuteActionsBeforeProcessMessage() Export
 	
 EndFunction
 
-// Sends the exchange message to the specified resource from the temporary exchange message directory.
+// Sends an exchange message to the specified resource from the temporary directory of the exchange message.
 //
 // Parameters:
 //  No.
 // 
 //  Returns:
-//    Boolean - True if the function is executed successfully, False if an error occurred.
+//    Boolean - 
 // 
 Function SendMessage() Export
 	
@@ -81,13 +79,13 @@ Function SendMessage() Export
 	
 EndFunction
 
-// Gets an exchange message from the specified resource and puts it in the temporary exchange message directory.
+// Retrieves the exchange message from the specified resource to the temporary directory of the exchange message.
 //
 // Parameters:
-//  ExistenceCheck - Boolean - True if it is necessary to check whether exchange messages exist without their import.
+//  ExistenceCheck - Boolean -  True if you only need to check for exchange messages, without downloading them.
 // 
 //  Returns:
-//    Boolean - True if the function is executed successfully, False if an error occurred.
+//    Boolean - 
 // 
 Function GetMessage(ExistenceCheck = False) Export
 	
@@ -103,7 +101,7 @@ Function GetMessage(ExistenceCheck = False) Export
 	
 EndFunction
 
-// Deletes the temporary exchange message directory after performing data import or export.
+// Removes the temporary directory the message exchange after performing the upload or download of data.
 //
 // Parameters:
 //  No.
@@ -121,7 +119,7 @@ Function ExecuteActionsAfterProcessMessage() Export
 	
 EndFunction
 
-// Initializes data processor properties with initial values and constants.
+// Initializes processing properties with initial values and constants.
 //
 // Parameters:
 //  No.
@@ -139,13 +137,13 @@ Procedure Initialize() Export
 	
 EndProcedure
 
-// Checks whether the connection to the specified resource can be established.
+// Checks whether a connection can be established to the specified resource.
 //
 // Parameters:
 //  No.
 // 
 //  Returns:
-//    Boolean - True if connection can be established. Otherwise, False.
+//    Boolean - 
 //
 Function ConnectionIsSet() Export
 	
@@ -161,12 +159,12 @@ Function ConnectionIsSet() Export
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties.
+// 
 
-// Time exchange message file changed.
+// Time when the exchange message file was changed.
 //
 // Returns:
-//  String - time exchange message file changed.
+//  String - 
 //
 Function ExchangeMessageFileDate() Export
 	
@@ -186,10 +184,10 @@ Function ExchangeMessageFileDate() Export
 	
 EndFunction
 
-// Full exchange message file name.
+// Full name of the exchange message file.
 //
 // Returns:
-//  String - full exchange message file name.
+//  String - 
 //
 Function ExchangeMessageFileName() Export
 	
@@ -205,10 +203,10 @@ Function ExchangeMessageFileName() Export
 	
 EndFunction
 
-// Full exchange message directory name.
+// Full name of the exchange message folder.
 //
 // Returns:
-//  String - full exchange message directory name.
+//  String - 
 //
 Function ExchangeMessageDirectoryName() Export
 	
@@ -225,11 +223,11 @@ Function ExchangeMessageDirectoryName() Export
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+// 
 
 Function CreateTempExchangeMessagesDirectory()
 	
-	// Creating the temporary exchange message directory.
+	// 
 	Try
 		TempDirectoryName = DataExchangeServer.CreateTempExchangeMessagesDirectory(DirectoryID);
 	Except
@@ -277,7 +275,7 @@ Function SendExchangeMessage()
 	
 	If CompressOutgoingMessageFile() Then
 		
-		// Getting the temporary archive file name.
+		// 
 		ArchiveTempFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName(), MessageFileNameTemplate + ".zip");
 		
 		Try
@@ -298,7 +296,7 @@ Function SendExchangeMessage()
 		
 		If Result Then
 			
-			// Checking that the exchange message size does not exceed the maximum allowed size.
+			// 
 			If DataExchangeServer.ExchangeMessageSizeExceedsAllowed(ArchiveTempFileName, MaxMessageSize()) Then
 				GetErrorMessage(108);
 				Result = False;
@@ -319,7 +317,7 @@ Function SendExchangeMessage()
 		
 		If Result Then
 			
-			// Checking that the exchange message size does not exceed the maximum allowed size.
+			// 
 			If DataExchangeServer.ExchangeMessageSizeExceedsAllowed(ExchangeMessageFileName(), MaxMessageSize()) Then
 				GetErrorMessage(108);
 				Result = False;
@@ -343,9 +341,9 @@ Function SendExchangeMessage()
 EndFunction
 
 // Returns:
-//   ValueTable - A collection of exchange messages:
-//     * Id - Array of String - a message ID collection.
-//     * PostingDate - Date - message sending date.
+//   ValueTable - :
+//     * Id - Array of String -  collection of message IDs.
+//     * PostingDate - Date -  date the message was sent.
 //
 Function ExchangeMessagesTable()
 	
@@ -361,15 +359,9 @@ Function GetExchangeMessage(ExistenceCheck)
 	
 	ExchangeMessagesTable = ExchangeMessagesTable();
 	
-	ColumnsArray1 = New Array;
-	
-	ColumnsArray1.Add("Id");
-	ColumnsArray1.Add("PostingDate");
-	ColumnsArray1.Add("Subject");
-	
 	ImportParameters = New Structure;
-	ImportParameters.Insert("Columns", ColumnsArray1);
 	ImportParameters.Insert("GetHeaders", True);
+	ImportParameters.Insert("CastMessagesToType", False);
 	
 	Try
 		MessageSet = EmailOperationsCommonModule.DownloadEmailMessages(EMAILAccount, ImportParameters);
@@ -388,14 +380,15 @@ Function GetExchangeMessage(ExistenceCheck)
 		EmailMessageSubject = StrReplace(EmailMessageSubject, Chars.Tab, "");
 		
 		If Upper(EmailMessageSubject) <> Upper(TrimAll(MessageSubject1)) Then
-			// The message name can be in the format of Message_[prefix]_UID1_UID2.
+			// 
 			If StrFind(Upper(EmailMessageSubject), SearchSubjectsSubstring) = 0 Then
 				Continue;
 			EndIf;
 		EndIf;
 		
 		NewRow = ExchangeMessagesTable.Add();
-		FillPropertyValues(NewRow, MailMessage);
+		NewRow.PostingDate = MailMessage.PostingDate;
+		NewRow.Id.Add(MailMessage);
 		
 	EndDo;
 	
@@ -444,7 +437,7 @@ Function GetExchangeMessage(ExistenceCheck)
 			FilePacked = False;
 		EndIf;
 		
-		// The message name can be in the format of Message_[prefix]_UID1_UID2.
+		// 
 		FilePacked = False;
 		SearchTemplate = StrReplace(MessageFileNameTemplate, "Message_","");
 		For Each CurAttachment In MessageSet[0].Attachments Do
@@ -453,7 +446,7 @@ Function GetExchangeMessage(ExistenceCheck)
 				If StrEndsWith(CurAttachment.Key,".zip") > 0 Then
 					FilePacked = True;
 				EndIf;
-				// Rewrite the accurate file name template as an attachment name without an extension.
+				// 
 				AttachedFileNameStructure = CommonClientServer.ParseFullFileName(CurAttachment.Key,False);
 				MessageFileNameTemplate = AttachedFileNameStructure.BaseName;
 				Break;
@@ -467,7 +460,7 @@ Function GetExchangeMessage(ExistenceCheck)
 		
 		If FilePacked Then
 			
-			// Getting the temporary archive file name.
+			// 
 			ArchiveTempFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName(), MessageFileNameTemplate + ".zip");
 			
 			Try
@@ -481,7 +474,7 @@ Function GetExchangeMessage(ExistenceCheck)
 			
 			InformationRegisters.ArchiveOfExchangeMessages.PackMessageToArchive(InfobaseNode, ArchiveTempFileName);
 			
-			// Unpacking the temporary archive file.
+			// 
 			SuccessfullyUnpacked = DataExchangeServer.UnpackZipFile(ArchiveTempFileName, ExchangeMessageDirectoryName(), ArchivePasswordExchangeMessages);
 			
 			If Not SuccessfullyUnpacked Then
@@ -489,11 +482,11 @@ Function GetExchangeMessage(ExistenceCheck)
 				Return False;
 			EndIf;
 			
-			// Checking that the message file exists.
+			// 
 			File = New File(ExchangeMessageFileName());
 			
 			If Not File.Exists() Then
-				// The archive name probably does not match name of the file inside.
+				// 
 				MessageFileNameStructure = CommonClientServer.ParseFullFileName(ExchangeMessageFileName(),False);
 
 				If MessageFileNameTemplate <> MessageFileNameStructure.BaseName Then
@@ -556,8 +549,8 @@ Procedure SupplementErrorMessage(Message)
 	
 EndProcedure
 
-// The overridable function, returns the maximum allowed size of
-// a message to be sent.
+// An overridable function that returns the maximum allowed size
+// of a message that can be sent.
 // 
 Function MaxMessageSize()
 	
@@ -566,9 +559,9 @@ Function MaxMessageSize()
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// Functions for retrieving properties.
+// 
 
-// Retrieves a flag that shows that the outgoing message file is compressed.
+// Flag for compressing the outgoing message file.
 // 
 Function CompressOutgoingMessageFile()
 	
@@ -577,7 +570,7 @@ Function CompressOutgoingMessageFile()
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// Initialization.
+// Initialize
 
 Procedure InitMessages()
 	
@@ -590,7 +583,7 @@ Procedure ErrorMessageInitialization()
 	
 	ErrorsMessages = New Map;
 	
-	// General error codes
+	// 
 	ErrorsMessages.Insert(001, NStr("en = 'Exchange messages are not detected.';"));
 	ErrorsMessages.Insert(002, NStr("en = 'Error extracting message file.';"));
 	ErrorsMessages.Insert(003, NStr("en = 'Error packing the exchange message file.';"));
@@ -598,7 +591,7 @@ Procedure ErrorMessageInitialization()
 	ErrorsMessages.Insert(005, NStr("en = 'The archive does not contain the exchange message file.';"));
 	ErrorsMessages.Insert(006, NStr("en = 'Couldn''t send the message. Message size exceeds the limit.';"));
 	
-	// Transport-specific error codes.
+	// 
 	ErrorsMessages.Insert(101, NStr("en = 'Initialization error: the exchange message transport email account is not specified.';"));
 	ErrorsMessages.Insert(102, NStr("en = 'Error sending the email message.';"));
 	ErrorsMessages.Insert(103, NStr("en = 'Error receiving message headers from the email server.';"));
@@ -612,7 +605,7 @@ Procedure ErrorMessageInitialization()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// Procedures and functions for email management.
+// 
 
 Function SendMessagebyEmail(Body, OutgoingMessageFileName, PathToFile)
 	

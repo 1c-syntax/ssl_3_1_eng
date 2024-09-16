@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
-// There are two ways to parameterize a form:
+// 
 //
-// Option 1
+// 
 //     Параметры: 
 //         УзелИнформационнойБазы             - ПланОбменаСсылка - узел плана обмена, для которого выполняется помощник.
 //         РасширенныйРежимДополненияВыгрузки - Булево           - флаг включения механизма настройки дополнения
@@ -18,9 +16,9 @@
 //
 // Вариант 2:
 //     Parameters: 
-//         InfobaseNodeCode - String - Exchange plan node code, for which the wizard will be opened.
-//         ExchangePlanName - String - Name of an exchange plan to use for searching an exchange plan node whose code is specified in the InfobaseNodeCode parameter.
-//                                                                 ExportAdditionExtendedMode - Boolean - Flag indicating whether the export addition setup by node scenario is enabled.
+//         
+//         
+//                                                                 
 //                                                                 
 //         
 //                                                                 
@@ -62,12 +60,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// Interactive data exchange is supported only for universal exchanges.
+	// 
 	If Not DataExchangeCached.IsUniversalDataExchangeNode(Object.InfobaseNode) Then
 		Raise NStr("en = 'The selected node does not support settings-based data exchange.';");
 	EndIf;
 	
-	// Check whether exchange settings match the filter.
+	// 
 	AllNodes = DataExchangeEvents.AllExchangePlanNodes(Object.ExchangePlanName);
 	If AllNodes.Find(Object.InfobaseNode) = Undefined Then
 		Raise NStr("en = 'The selected node does not provide data mapping.';");
@@ -127,6 +125,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ScenarioUsingInternalPublication,
 			IDOfExchangeViaInternalPublication);
 	EndIf;
+	
+	Items.GroupWarningWhenSharingViaInternalPublishing.Visible = ExchangeViaInternalPublication;
 	
 EndProcedure
 
@@ -194,9 +194,9 @@ EndProcedure
 &AtClient
 Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 	
-	// Check whether the additional export item initialization event occurred. 
+	//  
 	If DataExchangeClient.ExportAdditionChoiceProcessing(ValueSelected, ChoiceSource, ExportAddition) Then
-		// Event is handled, updating filter details.
+		// 
 		SetExportAdditionFilterDescription();
 		Return;
 	EndIf;
@@ -230,7 +230,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// StartPage page
+// 
 
 &AtClient
 Procedure ExchangeMessagesTransportKindOnChange(Item)
@@ -254,7 +254,7 @@ Procedure DataExchangeDirectoryClick(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// StatisticsPage page
+// 
 
 &AtClient
 Procedure EndDataMappingOnChange(Item)
@@ -271,7 +271,7 @@ Procedure LoadMessageAfterMappingOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// QuestionAboutExportContentPage page
+// 
 
 &AtClient
 Procedure ExportAdditionExportVariantOnChange(Item)
@@ -285,13 +285,13 @@ EndProcedure
 
 &AtClient
 Procedure ExportAdditionCommonDocumentsPeriodClearing(Item, StandardProcessing)
-	// Forbid period clearing.
+	// 
 	StandardProcessing = False;
 EndProcedure
 
 &AtClient
 Procedure ExportAdditionNodeScenarioFilterPeriodClearing(Item, StandardProcessing)
-	// Forbid period clearing.
+	// 
 	StandardProcessing = False;
 EndProcedure
 
@@ -327,7 +327,7 @@ EndProcedure
 
 &AtClient
 Procedure DoneCommand(Command)
-	// Updating all opened dynamic lists.
+	// 
 	DataExchangeClient.RefreshAllOpenDynamicLists();
 	
 	Result = New Structure;
@@ -378,7 +378,7 @@ EndProcedure
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// StartPage page
+// 
 
 &AtClient
 Procedure OpenDataExchangeDirectory(Command)
@@ -400,7 +400,7 @@ Procedure ConfigureExchangeMessagesTransportParameters(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// StatisticsPage page
+// 
 
 &AtClient
 Procedure RefreshAllMappingInformation(Command)
@@ -514,7 +514,7 @@ Procedure OpenMappingForm(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// MappingCompletePage page
+// 
 
 &AtClient
 Procedure GoToDataImportEventLog(Command)
@@ -531,7 +531,7 @@ Procedure GoToDataExportEventLog(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// QuestionAboutExportContentPage page
+// 
 
 &AtClient
 Procedure ExportAdditionGeneralDocumentsFilter(Command)
@@ -573,10 +573,10 @@ EndProcedure
 
 &AtClient
 Procedure ExportAdditionFiltersHistory(Command)
-	// Filling a menu list with all saved settings options.
+	// 
 	VariantList = ExportAdditionServerSettingsHistory();
 	
-	// Adding the option for saving the current settings.
+	// 
 	Text = NStr("en = 'Save current setting…';");
 	VariantList.Add(1, Text, , PictureLib.SaveReportSettings);
 	
@@ -590,9 +590,8 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 1C-SUPPLIED SECTION
+// 
 ////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region PartToSupply
 
@@ -664,10 +663,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// Run navigation event handlers.
+	// 
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// Set up page view.
+	// 
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -681,7 +680,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
 	Items.NavigationPanel.CurrentPage.Enabled = Not (IsMoveNext And NavigationRowCurrent.TimeConsumingOperation);
 	
-	// Set the default button.
+	// 
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "NextCommand");
 	
 	If NextButton <> Undefined Then
@@ -711,7 +710,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	
-	// Navigation event handlers.
+	// 
 	If IsMoveNext Then
 		
 		NavigationRows = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber - 1));
@@ -719,7 +718,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		If NavigationRows.Count() > 0 Then
 			NavigationRow = NavigationRows[0];
 		
-			// OnNavigationToNextPage handler.
+			// 
 			If Not IsBlankString(NavigationRow.OnNavigationToNextPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -765,7 +764,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		Return;
 	EndIf;
 	
-	// OnOpen handler
+	// 
 	If Not IsBlankString(NavigationRowCurrent.OnOpenHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, SkipPage, IsMoveNext)";
@@ -815,7 +814,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
 	
-	// TimeConsumingOperationProcessing handler.
+	// 
 	If Not IsBlankString(NavigationRowCurrent.TimeConsumingOperationHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, GoToNext)";
@@ -904,14 +903,13 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// OVERRIDABLE SECTION
+// 
 ////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region OverridablePart
 
 ////////////////////////////////////////////////////////////////////////////////
-// PROCEDURES AND FUNCTIONS SECTION
+// 
 
 #Region ProceduresAndFuctionsOfProcessing
 
@@ -920,7 +918,7 @@ EndProcedure
 &AtClient
 Procedure InitializeDataProcessorVariables()
 	
-	// Initialize data processor variables.
+	// 
 	ProgressPercent                   = 0;
 	FileID                  = "";
 	ProgressAdditionalInformation             = "";
@@ -976,7 +974,7 @@ Procedure ExportAdditionFilterHistoryMenuSelection(Val SelectedElement, Val Addi
 		
 	SettingPresentation = SelectedElement.Value;
 	If TypeOf(SettingPresentation)=Type("String") Then
-		// An option is selected, which is name of the setting saved earlier.
+		// 
 		
 		TitleText = NStr("en = 'Confirm operation';");
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -986,7 +984,7 @@ Procedure ExportAdditionFilterHistoryMenuSelection(Val SelectedElement, Val Addi
 		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 		
 	ElsIf SettingPresentation=1 Then
-		// A save option is selected, opening the form of all settings.
+		// 
 		DataExchangeClient.OpenExportAdditionFormSaveSettings(ExportAddition, ThisObject);
 		
 	EndIf;
@@ -1029,7 +1027,7 @@ EndProcedure
 &AtClient
 Procedure OpenNodeDataExchangeDirectory()
 	
-	// Server call without context.
+	// 
 	DirectoryName = GetDirectoryNameAtServer(Object.ExchangeMessagesTransportKind, Object.InfobaseNode);
 	
 	If IsBlankString(DirectoryName) Then
@@ -1136,7 +1134,7 @@ Procedure UpdateMappingByRowDetailsAtServer(Cancel, RowsKeys, RunDataImport = Fa
 		DataProcessorObject.RunDataImport(Cancel, RowIndexes);
 	EndIf;
 	
-	// Getting mapping statistic data.
+	// 
 	DataProcessorObject.GetObjectMappingByRowStats(Cancel, RowIndexes);
 	
 	ValueToFormAttribute(DataProcessorObject, "Object");
@@ -1335,7 +1333,7 @@ Procedure CheckWhetherTransferToNewExchangeIsRequired()
 	Message      = ArrayOfMessages[Count-1];
 	MessageText = Message.Text;
 	
-	// A subsystem ID is deleted from the message if necessary.
+	// 
 	If StrStartsWith(MessageText, "{MigrationToNewExchangeDone}") Then
 		
 		MessageData = Common.ValueFromXMLString(MessageText);
@@ -1390,39 +1388,39 @@ EndProcedure
 &AtServer
 Procedure InitializeExportAdditionAttributes()
 	
-	// Getting settings as a structure, settings will be saved implicitly to the form temporary storage.
+	// 
 	ExportAdditionSettings = DataExchangeServer.InteractiveExportChange(
 		Object.InfobaseNode, ThisObject.UUID, ExportAdditionExtendedMode);
 		
-	// Configure the form.
-	// Convert it into the form attribute of the type "DataProcessorObject" (to access the form seamlessly).
+	// 
+	// 
 	DataExchangeServer.InteractiveExportChangeAttributeBySettings(ThisObject, ExportAdditionSettings, "ExportAddition");
 	
 	AdditionScenarioParameters = ExportAddition.AdditionScenarioParameters;
 	
-	// Configuring interface according to the specified scenario.
+	// 
 	
-	// Special cases.
+	// 
 	StandardVariantsProhibited = Not AdditionScenarioParameters.OptionDoNotAdd.Use
 		And Not AdditionScenarioParameters.AllDocumentsOption.Use
 		And Not AdditionScenarioParameters.ArbitraryFilterOption.Use;
 		
 	If StandardVariantsProhibited Then
 		If AdditionScenarioParameters.AdditionalOption.Use Then
-			// A single node scenario option is available.
+			// 
 			Items.ExportAdditionNodeAsStringExportOption.Visible = True;
 			Items.ExportAdditionNodeExportOption.Visible        = False;
 			Items.CustomGroupIndentDecoration.Visible           = False;
 			ExportAddition.ExportOption = 3;
 		Else
-			// Nothing is found. Setting the flag showing that the page is skipped and exiting.
+			// 
 			ExportAddition.ExportOption = -1;
 			Items.ExportAdditionOptions.Visible = False;
 			Return;
 		EndIf;
 	EndIf;
 	
-	// Setting typical input fields.
+	// 
 	Items.StandardAdditionOptionNone.Visible = AdditionScenarioParameters.OptionDoNotAdd.Use;
 	If Not IsBlankString(AdditionScenarioParameters.OptionDoNotAdd.Title) Then
 		Items.ExportAdditionExportOption0.ChoiceList[0].Presentation = AdditionScenarioParameters.OptionDoNotAdd.Title;
@@ -1462,12 +1460,12 @@ Procedure InitializeExportAdditionAttributes()
 		Items.CustomAdditionOptionNote.Visible = False;
 	EndIf;
 	
-	// Command titles.
+	// 
 	If Not IsBlankString(AdditionScenarioParameters.AdditionalOption.FormCommandTitle) Then
 		Items.ExportAdditionFilterByNodeScenario.Title = AdditionScenarioParameters.AdditionalOption.FormCommandTitle;
 	EndIf;
 	
-	// Sorting visible items.
+	// 
 	AdditionGroupOrder = New ValueList;
 	If Items.StandardAdditionOptionNone.Visible Then
 		AdditionGroupOrder.Add(Items.StandardAdditionOptionNone, 
@@ -1490,11 +1488,11 @@ Procedure InitializeExportAdditionAttributes()
 		Items.Move(AdditionGroupItem.Value, Items.ExportAdditionOptions);
 	EndDo;
 	
-	// Editing settings is only allowed if the appropriate rights are granted.
+	// 
 	HasRightsToSetup = AccessRight("SaveUserData", Metadata);
 	Items.StandardSettingsOptionsImportGroup.Visible = HasRightsToSetup;
 	If HasRightsToSetup Then
-		// Restore predefined settings.
+		// 
 		SetFirstItem = Not ExportAdditionSetSettingsServer(DataExchangeServer.ExportAdditionSettingsAutoSavingName());
 		ExportAddition.CurrentSettingsItemPresentation = "";
 	Else
@@ -1517,12 +1515,12 @@ Procedure InitializeExportAdditionAttributes()
 		EndDo;
 	EndIf;
 	
-	// Initial view, same as ExportAdditionExportVariantSetVisibility client procedure.
+	// 
 	Items.AllDocumentsFilterGroup.Enabled  = ExportAddition.ExportOption=1;
 	Items.DetailedFilterGroup.Enabled     = ExportAddition.ExportOption=2;
 	Items.CustomFilterGroup.Enabled = ExportAddition.ExportOption=3;
 	
-	// Description of standard initial filters.
+	// 
 	SetExportAdditionFilterDescription();
 	
 EndProcedure
@@ -1603,7 +1601,7 @@ Procedure SetAdditionDetailDescription()
 	Items.ExportAdditionClearDetailedFilter.Visible = Not NoFilter2;
 EndProcedure
 
-// Returns boolean - success or failure (setting is not found).
+// Returns Boolean-successful/no (setting not found).
 &AtServer 
 Function ExportAdditionSetSettingsServer(SettingPresentation)
 	Result = DataExchangeServer.InteractiveExportChangeRestoreSettings(ExportAddition, SettingPresentation);
@@ -1711,7 +1709,7 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// Idle handlers.
+// 
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -1730,7 +1728,7 @@ Procedure TimeConsumingOperationIdleHandler()
 			Return;
 	EndIf;
 	Else
-		// Exchange via COM connection.
+		// 
 		ActionState = DataExchangeServerCall.JobState(JobID);
 	EndIf;
 	
@@ -1754,12 +1752,12 @@ Procedure TimeConsumingOperationIdleHandler()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Procedures and function of the master.
+// 
 
 &AtClient
 Function GetSelectedRowKeys(SelectedRows)
 	
-	// Function return value.
+	// 
 	RowsKeys = New Array;
 	
 	For Each RowID In SelectedRows Do
@@ -1836,7 +1834,7 @@ Procedure ExpandStatisticsTree(Composite = "")
 		
 	EndDo;
 	
-	// Placing a mouse pointer in the value tree.
+	// 
 	If Not IsBlankString(Composite) Then
 		
 		RowID = 0;
@@ -1850,7 +1848,7 @@ Procedure ExpandStatisticsTree(Composite = "")
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// SECTION OF PROCESSING BACKGROUND JOBS
+// 
 
 &AtClient
 Function BackgroundJobParameters()
@@ -1905,7 +1903,7 @@ Procedure BackgroundJobStartClient(JobParameters, Cancel, GetPasswordFromSession
 		TimeConsumingOperationsClient.WaitCompletion(Result, BackgroundJobCompletionNotification, IdleParameters);
 		
 	Else
-		// Job is completed, canceled, or completed with an error.
+		// 
 		AttachIdleHandler(JobParameters.CompletionHandler, 0.1, True);
 	EndIf;
 	
@@ -1963,7 +1961,7 @@ Procedure BackgroundJobCompletionNotification(Result, AdditionalParameters) Expo
 	CompletionHandler = BackgroundJobExecutionResult.CompletionHandler;
 	BackgroundJobExecutionResult = Result;
 	
-	// Job is completed, canceled, or completed with an error.
+	// 
 	AttachIdleHandler(CompletionHandler, 0.1, True);
 	
 EndProcedure
@@ -1996,7 +1994,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// SECTION OF STEP CHANGE HANDLERS
+// 
 
 #Region NavigationEventHandlers
 
@@ -2015,7 +2013,7 @@ Function Attachable_BeginningPageOnGoNext(Cancel)
 		Return Undefined;
 	EndIf;
 	
-	// Check filling of form attributes.
+	// 
 	If Object.InfobaseNode.IsEmpty() Then
 		
 		NString = NStr("en = 'Please specify the infobase node.';");
@@ -2105,7 +2103,7 @@ Procedure TestConnectionAndSaveSettings(Cancel)
 	
 	If HasConnection And Not SkipTransportPage And WSRememberPassword Then
 		Try
-			// Updating record in the information register.
+			// 
 			RecordStructure = New Structure;
 			RecordStructure.Insert("Peer", Object.InfobaseNode);
 			RecordStructure.Insert("WSRememberPassword", True);
@@ -2132,7 +2130,7 @@ Procedure TestConnectionAndSaveSettings(Cancel)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Pages for checking running synchronizations.
+// 
 
 &AtClient
 Function Attachable_PageDataExchangeJobCheck_OnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2192,7 +2190,7 @@ Procedure CancelQueueAndResumeOnServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Pages of data receipt processing (exchange message transport).
+// 
 
 &AtClient
 Function Attachable_DataAnalysisWaitingPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2268,7 +2266,7 @@ Function Attachable_DataAnalysisWaitingPageTimeConsumingOperationCompletionTimeC
 	If TimeConsumingOperationCompleted
 		And Not TimeConsumingOperationCompletedWithError Then
 		
-		// Get the file prepared at the correspondent to the temporary directory.
+		// 
 		If Not ValueIsFilled(Object.ExchangeMessageFileName) Then
 			
 			GetPasswordFromSessionData = (Not SkipTransportPage And Not WSRememberPassword);
@@ -2368,7 +2366,7 @@ Procedure GetDataToTemporaryDirectoryAtServerCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Data analysis pages (automatic data mapping).
+// 
 
 &AtClient
 Function Attachable_DataAnalysisPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2436,7 +2434,7 @@ EndProcedure
 &AtServer
 Procedure AtalyzeDataAtServerCompletion()
 	
-	// Checking the transition to a new data exchange.
+	// 
 	CheckWhetherTransferToNewExchangeIsRequired();
 	If ForceCloseForm Then
 		Return;
@@ -2503,7 +2501,7 @@ Procedure AtalyzeDataAtServerCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Pages of data mapping processing (interactive data mapping).
+// 
 
 &AtClient
 Function Attachable_StatisticsInformationPageOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2536,7 +2534,7 @@ Function Attachable_StatisticsInformationPageOnGoNext(Cancel)
 		Return Undefined;
 	EndIf;
 	
-	// Going to the next page after user confirmation.
+	// 
 	Cancel = True;
 	
 	Buttons = New ValueList;
@@ -2555,7 +2553,7 @@ Function Attachable_StatisticsInformationPageOnGoNext(Cancel)
 	
 EndFunction
 
-// Continuation of the procedure (see above).
+// 
 &AtClient
 Procedure StatisticsPageOnGoNextQuestionCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	
@@ -2570,14 +2568,14 @@ EndProcedure
 &AtClient
 Procedure Attachable_GoStepForwardWithDeferredProcessing()
 	
-	// Going a step forward (forced).
+	// 
 	SkipCurrentPageCancelControl = True;
 	ChangeNavigationNumber( +1 );
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Pages of data import processing
+// 
 
 &AtClient
 Function Attachable_DataImportOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -2655,13 +2653,13 @@ Procedure DataImportCompletion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Additional export pages (registration to additional data export).
+// 
 
 &AtClient
 Function Attachable_QuestionAboutExportCompositionPageOnOpen(Cancel, SkipPage, IsMoveNext)
 	
 	If ExportAddition.ExportOption < 0 Then
-		// According to the node settings, the addition of export is not performed, go to the next page.
+		// 
 		SkipPage = True;
 	EndIf;
 	
@@ -2673,7 +2671,7 @@ EndFunction
 Function Attachable_DataRegistrationPageOnOpen(Cancel, SkipPage, IsMoveNext)
 	
 	If ExportAddition.ExportOption < 0 Then
-		// According to the node settings, the addition of export is not performed, go to the next page.
+		// 
 		SkipPage = True;
 	EndIf;
 	
@@ -2799,7 +2797,7 @@ Procedure OnCompleteDataRecordingAtServer(HandlerParameters, DataRegistered, Err
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Data export processing pages
+// 
 
 &AtClient
 Function Attachable_DataExportOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -3104,7 +3102,7 @@ Procedure OnCompleteDataExportViaInternalPublication()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Summary information pages.
+// 
 
 &AtClient
 Function Attachable_MappingCompletePageOnOpen(Cancel, SkipPage, Val IsMoveNext)
@@ -3122,7 +3120,7 @@ EndFunction
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// NAVIGATION INITIALIZATION SECTION
+// 
 
 &AtServer
 Procedure FillNavigationTable()
@@ -3142,22 +3140,22 @@ Procedure FillNavigationTable()
 	If ExchangeBetweenSaaSApplications Or ExchangeViaInternalPublication Then
 		
 		If MessageReceivedForDataMapping Then
-			// Getting data (exchange message transport.
+			// 
 			NavigationTableNewRowTimeConsumingOperation("DataAnalysisWaitPage", "NavigationWaitPage", True, 
 				"Attachable_DataAnalysisWaitingPageTimeConsumingOperationProcessing",
 				"Attachable_DataAnalysisWaitingPageOnOpen");
 			
-			// Data analysis pages (automatic data mapping).
+			// 
 			NavigationTableNewRowTimeConsumingOperation("DataAnalysisWaitPage", "NavigationWaitPage", True, 
 				"Attachable_DataAnalysisTimeConsumingOperationProcessing",
 				"Attachable_DataAnalysisPageOnOpen");
 			
-			// Manual data mapping.
+			// 
 			NavigationTableNewRow("StatisticsInformationPage", "StatisticsInformationNavigationPage", 
 				"Attachable_StatisticsInformationPageOnOpen",
 				"Attachable_StatisticsInformationPageOnGoNext");
 			
-			// Data import.
+			// 
 			NavigationTableNewRowTimeConsumingOperation(PageNameSynchronizationImport, "NavigationWaitPage", True,
 				"Attachable_DataImportTimeConsumingOperationProcessing",
 				"Attachable_DataImportOnOpen");
@@ -3175,7 +3173,7 @@ Procedure FillNavigationTable()
 				NavigationTableNewRow("QuestionAboutExportCompositionPage", "NavigationPageFollowUp", "Attachable_QuestionAboutExportCompositionPageOnOpen");
 			EndIf;
 			
-			// Export and import data.
+			// 
 			NavigationTableNewRowTimeConsumingOperation(PageNameSynchronizationExport, "NavigationWaitPage", True, 
 				"Attachable_DataExportWaitingPageTimeConsumingOperationProcessing",
 				"Attachable_DataExportOnOpen");
@@ -3185,7 +3183,7 @@ Procedure FillNavigationTable()
 		
 		If ExchangeOverWebService
 			Or ExchangeOverExternalConnection Then
-			// Test connection.
+			// 
 			If GetData Then
 				NavigationTableNewRowTimeConsumingOperation("DataAnalysisWaitPage", "NavigationWaitPage", True, 
 					"Attachable_ConnectionTestWaitingPageTimeConsumingOperationProcessing");
@@ -3196,7 +3194,7 @@ Procedure FillNavigationTable()
 		EndIf;
 		
 		If GetData Then
-			// Getting data (exchange message transport.
+			// 
 			NavigationTableNewRowTimeConsumingOperation("DataAnalysisWaitPage", "NavigationWaitPage", True, 
 				"Attachable_DataAnalysisWaitingPageTimeConsumingOperationProcessing",
 				"Attachable_DataAnalysisWaitingPageOnOpen");
@@ -3206,12 +3204,12 @@ Procedure FillNavigationTable()
 					"Attachable_DataAnalysisWaitingPageTimeConsumingOperationCompletionTimeConsumingOperationProcessing");
 			EndIf;
 			
-			// Data analysis pages (automatic data mapping).
+			// 
 			NavigationTableNewRowTimeConsumingOperation("DataAnalysisWaitPage", "NavigationWaitPage", True, 
 				"Attachable_DataAnalysisTimeConsumingOperationProcessing",
 				"Attachable_DataAnalysisPageOnOpen");
 			
-			// Manual data mapping.
+			// 
 			If MessageReceivedForDataMapping Then
 				NavigationTableNewRow("StatisticsInformationPage", "StatisticsInformationNavigationPage", 
 					"Attachable_StatisticsInformationPageOnOpen",
@@ -3222,7 +3220,7 @@ Procedure FillNavigationTable()
 					"Attachable_StatisticsInformationPageOnGoNext");
 			EndIf;
 			
-			// Data import.
+			// 
 			NavigationTableNewRowTimeConsumingOperation(PageNameSynchronizationImport, "NavigationWaitPage", True, 
 				"Attachable_DataImportTimeConsumingOperationProcessing",
 				"Attachable_DataImportOnOpen");
@@ -3230,17 +3228,17 @@ Procedure FillNavigationTable()
 		
 		If SendData Then
 			If ExportAdditionMode Then
-				// Data export setup.
+				// 
 				DataExportResult = "";
 				NavigationTableNewRow("QuestionAboutExportCompositionPage", "NavigationPageFollowUp", "Attachable_QuestionAboutExportCompositionPageOnOpen");
 				
-				// The long-running operation of registering additional data to export.
+				// 
 				NavigationTableNewRowTimeConsumingOperation("DataRegistrationPage", "NavigationWaitPage", True,
 					"Attachable_DataRegistrationPageTimeConsumingOperationProcessing",
 					"Attachable_DataRegistrationPageOnOpen");
 			EndIf;
 			
-			// Export data.
+			// 
 			NavigationTableNewRowTimeConsumingOperation(PageNameSynchronizationExport, "NavigationWaitPage", True,
 				"Attachable_DataExportWaitingPageTimeConsumingOperationProcessing",
 				"Attachable_DataExportOnOpen");
@@ -3252,7 +3250,7 @@ Procedure FillNavigationTable()
 		
 	EndIf;
 	
-	// Totals.
+	// 
 	NavigationTableNewRow("MappingCompletePage", "NavigationEndPage", "Attachable_MappingCompletePageOnOpen");
 	
 EndProcedure

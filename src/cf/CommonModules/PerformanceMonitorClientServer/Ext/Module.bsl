@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Gets the name of the additional property that shows whether priority check is skipped when writing key operations.
+// Gets the name of the optional do not check priorities property when recording a key operation.
 //
 // Returns:
-//  String - an additional property name.
+//  String - 
 //
 Function DoNotCheckPriority() Export
 	
@@ -21,7 +19,7 @@ Function DoNotCheckPriority() Export
 	
 EndFunction
 
-// Key of the scheduled job parameter for the local export directory.
+// The key of the routine task parameter corresponding to the local export directory.
 //
 Function LocalExportDirectoryJobKey() Export
 	
@@ -29,7 +27,7 @@ Function LocalExportDirectoryJobKey() Export
 	
 EndFunction
 
-// Returns scheduled job parameter key that corresponds to the export FTP directory
+// Key of the routine task parameter corresponding to the ftp export folder
 //
 Function FTPExportDirectoryJobKey() Export
 	
@@ -39,28 +37,28 @@ EndFunction
 
 #Region CommonClientServerCopy
 
-// Splits the URI string and returns it as a structure.
-// The following normalizations are described based on RFC 3986.
+// Parses the URI string into its component parts and returns it as a structure.
+// Based on RFC 3986.
 //
 // Parameters:
-//     URIString1 - String - link to the resource in the following format:
-//                          <schema>://<username>:<password>@<host>:<port>/<path>?<parameters>#<anchor>.
+//     URIString1 - String - :
+//                          
 //
 // Returns:
-//     Structure - composite parts of the URI according to the format:
+//     Structure - :
 //         * Schema         - String
 //         * Login         - String
 //         * Password        - String
-//         * ServerName    - String - part <host>:<port> of the input parameter.
+//         * ServerName    - String -  part <host>:< port> of the input parameter.
 //         * Host          - String
 //         * Port          - String
-//         * PathAtServer - String - part <path>?<parameters>#<anchor> of the input parameter.
+//         * PathAtServer - String -  the <path>part?<characteristic>#< anchor> of the input parameter.
 //
 Function URIStructure(Val URIString1) Export
 	
 	URIString1 = TrimAll(URIString1);
 	
-	// Schema.
+	// Schema
 	Schema = "";
 	Position = StrFind(URIString1, "://");
 	If Position > 0 Then
@@ -68,7 +66,7 @@ Function URIStructure(Val URIString1) Export
 		URIString1 = Mid(URIString1, Position + 3);
 	EndIf;
 
-	// Connection string and path on the server.
+	// 
 	ConnectionString = URIString1;
 	PathAtServer = "";
 	Position = StrFind(ConnectionString, "/");
@@ -77,7 +75,7 @@ Function URIStructure(Val URIString1) Export
 		ConnectionString = Left(ConnectionString, Position - 1);
 	EndIf;
 		
-	// User details and server name.
+	// 
 	AuthorizationString = "";
 	ServerName = ConnectionString;
 	Position = StrFind(ConnectionString, "@");
@@ -86,7 +84,7 @@ Function URIStructure(Val URIString1) Export
 		ServerName = Mid(ConnectionString, Position + 1);
 	EndIf;
 	
-	// Username and password.
+	// 
 	Login = AuthorizationString;
 	Password = "";
 	Position = StrFind(AuthorizationString, ":");
@@ -95,7 +93,7 @@ Function URIStructure(Val URIString1) Export
 		Password = Mid(AuthorizationString, Position + 1);
 	EndIf;
 	
-	// The host and port.
+	// 
 	Host = ServerName;
 	Port = "";
 	Position = StrFind(ServerName, ":");
@@ -120,19 +118,19 @@ Function URIStructure(Val URIString1) Export
 	
 EndFunction
 
-// Adds a composition item into a composition item container.
+// Add a layout element to the layout element container.
 //
 // Parameters:
-//  AreaToAddTo - container with items and filter groups, e.g.
-//                  List.Filter or a group in the filter.
-//  FieldName                 - String - a data composition field name. Required.
-//  RightValue          - Arbitrary - the value to compare to.
-//  ComparisonType            - DataCompositionComparisonType - a comparison type.
-//  Presentation           - String - presentation of the data composition item.
-//  Use           - Boolean - item usage.
-//  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
-//  UserSettingID - String - see DataCompositionFilter.UserSettingID
-//                                                    in Syntax Assistant.
+//  AreaToAddTo - 
+//                  
+//  FieldName                 - String -  name of the data layout field (always filled in).
+//  RightValue          - Arbitrary -  compare value.
+//  Type of comparison            - Type of comparison of data sets-type of comparison.
+//  Presentation           - String -  representation of the data layout element.
+//  Use           - Boolean -  using the element.
+//  ViewMode        - DataCompositionSettingsItemViewMode -  display mode.
+//  UserSettingID - String - see the selection of the submitted data.The
+//                                                    identifier of the user setting in the syntax assistant.
 //
 Function AddCompositionItem(AreaToAddTo,
 									Val FieldName,
@@ -165,8 +163,8 @@ Function AddCompositionItem(AreaToAddTo,
 		Item.Use = Use;
 	EndIf;
 	
-	// NOTE: The ID must be assigned at the end of the configuration process.
-	// Otherwise, only a part of it will be copied to the user settings.
+	// 
+	// 
 	// 
 	If UserSettingID <> Undefined Then
 		Item.UserSettingID = UserSettingID;
@@ -178,15 +176,15 @@ Function AddCompositionItem(AreaToAddTo,
 	
 EndFunction
 
-// Changes the filter item with the specified field name or presentation.
+// Change the selection element with the specified field name or view.
 //
 // Parameters:
-//  FieldName                 - String - a data composition field name. Required.
-//  Presentation           - String - presentation of the data composition item.
-//  RightValue          - Arbitrary - the value to compare to.
-//  Var_ComparisonType            - DataCompositionComparisonType - comparison type.
-//  Use           - Boolean - item usage.
-//  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
+//  FieldName                 - String -  name of the data layout field (always filled in).
+//  Presentation           - String -  representation of the data layout element.
+//  RightValue          - Arbitrary -  compare value.
+//  Var_ComparisonType            - DataCompositionComparisonType -  type of comparison.
+//  Use           - Boolean -  using the element.
+//  ViewMode        - DataCompositionSettingsItemViewMode -  display mode.
 //
 Function ChangeFilterItems(SearchArea,
 								Val FieldName = Undefined,
@@ -237,19 +235,19 @@ Function ChangeFilterItems(SearchArea,
 	
 EndFunction
 
-// Adds or replaces the existing filter item.
+// Add or replace an existing selection element.
 //
 // Parameters:
-//  WhereToAdd - container with items and filter groups, e.g.
-//                  List.Filter or a group in the filter.
-//  FieldName                 - String - a data composition field name. Required.
-//  RightValue          - Arbitrary - the value to compare to.
-//  Var_ComparisonType            - DataCompositionComparisonType - comparison type.
-//  Presentation           - String - presentation of the data composition item.
-//  Use           - Boolean - item usage.
-//  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
-//  UserSettingID - String - see DataCompositionFilter.UserSettingID
-//                                                    in Syntax Assistant.
+//  WhereToAdd - 
+//                  
+//  FieldName                 - String -  name of the data layout field (always filled in).
+//  RightValue          - Arbitrary -  compare value.
+//  Var_ComparisonType            - DataCompositionComparisonType -  type of comparison.
+//  Presentation           - String -  representation of the data layout element.
+//  Use           - Boolean -  using the element.
+//  ViewMode        - DataCompositionSettingsItemViewMode -  display mode.
+//  UserSettingID - String - see the selection of the submitted data.The
+//                                                    identifier of the user setting in the syntax assistant.
 //
 Procedure SetFilterItem(WhereToAdd,
 								Val FieldName,
@@ -282,29 +280,29 @@ Procedure SetFilterItem(WhereToAdd,
 	
 EndProcedure
 
-// Adds or replaces a filter item of a dynamic list.
+// Add or replace an existing selection element in the dynamic list.
 //
 // Parameters:
-//   DynamicList - DynamicList - the list to be filtered.
-//   FieldName            - String - the field the filter to apply to.
-//   RightValue     - Arbitrary - the filter value.
-//       Optional. The default value is Undefined.
-//       Warning! If Undefined is passed, the value will not be changed.
-//   Var_ComparisonType  - DataCompositionComparisonType - a filter condition.
-//   Presentation - String - presentation of the data composition item.
-//       Optional. The default value is Undefined.
-//       If another value is specified, only the presentation flag is shown, not the value.
-//       To show the value, pass an empty string.
-//   Use - Boolean - the flag that indicates whether to apply the filter.
-//       Optional. The default value is Undefined.
-//   ViewMode - DataCompositionSettingsItemViewMode - the filter display mode:
-//       QuickAccess - in the Quick Settings bar on top of the list;
-//       Normal       - in the list settings (submenu More);
-//       Inaccessible   - prevent users from changing the filter.
-//   UserSettingID - String - Filter UUID.
-//       Intended for associating it with user settings.
+//   DynamicList - DynamicList -  the list where you want to set the selection.
+//   FieldName            - String -  the field on which you want to set the selection.
+//   RightValue     - Arbitrary -  the value of the selection.
+//       Optional. Default value: Undefined.
+//       Attention! If the value is Undefined, the value will not be changed.
+//   Var_ComparisonType  - DataCompositionComparisonType -  selection condition.
+//   Presentation - String -  representation of the data layout element.
+//       Optional. Default value: Undefined.
+//       If specified, only the use flag with the specified view is displayed (the value is not displayed).
+//       To clear it (so that the value is output again), pass an empty string.
+//   Use - Boolean -  check box for using this selection.
+//       Optional. Default value: Undefined.
+//   ViewMode - DataCompositionSettingsItemViewMode - :
+//       
+//       
+//       
+//   UserSettingID - String - 
+//       
 //
-// See the properties of "DataCompositionFilterItem" in Syntax Assistance.:
+// :
 //   
 //
 Procedure SetDynamicListFilterItem(DynamicList, FieldName,
@@ -370,15 +368,15 @@ EndProcedure
 
 #Region StringFunctionsClientServerCopy
 
-// Checks whether the string contains numeric characters only.
+// Checks whether the string contains only numbers.
 //
 // Parameters:
-//  CheckString          - String - a string to check.
-//  IncludingLeadingZeros - Boolean - if True, ignore leading zeros.
-//  IncludingSpaces        - Boolean - if True, ignore spaces.
+//  CheckString          - String -  string to check.
+//  IncludingLeadingZeros - Boolean -  flag for counting leading zeros, if True, leading zeros are skipped.
+//  IncludingSpaces        - Boolean -  flag spaces, if True, then spaces are ignored when checking.
 //
 // Returns:
-//   Boolean - True - the string contains only numbers or is empty, False - the string contains other characters.
+//   Boolean - 
 //
 Function OnlyNumbersInString(Val CheckString, Val IncludingLeadingZeros = True, Val IncludingSpaces = True)
 	
@@ -396,15 +394,15 @@ Function OnlyNumbersInString(Val CheckString, Val IncludingLeadingZeros = True, 
 	
 	If Not IncludingLeadingZeros Then
 		Position = 1;
-		// If an out-of-border symbol is taken, an empty string is returned.
+		// 
 		While Mid(CheckString, Position, 1) = "0" Do
 			Position = Position + 1;
 		EndDo;
 		CheckString = Mid(CheckString, Position);
 	EndIf;
 	
-	// If it contains only digits, its replacement will result in an empty string.
-	// However, it cannot be validated using "IsBlankString" since the source string may contain whitespaces.
+	// 
+	// 
 	Return StrLen(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace(
 		StrReplace( StrReplace( StrReplace( StrReplace( StrReplace( 
@@ -412,15 +410,15 @@ Function OnlyNumbersInString(Val CheckString, Val IncludingLeadingZeros = True, 
 	
 EndFunction
 
-// Checks whether the string contains Cyrillic characters only.
+// Checks whether the string contains only Cyrillic characters.
 //
 // Parameters:
-//  WithWordSeparators - Boolean - if True, treat word separators as legit characters.
-//  AllowedChars - a string to check.
+//  WithWordSeparators - Boolean -  whether to consider word separators or they are an exception.
+//  AllowedChars - string to check.
 //
 // Returns:
-//  Boolean - True if the string contains Cyrillic or allowed chars only or is empty;
-//           False otherwise.
+//  Boolean - 
+//           
 //
 Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, AllowedChars = "") Export
 	
@@ -453,15 +451,15 @@ Function OnlyLatinInString(Val CheckString, Val WithWordSeparators = True, Allow
 	
 EndFunction
 
-// Checks whether the string contains Latin characters only.
+// Checks whether the string contains only Latin characters.
 //
 // Parameters:
-//  WithWordSeparators - Boolean - if True, treat word separators as legit characters.
-//  AllowedChars - String - for check.
+//  WithWordSeparators - Boolean -  whether to consider word separators or they are an exception.
+//  AllowedChars - String -  for verification.
 //
 // Returns:
-//  Boolean - True if the string contains Latin or allowed chars only;
-//           False otherwise.
+//  Boolean - 
+//           
 //
 Function OnlyRomanInString(Val CheckString, Val WithWordSeparators = True, AllowedChars = "") Export
 	
@@ -495,11 +493,11 @@ EndFunction
 // Determines whether the character is a separator.
 //
 // Parameters:
-//  CharCode      - Number  - code of the char to check;
-//  WordSeparators - String - separator characters.
+//  CharCode      - Number  -  code of the character being checked;
+//  WordSeparators - String -  delimiter characters.
 //
 // Returns:
-//  Boolean - True if the char is a separator.
+//  Boolean - 
 //
 Function IsWordSeparator(CharCode, WordSeparators = Undefined)
 	
@@ -508,13 +506,13 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined)
 	EndIf;
 		
 	Ranges = New Array;
-	Ranges.Add(New Structure("Min,Max", 48, 57)); 		// Numerics.
-	Ranges.Add(New Structure("Min,Max", 65, 90)); 		// Uppercase Latin characters.
-	Ranges.Add(New Structure("Min,Max", 97, 122)); 		// Lowercase Latin characters.
-	Ranges.Add(New Structure("Min,Max", 1040, 1103)); 	// Cyrillic characters.
-	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	// Cyrillic letter "".
-	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	// Cyrillic letter "".
-	Ranges.Add(New Structure("Min,Max", 95, 95)); 		// Underline ( _ ) character.
+	Ranges.Add(New Structure("Min,Max", 48, 57)); 		// Digits
+	Ranges.Add(New Structure("Min,Max", 65, 90)); 		// 
+	Ranges.Add(New Structure("Min,Max", 97, 122)); 		// 
+	Ranges.Add(New Structure("Min,Max", 1040, 1103)); 	// CyrillicCharacters
+	Ranges.Add(New Structure("Min,Max", 1025, 1025)); 	// 
+	Ranges.Add(New Structure("Min,Max", 1105, 1105)); 	// 
+	Ranges.Add(New Structure("Min,Max", 95, 95)); 		// 
 	
 	For Each Span In Ranges Do
 		If CharCode >= Span.Min And CharCode <= Span.Max Then
@@ -526,20 +524,20 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined)
 	
 EndFunction
 
-// Substitutes parameters in a string. The maximum number of parameters is 9.
-// Parameters in the string have the following format: %<parameter number>. The parameter numbering starts from 1.
+// Substitutes parameters in a string. The maximum possible number of parameters is 9.
+// Parameters in the string are set as %<parameter number>. Parameters are numbered starting from one.
 //
 // Parameters:
-//  StringPattern  - String - string pattern with parameters formatted as "%<parameter number>", 
-//                           e.g. "%1 went to %2");
-//  Parameter<n>   - String - parameter value to insert.
+//  StringPattern  - String -  string template with parameters (occurrences of the form " %<parameter number>", 
+//                           for example, " %1 went to %2");
+//  Parameter<n> - String-value of the parameter to be substituted.
 //
 // Returns:
-//  String   - text string with parameters inserted.
+//  String   - 
 //
 // Example:
-//  StringFunctionsClientServer.SubstituteParametersToString(NStr("en='%1 went to %2'"), "Jane", "the zoo") = "Jane went
-//  to the zoo".
+//  Strokemymouse.Substitute the parameter string(NSTR ("ru=' %1 went to %2'"), "Vasya", " Zoo") = "Vasya went
+//  to the Zoo".
 //
 Function SubstituteParametersToString(Val StringPattern,
 	Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined,
@@ -574,7 +572,7 @@ Function SubstituteParametersToString(Val StringPattern,
 	
 EndFunction
 
-// Substitutes parameters in the string for %1, %2, and so on.
+// Inserts parameters into a string, considering that the parameters can use the wildcard words %1, %2, and so on.
 Function SubstituteParametersWithPercentageChar(Val SubstitutionString,
 	Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined,
 	Val Parameter4 = Undefined, Val Parameter5 = Undefined, Val Parameter6 = Undefined,

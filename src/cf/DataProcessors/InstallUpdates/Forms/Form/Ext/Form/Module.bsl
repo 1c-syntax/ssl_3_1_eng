@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -34,13 +32,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Not Common.IsWindowsClient() Then
-		Return; // Cancel is set in OnOpen().
+		Return; // 
 	EndIf;
 	
 	IsFileInfobase = Common.FileInfobase();
 	IsSubordinateDIBNode = Common.IsSubordinateDIBNode();
 	
-	// If it is the first start after a configuration update, storing and resetting status.
+	// 
 	Object.UpdateResult = ConfigurationUpdate.ConfigurationUpdateSuccessful(ScriptDirectory);
 	If Object.UpdateResult <> Undefined Then
 		ConfigurationUpdate.ResetConfigurationUpdateStatus();
@@ -59,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.WarningsPanel.Visible = Items.IssuesDiscoveredLabel.Visible
 		Or Items.ExtensionsAvailableLabel.Visible;
 	
-	// Checking every time the wizard is opened.
+	// 
 	ConfigurationChanged = ConfigurationChanged();
 	LoadExtensions = LoadExtensionsThatChangeDataStructure();
 	IsWebClient = Common.IsWebClient() Or Common.ClientConnectedOverWebServer();
@@ -94,7 +92,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.FindAndInstallUpdates.Visible = Common.SubsystemExists("OnlineUserSupport.GetApplicationUpdates");
 	
-	If IsWebClient Then 
+	If IsWebClient Or IsSubordinateDIBNode Then
 		SelectionOptionTitle = NStr("en = 'Specify a patch file:';");
 		Items.UpdateFileRequiredRadioButtons.ChoiceList[1].Presentation = SelectionOptionTitle;
 	EndIf;
@@ -135,7 +133,6 @@ Procedure OnOpen(Cancel)
 			ProceedToUpdateModeSelection();
 			Return;
 		EndIf;
-		PageName = Pages.NoUpdatesFound.Name;
 	EndIf;
 	
 	BeforeOpenPage(Pages[PageName]);
@@ -179,7 +176,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// UpdateFile page.
+// 
 
 &AtClient
 Procedure UpdateFileRequiredRadioButtonsOnChange(Item)
@@ -195,7 +192,7 @@ Procedure UpdateFileFieldStartChoice(Item, ChoiceData, StandardProcessing)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// AfterInstallPatches page.
+// 
 
 &AtClient
 Procedure ActiveUsersDecorationURLProcessing(Item, FormattedStringURL, StandardProcessing)
@@ -212,7 +209,7 @@ Procedure PatchInstallationErrorLabelURLProcessing(Item, FormattedStringURL, Sta
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// SelectUpdateModeFile page.
+// 
 
 &AtClient
 Procedure ActionsListLabelClick(Item)
@@ -253,7 +250,7 @@ Procedure AfterCloseBackupForm(Result, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// SelectUpdateModeServer page.
+// 
 
 &AtClient
 Procedure UpdateRadioButtonsOnChange(Item)
@@ -409,8 +406,8 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 	BackButtonAvailable = True;
 	NextButtonAvailable = True;
 	CloseButtonAvailable = True;
-	NextButtonFunction = True; // True means "Next", False means "Ready".
-	CloseButtonFunction = True; // True means "Next", False means "Ready".
+	NextButtonFunction = True; // 
+	CloseButtonFunction = True; // 
 	
 	Items.NextButton.Representation = ButtonRepresentation.Text;
 	
@@ -428,7 +425,7 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 		
 	ElsIf NewPage = Pages.SelectUpdateModeFile Then
 		
-		NextButtonFunction = (Object.UpdateMode = 0);// If no updating now, than done.
+		NextButtonFunction = (Object.UpdateMode = 0);// 
 		
 		UpdateConnectionsInformation(Pages.SelectUpdateModeFile);
 		
@@ -445,7 +442,7 @@ Procedure BeforeOpenPage(Val NewPage = Undefined)
 		EndIf;
 	ElsIf NewPage = Pages.UpdateModeSelectionServer Then
 		
-		NextButtonFunction = (Object.UpdateMode = 0);// If no updating now, than done.
+		NextButtonFunction = (Object.UpdateMode = 0);// 
 		Object.RestoreInfobase = False;
 		
 		RestartInformationPanelPages = Items.RestartInformationPages.ChildItems;
@@ -549,7 +546,7 @@ Function PropertiesOfTheUpdateFileSelectionDialog()
 	
 #Else
 	
-	If CommonClient.ClientConnectedOverWebServer() Then 
+	If CommonClient.ClientConnectedOverWebServer() Or IsSubordinateDIBNode Then 
 		
 		Properties.Title = NStr("en = 'Select patches';");
 		Properties.Filter = NStr("en = 'Patch files (*.cfe*;*.zip)|*.cfe*;*.zip';");
@@ -864,7 +861,7 @@ Procedure CheckUpdateFilesApplicability(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	// Check applicability of update files only in a file infobase.
+	// 
 	If Not CommonClient.FileInfobase() Then
 		OnUpdateLegalityCheck();
 		Return;
@@ -879,7 +876,7 @@ Procedure CheckUpdateFilesApplicability(Result, AdditionalParameters) Export
 	UpdateInfo = CheckUpdateFileApplicability(Object.UpdateFileName, UUID);
 	If Not IsBlankString(UpdateInfo.ErrorText) Then
 		OnUpdateLegalityCheck();
-		Return; // Cannot complete the check; the file is probably corrupted.
+		Return; // 
 	EndIf;	
 	
 	If UpdateInfo.Compatible Then
@@ -1080,15 +1077,15 @@ Function SelectUpdateModePageParametersServer(MessagesForEventLog)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Scheduling updates.
+// 
 
-// Returns a file directory (a partial path without a file name).
+// Return the file directory - part of the path without the file name.
 //
 // Parameters:
-//  PathToFile  - String - File path.
+//  PathToFile  - String -  file path.
 //
 // Returns:
-//   String   - a file directory
+//   String   - 
 //
 &AtClient
 Function TheDirectoryOfTheUpdateFile(Val PathToFile)

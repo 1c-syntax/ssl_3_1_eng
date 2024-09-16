@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Title layout.
+	// 
 	If Not IsBlankString(Parameters.Title) Then
 		Title = Parameters.Title;
 		TitleWidth = 1.3 * StrLen(Title);
@@ -28,21 +26,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.LockWholeInterface;
 	EndIf;
 	
-	// Picture.
+	// 
 	If Parameters.Picture.Type <> PictureType.Empty Then
 		Items.Warning.Picture = Parameters.Picture;
 	Else
-		// In this case, you can hide the picture.
-		// For backward compatibility, the "ShowPicture" parameter is implemented.
-		// It is intended for cases where a customer bypasses the API and opens a form with custom parameters.
-		// For example, "StandardSubsystemsClient.ShowQuestionToUser".
+		// 
+		// 
+		// 
+		// 
 		ShowPicture = CommonClientServer.StructureProperty(Parameters, "ShowPicture", True);
 		If Not ShowPicture Then
 			Items.Warning.Visible = False;
 		EndIf;
 	EndIf;
 	
-	// Add text.
+	// 
 	If TypeOf(Parameters.MessageText) = Type("String") Then 
 		MessageText = Parameters.MessageText;
 		Items.MultilineMessageText.Visible = True;
@@ -52,7 +50,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.MultilineMessageText.Visible = False;
 		Items.MessageTextFormattedString.Visible = True;
 	ElsIf TypeOf(Parameters.MessageText) = Type("Undefined") Then
-		// Support the Undefined type for backward compatibility.
+		// 
 		MessageText = "";
 	Else
 		CommonClientServer.CheckParameter(
@@ -67,27 +65,27 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.MultilineMessageText.Width = MinMarginWidth;
 	Items.MultilineMessageText.Height = Min(ApproximateMarginHeight, 10);
 	
-	// Add a flag.
+	// 
 	If ValueIsFilled(Parameters.CheckBoxText) Then
 		Items.NeverAskAgain.Title = Parameters.CheckBoxText;
 	ElsIf Not AccessRight("SaveUserData", Metadata) Or Not Parameters.PromptDontAskAgain Then
 		Items.NeverAskAgain.Visible = False;
 	EndIf;
 	
-	// Add buttons.
+	// 
 	AddCommandsAndButtonsToForm(Parameters.Buttons);
 	
-	// Setting the default button.
+	// 
 	HighlightDefaultButton = CommonClientServer.StructureProperty(Parameters, "HighlightDefaultButton", True);
 	SetDefaultButton(Parameters.DefaultButton, HighlightDefaultButton);
 	
-	// Setting the countdown button.
+	// 
 	SetTimeoutButton(Parameters.TimeoutButton);
 	
-	// Setting the countdown timer.
+	// 
 	TimeoutCounter = Parameters.Timeout;
 	
-	// Resetting the form window size and position.
+	// 
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
 	If Common.IsMobileClient() Then
@@ -99,7 +97,7 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	// Start countdown.
+	// 
 	If TimeoutCounter >= 1 Then
 		TimeoutCounter = TimeoutCounter + 1;
 		ContinueCountdown();
@@ -131,7 +129,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client.
+// Client
 
 &AtClient
 Procedure ContinueCountdown()
@@ -180,18 +178,18 @@ Function DialogReturnCodeByValue(Value)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server.
+// Server
 
 &AtServer
 Procedure AddCommandsAndButtonsToForm(Buttons)
-	// Adds commands and corresponding buttons to the form.
+	// 
 	//
 	// Parameters:
-	//  Buttons - String, ValueList - Set of buttons.
-	//		   If String, the value format is "QuestionDialogMode.<a QuestionDialogMode value>".
-	//		   For example, "QuestionDialogMode.YesNo".
-	//		   If ValueList, than each value is the return value when the button is activated.
-	//		   Presentation - Button title.
+	//  
+	//		   
+	//		   
+	//		   
+	//		   
 	//		   
 	
 	If TypeOf(Buttons) = Type("String") Then
@@ -290,7 +288,7 @@ Function StandardSet(Buttons)
 	Return Result;
 EndFunction
 
-// Determines the approximate number of lines including hyphenated lines.
+// Specifies the approximate number of lines, including hyphens.
 &AtServerNoContext
 Function CountOfRows(Text, CutoffByWidth, BringToFormItemSize = True)
 	CountOfRows = StrLineCount(Text);
@@ -301,7 +299,7 @@ Function CountOfRows(Text, CutoffByWidth, BringToFormItemSize = True)
 	EndDo;
 	EstimatedLineCount = CountOfRows + HyphenationCount;
 	If BringToFormItemSize Then
-		ZoomRatio = 2/3; // Single-window interface can contain up to 3 lines of text.
+		ZoomRatio = 2/3; // 
 		EstimatedLineCount = Int((EstimatedLineCount+1)*ZoomRatio);
 	EndIf;
 	If EstimatedLineCount = 2 Then

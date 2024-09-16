@@ -56,8 +56,8 @@
 									<Width>6</Width>
 									<Height>3</Height>
 									<Picture>
-										<xr:Ref>StdPicture.DialogExclamation</xr:Ref>
-										<xr:LoadTransparent>true</xr:LoadTransparent>
+										<xr:Ref>CommonPicture.Warning32</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
 									<ContextMenu name="Decoration3ContextMenu" id="17"/>

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -39,7 +37,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 		EndDo
 	EndIf;
 		
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModifiedPerformersGroups = ModifiedTasksAssigneesGroups();
 	EndIf;
@@ -47,7 +45,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 	
 EndProcedure
 
-// StandardSubsystems.AccessManagement
+// 
 Procedure OnWrite(Cancel, Replacing)
 	
 	If DataExchange.Load Then
@@ -66,7 +64,7 @@ EndProcedure
 
 #Region Private
 
-// StandardSubsystems.AccessManagement
+// 
 Function ModifiedTasksAssigneesGroups() Export
 	
 	Query = New Query;

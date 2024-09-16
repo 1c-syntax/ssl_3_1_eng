@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -182,8 +180,8 @@ EndProcedure
 
 Procedure LogAdministratorError(InfobaseNode, WarningDetails) Export
 	
-	// Administrative errors do not relate to data objects. Usually, they relate to the infobase or a data area.
-	// For example, if a data area is marked for deletion.
+	// 
+	// 
 	
 	IssueType = Enums.DataExchangeIssuesTypes.ApplicationAdministrativeError;
 	
@@ -442,7 +440,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	|	AND &FilterByReason
 	|	AND &FilterByObject");
 
-	// Filter by ignored issues.
+	// 
 	FIlterRow = "";
 	IncludingIgnored = Undefined;
 	If Not SearchParameters.Property("IncludingIgnored", IncludingIgnored)
@@ -451,7 +449,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	EndIf;
 	Query.Text = StrReplace(Query.Text, "AND &FilterBySkipped", FIlterRow);
 	
-	// Filter by exchange plan node.
+	// 
 	FIlterRow = "";
 	ExchangePlanNodes = Undefined;
 	If SearchParameters.Property("ExchangePlanNodes", ExchangePlanNodes) 
@@ -461,7 +459,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	EndIf;
 	Query.Text = StrReplace(Query.Text, "AND &FilterByExchangePlanNode", FIlterRow);
 	
-	// Filter by issue type.
+	// 
 	FIlterRow = "";
 	IssueType = Undefined;
 	If SearchParameters.Property("IssueType", IssueType)
@@ -471,7 +469,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	EndIf;
 	Query.Text = StrReplace(Query.Text, "AND &FilterByProblemType", FIlterRow);
 	
-	// Filter by period.
+	// 
 	FIlterRow = "";
 	Period = Undefined;
 	If SearchParameters.Property("Period", Period) 
@@ -484,7 +482,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	EndIf;
 	Query.Text = StrReplace(Query.Text, "AND &FilterByPeriod", FIlterRow);
 	
-	// Filter by reason.
+	// 
 	FIlterRow = "";
 	SearchString = Undefined;
 	If SearchParameters.Property("SearchString", SearchString) 
@@ -494,7 +492,7 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	EndIf;
 	Query.Text = StrReplace(Query.Text, "AND &FilterByReason", FIlterRow);
 	
-	// Filter by object.
+	// 
 	FIlterRow = "";
 	ObjectsWithIssues = Undefined;
 	If SearchParameters.Property("ObjectsWithIssues", ObjectsWithIssues)
@@ -513,15 +511,15 @@ Function IssuesCount(SearchParameters = Undefined) Export
 	
 EndFunction
 
-// Returns the number of unreviewed synchronization warnings. 
+// Returns the number of pending synchronization warnings. 
 //
 // Parameters:
-//   Nodes - Array from ExchangePlanRef - exchange nodes.
+//   Nodes - An array of planobmenassink - exchange nodes.
 //
 // Returns:
 //  Structure:
-//   * ExchangeWarnings - Number - a number of warnings recorded in the DataExchangeResults information register;
-//   * VersionWarnings - Number - Warning count in the ObjectsVersions information register.
+//   * ExchangeWarnings - Number -  the number of warnings that are recorded in the data register resultsreferences;
+//   * VersionWarnings - Number -  the number of warnings that are recorded in the Object Version information register.
 // 
 Function TheNumberOfWarningsInDetail(SynchronizationNodes = Undefined) Export
 	
@@ -604,16 +602,16 @@ Function TheNumberOfWarningsInDetail(SynchronizationNodes = Undefined) Export
 	
 EndFunction
 
-// Returns the structure that includes synchronization warning details.
+// Returns a structure that includes a description of the presence of synchronization warnings.
 // 
 // Parameters:
-//   Nodes - Array of ExchangePlanRef - exchange nodes.
+//   Nodes - Array of ExchangePlanRef -  exchange nodes.
 //
 // Returns:
 //   Structure:
-//     * Title - String   - a hyperlink title.
-//     * Picture  - Picture - a picture for the hyperlink.
-//     * Count  - Number - a number of warnings, .
+//     * Title - String   -  the title of the hyperlink.
+//     * Picture  - Picture -  image for the hyperlink.
+//     * Count  - Number -  the number of warnings, .
 //
 Function TheNumberOfWarningsForTheFormElement(Nodes = Undefined) Export
 	
@@ -842,12 +840,12 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 	
 	While QuerySelection.Next() Do
 		
-		// 1. Start a transaction for a package of two operations: register read and write.
+		// 
 		BeginTransaction();
 		Try
 			
-			 // 2. Set an exclusive lock on the required register record to make sure that
-			 // the warning hasn't changed in another session at the recording time.
+			 // 
+			 // 
 			DataLock = New DataLock;
 			DataLockItem = DataLock.Add("InformationRegister.DataExchangeResults");
 			DataLockItem.Mode = DataLockMode.Exclusive;
@@ -858,7 +856,7 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 			DataLockItem.SetValue("UniqueKey", QuerySelection.UniqueKey);
 			DataLock.Lock();
 			
-			// 3. Delete records.
+			// 
 			RecordManager = InformationRegisters.DataExchangeResults.CreateRecordManager();
 			RecordManager.IssueType = QuerySelection.IssueType;
 			RecordManager.InfobaseNode = QuerySelection.InfobaseNode;
@@ -870,7 +868,7 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 			SampleIterator = SampleIterator + 1;
 			If Round(SampleIterator * Proportion, 0) <> Round((SampleIterator - 1) * Proportion, 0) Then 
 				
-				// Increase the step proportionally (when the number of iterations multiplied by the ratio change the value).
+				// 
 				DeletionParameters.NumberOfOperationsCurrentStep = DeletionParameters.NumberOfOperationsCurrentStep + 1;
 				
 			EndIf;
@@ -881,8 +879,8 @@ Procedure ClearBypassExchangeWarnings(DeletionParameters)
 			
 		Except
 			
-			// 4. If the register is already locked in another session (or another exceptional issue happened),
-			// roll back the transaction and log the error.
+			// 
+			// 
 			RollbackTransaction();
 			
 			EventName = NStr("en = 'Data exchange';", Common.DefaultLanguageCode());

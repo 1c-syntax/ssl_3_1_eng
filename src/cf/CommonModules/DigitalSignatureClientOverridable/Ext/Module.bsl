@@ -1,29 +1,27 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// It is called after creation on the server, but before opening the DataSigning and DataDecryption forms.
-// It is used for additional actions that require
-// a server call not to call server once again.
+// Called after it is created on the server, but before opening the data Signing and Decryption forms.
+// Used for additional actions that require a server call to avoid
+// calling the server again.
 //
 // Parameters:
-//  Operation          - String - the Signing or Decryption string.
+//  Operation          - String -  string Signing or Decryption.
 //
-//  InputParameters  - Arbitrary - AdditionalActionsParameters property value
-//                      of the DataDetails parameter of the Sign and Decrypt methods
-//                      of the ClientDigitalSignature common module.
+//  InputParameters  - Arbitrary -  the value of the parameteradditional Actions property of
+//                      the parameter description of the Given methods Sign, Decrypt the General
+//                      module of the electronic signature Client.
 //                      
-//  OutputParametersSet - Arbitrary - arbitrary data that was returned
-//                      from the common module procedure of the same name on the server.
-//                      DigitalSignatureOverridable.
+//  OutputParametersSet - Arbitrary -  arbitrary data that was returned
+//                      from the server from the procedure of the same name in the shared module.
+//                      Electronic signature is undetectable.
 //
 Procedure BeforeOperationStart(Operation, InputParameters, OutputParametersSet) Export
 	
@@ -31,36 +29,36 @@ Procedure BeforeOperationStart(Operation, InputParameters, OutputParametersSet) 
 	
 EndProcedure
 
-// It is called from the CertificateCheck form if additional checks were added when creating the form.
+// Called from the certificate Check form if additional checks were added when creating the form.
 //
 // Parameters:
 //  Parameters - Structure:
-//   * WaitForContinue   - Boolean - a return value. If True, an additional check
-//                            will be performed asynchronously and it will continue after the notification is executed.
+//   * WaitForContinue   - Boolean -  the return value. If True, then an additional check
+//                            will be executed asynchronously, the continuation will resume after the notification is executed.
 //                            The initial value is False.
-//   * Notification           - NotifyDescription - a data processor that needs to be called for continuation
-//                              after the additional check was performed asynchronously.
-//   * Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a certificate being checked.
-//   * Validation             - String - a check name, added in the OnCreateFormCertificateCheck procedure
-//                              of the DigitalSignatureOverridable common module.
-//   * CryptoManager - CryptoManager - a prepared crypto manager to
-//                              perform a check.
-//                         - Undefined - if standard checks are disabled in procedure
-//                              OnCreateFormCertificateCheck of the DigitalSignatureOverridable common module.
-//   * ErrorDescription       - String - a return value. An error description received when performing the check.
-//                              User can see the details by clicking the result picture.
-//   * IsWarning    - Boolean - a return value. A picture kind is Error/Warning,
+//   * Notification           - NotifyDescription -  processing to be called to continue
+//                              after performing an asynchronous additional check.
+//   * Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -  the certificate to verify.
+//   * Validation             - String -  the name of the check added in the procedure for creating a form of verification Of the certificate of the
+//                              General module of the electronic signature Undetectable.
+//   * CryptoManager - CryptoManager -  prepared cryptography Manager for
+//                              performing verification.
+//                         - Undefined - 
+//                              
+//   * ErrorDescription       - String -  the return value. Description of the error received during the verification.
+//                              This description can be seen by the user when clicking on the result image.
+//   * IsWarning    - Boolean -  the return value. Image Type Error/Warning,
 //                            the initial value is False.
-//   * Password   - String - a password entered by the user.
-//                   - Undefined - if the EnterPassword property is set to False in the
-//                            OnCreateFormCertificateCheck procedure of the DigitalSignatureOverridable common module.
+//   * Password   - String -  password entered by the user.
+//                   - Undefined - 
+//                            
 //   * ChecksResults   - Structure:
-//      * Key     - String - a name of a standard or an additional check, or an error name. The property key
-//                 containing an error, contains the check name with the Error ending.
-//      * Value - Undefined - the check was not performed (ErrorDetails is still Undefined).
-//                 - Boolean - an additional check execution result.
-//                 - String - when a property key contains the Error ending and check result is False,
-//                 contains details of the error.
+//      * Key     - String -  the name of the standard or additional check, or the name of the error. The key of the property containing
+//                 the error contains the name of the check with the end Error.
+//      * Value - Undefined -  the check was not performed (the error Description remains Undefined).
+//                 - Boolean - 
+//                 - String - 
+//                 
 //
 Procedure OnAdditionalCertificateCheck(Parameters) Export
 	
@@ -68,11 +66,11 @@ Procedure OnAdditionalCertificateCheck(Parameters) Export
 	
 EndProcedure
 
-// It is called when opening the instruction on how to work with digital signature and encryption apps.
+// Called when opening instructions for working with electronic signature and encryption programs.
 //
 // Parameters:
-//  Section - String - the initial value of BookkeepingAndTaxAccounting.
-//                    You can specify AccountingForPublicInstitutions.
+//  Section - String -  the initial value is "accounting and tax Accounting",
+//                    you can specify "accounting in state Institutions".
 //
 Procedure OnDetermineArticleSectionAtITS(Section) Export
 	

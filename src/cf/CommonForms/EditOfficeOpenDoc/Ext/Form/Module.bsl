@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -1741,7 +1739,7 @@ Procedure ExpandFieldList()
 		EndDo;
 	EndDo;
 	
-	// Color of the fields that are not common for the selected objects.
+	// 
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -1992,7 +1990,7 @@ Procedure Attachable_ExpandTheCurrentFieldListItem()
 EndProcedure
 
 &AtClient
-Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - Called from FormulaConstructorClient.
+Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // 
 	
 	FillInTheListOfAvailableFields(FillParameters);
 	
@@ -2087,7 +2085,7 @@ Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export  // ACC:78 - The procedure is called from "FormulaConstructorClient.StartSearchInFieldsList".
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export  // 
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		ModuleConstructorFormulaClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);

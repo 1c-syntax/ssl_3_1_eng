@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -14,7 +12,7 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.IsWebClient() Or Not Common.IsWindowsClient() Then
-		Return; // Cancel is set in OnOpen().
+		Return; // 
 	EndIf;
 	
 	TextExtractionEnabled = False;
@@ -104,7 +102,7 @@ Procedure ExtractAll(Command)
 	#If Not WebClient And Not MobileClient Then
 		UnextractedTextFileCountBeforeOperation = UnextractedTextFileCount;
 		Status = "";
-		PortionSize = 0; // Extract all
+		PortionSize = 0; // 
 		TextExtractionClient(PortionSize);
 		
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
@@ -276,7 +274,7 @@ EndProcedure
 
 #If Not WebClient And Not MobileClient Then
 	
-// Extracts text from files for full-text search.
+// 
 &AtClient
 Procedure TextExtractionClient(PortionSize = Undefined)
 	
@@ -355,7 +353,7 @@ Procedure ExtractionErrorRecord(FileOrFileVersion, ExtractionResult, MessageText
 	
 	FilesOperationsInternal.RecordTextExtractionResult(FileOrFileVersion, ExtractionResult, "");
 	
-	// Record to the event log.
+	// The entry in the log.
 	WriteLogEventServer(MessageText);
 	
 EndProcedure

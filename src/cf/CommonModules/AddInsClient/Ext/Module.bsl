@@ -1,42 +1,39 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Parameters for the call of the AddInClient.AttachAddInSSL procedure.
+// Parameters for calling the external component Client procedure.Connect a component.
 //
 // Returns:
 //  Structure:
-//      * Cached - Boolean - Client add-in cache usage flag. By default, True.
-//      * SuggestInstall - Boolean - (default value is True) prompt to install the add-in.
-//      * SuggestToImport - Boolean - (default value is True) prompt to import the add-in from the ITS website.
-//      * ExplanationText - String - a text that describes the add-in purpose and which functionality requires the add-in.
-//      * ObjectsCreationIDs - Array - string array of object module instance.
-//                Use it only for add-ins with several object creation IDs.
-//                On specify, the ID parameter is used only to determine add-in.
-//      * Isolated - Boolean, Undefined - If True, the add-in is attached isolatedly (it is uploaded to a separate OS process).
-//                If False, the add-in is executed in the same OS process that runs the 1C:Enterprise code.
-//                If Undefined, the add-in is executed according to the default 1C:Enterprise settings
-//                Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
-//                By default, Undefined.
+//      * Cached - Boolean -  (default is True) use the component caching mechanism on the client.
+//      * SuggestInstall - Boolean -  (default is True) suggest installing the component.
+//      * SuggestToImport - Boolean -  (True by default) offer to download the component from ITS website.
+//      * ExplanationText - String -  what the component is needed for and what won't work if you don't install it.
+//      * ObjectsCreationIDs - Array -  array of object module instance creation ID strings,
+//                used only for components that have multiple object creation IDs
+//                . when setting the ID parameter, It will only be used to define the component.
+//      * Isolated - Boolean, Undefined - 
+//                
+//                
+//                :
+//                
 //                See https://its.1c.eu/db/v83doc
-//                                              #bookmark:dev:TI000001866
-//      * AutoUpdate - Boolean - Flag indicating whether to set the UpdateFrom1CITSPortal flag for the uploaded add-in.
-//                By default, True.
+//      * AutoUpdate - Boolean - 
+//                
 //
 // Example:
 //
-//  AttachmentParameters = AddInClient.AttachmentParameters();
-//  AttachmentParameters.NoteText = 
-//      AttachmentParameters.NoteText = NStr("en = 'To use a barcode scanner, install
-//                 |the 1C:Barcode scanners (NativeApi) add-in.'");
+//  
+//   
+//      
+//                 
 //
 Function ConnectionParameters() Export
 	
@@ -53,56 +50,56 @@ Function ConnectionParameters() Export
 	
 EndFunction
 
-// Attaches the add-in based on Native API or COM technologies on the client computer.
-// Web client can display the dialog box with installation tips.
-// Checking whether the add-in can be executed on the current user client.
+// Connects a component executed using the Native API or COM technology on the client computer.
+// The web client offers a dialog that prompts the user for installation actions.
+// Checks whether the component can be executed on the user's current client.
 //
 // Parameters:
-//  Notification - NotifyDescription - connection notification details with the following parameters:
-//      * Result - Structure - add-in attachment result:
-//          ** Attached - Boolean - attachment flag;
-//          ** Attachable_Module - AddInObject - an instance of the add-in;
-//                                - FixedMap of KeyAndValue - Add-in object instances stored in
-//                                      AttachmentParameters.ObjectsCreationIDs:
-//                                    *** Key - String - the add-in ID;
-//                                    *** Value - AddInObject - an instance of the add-in.
-//          ** ErrorDescription - String - brief error message. Empty string on cancel by user.
-//      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
-//  Id - String - the add-in identification code.
-//  Version        - String - an add-in version.
+//  Notification - NotifyDescription - :
+//      * Result - Structure - :
+//          ** Attached - Boolean -  the sign connection;
+//          ** Attachable_Module - AddInObject -  instance of an external component object;
+//                                - FixedMap of KeyAndValue - 
+//                                      :
+//                                    *** Key - String -  id of the external component;
+//                                    *** Value - AddInObject -  an instance of an external component object.
+//          ** ErrorDescription - String -  brief description of the error. When canceled by the user, an empty string.
+//      * AdditionalParameters - Structure -  the value that was specified when creating the message Description object.
+//  Id - String - 
+//  Version        - String -  version of the component.
 //  ConnectionParameters - See AddInsClient.ConnectionParameters.
 //
 // Example:
 //
-//  Notification = New NotifyDescription("AttachAddInSSLCompletion", ThisObject);
+//  
 //
-//  AttachmentParameters = AddInClient.AttachmentParameters();
-//  AttachmentParameters.NoteText = 
-//      NStr("en = 'To use a barcode scanner, install
-//                 |the 1C:Barcode scanners (NativeApi) add-in.'");
+//  
+//   
+//      
+//                 
 //
-//  AddInClient.AttachAddInSSL(Notification,"InputDevice",, AttachmentParameters);
+//  
 //
-//  &AtClient
-//  Procedure AttachAddInSSLCompletion(Result, AdditionalParameters) Export
+//  
+//  
 //
-//      AttachableModule = Undefined;
+//      
 //
-//      If Result.Attached Then 
-//          AttachableModule = Result.AttachableModule;
-//      Else
-//          If Not IsBlankString(Result.ErrorDetails) Then
-//              ShowMessageBox (, Result.ErrorDetails);
-//          EndIf;
-//      EndIf;
+//       
+//          
+//      
+//          
+//              
+//          
+//      
 //
-//      If AttachableModule <> Undefined Then 
-//          // AttachableModule contains the instance of the attached add-in.
-//      EndIf;
+//       
+//          
+//      
 //
-//      AttachableModule = Undefined;
+//      
 //
-//  EndProcedure
+//  
 //
 Procedure AttachAddInSSL(Notification, Id, Version = Undefined,
 	ConnectionParameters = Undefined) Export
@@ -121,43 +118,43 @@ Procedure AttachAddInSSL(Notification, Id, Version = Undefined,
 	
 EndProcedure
 
-// Attaches the add-in based on COM technology from Windows registry in asynchronous mode.
-// (not recommended for backward compatibility with 1C:Enterprise 7.7 add-ins). 
+// Connects a COM component from the Windows registry in asynchronous mode.
+// (not recommended for backward compatibility with 1C 7.7 components). 
 //
 // Parameters:
-//  Notification - NotifyDescription - connection notification details with the following parameters:
-//      * Result - Structure - add-in attachment result:
-//          ** Attached - Boolean - Attachment flag.
-//          ** Attachable_Module - AddInObject  - an instance of the add-in.
-//          ** ErrorDescription - String - brief error message.
-//      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
-//  Id - String - the add-in identification code.
-//  ObjectCreationID - String - Creation ID of object module instance
-//          (only for add-ins with object creation ID different from ProgID).
+//  Notification - NotifyDescription - :
+//      * Result - Structure - :
+//          ** Attached - Boolean -  indicates whether the connection is enabled.
+//          ** Attachable_Module - AddInObject  -  an instance of an external component object.
+//          ** ErrorDescription - String -  brief description of the error.
+//      * AdditionalParameters - Structure -  the value that was specified when creating the message Description object.
+//  Id - String - 
+//  ObjectCreationID - String -  id of the object module instance creation
+//          (only for components whose object creation ID differs from the ProgID).
 //
 // Example:
 //
-//  Notification = New NotifyDescription("PrintDocumentCompletion", ThisObject);
-//  AddInClient.AttachAddInFromWindowsRegistry(Notification, "SBRFCOMObject", "SBRFCOMExtension");
+//  
+//  
 //
-//  &AtClient
-//  Procedure AttachAddInSSLCompletion(Result, AdditionalParameters) Export
+//  
+//  
 //
-//      AttachableModule = Undefined;
+//      
 //
-//      If Result.Attached Then 
-//          AttachableModule = Result.AttachableModule;
-//      Else 
-//          ShowMessageBox (, Result.ErrorDetails);
-//      EndIf;
+//       
+//          
+//       
+//          
+//      
 //
-//      If AttachableModule <> Undefined Then 
-//          // AttachableModule contains the instance of the attached add-in.
-//      EndIf;
+//       
+//          
+//      
 //
-//      AttachableModule = Undefined;
+//      
 //
-//  EndProcedure
+//  
 //
 Procedure AttachAddInFromWindowsRegistry(Notification, Id,
 	ObjectCreationID = Undefined) Export 
@@ -171,20 +168,20 @@ Procedure AttachAddInFromWindowsRegistry(Notification, Id,
 	
 EndProcedure
 
-// Structure of parameters for the AddInClient.InstallAddInSSL procedure.
+// 
 //
 // Returns:
 //  Structure:
-//      * ExplanationText - String - a text that describes the add-in purpose and which functionality requires the add-in.
-//      * SuggestToImport - Boolean - prompt to import the add-in from the ITS website
-//      * SuggestInstall - Boolean - (default value is False) prompt to install the add-in.
+//      * ExplanationText - String -  what the component is needed for and what won't work if you don't install it.
+//      * SuggestToImport - Boolean -  offer to download the component from ITS website
+//      * SuggestInstall - Boolean -  (False by default) suggest installing the component.
 //
 // Example:
 //
-//  InstallationParameters = AddInClient.InstallationParameters();
-//  InstallationParameters.NoteText = 
-//      NStr("en = 'To use a barcode scanner, install
-//                 |the 1C:Barcode scanners (NativeApi) add-in.'");
+//  
+//   
+//      
+//                 
 //
 Function InstallationParameters() Export
 	
@@ -197,38 +194,38 @@ Function InstallationParameters() Export
 	
 EndFunction
 
-// Connects an add-in based on Native API and COM technology in an asynchronous mode.
-// Checking whether the add-in can be executed on the current user client.
+// Sets a component executed using the Native API technology and in asynchronous mode.
+// Checks whether the component can be executed on the user's current client.
 //
 // Parameters:
-//  Notification - NotifyDescription - notification details of add-in installation:
-//      * Result - Structure - Add-in installation result:
-//          ** IsSet - Boolean - installation flag.
-//          ** ErrorDescription - String - brief error message. Empty string on cancel by user.
-//      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
-//  Id - String - the add-in identification code.
-//  Version - String - an add-in version.
+//  Notification - NotifyDescription - :
+//      * Result - Structure - :
+//          ** IsSet - Boolean -  indicates the installation.
+//          ** ErrorDescription - String -  brief description of the error. When canceled by the user, an empty string.
+//      * AdditionalParameters - Structure -  the value that was specified when creating the message Description object.
+//  Id - String - 
+//  Version - String -  version of the component.
 //  InstallationParameters - See InstallationParameters.
 //
 // Example:
 //
-//  Notification = New NotifyDescription("SetCompletionComponent", ThisObject);
+//  
 //
-//  InstallationParameters = AddInClient.InstallationParameters();
-//  InstallationParameters.ExplanationText = 
-//      NStr("en = 'To use a barcode scanner, install
-//                 |the 1C:Barcode scanners (NativeApi) add-in.'");
+//  
+//   
+//      
+//                 
 //
-//  AddInClient.InstallAddIn(Notification,"InputDevice",, InstallationParameters);
+//  
 //
-//  &AtClient
-//  Procedure InstallAddInEnd(Result, AdditionalParameters) Export
+//  
+//  
 //
-//      If Not Result.Installed and Not EmptyString(Result.ErrorDetails) Then 
-//          ShowMessageBox (, Result.ErrorDetails);
-//      EndIf;
+//       
+//          
+//      
 //
-//  EndProcedure
+//  
 //
 Procedure InstallAddInSSL(Notification, Id, Version = Undefined, 
 	InstallationParameters = Undefined) Export
@@ -250,19 +247,19 @@ Procedure InstallAddInSSL(Notification, Id, Version = Undefined,
 EndProcedure
 
 
-// Returns a parameter structure to describe search rules of additional information within an add-in.
-// See the ImportAddInFromFile procedure.
+// 
+// 
 //
 // Returns:
 //  Structure:
-//      * XMLFileName - String - (optional) file name within an add-in from which information is extracted.
-//      * XPathExpression - String - (optional) XPath path to information in the file.
+//      * XMLFileName - String -  (optional) name of the file in the component to extract information from.
+//      * XPathExpression - String -  (optional) XPath path to the information in the file.
 //
 // Example:
 //
-//  ImportParameters = AddInClient.AdditionalInformationSearchParameters();
-//  ImportParameters.XMLFileName = "INFO.XML";
-//  ImportParameters.XPathExpression = "//drivers/component/@type";
+//  Boot parameters = Vneshneekonomicheskie.Parametersdiscoveringinformation();
+//  Boot parameters.Filename XML = " INFO.XML";
+//  Boot parameters.Expressionxpath = " //drivers/component/@type";
 //
 Function AdditionalInformationSearchParameters() Export
 	
@@ -274,20 +271,20 @@ Function AdditionalInformationSearchParameters() Export
 	
 EndFunction
 
-// Structure of parameters for the AddInClient.ImportAddInFromFile procedure.
+// 
 //
 // Returns:
 //  Structure:
-//      * Id - String -(optional) add-in object ID.
-//      * Version - String - (Optional) Add-in version.
-//      * AdditionalInformationSearchParameters - Map of KeyAndValue - (optional) parameters:
-//          ** Key - String - requested additional information ID.
+//      * Id - String -(optional) ID of the external component object.
+//      * Version - String -  (optional) version of the component.
+//      * AdditionalInformationSearchParameters - Map of KeyAndValue - :
+//          ** Key - String -  the identifier of the additional requested information.
 //          ** Value - See AdditionalInformationSearchParameters.
 // Example:
 //
-//  ImportParameters = AddInClient.ImportParameters();
-//  ImportParameters.ID = "InputDevice";
-//  ImportParameters.Version = "8.1.7.10";
+//  Boot parameters = Vneshneekonomicheskie.Boot parameters();
+//  Boot parameters.ID = " InputDevice";
+//  Boot parameters.Version = " 8.1.7.10";
 //
 Function ImportParameters() Export
 	
@@ -300,41 +297,41 @@ Function ImportParameters() Export
 	
 EndFunction
 
-// Imports add-in file to the add-ins catalog in asynchronous mode. 
+// Loads the components file to the external components directory in asynchronous mode. 
 //
 // Parameters:
-//  Notification - NotifyDescription - notification details of add-in installation:
-//      * Result - Structure - import add-in result:
-//          ** Imported1 - Boolean - imported flag.
-//          ** Id  - String - the add-in identification code.
-//          ** Version - String - version of the imported add-in.
-//          ** Description - String - version of the imported add-in.
-//          ** AdditionalInformation - Map of KeyAndValue - additional information on an add-in;
-//                     if not requested – blank map:
+//  Notification - NotifyDescription - :
+//      * Result - Structure - :
+//          ** Imported1 - Boolean -  indicates whether it is loading.
+//          ** Id  - String - 
+//          ** Version - String -  version of the downloaded component.
+//          ** Description - String -  name of the loaded component.
+//          ** AdditionalInformation - Map of KeyAndValue - 
+//                     :
 //               *** Key - See AdditionalInformationSearchParameters.
 //               *** Value - See AdditionalInformationSearchParameters.
-//      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
+//      * AdditionalParameters - Structure -  the value that was specified when creating the message Description object.
 //  ImportParameters - See ImportParameters.
 //
 // Example:
 //
-//  ImportParameters = AddInClient.ImportParameters();
-//  ImportParameters.ID = "InputDevice";
-//  ImportParameters.Version = "8.1.7.10";
+//  Boot parameters = Vneshneekonomicheskie.Boot parameters();
+//  Boot parameters.ID = " InputDevice";
+//  Boot parameters.Version = " 8.1.7.10";
 //
-//  Notification = New NotifyDescription("LoadAddInFromFileAfterAddInImport", ThisObject);
+//  Alert = New Message Description ("Load Componentfile After Loading Components", This Object);
 //
-//  AddInClient.ImportAddInFromFile(Notification, ImportParameters);
+//  Vneshneekonomicheskie.Upload A Component Of The File(Notification, Upload Parameters);
 //
-//  &AtClient
-//  Procedure LoadAddInFromFileAfterAddInImport(Result, AdditionalParameters) Export
+//  &Naciente
+//  Procedure To Load A Component From A File After Loading Components(Result, Additional Parameters) Export
 //
-//      If Result.Imported Then 
+//      If The Result.Uploaded Then 
 //          ID = Result.ID;
 //          Version = Result.Version;
-//      EndIf;
+//      Conicelli;
 //
-//  EndProcedure
+//  End of procedure
 //
 Procedure ImportAddInFromFile(Notification, ImportParameters = Undefined) Export
 	
@@ -354,25 +351,25 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// EquipmentSupport
 // 
-// Attaches an add-in powered by Native API and COM technology on the client machine.
-// Checks whether the add-in can be executed on the current client.
+// 
+// 
+// 
 //
 // Parameters:
-//  Id - String - the add-in identification code.
-//  Version        - String - an add-in version.
+//  Id - String - 
+//  Version        - String -  version of the component.
 //  ConnectionParameters - See AddInsClient.ConnectionParameters.
 //
 //  Returns:  
-//  	Structure - Add-in attachment result:
-//          * Attached - Boolean - attachment flag.
-//          * Attachable_Module - AddInObject - an instance of the add-in;
-//                                - FixedMap of KeyAndValue - Add-in object instances stored in
-//                                      AttachmentParameters.ObjectsCreationIDs:
-//                                    *** Key - String - Add-in ID.
-//                                    *** Key - String - Add-in ID.
-//          * ErrorDescription - String - brief error message. Empty string on cancel by user.
+//  	Structure - :
+//          * Attached - Boolean -  the sign connection;
+//          * Attachable_Module - AddInObject -  instance of an external component object;
+//                                - FixedMap of KeyAndValue - 
+//                                      :
+//                                    *** 
+//                                    *** 
+//          * ErrorDescription - String -  brief description of the error. When canceled by the user, an empty string.
 //
 Async Function AttachAddInSSLAsync(Id, Version = Undefined,
 	ConnectionParameters = Undefined) Export
@@ -390,18 +387,18 @@ Async Function AttachAddInSSLAsync(Id, Version = Undefined,
 	
 EndFunction
 
-// Connects an add-in based on Native API and COM technology in an asynchronous mode.
-// Checking whether the add-in can be executed on the current user client.
+// Sets a component executed using the Native API technology and in asynchronous mode.
+// Checks whether the component can be executed on the user's current client.
 //
 // Parameters:
-//  Id - String - the add-in identification code.
-//  Version - String - an add-in version.
+//  Id - String - 
+//  Version - String -  version of the component.
 //  InstallationParameters - See InstallationParameters.
 //
 //  Returns:
-//    Structure - Add-in installation result:
-//          * IsSet - Boolean - Installation flag.
-//          * ErrorDescription - String - brief error message. Empty string on cancel by user.
+//    Structure - :
+//          * IsSet - Boolean -  indicates the installation.
+//          * ErrorDescription - String -  brief description of the error. When canceled by the user, an empty string.
 //
 Async Function InstallAddInSSLAsync(Id, Version = Undefined, 
 	InstallationParameters = Undefined) Export
@@ -421,23 +418,23 @@ Async Function InstallAddInSSLAsync(Id, Version = Undefined,
 	
 EndFunction
 
-// Attaches the add-in based on COM technology from Windows registry in asynchronous mode.
-// (not recommended for backward compatibility with 1C:Enterprise 7.7 add-ins). 
+// Connects a COM component from the Windows registry in asynchronous mode.
+// (not recommended for backward compatibility with 1C 7.7 components). 
 //
 // Parameters:
-//  Id - String - the add-in identification code.
-//  ObjectCreationID - String - Creation ID of object module instance
-//          (only for add-ins with object creation ID different from ProgID).
+//  Id - String - 
+//  ObjectCreationID - String -  id of the object module instance creation
+//          (only for components whose object creation ID differs from the ProgID).
 //
 //  Returns:
-//  	Structure - Add-in attachment result:
-//          * Attached - Boolean - attachment flag.
-//          * Attachable_Module - AddInObject - an instance of the add-in;
-//                                - FixedMap of KeyAndValue - Add-in object instances stored in
-//                                      AttachmentParameters.ObjectsCreationIDs:
-//                                    *** Value - AddInObject - Instance of the add-in object.
-//                                    *** Value - AddInObject - Instance of the add-in object.
-//          * ErrorDescription - String - brief error message. Empty string on cancel by user.
+//  	Structure - :
+//          * Attached - Boolean -  the sign connection;
+//          * Attachable_Module - AddInObject -  instance of an external component object;
+//                                - FixedMap of KeyAndValue - 
+//                                      :
+//                                    *** 
+//                                    *** 
+//          * ErrorDescription - String -  brief description of the error. When canceled by the user, an empty string.
 //
 Async Function AttachAddInFromWindowsRegistryAsync(Id,
 	ObjectCreationID = Undefined) Export 

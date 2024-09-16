@@ -1,31 +1,30 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 
 #Region Public
 
-// Prohibits editing specified attributes
-//  of an object form, and adds the Allow editing
-//  attributes command to All actions.
+// Takes as a parameter the form of the object to which the subsystem is connected,
+//  and prohibits editing the specified details,
+//  and also adds a command to "All actions" to allow editing them.
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - Object form, where:
+//        - ManagedFormExtensionForObjects - :
 //    * Object - FormDataStructure
 //             - CatalogObject
 //             - DocumentObject
 //    * Items - FormAllItems:
 //        ** AllowObjectAttributeEdit - FormButton
-//  LockButtonGroup  - FormGroup - used to modify the default placement
-//                            of the lock button in the object form.
-//  LockButtonTitle  - String - The button title. By default, "Allow edit attributes".
-//  Object                  - Undefined - take the object from the Object form attribute.
-//                          - FormDataStructure - by object type.
+//  LockButtonGroup  - FormGroup -  overrides the standard placement
+//                            of the deny button in the object form.
+//  LockButtonTitle  - String -  the title of the button. By default, the "Allow edit account details".
+//  Object                  - Undefined -  take an object from the props of the "Object" form.
+//                          - FormDataStructure - 
 //                          - CatalogObject
 //                          - DocumentObject
 //
@@ -34,7 +33,7 @@ Procedure LockAttributes(Form, LockButtonGroup = Undefined, LockButtonTitle = ""
 	
 	ObjectDetails = ?(Object = Undefined, Form.Object, Object);
 	
-	// Determining whether the form is already prepared during an earlier call.
+	// 
 	FormPrepared = False;
 	FormAttributes = Form.GetAttributes();
 	For Each FormAttribute In FormAttributes Do
@@ -51,7 +50,7 @@ Procedure LockAttributes(Form, LockButtonGroup = Undefined, LockButtonTitle = ""
 	
 	IsNewObject = ObjectDetails.Ref.IsEmpty();
 	
-	// Enabling edit prohibition for form items related to the specified attributes.
+	// 
 	For Each DescriptionOfAttributeToLock In Form.AttributeEditProhibitionParameters Do
 		For Each FormItemDescription In DescriptionOfAttributeToLock.ItemsToLock Do
 			
@@ -82,10 +81,10 @@ Procedure LockAttributes(Form, LockButtonGroup = Undefined, LockButtonTitle = ""
 	
 EndProcedure
 
-// Returns a list of attributes and object tabular sections locked for editing.
+// Returns a list of details and table parts of the object for which editing is prohibited.
 // 
 // Parameters:
-//  ObjectName - String - Full name of a metadata object.
+//  ObjectName - String -  full name of the metadata object.
 //
 // Returns:
 //  Array of String 
@@ -105,28 +104,28 @@ Function ObjectAttributesToLock(ObjectName) Export
 	
 EndFunction
 
-// Returns the properties of new extended details of the attribute being locked.
-// The obtained properties are intended for the GetObjectAttributesToLock function in object manager modules.
+// 
+// 
 //
 // Returns:
 //  Structure:
-//   * Name - String - Attribute name. For example, "Object.Author", "AcceptRevenueAsTotalAmount".
-//                    Leave it empty if you want to specify a group separately.
-//   * FormItems - Array of String - The names of the form items related to the attribute.
-//        The parameter is required if the names cannot be derived from the form item to the attribute name.
-//        For example, "AcceptRevenueAsTotalAmountRadioButton".
-//   * Warning - String - The warning text mentioning the consequences of the unlocking.
-//                       The text is displayed in the unlock form, above the attribute (attribute group).
-//   * Group - String - The name of the attribute group used in the unlock form.
-//                       It is not required if the attribute is output individually.
-//                       It is ignored in calls from bulk attribute edit (except from CommonLabel).
-//   * GroupPresentation - String - The presentation of the attribute group displayed in the unlock form.
-//                       It is not required if the attribute is output individually.
-//                       It is ignored in calls from bulk attribute edit (except from CommonLabel).
-//   * WarningForGroup - String - The warning text mentioning the consequences of the unlocking.
-//                       The text is displayed in the unlock form, above the attribute group.
-//   * Warning - String - The warning text mentioning the consequences of the unlocking.
-//                       The text is displayed in the unlock form, above the attribute (attribute group).
+//   * Name - String - 
+//                    
+//   * FormItems - Array of String - 
+//        
+//        
+//   * Warning - String - 
+//                       
+//   * Group - String - 
+//                       
+//                       
+//   * GroupPresentation - String - 
+//                       
+//                       
+//   * WarningForGroup - String - 
+//                       
+//   * Warning - String - 
+//                       
 //
 Function NewAttributeToLock() Export
 	
@@ -144,15 +143,15 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// Describes the value types of the array returned by
-// the GetObjectAttributesToLock function.
+// 
+// 
 //
 // Returns:
-//  String - A string the following format: "AttributeName[;FormItemName,...][;GroupName], where
-//             AttributeName - The name of an object's attribute
-//             FormItemName - The name of the form item related to the given attribute.
-//               For example, "Object.Author" or "FieldAuthor".
-//             GroupName - The name of the attributes group displayed in the unlock form.
+//  String - 
+//             
+//             
+//               
+//             
 //
 //   See NewAttributeToLock
 //

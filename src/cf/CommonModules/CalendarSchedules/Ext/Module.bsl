@@ -1,31 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Returns dates that differ from the specified date DateFrom by the number of days
-// included in the specified schedule WorkScheduleCalendar.
+// Returns the dates that are different from the specified date Datat on the number of days
+// included in the specified schedule Graficart.
 //
 // Parameters:
 //   WorkScheduleCalendar	- CatalogRef.Calendars
-//	             	- CatalogRef.BusinessCalendars - a schedule or 
-//                    business calendar to be used to calculate dates.
-//   DateFrom			- Date - a date starting from which the number of days is to be calculated.
-//   DaysArray		- Array of Number - a number of days by which the start date is to be increased.
-//   CalculateNextDateFromPrevious	- Boolean - shows whether the following date is to be calculated
-//											           from the previous one or all dates are calculated from the passed date.
-//   RaiseException1 - Boolean - if True, throw an exception if the schedule is not filled in.
+//	             	- CatalogRef.BusinessCalendars -  
+//                    
+//   DateFrom			- Date -  the date from which to calculate the number of days.
+//   DaysArray		- Array of Number -  the number of days to increase the start date by.
+//   CalculateNextDateFromPrevious	- Boolean -  whether to calculate the next date from the previous one or
+//											           all dates are calculated from the passed date.
+//   RaiseException1 - Boolean -  if True, throw an exception if the graph is empty.
 //
 // Returns:
-//   Undefined, Array - an array of dates increased by the number of days included in the schedule.
-//	                        If schedule WorkSchedule is not filled in and RaiseException = False, Undefined returns.
+//   Undefined, Array - 
+//	                        
 //
 Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, Val CalculateNextDateFromPrevious = False, RaiseException1 = True) Export
 	
@@ -68,7 +66,7 @@ Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 		|ORDER BY
 		|	Date";
 
-	// Limit the selection by the maximum shift value to avoid oversized day selection.
+	// 
 	QuerySchema = New QuerySchema();
 	QuerySchema.SetQueryText(Query.Text);
 	QuerySchema.QueryBatch[0].Operators[0].RetrievedRecordsCount = ShiftDays.Maximum;
@@ -110,20 +108,20 @@ Function DatesByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 	
 EndFunction
 
-// Returns a date that differs from the specified date DateFrom by the number of days
-// included in the specified schedule or the WorkScheduleCalendar business calendar.
+// Returns a date that differs from the specified datestate By the number of days
+// included in the specified schedule or work Schedule production calendar.
 //
 // Parameters:
 //   WorkScheduleCalendar	- CatalogRef.Calendars
-//	             	- CatalogRef.BusinessCalendars - a schedule or 
-//                    business calendar to be used to calculate dates.
-//   DateFrom			- Date - a date starting from which the number of days is to be calculated.
-//   DaysCount	- Number - a number of days by which the start date is to be increased.
-//   RaiseException1 - Boolean - if True, throw an exception if the schedule is not filled in.
+//	             	- CatalogRef.BusinessCalendars -  
+//                    
+//   DateFrom			- Date -  the date from which to calculate the number of days.
+//   DaysCount	- Number -  the number of days to increase the start date by.
+//   RaiseException1 - Boolean -  if True, throw an exception if the graph is empty.
 //
 // Returns:
-//   Date, Undefined - a date increased by the number of days included in the schedule.
-//	                      If the selected schedule is not filled in and RaiseException = False, Undefined returns.
+//   Date, Undefined - 
+//	                      
 //
 Function DateByCalendar(Val WorkScheduleCalendar, Val DateFrom, Val DaysCount, RaiseException1 = True) Export
 	
@@ -153,15 +151,15 @@ EndFunction
 //
 // Parameters:
 //   WorkScheduleCalendar	- CatalogRef.Calendars
-//	             	- CatalogRef.BusinessCalendars - a schedule or 
-//                    business calendar to be used to calculate days.
-//   StartDate		- Date - a period start date.
-//   EndDate	- Date - a period end date.
-//   RaiseException1 - Boolean - if True, throw an exception if the schedule is not filled in.
+//	             	- CatalogRef.BusinessCalendars -  
+//                    
+//   StartDate		- Date -  start date of the period.
+//   EndDate	- Date -  end date of the period.
+//   RaiseException1 - Boolean -  if True, throw an exception if the graph is empty.
 //
 // Returns:
-//   Number		- a number of days between the start and end dates.
-//	              If schedule WorkSchedule is not filled in and RaiseException = False, Undefined returns.
+//   Number		- 
+//	              
 //
 Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate, RaiseException1 = True) Export
 
@@ -187,8 +185,8 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 		EndDate = Vrem;
 	EndIf;
 	
-	// Check if the calendar is populated for all the years. 
-	// If there's a year with no days, calculation fails.
+	//  
+	// 
 	Years = New Array();
 	Year = Year(StartDate);
 	While Year <= Year(EndDate) Do
@@ -241,35 +239,35 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 
 EndFunction
 
-// A constructor of parameters for receiving the nearest workdays by a calendar.
+// Constructor of parameters for getting the nearest working dates on the calendar.
 //  See NearestWorkDates.
 //
 // Parameters:
 //  BusinessCalendar	 - CatalogRef.BusinessCalendars	 -
-//  	if specified, NonWorkPeriods will be filled in by default as an Array from the details
-//  	received using the NonWorkDaysPeriods method.
+//  	if specified, the non-working periods will be filled in by default as an Array of descriptions
+//  	obtained by the Non-Working Days period method.
 // 
 // Returns:
 //  Structure:
-//   * GetPrevious - Boolean - Method that gets the closest date:
-//       If True, workdays preceding the ones passed in the InitialDates parameter are defined.
-//       If False, the nearest workdays following the start dates are defined.
-//       By default, False:
-//   * ConsiderNonWorkPeriods - Boolean - defines a relation to the dates that fall on non-work periods of the calendar.
-//       If True, the dates that fall on a non-work period will be considered non-work ones.
-//       If False, non-work periods will be ignored.
-//       The default value is True:
-//   * NonWorkPeriods - Undefined - specifies non-work periods to be considered.
-//       You can set the Array of period numbers or details obtained by the NonWorkDaysPeriods method.
-//       If Undefined, all the periods will be considered.
-//       If the BusinessCalendar parameter is filled in, all the periods of this calendar will be filled in NonWorkPeriods.
-//       The default value is Undefined:
-//   * RaiseException1 - Boolean - raising an exception if the schedule is not filled in
-//       If True, raise an exception if the schedule is not filled in.
-//       If False, dates whose nearest date is not identified will be ignored.
+//   * GetPrevious - Boolean - :
+//       
+//       
+//       
+//   * ConsiderNonWorkPeriods - Boolean - 
+//       
+//       
+//       :
+//   * NonWorkPeriods - Undefined - 
+//       
+//       
+//       
+//       :
+//   * RaiseException1 - Boolean -  calling an exception if the schedule is not filled in
+//       if True, throw an exception if the graph is empty.
+//       if False, the dates that failed to determine the nearest date will simply be skipped.
 //       The default value is True.
-//   * ShouldGetDatesIfCalendarNotFilled - Boolean - If set to "True", and no custom calendar is filled, it gets the dates from 
-//       the default business calendar.
+//   * ShouldGetDatesIfCalendarNotFilled - Boolean -  
+//       
 //
 Function NearestWorkDatesReceivingParameters(BusinessCalendar = Undefined) Export
 	
@@ -288,17 +286,17 @@ Function NearestWorkDatesReceivingParameters(BusinessCalendar = Undefined) Expor
 	
 EndFunction
 
-// Defines a date of the nearest workday for each date.
+// Defines the date of the nearest business day for each date.
 //
 // Parameters:
-//  BusinessCalendar	 - CatalogRef.BusinessCalendars	 - a calendar used for calculation.
-//  InitialDates				 - Array of Date - the dates to which the nearest ones will be searched.
+//  BusinessCalendar	 - CatalogRef.BusinessCalendars	 -  the calendar used for the calculation.
+//  InitialDates				 - Array of Date -  dates that will be searched for the nearest ones.
 //  ReceivingParameters			 - See NearestWorkDatesReceivingParameters.
 // 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - Date - a start date,
-//   * Value - Date - the working date closest to it (if a working date is passed, it returns).
+//   * Key - Date -  start date,
+//   * Value - Date -  the working date closest to it (if the working date is passed, it is also returned).
 //
 Function NearestWorkDates(BusinessCalendar, InitialDates, ReceivingParameters = Undefined) Export
 	
@@ -352,21 +350,21 @@ Function NearestWorkDates(BusinessCalendar, InitialDates, ReceivingParameters = 
 	
 EndFunction
 
-// Generates work schedules for dates included in the specified schedules for the specified period.
-// If the schedule for a pre-holiday day is not set, it is defined as if this day is a workday.
-// Note that this function requires the WorkSchedules subsystem.
+// Creates work schedules for dates included in the specified schedules for the specified period.
+// If the schedule for a pre-holiday day is not set, it is determined as if this day would be a working day.
+// Keep in mind that this function must have a work Schedule subsystem.
 //
 // Parameters:
-//  Schedules       - Array - an array of items of the CatalogRef.Calendars type, for which schedules are created.
-//  StartDate    - Date   - a start date of the period, for which schedules are to be created.
-//  EndDate - Date   - a period end date.
+//  Schedules       - Array -  array of elements of the reference Link type.Calendars for which schedules are created.
+//  StartDate    - Date   -  the start date of the period for which you want to generate.
+//  EndDate - Date   -  end date of the period.
 //
 // Returns:
 //   ValueTable:
-//    * WorkScheduleCalendar    - CatalogRef.Calendars - a work schedule.
-//    * ScheduleDate     - Date - a date in the WorkScheduleCalendar work schedule.
-//    * BeginTime     - Date - work start time on the ScheduleDate day.
-//    * EndTime  - Date - work end time on the ScheduleDate day.
+//    * WorkScheduleCalendar    - CatalogRef.Calendars -  work schedule.
+//    * ScheduleDate     - Date -  date in the work schedule work Schedule.
+//    * BeginTime     - Date -  start time on the Datagraphics day.
+//    * EndTime  - Date -  the end time of the work day Datagraphic.
 //
 Function WorkSchedulesForPeriod(Schedules, StartDate, EndDate) Export
 	
@@ -379,15 +377,15 @@ Function WorkSchedulesForPeriod(Schedules, StartDate, EndDate) Export
 	
 EndFunction
 
-// Creates temporary table TTWorkSchedules in the manager. The table contains columns matching the return
-// value of the WorkSchedulesForPeriod function.
-// Note that this function requires the WorkSchedules subsystem.
+// Creates a temporary table in the work Schedule Manager with columns corresponding to the return value
+// of the work schedule function Period.
+// Keep in mind that this function requires a work Schedule subsystem.
 //
 // Parameters:
-//  TempTablesManager - TempTablesManager - manager, in which the temporary table is created.
-//  Schedules       - Array - an array of items of the CatalogRef.Calendars type, for which schedules are created.
-//  StartDate    - Date   - a start date of the period, for which schedules are to be created.
-//  EndDate - Date   - a period end date.
+//  TempTablesManager - TempTablesManager -  the Manager where the temporary table will be created.
+//  Schedules       - Array -  array of elements of the reference Link type.Calendars for which schedules are created.
+//  StartDate    - Date   -  the start date of the period for which you want to generate.
+//  EndDate - Date   -  end date of the period.
 //
 Procedure CreateTTWorkSchedulesForPeriod(TempTablesManager, Schedules, StartDate, EndDate) Export
 	
@@ -401,12 +399,12 @@ Procedure CreateTTWorkSchedulesForPeriod(TempTablesManager, Schedules, StartDate
 	
 EndProcedure
 
-// Fills in an attribute in the form if only one business calendar is used.
+// Fills in the details in the form if the only production calendar is used.
 //
 // Parameters:
-//  Form         - ClientApplicationForm - a form, in which the attribute is to be filled in.
-//  AttributePath2 - String           - a path to the data, for example: "Object.BusinessCalendar".
-//  CRTR			  - String           - a taxpayer ID (tax registration reason code) used to determine a state.
+//  Form         - ClientApplicationForm -  the form where you need to fill in the details.
+//  AttributePath2 - String           -  data path, for example: "Object.Production calendar".
+//  CRTR			  - String           -  individual taxpayer number (code of the reason for registration) for determining the region.
 //
 Procedure FillBusinessCalendarInForm(Form, AttributePath2, CRTR = Undefined) Export
 	
@@ -424,11 +422,11 @@ Procedure FillBusinessCalendarInForm(Form, AttributePath2, CRTR = Undefined) Exp
 	
 EndProcedure
 
-// Returns a main business calendar used in accounting.
+// Returns the main production calendar used in accounting.
 //
 // Returns:
-//   CatalogRef.BusinessCalendars, Undefined - a main business calendar or 
-//                                                              Undefined if it is not found.
+//   CatalogRef.BusinessCalendars, Undefined -  
+//                                                              
 //
 Function MainBusinessCalendar() Export
 		
@@ -441,19 +439,19 @@ Function MainBusinessCalendar() Export
 	
 EndFunction
 
-// Prepares details of special non-work periods, for example, set according to certain laws.
-// These periods can be considered by schedules and override filling by business calendar data.
+// Prepares a description of special non-working periods established, for example, by law.
+// These periods can be taken into account by schedules, redefining the filling according to the production calendar data.
 // 
 // Parameters:
-//   BusinessCalendar - CatalogRef.BusinessCalendars - the calendar that is a source.
-//   PeriodFilter - StandardPeriod - a time interval within which you need to define non-work periods.
+//   BusinessCalendar - CatalogRef.BusinessCalendars -  the calendar that is the source.
+//   PeriodFilter - StandardPeriod -  time interval within which to define non-working periods.
 // Returns:
-//   Array - Array of Structure with the following fields:
-//    * Number     - Number - a sequence number of a period, which can be used for identification.
-//    * Period    - StandardPeriod - a non-work period.
-//    * Basis - String - a regulation a non-work period is based on.
-//    * Dates - Array of Date - dates included in a non-work period.
-//    * Presentation  - String - a user presentation of the period.
+//   Array - :
+//    * Number     - Number -  the sequence number of the period that can be used for identification.
+//    * Period    - StandardPeriod -  non-working period.
+//    * Basis - String -  a regulatory act that establishes a non-working period.
+//    * Dates - Array of Date -  dates included in the non-working period.
+//    * Presentation  - String -  custom view of the period.
 //
 Function NonWorkDaysPeriods(BusinessCalendar, PeriodFilter) Export
 
@@ -473,9 +471,9 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// OnlineUserSupport.ClassifiersOperations
+// 
 
-// The event occurs upon collecting information on classifiers. Registering business calendars.
+// The event occurs when collecting information about classifiers and registering production calendars.
 // 
 // Parameters:
 //   Classifiers - See ClassifiersOperationsOverridable.OnAddClassifiers.Classifiers
@@ -519,28 +517,28 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Outdated. Use: 
-// - — CalendarSchedules.NearestWorkDates — for a business calendar, 
-// - — or WorkSchedules.NearestDatesIncludedInSchedule — for a work schedule.
-// Defines the nearest workday for each date.
+// Deprecated. 
+//  
+// 
+// 
 //
 // Parameters:
 //    Schedule	- CatalogRef.Calendars
-//	        	- CatalogRef.BusinessCalendars - a schedule or 
-//                    business calendar to be used for calculations.
-//    InitialDates 				- Array - an array of dates (Date).
-//    GetPrevious		- Boolean - a method of getting the closest date:
-//										if True, workdays preceding the ones passed in the InitialDates parameter are defined, 
-//										if False, dates not earlier than the initial date are defined.
-//    RaiseException1 - Boolean - if True, throw an exception if the schedule is not filled in.
-//    IgnoreUnfilledSchedule - Boolean - if True, a map returns in any way. 
-//										Initial dates whose values are missing because of unfilled schedule will not be included.
+//	        	- CatalogRef.BusinessCalendars -  
+//                    
+//    InitialDates 				- Array -  array of dates (date).
+//    GetPrevious		- Boolean - :
+//										 
+//										
+//    RaiseException1 - Boolean -  if True, throw an exception if the graph is empty.
+//    IgnoreUnfilledSchedule - Boolean -  if True, a match will be returned in any case. 
+//										Start dates that don't have values because the chart is empty will not be included.
 //
 // Returns:
 //    - Map of KeyAndValue:
-//      * Key - Date - a date from the passed array
-//      * Value - Date - the working date closest to it (if a working date is passed, it returns).
-//							If the selected schedule is not filled in and RaiseException = False, Undefined returns
+//      * Key - Date -  date from the passed array
+//      * Value - Date -  the closest working date to it (if a working date is passed, it is also returned).
+//							If the selected graph is not filled, and cause an exception = False, it returns Undefined
 //    - Undefined
 //
 Function ClosestWorkdaysDates(Schedule, InitialDates, GetPrevious = False, RaiseException1 = True, 
@@ -570,13 +568,13 @@ EndFunction
 
 #Region Internal
 
-// Creates a table DaysIncrement, in which a row with item index and value (number of days)  
-// is generated for each item of the DaysArray.
-// Calculates the maximum day shift.
+//  
+// 
+// 
 // 
 // Parameters:
-//  DaysArray - Array of Number - A days array
-//  CalculateNextDateFromPrevious - Boolean - Calculate the next date based on the previous date
+//  DaysArray - Array of Number - 
+//  CalculateNextDateFromPrevious - Boolean - 
 // 
 // Returns:
 //  Structure:
@@ -607,13 +605,13 @@ Function DaysIncrement(DaysArray, Val CalculateNextDateFromPrevious = False) Exp
 
 EndFunction
 
-// Updates items related to a business calendar, 
-// for example, Work schedules.
+// It is used for updating items related to the production calendar, 
+// such as work Schedules.
 //
 // Parameters:
 //  ChangesTable - ValueTable:
-//    * BusinessCalendarCode - Number - a code of business calendar whose data is changed.
-//    * Year - Number - a year, for which data is to be updated.
+//    * BusinessCalendarCode - Number -  code of the production calendar whose data has changed,
+//    * Year - Number -  the year for which you need to update the data.
 //
 Procedure DistributeBusinessCalendarsDataChanges(ChangesTable) Export
 	
@@ -628,13 +626,13 @@ Procedure DistributeBusinessCalendarsDataChanges(ChangesTable) Export
 	
 EndProcedure
 
-// Updates items related to a business calendar, 
-// for example, Work schedules, in data areas.
+// It is used for updating data areas related to the production calendar items, 
+// such as work Schedules.
 //
 // Parameters:
 //  ChangesTable - ValueTable:
-//    * BusinessCalendarCode - Number - a code of business calendar whose data is changed.
-//    * Year - Number - a year, for which data is to be updated.
+//    * BusinessCalendarCode - Number -  code of the production calendar whose data has changed,
+//    * Year - Number -  the year for which you need to update the data.
 //
 Procedure FillDataDependentOnBusinessCalendars(ChangesTable) Export
 	
@@ -651,19 +649,19 @@ Procedure FillDataDependentOnBusinessCalendars(ChangesTable) Export
 	
 EndProcedure
 
-// Returns the internal classifier ID for the ClassifiersOperations subsystem.
+// Defines the internal classifier ID for the classifier subsystem.
 //
 // Returns:
-//  String - a classifier ID.
+//  String - 
 //
 Function ClassifierID() Export
 	Return "Calendars20";
 EndFunction
 
-// Defines a version of data related to calendars built in the configuration.
+// Specifies the version of calendar data embedded in the configuration.
 //
 // Returns:
-//   Number - Version number.
+//   Number -  version number.
 //
 Function CalendarsVersion() Export
 	
@@ -676,10 +674,10 @@ Function CalendarsVersion() Export
 	
 EndFunction
 
-// Returns the version of classifier data imported to the infobase.
+// Determines the version of the classifier data uploaded to the IB.
 //
 // Returns:
-//   Number - the version number of the imported data, or 0 if the classifier operations subsystem is unavailable.
+//   Number - 
 //
 Function LoadedCalendarsVersion() Export
 	
@@ -697,21 +695,21 @@ Function LoadedCalendarsVersion() Export
 	
 EndFunction
 
-// Requests a file with calendar classifier data. 
-// Converts the retrieved file into a structure with calendar tables and their data.
-// If the ClassifiersOperations subsystem is unavailable, or the classifier file cannot be retrieved, throws an exception.
+// Requests the file with the data classification and calendars. 
+// Converts the resulting file to a structure with calendar tables and their data.
+// If the classifier subsystem is missing or the classifier file could not be retrieved, an exception is thrown.
 //
 // Returns:
 //  Structure:
 //   * BusinessCalendars - Structure:
-//     ** TableName - String          - Table name.
-//     ** Data     - ValueTable - A calendar table converted from XML.
+//     ** TableName - String          -  table name.
+//     ** Data     - ValueTable - 
 //   * BusinessCalendarsData - Structure:
-//     ** TableName - String          - Table name.
-//     ** Data     - ValueTable - A calendar data table converted from XML.
+//     ** TableName - String          -  table name.
+//     ** Data     - ValueTable -  converted calendar data table from XML.
 //   * NonWorkDaysPeriods - Structure:
-//     ** TableName - String          - Table name.
-//     ** Data     - ValueTable - A calendar data table converted from XML.
+//     ** TableName - String          -  table name.
+//     ** Data     - ValueTable -  converted calendar data table from XML.
 //
 Function ClassifierData() Export
 	
@@ -735,7 +733,7 @@ Function ClassifierData() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -788,7 +786,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// ForSystemUsersOnly.
+	// 
 	RolesAssignment.ForSystemUsersOnly.Add(
 		Metadata.Roles.AddEditCalendarSchedules.Name);
 	
@@ -817,9 +815,9 @@ Procedure OnEnableSeparationByDataAreas() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update handlers used in other subsystems.
+// 
 
-// Updates data dependent on business calendars.
+// Updates data that is dependent on production calendars.
 //
 Procedure UpdateDataDependentOnBusinessCalendars(ParametersOfUpdate) Export
 	
@@ -849,7 +847,7 @@ EndFunction
 
 #Region Private
 
-// Gets a single business calendar in the infobase.
+// Gets the only production calendar in the IB.
 //
 Function SingleBusinessCalendar()
 	
@@ -861,7 +859,7 @@ Function SingleBusinessCalendar()
 	
 EndFunction
 
-// Defines a regional business calendar by KPP.
+// Defines the regional production calendar for the checkpoint.
 //
 Function StateBusinessCalendar(CRTR)
 	
@@ -878,11 +876,11 @@ Procedure LoadBusinessCalendarsData(Version, Address, Processed, AdditionalParam
 	
 	ClassifierData = ClassifierFileData(Address);
 	
-	// Update the list of business calendars.
+	// 
 	CalendarsTable = ClassifierData["BusinessCalendars"].Data;
 	Catalogs.BusinessCalendars.UpdateBusinessCalendars(CalendarsTable);
 	
-	// Update business calendar data.
+	// 
 	XMLData1 = ClassifierData["BusinessCalendarsData"];
 	DataTable = Catalogs.BusinessCalendars.BusinessCalendarsDataFromXML(XMLData1, CalendarsTable);
 	ChangesTable = Catalogs.BusinessCalendars.UpdateBusinessCalendarsData(DataTable);
@@ -899,7 +897,7 @@ Procedure LoadBusinessCalendarsData(Version, Address, Processed, AdditionalParam
 	If Not Common.DataSeparationEnabled() Then
 		FillDataDependentOnBusinessCalendars(ChangesTable);
 	Else
-		// Include changes table in additional parameters to update data areas.
+		// 
 		ParametersOfUpdate = New Structure("ChangesTable");
 		ParametersOfUpdate.ChangesTable = ChangesTable;
 		AdditionalParameters.Insert(ClassifierID(), ParametersOfUpdate);
@@ -999,9 +997,9 @@ Function BusinessCalendarsDataUpdateVersion()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// 
 
-// Updates the Business calendars catalog from the template with the same name.
+// Updates the production calendars directory from the same layout.
 //
 Procedure UpdateBusinessCalendars() Export
 	
@@ -1029,8 +1027,8 @@ Procedure UpdateBusinessCalendars() Export
 	
 EndProcedure
 
-// Updates business calendar data from a template.
-//  BusinessCalendarsData.
+// Updates production calendar data from the layout.
+//  Dnepropetrovshchina.
 //
 Procedure UpdateBusinessCalendarsData() Export
 	
@@ -1054,7 +1052,7 @@ Procedure UpdateBusinessCalendarsData() Export
 	
 EndProcedure
 
-// Updates data of business calendars dependent on the basic ones.
+// Updates the data of dependent production calendars from the base ones.
 //
 Procedure UpdateDependentBusinessCalendarsData() Export
 	
@@ -1157,8 +1155,8 @@ Procedure FillObjectsToChangeDependentOnBusinessCalendars(ObjectsToChange)
 	
 EndProcedure
 
-// The procedure updates data dependent on business calendars 
-// for all data areas.
+// The procedure performs an update of the data-dependent production of calendars, 
+// on all data regions.
 //
 Procedure PlanUpdateOfDataDependentOnBusinessCalendars(Val UpdateConditions)
 	
@@ -1191,7 +1189,7 @@ Procedure FillBusinessCalendarsDataOnUpdate(DataTable, PeriodsTable)
 	
 EndProcedure
 
-// Sets a value of the constant defining usage of multiple business calendars.
+// Sets the value of a constant that defines the use of multiple production calendars.
 //
 Procedure UpdateMultipleBusinessCalendarsUsage() Export
 	
@@ -1209,14 +1207,14 @@ EndProcedure
 Procedure AddHandlerOfDataDependentOnBusinessCalendars(Handlers)
 	
 	If Common.DataSeparationEnabled() Then
-		// In SaaS, it is done in a different way.
+		// 
 		Return;
 	EndIf;
 	
 	ObjectsToChange = New Array;
 	FillObjectsToChangeDependentOnBusinessCalendars(ObjectsToChange);
 	If ObjectsToChange.Count() = 0 Then
-		// No dependent objects.
+		// 
 		Return;
 	EndIf;
 	
@@ -1355,9 +1353,9 @@ EndProcedure
 //  See NearestWorkDates
 // 
 // Returns:
-//  Undefined, QueryResultSelection:
-//   * Date - Date
-//   * NearestDate - Date
+//  
+//   
+//   
 //
 Function SelectionOfNearestBusinessDates(BusinessCalendar, InitialDates, ReceivingParameters)
 	
@@ -1424,7 +1422,7 @@ Function StartDatesQueryText(InitialDates)
 			|	&InitialDate AS Date
 			|INTO TTInitialDates";
 		QueryText = StrReplace(
-			QueryText, "&InitialDate", StrTemplate("DATETIME(%1)", Format(InitialDate, "DF=yyyy,MM,dd"))); // ACC:456 Not localizable.
+			QueryText, "&InitialDate", StrTemplate("DATETIME(%1)", Format(InitialDate, "DF=yyyy,MM,dd"))); // 
 		If QueriesTexts.Count() > 0 Then
 			QueryText = StrReplace(QueryText, "INTO TTInitialDates", "");
 		EndIf;
@@ -1437,19 +1435,19 @@ Function StartDatesQueryText(InitialDates)
 	
 EndFunction
 
-// Determines the nearest working day to the provided date based on the data of the default business calendar in the Russian Federation.
-// If "InitialDate" is a working day, return it. Intended for cases, when no custom business calendar is filled.
+// 
+// 
 // 
 // 
 // Parameters:
 //  InitialDate - Date
 //  DefaultCalendarData - See Catalogs.BusinessCalendars.NewBusinessCalendarsData
-//  GetPreviousOne - Boolean - The method of getting the nearest date.:
-//	 If set to "True", it returns the date that comes before "InitialDate". 
-//	 If set to "False", it returns the date that comes after "InitialDate".
+//  GetPreviousOne - Boolean - :
+//	  
+//	 
 // 
 // Returns:
-//  Date, Undefined
+//  
 //
 Function NearestBusinessDateFromDefaultCalendar(InitialDate, DefaultCalendarData = Undefined,
 	GetPreviousOne = False)

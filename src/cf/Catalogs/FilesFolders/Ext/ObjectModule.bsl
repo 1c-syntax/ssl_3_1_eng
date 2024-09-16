@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -28,14 +26,14 @@ Procedure BeforeWrite(Cancel)
 	EndIf;
 	
 	If IsNew() Or CurrentFolder.Parent <> Parent Then
-		// Check rights for the source folder.
+		// 
 		If Not FilesOperationsInternal.HasRight("FoldersModification", CurrentFolder.Parent) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to move files from the ""%1"" folder.';"),
 				?(ValueIsFilled(CurrentFolder.Parent), CurrentFolder.Parent, NStr("en = 'Folders';")));
 			Raise(MessageText, ErrorCategory.AccessViolation);
 		EndIf;
-		// Check rights for the destination folder.
+		// 
 		If Not FilesOperationsInternal.HasRight("FoldersModification", Parent) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to add subfolders to the ""%1"" folder.';"),
@@ -45,7 +43,7 @@ Procedure BeforeWrite(Cancel)
 	EndIf;
 	
 	If DeletionMark And CurrentFolder.DeletionMark <> True Then
-		// Check the "Deletion mark" right.
+		// 
 		If Not FilesOperationsInternal.HasRight("FoldersModification", Ref) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to change the ""%1"" file folder.';"),
@@ -55,7 +53,7 @@ Procedure BeforeWrite(Cancel)
 	EndIf;
 	
 	If DeletionMark <> CurrentFolder.DeletionMark And Not Ref.IsEmpty() Then
-		// Filter files and try to mark them for deletion.
+		// 
 		Query = New Query;
 		Query.Text = 
 			"SELECT
@@ -87,12 +85,12 @@ Procedure BeforeWrite(Cancel)
 	
 	If Not IsNew() Then
 		
-		If Description <> CurrentFolder.Description Then // Folder is renamed.
+		If Description <> CurrentFolder.Description Then // 
 			FolderWorkingDirectory         = FilesOperationsInternalServerCall.FolderWorkingDirectory(Ref);
 			FolerParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(CurrentFolder.Parent);
 			If FolerParentWorkingDirectory <> "" Then
 				
-				// Add a slash at the end (unless it is already there).
+				// 
 				FolerParentWorkingDirectory = CommonClientServer.AddLastPathSeparator(
 					FolerParentWorkingDirectory);
 				
@@ -109,7 +107,7 @@ Procedure BeforeWrite(Cancel)
 			EndIf;
 		EndIf;
 		
-		If Parent <> CurrentFolder.Parent Then // Folder is moved to another folder.
+		If Parent <> CurrentFolder.Parent Then // 
 			FolderWorkingDirectory               = FilesOperationsInternalServerCall.FolderWorkingDirectory(Ref);
 			FolerParentWorkingDirectory       = FilesOperationsInternalServerCall.FolderWorkingDirectory(CurrentFolder.Parent);
 			NewFolderParentWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(Parent);
@@ -123,7 +121,7 @@ Procedure BeforeWrite(Cancel)
 						+ CurrentFolder.Description + GetPathSeparator();
 				EndIf;
 				
-				// Working directory is created automatically from a parent.
+				// 
 				If InheritedFolerWorkingDirectoryPrevious = FolderWorkingDirectory Then
 					If NewFolderParentWorkingDirectory <> "" Then
 						
@@ -160,7 +158,7 @@ Procedure OnWrite(Cancel)
 			FolderWorkingDirectory = FilesOperationsInternalServerCall.FolderWorkingDirectory(Parent);
 			If FolderWorkingDirectory <> "" Then
 				
-				// Add a slash at the end (unless it is already there).
+				// 
 				FolderWorkingDirectory = CommonClientServer.AddLastPathSeparator(
 					FolderWorkingDirectory);
 				

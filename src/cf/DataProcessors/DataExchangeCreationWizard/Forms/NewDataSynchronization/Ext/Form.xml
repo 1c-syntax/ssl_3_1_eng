@@ -422,7 +422,7 @@ For details, see the &lt;link v8config://3cb7df0b-dc9c-4ab0-8981-61aa499325da/Op
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Enable online support</v8:content>
+					<v8:content>Enable internet support</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EnableOnlineSupport</Action>

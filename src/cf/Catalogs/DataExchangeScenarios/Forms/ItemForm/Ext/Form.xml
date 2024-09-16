@@ -62,7 +62,7 @@
 				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>
-		<UsualGroup name="GroupOfSettingsInformationInSameDatabase" id="164">
+		<UsualGroup name="GroupConfigurationInformationInSameDatabase" id="164">
 			<Visible>false</Visible>
 			<Title>
 				<v8:item>
@@ -75,7 +75,7 @@
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
 			<BackColor>web:LightGreen</BackColor>
-			<ExtendedTooltip name="GroupOfSettingsInformationInSameDatabaseExtendedTooltip" id="165"/>
+			<ExtendedTooltip name="GroupConfigurationInformationInSameDatabaseExtendedTooltip" id="165"/>
 			<ChildItems>
 				<PictureDecoration name="Decoration3" id="166">
 					<Width>3</Width>
@@ -511,4 +511,31 @@ The exact scenario execution time depends on the application workload.</v8:conte
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<CommandInterface>
+		<NavigationPanel>
+			<Item>
+				<Command>0</Command>
+				<Type>Added</Type>
+				<DefaultVisible>false</DefaultVisible>
+			</Item>
+			<Item>
+				<Command>0</Command>
+				<Type>Added</Type>
+				<Index>3</Index>
+				<DefaultVisible>false</DefaultVisible>
+			</Item>
+			<Item>
+				<Command>0</Command>
+				<Type>Added</Type>
+				<Index>1</Index>
+				<DefaultVisible>false</DefaultVisible>
+			</Item>
+			<Item>
+				<Command>0</Command>
+				<Type>Added</Type>
+				<Index>2</Index>
+				<DefaultVisible>false</DefaultVisible>
+			</Item>
+		</NavigationPanel>
+	</CommandInterface>
 </Form>

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -138,7 +136,7 @@ Procedure ChoiceCompletion(Item, ChoiceData, StandardProcessing)
 	FormParameters.Insert("ListToEdit", ListToEdit);
 	FormParameters.Insert("ParametersToSelect", ParametersToSelect);
 	
-	// Open the property editor.
+	// 
 	OpenForm("DataProcessor.EventLog.Form.PropertyCompositionEditor",
 	             FormParameters,
 	             ThisObject);
@@ -281,13 +279,13 @@ EndProcedure
 
 &AtServer
 Procedure FillImportanceAndStatus()
-	// Filling the Importance form item
+	// 
 	Importance.Add("Error",         String(EventLogLevel.Error));
 	Importance.Add("Warning", String(EventLogLevel.Warning));
 	Importance.Add("Information",     String(EventLogLevel.Information));
 	Importance.Add("Note",     String(EventLogLevel.Note));
 	
-	// Filling the TransactionStatus form item
+	// 
 	TransactionStatus.Add("NotApplicable", String(EventLogEntryTransactionStatus.NotApplicable));
 	TransactionStatus.Add("Committed", String(EventLogEntryTransactionStatus.Committed));
 	TransactionStatus.Add("Unfinished",   String(EventLogEntryTransactionStatus.Unfinished));
@@ -307,42 +305,42 @@ Procedure FillFilterParameters()
 		Value     = FilterParameter.Value;
 		
 		If Upper(ParameterName) = Upper("StartDate") Then
-			// StartDate.
+			// 
 			FilterDateRange.StartDate = Value;
 			FilterPeriodStartDate  = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("EndDate") Then
-			// EndDate.
+			// 
 			FilterDateRange.EndDate = Value;
 			FilterPeriodEndDate  = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("User") Then
-			// User.
+			// 
 			UsersList = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("Event") Then
-			// Event.
+			// 
 			Events = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("Computer") Then
-			// Computer.
+			// 
 			Computers = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("ApplicationName") Then
-			// ApplicationName.
+			// 
 			Applications = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("Comment") Then
-			// Comment.
+			// 
 			Comment = Value;
 			UpdateCommentField(ThisObject);
 			
 		ElsIf Upper(ParameterName) = Upper("Metadata") Then
-			// Metadata.
+			// 
 			Metadata = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("Data") Then
-			// Data. 
+			//  
 			If TypeOf(Value) = Type("ValueList") Then
 				DataMultipleValues = True;
 				Items.Data.Visible = False;
@@ -353,19 +351,19 @@ Procedure FillFilterParameters()
 			EndIf;
 			
 		ElsIf Upper(ParameterName) = Upper("DataPresentation") Then
-			// DataPresentation.
+			// 
 			DataPresentation = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("Transaction") Then
-			// TransactionID.
+			// 
 			Transaction = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("ServerName") Then
-			// ServerName.
+			// 
 			WorkingServers = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("Session") Then
-			// Session.
+			// 
 			Sessions = Value;
 			SessionsString = "";
 			For Each SessionNumber In Sessions Do
@@ -373,15 +371,15 @@ Procedure FillFilterParameters()
 			EndDo;
 			
 		ElsIf Upper(ParameterName) = Upper("PrimaryIPPort") Then
-			// Port.
+			// 
 			PrimaryIPPorts = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("SyncPort") Then
-			// SyncPort.
+			// 
 			SecondaryIPPorts = Value;
 			
 		ElsIf Upper(ParameterName) = Upper("Level") Then
-			// Level.
+			// 
 			HasFilterByLevel = True;
 			For Each ValueListItem In Importance Do
 				If Value.FindByValue(ValueListItem.Value) <> Undefined Then
@@ -390,7 +388,7 @@ Procedure FillFilterParameters()
 			EndDo;
 			
 		ElsIf Upper(ParameterName) = Upper("TransactionStatus") Then
-			// TransactionStatus.
+			// 
 			HasFilterByStatus = True;
 			For Each ValueListItem In TransactionStatus Do
 				If Value.FindByValue(ValueListItem.Value) <> Undefined Then
@@ -458,7 +456,7 @@ Function GetEventLogFilter()
 	
 	Filter = New ValueList;
 	
-	// Start and end dates.
+	// 
 	If FilterPeriodStartDate <> '00010101000000' Then 
 		Filter.Add(FilterPeriodStartDate, "StartDate");
 	EndIf;
@@ -466,78 +464,78 @@ Function GetEventLogFilter()
 		Filter.Add(FilterPeriodEndDate, "EndDate");
 	EndIf;
 	
-	// User.
+	// 
 	If UsersList.Count() > 0 Then 
 		Filter.Add(UsersList, "User");
 	EndIf;
 	
-	// Event.
+	// 
 	If Events.Count() > 0 Then 
 		Filter.Add(Events, "Event");
 	EndIf;
 	
-	// Computer.
+	// 
 	If Computers.Count() > 0 Then 
 		Filter.Add(Computers, "Computer");
 	EndIf;
 	
-	// ApplicationName.
+	// 
 	If Applications.Count() > 0 Then 
 		Filter.Add(Applications, "ApplicationName");
 	EndIf;
 	
-	// Comment.
+	// 
 	If Not IsBlankString(Comment) Then 
 		Filter.Add(Comment, "Comment");
 	EndIf;
 	
-	// Metadata.
+	// 
 	If Metadata.Count() > 0 Then 
 		Filter.Add(Metadata, "Metadata");
 	EndIf;
 	
-	// Data. 
+	//  
 	FilterValue = ?(DataMultipleValues, Data_List, Data);
 	If ValueIsFilled(FilterValue) Then
 		Filter.Add(FilterValue, "Data");
 	EndIf;
 	
-	// DataPresentation.
+	// 
 	If Not IsBlankString(DataPresentation) Then 
 		Filter.Add(DataPresentation, "DataPresentation");
 	EndIf;
 	
-	// TransactionID.
+	// 
 	If Not IsBlankString(Transaction) Then 
 		Filter.Add(Transaction, "Transaction");
 	EndIf;
 	
-	// ServerName.
+	// 
 	If WorkingServers.Count() > 0 Then 
 		Filter.Add(WorkingServers, "ServerName");
 	EndIf;
 	
-	// Session.
+	// 
 	If Sessions.Count() > 0 Then 
 		Filter.Add(Sessions, "Session");
 	EndIf;
 	
-	// Port.
+	// 
 	If PrimaryIPPorts.Count() > 0 Then 
 		Filter.Add(PrimaryIPPorts, "PrimaryIPPort");
 	EndIf;
 	
-	// SyncPort.
+	// 
 	If SecondaryIPPorts.Count() > 0 Then 
 		Filter.Add(SecondaryIPPorts, "SyncPort");
 	EndIf;
 	
-	// SessionDataSeparation.
+	// SessionDataSeparation
 	If SessionDataSeparation.Count() > 0 Then 
 		Filter.Add(SessionDataSeparation, "SessionDataSeparation");
 	EndIf;
 	
-	// Level.
+	// 
 	LevelList = New ValueList;
 	For Each ValueListItem In Importance Do
 		If ValueListItem.Check Then 
@@ -548,7 +546,7 @@ Function GetEventLogFilter()
 		Filter.Add(LevelList, "Level");
 	EndIf;
 	
-	// TransactionStatus.
+	// 
 	StatusesList = New ValueList;
 	For Each ValueListItem In TransactionStatus Do
 		If ValueListItem.Check Then 

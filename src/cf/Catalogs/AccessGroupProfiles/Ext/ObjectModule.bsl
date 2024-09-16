@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -20,7 +18,7 @@ Var PreviousValues1; // See PreviousValues1
 
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// 
 	If IsFolder Then
 		Return;
 	EndIf;
@@ -28,9 +26,12 @@ Procedure BeforeWrite(Cancel)
 	If UsersInternalCached.ShouldRegisterChangesInAccessRights()
 	 Or Not DataExchange.Load Then
 		
+		If Common.FileInfobase() Then
+			AccessManagementInternal.LockRegistersBeforeWritingAccessConfigurationObjectToFileInformationSystem();
+		EndIf;
 		PreviousValues1 = PreviousValues1();
 	EndIf;
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;
@@ -42,7 +43,7 @@ Procedure BeforeWrite(Cancel)
 		Catalogs.AccessGroupProfiles.RestoreNonexistentViewsFromAccessValue(PreviousValues1, ThisObject);
 	EndIf;
 	
-	// Check roles.
+	// 
 	AdministratorRoles = New Array;
 	AdministratorRoles.Add("Role.FullAccess");
 	AdministratorRoles.Add("Role.SystemAdministrator");
@@ -82,7 +83,7 @@ Procedure BeforeWrite(Cancel)
 		EndIf;
 	EndIf;
 	
-	// Updating descriptions for personal access groups of this profile (if any).
+	// 
 	InterfaceSimplified = AccessManagementInternal.SimplifiedAccessRightsSetupInterface();
 	If InterfaceSimplified Then
 		
@@ -131,7 +132,7 @@ EndProcedure
 
 Procedure OnWrite(Cancel)
 	
-	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
+	// 
 	If IsFolder Then
 		Return;
 	EndIf;
@@ -147,7 +148,7 @@ Procedure OnWrite(Cancel)
 		SetPrivilegedMode(False);
 		SetSafeModeDisabled(False);
 	EndIf;
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;
@@ -155,7 +156,7 @@ Procedure OnWrite(Cancel)
 	
 	CheckSuppliedDataUniqueness();
 	
-	// When setting a deletion mark, the deletion mark is also set for the profile access groups.
+	// 
 	If Catalogs.AccessGroups.IsProfileMarkedForDeletion(ThisObject, PreviousValues1) Then
 		Query = New Query;
 		Query.SetParameter("Profile", Ref);
@@ -254,7 +255,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 Function UpdateUsersRolesOnChangeProfileRoles()
 	
@@ -407,7 +408,7 @@ EndFunction
 
 Procedure CheckSuppliedDataUniqueness(Var_FillChecking = False, Cancel = False)
 	
-	// Checking the supplied data for uniqueness.
+	// 
 	If Not ValueIsFilled(SuppliedDataID) Then
 		Return;
 	EndIf;
@@ -461,8 +462,8 @@ Procedure CheckSuppliedDataUniqueness(Var_FillChecking = False, Cancel = False)
 	
 EndProcedure
 
-// Values of some attributes and tabular sections of the profile
-// before it is changed for use in the OnWrite event handler.
+// Values of some details and table parts of the profile
+// before changing it for use in the event handler for Recording.
 // 
 // Returns:
 //  Structure:

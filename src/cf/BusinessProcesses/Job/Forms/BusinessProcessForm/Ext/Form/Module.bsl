@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
 &AtClient
-Var PerformerChoiceFormOpened;  // Flag showing that the assignee is selected in a form (without using quick input).
+Var PerformerChoiceFormOpened;  // 
 &AtClient
-Var SupervisorChoiceFormOpened; // Flag showing that the supervisor is selected in a form (without using quick input).
+Var SupervisorChoiceFormOpened; // 
 &AtClient
 Var ChoiceContext;
 
@@ -26,13 +24,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 	
-	// For new objects, run the form initializer in "OnCreateAtServer".
-	// For existing objects, in "OnReadAtServer".
+	// 
+	// 
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;
 	
-	// StandardSubsystems.FilesOperations
+	// Standard subsystems.Remotefile
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		FilesHyperlink = ModuleFilesOperations.FilesHyperlink();
@@ -48,7 +46,7 @@ Procedure OnOpen(Cancel)
 
 	RefreshStopCommandsAvailability();
 	
-	// StandardSubsystems.FilesOperations
+	// Standard subsystems.Remotefile
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.OnOpen(ThisObject, Cancel);
@@ -62,7 +60,7 @@ Procedure OnReadAtServer(CurrentObject)
 
 	InitializeTheForm();
 	
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -110,7 +108,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		EndIf;
 	EndIf;
 	
-	// StandardSubsystems.FilesOperations
+	// Standard subsystems.Remotefile
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.NotificationProcessing(ThisObject, EventName);
@@ -157,7 +155,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -355,7 +353,7 @@ Procedure VerificationDueDateOnChange(Item)
 	EndIf;
 EndProcedure
 
-// StandardSubsystems.FilesOperations
+// Standard subsystems.Remotefile
 &AtClient
 Procedure Attachable_PreviewFieldClick(Item, StandardProcessing)
 
@@ -427,7 +425,7 @@ Procedure SetUpDeferredStart(Command)
 	OpenDeferredStartSetup();
 EndProcedure
 
-// StandardSubsystems.FilesOperations
+// Standard subsystems.Remotefile
 &AtClient
 Procedure Attachable_AttachedFilesPanelCommand(Command)
 

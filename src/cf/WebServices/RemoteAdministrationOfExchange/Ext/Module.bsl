@@ -1,25 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Web service operation handlers.
+// 
 
-// Matches the GetExchangePlans web service operation
+// Corresponds to the GetExchangePlans operation
 Function GetConfigurationExchangePlans()
 	
 	Return StrConcat(DataExchangeSaaSCached.DataSynchronizationExchangePlans(), ",");
 EndFunction
 
-// Matches the PrepareExchangeExecution web service operation
+// Corresponds to the PrepareExchangeExecution operation
 Function ScheduleDataExchangeExecution(AreasForDataExchangeString)
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
@@ -59,7 +57,7 @@ Function ScheduleDataExchangeExecution(AreasForDataExchangeString)
 	Return "";
 EndFunction
 
-// Matches the StartExchangeExecutionInFirstDataBase web service operation
+// Corresponds to the StartExchangeExecutionInFirstDatabase operation
 Function ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, DataExchangeScenarioString)
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
@@ -96,7 +94,7 @@ Function ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Data
 	Return "";
 EndFunction
 
-// Matches the StartExchangeExecutionInSecondDataBase web service operation
+// Corresponds to the StartExchangeExecutionInSecondDatabase operation
 Function ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, DataExchangeScenarioString)
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
@@ -134,12 +132,12 @@ Function ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Dat
 	
 EndFunction
 
-// Matches the TestConnection web service operation
+// Corresponds to the TestConnection operation
 Function TestConnection(SettingsStructureString, TransportKindAsString, ErrorMessage)
 	
 	Cancel = False;
 	
-	// Testing exchange message transport data processor connection
+	// 
 	DataExchangeServer.CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
 			ValueFromStringInternal(SettingsStructureString),
 			Enums.ExchangeMessagesTransportTypes[TransportKindAsString],
@@ -149,7 +147,7 @@ Function TestConnection(SettingsStructureString, TransportKindAsString, ErrorMes
 		Return False;
 	EndIf;
 	
-	// Checking the connection to the manager application through the web service
+	// 
 	Try
 		DataExchangeSaaSCached.GetExchangeServiceWSProxy();
 	Except

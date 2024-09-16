@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
@@ -303,7 +301,7 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 		Return False;
 	EndIf;
 	
-	// If a personal crypto certificate is not used, it does not need to be searched for.
+	// 
 	If Parameters.Operation <> "Encryption"
 	 Or ValueIsFilled(Parameters.ThumbprintOfCertificate) Then
 		
@@ -424,7 +422,7 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 			Except
 				ErrorInfo = ErrorInfo();
 			EndTry;
-		Else // Decryption.
+		Else // 
 			CryptoManager.PrivateKeyAccessPassword = Parameters.PasswordValue;
 			Try
 				ResultBinaryData = CryptoManager.Decrypt(Data);
@@ -648,7 +646,7 @@ Function UpdateAdvancedSignature(SignatureProperties) Export
 	
 EndFunction
 
-// For the ExecuteAtServerSide function.
+// For the function Runnastoroneserver.
 Function CryptoCertificates(Val CertificatesProperties)
 	
 	If TypeOf(CertificatesProperties) = Type("String") Then
@@ -702,7 +700,7 @@ Function FindInstalledPrograms(ApplicationsDetails, CheckAtServer1) Export
 	
 EndFunction
 
-// Intended for: FindInstalledApplications procedure.
+// For the procedure, find the installed Programs.
 Function FillApplicationsListForSearch(ApplicationsDetails)
 	
 	SettingsToSupply = Catalogs.DigitalSignatureAndEncryptionApplications.ApplicationsSettingsToSupply();
@@ -758,7 +756,7 @@ Function FillApplicationsListForSearch(ApplicationsDetails)
 	
 EndFunction
 
-// Intended for: FindInstalledApplications procedure.
+// For the procedure, find the installed Programs.
 Function ExtendedApplicationDetails()
 	
 	ApplicationDetails = DigitalSignature.NewApplicationDetails();
@@ -825,7 +823,7 @@ Function AbbreviatedFileName(FileName, RequiredLength) Export
 	
 EndFunction
 
-// Looks up for individuals by description.
+// 
 // 
 // Parameters:
 //   IssuedTo - Array of String
@@ -908,6 +906,11 @@ Procedure AddADescriptionOfAdditionalData(AdditionalData, FilesDetails, Informat
 	
 	Certificates = Undefined;
 	AdditionalData.Property("Certificate", Certificates);
+	
+	If Certificates = Undefined Then
+		AdditionalData.Property("CertificateData", Certificates);
+	EndIf;
+	
 	If TypeOf(Certificates) = Type("Array") Then
 		Number = 1;
 		For Each Certificate In Certificates Do
@@ -920,6 +923,11 @@ Procedure AddADescriptionOfAdditionalData(AdditionalData, FilesDetails, Informat
 	
 	Signatures = Undefined;
 	AdditionalData.Property("Signature", Signatures);
+	
+	If Signatures = Undefined Then
+		AdditionalData.Property("SignatureData", Signatures);
+	EndIf;
+	
 	If TypeOf(Signatures) = Type("Array") Then
 		Number = 1;
 		For Each Signature In Signatures Do
@@ -997,7 +1005,7 @@ Procedure AddADescriptionOfTheCertificate(Certificate, FilesDetails, Information
 		NStr("en = 'Certificate: ""%1""';"), CertificateFileName) + Chars.LF;
 	
 	InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
-		Chars.Tab + NStr("en = 'Signing algorithm: %1';"), SignAlgorithm) + Chars.LF;
+		Chars.Tab + NStr("en = 'Signature algorithm: %1';"), SignAlgorithm) + Chars.LF;
 	
 	If TypeOf(Certificate) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
 		InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
@@ -1051,7 +1059,7 @@ Procedure AddASignatureDescription(Signature, FilesDetails, InformationRecords, 
 		NStr("en = 'Signature: ""%1""';"), SignatureFileName) + Chars.LF;
 	
 	InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
-		Chars.Tab + NStr("en = 'Signing algorithm: %1';"), SignAlgorithm) + Chars.LF;
+		Chars.Tab + NStr("en = 'Signature algorithm: %1';"), SignAlgorithm) + Chars.LF;
 	
 	InformationRecords = InformationRecords + StringFunctionsClientServer.SubstituteParametersToString(
 		Chars.Tab + NStr("en = 'Hashing algorithm: %1';"), HashAlgorithm) + Chars.LF;
@@ -1099,7 +1107,7 @@ Function TechnicalInformationArchiveAddress(
 			VerifiedPathsToProgramModulesOnTheClient);
 		StateText = New TextDocument;
 		StateText.SetText(AccompanyingText);
-		FileName = GetTempFileName("txt"); // ACC:441 - Temporary files are deleted downstream.
+		FileName = GetTempFileName("txt"); // 
 		StateText.Write(FileName);
 		TemporaryFiles.Add(FileName);
 		InformationArchive.Add(TemporaryFiles[0]);

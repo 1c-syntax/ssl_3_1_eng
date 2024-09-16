@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -34,7 +32,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndDo;
 	
-	// Populates a new object by a built-in setting.
+	// 
 	If Not ValueIsFilled(Object.Ref) Then
 		
 		If ValueIsFilled(Parameters.SuppliedSettingID) Then
@@ -64,7 +62,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	// Populate algorithm lists.
+	// 
 	Filter = New Structure("ApplicationName, ApplicationType", Object.ApplicationName, Object.ApplicationType);
 	Rows = SettingsToSupply.FindRows(Filter);
 	SettingToSupply = ?(Rows.Count() = 0, Undefined, Rows[0]);
@@ -94,8 +92,8 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
-	// Intended for updating the list of apps and their
-	// parameters on the client side and server side.
+	// 
+	// 
 	RefreshReusableValues();
 	
 EndProcedure
@@ -191,7 +189,7 @@ Procedure UsageModeChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		ApplicationToSupply = ApplicationsByNamesWithType.Get(Var_Key);
 		If ApplicationToSupply = Undefined Then
 			StandardProcessing = False;
-			ShowMessageBox(, NStr("en = 'An app with the specified name and type cannot be determined automatically.';"));
+			ShowMessageBox(, NStr("en = 'An app with the specified name and type cannot be detected automatically.';"));
 			Return;
 		EndIf;
 		
@@ -259,13 +257,13 @@ EndProcedure
 Procedure SetTitleAutoSettings(SettingToSupply)
 	
 	If SettingToSupply = Undefined Then
-		Items.DecorationLabelAutoSettings.Title = NStr("en = 'This app cannot be determined automatically';");
+		Items.DecorationLabelAutoSettings.Title = NStr("en = 'This app cannot be detected automatically';");
 		Return;
 	EndIf;
 	
 	Items.DecorationLabelAutoSettings.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Algorithms used in this app:
-			|Signing algorithm: %1
+			|Signature algorithm: %1
 			|Hashing algorithm: %2
 			|Encryption algorithm: %3';"), SettingToSupply.SignAlgorithm, SettingToSupply.HashAlgorithm,
 			SettingToSupply.EncryptAlgorithm);
@@ -302,7 +300,7 @@ Procedure FillSelectedApplicationAlgorithms(OnOpen = False)
 	
 EndProcedure
 
-// Continues the FillSelectedApplicationAlgorithms procedure.
+// Continue the procedure to fill in the algorithm of the selected Program.
 &AtClient
 Procedure FillAlgorithmsForSelectedApplicationAfterAttachCryptographyExtension(Attached, Context) Export
 	
@@ -317,7 +315,7 @@ Procedure FillAlgorithmsForSelectedApplicationAfterAttachCryptographyExtension(A
 	
 EndProcedure
 
-// Continues the FillSelectedApplicationAlgorithms procedure.
+// Continue the procedure to fill in the algorithm of the selected Program.
 &AtClient
 Procedure FillInTheAlgorithmsOfTheSelectedProgramAfterGettingTheProgramPath(DescriptionOfWay, Context) Export
 	
@@ -328,7 +326,7 @@ Procedure FillInTheAlgorithmsOfTheSelectedProgramAfterGettingTheProgramPath(Desc
 	
 EndProcedure
 
-// Continues the FillSelectedApplicationAlgorithms procedure.
+// Continue the procedure to fill in the algorithm of the selected Program.
 &AtClient
 Procedure FillAlgorithmsForSelectedApplicationAfterGetDataError(ErrorInfo, StandardProcessing, Context) Export
 	
@@ -338,12 +336,12 @@ Procedure FillAlgorithmsForSelectedApplicationAfterGetDataError(ErrorInfo, Stand
 	
 EndProcedure
 
-// Continues the FillSelectedApplicationAlgorithms procedure.
+// Continue the procedure to fill in the algorithm of the selected Program.
 &AtClient
 Procedure FillSelectedApplicationAlgorithmsAfterGetInformation(ModuleInfo, Context) Export
 	
-	// If the cryptography manager is unavailable and in not 1C-supplied,
-	// then the algorithm names should be entered manually.
+	// 
+	// 
 	
 	If ModuleInfo <> Undefined
 	   And Object.ApplicationName <> ModuleInfo.Name
@@ -427,7 +425,7 @@ Procedure AfterApplicationChoice(SelectedElement, Context) Export
 	
 EndProcedure
 
-// Continues the DescriptionChoiceProcessing procedure.
+// Continuation of the procedure for naming the selection process.
 &AtClient
 Procedure IdleHandlerDescriptionChoiceProcessing()
 	

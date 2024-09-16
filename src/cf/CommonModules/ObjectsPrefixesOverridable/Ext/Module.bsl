@@ -1,37 +1,35 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Event handler on the object number change.
-// The handler is intended to compute a basic object number
-// when it cannot be got in a standard way without information loss.
-// The handler is called only if processed object numbers and codes
-// were generated in a non-standard way, i.e. not in the SSL number and code format.
+// Event handler for changing the object number.
+// The handler is designed to calculate the base number of an object
+// when the standard way to get the base number without losing information is impossible.
+// The handler is called only if the processed object numbers and codes
+// were formed in a non-standard way, not in the format of BSP numbers and codes.
 //
 // Parameters:
 //  Object - DocumentObject
 //         - BusinessProcessObject
-//         - TaskObject - a data object
-//           whose basic number is to be defined.
-//  Number - String - a number of the current object a basic number is to be got from.
-//  BasicNumber - String - a basic object number. 
-//           It is an object number
-//           without any prefixes (infobase prefix, company prefix,
-//           department prefix, custom prefix, and other prefixes).
-//  StandardProcessing - Boolean - a standard processing flag. Default value is True.
-//           If the parameter in the handler is set to False,
-//           the standard processing will not be performed.
-//           The standard processing gets a basic code to the right of the first non-numeric character.
-//           For example, for code AA00005/12/368, the standard processing returns 368.
-//           However, the basic object code is equal to 5/12/368.
+//         - TaskObject - 
+//           
+//  Number - String -  number of the current object to extract the base number from.
+//  BasicNumber - String -  base number of the object. 
+//           The base object number means the object
+//           number minus all prefixes (the is prefix, the company
+//           prefix, the division prefix, the user prefix, and so on).
+//  StandardProcessing - Boolean -  the flag of standard processing. The default values are True.
+//           If this parameter is set to False in the handler,
+//           standard processing will not be performed.
+//           Standard processing gets the base code from the right to the first non-numeric character.
+//           For example, for the code "AA00005/12/368", standard processing returns "368".
+//           However, the base code for the object will be "5/12/368".
 //
 Procedure OnChangeNumber(Object, Val Number, BasicNumber, StandardProcessing) Export
 	
@@ -39,39 +37,39 @@ Procedure OnChangeNumber(Object, Val Number, BasicNumber, StandardProcessing) Ex
 	
 EndProcedure
 
-// Event handler on the object code change.
-// The handler is intended to compute a basic object code
-// when it cannot be got in a standard way without information loss.
-// The handler is called only if processed object numbers and codes
-// were generated in a non-standard way, i.e. not in the SSL number and code format.
+// The event handler when you change the code of the object.
+// The handler is designed to calculate the base code of an object
+// when the standard way to get the base code without losing information is impossible.
+// The handler is called only if the processed object numbers and codes
+// were formed in a non-standard way, not in the format of BSP numbers and codes.
 //
 // Parameters:
 //  Object - CatalogObject
-//         - ChartOfCharacteristicTypesObject - a data object
-//           whose basic code is to be defined.
-//  Code - String - a code of the current object from which a basic code is to be got.
-//  BasicCode - String - a basic object code. It is an object code
-//           without any prefixes (infobase prefix, company prefix,
-//           department prefix, custom prefix, and other prefixes).
-//  StandardProcessing - Boolean - a standard processing flag. Default value is True.
-//           If the parameter in the handler is set to False,
-//           the standard processing will not be performed.
-//           The standard processing gets a basic code to the right of the first non-numeric character.
-//           For example, for code AA00005/12/368, the standard processing returns 368.
-//           However, the basic object code is equal to 5/12/368.
+//         - ChartOfCharacteristicTypesObject - 
+//           
+//  Code - String -  code of the current object to extract the base code from.
+//  BasicCode - String -  base code of the object. The basic object code means the object
+//           code minus all prefixes (the is prefix, the company
+//           prefix, the division prefix, the user prefix, and so on).
+//  StandardProcessing - Boolean -  the flag of standard processing. The default values are True.
+//           If this parameter is set to False in the handler,
+//           standard processing will not be performed.
+//           Standard processing gets the base code from the right to the first non-numeric character.
+//           For example, for the code "AA00005/12/368", standard processing returns "368".
+//           However, the base code for the object will be "5/12/368".
 //
 Procedure OnChangeCode(Object, Val Code, BasicCode, StandardProcessing) Export
 	
 EndProcedure
 
-// For each metadata object where the attribute
-// that stores a company reference has a custom name (not Company), fill in the Objects parameter in this procedure.
+// In the procedure, you need to fill in the "Objects" parameter for those metadata objects
+// for which the link to the company is located in the details with a name other than the standard name "Company".
 //
 // Parameters:
 //  Objects - ValueTable:
-//     * Object - MetadataObject - a metadata object, for which an attribute
-//                containing a reference to a company is specified.
-//     * Attribute - String - a name of the attribute that stores a company reference.
+//     * Object - MetadataObject -  a metadata object for which you specify a detail
+//                that contains a link to the company.
+//     * Attribute - String -  name of the account that contains the link to the company.
 //
 Procedure GetPrefixGeneratingAttributes(Objects) Export
 	

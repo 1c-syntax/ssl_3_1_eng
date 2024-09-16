@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// A handler of double click, "Enter" button, and hyperlink activation in report spreadsheets.
-// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
-//   ReportForm          - ClientApplicationForm - a report form.
-//   Item              - FormField        - spreadsheet document.
-//   Area              - SpreadsheetDocumentRange - a selected value.
-//   StandardProcessing - Boolean - indicates whether standard event processing is executed.
+//   ReportForm          - ClientApplicationForm -  report form.
+//   Item              - FormField        -  table document.
+//   Area              - SpreadsheetDocumentRange -  selected value.
+//   StandardProcessing - Boolean -  indicates whether standard event processing is being performed.
 //
 Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardProcessing) Export
 	
@@ -41,16 +39,16 @@ Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardPr
 		
 EndProcedure
 
-// Opens a report form with a filter by issues that impede the normal update of
-// the infobase.
+// Opens a report form with a selection of problems that prevent the normal updating
+// of the information base.
 //
 //  Parameters:
-//     Form                - ClientApplicationForm - a managed form of an object with issues.
-//     StandardProcessing - Boolean - a flag indicating whether
-//                            the standard (system) event processing is executed is passed to this parameter.
+//     Form                - ClientApplicationForm -  the managed form of the problem object.
+//     StandardProcessing - Boolean -  a sign of
+//                            standard (system) event processing is passed to this parameter.
 //
 // Example:
-//    ModuleAccountingAuditInternalClient.OpenIssuesReportFromUpdateProcessing(ThisObject, StandardProcessing);
+//    The monitoring module accounts for the service client.Open a report on the problems of the update processing (this is an object, standard processing);
 //
 Procedure OpenIssuesReportFromUpdateProcessing(Form, StandardProcessing) Export
 	
@@ -70,14 +68,14 @@ Procedure OpenIssuesReport(ChecksKind, ExactMap = True) Export
 	
 EndProcedure
 
-// Opens the AccountingCheckRules catalog list form.
+// Opens the form of the list of the manual of the rules of Accounting.
 //
 Procedure OpenAccountingChecksList() Export
 	OpenForm("Catalog.AccountingCheckRules.ListForm");
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonClientOverridable.AfterStart.
 Procedure AfterStart() Export
@@ -161,7 +159,7 @@ Procedure OnProcessCommand(ReportForm, Command, Result) Export
 			Filter = New Structure;
 			Filter.Insert("Data", Result.Ref);
 			Filter.Insert("EventLogEvent", Events);
-			Filter.Insert("StartDate", BegOfMonth(CurrentDate())); // ACC:143 - "CurrentDate" for Event log filters
+			Filter.Insert("StartDate", BegOfMonth(CurrentDate())); // 
 			EventLogClient.OpenEventLog(Filter);
 		EndIf;
 	ElsIf Command.Name = "AccountingAuditIgnoreIssue" Then
@@ -178,17 +176,17 @@ EndProcedure
 
 #Region Private
 
-// Opens a form for interactive user actions to resolve an issue.
+// Opens a form for interactive user actions to solve the problem.
 //
 // Parameters:
-//   Form       - ClientApplicationForm - the AccountingCheckResults report form.
-//   Details - Structure - additional information to correct an issue:
-//      * Purpose                     - String - a purpose string ID of the decryption.
-//      * CheckID          - String - a string check ID.
-//      * GoToCorrectionHandler - String - a name of the export client procedure handler for correcting 
-//                                                   an issue or a full name of the form being opened.
-//      * CheckKind                    - CatalogRef.ChecksKinds - a check kind
-//                                         that narrows the area of issue correction.
+//   Form       - ClientApplicationForm -  the form of the report of the results of the audit.
+//   Details - Structure - :
+//      * Purpose                     - String -  string identifier of the decryption destination.
+//      * CheckID          - String -  string verification indicator.
+//      * GoToCorrectionHandler - String -  the name of the export client procedure that handles 
+//                                                   the problem correction or the full name of the form to open.
+//      * CheckKind                    - CatalogRef.ChecksKinds -  a type of check
+//                                         that further clarifies the scope of the problem correction.
 //
 Procedure ResolveIssue(Form, Details)
 	
@@ -210,15 +208,15 @@ Procedure ResolveIssue(Form, Details)
 	
 EndProcedure
 
-// Opens a list form (in case of a register - with the problem record set).
+// Opens the list form (in case of a register - with a problematic set of records).
 //
 // Parameters:
-//   Form                          - ClientApplicationForm - a report form.
-//   Details - Structure - a structure containing the data for correcting the issue
-//                 of the cell of the data integrity check report:
-//      * Purpose         - String - a purpose string ID of the decryption.
-//      * FullObjectName   - String - Full name of a metadata object.
-//      * Filter              - Structure - a filter as a list.
+//   Form                          - ClientApplicationForm -  report form.
+//   Details - Structure - 
+//                 :
+//      * Purpose         - String -  string identifier of the decryption destination.
+//      * FullObjectName   - String -  full name of the metadata object.
+//      * Filter              - Structure -  selection in the form of a list.
 //
 Procedure OpenProblemList(Form, Details)
 	
@@ -253,22 +251,22 @@ Procedure OpenProblemList(Form, Details)
 	
 EndProcedure
 
-// Adds a filter to the collection of the composer filters or group of selections
+// Adds a selection to the linker's selection collection or selection group
 //
 // Parameters:
 //   StructureItem        - DataCompositionSettingsComposer
-//                           - DataCompositionSettings - a data composition structure item
-//   FilterParameters         - Structure - contains data composition filter parameters:
-//     * Field                - String - a field name, by which a filter is added.
-//     * Value            - Arbitrary - a filter value of data composition (Undefined by default).
-//     * ComparisonType        - DataCompositionComparisonType - a comparison type of data composition (Undefined by default).
-//     * Use       - Boolean - indicates that filter is used (True by default).
-//   AdditionalParameters - Structure - contains additional parameters, listed below:
-//     * ToUserSettings - Boolean - a flag of adding to data composition user settings (False by default).
-//     * ReplaceCurrent       - Boolean - a flag of complete replacement of existing filter by field (True by default).
+//                           - DataCompositionSettings - 
+//   FilterParameters         - Structure - :
+//     * Field                - String -  name of the field to add the selection to.
+//     * Value            - Arbitrary -  CD selection value (default: Undefined).
+//     * ComparisonType        - DataCompositionComparisonType -  type of CD comparisons (default: Undefined).
+//     * Use       - Boolean -  indicates whether selection is used (default: True).
+//   AdditionalParameters - Structure - :
+//     * ToUserSettings - Boolean -  whether to add a CD to the user settings (by default: Lie).
+//     * ReplaceCurrent       - Boolean -  indicates whether the existing selection by field is completely replaced (default: True).
 //
 // Returns:
-//   DataCompositionFilterItem - an added filter.
+//   DataCompositionFilterItem - 
 //
 Function AddFilter(StructureItem, FilterParameters, AdditionalParameters = Undefined)
 	

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,7 +12,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.ReportsOptions
+// 
 
 // Parameters:
 //   Settings - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
@@ -45,7 +43,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		
 EndProcedure
 
-// Specify the report form settings.
+// To set up a report form.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -72,9 +70,9 @@ EndProcedure
 
 // End StandardSubsystems.ReportsOptions
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
-// Defines settings for integrating the report with configuration functionality. 
+// Defines the report integration settings with configuration mechanisms. 
 //
 // Parameters:
 //  InterfaceSettings4 - See AttachableCommands.AttachableObjectSettings

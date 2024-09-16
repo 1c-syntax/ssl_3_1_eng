@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -19,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SetFilterByContactInfoOwner(Parameters.ContactInformationOwner);
 	EndIf;
 
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	AttachableCommands.OnCreateAtServer(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -107,7 +105,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ModuleNationalLanguageSupportServer.OnCreateAtServer(ThisObject);
 	EndIf;
 	
-	// StandardSubsystems.ObjectsVersioning
+	// 
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
 		ModuleObjectsVersioning.OnCreateAtServer(ThisObject);
@@ -123,7 +121,7 @@ EndProcedure
 &AtClient
 Procedure ListBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	
-	// Check whether the group is copied.
+	// 
 	If Copy And Var_Group Then
 		Cancel = True;
 		
@@ -161,7 +159,7 @@ Procedure GoToList(Command)
 	OpenForm(ListFormName(Items.List.CurrentData.Ref));
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	AttachableCommandsClient.StartCommandExecution(ThisObject, Command, Items.List);

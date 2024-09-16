@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Toggles the email client.
+// 
 //
 // Parameters:
 //   Value - Boolean
@@ -21,7 +19,7 @@ Procedure SetEmailClientUsage(Val Value) Export
 
 EndProcedure
 
-// Checks whether the users can use the email client.
+// 
 // 
 // Returns:
 //   Boolean
@@ -32,8 +30,8 @@ Function EmailClientUsed() Export
 	
 EndFunction
 
-// Toggles the support of sending HTML messages.
-// If disabled, the users can send only plain-text messages.
+// 
+// 
 //
 // Parameters:
 //   Value - Boolean
@@ -44,7 +42,7 @@ Procedure EnableSendingHTMLEmailMessages(Val Value) Export
 
 EndProcedure
 
-// Checks whether email messages can be sent as HTML.
+// 
 //
 // Returns:
 //   Boolean
@@ -55,8 +53,8 @@ Function IsSendingHTMLEmailMessagesEnabled() Export
 
 EndFunction
 
-// Toggles the support of tracking phone calls, text messages,
-// appointments, and interaction planning.
+// 
+// 
 //
 // Parameters:
 //   Value - Boolean
@@ -67,7 +65,7 @@ Procedure SetUsageOfOtherInteraction(Val Value) Export
 
 EndProcedure
 
-// Checks whether the users can track phone calls, text messages, appointments, and interaction planning.
+// 
 //
 // Returns:
 //   Boolean
@@ -78,18 +76,18 @@ Function AreOtherInteractionsUsed() Export
 	
 EndFunction
 
-// The procedure is called from document filling data handlers - interactions and filling objects.
-// Fills in attributes with default values.
+// Called from the handlers for filling in interaction documents and items.
+// Performs the necessary actions to fill in the default details.
 //
 // Parameters:
-//  Object - DocumentObject - a document to be filled.
-//  FillingData  - Arbitrary - a value used as a filling base.
+//  Object - DocumentObject -  the document to fill in.
+//  FillingData  - Arbitrary -  the value that is used as the basis for filling in.
 //
 Procedure FillDefaultAttributes(Object, FillingData) Export
 	
 	IsInteraction = InteractionsClientServer.IsInteraction(Object.Ref);
 	
-	// The current user is the author and the person responsible for the interaction being created.
+	// 
 	If IsInteraction Then
 		Object.Author = Users.CurrentUser();
 		Object.EmployeeResponsible = Object.Author;
@@ -166,12 +164,12 @@ Procedure FillDefaultAttributes(Object, FillingData) Export
 	
 EndProcedure
 
-// Sets the created object as a subject in the interaction chain.
+// Sets the created object as an object in the entire chain of interactions.
 //
 // Parameters:
-//  SubjectOf        - DefinedType.InteractionSubject - a created interaction subject.
-//  Interaction - DocumentRef - an interaction the subject is created by.
-//  Cancel          - Boolean         - an interaction the subject is created by.
+//  SubjectOf        - DefinedType.InteractionSubject -  the created object of interactions.
+//  Interaction - DocumentRef -  the interaction by which the item was created.
+//  Cancel          - Boolean         -  flag for refusing the operation.
 //
 Procedure OnWriteSubjectFromForm(SubjectOf, Interaction, Cancel) Export
 	
@@ -182,11 +180,11 @@ Procedure OnWriteSubjectFromForm(SubjectOf, Interaction, Cancel) Export
 	
 	OldSubject = GetSubjectValue(Interaction);
 	If SubjectOf = OldSubject Then
-		// The subject has already been set
+		// 
 		Return;
 	EndIf;
 	
-	// Getting the list of interactions whose subject requires changing.
+	// 
 	If ValueIsFilled(OldSubject)
 		And InteractionsClientServer.IsInteraction(OldSubject) Then
 		InteractionsForReplacement = InteractionsFromChain(OldSubject, Interaction);
@@ -195,7 +193,7 @@ Procedure OnWriteSubjectFromForm(SubjectOf, Interaction, Cancel) Export
 	EndIf;
 	InteractionsForReplacement.Insert(0, Interaction);
 	
-	// Replacing a subject in all interactions.
+	// 
 	Block = New DataLock;
 	InformationRegisters.InteractionsFolderSubjects.BlockInteractionFoldersSubjects(Block, InteractionsForReplacement);
 	Block.Lock();
@@ -206,12 +204,12 @@ Procedure OnWriteSubjectFromForm(SubjectOf, Interaction, Cancel) Export
 	
 EndProcedure
 
-// Prepares a notification upon creating an interaction document on the server.
+// Prepares an alert when creating an interaction document on the server.
 //
 // Parameters:
-//  Form                                - ClientApplicationForm - a form the notification will be sent from.
-//  Parameters                            - Structure        - parameters of creating an interaction document form.
-//  UseInteractionBase  - Boolean           - indicates whether a base document is to be considered.
+//  Form                                - ClientApplicationForm -  the form from which the notification will be sent.
+//  Parameters                            - Structure        -  parameters for creating the interaction document form.
+//  UseInteractionBase  - Boolean           -  indicates whether the base document should be taken into account.
 //
 Procedure PrepareNotifications(Form, Parameters, UseInteractionBase = True) Export
 	
@@ -256,12 +254,12 @@ Procedure PrepareNotifications(Form, Parameters, UseInteractionBase = True) Expo
 	
 EndProcedure
 
-// Sets an active subject flag.
+// Sets the activity flag of the object.
 //
 // Parameters:
 //  SubjectOf  - DocumentRef
-//           - CatalogRef - Topic being recorded.
-//  Running  - Boolean - indicates that the subject is active.
+//           - CatalogRef - 
+//  Running  - Boolean -  indicates that the item is active.
 //
 Procedure SetActiveFlag(SubjectOf, Running) Export
 	
@@ -313,10 +311,10 @@ Procedure SetActiveFlag(SubjectOf, Running) Export
 
 EndProcedure
 
-// Fills in the sets of subsystem document access values with the default values. 
-// To use in the InteractionsOverridable.OnFillingAccessValuesSets procedure.
-// Using it, you can combine the applied set of subsystem document access values 
-// with the default filling.
+// Fills a set of values access to the documents subsystem with default values. 
+// For use in the interaction procedure, Undefined.When you fill in the accessorvalue.
+// You can use it to combine the application set of document access values in the subsystem 
+// with the standard default padding.
 // 
 // Parameters:
 //  Object - DocumentObject.Meeting
@@ -324,7 +322,7 @@ EndProcedure
 //         - DocumentObject.SMSMessage
 //         - DocumentObject.PhoneCall
 //         - DocumentObject.IncomingEmail
-//         - DocumentObject.OutgoingEmail - Object whose sets will be populated.
+//         - DocumentObject.OutgoingEmail - 
 //  Table - See AccessManagement.AccessValuesSetsTable
 //
 Procedure FillDefaultAccessValuesSets(Object, Table) Export
@@ -334,8 +332,8 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		Or TypeOf(Object) = Type("DocumentObject.SMSMessage") 
 		Or TypeOf(Object) = Type("DocumentObject.PhoneCall") Then
 		
-		// The default access restriction logic: The object is available if "Author" or "Assignee" is available.
-		// Restriction by "EmailAccounts".
+		// 
+		// 
 		
 		SetNumber = 1;
 
@@ -343,7 +341,7 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		TabRow.SetNumber     = SetNumber;
 		TabRow.AccessValue = Object.Author;
 
-		// Restrict by PersonResponsible.
+		// 
 		SetNumber = SetNumber + 1;
 
 		TabRow = Table.Add();
@@ -352,8 +350,8 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		
 	ElsIf TypeOf(Object) = Type("DocumentObject.IncomingEmail") Then
 		
-		// The default access restriction logic: The object is available if "Account" or "Assignee" is available.
-		// Restriction by "EmailAccounts".
+		// 
+		// 
 		
 		SetNumber = 1;
 
@@ -361,7 +359,7 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		TabRow.SetNumber     = SetNumber;
 		TabRow.AccessValue = Object.Account;
 
-		// Restrict by PersonResponsible.
+		// 
 		SetNumber = SetNumber + 1;
 
 		TabRow = Table.Add();
@@ -370,7 +368,7 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 		
 	ElsIf TypeOf(Object) = Type("DocumentObject.OutgoingEmail") Then
 		
-		// The default access restriction logic: The object is available if "Account", "Assignee", or "Author" is available.
+		// 
 		// 
 
 		SetNumber = 1;
@@ -395,7 +393,7 @@ Procedure FillDefaultAccessValuesSets(Object, Table) Export
 	
 EndProcedure
 
-// Returns a topic.
+// Returns the subject of the interaction.
 // 
 // Parameters:
 //  Interaction - DocumentRef.Meeting,
@@ -432,7 +430,7 @@ EndFunction
 
 #Region Internal
 
-// Recalculates states of folders, contacts, and subjects.
+// Performs a full recalculation of States for folders, contacts, and items.
 //
 Procedure PerformCompleteStatesRecalculation() Export
 	
@@ -442,12 +440,12 @@ Procedure PerformCompleteStatesRecalculation() Export
 	
 EndProcedure
 
-// Returns a list of topic participants by the specified contact information type.
+// 
 // 
 // Parameters:
-//  SubjectOf - DefinedType.InteractionSubject - Topic whose contacts should be obtained.
-//  ContactInformationTypes - Array of EnumRef.ContactInformationTypes - Contact information types that 
-//                             should be obtained with the contacts.
+//  SubjectOf - DefinedType.InteractionSubject - 
+//  ContactInformationTypes - Array of EnumRef.ContactInformationTypes -  
+//                             
 // 
 // Returns:
 //  Array of Structure:
@@ -547,20 +545,20 @@ Procedure ClearPersonalAccountFlag(Account) Export
 		For Each Record In RecordSet Do
 			Record.DeletePersonalAccount = False;
 		EndDo;
-		InfobaseUpdate.WriteRecordSet(RecordSet); // ACC:1327 Call the procedure as a transaction with a lock.
+		InfobaseUpdate.WriteRecordSet(RecordSet); // 
 	EndIf;
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Message templates.
+// 
 
-// Creates and sends an email message.
+// Creates and sends an email.
 // 
 // Parameters:
 //  Message - See EmailParameters
-//  Account - CatalogRef.EmailAccounts - an account to be used to send the email.
-//  SendImmediately - Boolean - if False, the email message will be placed in the Outbox folder and sent with other email messages.
+//  Account - CatalogRef.EmailAccounts -  the account that the email will be sent from.
+//  SendImmediately - Boolean -  if False, the email will be placed in the Outgoing folder and sent during the general sending of emails.
 //
 // Returns:
 //   See EmailSendingResult
@@ -606,7 +604,7 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 		MailMessage.Account = Account;
 		MailMessage.InteractionBasis = Undefined;
 		
-		// Filling in the IncludeOriginalEmailBody, DisplaySourceEmailBody, RequestDeliveryReceipt, and RequestReadReceipt attributes.
+		// 
 		UserSettings = GetUserParametersForOutgoingEmail(
 		                           Account, Message.AdditionalParameters.EmailFormat1, True);
 		FillPropertyValues(MailMessage, UserSettings);    
@@ -654,7 +652,7 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 			AttachmentsSize = AttachmentsSize + Size;
 			AttachmentsSizes.Insert(Attachment.AddressInTempStorage, Size);
 			
-			// If ID characters are not English, the email may be processed incorrectly.
+			// 
 			If ValueIsFilled(Attachment.Id) Then
 				Id = StringFunctions.LatinString(Attachment.Id);
 				If StrFind(MailMessage.HTMLText, "cid:" + Attachment.Id) > 0 Then
@@ -793,7 +791,7 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 	
 EndFunction
 
-// A function creating message parameters.
+// 
 // 
 // Returns:
 //  Structure:
@@ -803,16 +801,16 @@ EndFunction
 //    * Importance - InternetMailMessageImportance
 //    * Recipients - ValueTable:
 //      ** Presentation - String
-//      ** Address - String - Address in the temp storage.
+//      ** Address - String - 
 //      ** ContactInformationSource - DefinedType.InteractionContact
 //    * ReplyRecipients
-//      ** Address - String - Address in temporary storage.
-//      ** Address - String - Address in temporary storage.
-//      ** Address - String - Address in temporary storage.
+//      ** 
+//      ** 
+//      ** 
 //    * BccRecipients
-//      ** Address - String - Address in temporary storage.
-//      ** Address - String - Address in temporary storage.
-//      ** Address - String - Address in temporary storage.
+//      ** 
+//      ** 
+//      ** 
 //    * Attachments - ValueTable:
 //      ** Presentation - String
 //      ** AddressInTempStorage - String
@@ -876,7 +874,7 @@ Function EmailParameters() Export
 
 EndFunction
 
-// Creates the Text message document and sends it.
+// Creates an SMS message document and sends it.
 // 
 // Parameters:
 //  Message - See MessageTemplatesInternal.GenerateMessage
@@ -935,10 +933,10 @@ Procedure CreateAndSendSMSMessage(Message) Export
 	
 EndProcedure
 
-// Sets the "Outgoing" status for the SMS message document and all messages that it includes.
+// Sets the "Outgoing" status for the SMS message document and all incoming messages.
 //
 // Parameters:
-//  Object - DocumentObject.SMSMessage, FormDataStructure
+//  Object - 
 //
 Procedure SetStateOutgoingDocumentSMSMessage(Object) Export
 	
@@ -950,12 +948,12 @@ Procedure SetStateOutgoingDocumentSMSMessage(Object) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See ImportDataFromFileOverridable.OnDefineCatalogsForDataImport.
 Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 	
-	// Cannot import to the StringContactInteractions catalog.
+	// 
 	TableRow = CatalogsToImport.Find(Metadata.Catalogs.StringContactInteractions.FullName(), "FullName");
 	If TableRow <> Undefined Then 
 		CatalogsToImport.Delete(TableRow);
@@ -983,12 +981,12 @@ Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
 	Objects.Insert(Metadata.Catalogs.OutgoingEmailAttachedFiles.FullName(), "AttributesToEditInBatchProcessing");
 EndProcedure
 
-// Called after the marked objects are deleted.
+// Called after deleting marked objects.
 //
 // Parameters:
-//   ExecutionParameters - Structure - a context of marked object deletion:
-//       * Trash - Array - references of deleted objects.
-//       * NotTrash - Array - references to the objects that cannot be deleted.
+//   ExecutionParameters - Structure - :
+//       * Trash - Array -  links to deleted objects.
+//       * NotTrash - Array -  links to objects that couldn't be deleted.
 //
 Procedure AfterDeleteMarkedObjects(ExecutionParameters) Export
 	
@@ -1169,8 +1167,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	NewEmailsByAccounts = NewEmailsByAccounts();
 	
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.DocumentJournals.Interactions.FullName());
 	
 	For Each Section In Sections Do
@@ -1261,10 +1259,10 @@ Procedure OnCreateFilesItemForm(Form) Export
 	EndIf;
 EndProcedure
 
-//  Receives the objects to read upon the execution of the email account update handler.
+// Gets the readable objects during execution of the handler account updates.
 // 
 // Parameters:
-//  ObjectsToRead - Array of String - the objects to read upon the handler execution.
+//  ObjectsToRead - Array of String -  objects that are read when the handler is executed.
 //
 Procedure OnReceiveObjectsToReadOfEmailAccountsUpdateHandler(ObjectsToRead) Export
 	
@@ -1272,10 +1270,10 @@ Procedure OnReceiveObjectsToReadOfEmailAccountsUpdateHandler(ObjectsToRead) Expo
 	
 EndProcedure
 
-//  Receives the objects to change upon the execution of the email account update handler.
+// Retrieves mutable objects when the account update handler is executed.
 // 
 // Parameters:
-//  ObjectsToChange - Array of String - the objects to read upon the handler execution.
+//  ObjectsToChange - Array of String -  objects that are read when the handler is executed.
 //
 Procedure OnGetEmailAccountsUpdateHandlerObjectsToChange(ObjectsToChange) Export
 	
@@ -1283,10 +1281,10 @@ Procedure OnGetEmailAccountsUpdateHandlerObjectsToChange(ObjectsToChange) Export
 	
 EndProcedure
 
-// Prepares the lock parameters.
+// Prepares blocking parameters.
 // 
 // Parameters:
-//  Block - DataLock - a set lock.
+//  Block - DataLock -  lock to be set.
 //
 Procedure BeforeSetLockInEmailAccountsUpdateHandler(Block) Export
 	
@@ -1344,16 +1342,16 @@ Procedure OnDefineSubordinateObjects(SubordinateObjects) Export
 
 EndProcedure
 
-// ACC:299-off - Procedure that is called programmatically
+// 
 
-// Runs when replacing duplicates in the item attributes.
+// Called when replacing duplicates in the item details.
 //
 // Parameters:
-//  ReplacementPairs - Map - contains the value pairs original and duplicate.
+//  ReplacementPairs - Map -  contains the original and duplicate value pairs.
 //  UnprocessedOriginalsValues - Array of Structure:
-//    * ValueToReplace - AnyRef - The original value of a replaceable object.
+//    * ValueToReplace - AnyRef -  the original value of the object being replaced.
 //    * UsedLinks - See Common.SubordinateObjectsLinksByTypes.
-//    * KeyAttributesValue - Structure - Key is the attribute name. Value is the attribute value.
+//    * KeyAttributesValue - Structure -  Key - name of the item, value-value of the item.
 //
 Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginalsValues) Export
 
@@ -1384,12 +1382,12 @@ Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginals
 	EndDo;	
 
 EndProcedure
-// ACC:299-on
+// 
 
-// Checks whether the background job on sending and receiving messages is being performed.
+// Checks whether the background task for sending and receiving emails is running.
 //
 // Returns:
-//   Boolean   - True if running. Otherwise, False.
+//   Boolean   - 
 //
 Function BackgroundJobReceivingSendingMailInProgress() Export
 	
@@ -1408,13 +1406,13 @@ EndFunction
 
 #Region Private
 
-// Returns fields for getting an owner description (if the owner exists).
+// Returns fields for getting the owner's name, if any.
 //
 // Parameters:
-//  TableName - String - a name of the main table, for which the query is generated.
+//  TableName - String -  name of the main table that the query is being generated for.
 //
 // Returns:
-//  String - The string to be inserted into the query.
+//  String - 
 //
 Function FieldNameForOwnerDescription(TableName) Export
 	
@@ -1429,18 +1427,18 @@ Function FieldNameForOwnerDescription(TableName) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions of contact search.
+// 
 
-// Returns a list of available kinds of contact search.
+// Returns a list of available contact search types.
 //
 // Parameters:
-//  FTSEnabled        - Boolean - indicates whether a full-text search is available.
-//  Parameters         - Structure - parameters containing contact Presentation and Address.
+//  FTSEnabled        - Boolean -  indicates whether full-text search is available.
+//  Parameters         - Structure -  parameters containing the contact's View and Address.
 //  FormItems     - FormItems 
-//  ForAddressBook  - Boolean - true if the list is generated for an address book.
+//  ForAddressBook  - Boolean -  true if the list is generated for the address book.
 //
 // Returns:
-//   Structure        - Structure containing search kinds and search values.
+//   Structure        - 
 //
 Function AvailableSearchesList(FTSEnabled, Parameters, FormItems, ForAddressBook) Export
 	
@@ -1481,11 +1479,11 @@ Function AvailableSearchesList(FTSEnabled, Parameters, FormItems, ForAddressBook
 EndFunction
 
 // Parameters:
-//  AllSearchLists - Structure - a search option and this option values are added to it.
-//  FormField       - TextBox - FormItem for the choice list of which an option is added.
-//  VariantName     - String - a search option name.
-//  Presentation   - String - a search option presentation.
-//  Value        - String - a value for searching this search option.
+//  AllSearchLists - Structure -  the search option and the value in this option are added to it.
+//  FormField       - TextBox -  The form element for which the option is added to the selection list.
+//  VariantName     - String -  name of the search option.
+//  Presentation   - String -  representation of the search option.
+//  Value        - String -  the value to search for in this search option.
 //
 Procedure AddSearchOption(AllSearchLists, FormField, VariantName, Presentation, Value)
 	
@@ -1494,13 +1492,13 @@ Procedure AddSearchOption(AllSearchLists, FormField, VariantName, Presentation, 
 	
 EndProcedure
 
-// Sets a contact as the current one in the "Address book" and "Select contact" forms.
+// Sets the current contact in the "Address book" and "contact Selection" form.
 //
 // Parameters:
-//  Contact - CatalogRef - Contact on which the cursor must be positioned.
-//  Form   - ClientApplicationForm - Form where the actions are triggered.:
+//  Contact - CatalogRef - 
+//  Form   - ClientApplicationForm - :
 //   * Items - FormAllItems:
-//    ** UsersList - FormTable - the form item containing the user list.
+//    ** UsersList - FormTable -  a form element that contains a list of users.
 //
 Procedure SetContactAsCurrent(Contact, Form) Export
 	
@@ -1538,8 +1536,8 @@ Procedure SetContactAsCurrent(Contact, Form) Export
 EndProcedure
 
 // Parameters:
-//  Form       - ClientApplicationForm - the form for which a table is determined.
-//  TagName - String - a form item name.
+//  Form       - ClientApplicationForm -  the form that the table is defined for.
+//  TagName - String -  name of the form element.
 // Returns:
 //  FormTable
 //
@@ -1550,10 +1548,10 @@ Function FormTableByName(Form, TagName)
 EndFunction
 
 // Parameters:
-//  Address  - String - contains an email address, from which a domain address is retrieved.
+//  Address  - String -  contains the email address from which the domain address is extracted.
 //
 // Returns:
-//   String   - Received domain address.
+//   String   - 
 //
 Function GetDomainAddressForSearch(Address)
 	
@@ -1564,8 +1562,8 @@ Function GetDomainAddressForSearch(Address)
 EndFunction
 
 // Parameters:
-//  Presentation - String - contact presentation.
-//  Address         - String - a contact address.
+//  Presentation - String -  the performance of the contact.
+//  Address         - String -  the address of the contact.
 //
 // Returns:
 //   ValueList
@@ -1607,12 +1605,12 @@ Function AddQuotationMarksToString(InitialString)
 	
 EndFunction
 
-// Returns an array that contains structures with information about interaction contacts
-// or interaction subject participants.
+// Returns an array containing structures with information about interaction contacts
+// or participants in the interaction object.
 //
 // Parameters:
-//  TableOfContacts - TabularSection - contains descriptions and references to interaction contacts
-//                     or interaction subject participants.
+//  TableOfContacts - TabularSection -  contains descriptions and links to contacts of the interaction
+//                     or participants of the interaction subject.
 //
 // Returns:
 //   Array of Structure:
@@ -1634,20 +1632,20 @@ Function ConvertContactsTableToArray(TableOfContacts) Export
 	
 EndFunction
 
-// Fills in the "Found contacts" value table of the "Address book" and "Select contact" common forms
+// Fills in the "Found contacts" value table of the General "Address book" and "contact Selection" forms
 // based on the passed value table.
 //
 // Parameters:
-//  TableOfContacts   - ValueTable - Source value table. Has the following columns:
-//   * Contact              - DefinedType.InteractionContact - a reference to the interaction contact.
-//   * Presentation        - String - contact presentation.
-//   * Description         - String - contact name.
-//   * CatalogName       - String - a contact metadata object name.
-//  FoundContacts - ValueTable - a destination value table contains the following columns:
-//   * Ref               - DefinedType.InteractionContact - a reference to the interaction contact.
-//   * Presentation        - String - contact presentation.
-//   * ContactName - String - contact name.
-//   * CatalogName       - String - a contact metadata object name.
+//  TableOfContacts   - ValueTable - :
+//   * Contact              - DefinedType.InteractionContact -  link to the interaction contact.
+//   * Presentation        - String -  the performance of the contact.
+//   * Description         - String -  name of the contact.
+//   * CatalogName       - String -  name of the contact metadata object.
+//  FoundContacts - ValueTable - :
+//   * Ref               - DefinedType.InteractionContact -  link to the interaction contact.
+//   * Presentation        - String -  the performance of the contact.
+//   * ContactName - String -  name of the contact.
+//   * CatalogName       - String -  name of the contact metadata object.
 //
 Procedure FillFoundContacts(TableOfContacts, FoundContacts) Export
 	
@@ -1663,7 +1661,7 @@ Procedure FillFoundContacts(TableOfContacts, FoundContacts) Export
 EndProcedure
 
 // Returns:
-//   Array   - Array of metadata with valid contact types.
+//   Array   - 
 //
 Function ContactsMetadata()
 	
@@ -1676,19 +1674,19 @@ Function ContactsMetadata()
 EndFunction 
 
 ////////////////////////////////////////////////////////////////////////////////
-//  Main procedures and functions of contact search.
+//  
 
-// Returns a table of all contacts related to the interaction subject.
+// Returns a table of all contacts associated with the interaction subject.
 //
 // Parameters:
-//   SubjectOf - DefinedType.InteractionSubject - interaction topic.
-//   IncludeEmail - Boolean - indicates whether it is necessary to return email addresses even if the contact is not defined.
+//   SubjectOf - DefinedType.InteractionSubject -  the subject of the interaction.
+//   IncludeEmail - Boolean -  indicates whether to return the e-mail addresses even if the contact is not defined.
 //
 // Returns:
-//   ValueTable  - Value table that contains information about contacts:
-//    * Ref - DefinedType.InteractionSubject - contact.
-//    * Description - String - contact name.
-//    * OwnerDescription1 - String - a contact owner name.
+//   ValueTable  - :
+//    * Ref - DefinedType.InteractionSubject -  contact.
+//    * Description - String -  name of the contact.
+//    * OwnerDescription1 - String -  name of the contact owner.
 //
 Function ContactsBySubjectOrChain(SubjectOf, IncludeEmail)
 	
@@ -1704,10 +1702,10 @@ Function ContactsBySubjectOrChain(SubjectOf, IncludeEmail)
 		InteractionsOverridable.OnSearchForContacts(ContactsTableName, QueryTextForSearch);
 		
 		If IsBlankString(QueryTextForSearch) Then
-			// ACC:223-off For backward compatibility.
+			// 
 			QueryTextForSearch = InteractionsOverridable.QueryTextContactsSearchBySubject(False, 
 				ContactsTableName, True);
-			// ACC:223-on
+			// 
 		EndIf;
 		
 		QueryText = QueryText + QueryTextForSearch;
@@ -1809,10 +1807,10 @@ Function SearchForContactsByInteractionsChainQueryText(PutInTempTable)
 EndFunction
 
 // Parameters:
-//  Address - String - an email address to search.
+//  Address - String -  email address to search for.
 //
 // Returns:
-//  ValueTable - Value table that contains information about contacts.
+//  ValueTable - 
 //
 Function ContactsByEmail(Address)
 	
@@ -1829,10 +1827,10 @@ Function ContactsByEmail(Address)
 EndFunction
 
 // Parameters:
-//  Address - String - an email address to search.
+//  Address-String - the email address to search for.
 //
 // Returns:
-//  QueryResultSelection  - Query result that contains information about contacts.
+//  QueryResultSelection  - 
 //
 Function GetAllContactsByEmailList(AddressesList) Export
 	
@@ -1848,11 +1846,11 @@ Function GetAllContactsByEmailList(AddressesList) Export
 EndFunction
 
 // Parameters:
-//  IncludeEmail  - Boolean - indicates whether email information is included in the query result.
-//  CatalogName - String - a name of the catalog, for which the query is being generated.
+//  IncludeEmail  - Boolean -  indicates whether EMail information is included in the request result.
+//  CatalogName - String -  name of the reference list that the request is being generated for.
 //
 // Returns:
-//  String - Complement to the query.
+//  String - 
 //
 Function ConnectionStringForContactsInformationQuery(IncludeEmail, CatalogName)
 	
@@ -1871,13 +1869,13 @@ Function ConnectionStringForContactsInformationQuery(IncludeEmail, CatalogName)
 	
 EndFunction
 
-// Generates a field selection row to receive in the email address query.
+// 
 //
 // Parameters:
-//  IncludeEmail  - Boolean - indicates whether it is necessary to get an email
-//                            address in this query.
-//  CatalogName - Boolean - a name of the catalog, for which the query is being executed.
-//  NameField  - Boolean - indicates that the query field must be named.
+//  IncludeEmail  - Boolean -  indicates whether this request
+//                            requires an email address.
+//  CatalogName - Boolean -  name of the directory that the request is being made for.
+//  NameField  - Boolean -  indicates that the field in the request must be named.
 //
 // Returns:
 //  String
@@ -1899,7 +1897,7 @@ Function QueryFragmentContactInformation(IncludeEmail, CatalogName, NameField = 
 EndFunction
 
 // Parameters:
-//  IncludeEmail - Boolean - indicates whether it is necessary to get information about email.
+//  IncludeEmail - Boolean -  indicates whether you need to get information about Email.
 //
 // Returns:
 //   String
@@ -1969,7 +1967,7 @@ Function QueryTextToGetContactsInformation(IncludeEmail)
 EndFunction
 
 // Parameters:
-//  SearchByList - Boolean - indicates that a value array is passed as a parameter.
+//  SearchByList - Boolean -  indicates that an array of values is passed as a parameter.
 //
 // Returns:
 //  String
@@ -2040,14 +2038,14 @@ Function GenerateQueryTextForSearchByEmail(SearchByList, TotalsByEmail = False)
 	
 EndFunction
 
-// Searching by a description of contacts that contain email addresses.
+// Search by name for contacts that contain email addresses.
 //
 // Parameters:
-//  Description — String — contains the contact description beginning.
+//  Name-String-contains the beginning of the contact name.
 //  FoundContacts - ValueTable
 //
 // Returns:
-//  Boolean - True if at least one contact is found.
+//  Boolean - 
 //
 Function FindContactsWithAddressesByDescription(Val SearchString, FoundContacts) Export
 	
@@ -2064,7 +2062,7 @@ EndFunction
 // Searches for contacts with email addresses.
 // 
 // Parameters:
-//  SearchString - String - search text
+//  SearchString - String -  search text
 //
 // Returns:
 //   See ContactsManagerInternal.FindContactsWithEmailAddresses
@@ -2085,7 +2083,7 @@ Function FindContactsWithAddresses(SearchString) Export
 	
 EndFunction
 
-// Generates a condition template for the query whether the field to be received in the query matches a possible contact type.
+// 
 //
 // Returns:
 //  String
@@ -2125,15 +2123,15 @@ Function FindContacts(Val SearchString, Val ForAddressBook, FoundContacts) Expor
 	
 EndFunction
 
-// Searches for contacts by an email or an email domain.
+// Searches for contacts by Email or by Email domain.
 //
 // Parameters:
-//  SearchString - String - a basis for search.
-//  ByDomain     - Boolean - indicates that the search must be carried out by a domain.
+//  SearchString - String -  serves as the basis for the search.
+//  ByDomain     - Boolean -  indicates that the search must be performed by domain.
 //  FoundContacts - ValueTable	
 //
 // Returns:
-//  Boolean - True if at least one contact is found.
+//  Boolean - 
 //
 Function FindByEmail(Val SearchString, Val ByDomain, FoundContacts) Export
 	
@@ -2153,10 +2151,10 @@ Function FindByEmail(Val SearchString, Val ByDomain, FoundContacts) Export
 EndFunction
 
 // Parameters:
-//  DomainName - String - a domain name, by which a search is being carried out.
+//  DomainName - String -  name of the domain to search for.
 //
 // Returns:
-//  ValueTable - Table that contains information about the found contacts.
+//  ValueTable - 
 //
 Function ContactsByDomainAddress(Val DomainName)
 	
@@ -2211,11 +2209,11 @@ Function ContactsByDomainAddress(Val DomainName)
 EndFunction
 
 // Parameters:
-//  Form            - ClientApplicationForm - a form for which search is performed.
-//  ForAddressBook - Boolean - indicates whether the search is carried out for the address book.
+//  Form - Pharmaciestestosterone - form for which the search is started.
+//  ForAddressBook - Boolean -  indicates that the search is being performed for the address book.
 //
 // Returns:
-//  String           - User message with the search result.
+//  String           - 
 //
 Function FullTextContactsSearchByRow(Val SearchString, FoundContacts, Val ForAddressBook = False) Export
 	
@@ -2342,7 +2340,7 @@ Function QueryTextSearchForContactsByString()
 EndFunction
 
 // Returns:
-//  String - Query text.
+//  String -  query text.
 //
 Function GetSearchForContactsQueryTextByEmailString()
 	
@@ -2407,14 +2405,14 @@ Function GetSearchForContactsQueryTextByEmailString()
 	
 EndFunction
 
-// Gets contacts for a given interaction topic and sets a contact search page
-// as the current page of the search form.
+// Gets contacts for the subject of interaction, sets the current page of the search form
+// to search for contacts for the subject.
 //
 // Parameters:
-//  FormItems      - FormAllItems - grants access to form items.
-//  SubjectOf            - DefinedType.InteractionSubject - interaction topic.
-//  ContactsBySubject - ValueTable - a form attribute, in which found contacts are placed.
-//  IncludeEmail      - Boolean - indicates whether it is necessary to get data on a contact email address.
+//  FormItems      - FormAllItems -  provides access to form elements.
+//  SubjectOf            - DefinedType.InteractionSubject -  the subject of the interaction.
+//  ContactsBySubject - ValueTable -  details of the form where the found contacts are placed.
+//  IncludeEmail      - Boolean -  indicates whether data about the contact's email address is required.
 //
 Procedure FillContactsBySubject(FormItems, SubjectOf, ContactsBySubject, IncludeEmail) Export
 	
@@ -2448,14 +2446,14 @@ Procedure FillContactsBySubject(FormItems, SubjectOf, ContactsBySubject, Include
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////////
-//  Procedures and functions for getting contact data, interactions, and interaction subjects.
+//  
 
 // Parameters:
-//  Ref - Reference to the interaction.
+//  Ref - 
 //
 // Returns:
-//   DefinedType.InteractionSubject - Interaction topic.
-//   Undefined
+//   DefinedType.InteractionSubject - 
+//   
 //
 Function GetSubjectValue(Ref) Export
 
@@ -2464,10 +2462,10 @@ Function GetSubjectValue(Ref) Export
 	
 EndFunction
 
-// Returns information records on interaction's additional attributes
+// 
 //
 // Parameters:
-//  Ref - Reference to the interaction.
+//  Ref - 
 //
 // Returns:
 //   See InformationRegisters.InteractionsFolderSubjects.InteractionAttributes
@@ -2507,7 +2505,7 @@ EndFunction
 //         - DocumentRef.SMSMessage
 //         - DocumentRef.PhoneCall
 //         - DocumentRef.IncomingEmail
-//         - DocumentRef.OutgoingEmail - Reference to the interaction.
+//         - DocumentRef.OutgoingEmail - 
 //
 // Returns:
 //  CatalogRef.EmailMessageFolders
@@ -2535,17 +2533,17 @@ Function GetEmailFolder(MailMessage) Export
 	
 EndFunction
 
-// Receives values of interaction document attributes stored in the register 
-//  and sets them to the corresponding form attributes.
+// Gets the values of the interaction document details stored in the register and 
+//  sets them to the corresponding form details.
 //
 // Parameters:
-//  Form - ClientApplicationForm - an interaction document form contains:
+//  Form - ClientApplicationForm - :
 //   * Object - DocumentObject.PhoneCall
 //            - DocumentObject.PlannedInteraction
 //            - DocumentObject.SMSMessage
 //            - DocumentObject.Meeting
 //            - DocumentObject.IncomingEmail
-//            - DocumentObject.OutgoingEmail - Reference to the object being written.
+//            - DocumentObject.OutgoingEmail - 
 //
 Procedure SetInteractionFormAttributesByRegisterData(Form) Export
 	
@@ -2555,10 +2553,10 @@ Procedure SetInteractionFormAttributesByRegisterData(Form) Export
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-//  Procedures and functions for handling interactions.
+//  
 
 // Returns:
-//  ValueList - Value list containing contacts that can be created manually.
+//  ValueList - 
 //
 Function CreateValueListOfInteractivelyCreatedContacts() Export
 	
@@ -2580,9 +2578,9 @@ Function CreateValueListOfInteractivelyCreatedContacts() Export
 EndFunction
 
 // Parameters:
-//  Parameters  - Structure - parameters passed upon an interaction document creation.
+//  Parameters  - Structure -  parameters passed when creating the interaction document.
 //  SubjectOf    - DocumentRef
-//             - CatalogRef - This procedure takes the interaction topic from autofill data.
+//             - CatalogRef - 
 //                                  
 //
 Procedure SetSubjectByFillingData(Parameters, SubjectOf) Export
@@ -2620,7 +2618,7 @@ Procedure SetSubjectByFillingData(Parameters, SubjectOf) Export
 EndProcedure
 
 // Parameters:
-//  Ref - DocumentRef - a reference to the interaction document.
+//  Ref - DocumentRef -  link to the interaction document.
 //
 // Returns:
 //  Array of Structure
@@ -2650,13 +2648,13 @@ Function GetParticipantsByTable(Ref) Export
 	
 EndFunction
 
-// Generates an array of interaction participant containing one structure by the passed fields.
+// Creates an array of interaction participants that contains a single structure for the passed fields.
 //
 // Parameters:
-//  Ref - DocumentRef - a reference to the interaction document.
+//  Link-document Link - link to the interaction document.
 //
 // Returns:
-//  Array - Array of structures containing information about contacts.
+//  Array - 
 //
 Function GetParticipantByFields(Contact, Address, Presentation) Export
 	
@@ -2679,16 +2677,16 @@ Function ContactsFilled(Contacts) Export
 	
 EndFunction
 
-// Fills the participants tabular section for the Meeting and Planned interaction documents.
+// Populates a table of the participants in the Meeting documents and the Planned interaction.
 //
 // Parameters:
-//  Contacts                     - Array - an array containing interaction participants.
-//  Attendees                    - TabularSection - a tabular section of a document
-//                                 to be filled in based on the array.
-//  ContactInformationType      - EnumRef.ContactInformationTypes - if given, 
-//                                 then this type of contact information will be filtered.
-//  SeparateByNumberOfAddresses - Boolean - If True, then there will be added as many rows in the "Participants" tabular section
-//                                 of the contact as there were received various types of filled in contact information.
+//  Contacts                     - Array -  an array containing interaction participants.
+//  Attendees                    - TabularSection -  table part of the document that will be filled
+//                                 in based on the array.
+//  ContactInformationType      - EnumRef.ContactInformationTypes -  if specified, 
+//                                 a selection will be applied for this type of contact information.
+//  SeparateByNumberOfAddresses - Boolean -  if true, then the contact will be created as many lines in the PM "Participants",
+//                                 as many different types of filled-in contact information are received for it.
 //
 Procedure FillContactsForMeeting(Contacts, Attendees, ContactInformationType = Undefined, SeparateByNumberOfAddresses = False) Export
 	
@@ -2757,13 +2755,13 @@ Function ConvertAddressByInformationType(Address, ContactInformationType = Undef
 	
 EndFunction
 
-// Fills in other field values in rows of the interaction document participants tabular section.
+// Fills in the values of other fields in the rows of the table part Of participants in interaction documents.
 //
 // Parameters:
-//  Contact                 - CatalogRef - a contact based on whose data other fields will be filled in.
-//  Presentation           - String - contact presentation.
-//  Address                   - String - contact’s contact information.
-//  ContactInformationType - EnumRef.ContactInformationTypes - contact’s contact information.
+//  Contact                 - CatalogRef -  contact that will be used to fill in other fields.
+//  Presentation           - String -  the performance of the contact.
+//  Address                   - String -  contact information of the contact.
+//  ContactInformationType - EnumRef.ContactInformationTypes -  contact information of the contact.
 //
 Procedure FinishFillingContactsFields(Contact, Presentation, Address, ContactInformationType = Undefined) Export
 	
@@ -2796,10 +2794,10 @@ Procedure FinishFillingContactsFields(Contact, Presentation, Address, ContactInf
 	
 EndProcedure
 
-// Generates a presentation string of the interaction participant list.
+// Generates a string representing the list of participants in the interaction.
 //
 // Parameters:
-//  Object - DocumentObject - a string is generated based on the participants tabular section of this document.
+//  Object - DocumentObject -  a document based on the table part of which a string is formed.
 //
 Procedure GenerateParticipantsList(Object) Export
 	
@@ -2816,10 +2814,10 @@ Procedure GenerateParticipantsList(Object) Export
 	
 EndProcedure
 
-// Generates a selection list for quick filter by an interaction type using the email client only.
+// Creates a selection list for quick selection by type of interaction when using only the mail client.
 //
 // Parameters:
-//  Item - FormField - an item, for which the selection list is being generated.
+//  Item - FormField -  the element for which the selection list is formed.
 //
 Procedure GenerateChoiceListInteractionTypeEmailOnly(Item)
 	
@@ -2835,7 +2833,7 @@ EndProcedure
 
 // Parameters:
 //  Contacts - Array of DefinedType.InteractionContact
-//  RecipientsGroup - String - Name of the group to search email addresses for. For example, "Recipients", "CC".
+//  RecipientsGroup - String - 
 //
 // Returns:
 //   ValueTable:
@@ -2851,7 +2849,7 @@ Function ContactsEmailAddresses(Contacts, RecipientsGroup = "") Export
 		Return Undefined;
 	EndIf;
 	
-	// ACC:96-off - The JOIN keyword (as the same user might belong to multiple user groups).
+	// 
 	QueryText = 
 		"SELECT ALLOWED
 		|	ContactInformationTable.EMAddress AS Address,
@@ -2890,7 +2888,7 @@ Function ContactsEmailAddresses(Contacts, RecipientsGroup = "") Export
 		|			WHERE
 		|				UserGroupCompositions.User = ContactTable.Ref
 		|				AND UserGroupCompositions.UsersGroup IN (&ContactsArray))";	
-	// ACC:96-on
+	// 
 	QueryTexts = CommonClientServer.ValueInArray(QueryText);
 	
 	For Each ContactDescription In InteractionsClientServer.ContactsDetails() Do
@@ -2981,12 +2979,12 @@ Function ContactsEmailAddresses(Contacts, RecipientsGroup = "") Export
 EndFunction
 
 // Parameters:
-//  UserAccount - CatalogRef.EmailAccounts - an account to be used to send the email.
-//  MessageFormat - EnumRef.EmailEditingMethods - an email format.
-//  ForNewEmail - Boolean - indicates whether an outgoing email is being created.
+//  Accounting Record-Reference Link.Email account-the account that the email will be sent from.
+//  MessageFormat - EnumRef.EmailEditingMethods -  the format of the letter.
+//  ForNewEmail - Boolean -  indicates that an outgoing message is being created.
 //
 // Returns:
-//   Structure   - Structure containing user session parameters for an outgoing email.
+//   Structure   - 
 //
 Function GetUserParametersForOutgoingEmail(EmailAccount,MessageFormat,ForNewEmail) Export
 	
@@ -3140,7 +3138,7 @@ Function GetUserParametersForOutgoingEmail(EmailAccount,MessageFormat,ForNewEmai
 EndFunction
 
 // Returns:
-//   EnumRef.ReplyToReadReceiptPolicies - How to respond to read receipt requests.
+//   EnumRef.ReplyToReadReceiptPolicies - 
 //
 Function GetUserParametersForIncomingEmail() Export
 
@@ -3176,7 +3174,7 @@ Procedure AddToAddresseesParameter(Source, EmailParameters, ParameterName, Table
 EndProcedure
 
 // Parameters:
-//  Object - DocumentObject.OutgoingEmail - an email to be sent.
+//  Object - DocumentObject.OutgoingEmail -  the email being sent.
 //
 // Returns:
 //   See EmailOperations.SendMail
@@ -3204,9 +3202,9 @@ Function EmailObjectAttachedFilesData(EmailObject)
 		
 	InteractionsOverridable.OnReceiveAttachedFiles(EmailObject.Ref, Result);
 	
-	// ACC:223-off For backward compatibility.
+	// 
 	AttachedEmailFilesData = InteractionsOverridable.AttachedEmailFilesMetadataObjectData(EmailObject);
-	// ACC:223-on
+	// 
 	If AttachedEmailFilesData <> Undefined Then
 		Result.AttachedFilesCatalogName = AttachedEmailFilesData.CatalogNameAttachedFiles;
 		Result.FilesOwner = AttachedEmailFilesData.Owner;
@@ -3224,9 +3222,9 @@ Function AttachedEmailFilesData(EmailRef) Export
 		
 	InteractionsOverridable.OnReceiveAttachedFiles(EmailRef, Result);
 	
-	// ACC:223-off For backward compatibility.
+	// 
 	AttachedEmailFilesData = InteractionsOverridable.AttachedEmailFilesMetadataObjectData(EmailRef);
-	// ACC:223-on
+	// 
 	If AttachedEmailFilesData <> Undefined Then
 		Result.AttachedFilesCatalogName = AttachedEmailFilesData.CatalogNameAttachedFiles;
 		Result.FilesOwner = AttachedEmailFilesData.Owner;
@@ -3795,18 +3793,18 @@ Procedure AddEmailAttachmentsToEmailMessage(Message, AttachmentsSelection)
 EndProcedure
 
 // Parameters:
-//  MailMessage - DocumentRef.OutgoingEmail - Email message whose attachment info needs to be received.
+//  MailMessage - DocumentRef.OutgoingEmail - 
 // 
 // Returns:
 //  ValueTable:
-//   * MailMessage - DocumentRef.OutgoingEmail - Attached email message.
-//   * Size - Number - the attachment size.
-//   * Subject   - String - a subject of the attached email message.
-//   * Date   - Date - the attached email message date.
+//   * MailMessage - DocumentRef.OutgoingEmail - 
+//   * Size - Number -  attachment size.
+//   * Subject   - String -  subject of the attachment message.
+//   * Date   - Date -  date of the email attachment.
 //
 Function DataStoredInAttachmentsEmailsDatabase(MailMessage) Export
 
-	// ACC:96-off - The JOIN keyword (as the same email message might be attached to multiple email messages).
+	// 
 	Query = New Query(
 		"SELECT
 		|	EmailOutgoingEmailsAttachments.MailMessage AS MailMessage,
@@ -3837,7 +3835,7 @@ Function DataStoredInAttachmentsEmailsDatabase(MailMessage) Export
 		|		ON EmailOutgoingEmailsAttachments.MailMessage = OutgoingEmail.Ref
 		|WHERE
 		|	EmailOutgoingEmailsAttachments.Ref = &MailMessage");
-	// ACC:96-on
+	// 
 	
 	Query.SetParameter("MailMessage", MailMessage);
 	Return Query.Execute().Unload();
@@ -3845,9 +3843,9 @@ Function DataStoredInAttachmentsEmailsDatabase(MailMessage) Export
 EndFunction 
 
 // Parameters:
-//  Form - ClientApplicationForm - a form for which a procedure is performed:
+//  Form - ClientApplicationForm - :
 //   * Object - DocumentObject.IncomingEmail
-//           - DocumentObject.OutgoingEmail - Email message to set the header for.
+//           - DocumentObject.OutgoingEmail - 
 //
 Procedure SetEmailFormHeader(Form) Export
 
@@ -3890,9 +3888,9 @@ EndProcedure
 #EndRegion 
 
 //////////////////////////////////////////////////////////////////////////////////
-//   Managing items and attributes of list forms and document forms.
+//   
 
-// Dynamically generates the "Address book" and "Pick contacts" common forms according to the possible contact types.
+// Dynamically generates the General form of "Address book" and "Recruitment contact" according to the possible types of contacts.
 //
 // Parameters:
 //  Form - See CommonForm.SelectContactPerson
@@ -3905,7 +3903,7 @@ Procedure AddContactsPickupFormPages(Form) Export
 	ContactsDetails = InteractionsClientServer.ContactsDetails();
 	PrefixTable    = InteractionsClientServer.PrefixTable();
 	
-	// Create dynamic lists.
+	// 
 	For Each ContactDescription In ContactsDetails Do
 		If ContactDescription.Name = "Users" Then
 			Continue;
@@ -3919,7 +3917,7 @@ Procedure AddContactsPickupFormPages(Form) Export
 	
 	Form.ChangeAttributes(AttributesToBeAdded);
 	
-	// Setting main tables and required use of the IsFolder attribute in dynamic lists.
+	// 
 	HasAddressColumns = New Map;
 	For Each ContactDescription In ContactsDetails Do
 		If ContactDescription.Name = "Users" Then
@@ -4046,10 +4044,10 @@ Function SetContactQueryText(List, ContactDescription)
 	
 EndFunction	
 
-// Sets a filter for a dynamic list of interaction documents, excluding documents that do not belong to mail.
+// Sets the selection of a dynamic list of interaction documents, excluding non-mail documents.
 //
 // Parameters:
-//  List - DynamicList - a dynamic list, for which the filter is being set.
+//  List - DynamicList -  dynamic list for which selection is set.
 //
 Procedure CreateFilterByTypeAccordingToFR(List)
 	
@@ -4071,11 +4069,11 @@ Procedure CreateFilterByTypeAccordingToFR(List)
 EndProcedure
 
 // Parameters:
-//  Form     - ClientApplicationForm - the form for which attributes are initialized contains:
-//   * Commands - FormCommands - also contain:
-//    ** SubjectList - FormCommand - changes the topic.
-//    ** SubjectOf       - FormCommand - changes the topic.
-//  Parameters - Structure  - parameters of initializing commands.
+//  Form     - ClientApplicationForm - :
+//   * Commands - FormCommands - :
+//    ** SubjectList - FormCommand -  changes the subject of interactions.
+//    ** SubjectOf       - FormCommand -  changes the subject of interactions.
+//  Parameters - Structure  -  the parameters of initialization commands.
 //
 Procedure InitializeInteractionsListForm(Form, Parameters) Export
 
@@ -4113,10 +4111,10 @@ Procedure InitializeInteractionsListForm(Form, Parameters) Export
 
 EndProcedure
 
-// Determines whether it is necessary to display an address book and forms of choosing user group contact.
+// Specifies whether to display user groups for the address book and contact selection forms.
 //
 // Parameters:
-//  Form  - ClientApplicationForm - a form for which the procedure will be executed.
+//  Form  - ClientApplicationForm -  the form for which the procedure will be performed.
 //
 Procedure ProcessUserGroupsDisplayNecessity(Form) Export
 	
@@ -4130,15 +4128,15 @@ Procedure ProcessUserGroupsDisplayNecessity(Form) Export
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////
-// Handling interaction subjects.
+// 
 
 // Parameters:
 //  Ref  - DocumentRef.IncomingEmail
 //          - DocumentRef.OutgoingEmail
 //          - DocumentRef.Meeting
 //          - DocumentRef.PlannedInteraction
-//          - DocumentRef.PhoneCall - Interaction to set the topic for.
-//  SubjectOf - AnyRef - a reference to the object to set.
+//          - DocumentRef.PhoneCall - 
+//  SubjectOf - AnyRef -  link to the item being installed.
 //
 Procedure SetSubject(Ref, SubjectOf, CalculateReviewedItems = True) Export
 	
@@ -4150,17 +4148,17 @@ Procedure SetSubject(Ref, SubjectOf, CalculateReviewedItems = True) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////////
-// Generate an email.
+// 
 
-// Generates an HTML text for an incoming email.
+// Generates the HTML text for the incoming email.
 //
 // Parameters:
 //  MailMessage  - DocumentRef.IncomingEmail
-//  ForPrint  - Boolean - indicates that HTML text is generated for an email print form.
-//  ProcessPictures - Boolean - indicates that pictures will be nested in HTML.
+//  ForPrint  - Boolean -  indicates that the HTML text is generated for the printed form of the message.
+//  ProcessPictures - Boolean -  indicates that images will be embedded in HTML.
 //
 // Returns:
-//   String   - HTML text generated for the incoming email message.
+//   String   - 
 //
 Function GenerateHTMLTextForIncomingEmail(MailMessage, ForPrint, ProcessPictures,
 	DisableExternalResources = True, HasExternalResources = Undefined) Export
@@ -4224,11 +4222,11 @@ EndFunction
 
 // Parameters:
 //  MailMessage  - DocumentRef.OutgoingEmail
-//  ForPrint  - Boolean - indicates that HTML text is generated for an email print form.
-//  ProcessPictures - Boolean - indicates that pictures will be nested in HTML.
+//  ForPrint  - Boolean -  indicates that the HTML text is generated for the printed form of the message.
+//  ProcessPictures - Boolean -  indicates that images will be embedded in HTML.
 //
 // Returns:
-//   String   - HTML text generated for the outgoing email message.
+//   String   - 
 //
 Function GenerateHTMLTextForOutgoingEmail(MailMessage, ForPrint, ProcessPictures,
 	DisableExternalResources = True, HasExternalResources = Undefined) Export
@@ -4312,20 +4310,20 @@ Function GenerateHTMLTextForOutgoingEmail(MailMessage, ForPrint, ProcessPictures
 EndFunction
 
 // Parameters:
-//  GenerationParameters - Structure - parameters of generating an HTML document:
+//  GenerationParameters - Structure - :
 //   * MailMessage  - DocumentRef.IncomingEmail
-//             - DocumentRef.OutgoingEmail - Email message to be analyzed.
-//   * TextType  - EnumRef.EmailTextTypes - email text type.
-//   * Text  - String - an email text.
-//   * HTMLText  - String - an email text in HTML format.
-//   * TextTypeConversion  - EnumRef.EmailTextTypes - a text type to convert
-//                                                                                 the email to.
-//   * Encoding  - String - an email encoding.
-//   * ProcessPictures - Boolean - indicates that pictures will be nested in HTML.
-//  HasExternalResources - Boolean - a return value, True if a letter contains items imported from the Internet.
+//             - DocumentRef.OutgoingEmail - 
+//   * TextType  - EnumRef.EmailTextTypes -  type of message text.
+//   * Text  - String -  text of the message.
+//   * HTMLText  - String -  the text of the email in HTML format.
+//   * TextTypeConversion  - EnumRef.EmailTextTypes -  the type of text that
+//                                                                                 the message is converted to.
+//   * Encoding  - String -  encoding of the message.
+//   * ProcessPictures - Boolean -  indicates that images will be embedded in HTML.
+//  HasExternalResources - Boolean -  return value, True if the message contains elements downloaded from the Internet.
 //
 // Returns:
-//   String   - Processed email body.
+//   String   - 
 //
 Function GenerateHTMLDocumentBasedOnEmail(GenerationParameters, HasExternalResources = Undefined) Export
 	
@@ -4408,10 +4406,10 @@ EndFunction
 	
 // Parameters:
 //  MailMessage  - DocumentRef.IncomingEmail
-//          - DocumentRef.OutgoingEmail - Email message to be analyzed.
+//          - DocumentRef.OutgoingEmail - 
 //
 // Returns:
-//   String   - Processed email body.
+//   String   - 
 //
 Function ProcessHTMLText(MailMessage, DisableExternalResources = True, HasExternalResources = Undefined) Export
 	
@@ -4421,8 +4419,8 @@ Function ProcessHTMLText(MailMessage, DisableExternalResources = True, HasExtern
 	
 	If Not IsBlankString(HTMLText) Then
 		
-		// Add the HTML tag (if missing). Such email messages can be sent from, for example, Gmail. 
-		// Intended for displaying it properly in the form item.
+		//  
+		// 
 		If StrOccurrenceCount(HTMLText,"<html") = 0 Then
 			HTMLText = "<html>" + HTMLText + "</html>"
 		EndIf;
@@ -4443,17 +4441,17 @@ Function ProcessHTMLText(MailMessage, DisableExternalResources = True, HasExtern
 	
 EndFunction
 
-// Finds a tag content in HTML.
+// Finds the content in the tag in HTML.
 //
 // Parameters:
-//  Text                             - String - a searched XML text.
-//  NameTag                           - String - a tag whose content is to be found.
-//  IncludeStartEndTag - Boolean - indicates that the found item includes start and end tags, the default
-//                                               value is False.
-//  SerialNumber                    - Number  - a position, from which the search starts, the default value is 1.
+//  Text                             - String -  the XML text in which the search is performed.
+//  NameTag                           - String -  tag to find the contents of.
+//  IncludeStartEndTag - Boolean -  indicates that the found includes an opening and closing tag,
+//                                               False by default.
+//  SerialNumber                    - Number  -  the position from which the search starts is 1 by default.
 // 
 // Returns:
-//   String - String with removed new line characters and a carriage return.
+//   String - 
 //
 Function HTMLTagContent(Text, NameTag, IncludeStartEndTag = False, SerialNumber = 1) Export
 	
@@ -4493,11 +4491,11 @@ Function HTMLTagContent(Text, NameTag, IncludeStartEndTag = False, SerialNumber 
 	
 EndFunction
 
-// Returns outgoing mail format by default for the user, 
-// based on the system settings and the format of the last letter sent by the user.
+// Returns the default format of outgoing messages for the user, 
+// based on the system settings and the format of the last message sent by the user.
 // 
 // Parameters:
-//   User - CatalogRef.Users - User.
+//   User - CatalogRef.Users -  user.
 //
 // Returns:
 //   EnumRef.EmailEditingMethods
@@ -4538,15 +4536,15 @@ Function DefaultMessageFormat(User) Export
 	
 EndFunction
 
-// Replaces attachment picture IDs with file path in the HTML text and creates an HTML document object.
+// Replaces the attachment image ID in the HTML text with the file path and creates an HTML document object.
 //
 // Parameters:
-//  HTMLText     - String - an HTML text to process.
-//  TableOfFiles - ValueTable - a table containing information about attached files.
-//  Encoding     - String - HTML text encoding.
+//  HTMLText     - String -  the HTML text being processed.
+//  TableOfFiles - ValueTable -  a table containing information about attached files.
+//  Encoding     - String -  HTML text encoding.
 //
 // Returns:
-//  HTMLDocument   - Created HTML document.
+//  HTMLDocument   - 
 //
 Function ReplacePicturesIDsWithPathToFiles(HTMLText,TableOfFiles,Encoding = Undefined, ProcessPictures = False)
 	
@@ -4576,7 +4574,7 @@ Function ReplacePicturesIDsWithPathToFiles(HTMLText,TableOfFiles,Encoding = Unde
 					TextContent = Base64String(BinaryData);
 					TextContent = "data:image/" + Mid(Extension,2) + ";base64," + Chars.LF + TextContent;
 				Else
-					// If cannot get picture data, don't display the picture and don't display a user message.
+					// 
 					
 					If IsTempStorageURL(AttachedFile.Ref) Then
 						TextContent = AttachedFile.Ref;
@@ -4607,16 +4605,16 @@ EndFunction
 
 // Parameters:
 //  MailMessage  - DocumentRef.IncomingEmail
-//          - DocumentRef.OutgoingEmail - Email message to be analyzed.
+//          - DocumentRef.OutgoingEmail - 
 //
 // Returns:
 //   ValueTable:
 //     * Ref                    - CatalogRef.IncomingEmailAttachedFiles
 //                                 - CatalogRef.OutgoingEmailAttachedFiles - 
-//                                   Reference to the attachment.
-//     * Description              - String - file name.
-//     * Size                    - Number - file size.
-//     * EmailFileID - String - an ID of the picture displayed in the message body.
+//                                    link to the attached file.
+//     * Description              - String -  file name.
+//     * Size                    - Number -  file size.
+//     * EmailFileID - String -  ID of the image that is displayed in the message text.
 //
 Function GetEmailAttachmentsWithNonBlankIDs(MailMessage) Export
 	
@@ -4649,10 +4647,10 @@ EndFunction
 
 // Parameters:
 //  MailMessage  - DocumentRef.IncomingEmail
-//          - DocumentRef.OutgoingEmail - Email message to be analyzed.
+//          - DocumentRef.OutgoingEmail - 
 //
 // Returns:
-//   QueryResultSelection - Parent email message data.
+//   QueryResultSelection - 
 //
 Function GetBaseEmailData(MailMessage) Export
 	
@@ -4703,12 +4701,12 @@ EndFunction
 
 // Parameters:
 //  MailMessage  - DocumentRef.IncomingEmail
-//          - DocumentRef.OutgoingEmail - Email message to be analyzed.
-//  HTMLText - String - an HTML text to process.
-//  AttachmentsStructure - Structure - a structure, where pictures attached to an email are placed.
+//          - DocumentRef.OutgoingEmail - 
+//  HTMLText - String -  the HTML text being processed.
+//  AttachmentsStructure - Structure -  the structure in which images are placed-email attachments.
 //
 // Returns:
-//   Number - Estimated message size in bytes.
+//   Number - 
 //
 Function ProcessHTMLTextForFormattedDocument(MailMessage,HTMLText,AttachmentsStructure) Export
 	
@@ -4762,10 +4760,10 @@ Function ProcessHTMLTextForFormattedDocument(MailMessage,HTMLText,AttachmentsStr
 EndFunction
 
 // Parameters:
-//  TableOfRecipients - TabularSection - a tabular section, for which the function is executed.
+//  TableOfRecipients - TabularSection -  the table part for which the function is executed.
 //
 // Returns:
-//   String - String containing a presentation of all table recipients.
+//   String - 
 //
 Function GetIncomingEmailRecipientsPresentations(TableOfRecipients) Export
 
@@ -4788,13 +4786,13 @@ Function GetIncomingEmailRecipientsPresentations(TableOfRecipients) Export
 
 EndFunction
 
-// Generates an HTML item of outgoing email header.
+// Generates the HTML header element of the outgoing email.
 //
 // Parameters:
-//  ParentElement - HTMLElement - a parent HTML element, for which a header data item will be added.
-//  EmailHeader1 - Structure - a selection by the email data.
-//  OnlyBySenderPresentation - Boolean - determines whether it is necessary to include the sender address or his presentation
-//                                              is enough.
+//  ParentElement - HTMLElement -  parent HTML element for which the header data element will be added.
+//  EmailHeader1 - Structure -  selection based on email data.
+//  OnlyBySenderPresentation - Boolean -  determines whether to include the sender's address or only
+//                                              the view.
 //
 Function GenerateEmailHeaderDataItem(ParentElement, EmailHeader1, OnlyBySenderPresentation = False)
 	
@@ -4829,16 +4827,16 @@ Function GenerateEmailHeaderDataItem(ParentElement, EmailHeader1, OnlyBySenderPr
 EndFunction
 
 // Parameters:
-//  HTMLDocument - HTMLDocument - an HTML document whose header will be complemented.
-//  Selection - QueryResultSelection - a selection by the email data.
-//  IsOutgoingEmail - Boolean - True if the message is outgoing.
+//  HTMLDocument - HTMLDocument -  the HTML document for which the header will be added.
+//  Selection - QueryResultSelection -  selection based on email data.
+//  IsOutgoingEmail - Boolean - 
 //
 Procedure AddPrintFormHeaderToEmailBody(HTMLDocument, Selection, IsOutgoingEmail) Export
 	
 	EmailBodyItem = EmailBodyItem(HTMLDocument);
 	BodyChildNodesArray = ChildNodesWithHTML(EmailBodyItem);
 	
-	// Name of the email account user.
+	// 
 	UserItem = GenerateAccountUsernameItem(EmailBodyItem, Selection);
 	InsertHTMLElementAsFirstChildElement(EmailBodyItem,UserItem, BodyChildNodesArray);
 	
@@ -4854,8 +4852,8 @@ Procedure AddPrintFormHeaderToEmailBody(HTMLDocument, Selection, IsOutgoingEmail
 EndProcedure
 
 // Parameters:
-//  HTMLDocument - HTMLDocument - an HTML document, where replacement will be executed.
-//  MapsTable - ValueTable - a table of mapping file names to IDs.
+//  HTMLDocument - HTMLDocument -  the HTML document in which the replacement will be performed.
+//  MapsTable - ValueTable -  table of file name and ID matches.
 //
 Procedure ChangePicturesNamesToMailAttachmentsIDsInHTML(HTMLDocument, MapsTable) Export
 	
@@ -4913,10 +4911,10 @@ EndProcedure
 
 // Parameters:
 //  MailMessage  - DocumentRef.IncomingEmail
-//          - DocumentRef.OutgoingEmail - Email message to be analyzed.
+//          - DocumentRef.OutgoingEmail - 
 //
 // Returns:
-//   Number - Estimated message size in bytes.
+//   Number - 
 //
 Function EvaluateOutgoingEmailSize(MailMessage) Export
 	
@@ -4969,7 +4967,7 @@ EndFunction
 //  HTMLText  - String
 //
 // Returns:
-//   HTMLDocument   - Created HTML document.
+//   HTMLDocument   - 
 //
 Function GetHTMLDocumentObjectFromHTMLText(HTMLText, Encoding = Undefined) Export
 	
@@ -5013,10 +5011,10 @@ Function GetHTMLDocumentObjectFromHTMLText(HTMLText, Encoding = Undefined) Expor
 EndFunction
 
 // Parameters:
-//  Text  - String - a text, from which an HTML document will be created.
+//  Text  - String -  the text from which the HTML document will be created.
 //
 // Returns:
-//   HTMLDocument   - Created HTML document.
+//   HTMLDocument   - 
 //
 Function GetHTMLDocumentFromPlainText(Text) Export
 	
@@ -5042,10 +5040,10 @@ Function GetHTMLDocumentFromPlainText(Text) Export
 EndFunction
 
 // Parameters:
-//  HTMLDocument  - HTMLDocument - a document, from which the text will be extracted.
+//  HTMLDocument  - HTMLDocument -  the document from which the text will be extracted.
 //
 // Returns:
-//   String - HTML text.
+//   String - 
 //
 Function GetHTMLTextFromHTMLDocumentObject(HTMLDocument) Export
 	
@@ -5064,9 +5062,9 @@ EndFunction
 // Creates an HTML element attribute and sets its text content.
 //
 // Parameters:
-//  HTMLElement  - HTMLElement - an element, for which an attribute is set.
-//  Name  - String - an HTML attribute name.
-//  TextContent  - String - text content of an attribute.
+//  HTMLElement  - HTMLElement -  the element for which the attribute is set.
+//  Name  - String -  name of the HTML attribute.
+//  TextContent  - String -  text content of the attribute.
 //
 Procedure SetHTMLElementAttribute(HTMLElement, Name, TextContent)
 	
@@ -5077,14 +5075,14 @@ Procedure SetHTMLElementAttribute(HTMLElement, Name, TextContent)
 EndProcedure
 
 // Parameters:
-//  ParentElement - HTMLElement - an element, to which a child element will be added.
-//  Name  - String - an HTML element name.
+//  ParentElement - HTMLElement -  the element to which the child element will be added.
+//  Name  - String -  name of the HTML element.
 //  Attributes  - Map of KeyAndValue:
-//    * Key - String - attribute name;
-//    * Value - String - a text content.
+//    * Key - String -  attribute name;
+//    * Value - String -  text content.
 //
 // Returns:
-//   HTMLElement - Added element.
+//   HTMLElement - 
 //
 Function AddElementWithAttributes(ParentElement, Name, Attributes)
 	
@@ -5098,10 +5096,10 @@ Function AddElementWithAttributes(ParentElement, Name, Attributes)
 EndFunction
 
 // Parameters:
-//  HTMLText  - String - hTML text.
+//  HTMLText  - String -  HTML text.
 //
 // Returns:
-//   String   - Plain text.
+//   String   - 
 //
 Function GetPlainTextFromHTML(HTMLText) Export
 	
@@ -5134,9 +5132,9 @@ Procedure AddTextNode(ParentElement, Text, HighlightWithBold = False, AddLineBre
 EndProcedure
 
 // Parameters:
-//  ParentElement  - HTMLElement - an element, to which a child element will be added.
-//  ElementToInsert  - HTMLElement - an HTML element to be inserted.
-//  ChildElementsArrayOfParent  - Array - a child element array of a parent element.
+//  ParentElement  - HTMLElement -  the element to which the child element will be added.
+//  ElementToInsert  - HTMLElement -  the HTML element to insert.
+//  ChildElementsArrayOfParent  - Array -  array of child elements of the parent element.
 //
 Procedure InsertHTMLElementAsFirstChildElement(ParentElement, ElementToInsert, ChildElementsArrayOfParent)
 	
@@ -5243,11 +5241,11 @@ Function FontItem(HTMLDocument, Size, FontName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////////
-// Settings management.
+// 
 
-// Returns current user setting.
-// If setting is not specified,
-// it returns the ValueIfNotSpecified parameter after passing it.
+// Returns the current user's setting.
+// If the setting is not specified and passing in the parameter Zachanassian,
+// then returns it.
 //
 Function GetCurrentUserSetting(ObjectKey,
 	SettingsKey = Undefined,
@@ -5288,11 +5286,11 @@ Procedure SaveEmailManagementSettings(Value) Export
 EndProcedure 
 
 ////////////////////////////////////////////////////////////////////
-// Text messages.
+// 
 
 // Parameters:
-//  SMSMessage  - DocumentObject.SMSMessage - a document, for which an SMS message delivery status is checked.
-//  Modified  - Boolean - indicates that the document was modified.
+//  SMSMessage  - DocumentObject.SMSMessage -  document for which the SMS delivery status is checked.
+//  Modified  - Boolean -  indicates whether the document is modified.
 //
 Procedure CheckSMSMessagesDeliveryStatuses(SMSMessage, Modified) Export
 	
@@ -5314,13 +5312,16 @@ Procedure CheckSMSMessagesDeliveryStatuses(SMSMessage, Modified) Export
 	Query.SetParameter("SMSMessage", SMSMessage.Ref);
 	
 	HasChanges = False;
-	Selection = Query.Execute().Select();
-	While Selection.Next() Do
+	SMSMessageRecipients = Query.Execute().Unload();
+	MessagesIDs = SMSMessageRecipients.UnloadColumn("MessageID");
+	DeliveryStatuses = SendSMSMessage.DeliveryStatuses(MessagesIDs);
+	
+	For Each Addressee In SMSMessageRecipients Do
 		
-		MessageState = SMSMessageStateAccordingToDeliveryStatus(SendSMSMessage.DeliveryStatus(Selection.MessageID));
+		MessageState = SMSMessageStateAccordingToDeliveryStatus(DeliveryStatuses[Addressee.MessageID]);
 		
-		If MessageState <> Selection.MessageState Then
-			SMSMessage.SMSMessageRecipients[Selection.LineNumber - 1].MessageState = MessageState;
+		If MessageState <> Addressee.MessageState Then
+			SMSMessage.SMSMessageRecipients[Addressee.LineNumber - 1].MessageState = MessageState;
 			HasChanges = True;
 		EndIf;
 		
@@ -5333,7 +5334,7 @@ Procedure CheckSMSMessagesDeliveryStatuses(SMSMessage, Modified) Export
 	
 EndProcedure
 
-// Determines a status of the "SMS message" document by the status of its incoming SMS messages.
+// Determines the status of the "SMS Message" document based on the status of incoming SMS messages.
 //
 // Parameters:
 //  SMSMessage - DocumentObject.SMSMessage
@@ -5399,8 +5400,8 @@ Function SMSMessageDocumentState(SMSMessage)
 
 EndFunction
 
-// Transforms SMS delivery statuses of the SendSMSMessage subsystem 
-// to SMS message statuses of the Interactions subsystem.
+// Converts the SMS delivery statuses of the Sendsms subsystem to the 
+// SMS message States of the Interaction subsystem.
 //
 // Parameters:
 //  DeliveryStatus  - String
@@ -5435,7 +5436,7 @@ EndFunction
 //           - FormDataStructure
 //
 // Returns:
-//   Number - Sent message count.
+//   Number - 
 //
 Function SendSMSMessageByDocument(Document) Export
 	
@@ -5461,9 +5462,7 @@ Function SendSMSMessageByDocument(Document) Export
 	
 EndFunction
 
-Procedure SendSMS() Export
-	
-	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.SendSMSMessage);
+Function SMSMessagesToSend()
 	
 	Query = New Query;
 	Query.Text = "
@@ -5496,9 +5495,19 @@ Procedure SendSMS() Export
 	|	Ref";
 	
 	Query.SetParameter("CurrentDate", CurrentSessionDate());
+	Result = Query.Execute();
+	
+	Return Result;
+	
+EndFunction
+
+Procedure SendSMS() Export
+	
+	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.SendSMSMessage);
 	
 	SetPrivilegedMode(True);
-	Result = Query.Execute();
+	
+	Result = SMSMessagesToSend();
 	If Result.IsEmpty() Then
 		Return;
 	EndIf;
@@ -5533,24 +5542,31 @@ Procedure SendSMS() Export
 			Continue;
 		EndIf;
 		
-		// Send outside of transaction.
+		// 
 		NumbersForSend = MessageAddresseesTable.UnloadColumn("SendingNumber");
 		Try
 			SendingResult = SendSMSMessage.SendSMS(NumbersForSend, MessageText, "", SendInTransliteration);
-			If SendingResult.SentMessages.Count() = 0 Then
-				Continue;
-			EndIf;
 		Except
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, 
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot send %1 due to: 
 				|%2';"),
 				DocumentsSelection.Ref, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(EmailManagement.EventLogEvent(),
-				EventLogLevel.Warning, MetadataOfDocument, DocumentsSelection.Ref,
+				EventLogLevel.Error, MetadataOfDocument, DocumentsSelection.Ref,
 				MessageText);
 			Continue;
 		EndTry;
-
+		
+		If ValueIsFilled(SendingResult.ErrorDescription) Then
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot send %1 due to: 
+				|%2';"),
+				SendingResult.ErrorDescription);
+			WriteLogEvent(EmailManagement.EventLogEvent(),
+				EventLogLevel.Error, MetadataOfDocument, DocumentsSelection.Ref,
+				MessageText);
+		EndIf;
+		
 		DocumentPresentation_ = String(DocumentsSelection.Ref);
 		BeginTransaction();
 		Try
@@ -5560,7 +5576,7 @@ Procedure SendSMS() Export
 			Block.Lock();
 		
 			DocumentObject = DocumentsSelection.Ref.GetObject();
-			// @skip-check query-in-loop - Query for item-by-item data writing. 
+			//  
 			ReportSMSMessageSendingResultsInDocument(DocumentObject, SendingResult);
 			DocumentObject.AdditionalProperties.Insert("DoNotSaveContacts", True);
 			DocumentObject.Write();
@@ -5581,20 +5597,7 @@ Procedure SendSMS() Export
 
 EndProcedure
 
-// Scheduled job handler.
-// Updates SMS delivery statuses on schedule.
-//
-Procedure SMSDeliveryStatusUpdate() Export
-	
-	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.SMSDeliveryStatusUpdate);
-	
-	SetPrivilegedMode(True);
-	
-	MetadataOfDocument = Metadata.Documents.SMSMessage;
-	
-	ChangedStatusesTable = New ValueTable;
-	ChangedStatusesTable.Columns.Add("LineNumber");
-	ChangedStatusesTable.Columns.Add("MessageState");
+Function SMSMessagesToCheckStatus()
 	
 	Query = New Query;
 	Query.Text = "
@@ -5614,7 +5617,26 @@ Procedure SMSDeliveryStatusUpdate() Export
 	|TOTALS BY
 	|	Ref";
 	
-	Result = Query.Execute();
+	Return Query.Execute();
+	
+EndFunction
+
+// Handler for a routine task.
+// Performs the procedure for updating SMS delivery statuses on a scheduled basis.
+//
+Procedure SMSDeliveryStatusUpdate() Export
+	
+	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.SMSDeliveryStatusUpdate);
+	
+	SetPrivilegedMode(True);
+	
+	MetadataOfDocument = Metadata.Documents.SMSMessage;
+	
+	ChangedStatusesTable = New ValueTable;
+	ChangedStatusesTable.Columns.Add("LineNumber");
+	ChangedStatusesTable.Columns.Add("MessageState");
+	
+	Result = SMSMessagesToCheckStatus();
 	If Result.IsEmpty() Then
 		Return;
 	EndIf;
@@ -5626,29 +5648,48 @@ Procedure SMSDeliveryStatusUpdate() Export
 		Return;
 	EndIf;
 	
-	DocumentsSelection = Result.Select(QueryResultIteration.ByGroups);
+	ProcessedDocuments_ = New Map;
+	MessagesIDs = New Array;
 	
+	DocumentsSelection = Result.Select(QueryResultIteration.ByGroups);
 	While DocumentsSelection.Next() Do
+		ProcessedDocuments_[DocumentsSelection.Ref] = New Array;
+		IDsSelection = DocumentsSelection.Select();
+		While IDsSelection.Next() Do
+			SMSMessageRecipients = New Structure;
+			SMSMessageRecipients.Insert("LineNumber");
+			SMSMessageRecipients.Insert("MessageID");
+			SMSMessageRecipients.Insert("MessageState");
+			FillPropertyValues(SMSMessageRecipients, IDsSelection);
+			ProcessedDocuments_[DocumentsSelection.Ref].Add(SMSMessageRecipients);
+			MessagesIDs.Add(SMSMessageRecipients.MessageID);
+		EndDo;
+	EndDo;
+	
+	DeliveryStatuses = SendSMSMessage.DeliveryStatuses(MessagesIDs);
+	
+	For Each DocumentToProcess In ProcessedDocuments_ Do
+		Ref = DocumentToProcess.Key;
+		SMSMessageRecipients = DocumentToProcess.Value;
 		
 		ChangedStatusesTable.Clear();
-		DocumentPresentation_ = Common.SubjectString(DocumentsSelection.Ref);
+		DocumentPresentation_ = Common.SubjectString(Ref);
 		
 		BeginTransaction();
 		Try
 			
 			Block = New DataLock;
 			LockItem = Block.Add(MetadataOfDocument.FullName());
-			LockItem.SetValue("Ref", DocumentsSelection.Ref);
+			LockItem.SetValue("Ref", Ref);
 			Block.Lock();
 		
-			IDsSelection = DocumentsSelection.Select();
-			While IDsSelection.Next() Do
+			For Each Addressee In SMSMessageRecipients Do
 				
-				MessageState = SMSMessageStateAccordingToDeliveryStatus(SendSMSMessage.DeliveryStatus(IDsSelection.MessageID));
+				MessageState = SMSMessageStateAccordingToDeliveryStatus(DeliveryStatuses[Addressee.MessageID]);
 				
-				If MessageState <> IDsSelection.MessageState Then
+				If MessageState <> Addressee.MessageState Then
 					NewRow = ChangedStatusesTable.Add();
-					NewRow.LineNumber        = IDsSelection.LineNumber;
+					NewRow.LineNumber        = Addressee.LineNumber;
 					NewRow.MessageState = MessageState;
 				EndIf;
 				
@@ -5659,7 +5700,7 @@ Procedure SMSDeliveryStatusUpdate() Export
 				Continue;
 			EndIf;
 			
-			DocumentObject = DocumentsSelection.Ref.GetObject();
+			DocumentObject = Ref.GetObject();
 			
 			For Each ChangedStatus In ChangedStatusesTable Do
 				DocumentObject.SMSMessageRecipients[ChangedStatus.LineNumber - 1].MessageState = ChangedStatus.MessageState;
@@ -5678,7 +5719,7 @@ Procedure SMSDeliveryStatusUpdate() Export
 				NStr("en = 'Failed to update delivery status: %1. Reason: %2';"),
 				DocumentPresentation_, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(EmailManagement.EventLogEvent(),
-				EventLogLevel.Warning, MetadataOfDocument, DocumentsSelection.Ref,
+				EventLogLevel.Warning, MetadataOfDocument, Ref,
 				MessageText);
 			
 		EndTry;
@@ -5687,20 +5728,26 @@ Procedure SMSDeliveryStatusUpdate() Export
 	
 EndProcedure
 
-// Sets statuses of the "SMS message" document depending on statuses of separate messages to different contacts.
+// Sets the status of the "SMS Message" document depending on the status of individual messages to different contacts.
 //
 // Parameters:
-//  DocumentObject     - DocumentObject.SMSMessage, FormDataStructure
-//  SendingResult  - Structure - the result of sending an SMS message.
+//  DocumentObject     - 
+//  SendingResult  - Structure -  result of sending an SMS message.
 //
 Procedure ReportSMSMessageSendingResultsInDocument(DocumentObject, SendingResult)
 	
+	SentMessages = New Map;
 	For Each SentMessage In SendingResult.SentMessages Do
-		For Each FoundRow In DocumentObject.SMSMessageRecipients.FindRows(
-			New Structure("SendingNumber", SentMessage.RecipientNumber)) Do
-			FoundRow.MessageID = SentMessage.MessageID;
-			FoundRow.MessageState     = Enums.SMSMessagesState.BeingSentByProvider;
-		EndDo;
+		SentMessages[SentMessage.RecipientNumber] = SentMessage.MessageID;
+	EndDo;
+	
+	For Each Addressee In DocumentObject.SMSMessageRecipients Do
+		Addressee.MessageID = SentMessages[Addressee.SendingNumber];
+		If ValueIsFilled(Addressee.MessageID) Then
+			Addressee.MessageState = Enums.SMSMessagesState.BeingSentByProvider;
+		Else
+			Addressee.MessageState = Enums.SMSMessagesState.NotDelivered;
+		EndIf;
 	EndDo;
 	
 	DocumentObject.State = SMSMessageDocumentState(DocumentObject);
@@ -5708,13 +5755,13 @@ Procedure ReportSMSMessageSendingResultsInDocument(DocumentObject, SendingResult
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////
-// Operations with email folders.
+// 
 
 // Parameters:
-//  Account  - CatalogRef.EmailAccounts - Account where the check is running.
+//  Account  - CatalogRef.EmailAccounts - 
 //
 // Returns:
-//   Boolean   - True is the user is responsible for folder management. Otherwise, False.
+//   Boolean   - 
 //
 Function UserIsResponsibleForMaintainingFolders(Account) Export
 	
@@ -5751,9 +5798,9 @@ Function UserIsResponsibleForMaintainingFolders(Account) Export
 EndFunction 
 
 // Parameters:
-//  Folder  - CatalogRef.EmailMessageFolders - a folder, for which a parent is set.
-//  NewParent  - CatalogRef.EmailMessageFolders - a folder that will be set as a parent.
-//  DoNotWriteFolder  - Boolean - indicates whether it is necessary to write folder in this procedure.
+//  Folder  - CatalogRef.EmailMessageFolders -  the folder for which the parent is set.
+//  NewParent  - CatalogRef.EmailMessageFolders -  the folder that will be set as the parent.
+//  DoNotWriteFolder  - Boolean -  flag that specifies whether to write a folder in this procedure.
 //
 Procedure SetFolderParent(Folder, NewParent, DoNotWriteFolder = False) Export
 	
@@ -5849,7 +5896,7 @@ Procedure SetFolderParent(Folder, NewParent, DoNotWriteFolder = False) Export
 EndProcedure
 
 // Parameters:
-//  Folder  - CatalogRef.EmailMessageFolders - a folder whose emails will be marked for deletion.
+//  Folder  - CatalogRef.EmailMessageFolders -  the folder where emails will be marked for deletion.
 //
 Procedure SetDeletionMarkForFolderEmails(Folder)
 	
@@ -5893,8 +5940,8 @@ Procedure SetDeletionMarkForFolderEmails(Folder)
 EndProcedure
 
 // Parameters:
-//  EmailsArray  - Array - an array of emails, for which a folder will be set.
-//  Folder  - CatalogRef.EmailMessageFolders - a folder whose emails will be marked for deletion.
+//  EmailsArray  - Array -  an array of emails that will have a folder installed.
+//  Folder  - CatalogRef.EmailMessageFolders -  the folder where emails will be marked for deletion.
 //
 Procedure SetFolderForEmailsArray(EmailsArray, Folder) Export
 	
@@ -5980,11 +6027,11 @@ Procedure SetFolderForEmailsArray(EmailsArray, Folder) Export
 	
 EndProcedure
 
-// Sets deletion mark for a folder and letters that it includes.
+// Sets the delete mark for the folder and its incoming messages.
 //
 // Parameters:
-//  Folder  - CatalogRef.EmailMessageFolders - a folder whose emails will be marked for deletion.
-//  ErrorDescription  - String - an error description.
+//  Folder  - CatalogRef.EmailMessageFolders -  the folder where emails will be marked for deletion.
+//  ErrorDescription  - String -  description of the error that occurred.
 //
 Procedure ExecuteEmailsFolderDeletion(Folder, ErrorDescription = "") Export
 	
@@ -6105,10 +6152,10 @@ EndProcedure
 
 // Parameters:
 //  MailMessage  - DocumentRef.IncomingEmail
-//          - DocumentRef.OutgoingEmail - A message that needs to be assigned a folder.
+//          - DocumentRef.OutgoingEmail - 
 //
 // Returns:
-//   CatalogRef.EmailMessageFolders - Folder assigned for the message.
+//   CatalogRef.EmailMessageFolders - 
 //
 Function DefineFolderForEmail(MailMessage) Export
 	
@@ -6178,7 +6225,7 @@ Function DefineFolderForEmail(MailMessage) Export
 				QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 			EndDo;
 			
-			// @skip-check query-in-loop - Run mailbox rules until it finds the first message that meets the rule condition.
+			// 
 			Result = QueryRule.Execute();
 
 		Except
@@ -6210,12 +6257,12 @@ EndFunction
 
 // Parameters:
 //  MailMessage  - DocumentRef.IncomingEmail
-//          - DocumentRef.OutgoingEmail - A message that needs to be assigned a folder.
-//  IncludingBaseEmailChecks  - Boolean - indicates that it is necessary to check if a folder is determined to the base email
-//                                             folder.
+//          - DocumentRef.OutgoingEmail - 
+//  IncludingBaseEmailChecks  - Boolean -  indicates whether to check for a folder definition in
+//                                             the base message folder.
 //
 // Returns:
-//   CatalogRef.EmailMessageFolders - Folder assigned for the message.
+//   CatalogRef.EmailMessageFolders - 
 //
 Function DefineDefaultFolderForEmail(MailMessage, IncludingBaseEmailChecks = False) Export
 	
@@ -6380,7 +6427,7 @@ Function DefineDefaultFolderForEmail(MailMessage, IncludingBaseEmailChecks = Fal
 EndFunction
 
 // Parameters:
-//  EmailsArray  - Array - an email array, for which folders will be set.
+//  EmailsArray  - Array -  an array of emails to set folders for.
 //
 Procedure SetFoldersForEmailsArray(EmailsArray) Export
 	
@@ -6424,16 +6471,16 @@ Procedure SetFoldersForEmailsArray(EmailsArray) Export
 	
 EndProcedure
 
-// Determines folders for sent email messages.
+// 
 //
 // Parameters:
 //  Emails  - Array of DocumentRef.IncomingEmail
 //          - Array of DocumentRef.OutgoingEmail
 //
 // Returns:
-//   ValueTable - Maps email messages with folders:
+//   ValueTable - :
 //    * Folder - CatalogRef.EmailMessageFolders
-//    * MailMessage - DocumentRef.IncomingEmail, DocumentRef.OutgoingEmail
+//    * MailMessage - 
 //
 Function DefineEmailFolders(Emails)
 	
@@ -6508,7 +6555,7 @@ Function DefineEmailFolders(Emails)
 						QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 					EndDo;
 					
-					// @skip-check query-in-loop - Batch processing of email messages by user accounts.
+					// 
 					EmailResult = QueryRule.Execute();
 					
 				Except
@@ -6693,14 +6740,14 @@ Procedure SetEmailFolder(Ref, Folder, CalculateReviewedItems = True) Export
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-//  Compute states.
+//  
 
-// Calculates interaction subject states.
+// Calculates the States of interaction items.
 //
 // Parameters:
 //  FoldersTable  - ValueTable
-//                - Undefined - Table of folders whose states must be calculated.
-//             If Undefined, calculate states of all folders.
+//                - Undefined - 
+//             
 //
 Procedure CalculateReviewedByFolders(FoldersTable) Export
 
@@ -6808,12 +6855,12 @@ Procedure CalculateReviewedByFolders(FoldersTable) Export
 
 EndProcedure
 
-// Calculates interaction contact states.
+// Calculates the state of interaction contacts.
 //
 // Parameters:
-//  ObjectsTable - ValueTable
-//                    - Undefined - a table of contacts that must be calculated.
-//                      If Undefined, states of all contacts are calculated.
+//  Tabletsalprazolam Of Cableconnected
+//                    - Undefined - table of contacts to be calculated.
+//                      If Undefined, the States of all contacts are calculated.
 //
 Procedure CalculateReviewedByContacts(DataForCalculation) Export
 
@@ -6997,12 +7044,12 @@ Procedure RefreshInteractionContactsStates(InteractionsContactStates)
 
 EndProcedure
 
-// Calculates interaction subject states.
+// Calculates the States of interaction items.
 //
 // Parameters:
-//  ObjectsTable - ValueTable
-//                    - Undefined - a table of objects that must be calculated.
-//                      If Undefined, states of all subjects are calculated.
+//  Tabletsalprazolam Of Cableconnected
+//                    - Undefined-table of items to be calculated.
+//                      If Undefined, the States of all items are calculated.
 //
 Procedure CalculateReviewedBySubjects(DataForCalculation) Export
 
@@ -7158,16 +7205,16 @@ Procedure CalculateReviewedBySubjects(DataForCalculation) Export
 		
 EndProcedure
 
-// Generates a data table to calculate folder states and interaction subjects.
+// Generates a data table for calculating the States of folders and interaction items.
 //
 // Parameters:
 //  DataForCalculation  - Structure
 //                    - QueryResultSelection
 //                    - Array of CatalogRef.EmailMessageFolders
 //                    - Array of DefinedType.InteractionSubject
-//                    - Array of DefinedType.InteractionContact - Data to be used to generate 
-//                      a table.
-//  AttributeName  - String - Has the following valid values: "Topic", "Folder" or "Contact".
+//                    - Array of DefinedType.InteractionContact -  
+//                      
+//  AttributeName  - String - 
 //
 // Returns:
 //   ValueTable:
@@ -7231,13 +7278,13 @@ Function TableOfDataForReviewedCalculation(DataForCalculation, AttributeName) Ex
 
 EndFunction
 
-// Determines if it is necessary to calculate states of folders, subjects or interaction contacts.
+// Specifies whether to calculate the States of folders, items, or interaction contacts.
 //
 // Parameters:
-//  AdditionalProperties  - Structure - additional properties of a record set or an interaction document.
+//  AdditionalProperties  - Structure -  additional properties of a recordset or interaction document.
 //
 // Returns:
-//   Boolean   - Flag indicating whether to calculate states of folders, subjects, or interaction contacts.
+//   Boolean   - 
 //
 Function CalculateReviewedItems(AdditionalProperties) Export
 	Var CalculateReviewedItems;
@@ -7247,14 +7294,14 @@ Function CalculateReviewedItems(AdditionalProperties) Export
 
 EndFunction
 
-// Specifies whether it is necessary to write interaction contacts to an auxiliary information register 
-//  "Interaction contacts".
+// Specifies whether interaction contacts should be written to the auxiliary register 
+//  "interaction Contacts".
 //
 // Parameters:
-//  AdditionalProperties  - Structure - additional properties of the interaction document.
+//  AdditionalProperties  - Structure -  additional properties of the interaction document.
 //
 // Returns:
-//   Boolean   - Flag indicating whether to save interaction contacts to the auxiliary information register "Interaction contacts". 
+//   Boolean   -  
 //    
 //
 Function DoNotSaveContacts(AdditionalProperties)
@@ -7266,10 +7313,10 @@ Function DoNotSaveContacts(AdditionalProperties)
 EndFunction
 
 // Parameters:
-//  InteractionsArray  - Array - an array, to which a flag is being set.
-//  FlagValue      - Boolean - the Reviewed flag value.
-//  HasChanges         - Boolean - indicates that at least one interaction had his value changed
-//                                   Reviewed.
+//  InteractionsArray  - Array -  array for which the attribute is set.
+//  FlagValue      - Boolean -  the value of the attribute is Considered.
+//  HasChanges         - Boolean -  indicates that at least one interaction has had its value changed
+//                                   Discussed.
 //
 Procedure MarkAsReviewed(InteractionsArray, FlagValue, HasChanges) Export
 
@@ -7316,14 +7363,14 @@ Procedure MarkAsReviewed(InteractionsArray, FlagValue, HasChanges) Export
 
 EndProcedure
 
-// Checks an array of interactions and keeps only those ones whose review date must be changed.
+// 
 //
 // Parameters:
-//  InteractionsArray  - Array - an array of interactions whose review date is proposed to be changed.
-//  ReviewDate  - Date - a new review date.
+//  InteractionsArray  - Array -  an array of interactions that you want to change the review date for.
+//  ReviewDate  - Date -  a new hearing date.
 //
 // Returns:
-//   Array - Array of interactions whose review date needs to be changed.
+//   Array - 
 //
 Function InteractionsArrayForReviewDateChange(InteractionsArray, ReviewDate) Export
 
@@ -7352,11 +7399,11 @@ Function InteractionsArrayForReviewDateChange(InteractionsArray, ReviewDate) Exp
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////////
-//  Miscellaneous.
+//  Other
 
 // Parameters:
-//  FormInputField  - FormField - the form item the choice list belongs to.
-//  Interval        - Number - an interval in seconds, with which the list is to be filled, is an hour by default.
+//  FormInputField  - FormField -  the form element that the selection list belongs to.
+//  Interval        - Number -  the interval in seconds with which to fill in the list, by default, is an hour.
 //
 Procedure FillTimeSelectionList(FormInputField, Interval = 3600) Export
 
@@ -7381,15 +7428,15 @@ Procedure FillTimeSelectionList(FormInputField, Interval = 3600) Export
 
 EndProcedure
 
-// Generates a query text of dynamic interaction list depending on navigation panel kind
-// and passed parameter type.
+// Generates the request text for a dynamic list of interactions depending on the type of navigation
+// bar and the type of parameter passed.
 //
 // Parameters:
 //  FilterValue  - CatalogRef
-//                  - DocumentRef - Filter value in the navigation panel.
+//                  - DocumentRef - 
 //
 // Returns:
-//   String   - Query text in a dynamic list.
+//   String   - 
 //
 Function InteractionsListQueryText(FilterValue = Undefined) Export
 	
@@ -7528,7 +7575,7 @@ Function InteractionsListQueryText(FilterValue = Undefined) Export
 
 EndFunction
 
-// Fills data of the InteractionsContacts information register for the passed interaction array.
+// Fills in the contact information register data for The transmitted interaction array.
 //
 // Parameters:
 //  DocumentObject - DocumentObject.OutgoingEmail
@@ -7536,7 +7583,7 @@ EndFunction
 //                 - DocumentObject.SMSMessage
 //                 - DocumentObject.PhoneCall
 //                 - DocumentObject.PlannedInteraction
-//                 - DocumentObject.Meeting - a document to be recorded.
+//                 - DocumentObject.Meeting -  the document that is being recorded.
 //
 Procedure OnWriteDocument(DocumentObject) Export
 
@@ -7683,17 +7730,17 @@ Procedure OnWriteDocument(DocumentObject) Export
 	
 EndProcedure
 
-// Fills data of the InteractionsContacts information register for the passed interaction array.
+// Fills in the contact information register data for The transmitted interaction array.
 //
 // Parameters:
-//  InteractionsArray    - Array - an array, for which the contact data will be filled.
-//  CalculateReviewedItems - Boolean - indicates whether it is necessary to calculate interaction contact states.
+//  InteractionsArray    - Array -  array for which contact data will be filled in.
+//  CalculateReviewedItems - Boolean -  indicates whether the States of interaction contacts need to be calculated.
 //
 Procedure FillInteractionsArrayContacts(InteractionsArray, CalculateReviewedItems = False) Export
 
 	SetPrivilegedMode(True);
 	
-	// ACC:96-off - The JOIN keyword (as the same contact might participate in multiple interactions).
+	// 
 	Query = New Query;
 	Query.Text = "
 	|SELECT DISTINCT
@@ -7848,7 +7895,7 @@ Procedure FillInteractionsArrayContacts(InteractionsArray, CalculateReviewedItem
 	|		ON UniqueContactsOfInteractionOfRepresentation.ContactPresentation = StringContactInteractions.Description
 	|TOTALS BY
 	|	Interaction";
-	// ACC:96-on
+	// 
 	Query.SetParameter("InteractionsArray", InteractionsArray);
 	
 	QueryResult = Query.Execute();
@@ -7913,11 +7960,11 @@ Procedure FillInteractionsArrayContacts(InteractionsArray, CalculateReviewedItem
 	
 EndProcedure
 
-// Fills in the quick filter submenu by interaction category.
+// Fills in the submenu for quick selections by status.
 // 
 // Parameters:
-//  SubmenuGroup - FormGroup - added items will be placed in this group.
-//  Form - ClientApplicationForm - a form, for which items are added.
+//  SubmenuGroup - FormGroup -  the added elements will be placed in this group.
+//  Form - ClientApplicationForm -  the form to add elements to.
 //
 Procedure FillStatusSubmenu(SubmenuGroup, Form) Export
 	
@@ -7942,11 +7989,11 @@ Procedure FillStatusSubmenu(SubmenuGroup, Form) Export
 	
 EndProcedure
 
-// Fills in the quick filter submenu by interaction category.
+// Fills in the quick selection submenu for interaction types.
 // 
 // Parameters:
-//  SubmenuGroup - FormGroup - added items will be placed in this group.
-//  Form - ClientApplicationForm - a form, for which items are added.
+//  SubmenuGroup - FormGroup -  the added elements will be placed in this group.
+//  Form - ClientApplicationForm -  the form to add elements to.
 //
 Procedure FillSubmenuByInteractionType(SubmenuGroup, Form) Export
 	
@@ -7974,10 +8021,10 @@ Procedure FillSubmenuByInteractionType(SubmenuGroup, Form) Export
 	
 EndProcedure
 
-// Manages the display of marks in the quick filter submenu.
+// Controls the display of marks in the quick selection submenu.
 // 
 // Parameters:
-//  Form - ClientApplicationForm - the form for which marks are set in the submenu.
+//  Form - ClientApplicationForm -  a form that is marked in the submenu.
 //
 Procedure ProcessFilterByInteractionsTypeSubmenu(Form) Export
 
@@ -8095,16 +8142,16 @@ Procedure ReplaceEmployeeResponsibleInDocument(Interaction, EmployeeResponsible)
 EndProcedure
 
 // Parameters:
-//  CatalogName    - String - a name of the catalog to be checked.
-//  TabularSectionName - String - a name of the tabular section whose existence is being checked.
+//  CatalogName    - String -  name of the reference list to check for.
+//  TabularSectionName - String -  name of the table part to check for.
 //
 // Returns:
-//  Boolean - True if the catalog has a table.
+//  Boolean - 
 //
 // Example:
-//  If Not CatalogHasTabularSection(CatalogName,"ContactInformation") Then
+//  If You Don't Have A Personal Part Of The Guide(The Guide's Name, " Contact Information") Then
 //  	Return;
-//  EndIf;
+//  Conicelli;
 //
 Function CatalogHasTabularSection(CatalogName, TabularSectionName)
 	
@@ -8113,15 +8160,15 @@ Function CatalogHasTabularSection(CatalogName, TabularSectionName)
 EndFunction 
 
 ///////////////////////////////////////////////////////////////////////////////////
-//  Message templates.
+//  
 
 // Parameters:
-//  Folder — CatalogRef.EmailMessageFolders — the folder makes sense for the "Incoming mail"
-//                                                         and "Outgoing mail" documents.
-//  SubjectOf          - CatalogRef, DocumentRef - indicates an interaction subject.
-//  Reviewed      - Boolean - indicates that interaction is reviewed.
-//  ReviewAfter - Date - a date, until which the interaction is deferred.
-//  CalculateReviewedItems - Boolean - indicates that it is necessary to calculate states of a folder and a subject.
+//  The directory folder is a link.The Electronic Writing folder is a folder that makes sense for the documents "Incoming email"
+//                                                         and "Outgoing email".
+//  SubjectOf          - CatalogRef, DocumentRef -  indicates the subject of the interaction.
+//  Reviewed      - Boolean -  a sign of consideration of the interaction.
+//  Review After - Date - the date until which consideration of the interaction is postponed.
+//  Calculate Reviewed - Boolean - a sign of the need to calculate the states of the folder and the item.
 //
 // Returns:
 //   See InformationRegisters.InteractionsFolderSubjects.InteractionAttributes
@@ -8143,14 +8190,14 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * Sent - Boolean - indicates whether the email message is sent.
-//   * ErrorDescription - String - contains the error details when cannot send an email message.
-//   * LinkToTheEmail - Undefined - email message was not created.
-//                    - DocumentRef.OutgoingEmail - Reference to the created outgoing email.
+//   * Sent - Boolean -  indicates that the message has been sent.
+//   * ErrorDescription - String -  contains a description of the error if the message could not be sent.
+//   * LinkToTheEmail - Undefined -  the email was not created.
+//                    - DocumentRef.OutgoingEmail - 
 //   * EmailID - String
-//   * WrongRecipients - Map of KeyAndValue - Recipient's email addresses with errors.:
-//     ** Key     - String - a recipient address.
-//     ** Value - String - Error text.
+//   * WrongRecipients - Map of KeyAndValue - :
+//     ** Key     - String -  recipient address;
+//     ** Value - String -  error text.
 //
 Function EmailSendingResult()
 	
@@ -8168,13 +8215,13 @@ Function EmailSendingResult()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Define the reference type.
+// 
 
 // Parameters:
-//  ObjectRef  - AnyRef - a reference, to which a check is being executed.
+//  ObjectRef  - AnyRef -  for which the check is being performed.
 //
 // Returns:
-//   Boolean  - True if it is a contact. Otherwise, False.
+//   Boolean  - 
 //
 Function IsContact(ObjectRef)
 	
@@ -8261,10 +8308,10 @@ Function HTMLDocumentGenerationParametersOnEmailBasis(FillingData = Undefined) E
 EndFunction
 
 // Parameters:
-//  PhoneNumber - String - a string with a phone number.
+//  PhoneNumber - String -  a string with the phone number.
 //
 // Returns:
-//   Boolean   - True if the entered phone number is valid. Otherwise, False.
+//   Boolean   - 
 //
 Function PhoneNumberSpecifiedCorrectly(PhoneNumber) Export
 	
@@ -8296,13 +8343,13 @@ Function PhoneNumberSpecifiedCorrectly(PhoneNumber) Export
 	
 EndFunction
 
-// Generates a subject by a message text based on the first three words.
+// Creates a topic based on the text of the message based on the first three words.
 //
 // Parameters:
-//  MessageText  - String - a message text, on whose basis a subject is generated.
+//  MessageText  - String -  the text of the message that the subject is based on.
 //
 // Returns:
-//   String   - Generated message subject.
+//   String   - 
 //
 Function SubjectByMessageText(Val MessageText) Export
 	
@@ -8332,14 +8379,14 @@ Function StatusesList() Export
 	
 EndFunction
 
-// Gets interactions from a topic chain.
+// Gets interactions from the chain by the subject of the interaction.
 //
 // Parameters:
-//  Chain	  - AnyRef - an interaction subject to get interactions for.
-//  Exclude - AnyRef - an interaction that should not be included in the resulting array.
+//  Chain	  - AnyRef -  the interaction object for which interactions are obtained.
+//  Exclude - AnyRef -  an interaction that should not be included in the resulting array.
 //
 // Returns:
-//  Array - Found interactions.
+//  Array - 
 //
 Function InteractionsFromChain(Chain, Exclude)
 	
@@ -8393,7 +8440,7 @@ EndFunction
 //  FoundContacts - ValueTable
 //
 // Returns:
-//  Boolean - True if at least one contact is found.
+//  Boolean - 
 //
 Function FindContactsByPhone(Val Phone, FoundContacts) Export
 	
@@ -8465,7 +8512,7 @@ Function FindContactsByPhone(Val Phone, FoundContacts) Export
 EndFunction
 
 // Parameters:
-//  Description - String - Start of the contact description.
+//  
 //
 // Returns:
 //  ValueTable
@@ -8623,20 +8670,20 @@ Function HasDelayInExecutionOfJobOfReceivingAndSendingEmails()
 	
 	Schedule = ScheduledJob.Schedule;
 	
-	If CurrentDate() - Schedule.RepeatPeriodInDay < BackgroundJob.Begin Then // ACC:143 Do not localize.
+	If CurrentDate() - Schedule.RepeatPeriodInDay < BackgroundJob.Begin Then // 
 		Return False;
 	EndIf;
 	
-	Return Schedule.ExecutionRequired(CurrentDate() - Schedule.RepeatPeriodInDay, // ACC:143 Do not localize.
+	Return Schedule.ExecutionRequired(CurrentDate() - Schedule.RepeatPeriodInDay, // 
 		BackgroundJob.Begin, BackgroundJob.End);
 	
 EndFunction
 
 //////////////////////////////////////////////////////////////////////////////////
-// Interaction form element and attribute management.
+// 
 
 // Parameters:
-//  Form - ClientApplicationForm - the form for which a conditional appearance is set.
+//  Form - ClientApplicationForm -  the form for which the conditional design is set.
 //
 Procedure SetConditionalInteractionAppearance(Form) Export
 
@@ -8654,7 +8701,7 @@ Procedure SetConditionalInteractionAppearance(Form) Export
 EndProcedure
 
 // Parameters:
-//  ChoiceList - ValueList - a list that will be filled in with choice values.
+//  ChoiceList - ValueList -  a list that will be filled with the selection values.
 //
 Procedure FillChoiceListForReviewAfter(ChoiceList) Export
 	
@@ -8667,17 +8714,17 @@ Procedure FillChoiceListForReviewAfter(ChoiceList) Export
 	
 EndProcedure
 
-// An event handler when writing for interactions that occur in document forms.
+// Handler for a write event that occurs in interaction document forms.
 //
 // Parameters:
-//  CurrentObject - DocumentObject - a document, in which the event occurred.
-//  Form         - ClientApplicationForm - a form where a record to be done: 
+//  CurrentObject - DocumentObject -  the document where the event occurred.
+//  Form         - ClientApplicationForm - : 
 //   * Object - DocumentObject.PhoneCall
 //             - DocumentObject.PlannedInteraction
 //             - DocumentObject.SMSMessage
 //             - DocumentObject.Meeting
 //             - DocumentObject.IncomingEmail
-//             - DocumentObject.OutgoingEmail - Reference to the object being written.
+//             - DocumentObject.OutgoingEmail - 
 //
 Procedure OnWriteInteractionFromForm(CurrentObject, Form) Export
 	
@@ -8707,14 +8754,14 @@ Procedure OnWriteInteractionFromForm(CurrentObject, Form) Export
 	StructureForWrite.ReviewAfter        = Form.ReviewAfter;
 	StructureForWrite.CalculateReviewedItems = CalculateReviewedItems;
 	
-	// If the interaction itself is set as a subject, nothing needs to be done.
+	// 
 	If Form.SubjectOf = InteractionHyperlink Then
 		InformationRegisters.InteractionsFolderSubjects.WriteInteractionFolderSubjects(InteractionHyperlink, StructureForWrite);
 		CalculateReviewedByContactsOnWriteFromForm(CurrentObject, Form.Reviewed, Form.Object.Ref, OldAttributesValues);
 		Return;
 	EndIf;
 	
-	// If the interaction is set as a new subject, a subject of the new subject is to be checked.
+	// 
 	If ValueIsFilled(Form.SubjectOf) Then
 		
 		If InteractionsClientServer.IsInteraction(Form.SubjectOf) Then
@@ -8745,7 +8792,7 @@ Procedure OnWriteInteractionFromForm(CurrentObject, Form) Export
 		
 	EndIf;
 	
-	// If a previous subject is an interaction, you might need to change the subject in the whole chain.
+	// 
 	If ValueIsFilled(OldAttributesValues.SubjectOf) And InteractionsClientServer.IsInteraction(OldAttributesValues.SubjectOf) Then
 		
 		If Not (InteractionHyperlink <> OldAttributesValues.SubjectOf 
@@ -8762,13 +8809,13 @@ Procedure OnWriteInteractionFromForm(CurrentObject, Form) Export
 	
 EndProcedure
 
-// Calls the calculation of the flag reviewed by contacts on writing from the form.
+// Calls the calculation of the considered by contacts attribute when writing from the form.
 //
 // Parameters:
-//  CurrentObject            - DocumentObject - the object in whose form the record was done.
-//  Reviewed              - Boolean         - indicates that interaction is reviewed.
-//  Ref                   - DocumentRef - a reference to the interaction document.
-//  OldAttributesValues - Structure      - contains the previously saved values.
+//  CurrentObject            - DocumentObject -  the object in the form of which the recording was performed.
+//  Reviewed              - Boolean         -  indicates whether the interaction is being considered.
+//  Ref                   - DocumentRef -  link to the interaction document.
+//  OldAttributesValues - Structure      -  contains the previous stored values.
 //
 Procedure CalculateReviewedByContactsOnWriteFromForm(CurrentObject, Reviewed, Ref, OldAttributesValues)
 	
@@ -8784,12 +8831,12 @@ Procedure CalculateReviewedByContactsOnWriteFromForm(CurrentObject, Reviewed, Re
 	
 EndProcedure
 
-// An event handler before writing for interactions that occur in document forms.
+// Handler for a pre-write event that occurs in interaction document forms.
 //
 // Parameters:
-//  Form         - ClientApplicationForm - a form in which the event occurred.
-//  CurrentObject - DocumentObject - a document, in which the event occurred.
-//  ContactsChanged - Boolean - indicates that interaction contact changes must be saved.
+//  Form         - ClientApplicationForm -  the form in which the event occurred.
+//  CurrentObject - DocumentObject -  the document where the event occurred.
+//  ContactsChanged - Boolean -  indicates that changes to the interaction contacts need to be recorded.
 //
 Procedure BeforeWriteInteractionFromForm(Form, CurrentObject, ContactsChanged = False) Export
 	
@@ -8805,10 +8852,10 @@ Procedure BeforeWriteInteractionFromForm(Form, CurrentObject, ContactsChanged = 
 
 EndProcedure
 
-// Fills in a list of interactions available for creation.
+// Fills in the list of interactions available for creating.
 //
 // Parameters:
-//  DocumentsAvailableForCreation - ValueList - a value list to be filled in.
+//  DocumentsAvailableForCreation - ValueList -  a list of values to fill in.
 //
 Procedure FillListOfDocumentsAvailableForCreation(DocumentsAvailableForCreation) Export
 	
@@ -8824,12 +8871,12 @@ Procedure FillListOfDocumentsAvailableForCreation(DocumentsAvailableForCreation)
 	
 EndProcedure
 
-// Executed when importing saved user settings of the InteractionType quick filter 
-// in the interaction document list forms.
+// Performed when loading saved user settings for quick selection of interaction Types 
+// in interaction document list forms.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a form for which a procedure is performed.
-//  Settings - Map - settings to import.
+//  Form - ClientApplicationForm -  the form for which the procedure is performed.
+//  Settings - Map -  downloadable settings.
 //
 Procedure OnImportInteractionsTypeFromSettings(Form, Settings) Export
 
@@ -8855,12 +8902,12 @@ Procedure OnImportInteractionsTypeFromSettings(Form, Settings) Export
 
 EndProcedure
 
-// Replaces a subject in interaction chain.
+// Replaces an item in the chain of interactions.
 //
 // Parameters:
-//  Chain   - AnyRef - an interaction subject that will be replaced.
-//  SubjectOf	  - AnyRef - a subject that will replace the previous one.
-//  Exclude - AnyRef - an interaction, where a subject will not be replaced.
+//  Chain   - AnyRef -  the interaction item to be replaced.
+//  SubjectOf	  - AnyRef -  the item that will be replaced.
+//  Exclude - AnyRef -  an interaction in which the replacement operation will not be performed.
 //
 Procedure ReplaceSubjectInInteractionsChain(Chain, SubjectOf, Exclude = Undefined)
 	
@@ -8917,9 +8964,9 @@ Function MergeEmails(FirstEmailHTMLDocument, SecondEmailHTMLDocument, SecondEmai
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////////
-// Operations with the HTML Document object.
+// 
 
-// Gets an array of HTML element child nodes that contain HTML.
+// Gets an array of child nodes of the HTML element that contain HTML.
 //
 // Parameters:
 //  Item  - HTMLElement

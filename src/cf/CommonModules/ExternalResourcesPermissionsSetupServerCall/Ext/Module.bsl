@@ -1,35 +1,33 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Checks whether the permissions to use external resources are applied.
-// Used for troubleshooting issues when changes in security profile settings
-// in a server cluster were made but the operation within which the
-// changes had to be done was not completed.
+// Checks the completion of the operation of applying permissions to use external resources.
+// It is used to diagnose situations in which changes were made to the security profile settings
+// in the server cluster, but the operation was not completed, in which it was necessary
+// to change the settings for permissions to use external resources.
 //
 // Returns:
 //   Structure:
-//  CheckResult - Boolean - if False, then the operation was not completed and the
-//                      user must be prompted to cancel the changes in the security
-//                      profile settings in the server cluster,
-//  RequestsIDs - Array(UUID) - an array of IDs of requests
-//                           to use external resources that must be applied to
-//                           cancel changes in the security profile settings in the server cluster,
-//  TempStorageAddress - String - an address in a temporary storage, where the
-//                             state of permission requests, which must be applied
-//                             to cancel changes in the security profile settings in the server
-//                             cluster, was placed,
-//  StateTemporaryStorageAddress - String - an address in a temporary storage, to which the
-//                                      inner processing state was placed.
-//                                      ExternalResourcePermissionSetup.
+//  The result of the check is Boolean - if False, the operation was not completed and you need to prompt
+//                      the user to undo changes in
+//                      the security profile settings in the server cluster,
+//  Request identifiers-Array(Unique identifier) - an array of identifiers of requests
+//                           for the use of external resources that must be applied to
+//                           undo changes in the security profile settings in the server cluster,
+//  Address of the temporary storage-A string - the address in the temporary storage at which
+//                             the status of applying permission requests was placed, which should be applied
+//                             to cancel changes in the security profile settings in
+//                             the server cluster,
+//  Address of the temporary storage of the state-A string - the address in the temporary storage at which
+//                                      the internal processing state was placed.
+//                                      Setting up permission to use external resources.
 //
 Function CheckApplyPermissionsToUseExternalResources() Export
 	
@@ -37,10 +35,10 @@ Function CheckApplyPermissionsToUseExternalResources() Export
 	
 EndFunction
 
-// Deletes requests to use external resources if the user cancels them.
+// Deletes requests to use external resources if the user refused to use them.
 //
 // Parameters:
-//  RequestsIDs - Array of UUID - an array of IDs of requests to
+//  RequestsIDs - Array of UUID -  array of IDs for requests to
 //                           use external resources.
 //
 Procedure CancelApplyRequestsToUseExternalResources(Val RequestsIDs) Export

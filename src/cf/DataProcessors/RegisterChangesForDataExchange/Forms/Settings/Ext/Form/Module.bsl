@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 //
@@ -36,7 +34,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ChoiceList = Items.ExternalQueryDataProcessor.ChoiceList;
 	
-	// The data processor is included in the metadata if it is a predefined part of the configuration.
+	// 
 	If Metadata.DataProcessors.Find(QueryConsoleID) = Undefined Then
 		CurItem = ChoiceList.FindByValue(1);
 		If CurItem <> Undefined Then
@@ -46,7 +44,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.QueryConsole.Visible = (ChoiceList.Count() > 0);
 	
-	// Option string from the file
+	// 
 	If CurrentObject.IsFileInfobase() Then
 		CurItem = ChoiceList.FindByValue(2);
 		If CurItem <> Undefined Then
@@ -54,7 +52,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 
-	// SSLGroup form item is visible if this SSL version is supported.
+	// 
 	Items.SLGroup.Visible = CurrentObject.ConfigurationSupportsSSL
 	
 EndProcedure
@@ -69,14 +67,14 @@ Procedure ConfirmSelection(Command)
 	
 	Validation = CheckSettings();
 	If Validation.HasErrors Then
-		// Report errors.
+		// 
 		If Validation.QueryExternalDataProcessorAddressSetting <> Undefined Then
 			ReportError(Validation.QueryExternalDataProcessorAddressSetting, "Object.QueryExternalDataProcessorAddressSetting");
 			Return;
 		EndIf;
 	EndIf;
 	
-	// Successful.
+	// 
 	ShouldSaveSettings();
 	Close();
 EndProcedure

@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-// Generates a table with a number of attempts for the specified objects.
-// If the object has not been deleted before, the information on the number of attempts will not be displayed.
+// Generates a table with the number of attempts for the specified objects.
+// If the object has not been deleted before, there will be no record of the number of attempts.
 // 
 // Parameters:
 //   Objects - Array of AnyRef

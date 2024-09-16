@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,10 +12,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.BatchEditObjects
-
-// Returns object attributes that can be edited using the bulk attribute modification data processor.
 // 
+
+// Returns object details that can be edited
+// by processing group changes to details.
 //
 // Returns:
 //  Array of String
@@ -43,15 +41,15 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.Interactions
+// 
 
-// Gets email addressees.
+// Gets the recipients the email.
 //
 // Parameters:
-//  Ref  - DocumentRef.OutgoingEmail - a document whose subscriber is to be received.
+//  Ref  - DocumentRef.OutgoingEmail -  the document to get the subscriber for.
 //
 // Returns:
-//   ValueTable   - Table containing the columns Contact, Presentation, and Address.
+//   ValueTable   - 
 //
 Function GetContacts(Ref) Export
 	
@@ -109,7 +107,7 @@ EndFunction
 
 // End StandardSubsystems.Interactions
 
-// StandardSubsystems.AccessManagement
+// 
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -127,9 +125,9 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
-// Defines the list of generation commands.
+// Defines a list of creation commands based on.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
@@ -144,14 +142,14 @@ Procedure AddGenerationCommands(GenerationCommands, Parameters) Export
 	
 EndProcedure
 
-// Intended for use by the AddGenerationCommands procedure in other object manager modules.
-// Adds this object to the list of generation commands.
+// To use in the procedure add a create command Based on other object Manager modules.
+// Adds this object to the list of base creation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
 //
 // Returns:
-//  ValueTableRow, Undefined - Details of the added command.
+//  ValueTableRow, Undefined - 
 //
 Function AddGenerateCommand(GenerationCommands) Export
 	
@@ -185,8 +183,8 @@ EndProcedure
 
 #Region UpdateHandlers
 
-// Registers the objects to be updated in the InfobaseUpdate exchange plan.
-// 
+// Registers objects
+// that need to be updated to the new version on the exchange plan for updating the information Database.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -214,8 +212,8 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// A handler of the update to version 3.1.5.147:
-// - — fills in the Text attribute for the HTML emails where it is not filled in.
+// The handler of the update to version 3.1.5.147:
+// - fills in the details of the Text, for letters in HTML format, for which it was not previously filled in.
 //
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
@@ -255,7 +253,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		
 		Try
 			
-			// Set a managed lock to perform a locking read of the object.
+			// 
 			Block = New DataLock;
 			
 			LockItem = Block.Add(FullObjectName);

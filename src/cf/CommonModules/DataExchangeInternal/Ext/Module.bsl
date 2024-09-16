@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Returns an error flag at start:
-// 1) Exchange message import error:
-//    - metadata object ID import error,
-//    - object ID verification error,
-//    - error of importing exchange message before infobase update,
-//    - error of importing exchange message before infobase update when infobase version is not changed;
-// 2) Database update error after successful exchange message import.
+// Returns an error flag at startup:
+// 1) Error loading message exchange:
+//    - error loading IDs of the metadata objects in the information sharing
+//    - error checking of IDs of the metadata objects
+//    - error message download exchange before upgrading IB,
+//    - error message download sharing before you upgrade to IB mode when the version has not changed;
+// 2) Error updating the IB after successfully uploading the exchange message.
 //
 Function RetryDataExchangeMessageImportBeforeStart() Export
 
@@ -32,7 +30,7 @@ EndFunction
 //
 Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	
-	// Session parameters must be initialized without using application parameters.
+	// 
 
 	If ParameterName = "DataExchangeMessageImportModeBeforeStart" Then
 		SessionParameters.DataExchangeMessageImportModeBeforeStart = New FixedStructure(New Structure);
@@ -42,11 +40,11 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 
 	If Common.SeparatedDataUsageAvailable() Then
 		
-		// Procedure for updating cached values and session parameters.
+		// 
 		RefreshObjectsRegistrationMechanismCache();
 		
-		// Register the names of the parameters set during the runtime of
-		// "DataExchangeServerCall.RefreshObjectsRegistrationMechanismCache".
+		// 
+		// 
 		SpecifiedParameters.Add("ObjectsRegistrationRules");
 		SpecifiedParameters.Add("ORMCachedValuesRefreshDate");
 
@@ -78,8 +76,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 
 EndProcedure
 
-// Checks whether object registration cache is up-to-date.
-// If the cached data is obsolete, cache gets initialized with new values.
+// Checks whether the object registration mechanism Cache is up-to-date.
+// If the cache is outdated, the Cache is initialized with the current values.
 //
 // Parameters:
 //  No.
@@ -102,12 +100,12 @@ Procedure CheckObjectsRegistrationMechanismCache() Export
 
 EndProcedure
 
-// Sets (or updates) cached values and session parameters for data exchange subsystem.
+// 
 //
-// The session parameters are
-//   ObjectsRegistrationRules - ValueStorage - A binary value table of object registration rules.
-//                                                    SelectiveObjectsRegistrationRules -
-//   ORMCachedValuesRefreshDate - Date (date and time) - Date of the most recent cache for the "Data exchange" subsystem.
+// 
+//   
+//                                                    
+//   
 //                                                                         
 //
 Procedure RefreshObjectsRegistrationMechanismCache() Export
@@ -125,24 +123,24 @@ Procedure RefreshObjectsRegistrationMechanismCache() Export
 		
 	EndIf;
 	
-	// Getting date value for checking whether cached data is up-to-date.
+	// 
 	SessionParameters.ORMCachedValuesRefreshDate = 
 		GetFunctionalOption("ORMCachedValuesLatestUpdate");
 
 EndProcedure
 
-// Updates the "ORMCachedValuesRefreshDate" constant value.
 // 
-// See the procedure "DataExchangeServerCall.ResetObjectsRegistrationMechanismCache".
+// 
+// 
 //
 Procedure ResetObjectsRegistrationMechanismCache() Export
 
 	If Common.SeparatedDataUsageAvailable() Then
 
 		SetPrivilegedMode(True);
-		// Write the server date and time in UTC using "CurrentUniversalDate".
-		// (Do not use "CurrentSessionDate".)
-		// The server time in UTC is used as a uniqueness key in the ORM cache.
+		// 
+		// 
+		// 
 		// 
 		Constants.ORMCachedValuesRefreshDate.Set(CurrentUniversalDate());
 
@@ -150,10 +148,10 @@ Procedure ResetObjectsRegistrationMechanismCache() Export
 
 EndProcedure
 
-// Returns the list of priority exchange data items.
+// Returns a list of priority exchange data.
 //
 // Returns:
-//  Array - a collection of references to priority exchange data items.
+//  Array - 
 //
 Function PriorityExchangeData() Export
 
@@ -170,7 +168,7 @@ Function PriorityExchangeData() Export
 	Return Result;
 EndFunction
 
-// Clears the list of priority exchange data items.
+// Clears the list of priority exchange data.
 //
 Procedure ClearPriorityExchangeData() Export
 
@@ -180,7 +178,7 @@ Procedure ClearPriorityExchangeData() Export
 
 EndProcedure
 
-// Adds the passed value to the list of priority exchange data items.
+// Complements the list of priority exchange data with the passed value.
 //
 Procedure SupplementPriorityExchangeData(Val Data) Export
 
@@ -194,8 +192,8 @@ Procedure SupplementPriorityExchangeData(Val Data) Export
 
 EndProcedure
 
-// Returns the flag that shows whether application parameters are imported into the infobase from the exchange message.
-// This function is used in DIB data exchange when data is imported to a subordinate node.
+// Returns an indication of the mode for loading program parameters from the exchange message to the information database.
+// Relevant for exchange in the rib when loading data in the subordinate node of the rib.
 //
 Function DataExchangeMessageImportModeBeforeStart(Property) Export
 
@@ -205,15 +203,15 @@ Function DataExchangeMessageImportModeBeforeStart(Property) Export
 
 EndFunction
 
-// Returns a flag that shows whether an exchange plan is used in data exchange.
-// If an exchange plan contains at least one node apart from the predefined one,
-// it is considered being used in data exchange.
+// Returns whether the exchange plan is used in data exchange.
+// If the exchange plan contains at least one node other than the predefined
+// one, it is considered to be in use.
 //
 // Parameters:
-//  ExchangePlanName - String - an exchange plan name, as it is set in Designer.
+//  ExchangePlanName - String -  name of the exchange plan as specified in the Configurator.
 //
 // Returns:
-//  Boolean - True if the exchange plan is being used, False if it is not being used.
+//  Boolean - 
 //
 Function DataExchangeEnabled(Val ExchangePlanName, Val Sender) Export
 
@@ -222,10 +220,10 @@ Function DataExchangeEnabled(Val ExchangePlanName, Val Sender) Export
 	Return DataExchangeCached.DataExchangeEnabled(ExchangePlanName, Sender);
 EndFunction
 
-// Returns the value of session parameter ObjectsRegistrationRules obtained in privileged mode.
+// Returns the value of the session option Profileregistry received in privileged mode.
 //
 // Returns:
-//  ValueStorage - the value of the ObjectsRegistrationRules session parameter.
+//  ValueStorage - 
 //
 Function SessionParametersObjectsRegistrationRules() Export
 
@@ -235,10 +233,10 @@ Function SessionParametersObjectsRegistrationRules() Export
 
 EndFunction
 
-// Returns the flag that indicates whether data changes are registered for the specified recipient.
+// Returns an indication that data changes were registered for the recipient.
 //
 // Returns:
-//  Boolean - True if there is registered data, False - if there is none.
+//  Boolean - 
 //
 Function ChangesRegistered(Val Recipient) Export
 
@@ -276,10 +274,10 @@ EndFunction
 // For internal use only.
 //
 // Parameters:
-//   FileID - UUID - data transfer session UUID.
-//   FilePartToImportNumber - Number - the file part number.
-//   FilePartToImport - BinaryData - the file part details.
-//   ErrorMessage - String - operation error details.
+//   FileID - UUID -  unique ID of the data transfer session.
+//   FilePartToImportNumber - Number -  part number of the file.
+//   FilePartToImport - BinaryData -  data part of the file.
+//   ErrorMessage - String -  description of the error when performing the operation.
 //
 Function ImportFilePart(FileID, FilePartToImportNumber, FilePartToImport, ErrorMessage) Export
 
@@ -388,7 +386,7 @@ Function PrepareFileForImport(FileID, ErrorMessage) Export
 		Raise (ErrorMessage);
 	EndTry;
 	
-	// Unpack.
+	// 
 	Dearchiver = New ZipFileReader(ArchiveName);
 
 	If Dearchiver.Items.Count() = 0 Then
@@ -413,7 +411,7 @@ Function PrepareFileForImport(FileID, ErrorMessage) Export
 	Dearchiver.Extract(ArchiveItem, TempFilesDir);
 	Dearchiver.Close();
 	
-	// Placing the file to the file temporary storage directory.
+	// 
 	ImportDirectory          = DataExchangeServer.TempFilesStorageDirectory();
 	NameOfFileWithData         = CommonClientServer.GetNameWithExtension(FileID,
 		CommonClientServer.GetFileNameExtension(FileName));
@@ -430,7 +428,7 @@ Function PrepareFileForImport(FileID, ErrorMessage) Export
 
 	TempStorageFileID = DataExchangeServer.PutFileInStorage(FileNameInImportDirectory);
 	
-	// Delete temporary files.
+	// 
 	Try
 		DeleteFiles(TempFilesDir);
 	Except
@@ -458,7 +456,7 @@ Procedure PrepareDataForExportFromInfobase(ProcedureParameters, StorageAddress) 
 	FullFileName         = CommonClientServer.GetFullFileName(
 		TempFilesDir, FileName);
 		
-	// Open an exchange file.
+	// 
 	DataExchangeXDTOServer.OpenExportFile(ExchangeComponents, FullFileName);
 
 	If ExchangeComponents.FlagErrors Then
@@ -471,7 +469,7 @@ Procedure PrepareDataForExportFromInfobase(ProcedureParameters, StorageAddress) 
 
 	ExchangeSettingsStructure = ExchangeSettingsStructure(ExchangeComponents, Enums.ActionsOnExchange.DataExport);
 	
-	// Export data.
+	// 
 	Try
 		DataExchangeXDTOServer.ExecuteDataExport(ExchangeComponents);
 	Except
@@ -503,10 +501,10 @@ Procedure PrepareDataForExportFromInfobase(ProcedureParameters, StorageAddress) 
 
 	Else
 		
-		// Putting a file to a temporary storage.
+		// 
 		TempStorageFileID = String(DataExchangeServer.PutFileInStorage(FullFileName));
 		
-		// Creating a temporary directory for storing data file parts.
+		// 
 		TempDirectory                     = TemporaryExportDirectory(
 			TempStorageFileID);
 		SharedFileName               = CommonClientServer.GetFullFileName(
@@ -518,13 +516,13 @@ Procedure PrepareDataForExportFromInfobase(ProcedureParameters, StorageAddress) 
 		CreateDirectory(TempDirectory);
 		FileCopy(FullFileName, SourceFileNameInTemporaryDirectory);
 		
-		// Archive the file.
+		// 
 		Archiver = New ZipFileWriter(SharedFileName);
 		Archiver.Add(SourceFileNameInTemporaryDirectory);
 		Archiver.Write();
 
 		If WebServiceParameters.FilePartSize > 0 Then
-			// Splitting a file into parts.
+			// 
 			FilesNames = SplitFile(SharedFileName, WebServiceParameters.FilePartSize * 1024);
 		Else
 			FilesNames = New Array;
@@ -603,7 +601,7 @@ Procedure ImportXDTODateToInfobase(ProcedureParameters, StorageAddress) Export
 	If Not ExchangeComponents.FlagErrors And ExchangeComponents.IsExchangeViaExchangePlan
 		And ExchangeComponents.UseHandshake Then
 		
-		// Writing information on the incoming message number.
+		// 
 		BeginTransaction();
 		Try
 			Block = New DataLock;
@@ -753,7 +751,7 @@ Procedure PutMessageForDataMapping(ExchangeNode, MessageID) Export
 
 	SetPrivilegedMode(True);
 	
-	// Deleting a previous message for data mapping.
+	// 
 	Filter = New Structure("InfobaseNode", ExchangeNode);
 	CommonSettings = InformationRegisters.CommonInfobasesNodesSettings.Get(Filter);
 
@@ -773,7 +771,7 @@ Procedure PutMessageForDataMapping(ExchangeNode, MessageID) Export
 				Try
 					DeleteFiles(TempFileName);
 				Except
-					// Return the file info to the temporary storage where it will be deleted by a schedule job.
+					// 
 					// 
 					DataExchangeServer.PutFileInStorage(TempFileName,
 						CommonSettings.MessageForDataMapping);
@@ -787,8 +785,8 @@ Procedure PutMessageForDataMapping(ExchangeNode, MessageID) Export
 
 EndProcedure
 
-// Gets the state of a long-running operation (background job) being executed in a correspondent
-// infobase for a specific node.
+// Retrieves the status of a long-running operation (background task) performed in the corresponding database for the information
+// database node.
 //
 Function TimeConsumingOperationStateForInfobaseNode(Val OperationID, Val InfobaseNode,
 	Val AuthenticationParameters = Undefined, ErrorMessageString = "") Export
@@ -825,7 +823,7 @@ Function TimeConsumingOperationStateForInfobaseNode(Val OperationID, Val Infobas
 
 EndFunction
 
-// Sets the flag indicating whether the extension import is required
+// Sets whether extensions need to be loaded
 Procedure EnableLoadingExtensionsThatChangeTheDataStructure() Export
 
 	SetPrivilegedMode(True);
@@ -834,7 +832,7 @@ Procedure EnableLoadingExtensionsThatChangeTheDataStructure() Export
 
 EndProcedure
 
-// Resets the flag indicating whether the extension import is required
+// Resets the indication that the extension needs to be loaded
 Procedure DisableLoadingExtensionsThatChangeTheDataStructure() Export
 
 	SetPrivilegedMode(True);
@@ -845,7 +843,7 @@ Procedure DisableLoadingExtensionsThatChangeTheDataStructure() Export
 
 EndProcedure
 
-// Returns the flag indicating whether the extension import is required
+// Returns an indication that extensions need to be loaded
 Function LoadExtensionsThatChangeDataStructure() Export
 
 	SetPrivilegedMode(True);
@@ -854,32 +852,16 @@ Function LoadExtensionsThatChangeDataStructure() Export
 
 EndFunction
 
-Procedure SetDIBDataImportFlag(Enable) Export
-	
-	If ExchangePlans.MasterNode() = Undefined Then
-		Return;
-	EndIf;
-	
-	SetPrivilegedMode(True);
-	
-	If Constants.IsDIBDataImportInProgress.Get() = Enable Then
-		Return;
-	EndIf;
-	
-	Constants.IsDIBDataImportInProgress.Set(Enable);
-	
-EndProcedure
-
 #Region SerializationMethodsExchangeExecution
 
-// Returns the table of predefined infobase data.
+// Returns a table of predefined data in the information database.
 //
 // Returns:
-//   ValueTable - A set of predefined items:
-//     * TableName - String - infobase table name.
-//     * XMLTypeName1 - String - the name of a serialized object type.
-//     * Ref - AnyRef - a reference to the predefined data item.
-//     * PredefinedDataName - String - name of the predefined item.
+//   ValueTable - :
+//     * TableName - String -  name of the information security table.
+//     * XMLTypeName1 - String -  name of the serialized object type.
+//     * Ref - AnyRef -  a reference to a predefined data element.
+//     * PredefinedDataName - String -  name of the predefined element.
 // 
 Function PredefinedDataTable1() Export
 
@@ -953,12 +935,13 @@ Function PredefinedDataTable1() Export
 EndFunction
 
 // Parameters:
-//   Data - CatalogObject
+//   Data - CatalogObject,
 //          - DocumentObject
 //          - ChartOfAccountsObject
 //          - ChartOfCalculationTypesObject
-//          - InformationRegisterRecordSet -
-//            a data object.
+//          - InformationRegisterRecordSet
+//          - ConstantValueManager -
+//             data object.
 //   PredefinedDataTable - See DataExchangeInternal.PredefinedDataTable1
 // 
 Procedure MarkRefsToPredefinedData(Data, PredefinedDataTable) Export
@@ -1012,7 +995,7 @@ EndProcedure
 //   Data - CatalogObject
 //          - DocumentObject
 //          - ChartOfAccountsObject
-//          - InformationRegisterRecordSet - an arbitrary data object.
+//          - InformationRegisterRecordSet - 
 //   PredefinedDataTable - See DataExchangeInternal.PredefinedDataTable1
 // 
 Procedure ReplaceRefsToPredefinedItems(Data, PredefinedDataTable) Export
@@ -1085,11 +1068,11 @@ Function ExchangePlanContent(ExchangePlanName, Periodic2 = True, Regulatory = Tr
 
 EndFunction
 
-// Adds information on number of items per transaction set in the constant
-// to the structure that contains parameters of exchange message transport.
+// Adds information about the number of elements in a transaction set in a constant
+// to the structure containing parameters for the transport of exchange messages.
 //
 // Parameters:
-//  Result - Structure - contains parameters of exchange message transport.
+//  Result - Structure -  contains parameters for the transport of exchange messages.
 // 
 Procedure AddTransactionItemsCountToTransportSettings(Result) Export
 
@@ -1100,13 +1083,13 @@ Procedure AddTransactionItemsCountToTransportSettings(Result) Export
 
 EndProcedure
 
-// Returns the area number by the exchange plan node code (message exchange).
+// Returns the area number based on the node code of the exchange plan (messaging).
 // 
 // Parameters:
-//  NodeCode - String - an exchange plan node code.
+//  NodeCode - String -  code of the exchange plan node.
 // 
 // Returns:
-//  Number - area number.
+//  Number - 
 //
 Function DataAreaNumberFromExchangePlanNodeCode(Val NodeCode) Export
 
@@ -1119,13 +1102,13 @@ Function DataAreaNumberFromExchangePlanNodeCode(Val NodeCode) Export
 	Return Number(Result);
 EndFunction
 
-// Returns data of the first record of query result as a structure.
+// Returns data from the first record of the query result as a structure.
 // 
 // Parameters:
-//  QueryResult - QueryResult - a query result containing the data to be processed.
+//  QueryResult - QueryResult -  the result of the request containing the data to be processed.
 // 
 // Returns:
-//  Structure - a structure with the result.
+//  Structure - 
 //
 Function QueryResultToStructure(Val QueryResult) Export
 
@@ -1147,9 +1130,9 @@ Function QueryResultToStructure(Val QueryResult) Export
 EndFunction
 
 // Parameters:
-//   Filter - Filter - custom filter.
-//   ItemKey - String - a filter item name.
-//   ElementValue - Arbitrary - filter item value.
+//   Filter - Filter -  random selection.
+//   ItemKey - String -  name of the selection element.
+//   ElementValue - Arbitrary -  value of the selection element.
 // 
 Procedure SetFilterItemValue(Filter, ItemKey, ElementValue) Export
 
@@ -1162,49 +1145,49 @@ EndProcedure
 
 #Region OperationsWithInformationRegisters
 
-// Adds one record to the information register by the passed structure values.
+// Adds one entry to the information register for the passed structure values.
 //
 // Parameters:
-//  RecordStructure - Structure - a structure whose values will be used for creating and filling in the record
+//  RecordStructure - Structure -  the structure to use for creating a set of records and populating this
 //                                set.
-//  RegisterName     - String - Name of information register to add the record to.
+//  RegisterName     - String -  name of the information register to add the entry to.
 // 
 Procedure AddRecordToInformationRegister(RecordStructure, Val RegisterName, Load = False) Export
 
 	RecordSet = CreateInformationRegisterRecordSet(RecordStructure, RegisterName);
 	
-	// Adding a single record to a new record set.
+	// 
 	NewRecord = RecordSet.Add();
 	
-	// Filling record property values from the passed structure.
+	// 
 	FillPropertyValues(NewRecord, RecordStructure);
 
 	RecordSet.DataExchange.Load = Load;
 	
-	// Writing a record set
+	// 
 	RecordSet.Write();
 
 EndProcedure
 
-// Updates a record in the information register by the passed structure values.
+// Updates a record in the information register for the given values of the structure.
 //
 // Parameters:
-//  RecordStructure - Structure - a structure whose values will be used to create a record manager and update the record.
-//  RegisterName     - String - Name of information register to update the record in.
+//  RecordStructure - Structure -  structure, the values of which you want to create Manager record and update the record.
+//  RegisterName     - String -  the name of the register information in which you want to update the record.
 // 
 Procedure UpdateInformationRegisterRecord(RecordStructure, Val RegisterName) Export
 
 	RegisterMetadata = Metadata.InformationRegisters[RegisterName]; // MetadataObjectInformationRegister
 	
-	// Creating a register record manager.
+	// 
 	RecordManager = InformationRegisters[RegisterName].CreateRecordManager();
 	
-	// Setting a filter by register dimensions.
+	// 
 	For Each Dimension In RegisterMetadata.Dimensions Do
 
 		DimensionName = Dimension.Name;
 		
-		// If a value is specified in the structure, the filter is set.
+		// 
 		If RecordStructure.Property(DimensionName) Then
 
 			RecordManager[DimensionName] = RecordStructure[DimensionName];
@@ -1213,22 +1196,22 @@ Procedure UpdateInformationRegisterRecord(RecordStructure, Val RegisterName) Exp
 
 	EndDo;
 	
-	// Reading a record from the infobase.
+	// 
 	RecordManager.Read();
 	
-	// Filling record property values from the passed structure.
+	// 
 	FillPropertyValues(RecordManager, RecordStructure);
 	
-	// Write the record manager.
+	// 
 	RecordManager.Write();
 
 EndProcedure
 
-// Deletes a record set for the passed structure values from the register.
+// Deletes a set of entries in the register based on the passed structure values.
 //
 // Parameters:
-//  RecordStructure - Structure - a structure whose values are used to delete a record set.
-//  RegisterName     - String - Name of the information register to remove the record set from.
+//  RecordStructure - Structure -  structure to delete a set of records based on its values.
+//  RegisterName     - String -  the name of the register information in which you want to delete a set of records.
 // 
 Procedure DeleteRecordSetFromInformationRegister(RecordStructure, RegisterName, Load = False) Export
 
@@ -1236,26 +1219,26 @@ Procedure DeleteRecordSetFromInformationRegister(RecordStructure, RegisterName, 
 
 	RecordSet.DataExchange.Load = Load;
 	
-	// Write a record set.
+	// 
 	RecordSet.Write();
 
 EndProcedure
 
-// Creates an information register record set by the passed structure values. Adds a single record to the set.
+// Creates a set of information register entries for the passed structure values. Adds one entry to the set.
 //
 // Parameters:
-//  RecordStructure - Structure - a structure whose values will be used for creating and filling in the record
+//  RecordStructure - Structure -  a structure whose values should be used to create a set of records and populate this
 //                                set.
-//  RegisterName     - String - an information register name.
+//  RegisterName     - String -  name of the information register.
 //  
 // Returns:
-//   InformationRegisterRecordSet - a register record set by the specified filter.
+//   InformationRegisterRecordSet - 
 // 
 Function CreateInformationRegisterRecordSet(RecordStructure, RegisterName) Export
 
 	RecordSet = InformationRegisters[RegisterName].CreateRecordSet(); // InformationRegisterRecordSet
 	
-	// Setting a filter by register dimensions.
+	// 
 	For Each KeyValue In RecordStructure Do
 		SetFilterItemValue(RecordSet.Filter, KeyValue.Key, KeyValue.Value);
 	EndDo;
@@ -1434,7 +1417,7 @@ Procedure CheckMarkPredefinedDataRef(Value, PredefinedDataTable)
 
 	PredefinedDataRow = PredefinedDataTable.Find(Value, "Ref");
 	If PredefinedDataRow = Undefined Then
-		// Value is not a predefined item.
+		// 
 		Return;
 	EndIf;
 
@@ -1445,9 +1428,9 @@ Procedure CheckMarkPredefinedDataRef(Value, PredefinedDataTable)
 EndProcedure
 
 // Parameters:
-//   Data - Arbitrary - a data object.
-//   CollectionsArray - Array of MetadataObjectCollection - a set of attribute collection.
-//   PredefinedDataTable - ValueTable - a predefined items table.
+//   Data - Arbitrary -  data object.
+//   CollectionsArray - Array of MetadataObjectCollection -  a set of props collections.
+//   PredefinedDataTable - ValueTable -  table of predefined elements.
 // 
 Procedure CheckMarkPredefinedDataRefInObjectAttributesCollection(Data, CollectionsArray,
 	PredefinedDataTable)
@@ -1461,8 +1444,8 @@ Procedure CheckMarkPredefinedDataRefInObjectAttributesCollection(Data, Collectio
 EndProcedure
 
 // Parameters:
-//   TableData - ValueTable - a table with object data.
-//   PredefinedDataTable - ValueTable - a predefined items table.
+//   TableData - ValueTable -  table with object data.
+//   PredefinedDataTable - ValueTable -  table of predefined elements.
 // 
 Procedure CheckMarkPredefinedDataRefInDataTable(TableData, PredefinedDataTable)
 
@@ -1525,9 +1508,9 @@ Procedure ProcessPredefinedItemImport(Data, PredefinedDataTable)
 EndProcedure
 
 // Parameters:
-//   Source - Arbitrary - an object is a data source.
-//   Receiver - Arbitrary - a destination data object.
-//   CollectionsArray - Array of MetadataObjectCollection - a set of attribute collection.
+//   Source - Arbitrary -  data source object.
+//   Receiver - Arbitrary -  object-the receiver of the data.
+//   CollectionsArray - Array of MetadataObjectCollection -  a set of props collections.
 //
 Procedure TransferAttributesCollectionValuesBetweenObjects(Source, Receiver, CollectionsArray)
 
@@ -1547,12 +1530,16 @@ Procedure TransferAttributesCollectionValuesBetweenObjects(Source, Receiver, Col
 EndProcedure
 
 // Parameters:
-//   Data - Arbitrary - a data object.
-//   AttributeName - String - an object attribute name.
+//   Data - Arbitrary -  data object.
+//   AttributeName - String -  name of the item's details.
 //   PredefinedDataTable - See DataExchangeInternal.PredefinedDataTable1
 // 
 Procedure CheckReplacePredefinedDataRefInObjectAttribute(Data, AttributeName, PredefinedDataTable)
 
+	If AttributeName = "Ref" Then
+		Return;
+	EndIf;
+	
 	Value = Data[AttributeName];
 
 	If Not Common.IsReference(TypeOf(Value)) Then
@@ -1567,8 +1554,8 @@ Procedure CheckReplacePredefinedDataRefInObjectAttribute(Data, AttributeName, Pr
 EndProcedure
 
 // Parameters:
-//   Data - Arbitrary - a data object.
-//   CollectionsArray - Array of MetadataObjectCollection - a set of attribute collection.
+//   Data - Arbitrary -  data object.
+//   CollectionsArray - Array of MetadataObjectCollection -  a set of props collections.
 //   PredefinedDataTable - See DataExchangeInternal.PredefinedDataTable1
 //
 Procedure CheckReplacePredefinedDataRefInObjectAttributesCollection(Data, CollectionsArray,
@@ -1583,7 +1570,7 @@ Procedure CheckReplacePredefinedDataRefInObjectAttributesCollection(Data, Collec
 EndProcedure
 
 // Parameters:
-//   TableData - TabularSection - an object table or a register record set.
+//   TableData - TabularSection -  table part of an object or a set of register entries.
 //   PredefinedDataTable - See DataExchangeInternal.PredefinedDataTable1
 //
 Procedure CheckReplacePredefinedDataRefInDataTable(TableData, PredefinedDataTable)
@@ -1608,7 +1595,7 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use the DataExchangeServer.CheckCanSynchronizeData(False).
+// Deprecated.
 //
 Procedure CheckCanSynchronizeData() Export
 

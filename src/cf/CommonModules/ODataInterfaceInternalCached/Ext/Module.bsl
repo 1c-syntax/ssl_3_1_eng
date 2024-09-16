@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
@@ -170,12 +168,12 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 			Or Class = MetadataClasses().Tasks
 			Or Class = MetadataClasses().ExchangePlans) Then
 		
-		// Standard attributes.
+		// 
 		For Each StandardAttribute In MetadataObject.StandardAttributes Do
 			FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, StandardAttribute.Type);
 		EndDo;
 		
-		// Standard tables.
+		// 
 		If (Class = MetadataClasses().ChartsOfAccounts Or Class = MetadataClasses().ChartsOfCalculationTypes) Then
 			
 			For Each StandardTabularSection In MetadataObject.StandardTabularSections Do
@@ -186,18 +184,18 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 			
 		EndIf;
 		
-		// Attributes.
+		// Attributes
 		For Each Attribute In MetadataObject.Attributes Do
 			FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, Attribute.Type);
 		EndDo;
 		
-		// Tables.
+		// 
 		For Each TabularSection In MetadataObject.TabularSections Do
-			// Standard attributes.
+			// 
 			For Each StandardAttribute In TabularSection.StandardAttributes Do
 				FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, StandardAttribute.Type);
 			EndDo;
-			// Attributes.
+			// Attributes
 			For Each Attribute In TabularSection.Attributes Do
 				FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, Attribute.Type);
 			EndDo;
@@ -205,7 +203,7 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 		
 		If Class = MetadataClasses().Tasks Then
 			
-			// Addressing attributes.
+			// 
 			For Each AddressingAttribute In MetadataObject.AddressingAttributes Do
 				FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, AddressingAttribute.Type);
 			EndDo;
@@ -214,7 +212,7 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 		
 		If Class = MetadataClasses().Documents Then
 			
-			// Register records.
+			// RegisterRecords
 			For Each Register In MetadataObject.RegisterRecords Do
 				ObjectDependencies.Insert(Register.FullName(), True);
 			EndDo;
@@ -223,10 +221,10 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 		
 		If Class = MetadataClasses().ChartsOfCharacteristicTypes Then
 			
-			// Characteristic types.
+			// 
 			FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, MetadataObject.Type);
 			
-			// Additional characteristic values.
+			// 
 			If MetadataObject.CharacteristicExtValues <> Undefined Then
 				ObjectDependencies.Insert(MetadataObject.CharacteristicExtValues.FullName(), True);
 			EndIf;
@@ -235,17 +233,17 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 		
 		If Class = MetadataClasses().ChartsOfAccounts Then
 			
-			// Accounting flags.
+			// 
 			For Each AccountingFlag In MetadataObject.AccountingFlags Do
 				FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, AccountingFlag.Type);
 			EndDo;
 			
-			// Extra dimension types.
+			// 
 			If MetadataObject.ExtDimensionTypes <> Undefined Then
 				ObjectDependencies.Insert(MetadataObject.ExtDimensionTypes.FullName(), True);
 			EndIf;
 			
-			// Extra dimension accounting flags.
+			// 
 			For Each ExtDimensionAccountingFlag In MetadataObject.ExtDimensionAccountingFlags Do
 				FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, ExtDimensionAccountingFlag.Type);
 			EndDo;
@@ -254,7 +252,7 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 		
 		If Class = MetadataClasses().ChartsOfCalculationTypes Then
 			
-			// Baseline calculation types.
+			// 
 			For Each BaseCalculationType In MetadataObject.BaseCalculationTypes Do
 				ObjectDependencies.Insert(BaseCalculationType.FullName(), True);
 			EndDo;
@@ -263,17 +261,17 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 		
 	ElsIf Class = MetadataClasses().Sequences Then
 		
-		// Dimensions.
+		// Dimensions
 		For Each Dimension In MetadataObject.Dimensions Do
 			FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, Dimension.Type);
 		EndDo;
 		
-		// Incoming documents.
+		// 
 		For Each IncomingDocument In MetadataObject.Documents Do
 			ObjectDependencies.Insert(IncomingDocument.FullName(), True);
 		EndDo;
 		
-		// Register records.
+		// RegisterRecords
 		For Each Register In MetadataObject.RegisterRecords Do
 			ObjectDependencies.Insert(Register.FullName(), True);
 		EndDo;
@@ -283,29 +281,29 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 			Or Class = MetadataClasses().AccountingRegisters
 			Or Class = MetadataClasses().CalculationRegisters) Then
 		
-		// Standard attributes.
+		// 
 		For Each StandardAttribute In MetadataObject.StandardAttributes Do
 			FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, StandardAttribute.Type);
 		EndDo;
 		
-		// Dimensions.
+		// Dimensions
 		For Each Dimension In MetadataObject.Dimensions Do
 			FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, Dimension.Type);
 		EndDo;
 		
-		// Resources.
+		// Resources
 		For Each Resource In MetadataObject.Resources Do
 			FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, Resource.Type);
 		EndDo;
 		
-		// Attributes.
+		// Attributes
 		For Each Attribute In MetadataObject.Attributes Do
 			FillModelByMetadataObjectDependenciesTypes(ObjectDependencies, Attribute.Type);
 		EndDo;
 		
 		If Class = MetadataClasses().AccountingRegisters Then
 			
-			// Chart of accounts.
+			// 
 			If MetadataObject.ChartOfAccounts <> Undefined Then
 				ObjectDependencies.Insert(MetadataObject.ChartOfAccounts.FullName(), True);
 			EndIf;
@@ -314,12 +312,12 @@ Procedure FillModelByMetadataObjectDependencies(Val ObjectDependencies, Val Meta
 		
 		If Class = MetadataClasses().CalculationRegisters Then
 			
-			// Chart of calculation types.
+			// 
 			If MetadataObject.ChartOfCalculationTypes <> Undefined Then
 				ObjectDependencies.Insert(MetadataObject.ChartOfCalculationTypes.FullName(), True);
 			EndIf;
 			
-			// Timetable.
+			// Schedule
 			If MetadataObject.Schedule <> Undefined Then
 				ObjectDependencies.Insert(MetadataObject.Schedule.FullName(), True);
 			EndIf;
@@ -385,7 +383,7 @@ EndProcedure
 
 Procedure FillModelBySeparators(Val Model)
 	
-	// Filling by the common attribute content
+	// 
 	
 	For Each CommonAttribute In Metadata.CommonAttributes Do
 		
@@ -419,7 +417,7 @@ Procedure FillModelBySeparators(Val Model)
 		
 	EndDo;
 	
-	// Make an assumption that sequences that contain separated documents are separated sequences.
+	// 
 	
 	For Each Sequence In Metadata.Sequences Do
 		
@@ -445,7 +443,7 @@ Procedure FillModelBySeparators(Val Model)
 		
 	EndDo;
 	
-	// Make an assumption that document journals that contain separated documents are separated document journals.
+	// 
 	
 	For Each DocumentJournal In Metadata.DocumentJournals Do
 		
@@ -471,7 +469,7 @@ Procedure FillModelBySeparators(Val Model)
 		
 	EndDo;
 	
-	// Make an assumption that recalculations that are subordinate to separated calculation registers are separated recalculations.
+	// 
 	
 	For Each CalculationRegister In Metadata.CalculationRegisters Do
 		

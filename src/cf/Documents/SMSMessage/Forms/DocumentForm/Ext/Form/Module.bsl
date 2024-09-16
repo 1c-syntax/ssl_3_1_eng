@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -36,20 +34,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Interactions.FillChoiceListForReviewAfter(Items.ReviewAfter.ChoiceList);
 	
-	// Determining types of contacts that can be created.
+	// 
 	ContactsToInteractivelyCreateList = Interactions.CreateValueListOfInteractivelyCreatedContacts();
 	Items.CreateContact.Visible      = ContactsToInteractivelyCreateList.Count() > 0;
 	
 	Interactions.PrepareNotifications(ThisObject, Parameters);
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("ItemForPlacementName", "AdditionalAttributesPage");
@@ -59,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	// End StandardSubsystems.Properties
 	
-	// StandardSubsystems.FilesOperations
+	// Standard subsystems.Remotefile
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		FilesHyperlink = ModuleFilesOperations.FilesHyperlink();
@@ -68,9 +66,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	// End StandardSubsystems.FilesOperations
 	
-	// StandardSubsystems.MessagesTemplates
+	// 
 	DeterminePossibilityToFillEmailByTemplate();
-	// End StandardSubsystems.MessagesTemplates
+	// End StandardSubsystems.MessageTemplates
 	
 EndProcedure
 
@@ -84,7 +82,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -100,7 +98,7 @@ Procedure OnReadAtServer(CurrentObject)
 	
 	Interactions.SetInteractionFormAttributesByRegisterData(ThisObject);
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.OnReadAtServer(ThisObject, CurrentObject);
@@ -109,14 +107,14 @@ Procedure OnReadAtServer(CurrentObject)
 	
 	OnCreatReadAtServer();
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -130,7 +128,7 @@ Procedure OnOpen(Cancel)
 	
 	Items.MessageText.UpdateEditText();
 	
-	// StandardSubsystems.Properties
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
@@ -139,14 +137,14 @@ Procedure OnOpen(Cancel)
 	
 	CheckContactCreationAvailability();
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// StandardSubsystems.FilesOperations
+	// Standard subsystems.Remotefile
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.OnOpen(ThisObject, Cancel);
@@ -158,7 +156,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
-	// StandardSubsystems.Properties
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		If ModulePropertyManagerClient.ProcessNotifications(ThisObject, EventName, Parameter) Then
@@ -173,25 +171,25 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	CheckContactCreationAvailability();
 	AddresseesCount = Object.SMSMessageRecipients.Count();
 	
-	// StandardSubsystems.FilesOperations
+	// Standard subsystems.Remotefile
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.NotificationProcessing(ThisObject, EventName);
 	EndIf;
 	// End StandardSubsystems.FilesOperations
 	
-	// StandardSubsystems.MessagesTemplates
+	// 
 	If EventName = "Write_MessageTemplates" Then
 		DeterminePossibilityToFillEmailByTemplate();
 	EndIf;
-	// End StandardSubsystems.MessagesTemplates
+	// End StandardSubsystems.MessageTemplates
 	
 EndProcedure
 
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteMode)
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.BeforeWriteAtServer(ThisObject, CurrentObject);
@@ -218,7 +216,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.FillCheckProcessing(ThisObject, Cancel, CheckedAttributes);
@@ -253,7 +251,7 @@ EndProcedure
 &AtClient
 Procedure ContactsAddlAttributesCommentPagesOnCurrentPageChange(Item, CurrentPage)
 	
-	// StandardSubsystems.Properties
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties")
 		And CurrentPage.Name = "AdditionalAttributesPage"
 		And Not PropertiesParameters.DeferredInitializationExecuted Then
@@ -308,7 +306,7 @@ Procedure SubjectOfStartChoice(Item, ChoiceData, StandardProcessing)
 	
 EndProcedure
 
-// StandardSubsystems.FilesOperations
+// Standard subsystems.Remotefile
 &AtClient
 Procedure Attachable_PreviewFieldClick(Item, StandardProcessing)
 	
@@ -490,7 +488,7 @@ Procedure CheckDeliveryStatuses(Command)
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -504,7 +502,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// StandardSubsystems.FilesOperations
+// Standard subsystems.Remotefile
 &AtClient
 Procedure Attachable_AttachedFilesPanelCommand(Command)
 	
@@ -516,7 +514,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 EndProcedure
 // End StandardSubsystems.FilesOperations
 
-// StandardSubsystems.MessagesTemplates
+// 
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -530,7 +528,7 @@ Procedure GenerateFromTemplate(Command)
 	
 EndProcedure
 
-// End StandardSubsystems.MessagesTemplates
+// End StandardSubsystems.MessageTemplates
 
 #EndRegion
 
@@ -554,7 +552,7 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-// StandardSubsystems.Properties
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -600,7 +598,7 @@ EndProcedure
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+// Other
 
 &AtClient
 Procedure CheckContactCreationAvailability()
@@ -725,13 +723,14 @@ Function SendingResutAtServer()
 		Write();
 	EndIf;
 	
-	If FileInfobase 
+	Result = True;
+	
+	If FileInfobase
 		And (Object.DateToSendEmail = Date(1,1,1) Or Object.DateToSendEmail < CurrentSessionDate())
 		And (Object.EmailSendingRelevanceDate = Date(1,1,1) Or Object.EmailSendingRelevanceDate > CurrentSessionDate()) Then
-			SentEmailsCount =  Interactions.SendSMSMessageByDocument(Object);
-			If Not SentEmailsCount > 0 Then
-				Return False;
-			EndIf;
+		
+		SentEmailsCount = Interactions.SendSMSMessageByDocument(Object);
+		Result = SentEmailsCount > 0;
 	Else
 			
 		Interactions.SetStateOutgoingDocumentSMSMessage(Object);
@@ -739,8 +738,9 @@ Function SendingResutAtServer()
 	EndIf;
 	
 	Write();
+	AvailabilityControl(ThisObject);
 	
-	Return True;
+	Return Result;
 	
 EndFunction
 
@@ -868,7 +868,7 @@ Function MessageSent(State)
 	
 EndFunction
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
@@ -893,7 +893,7 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 // End StandardSubsystems.AttachableCommands
 
-// StandardSubsystems.MessagesTemplates
+// 
 
 &AtClient
 Procedure FillByTemplateAfterTemplateChoice(Result, AdditionalParameters) Export
@@ -927,6 +927,6 @@ Procedure DeterminePossibilityToFillEmailByTemplate()
 	
 EndProcedure
 
-// End StandardSubsystems.MessagesTemplates
+// End StandardSubsystems.MessageTemplates
 
 #EndRegion

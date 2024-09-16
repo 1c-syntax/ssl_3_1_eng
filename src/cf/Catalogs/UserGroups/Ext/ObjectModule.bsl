@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -24,7 +22,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	VerifiedObjectAttributes = New Array;
 	Errors = Undefined;
 	
-	// Check the parent.
+	// 
 	If Parent = Users.AllUsersGroup() Then
 		CommonClientServer.AddUserError(Errors,
 			"Object.Parent",
@@ -32,13 +30,13 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 			"");
 	EndIf;
 	
-	// Checking for unfilled and duplicate users.
+	// 
 	VerifiedObjectAttributes.Add("Content.User");
 	
 	For Each CurrentRow In Content Do;
 		LineNumber = Content.IndexOf(CurrentRow);
 		
-		// Check whether the value is filled.
+		// 
 		If Not ValueIsFilled(CurrentRow.User) Then
 			CommonClientServer.AddUserError(Errors,
 				"Object.Content[%1].User",
@@ -49,7 +47,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 			Continue;
 		EndIf;
 		
-		// Checking for duplicate values.
+		// 
 		FoundValues = Content.FindRows(New Structure("User", CurrentRow.User));
 		If FoundValues.Count() > 1 Then
 			CommonClientServer.AddUserError(Errors,
@@ -67,20 +65,14 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
 EndProcedure
 
-// Cancels actions that cannot be performed on the "All users" group.
+// Blocks invalid actions with the predefined "All users" group.
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - The check "DataExchange.Import" should run after the register is locked.
+	// 
 	If Common.FileInfobase() Then
-		// Set an exclusive lock on the registers right away
-		// instead of automatically setting a shared lock when reading.
-		// The latter leads to a deadlock upon updating the membership of user groups.
-		Block = New DataLock;
-		Block.Add("InformationRegister.UserGroupsHierarchy");
-		Block.Add("InformationRegister.UserGroupCompositions");
-		Block.Lock();
+		UsersInternal.LockRegistersBeforeWritingToFileInformationSystem(True);
 	EndIf;
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;

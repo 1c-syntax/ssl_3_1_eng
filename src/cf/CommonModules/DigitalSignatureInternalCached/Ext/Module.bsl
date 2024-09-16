@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
@@ -142,7 +140,7 @@ Function CommonSettings() Export
 		If Selection.UsageMode <> Enums.DigitalSignatureAppUsageModes.Automatically Then
 			ApplicationSearchKeyByNameWithType = DigitalSignatureInternalClientServer.ApplicationSearchKeyByNameWithType(
 				Selection.ApplicationName, Selection.ApplicationType);
-			// Replace the 1C-supplied setting with the setting from the catalog.
+			// 
 			ApplicationsByNamesWithType.Insert(ApplicationSearchKeyByNameWithType, FixedDescription);
 		EndIf;
 		
@@ -492,9 +490,9 @@ Function YouCanCheckTheCertificateInTheCloudServiceWithTheFollowingParameters()
 	
 EndFunction
 
-// Function "ImprovedSignatureAvailable".
-// Determines whether 1C:Enterprise has the "CryptoSignature" type.
-// ValueToStringInternal(Type("CryptoSignature")) = "{""T"",a338a24d-6470-4101-8735-008988fb74d8}"
+// 
+// 
+// 
 // 
 // Returns:
 //   Boolean

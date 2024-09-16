@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -18,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ListMaximumSize.Visible = False;
 	EndIf;
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -37,7 +35,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -84,7 +82,7 @@ Procedure CheckIntegrity(Command)
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
@@ -176,12 +174,12 @@ Procedure PrepareSetClearDeletionMark(Volume, AdditionalParameters)
 	AdditionalParameters.DeletionMark = VolumeProperties.DeletionMark;
 	
 	If AdditionalParameters.DeletionMark Then
-		// Clear the deletion mark as it's required.
+		// 
 		
 		Query = Catalogs.FileStorageVolumes.RequestToUseExternalResourcesForVolume(
 			Volume, VolumeProperties.FullPathWindows, VolumeProperties.FullPathLinux);
 	Else
-		// Set a deletion mark as it's required.
+		// 
 		If Common.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 			ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
 			Query = ModuleSafeModeManager.RequestToClearPermissionsToUseExternalResources(Volume)

@@ -1,24 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 #Region FormsEventsHandlers
 
-// Handler of the "OnCreateAtServer" document form event.
+// Handler for the "append to Server" event in the document form.
 //
 // Parameters:
 //  Form - ClientApplicationForm:
-//   * Object - FormDataStructure, DocumentObject - Form's main attribute.
-//  Placement - FormGroup - a group where a label with the current original state will be located.
-//		           If Undefined, the label will be located in the lower right corner of the form. Optional. 
+//   * Object - FormDataStructure, DocumentObject - 
+//  Placement - FormGroup -  the group where the label about the current state of the original will be located.
+//		           If Undefined, then the label will be located in the lower-right corner of the form. Optional. 
 //
 Procedure OnCreateAtServerDocumentForm(Form, Placement = Undefined) Export
 
@@ -71,13 +69,13 @@ Procedure OnCreateAtServerDocumentForm(Form, Placement = Undefined) Export
 
 EndProcedure
 
-// Handler of the "OnCreateAtServer" list form event.
+// Handler for the "join Server" event in the list form.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a document list form.
-//  List - FormTable - the main form list.
-//  Placement - FormField - a list column next to which new columns of states will be located.
-//		                       If Undefined, the columns will be located at the end of the list. Optional.
+//  Form - ClientApplicationForm -  the list form of the document.
+//  List - FormTable -  the main list of the form.
+//  Placement - FormField -  the list column that will be preceded by the new state columns.
+//		                       If Undefined, then the columns will be located at the end of the list. Optional.
 //
 Procedure OnCreateAtServerListForm(Form, List, Placement = Undefined) Export
 
@@ -90,7 +88,7 @@ Procedure OnCreateAtServerListForm(Form, List, Placement = Undefined) Export
 		Return;
 	EndIf;
 	
-	// Create columns in the dynamic list.
+	// 
 	AttributeListState = Form.Items.Insert("StateOriginalReceived",Type("FormField"),List,Placement);
 	AttributeListState.Type = FormFieldType.PictureField;
 	AttributeListState.TitleLocation = FormItemTitleLocation.None; 
@@ -109,7 +107,7 @@ Procedure OnCreateAtServerListForm(Form, List, Placement = Undefined) Export
 		Return;
 	EndIf;
 	
-	// Create a list.
+	// 
 	Attributes = New Array;
 	Attributes.Add(New FormAttribute("OriginalStatesChoiceList", New TypeDescription("ValueList")));	
 	Form.ChangeAttributes(Attributes);
@@ -124,10 +122,10 @@ Procedure OnCreateAtServerListForm(Form, List, Placement = Undefined) Export
 
 EndProcedure
 
-// Handler of the "OnGetDataAtServer" list form event.
+// The event handler for the "Prepolycondensation" list form.
 //
 // Parameters:
-//  ListRows - DynamicListRows - Document list rows.
+//  ListRows - DynamicListRows - 
 //
 Procedure OnGetDataAtServer(ListRows) Export
 	
@@ -197,11 +195,11 @@ EndProcedure
 
 #EndRegion
 
-// Updates commands that set the original state on the list form.
+// Update commands set status of the original in the form of a list.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a document list form.
-//  List - FormTable - the main form list.
+//  Form - ClientApplicationForm -  the list form of the document.
+//  List - FormTable -  the main list of the form.
 //
 Procedure UpdateOriginalStateCommands(Form, List) Export
 
@@ -225,11 +223,11 @@ Procedure UpdateOriginalStateCommands(Form, List) Export
 
 EndProcedure
 
-// Sets conditional formatting for attachable items in the list.
+// Sets conditional formatting for plug-in items in the list.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a document list form.
-//  List - FormTable - the main form list.
+//  Form - ClientApplicationForm -  the list form of the document.
+//  List - FormTable -  the main list of the form.
 //
 Procedure SetConditionalAppearanceInListForm(Form, List) Export
 
@@ -264,7 +262,7 @@ Procedure SetConditionalAppearanceInListForm(Form, List) Export
 
 EndProcedure
 
-// Adds a role that changes the original state to the profile details of 1C-supplied access groups. 
+// Adds a role to the profile description of the supplied access groups to change the state of the original. 
 //
 // Parameters:
 //  ProfileDetails - See AccessManagement.NewAccessGroupProfileDescription
@@ -275,7 +273,7 @@ Procedure SupplementProfileWithRoleForDocumentsOriginalsStatesChange(ProfileDeta
 
 EndProcedure
 
-// Adds a role that configures the list of original states to the profile details of 1C-supplied access groups.
+// Adds a role to the profile description of the supplied access groups to configure the original status list.
 //
 // Parameters:
 //  ProfileDetails - See AccessManagement.NewAccessGroupProfileDescription.
@@ -286,7 +284,7 @@ Procedure SupplementProfileWithRoleForDocumentsOriginalsStatesSetup(ProfileDetai
 
 EndProcedure
 
-// Adds a role that reads the original state to the profile details of 1C-supplied access groups.
+// Adds a role to the profile description of the supplied access groups to read the state of the original.
 //
 // Parameters:
 //  ProfileDetails - See AccessManagement.NewAccessGroupProfileDescription.
@@ -297,11 +295,11 @@ Procedure SupplementProfileWithRoleForDocumentsOriginalsStatesReading(ProfileDet
 
 EndProcedure
 
-// Returns an array of source document states.
+// 
 //
 //	Returns:
-//  Array of CatalogRef.SourceDocumentsOriginalsStates - all possible original states, including
-//    the hidden "Not all originals" state.
+//  Array of CatalogRef.SourceDocumentsOriginalsStates - 
+//    
 //
 Function AllStates() Export
 	
@@ -322,19 +320,19 @@ Function AllStates() Export
 
 EndFunction
 
-// Displays attachable commands in the form. Called without implementing the "Attachable commands" subsystem.
+// Displays plug-in commands in the form. Called without connecting the "Pluggable commands" subsystem.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a document list form.
-//  List - FormTable - the main form list.
-//  OriginalsStates - ValueTable - original states available to users and used when changing
-//                                          the original state:
-//              * Description 	- String - The name of the source document state.
+//  Form - ClientApplicationForm -  the list form of the document.
+//  List - FormTable -  the main list of the form.
+//  OriginalsStates - ValueTable - 
+//                                          :
+//              * Description 	- String -  name of the original state.
 //              * Ref		- CatalogRef.SourceDocumentsOriginalsStates
 //
 Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 
-	// Check and create a submenu and button list on the list command panel.
+	// 
 	Items = Form.Items;
 
 	If Items.Find("SetConfigureOriginalStateSubmenu") = Undefined Then
@@ -380,7 +378,7 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 		EndIf;			
 	EndDo;
 	
-	// Remove the latest button.
+	// 
 	If SetOriginalStateGroup.ChildItems.Count() > 0 Then 
 		State = SetOriginalStateGroup.ChildItems[0];
 		FoundCommand = Form.Commands.Find(State.CommandName);
@@ -400,12 +398,12 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 			Command = Form.Commands.Add(CommandName);
 			Command.Action = "Attachable_SetOriginalState";
 
-			// Command panel buttons.
+			// 
 			SetStateButton = Form.Items.Add(CommandName, Type("FormButton"), SetOriginalStateGroup);
 			SetStateButton.Title = ButtonName;
 			SetStateButton.CommandName = CommandName;
 
-			// Set pictures.
+			// 
 			If State.Ref = Catalogs.SourceDocumentsOriginalsStates.OriginalReceived Then
 				SetStateButton.Picture = PictureLib.SourceDocumentOriginalStateOriginalReceived;
 			ElsIf State.Ref = Catalogs.SourceDocumentsOriginalsStates.FormPrinted Then
@@ -416,7 +414,7 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 
 	EndDo;
 
-	// Adds a state settings navigation button to the command bar submenu of the "Set state" list.
+	// 
 	If AccessRight("Insert",Metadata.Catalogs.SourceDocumentsOriginalsStates) 
 		And AccessRight("Update",Metadata.Catalogs.SourceDocumentsOriginalsStates) Then
 		CommandName = "StatesSetup";
@@ -435,7 +433,7 @@ Procedure OutputOriginalStateCommandsToForm(Form, List, OriginalsStates) Export
 		
 	EndIf;
 
-	// Adds button "Set original received" on the list command panel. 
+	//  
 	CommandName = "SetOriginalReceived";
 	If Form.Commands.Find(CommandName) = Undefined Then
 		FormCommand  = Form.Commands.Add(CommandName);
@@ -485,7 +483,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 EndProcedure
 
-// See also "InfobaseUpdateOverridable.OnDefineSettings".
+// 
 //
 // Parameters:
 //  Objects - Array of MetadataObject
@@ -575,13 +573,13 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	Order = 0;
 	
-	// Original state commands.
+	// 
 	For Each State In OriginalsStates Do		
 		Command = Commands.Add();
 		Command.Kind = "SettingOriginalState";
 		Command.Presentation = State.Description;
 		Command.Order = Order + 1; 
-		// Set pictures.
+		// 
 		If State.Ref = Catalogs.SourceDocumentsOriginalsStates.OriginalReceived Then
 			Command.Picture = PictureLib.SourceDocumentOriginalStateOriginalReceived;
 		ElsIf State.Ref = Catalogs.SourceDocumentsOriginalsStates.FormPrinted Then
@@ -596,8 +594,8 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 		Order = Order + 1;
 	EndDo;
 	
-	// A command for navigating to the state settings in the command bar submenu of the "Set state" list.
-	// Applicable if the user is assigned the required role.
+	// 
+	// 
 	If AccessRight("Insert",Metadata.Catalogs.SourceDocumentsOriginalsStates) 
 		And AccessRight("Update",Metadata.Catalogs.SourceDocumentsOriginalsStates) Then
 		Command = Commands.Add();
@@ -615,7 +613,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	Description = String(Catalogs.SourceDocumentsOriginalsStates.OriginalReceived);
 
-	// Command "Set original received" on the list command panel. 
+	//  
 	Command = Commands.Add();
 	Command.Kind = "SettingStateOriginalReceived";
 	Command.Presentation = StringFunctionsClientServer.InsertParametersIntoString(
@@ -674,13 +672,13 @@ EndFunction
 
 //	Parameters:
 //  RecordData - Array of See SetTheNewStateOfTheOriginalArray.RecordData
-//               - DocumentRef - The document whose source document's state should be changed.  
-//  StateName - String - a state to be set.
+//               - DocumentRef -   
+//  StateName - String -  set state.
 //
 // Returns:
-//  String - "IsChanged" is the source document state is not repeated and was saved.
-//           "NotIsChanged" 
-//           "NotCarriedOut" 
+//  String - 
+//            
+//            
 //
 Function SetNewOriginalState(Val RecordData, Val StateName) Export
 
@@ -721,19 +719,19 @@ Function SetNewOriginalState(Val RecordData, Val StateName) Export
 EndFunction
 
 //	Parameters:
-//  RecordData - Array of Structure - Information on the current document state:
-//                 * OverallState    - Boolean - "True" if the current state is aggregated.
-//                 * Ref 		   - DocumentRef - The document whose source document's state should be changed.
+//  RecordData - Array of Structure - :
+//                 * OverallState    - Boolean - 
+//                 * Ref 		   - DocumentRef - 
 //                 * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -
-//                                                           The current state of a source document.
-//                 * SourceDocument - String - A source document ID. Required if the state is not aggregated. 
+//                                                           
+//                 * SourceDocument - String -  
 //                                                
-//                 * FromOutside 			   - Boolean - "True" if the source document was added manually. 
-//                                                It's required if the current state is not aggregated. 
-//  StateName - String - a state to be set.
+//                 * FromOutside 			   - Boolean -  
+//                                                 
+//  StateName - String -  set state.
 //
 // Returns:  
-//  Boolean - If True, the source document's state is not repeated and was saved.
+//  Boolean -  True if the state of the original document is not repeated and has been recorded.
 //
 Function SetTheNewStateOfTheOriginalArray(Val RecordData, Val StateName)
 
@@ -827,11 +825,11 @@ Function SetTheNewStateOfTheOriginalArray(Val RecordData, Val StateName)
 EndFunction
 
 // Parameters:
-//   Document - DocumentRef - The document whose source document's state should be changed.
-//   StateName - String - The state to be applied.
+//   Document - DocumentRef - 
+//   StateName - String -  set state.
 //
 // Returns:
-//   Boolean - If True, the source document's state is not repeated and was saved.
+//   Boolean -  True if the state of the original document is not repeated and has been recorded.
 //
 Function SetNewStatusForOriginalDoc(Val Document, Val StateName)
 	
@@ -919,10 +917,10 @@ Function WriteOriginalDocumentStateByEmployees(RecordSet, Document, TabularSecti
 	
 EndFunction
 
-// Fills in the drop-down choice list of states on the form.
+// Fills in the drop-down list for selecting States on the form.
 //
 //	Parameters:
-//  Form - ClientApplicationForm - a form of the document list.
+//  Form - ClientApplicationForm -  the list form of the document.
 //
 Procedure FillOriginalStatesChoiceList(Form, OriginalsStates)
 
@@ -945,11 +943,11 @@ Procedure FillOriginalStatesChoiceList(Form, OriginalsStates)
 
 EndProcedure
 
-// Returns an array of states available to a user.
+// Returns an array of States available to the user.
 //
 //	Returns:
 //  ValueTable:
-//    * Description - String - a description of the original state;
+//    * Description - String -  name of the original state;
 //    * Ref		 - CatalogRef.SourceDocumentsOriginalsStates
 //
 Function UsedStates()Export 
@@ -977,10 +975,10 @@ Function UsedStates()Export
 
 EndFunction
 
-// Returns the record key of the source document's aggregated state by reference.
+// Returns the key for recording the General state register of the original document by reference.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - A reference to the document whose general state record key is to be received.
+//  DocumentRef - DocumentRef - 
 //
 //	Returns:
 //  InformationRegisterRecordKey.SourceDocumentsOriginalsStates
@@ -1018,10 +1016,10 @@ Function OverallStateRecordKey(DocumentRef) Export
 
 EndFunction
 
-// Checks and returns a flag indicating whether the document by reference is a document with originals recording.
+// Checks and returns whether the referenced document is an original document.
 //
 // Parameters:
-//  DocumentRef - DocumentRef - a reference to the document to be checked.
+//  DocumentRef - DocumentRef -  link to the document that you want to check.
 //
 // Returns:
 //   Boolean
@@ -1036,14 +1034,14 @@ Function IsAccountingObject(DocumentRef) Export
 
 EndFunction
 
-// Looks up for employees information in a document and returns the name of the table that contains it.
+// 
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - a reference to the document to be checked.
+//  DocumentRef - DocumentRef -  link to the document that you want to check.
 //
 //	Returns:
-//  String - The name of the table containing employees.
-//           It is empty if the document does not contain multiple employees.
+//  String - 
+//           
 //
 Function TableOfEmployees(DocumentRef) Export
 	
@@ -1059,7 +1057,7 @@ Function TableOfEmployees(DocumentRef) Export
 	
 EndFunction
 
-// Returns an array with type details of objects attached to the subsystem.
+// Returns an array with a description of the types of objects connected to the subsystem.
 //
 //	Returns:
 //  Array of Type
@@ -1071,7 +1069,7 @@ Function InformationAboutConnectedObjects() Export
 
 EndFunction
 
-// Returns a reference to the document by the spreadsheet document barcode.
+// Returns a link to the document based on the barcode of the table document.
 //
 // Parameters:
 //  Barcode - String
@@ -1187,10 +1185,10 @@ Function RefBySpreadsheetDocumentBarcode(Barcode, Managers = Undefined)
 
 EndFunction
 
-// The procedure processes actions of originals recording after scanning the document barcode.
+// The procedure processes actions for recording originals after scanning the document's barcode.
 //
 // Parameters:
-//   Barcode - String - the scanned document barcode.
+//   Barcode - String -  scanned barcode of the document.
 //
 Procedure ProcessBarcode(Barcode) Export
 
@@ -1200,14 +1198,14 @@ Procedure ProcessBarcode(Barcode) Export
 
 EndProcedure
 
-// After recording states of document print forms to the register, checks whether the print forms have the same states.
+// Checks whether the States of the document's printed forms have the same States after writing them to the register.
 //
 // Parameters:
-//  DocumentRef - DocumentRef - a reference to the document whose print form states must be checked.
-//  StateName - String - a state name that was set.
+//  DocumentRef - DocumentRef -  link to the document that you want to check the status of printed forms.
+//  StateName - String -  name of the state that was set.
 //
 // Returns:
-//   Boolean - True if all the document print forms have the same state.
+//   Boolean - 
 //
 Function PrintFormsStateSame(DocumentRef,StateName) Export
 
@@ -1237,16 +1235,16 @@ Function PrintFormsStateSame(DocumentRef,StateName) Export
 
 EndFunction
 
-// Returns data on the current state of the source document by Ref.
+// 
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - The reference to the document whose aggregated state info should be received. 
+//  DocumentRef - DocumentRef -  a link to the document for which you want to get information about the general state. 
 //
 //  Returns:
 //    Structure:
-//    * Ref - DocumentRef - Document reference.
-//    * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates - Current source document state.
-//        
+//    * Ref - DocumentRef -  link to the document.
+//    * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -  the current
+//        state of the original document.
 //
 Function OriginalStateInfoByRef(DocumentRef) Export
 
@@ -1276,7 +1274,7 @@ Function OriginalStateInfoByRef(DocumentRef) Export
 
 EndFunction
 
-// Update handler procedure that populates initial items of the "States of source document originals" catalog.
+// Update handler procedure for filling in the initial elements of the reference list "States of originals of primary documents".
 Procedure WriteSourceDocumentOriginalState() Export
 
 	OriginalState = Catalogs.SourceDocumentsOriginalsStates.FormPrinted.GetObject();
@@ -1319,11 +1317,11 @@ Function ConvertDecimalToHexadecimalNotation(Val Decimal)
 	
 EndFunction
 
-// Overrides value lists of print objects and their templates.
+// 
 //
 // Parameters:
-//  PrintObjects - ValueList - Print object references.
-//  PrintList - ValueList - Template names and print form presentations.
+//  PrintObjects - ValueList - 
+//  PrintList - ValueList - 
 //
 Procedure WhenDeterminingTheListOfPrintedForms(PrintObjects, PrintList) Export
 	

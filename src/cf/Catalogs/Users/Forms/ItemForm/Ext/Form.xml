@@ -471,8 +471,8 @@ Click "Save" to resolve the issue and hide this message.</v8:content>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Allow user to log in
-with the specified authentication methods.</v8:content>
+							<v8:content>Allow the user to log in using
+the specified authentication methods.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -653,7 +653,7 @@ with the specified authentication methods.</v8:content>
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Consider reviewing user authentication settings</v8:content>
+							<v8:content>Consider reviewing login settings</v8:content>
 						</v8:item>
 					</Title>
 					<ToolTip>
@@ -1277,7 +1277,6 @@ associated with the 1C:Enterprise user.</v8:content>
 							<SkipOnInput>false</SkipOnInput>
 							<ChangeRowSet>false</ChangeRowSet>
 							<ChangeRowOrder>false</ChangeRowOrder>
-							<SelectionMode>SingleRow</SelectionMode>
 							<Header>false</Header>
 							<UseAlternationRowColor>true</UseAlternationRowColor>
 							<AutoInsertNewRow>true</AutoInsertNewRow>
@@ -1334,7 +1333,7 @@ associated with the 1C:Enterprise user.</v8:content>
 												<Title>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Add roles</v8:content>
+														<v8:content>Include selected roles</v8:content>
 													</v8:item>
 												</Title>
 												<ExtendedTooltip name="RolesSelectAllExtendedTooltip" id="240"/>
@@ -1346,7 +1345,7 @@ associated with the 1C:Enterprise user.</v8:content>
 												<Title>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Remove roles</v8:content>
+														<v8:content>Exclude selected roles</v8:content>
 													</v8:item>
 												</Title>
 												<ExtendedTooltip name="RolesClearAllExtendedTooltip" id="241"/>
@@ -2171,13 +2170,13 @@ associated with the 1C:Enterprise user.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Remove roles</v8:content>
+					<v8:content>Exclude selected roles</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Remove roles</v8:content>
+					<v8:content>Exclude selected roles</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -2192,13 +2191,13 @@ associated with the 1C:Enterprise user.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Add roles</v8:content>
+					<v8:content>Include selected roles</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Add roles</v8:content>
+					<v8:content>Include selected roles</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

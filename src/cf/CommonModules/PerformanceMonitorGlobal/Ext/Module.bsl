@@ -1,17 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Completes measuring the time of a key operation.
-// The procedure is called from an idle handler.
+// The procedure finishes measuring the execution time of the key operation.
+// Called from the wait handler.
 //
 Procedure EndTimeMeasurementAuto() Export
 	
@@ -25,8 +23,8 @@ Procedure EndTimeMeasurementAuto() Export
 		
 EndProcedure
 
-// Calls the server function for recording measurement results.
-// The procedure is called from an idle handler.
+// This procedure calls the function for recording measurement results on the server.
+// Called from the wait handler.
 //
 Procedure WriteResultsAuto() Export
 	

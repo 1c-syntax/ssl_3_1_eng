@@ -1,27 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Handles bunch message writing to the event log.
-// The EventsForEventLog variable is cleared after writing.
+// Procedure for batch recording messages in the log.
+// After recording, the event variable for the registration Log is cleared.
 //
 // Parameters:
 //  EventsForEventLog - ValueList:
 //    * Value - Structure:
-//        ** EventName  - String - Name of the logging event.
-//        ** LevelPresentation  - String - Presentation of the "EventLogLevel" collection members.
-//                                    Valid values are Information, Error, Warning, and Note.
-//        ** Comment - String - Event comment.
-//        ** EventDate - Date   - Event date. It is added to the comment upon logging.
-//     * Presentation - String - Not used.
+//        ** EventName  - String -  name of the event to record.
+//        ** LevelPresentation  - String -  representation of the values of the log level collection.
+//                                    Available values: "Information", "Error", "Warning", "note".
+//        ** Comment - String -  review of the event.
+//        ** EventDate - Date   -  date of the event, inserted in the comment when writing.
+//     * Presentation - String -  not use.
 //
 Procedure WriteEventsToEventLog(EventsForEventLog) Export
 	
@@ -52,55 +50,55 @@ EndProcedure
 
 #Region Internal
 
-// Write the message to the event log.
+// Writes a message to the log.
 //
 //  Parameters: 
-//   EventName       - String - an event name for the event log.
-//   Level          - EventLogLevel - events importance level of the log event.
-//   MetadataObject - MetadataObject - metadata object that the event refers to.
+//   EventName       - String -  name of the event for the log.
+//   Level          - EventLogLevel -  log event importance levels.
+//   MetadataObject - MetadataObject -  the metadata object that the event belongs to.
 //   Data           - AnyRef
 //                    - Number
 //                    - String
 //                    - Date
 //                    - Boolean
 //                    - Undefined
-//                    - Type - data that the event is related to.
-//                      It is recommended to specify references to the data objects (catalog items, documents that the event
-//                      refers to).
-//   Comment      - String - the comment to the log event.
+//                    - Type - 
+//                      
+//                      
+//   Comment      - String -  comment for the log event.
 //
 Procedure AddMessageForEventLog(Val EventName, Val Level,
 		Val MetadataObject = Undefined, Val Data = Undefined, Val Comment = "") Export
 		
 	If IsBlankString(EventName) Then
-		EventName = "Event"; // not localized to prevent startup from stopping in a partially translated configuration
+		EventName = "Event"; // 
 	EndIf;
 
 	WriteLogEvent(EventName, Level, MetadataObject, Data, Comment, EventLogEntryTransactionMode.Independent);
 	
 EndProcedure
 
-// Reads event log message texts taking into account the filter settings.
+// Reads the event register in accordance with the selection.
 //
 // Parameters:
 //
-//     ReportParameters - Structure - contains parameters for reading events from the event log. Contains fields:
-//      *  Log                  - ValueTable         - contains records of the event log.
-//      *  EventLogFilter   - Structure             - filter settings used to read the event log records:
-//          ** StartDate - Date - start date of events (optional).
-//          ** EndDate - Date - end date of events (optional).
-//      *  EventCount1       - Number                   - maximum number of records that can be read from the event log.
-//      *  UUID - UUID - a form UUID.
-//      *  OwnerManager       - Arbitrary            - event
-//                                                             log is displayed in the form of this object. The manager is used to call back appearance
-//                                                             functions.
-//      *  AddAdditionalColumns - Boolean           - determines whether callback is needed to add
+//     ReportParameters - Structure - :
+//      *  Log                  - ValueTable         -  contains log entries.
+//      *  EventLogFilter   - Structure             - :
+//          ** StartDate - Date -  event start date (optional).
+//          ** EndDate - Date -  event end date (optional).
+//      *  EventCount1       - Number                   -  limit the number of log events to read.
+//      *  UUID - UUID -  unique form ID.
+//      *  OwnerManager       - Arbitrary            -  the object Manager that displays the registration log in the form
+//                                                             is required for calling back
+//                                                             design functions.
+//      *  AddAdditionalColumns - Boolean           -  specifies whether a callback is required to add
 //                                                             additional columns.
 //     StorageAddress - String
-//                    - UUID - Address of the temporary storage that stores the result.
+//                    - UUID - 
 //
-// Result is a structure with the following fields::
-//     LogEvents - ValueTable - Selected events.
+// :
+//     
 //
 Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 	
@@ -109,7 +107,7 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 	OwnerManager              = ReportParameters.OwnerManager;
 	AddAdditionalColumns = ReportParameters.AddAdditionalColumns;
 	
-	// Verifying the parameters.
+	// 
 	StartDate    = Undefined;
 	EndDate = Undefined;
 	FilterDatesSpecified = EventLogFilterAtClient.Property("StartDate", StartDate) And EventLogFilterAtClient.Property("EndDate", EndDate)
@@ -120,7 +118,7 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 	EndIf;
 	ServerTimeOffset = ServerTimeOffset();
 	
-	// Prepare the filter.
+	// 
 	Filter = New Structure;
 	For Each FilterElement In EventLogFilterAtClient Do
 		Filter.Insert(FilterElement.Key, FilterElement.Value);
@@ -128,7 +126,7 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 	
 	FilterTransformation(Filter, ServerTimeOffset);
 	
-	// Exporting the selected events and generating the table structure.
+	// 
 	LogEvents = New ValueTable;
 	UnloadEventLog(LogEvents, Filter, , , EventCount1);
 	
@@ -173,15 +171,15 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 	For Each LogEvent In LogEvents Do
 		LogEvent.Date = LogEvent.DateAtServer - ServerTimeOffset;
 		
-		// Filling numbers of row pictures.
+		// 
 		OwnerManager.SetPictureNumber(LogEvent);
 		
 		If AddAdditionalColumns Then
-			// Filling additional fields that are defined for the owner only.
+			// 
 			OwnerManager.FillInAdditionalEventColumns(LogEvent);
 		EndIf;
 		
-		// Converting the array of metadata into a value list.
+		// 
 		If TypeOf(LogEvent.Metadata) = Type("Array") Then
 			AddPresentation = TypeOf(LogEvent.MetadataPresentation) = Type("Array")
 			   And LogEvent.MetadataPresentation.Count() = LogEvent.Metadata.Count();
@@ -196,14 +194,14 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 				LogEvent.MetadataPresentation);
 		EndIf;
 		
-		// Convert an array of metadata presentations into a string.
+		// 
 		If TypeOf(LogEvent.MetadataPresentation) = Type("Array") Then
 			LogEvent.MetadataPresentation = StrConcat(LogEvent.MetadataPresentation, ", ");
 		Else
 			LogEvent.MetadataPresentation = String(LogEvent.MetadataPresentation);
 		EndIf;
 		
-		// Convert the "SessionDataSeparation" array into a value list.
+		// 
 		If Not Common.SeparatedDataUsageAvailable() Then
 			FullSessionDataSeparationPresentation = "";
 			SessionDataSeparation = LogEvent.SessionDataSeparation;
@@ -236,7 +234,7 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 			LogEvent.SessionDataSeparationPresentation = FullSessionDataSeparationPresentation;
 		EndIf;
 		
-		// Processing special event data.
+		// 
 		If LogEvent.Event = "_$Access$_.Access" Then
 			SetDataString(LogEvent);
 			
@@ -274,7 +272,7 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 		EndIf;
 		
 		SetPrivilegedMode(True);
-		// Refine the user name.
+		// 
 		If LogEvent.User = New UUID("00000000-0000-0000-0000-000000000000") Then
 			LogEvent.UserName = NStr("en = '<Undefined>';");
 			
@@ -316,26 +314,26 @@ Procedure ReadEventLogEvents(ReportParameters, StorageAddress) Export
 	LogEvents.Columns.Delete("Metadata");
 	LogEvents.Columns.MetadataList.Name = "Metadata";
 	
-	// Completed successfully.
+	// 
 	Result = New Structure;
 	Result.Insert("LogEvents", LogEvents);
 	
 	PutToTempStorage(Result, StorageAddress);
 EndProcedure
 
-// Creates a custom event log presentation.
+// Creates a custom view of the log selection.
 //
 // Parameters:
-//  FilterPresentation - String - the string that contains custom presentation of the filter.
-//  EventLogFilter - Structure - values of the event log filter.
-//  DefaultEventLogFilter - Structure - default values of the event log filter 
-//     (not included in the user presentation).
+//  FilterPresentation - String -  a string containing a custom selection view.
+//  EventLogFilter - Structure -  the values of the selection log.
+//  DefaultEventLogFilter - Structure -  default log selection 
+//     values (not included in user views).
 //
 Procedure GenerateFilterPresentation(FilterPresentation, EventLogFilter, 
 		DefaultEventLogFilter = Undefined) Export
 	
 	FilterPresentation = "";
-	// Interval.
+	// Interval
 	PeriodStartDate    = Undefined;
 	PeriodEndDate = Undefined;
 	If Not EventLogFilter.Property("StartDate", PeriodStartDate)
@@ -360,7 +358,7 @@ Procedure GenerateFilterPresentation(FilterPresentation, EventLogFilter,
 	AddRestrictionToFilterPresentation(EventLogFilter, FilterPresentation, "Session");
 	AddRestrictionToFilterPresentation(EventLogFilter, FilterPresentation, "Level");
 	
-	// All other restrictions are specified by presentations without values.
+	// 
 	For Each FilterElement In EventLogFilter Do
 		RestrictionName = FilterElement.Key;
 		If Upper(RestrictionName) = Upper("StartDate")
@@ -370,10 +368,10 @@ Procedure GenerateFilterPresentation(FilterPresentation, EventLogFilter,
 			Or Upper(RestrictionName) = Upper("User")
 			Or Upper(RestrictionName) = Upper("Session")
 			Or Upper(RestrictionName) = Upper("Level") Then
-			Continue; // Interval and special restrictions are already displayed.
+			Continue; // 
 		EndIf;
 		
-		// Changing restrictions for some of presentations.
+		// 
 		If Upper(RestrictionName) = Upper("ApplicationName") Then
 			RestrictionName = NStr("en = 'Application';");
 		ElsIf Upper(RestrictionName) = Upper("TransactionStatus") Then
@@ -407,16 +405,16 @@ Procedure GenerateFilterPresentation(FilterPresentation, EventLogFilter,
 	
 EndProcedure
 
-// Determines the server time offset relative to the application time.
+// Defines the offset of the server time relative to the program time.
 //
 // Returns:
-//   Number - time offset, in seconds.
-//       Can be used to convert log filters to the server date
-//       and also to convert dates obtained from the log to the application dates.
+//   Number - 
+//       
+//       
 //
 Function ServerTimeOffset() Export
 	
-	ServerTimeOffset = CurrentDate() - CurrentSessionDate(); // ACC:143 - Computer data is required
+	ServerTimeOffset = CurrentDate() - CurrentSessionDate(); // 
 	If ServerTimeOffset >= -1 And ServerTimeOffset <= 1 Then
 		ServerTimeOffset = 0;
 	EndIf;
@@ -424,9 +422,9 @@ Function ServerTimeOffset() Export
 	
 EndFunction
 
-// Returns the address of the XML file containing the Event log intended for the support.
-// Filtered log records in the EventLogFilter parameter align with the UnloadEventLog method.
-// If a filter property is missing or set to Undefined, the filter won't apply.
+// 
+// 
+// 
 // 
 // Parameters:
 //  EventLogFilter - Structure:
@@ -445,7 +443,7 @@ EndFunction
 //                - ValueList
 //   * Event - String
 //             - ValueList
-//             - Array of String - See Syntax Assistant for the names of system events.
+//             - Array of String - 
 //   * Metadata - MetadataObject 
 //                - Array of MetadataObject
 //                - ValueList
@@ -466,10 +464,10 @@ EndFunction
 //   * SyncPort - Number
 //                    - Array of Number
 //                    - ValueList
-//   * SessionDataSeparation - ValueList - Property names align with common attribute names. 
+//   * SessionDataSeparation - ValueList -  
 //                            - Structure
 //  EventCount1 - Number
-//  UUID - UUID - Intended for creating a temporary storage.
+//  UUID - UUID - 
 // 
 // Returns:
 //  String 
@@ -492,11 +490,11 @@ Function TechnicalSupportLog(EventLogFilter, EventCount1, UUID = Undefined) Expo
 	
 EndFunction
 
-// Returns an infobase user to be passed to the "User" property
-// of the Event Log filter.
+// 
+// 
 //
 // Parameters:
-//  Id - UUID - Infobase user id.
+//  Id - UUID - 
 //
 // Returns:
 //  InfoBaseUser
@@ -551,8 +549,8 @@ EndFunction
 //  EventData - String
 //
 // Returns:
-//  Structure - If the conversion is successful.
-//  Undefined - If the conversion failed.
+//  Structure - 
+//  
 //
 Function DataFromXMLString(EventData) Export
 	
@@ -691,7 +689,7 @@ Function StructureDataPresentation(EventData, KeysPresentation, IsDataPropertyEx
 	
 EndFunction
 
-// Intended for function "StructureDataPresentation".
+// 
 Procedure AddTreeRowsPresentations(Rows, TreeRows, Indent = "")
 	
 	For Each TreeRow In TreeRows Do
@@ -706,9 +704,9 @@ Procedure AddTreeRowsPresentations(Rows, TreeRows, Indent = "")
 EndProcedure
 
 // Parameters:
-//  EventData - Structure, FixedStructure
+//  EventData - 
 //  KeysPresentation - See StructuresKeysPresentation
-//                      - Undefined - Receive automatically.
+//                      
 //  OnlyFilledValues - Boolean
 //  PropertiesToExclude - Map
 //                      - Undefined
@@ -825,7 +823,7 @@ Procedure AddPropertiesToTree(TreeRows, PropertiesDetails, KeysPresentation,
 EndProcedure
 
 // Parameters:
-//   Var_Key - String - Property name
+//   Var_Key - String - 
 //   Value - Arbitrary
 //
 // Returns:
@@ -903,8 +901,8 @@ EndFunction
 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - String - Lower-case name of a structure key.
-//   * Value - String - Key presentation.
+//   * Key - String - 
+//   * Value - String - 
 //
 Function StructuresKeysPresentation()
 	
@@ -1541,10 +1539,10 @@ Function StringDelimitersList(SeparatorLine) Export
 	
 EndFunction
 
-// Filter transformation.
+// Conversion of selection.
 //
 // Parameters:
-//  Filter - Filter - the filter to be passed.
+//  Filter - Filter -  the transmitted selection.
 //
 Procedure FilterTransformation(Filter, ServerTimeOffset)
 	
@@ -1563,17 +1561,17 @@ Procedure FilterTransformation(Filter, ServerTimeOffset)
 	
 EndProcedure
 
-// Filter item transformation.
+// Conversion of the selection element.
 //
 // Parameters:
-//  Filter - Filter - the filter to be passed.
-//  Filter - FilterElement - an item of the filter to be passed.
+//  Filter - Filter -  passed the selection.
+//  Selection of Alimentatore element passed selection.
 //
 Procedure FilterItemTransform(Filter, FilterElement)
 	
 	FilterStructureKey = FilterElement.Key;
-	// The procedure is called when the filter item is a value list
-	// (the filter should take an array). Convert the list into an array.
+	// 
+	// 
 	If Upper(FilterStructureKey) = Upper("SessionDataSeparation") Then
 		NewValue = New Structure;
 	Else
@@ -1584,10 +1582,10 @@ Procedure FilterItemTransform(Filter, FilterElement)
 	
 	For Each ValueFromList In FilterElement.Value Do
 		If Upper(FilterStructureKey) = Upper("Level") Then
-			// Message text level is a string, it must be converted into an enumeration.
+			// 
 			NewValue.Add(DataProcessors.EventLog.EventLogLevelValueByName(ValueFromList.Value));
 		ElsIf Upper(FilterStructureKey) = Upper("TransactionStatus") Then
-			// Transaction status is a string, it must be converted into an enumeration.
+			// 
 			NewValue.Add(DataProcessors.EventLog.EventLogEntryTransactionStatusValueByName(ValueFromList.Value));
 		ElsIf Upper(FilterStructureKey) = Upper("SessionDataSeparation") Then
 			SeparatorValueArray = New Array;
@@ -1647,13 +1645,13 @@ Procedure FilterItemTransform(Filter, FilterElement)
 	
 EndProcedure
 
-// Adds a restriction to the filter presentation.
+// Add a constraint to the selection view.
 //
 // Parameters:
-//  EventLogFilter - Filter - the event log filter.
-//  FilterPresentation - String - filter presentation.
-//  RestrictionName - String - the name of the restriction.
-//  DefaultEventLogFilter - Filter - the default event log filter.
+//  EventLogFilter - Filter -  selection of the registration log.
+//  FilterPresentation - String -  the view selection.
+//  RestrictionName - String -  constraint name.
+//  DefaultEventLogFilter - Filter -  selection log by default.
 //
 Procedure AddRestrictionToFilterPresentation(EventLogFilter, FilterPresentation, RestrictionName,
 	DefaultEventLogFilter = Undefined)
@@ -1665,7 +1663,7 @@ Procedure AddRestrictionToFilterPresentation(EventLogFilter, FilterPresentation,
 	RestrictionList = EventLogFilter[RestrictionName];
 	Restriction       = "";
 	
-	// If filter value is a default value there is no need to get a presentation of it.
+	// 
 	If DefaultEventLogFilter <> Undefined Then
 		DefaultRestrictionList = "";
 		If DefaultEventLogFilter.Property(RestrictionName, DefaultRestrictionList) Then
@@ -1724,7 +1722,7 @@ Procedure AddRestrictionToFilterPresentation(EventLogFilter, FilterPresentation,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 // For internal use only.
 //

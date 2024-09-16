@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -20,7 +18,7 @@ Var CurrentWriteParameters;
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 		If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 			ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 			ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -62,7 +60,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.Description.TitleLocation = FormItemTitleLocation.Top;
 	EndIf;
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -77,7 +75,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -117,7 +115,7 @@ EndProcedure
 &AtClient
 Procedure AfterWrite(WriteParameters)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
@@ -157,7 +155,7 @@ EndProcedure
 &AtClient
 Procedure FullPathWindowsOnChange(Item)
 	
-	// Delete extra spaces and add a slash at the end (unless it is already there).
+	// 
 	If Not IsBlankString(Object.FullPathWindows) Then
 		
 		If StrStartsWith(Object.FullPathWindows, " ") Or StrEndsWith(Object.FullPathWindows, " ") Then
@@ -179,7 +177,7 @@ EndProcedure
 &AtClient
 Procedure FullPathLinuxOnChange(Item)
 	
-	// Delete extra spaces and add a slash at the end (unless it is already there).
+	// 
 	If Not IsBlankString(Object.FullPathLinux) Then
 		
 		If StrStartsWith(Object.FullPathLinux, " ") Or StrEndsWith(Object.FullPathLinux, " ") Then
@@ -233,7 +231,7 @@ Procedure DeleteUnnecessaryFiles(Command)
 	OpenForm("Catalog.FileStorageVolumes.Form.DeleteUnnecessaryFilesFromVolume", OpeningParameters, ThisObject);
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
@@ -296,7 +294,7 @@ Procedure WriteAndCloseNotification(Result, Context) Export
 	
 EndProcedure
 
-// Finds maximum order among the volumes.
+// Finds the maximum order among volumes.
 &AtServer
 Function FindMaxOrder()
 	

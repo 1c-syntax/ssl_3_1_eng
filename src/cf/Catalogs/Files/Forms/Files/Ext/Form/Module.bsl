@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -31,7 +29,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		InitialFolder = Parameters.Folder;
 	Else
 		InitialFolder = Common.FormDataSettingsStorageLoad("Files", "CurrentFolder");
-		If InitialFolder = Undefined Then // An attempt to import settings, saved in the previous versions.
+		If InitialFolder = Undefined Then // 
 			InitialFolder = Common.FormDataSettingsStorageLoad("FileRepository", "CurrentFolder");
 		EndIf;
 	EndIf;
@@ -97,7 +95,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.FormCreateFromScanner.Title = NStr("en = 'From device camera…';");
 	EndIf;
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -282,7 +280,7 @@ Procedure ListOnActivateRow(Item)
 	EndIf;
 	IdleHandlerSetFileCommandsAccessibility();
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -1261,11 +1259,11 @@ EndFunction
 Procedure FolderIdleHandlerOnActivateRow()
 	
 	If Items.Folders.CurrentRow <> List.Parameters.Items.Find("Owner").Value Then
-		// Update the right list and command availability using the rights settings.
-		// 1C:Enterprise calls the procedure of the "OnActivateRow" handler in the "List" table.
+		// 
+		// 
 		UpdateAndSaveFilesListParameters();
 	Else
-		// The procedure of calling the OnActivateRow handler of the List table is performed by the application.
+		// 
 		IdleHandlerSetFileCommandsAccessibility();
 	EndIf;
 	
@@ -1566,7 +1564,7 @@ Procedure UpdatePreview1()
 			FileData = FilesOperationsInternalServerCall.FileDataToOpen(CurrentData.Ref, Undefined, UUID,, FileDataURL);
 			FileDataURL = FileData.RefToBinaryFileData;
 		Except
-			// If the file does not exist, an exception will be called.
+			// 
 			FileDataURL         = Undefined;
 			NonselectedPictureText = NStr("en = 'Preview is not available. Reason:';") + Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		EndTry;
@@ -1641,7 +1639,7 @@ Function EventLogFilterData(AccountService)
 	Return FilesOperationsInternal.EventLogFilterData(AccountService);
 EndFunction
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");

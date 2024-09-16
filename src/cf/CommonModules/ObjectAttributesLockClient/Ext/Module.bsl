@@ -1,38 +1,36 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Allows editing the locked form items related to the given attributes.
+// 
 //
-// If the object uses the AttributeUnlocking applied form, it opens with the parameters
-// Ref and LockedAttributes and the form close notification containing True
-// (if all the attributes are unlocked) or an array of attribute names.
-// If "Undefined" is returned, it is considered that the unlocking failed.
+// 
+// 
+// 
+// 
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - ManagedFormExtensionForObjects - The form containing items to unlock, where
+//        - ManagedFormExtensionForObjects - 
 //          :
 //    * Object - FormDataStructure
 //             - CatalogObject
 //             - DocumentObject
 //
-//  ContinuationHandler - Undefined - no actions after the procedure execution.
-//                       - NotifyDescription - Notification that is called after the procedure execution.
-//                         A Boolean parameter is passed to the notification handler::
-//                           True - No references are found or the user decided to allow editing.
-//                           False - No visible attributes are locked,
-//                                    or references are found and the user decided to cancel the operation.
+//  ContinuationHandler - Undefined -  no actions after completing the procedure.
+//                       - NotifyDescription - 
+//                         :
+//                           
+//                           
+//                                    
 //
-//  OnlyVisible - Boolean - set this parameter to False to get and unlock all object attributes.
+//  OnlyVisible - Boolean -  to get and unlock all the details of the object, you need to specify a Lie.
 //
 Procedure AllowObjectAttributeEdit(Val Form, ContinuationHandler = Undefined, OnlyVisible = True) Export
 	
@@ -80,22 +78,22 @@ Procedure AllowObjectAttributeEdit(Val Form, ContinuationHandler = Undefined, On
 	
 EndProcedure
 
-// Sets the availability of form items associated with the specified attributes
-// whose editing is allowed. If an attribute array is passed,
-// attributes allowed for editing will be supplemented first.
-//   If unlocking of form items linked to the specified attributes
-// is released for all the attributes, the button that allows editing becomes unavailable.
+// Sets the availability of form elements associated with the specified details
+// for which the change permission is set. If you pass an array of Bank details,
+// then the list of Bank details that are allowed to be changed will be updated first.
+//   If the unblocking of form elements associated with the specified details
+// is disabled for all details, then the edit permission button is blocked.
 //
 // Parameters:
-//  Form        - ClientApplicationForm - a form, in which it is required to allow
-//                 editing form items of the specified attributes.
+//  Form        - ClientApplicationForm -  the form where you want to allow
+//                 editing of form elements and specified details.
 //  
-//  Attributes    - Array - values:
-//                  * String - names of attributes whose editing shall be allowed.
-//                    It is used when the AllowObjectAttributeEdit function is not used.
-//               - Undefined - a set of attributes available for editing is not changed.
-//                 The form items linked to the attributes whose editing is allowed,
-//                 become available.
+//  Attributes    - Array - Values:
+//                  * String - 
+//                    
+//               - Undefined - 
+//                 
+//                 
 //
 Procedure SetFormItemEnabled(Val Form, Val Attributes = Undefined) Export
 	
@@ -120,21 +118,21 @@ Procedure SetFormItemEnabled(Val Form, Val Attributes = Undefined) Export
 	
 EndProcedure
 
-// Allows editing the attributes whose descriptions are given in the form.
-//  Used when form item availability is changed explicitly
-// without using the SetFormItemEnabled function.
+// Sets whether editing is allowed for the details that are described in the form.
+//  Used when the accessibility of form elements changes independently, without
+// using the set accessibility of form Elements function.
 //
 // Parameters:
-//  Form        - ClientApplicationForm - — a form in which editing object attributes must be allowed, where:
+//  Form        - ClientApplicationForm - :
 //    * Items - FormAllItems:
 //        ** AllowObjectAttributeEdit - FormButton
-//  Attributes    - Array of String - attribute names to mark as allowed for editing.
-//  EditingAllowed - Boolean - flag that shows whether you want to allow attribute editing.
-//                            The value will not be set to True if you are not authorized to edit the attribute.
-//                          - Undefined - do not change the attribute editing status.
-//  RightToEdit - Boolean - flag used to override availability
-//                        of unlocking attributes. It is determined automatically using the AccessRight method.
-//                      - Undefined - do not change the RightToEdit property.
+//  Attributes    - Array of String -  the names of the details that you want to mark as resolved to change.
+//  EditingAllowed - Boolean -  the value of the permission to edit the details to be set.
+//                            The value will not be set to True if you don't have the right to edit the details.
+//                          - Undefined - 
+//  RightToEdit - Boolean -  allows you to redefine or redefine the ability to unlock
+//                        Bank details, which is calculated automatically using the access Rights method.
+//                      - Undefined - 
 // 
 Procedure SetAttributeEditEnabling(Val Form, Val Attributes,
 			Val EditingAllowed = True, Val RightToEdit = Undefined) Export
@@ -152,7 +150,7 @@ Procedure SetAttributeEditEnabling(Val Form, Val Attributes,
 		EndDo;
 	EndIf;
 	
-	// Updating the availability of AllowObjectAttributeEdit command.
+	// 
 	AllAttributesUnlocked = True;
 	
 	For Each DescriptionOfAttributeToLock In Form.AttributeEditProhibitionParameters Do
@@ -169,18 +167,18 @@ Procedure SetAttributeEditEnabling(Val Form, Val Attributes,
 	
 EndProcedure
 
-// Returns an array of attribute names specified in the AttributesLockParameters form property
-// based on the attribute names specified in the object manager module excluding the attributes
-// with RightToEdit = False.
+// Returns an array of the names of the details specified in the form parametersreaditingrequests Property
+// based on the names of the details specified in the object Manager module, excluding the details
+// that have the edit Right = False.
 //
 // Parameters:
-//  Form         - ClientApplicationForm - an object form with a required standard Object attribute.
-//  OnlyBlocked - Boolean - you can set this parameter to False for debug purposes,
-//                  to get a list of all visible attributes that can be unlocked.
-//  OnlyVisible - Boolean - set this parameter to False to get and unlock all object attributes.
+//  Form         - ClientApplicationForm -  object form with the required standard "Object"attribute.
+//  OnlyBlocked - Boolean -  for auxiliary purposes, you can set False to
+//                  get a list of all visible details that can be unlocked.
+//  OnlyVisible - Boolean -  to get and unlock all the details of the object, you need to specify a Lie.
 //
 // Returns:
-//  Array of String - the attribute names.
+//  Array of String - 
 //
 Function Attributes(Val Form, Val OnlyBlocked = True, OnlyVisible = True) Export
 	
@@ -210,24 +208,24 @@ Function Attributes(Val Form, Val OnlyBlocked = True, OnlyVisible = True) Export
 	
 EndFunction
 
-// Displays a warning that all visible attributes are unlocked.
-// The warning is required when the unlock command
-// remains enabled because of invisible locked attributes.
+// Displays a warning that all visible banking details are unlocked.
+// The need for a warning occurs when the unlock command
+// remains enabled due to the presence of invisible unblocked details.
 //
 // Parameters:
-//  ContinuationHandler - Undefined - no actions after the procedure execution.
-//                       - NotifyDescription - notification that is called after the procedure execution.
+//  ContinuationHandler - Undefined -  no actions after completing the procedure.
+//                       - NotifyDescription - 
 //
 Procedure ShowAllVisibleAttributesUnlockedWarning(ContinuationHandler = Undefined) Export
 	
 	ShowMessageBox(ContinuationHandler,
-		NStr("en = 'Editing visible attributes of the object is already allowed.';"));
+		NStr("en = 'Редактирование всех видимых реквизитов объекта уже разрешено.';"));
 	
 EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// Intended for being called from the BatchEditAttributes handler.
+// 
 //
 // Parameters:
 //  Parameters - See NewParametersAllowEditingObjectAttributes
@@ -244,9 +242,9 @@ Procedure AllowObjectsAttributesEdit(Parameters) Export
 	FullFormName = Parameters.FullObjectName + ".Form.AttributeUnlocking";
 	
 	Try
-		// ACC:65-off - No. 404.1 - The GetForm method is used only to check the form compatibility.
+		// 
 		ObtainedForm = GetForm(FullFormName);
-		// ACC:65-on
+		// 
 		If Not ObtainedForm.Parameters.Property("BatchEditObjects") Then
 			FullFormName = FullNameOfStandardForm;
 		EndIf;
@@ -262,24 +260,24 @@ Procedure AllowObjectsAttributesEdit(Parameters) Export
 	
 EndProcedure
 
-// The parameter constructor used in the AllowObjectAttributeEdit procedure.
+// 
 //
 // Returns:
 //  Structure:
-//   * ResultProcessing - NotifyDescription - Upon an unlock, returns to "Result" either
-//             True (in case all the attributes are unlocked)
-//             or an array of names (in case some of the attributes are unlocked).
+//   * ResultProcessing - NotifyDescription - 
+//             
+//             
 //
-//   * FullObjectName - String - For example, "Document.Order".
+//   * FullObjectName - String - 
 //
-//   * LockedAttributes - Array of String - The names of the attributes specified in the
-//            GetObjectAttributesToLock function of the object manager module.
+//   * LockedAttributes - Array of String - 
+//            
 //
-//   * MarkedAttribute - String - The attribute that should be marked upon opening.
-//            If not specified, all the attributes will be marked.
+//   * MarkedAttribute - String - 
+//            
 //
-//   * AddressOfRefsToObjects - String - The address of the temp storage containing the array of references.
-//            If an empty array is passed, the usage check button will be hidden.
+//   * AddressOfRefsToObjects - String - 
+//            
 //
 Function NewParametersAllowEditingObjectAttributes() Export
 	
@@ -298,27 +296,27 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Replaced with a long-running operation and a check in the AttributeUnlocking common form.
-// If you're creating a custom variant of the AttributeUnlocking form,
-// develop a check that evaluates the usages of long-running operation objects.
+// Deprecated.
+// 
+// 
 //
-// Prompts the user for a confirmation to enable the attribute editing.
-// Verifies that the infobase contains references to the object.
+// 
+// 
 //
 // Parameters:
-//  ContinuationHandler - NotifyDescription - notification called after the check.
-//                         A Boolean parameter is passed to the notification handler:
-//                           True - no references are found or the user decided to allow editing.
-//                           False   - no visible attributes are locked,
-//                                    or references are found and the user decided to cancel the operation.
-//  ReferencesArrray         - Array - values:
-//                           * Ref - searched references in various objects.
-//  AttributesSynonyms   - Array - values:
-//                           * String - attribute synonyms displayed to a user.
+//  ContinuationHandler - NotifyDescription - 
+//                         :
+//                           
+//                           
+//                                    
+//  ReferencesArrray         - Array - Values:
+//                           * Ref - 
+//  AttributesSynonyms   - Array - Values:
+//                           * String - 
 //
 Procedure CheckObjectRefs(Val ContinuationHandler, Val ReferencesArrray, Val AttributesSynonyms) Export
 	
-	DialogTitle = NStr("en = 'Allow attribute edit';");
+	DialogTitle = NStr("en = 'Разрешение редактирования реквизитов';");
 	
 	AttributesPresentation = "";
 	For Each AttributeSynonym In AttributesSynonyms Do
@@ -328,30 +326,32 @@ Procedure CheckObjectRefs(Val ContinuationHandler, Val ReferencesArrray, Val Att
 	
 	If AttributesSynonyms.Count() > 1 Then
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'To prevent data inconsistency, the following attributes have been locked:
+			NStr("en = 'Для того чтобы не допустить рассогласования данных в приложении,
+			           |следующие реквизиты не доступны для редактирования:
 			           |%1.
 			           |
-			           |Before you allow editing, view the occurrences of these attributes
-			           |and consider possible data implications.
-			           |Generating the list of occurrences might take a while.
-			           |';"),
+			           |Перед тем, как разрешить их редактирование, рекомендуется оценить последствия,
+			           |проверив все места использования этого элемента в приложении.
+			           |Поиск мест использования может занять длительное время.';"),
 			AttributesPresentation);
 	Else
 		If ReferencesArrray.Count() = 1 Then
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'To prevent data inconsistency, attribute %1 has been locked.
+				NStr("en = 'Для того чтобы не допустить рассогласования данных в приложении,
+				           |реквизит %1 недоступен для редактирования.
 				           |
-				           |Before you allow editing, view the occurrences of %2
-				           |and consider possible data implications.
-				           |Generating the list of occurrences might take a while.';"),
+				           |Перед тем, как разрешить его редактирование, рекомендуется оценить последствия,
+				           |проверив все места использования ""%2"" в приложении.
+				           |Поиск мест использования может занять длительное время.';"),
 				AttributesPresentation, ReferencesArrray[0]);
 		Else
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'To prevent data inconsistency, attribute %1 has been locked.
+				NStr("en = 'Для того чтобы не допустить рассогласования данных в приложении,
+				           |реквизит %1 недоступен для редактирования.
 				           |
-				           |Before you allow editing, view the occurrences of the selected items (%2)
-				           |and consider possible data implications.
-				           |Generating the list of occurrences might take a while.';"),
+				           |Перед тем, как разрешить его редактирование, рекомендуется оценить последствия,
+				           |проверив все места использования выбранных элементов (%2) в приложении.
+				           |Поиск мест использования может занять длительное время.';"),
 				AttributesPresentation, ReferencesArrray.Count());
 		EndIf;
 	EndIf;
@@ -363,8 +363,8 @@ Procedure CheckObjectRefs(Val ContinuationHandler, Val ReferencesArrray, Val Att
 	Parameters.Insert("ContinuationHandler", ContinuationHandler);
 	
 	Buttons = New ValueList;
-	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'View and allow';"));
-	Buttons.Add(DialogReturnCode.No, NStr("en = 'Cancel';"));
+	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Проверить и разрешить';"));
+	Buttons.Add(DialogReturnCode.No, NStr("en = 'Отмена';"));
 	
 	ShowQueryBox(
 		New NotifyDescription("CheckObjectReferenceAfterValidationConfirm",

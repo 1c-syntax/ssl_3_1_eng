@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -79,7 +77,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ReferencesArrray = PrintObjects.UnloadValues();
 	
-	// OnlineInteraction
+	// ElectronicInteraction
 	If TypeOf(ReferencesArrray) = Type("Array")
 		And ReferencesArrray.Count() > 0
 		And Common.RefTypeValue(ReferencesArrray[0]) Then
@@ -88,7 +86,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				ModuleOnlineInteraction.WhenDisplayingNavigationLinkInFormOfInformationSecurityObject(AdditionalInformation, ReferencesArrray);
 			EndIf;
 	EndIf;
-	// End OnlineInteraction
+	// End ElectronicInteraction
 	
 	Items.AdditionalInformation.Title = StringFunctions.FormattedString(AdditionalInformation.Text);
 	Items.PictureOfInformation.Picture = AdditionalInformation.Picture;
@@ -281,7 +279,9 @@ EndProcedure
 
 &AtClient
 Procedure GoToTemplatesManagement(Command)
-	OpenForm("InformationRegister.UserPrintTemplates.Form.PrintFormTemplates");
+	
+	PrintManagementClient.GoToTemplate(PrintFormsSettings[0].TemplatePath);
+	
 EndProcedure
 
 &AtClient
@@ -524,7 +524,7 @@ Procedure OpenOfficeDoc(DocumentAddress, NameOfFileToOpen)
 	FileSystemClient.CreateTemporaryDirectory(Notification);
 EndProcedure
 
-// Continuation of the OpenOfficeDoc procedure.
+// 
 &AtClient
 Procedure OpenOfficeDocAfterTempDirObtained(DirectoryName, AdditionalParameters) Export
 	
@@ -719,7 +719,7 @@ EndFunction
 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.NewResultLongOperation
-//  ContinuationHandler - NotifyDescription, Undefined
+//  ContinuationHandler - 
 //
 &AtClient
 Procedure OnCompleteGeneratingPrintForms(Result, ContinuationHandler) Export
@@ -995,7 +995,7 @@ Procedure AdditionalInformationURLProcessing(Item, FormattedStringURL, StandardP
 	PrintManagementClientOverridable.PrintDocumentsURLProcessing(ThisObject, Item, FormattedStringURL, StandardProcessing);
 EndProcedure
 
-// Branch of the procedure that triggers after 1C:Enterprise Extension is installed.
+// 
 &AtClient
 Procedure ResumePrintingAfterFileManagementExtensionInstalled(ExtensionAttached, AdditionalParameters) Export
 	
@@ -1033,7 +1033,7 @@ Procedure PrintAfterTempDirNameObtained(TempFilesDirName, ArrayOfPrintForms) Exp
 	#If WebClient Then
 		TempFileName = TempFilesDirName + String(New UUID);
 	#Else
-		TempFileName = GetTempFileName("DOCX"); // ACC:441 - The function is a temporary file name getter.
+		TempFileName = GetTempFileName("DOCX"); // 
 	#EndIf
 		Notification = New NotifyDescription("AfterFileSaved", ThisObject, TempFileName);
 		DocumentData = GetFromTempStorage(PrintForm.PrintFormAddress); // BinaryData
@@ -1051,7 +1051,7 @@ EndProcedure
 
 
 #Region PrintUsingApp
-// The procedure is designed to print the file by the appropriate application.
+// The procedure is designed to print the file by the appropriate application
 //
 // Parameters:
 //  FilenameForPrint - String
@@ -1104,7 +1104,7 @@ Function EmailSendOptions(SelectedOptions, Attachments)
 		AttachmentsList = PutOfficeDocsToTempStorage(SelectedOptions);
 	EndIf;
 	
-	// Check the names for uniqueness.
+	// 
 	FileNameTemplate = "%1%2.%3";
 	UsedFilesNames = New Map;
 	For Each Attachment In AttachmentsList Do
@@ -1300,7 +1300,7 @@ Function PutOfficeDocsToTempStorage(PassedSettings, UseIndividualPrintForms = Fa
 	
 	If PassedSettings.Property("AttachmentsList") And PassedSettings.AttachmentsList <> Undefined
 			And Not UseIndividualPrintForms Then
-		PrintFormsSettingsTemp = PassedSettings.AttachmentsList; // A single document.
+		PrintFormsSettingsTemp = PassedSettings.AttachmentsList; // 
 	Else
 		PrintFormsSettingsTemp = PrintFormsSettings;
 	EndIf;
@@ -1310,7 +1310,7 @@ Function PutOfficeDocsToTempStorage(PassedSettings, UseIndividualPrintForms = Fa
 	
 	Result = New Array;
 	
-	// Prepare an archive.
+	// 
 	If SettingsForSaving.PackToArchive And Not ThisIsSigning Then
 		ArchiveName = GetTempFileName("zip");
 		ZipFileWriter = New ZipFileWriter(ArchiveName);
@@ -1326,7 +1326,7 @@ Function PutOfficeDocsToTempStorage(PassedSettings, UseIndividualPrintForms = Fa
 		ObjectsToAttach = Common.CopyRecursive(PassedSettings.ObjectsToAttach);
 	EndIf;
 	
-	// Save print forms.
+	// 
 	For Each PrintFormSetting In PrintFormsSettingsTemp Do
 		If PrintFormSetting.Property("OfficeDocuments") And Not IsBlankString(PrintFormSetting.OfficeDocuments) Then
 			
@@ -1385,7 +1385,7 @@ Function PutOfficeDocsToTempStorage(PassedSettings, UseIndividualPrintForms = Fa
 		
 	EndDo;
 	
-	// If the archive is prepared, writing it and putting in the temporary storage.
+	// 
 	If ZipFileWriter <> Undefined Then 
 		ZipFileWriter.Write();
 		BinaryData = New BinaryData(ArchiveName);

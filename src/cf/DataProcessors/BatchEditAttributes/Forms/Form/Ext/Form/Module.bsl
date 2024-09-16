@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -52,12 +50,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.Independent;
 	EndIf;
 	
-	// Check if data processor object contains the UsedFileName field.
+	// 
 	DataProcessorObject  = FormAttributeToValue("Object");
 	ObjectStructure = New Structure("UsedFileName", Undefined);
 	FillPropertyValues(ObjectStructure, DataProcessorObject);
 	
-	// If the "UsedFileName" field is present, this is an external data processor.
+	// 
 	If Not ValueIsFilled(AdditionalDataProcessorRef)
 	   And ValueIsFilled(ObjectStructure.UsedFileName)
 	   And Not StrStartsWith(ObjectStructure.UsedFileName, "e1cib/")
@@ -357,7 +355,7 @@ Procedure Change(Command)
 		EndIf;
 		
 		If Not CodeExecutionRights.UnsafeModeCodeExecutionAvailable And Object.ExecutionMode = 1 Then
-			Object.ExecutionMode = 0; // Switching to safe mode
+			Object.ExecutionMode = 0; // 
 		EndIf;
 		
 	EndIf;
@@ -443,7 +441,7 @@ Procedure ConfigureChangeParameters(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// ATTACHABLE HANDLERS
+// 
 
 &AtClient
 Procedure Attachable_ValueOnChange(FormField)
@@ -522,7 +520,7 @@ Procedure SetConditionalAppearance()
 
 	ConditionalAppearance.Items.Clear();
 
-	// Auto-numbering info. This is always the first setting.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -559,7 +557,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("Text", NoteOnAutonumbering);
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Gray);
 	
-	// Locked attribute.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 
@@ -572,9 +570,9 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = True;
 
 	//@skip-check new-color
-	Item.Appearance.SetParameterValue("TextColor", New Color(192, 192, 192)); // ACC:1346 Standalone data processor cannot use styles.
+	Item.Appearance.SetParameterValue("TextColor", New Color(192, 192, 192)); // 
 	
-	// Notes for linked attributes
+	// 
 	
 	For Each Attribute In ObjectAttributes Do
 		Item = ConditionalAppearance.Items.Add();
@@ -615,7 +613,7 @@ EndProcedure
 // Parameters:
 //   Attribute - Structure:
 //   * Name - String
-//   ChoiceParameterLinksPresentation - String
+//   Representationreferenceselectionparameters-String
 //   TabularSection - ValueListItem
 //
 &AtServer
@@ -705,16 +703,16 @@ Procedure ExecuteActionsOnContextOpen()
 	ObjectCount = Parameters.ObjectsArray.Count();
 	Title = SubstituteParametersToString(TitleTemplate1, TypePresentation, ObjectCount);
 	
-	// Hiding all settings-related actions if there are no write permissions for settings.
+	// 
 	Items.PreviouslyChangedAttributes.Visible = AccessRight("SaveUserData", Metadata);
 	
 	KindsOfObjectsToChange = StrConcat(ObjectsTypes.UnloadValues(), ",");
 	
-	// Loading the history of operations for this object type.
+	// 
 	LoadOperationsHistory();
 	FillPreviouslyChangedAttributesSubmenu();
 	
-	// This is a hierarchy object.
+	// 
 	IncludeHierarchy = HierarchicalMetadataObject1(Parameters.ObjectsArray[0]);
 	FolderHierarchy = HierarchyFoldersAndItems(Parameters.ObjectsArray[0]);
 	
@@ -990,7 +988,7 @@ Function LoadTheConfigurationOfTheTypesOfObjectsToChange()
 	
 EndFunction
 
-// Custom algorithms are not allowed in SaaS mode, base configurations, or without SystemAdministrator rights.
+// You can't run an arbitrary algorithm in the service model, basic configuration, or without system Admin rights.
 //
 &AtServerNoContext
 Function UnsafeModeCodeExecutionAvailable()
@@ -1100,14 +1098,14 @@ Procedure ChangeObjects1()
 	
 	CurrentChangeStatus.Insert("ItemsAvailableForProcessing", True);
 	
-	// Position of the last processed item, where 1 is the first item.
+	// 
 	CurrentChangeStatus.Insert("CurrentPosition", 0);
 	
-	// Batching in multithreaded runtime is performed in the object module.
+	// 
 	CurrentChangeStatus.Insert("PortionSize", ObjectsCountForProcessing);
 	
-	CurrentChangeStatus.Insert("ErrorsCount", 0);            // Initialize the error counter.
-	CurrentChangeStatus.Insert("ChangedCount", 0);        // Initialize the changed item counter.
+	CurrentChangeStatus.Insert("ErrorsCount", 0);            // 
+	CurrentChangeStatus.Insert("ChangedCount", 0);        // 
 	CurrentChangeStatus.Insert("ObjectsCountForProcessing",  ObjectsCountForProcessing);
 	CurrentChangeStatus.Insert("StopChangeOnError", Object.InterruptOnError);
 	CurrentChangeStatus.Insert("ShowProcessedItemsPercentage",   ShowProcessedItemsPercentage);
@@ -1219,10 +1217,10 @@ Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Und
 			Break;
 		EndIf;
 		
-		// Rolling back the entire transaction if there were errors.
+		// 
 		If Object.ChangeInTransaction Then
 			AttachIdleHandler("CompleteObjectChange", 0.1, True);
-			Return; // Exit the loop and procedure.
+			Return; // 
 		EndIf;
 		
 		QueryText = NStr("en = 'Errors editing items.
@@ -1242,7 +1240,7 @@ Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Und
 	CurrentChangeStatus.CurrentPosition = CurrentChangeStatus.CurrentPosition + ChangeResult.ProcessingState.Count();
 	
 	If CurrentChangeStatus.ShowProcessedItemsPercentage Then
-		// Calculating the current percentage of processed objects.
+		// 
 		CurrentPercentage = Round(CurrentChangeStatus.CurrentPosition / CurrentChangeStatus.ObjectsCountForProcessing * 100);
 		Status(NStr("en = 'Processing in progress…';"), CurrentPercentage, NStr("en = 'Edit selected items';"));
 	EndIf;
@@ -1356,10 +1354,10 @@ Procedure GoToCompletedPage()
 	
 EndProcedure
 
-// A message stating that attribute edit can be accelerated is shown if:
-// 1. The run mode is client/server (not SaaS).
-// 2. The transaction runtime flag is set.
-// 3. The number of batches in Administration settings is more than 1.
+// 
+// 
+// 
+// 
 //
 &AtServer
 Procedure AddMessagePossibleToEditAttributesFaster()
@@ -1715,7 +1713,7 @@ Function SelectedObjects(Filter_Settings = Undefined, ErrorMessageText = "")
 			SetResultOutputStructureSetting(DataCompositionSettingsComposer.Settings, IncludeTabularSectionsInSelection);
 		EndIf;
 		
-		If ObjectsThatCouldNotBeChanged.Count() > 0 And Not Object.ChangeInTransaction Then // Repeat for unchanged objects.
+		If ObjectsThatCouldNotBeChanged.Count() > 0 And Not Object.ChangeInTransaction Then // 
 			FilterElement = DataCompositionSettingsComposer.Settings.Filter.Items.Add(Type("DataCompositionFilterItem"));
 			FilterElement.LeftValue = New DataCompositionField("Ref");
 			FilterElement.ComparisonType = DataCompositionComparisonType.InList;
@@ -2025,13 +2023,13 @@ Function LockedAttributes()
 			Continue;
 		EndIf;
 		
-		// For configurations without SSL or with an old SSL integrated, 
-		// identify if the object has locked attributes (subsystem "Object attribute lock")
+		//  
+		// 
 		ObjectManager = ObjectManagerByFullName(ObjectsKind);
 		Try
 			AttributesToLockDetails = ObjectManager.GetObjectAttributesToLock();
 		Except
-			// Method not found.
+			// 
 			AttributesToLockDetails = Undefined;
 		EndTry;
 	
@@ -2837,7 +2835,7 @@ Function FilterAttributes()
 	Result.Columns.Add("ObjectType", New TypeDescription("String", New StringQualifiers(80)));
 	Result.Columns.Add("Attribute", New TypeDescription("String", New StringQualifiers(80)));
 	
-	// All objects.
+	// 
 	Filter = Result.Add();
 	Filter.ObjectType = "*";
 	Filter.Attribute = "Description";
@@ -2858,7 +2856,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "*";
 	Filter.Attribute = "ContactInformation.*";
 
-	// Catalogs.
+	// 
 	Filter = Result.Add();
 	Filter.ObjectType = "Catalogs";
 	Filter.Attribute = "PredefinedDataName";
@@ -2879,7 +2877,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "Catalogs";
 	Filter.Attribute = "AddlOrderingAttribute";
 	
-	// Documents.
+	// 
 	Filter = Result.Add();
 	Filter.ObjectType = "Documents";
 	Filter.Attribute = "Number";
@@ -2888,7 +2886,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "Documents";
 	Filter.Attribute = "Posted";
 	
-	// Charts of characteristic types.
+	// 
 	Filter = Result.Add();
 	Filter.ObjectType = "ChartsOfCharacteristicTypes";
 	Filter.Attribute = "PredefinedDataName";
@@ -2909,7 +2907,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "ChartsOfCharacteristicTypes";
 	Filter.Attribute = "ValueType";
 	
-	// Charts of accounts.
+	// 
 	Filter = Result.Add();
 	Filter.ObjectType = "ChartsOfAccounts";
 	Filter.Attribute = "PredefinedDataName";
@@ -2926,7 +2924,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "ChartsOfAccounts";
 	Filter.Attribute = "Order";
 
-	// Charts of calculation types.
+	// 
 	Filter = Result.Add();
 	Filter.ObjectType = "ChartsOfCalculationTypes";
 	Filter.Attribute = "PredefinedDataName";
@@ -2943,12 +2941,12 @@ Function FilterAttributes()
 	Filter.ObjectType = "ChartsOfCalculationTypes";
 	Filter.Attribute = "ActionPeriodIsBasic";
 	
-	// Tasks.
+	// 
 	Filter = Result.Add();
 	Filter.ObjectType = "Tasks";
 	Filter.Attribute = "Number";
 	
-	// Business processes.
+	// 
 	Filter = Result.Add();
 	Filter.ObjectType = "BusinessProcesses";
 	Filter.Attribute = "Number";
@@ -2957,7 +2955,7 @@ Function FilterAttributes()
 	Filter.ObjectType = "BusinessProcesses";
 	Filter.Attribute = "Date";
 	
-	// Exchange plans.
+	// 
 	Filter = Result.Add();
 	Filter.ObjectType = "ExchangePlans";
 	Filter.Attribute = "Code";
@@ -2986,10 +2984,10 @@ Function EditFilterByType(MetadataObject)
 	
 	FilterTable1 = FilterAttributes();
 	
-	// Attributes lockable for any metadata object type.
+	// 
 	CommonFilter = FilterTable1.FindRows(New Structure("ObjectType", "*"));
 	
-	// Attributes lockable for the specified metadata object type.
+	// 
 	FilterByObjectType = FilterTable1.FindRows(New Structure("ObjectType", 
 		BaseTypeNameByMetadataObject(MetadataObject)));
 	
@@ -3084,11 +3082,11 @@ Procedure GenerateNoteOnConfiguredChanges()
 		Explanation = NStr("en = 'No items selected.';");
 	Else
 		If AttributesToChange.Count() = 1 Then
-			NoteTemplate = NStr("en = 'Change the %1 attribute for the selected items';") // Example: "Update attribute ""Warehouse""..."
+			NoteTemplate = NStr("en = 'Change the %1 attribute for the selected items';") // 
 		ElsIf AttributesToChange.Count() > 3 Then
-			NoteTemplate = NStr("en = 'Change attributes (%1) for the selected items';"); // Example: "Update attributes (5)..."
+			NoteTemplate = NStr("en = 'Change attributes (%1) for the selected items';"); // 
 		ElsIf AttributesToChange.Count() > 1 Then
-			NoteTemplate = NStr("en = 'Change the %1 attributes for the selected items';"); // Example: "Update attributes ""Warehouse"", ""Office""..."
+			NoteTemplate = NStr("en = 'Change the %1 attributes for the selected items';"); // 
 		Else	
 			NoteTemplate = "";
 		EndIf;
@@ -3277,7 +3275,7 @@ Procedure SetChangeSetting(Val Setting)
 	
 	LockedAttributesAvailable = False;
 	
-	// For backward compatibility with settings saved in SSL 2.1.
+	// 
 	If TypeOf(Setting) <> Type("Structure") Then
 		Setting = New Structure("Attributes,TabularSections", Setting, New Structure);
 	EndIf;
@@ -3285,7 +3283,7 @@ Procedure SetChangeSetting(Val Setting)
 	For Each AttributeToChange In Setting.Attributes Do
 		TheStructureOfTheSearch = New Structure;
 		TheStructureOfTheSearch.Insert("OperationKind", AttributeToChange.OperationKind);
-		If AttributeToChange.OperationKind = 1 Then // Object attribute.
+		If AttributeToChange.OperationKind = 1 Then // 
 			TheStructureOfTheSearch.Insert("Name", AttributeToChange.AttributeName);
 		Else
 			TheStructureOfTheSearch.Insert("Property", AttributeToChange.Property);
@@ -3520,13 +3518,13 @@ Procedure OnUnlockAttributes(UnlockedAttributes, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Base-functionality procedures and functions for standalone mode support.
+// 
 
-// Saves a setting to the common settings storage.
+// Saves the setting to the General settings store.
 // 
 // Parameters:
-//   As for the CommonSettingsStorageSave.Save method, 
-//   see StorageSave() parameters.
+//   Correspond to the method of the repository of the general Set up to save.Save, 
+//   for more details, see the parameters of the Store procedure Save().
 // 
 &AtServerNoContext
 Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Value,
@@ -3544,11 +3542,11 @@ Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Value,
 	
 EndProcedure
 
-// Loads settings from the common settings storage.
+// Loads a setting from the General settings store.
 //
 // Parameters:
-//   As for the CommonSettingsStorage.Load method,
-//   see StorageLoad() parameters.
+//   Correspond to the method of storage of general settings.Upload,
+//   for more details, see the parameters of the Upload() storagefunction.
 //
 &AtServerNoContext
 Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined, 
@@ -3598,18 +3596,18 @@ Function StorageLoad(StorageManager, ObjectKey, SettingsKey, DefaultValue,
 	
 EndFunction
 
-// Returns a settings key string within a valid length.
-// Checks the length of the passed string. If it exceeds 128, converts its end according to the MD5 algorithm into a short
-// alternative. As the result, string becomes 128 character length.
-// If the original string is less then 128 characters, it is returned as is.
+// Returns a string of the settings key that does not exceed the allowed length.
+// Checks the length of the input string and, if it exceeds 128, converts the end of the string using the MD5 algorithm to a short
+// version, which makes the string 128 characters long.
+// If the original string is less than 128 characters, it is returned unchanged.
 //
 // Parameters:
-//  String - String - string of any number of characters.
+//  String - String -  a string of any length.
 //
 &AtServerNoContext
 Function SettingsKey(Val String)
 	Result = String;
-	If StrLen(String) > 128 Then // A key longer than 128 characters raises an exception when accessing the settings storage.
+	If StrLen(String) > 128 Then // 
 		Result = Left(String, 96);
 		DataHashing = New DataHashing(HashFunction.MD5);
 		DataHashing.Append(Mid(String, 97));
@@ -3618,16 +3616,16 @@ Function SettingsKey(Val String)
 	Return Result;
 EndFunction
 
-// Returns an object manager by the passed full name of a metadata object.
+// Returns the object Manager by the full name of the metadata object.
 //
-// Does not regard business process route points.
+// Business process route points are not processed.
 //
 // Parameters:
-//  FullName    - String - full name of the metadata object,
-//                 for example, "Catalog.Companies".
+//  FullName    - String -  the full name of the metadata object,
+//                 for example, " Reference.Companies".
 //
 // Returns:
-//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - an object manager.
+//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - 
 //
 &AtServerNoContext
 Function ObjectManagerByFullName(FullName)
@@ -3681,12 +3679,12 @@ Function ObjectManagerByFullName(FullName)
 		
 	ElsIf Upper(MOClass) = "CALCULATIONREGISTER" Then
 		If NameParts.Count() = 2 Then
-			// Calculation register.
+			// 
 			Manager = CalculationRegisters;
 		Else
 			SubordinateMOClass = NameParts[2];
 			If Upper(SubordinateMOClass) = "RECALCULATION" Then
-				// Recalculate.
+				// Recalculation
 				Manager = CalculationRegisters[MetadataObjectName1].Recalculations;
 			Else
 				Raise SubstituteParametersToString(NStr("en = 'Unknown metadata object type: %1.';"), FullName);
@@ -3729,16 +3727,16 @@ Function SubstituteParametersToString(Val SubstitutionString,
 	Return SubstitutionString;
 EndFunction
 
-// Returns the name of a kind
-// for a referenced metadata object.
+// The ViewObject function Returns the name of the type of metadata objects
+// by reference to the object.
 //
-// Does not regard business process route points.
+// Business process route points are not processed.
 //
 // Parameters:
-//  Ref       - AnyRef - catalog item, document, etc.
+//  Ref       - AnyRef -  the element of the dictionary, document ...
 //
 // Returns:
-//  String       - Metadata object kind name. For example, Catalog or Document.
+//  String       - 
 //
 &AtServerNoContext
 Function ObjectKindByRef(Ref)
@@ -3747,15 +3745,15 @@ Function ObjectKindByRef(Ref)
 	
 EndFunction 
 
-// Returns the name of a kind for a metadata object of a specific type.
+// The function returns the name of the type of metadata objects by object type.
 //
-// Does not regard business process route points.
+// Business process route points are not processed.
 //
 // Parameters:
-//  ObjectType - Type - an applied object type defined in the configuration.
+//  Object Type - Type is the type of application object defined in the configuration.
 //
 // Returns:
-//  String       - Metadata object kind name. For example, Catalog or Document.
+//  String       - 
 // 
 &AtServerNoContext
 Function ObjectKindByType(Type)
@@ -3794,7 +3792,7 @@ Function ObjectKindByType(Type)
 	
 EndFunction 
 
-// Checks whether the object is an item group.
+// Checks whether the object is a group of elements.
 //
 // Parameters:
 //  Object - CatalogObject
@@ -3840,10 +3838,10 @@ Function ObjectIsFolder(Object)
 	
 EndFunction
 
-// Checks whether the metadata object belongs to the Catalog common type.
+// Defines whether the metadata object belongs to the General Reference type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - to be checked for having a specific type.
+//  MetadataObject - MetadataObject -  for which it is necessary to determine whether it belongs to the specified type.
 //
 //  Returns:
 //   Boolean
@@ -3855,7 +3853,7 @@ Function IsCatalog(MetadataObject)
 	
 EndFunction
 
-// Checking whether it's a reference data type.
+// Checks that the type has a reference data type.
 //
 &AtServerNoContext
 Function IsReference(Type)
@@ -3874,13 +3872,13 @@ Function IsReference(Type)
 	
 EndFunction
 
-// Checks whether the value is a reference type value.
+// Check that the value has a reference data type.
 //
 // Parameters:
-//  Value - Arbitrary - a value to check.
+//  Value - Arbitrary -  the value to check.
 //
 // Returns:
-//  Boolean       - True if the value has a reference type.
+//  Boolean       - 
 //
 &AtServerNoContext
 Function RefTypeValue(Value)
@@ -3933,10 +3931,10 @@ Function RefTypeValue(Value)
 	
 EndFunction
 
-// Checks whether the metadata object belongs to the Chart of Characteristic Types common type.
+// Defines whether the metadata object belongs to the General "feature types Plan" type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - to be checked for having a specific type.
+//  MetadataObject - MetadataObject -  for which it is necessary to determine whether it belongs to the specified type.
 //
 //  Returns:
 //   Boolean
@@ -3948,13 +3946,13 @@ Function IsChartOfCharacteristicTypes(MetadataObject)
 	
 EndFunction
 
-// Returns a base type name by the passed metadata object value.
+// Returns the name of the base type based on the passed value of the metadata object.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - to use for identifying the base type.
+//  MetadataObject - MetadataObject -  by which you need to determine the base type.
 // 
 // Returns:
-//  String - name of the base type for the passed metadata object value.
+//  String - 
 //
 &AtServerNoContext
 Function BaseTypeNameByMetadataObject(MetadataObject)
@@ -4018,7 +4016,7 @@ Function BaseTypeNameByMetadataObject(MetadataObject)
 	
 EndFunction
 
-// Returns a value for identification of the Information registers type.
+// Returns a value for identifying the General "data Registers" type.
 //
 // Returns:
 //  String
@@ -4030,7 +4028,7 @@ Function InformationRegistersTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Accumulation registers type.
+// Returns a value for identifying the General "accumulation Registers" type.
 //
 // Returns:
 //  String
@@ -4042,7 +4040,7 @@ Function AccumulationRegistersTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Accounting registers type.
+// Returns a value for identifying the General "accounting Registers" type.
 //
 // Returns:
 //  String
@@ -4054,7 +4052,7 @@ Function AccountingRegistersTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Calculation registers type.
+// Returns a value for identifying the General "calculation Registers" type.
 //
 // Returns:
 //  String
@@ -4066,7 +4064,7 @@ Function CalculationRegistersTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Documents type.
+// Returns a value for identifying the General "Documents" type.
 //
 // Returns:
 //  String
@@ -4078,7 +4076,7 @@ Function DocumentsTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Catalogs type.
+// Returns a value for identifying the General "Directories" type.
 //
 // Returns:
 //  String
@@ -4090,7 +4088,7 @@ Function CatalogsTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the Enumeration data type.
+// Returns a value for identifying the General "Enumeration" type.
 //
 // Returns:
 //  String
@@ -4102,7 +4100,7 @@ Function EnumsTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Exchange plans type.
+// Returns a value for identifying the General "exchange Plan" type.
 //
 // Returns:
 //  String
@@ -4114,7 +4112,7 @@ Function ExchangePlansTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Charts of characteristic types type.
+// Returns the value for identifying the shared-type Plans "types of characteristics."
 //
 // Returns:
 //  String
@@ -4126,7 +4124,7 @@ Function ChartsOfCharacteristicTypesTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Business processes type.
+// Returns a value for identifying the General "Business processes" type.
 //
 // Returns:
 //  String
@@ -4138,7 +4136,7 @@ Function BusinessProcessesTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Tasks type.
+// Returns a value for identifying the General "Task" type.
 //
 // Returns:
 //  String
@@ -4150,7 +4148,7 @@ Function TasksTypeName()
 	
 EndFunction
 
-// Checks whether the metadata object belongs to the Charts of accounts type.
+// Returns the value for identifying the shared-type "chart of accounts".
 //
 // Returns:
 //  String
@@ -4162,7 +4160,7 @@ Function ChartsOfAccountsTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Charts of calculation types type.
+// Returns a value for identifying the General type "calculation type Plans".
 //
 // Returns:
 //  String
@@ -4174,7 +4172,7 @@ Function ChartsOfCalculationTypesTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Constants type.
+// Returns a value for identifying the General "Constant" type.
 //
 // Returns:
 //  String
@@ -4186,7 +4184,7 @@ Function ConstantsTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Document journals type.
+// Returns a value for identifying the General "document Logs" type.
 //
 // Returns:
 //  String
@@ -4198,7 +4196,7 @@ Function DocumentJournalsTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the Sequences type.
+// Returns a value for identifying the General "Sequence" type.
 //
 // Returns:
 //  String
@@ -4210,7 +4208,7 @@ Function SequencesTypeName()
 	
 EndFunction
 
-// Returns a value for identification of the ScheduledJobs type.
+// Returns a value for identifying the General "routine Tasks" type.
 //
 // Returns:
 //  String
@@ -4222,31 +4220,31 @@ Function ScheduledJobsTypeName()
 	
 EndFunction
 
-// Returns a structure containing attribute values retrieved from the infobase
-// using the object reference.
+// Returns a structure containing the details values read from the information base
+// by reference to the object.
 // 
-//  If access to any of the attributes is denied, an exception is raised.
-//  To read attribute values regardless of current user rights,
-//  enable privileged mode.
+//  If you don't have access to one of the details, you will get an access exception.
+//  If you need to read the details regardless of the current user's rights,
+//  you should use the pre - transition to privileged mode.
 // 
 // Parameters:
-//  Ref    - AnyRef - catalog item, document, etc.
+//  Ref    - AnyRef -  the element of the dictionary, document ...
 //
-//  Attributes - String - attribute names separated with commas, formatted
-//              according to structure requirements.
-//              Example: "Code, Description, Parent".
+//  Attributes - String -  names of details, separated by commas, in the format
+//              of requirements for structure properties.
+//              For Example, "Code, Name, Parent".
 //            - Structure
-//            - FixedStructure - Keys are field aliases used for resulting structure keys.
-//              (Optional) Values are field names.
-//              If a value is undefined, it repeats the key.
+//            - FixedStructure - 
+//              
+//              
 //              
 //            - Array
-//            - FixedArray - attribute names formatted according to
-//              structure property requirements.
+//            - FixedArray - 
+//              
 //
 // Returns:
-//  Structure - contains names (keys) and values of the requested attributes.
-//              If the string of the requested attributes is empty, an empty structure is returned.
+//  Structure - 
+//              
 //
 &AtServerNoContext
 Function ObjectAttributesValues(Ref, Val Attributes)
@@ -4306,18 +4304,18 @@ Function ObjectAttributesValues(Ref, Val Attributes)
 	
 EndFunction
 
-// Returns an attribute value retrieved from the infobase using the object reference.
+// Returns the value of the props read from the information base by reference to the object.
 //
-//  If access to the attribute is denied, an exception is raised.
-//  To read attribute values regardless of current user rights,
-//  enable privileged mode.
+//  If you don't have access to the account details, an access rights exception will occur.
+//  If you need to read the details regardless of the current user's rights,
+//  you should use the pre - transition to privileged mode.
 //
 // Parameters:
-//  Ref       - AnyRef - catalog item, document, etc.
-//  AttributeName - String - for example, "Code".
+//  Ref       - AnyRef -  the element of the dictionary, document ...
+//  AttributeName - String -  for example, "Code".
 //
 // Returns:
-//  Arbitrary    - Depends on the type of the read attribute.
+//  Arbitrary    - 
 //
 &AtServerNoContext
 Function ObjectAttributeValue(Ref, AttributeName)
@@ -4327,12 +4325,12 @@ Function ObjectAttributeValue(Ref, AttributeName)
 	
 EndFunction 
 
-// Returns a reference to the common module by the name.
+// Returns a reference to the shared module by name.
 //
 // Parameters:
-//  Name          - String - a common module name, for example:
-//                 "Common",
-//                 "CommonClient".
+//  Name          - String - :
+//                 
+//                 
 //
 // Returns:
 //  CommonModule
@@ -4340,7 +4338,7 @@ EndFunction
 &AtClientAtServerNoContext
 Function CommonModule(Name)
 	
-// ACC:488-off "Calculate" instead of "Common.CalculateInSafeMode" because it's a standalone data processor.
+// 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Metadata.CommonModules.Find(Name) <> Undefined Then
 		SetSafeMode(True);
@@ -4358,24 +4356,24 @@ Function CommonModule(Name)
 		Raise SubstituteParametersToString(NStr("en = 'Common module ""%1"" does not exist.';"), Name);
 	EndIf;
 #EndIf
-// ACC:488-on
+// 
 	
 	Return Module;
 	
 EndFunction
 
-// Returns True if a subsystem exists.
+// Returns True if the subsystem exists.
 //
 // Parameters:
-//  FullSubsystemName - String - the full name of the subsystem metadata object, excluding word "Subsystem.".
-//                        Example: "StandardSubsystems.Core".
+//  FullSubsystemName - String - 
+//                        
 //
-// Example of calling an optional subsystem:
+// :
 //
-//  If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-//  	ModuleAccessManagement = Common.CommonModule("AccessManagement");
-//  	ModuleAccessManagement.<Method name>();
-//  EndIf;
+//  
+//  	
+//  	
+//  
 //
 // Returns:
 //  Boolean
@@ -4392,7 +4390,7 @@ Function SubsystemExists(FullSubsystemName)
 	
 EndFunction
 
-// Returns a map between subsystem names and the True value;
+// Returns the matching of subsystem names and the value True;
 &AtServerNoContext
 Function SubsystemsNames()
 	
@@ -4419,9 +4417,9 @@ Function SubordinateSubsystemsNames(ParentSubsystem)
 	
 EndFunction
 
-// Returns a string presentation of the type. 
-// For reference types, returns a string in format "CatalogRef.ObjectName" or "DocumentRef.ObjectName".
-// For any other types, converts the type to string. Example: "Number".
+// Returns a string representation of the type. 
+// For reference types, returns in the format " Referenceslink.Object name" or " document Link.Object name".
+// For all other types, returns the type to a string, such as"Number".
 //
 &AtServerNoContext
 Function TypePresentationString(Type)
@@ -4490,16 +4488,16 @@ Function TypePresentationString(Type)
 	
 EndFunction
 
-//	Converts the value table into an array.
-//	Use this function to pass data received on the server
-//	as a value table to the client. This is only possible
-//	if all of values from the value
-//  table can be passed to the client.
+//	Converts a table of values to an array.
+//	It can be used for transmitting data received
+//	on the server as a table of values to the client if the table
+//	it contains only values that can
+//  be passed to the client.
 //
-//	The resulting array contains structures that duplicate
-//	value table row structures.
+//	The resulting array contains structures, each of which repeats
+//	the structure of columns in the table of values.
 //
-//	It is recommended that you do not use this procedure to convert value tables
+//	It is not recommended to use it for converting tables of values
 //	with a large number of rows.
 //
 //	Parameters:
@@ -4530,13 +4528,13 @@ Function ValueTableToArray(ValueTable)
 
 EndFunction
 
-// Generates a string according to the specified pattern.
-// The following tags are available:
-//	<b> String </b> - formats the string as bold.
-//	<a href = "Ref"> String </a>
+// Formats the string according to the specified template.
+// Possible values for selection tags:
+//	< b> String </b> - highlights the string in bold.
+//	<a href = "Link"> String </a>
 //
 // Example:
-//	The lowest supported version is <b>1.1</b>. <a href = "Update">Update</a> the app.
+//	
 //
 // Returns:
 //  FormattedString
@@ -4603,7 +4601,7 @@ Function FormattedString(Val String)
 		
 		If RowPart.Check Then
 			//@skip-check new-font
-			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // ACC:1345 Standalone data processor cannot use styles.
+			RowArray.Add(New FormattedString(RowPart.Value, New Font(,,True))); // 
 		ElsIf Not IsBlankString(RowPart.Presentation) Then
 			RowArray.Add(New FormattedString(RowPart.Value,,,, RowPart.Presentation));
 		Else
@@ -4612,30 +4610,30 @@ Function FormattedString(Val String)
 		
 	EndDo;
 	
-	Return New FormattedString(RowArray); // ACC:1356 - A compound format string can be used as the string array consists of the passed text.
+	Return New FormattedString(RowArray); // 
 	
 EndFunction
 
-// Generates the presentation of a number for a certain language and number parameters.
+// Generates a representation of a number for a specific language and number parameters.
 //
 // Parameters:
-//  Template          - String - contains semicolon-separated 6 string forms
-//                             for each numeral category: 
-//                             %1 denotes the number position;
-//  Number           - Number - a number to be inserted instead of the "%1" parameter.
-//  Kind             - NumericValueType - defines a kind of the numeric value for which a presentation is formed. 
-//                             Cardinal (default) or Ordinal.
-//  FormatString - String - a string of formatting parameters. See similar example for StringWithNumber. 
+//  Template          - String - 
+//                             : 
+//                             
+//  Number           - Number -  the number that will be inserted in the string instead of the "%1 " parameter.
+//  Kind             - NumericValueType -  defines the type of numeric value for which the representation is formed. 
+//                             Quantitative (by default) or Ordinal.
+//  FormatString - String -  a string of formatting parameters. See the similar parameter in the string number. 
 //
 // Returns:
-//  String - presentation of the number string in the requested format.
+//  String - 
 //
 // Example:
 //  
-//  String = StringFunctionsClientServer.StringWithNumberForAnyLanguage(
-//		NStr("ru=';остался %1 день;;осталось %1 дня;осталось %1 дней;осталось %1 дня';
-//		     |en=';%1 day left;;;;%1 days left'"), 
-//		0.05,,"NFD=1);
+//  String = Strokemymouse.Stringcount for any language(
+//		NSTR ("ru='; %1 day left;; %1 day left; %1 days left; %1 day left';
+//		     |en='; left %1 day;;;; left %1 days'"), 
+//		0.05,, " BDC=1");
 // 
 &AtServerNoContext
 Function StringWithNumberForAnyLanguage(Template, Number, Kind = Undefined, FormatString = "NZ=0;")
@@ -4652,10 +4650,10 @@ Function StringWithNumberForAnyLanguage(Template, Number, Kind = Undefined, Form
 
 EndFunction
 
-// Returns a flag that shows whether this is the base configuration.
+// Returns whether the configuration is basic.
 //
 // Returns:
-//   Boolean   - True if this is the basic configuration.
+//   Boolean   - 
 //
 &AtServerNoContext
 Function IsBaseConfigurationVersion()
@@ -4664,8 +4662,8 @@ Function IsBaseConfigurationVersion()
 	
 EndFunction
 
-// Checks if conditional separation is enabled.
-// If it is called in shared application it returns False.
+// Returns whether conditional partitioning is enabled.
+// If called in an undivided configuration, it returns False.
 //
 &AtServerNoContext
 Function DataSeparationEnabled()
@@ -4680,7 +4678,7 @@ Function DataSeparationEnabled()
 	
 EndFunction
 
-// Returns a flag indicating if there are any common separators in the configuration.
+// Returns the sign of the presence in the General configuration details-separators.
 //
 // Returns:
 //   Boolean
@@ -4737,7 +4735,7 @@ EndFunction
 &AtClient
 Procedure Object1AttributesStartDrag(Item, DragParameters, Perform)
 	DragParameters.Value = "Object." + Item.CurrentData.Name;
-	// Insert the handler content.
+	// 
 EndProcedure
 
 &AtClient
@@ -4781,7 +4779,7 @@ Function ChoiceData(String, ChoiceList)
 			//@skip-check new-font
 			//@skip-check new-color
 			FormattedStrings.Add(New FormattedString(OccurenceSubstring,
-				New Font( , , True), New Color(0,128,0))); // ACC:1345, ACC:1346 Standalone data processor cannot use styles.
+				New Font( , , True), New Color(0,128,0))); // 
 		EndDo;
 		
 		If Not ValueIsFilled(FormattedStrings) Then
@@ -4789,7 +4787,7 @@ Function ChoiceData(String, ChoiceList)
 		EndIf;
 		
 		FormattedStrings.Add(SearchString);
-		HighlightedString = New FormattedString(FormattedStrings); // ACC:1356 - A compound format string can be used as the string array consists of the passed text.
+		HighlightedString = New FormattedString(FormattedStrings); // 
 		
 		Result.Add(Item.Value, HighlightedString);
 	EndDo;

@@ -1,27 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Opens the form for entering infobase and/or cluster administration parameters.
+// Opens the form for entering information database and/or cluster administration parameters.
 //
 // Parameters:
-//  OnCloseNotifyDescription - NotifyDescription - a handler that will be called once the administration
-//	                                                   parameters are entered.
-//  PromptForIBAdministrationParameters - Boolean - indicates whether the infobase administration parameters
-//	                                                   must be entered.
-//  PromptForClusterAdministrationParameters - Boolean - indicates whether the cluster administration parameters
-//	                                                         must be entered.
+//  OnCloseNotifyDescription - NotifyDescription -  handler that will be called after entering
+//	                                                   the administration parameters.
+//  PromptForIBAdministrationParameters - Boolean -  indicates whether you need to enter
+//	                                                   information database administration parameters.
+//  PromptForClusterAdministrationParameters - Boolean -  indicates whether you need to enter
+//	                                                         cluster administration parameters.
 //  AdministrationParameters - See StandardSubsystemsServer.AdministrationParameters.
-//  Title - String - a form title that explains the purpose of requesting the administration parameters.
-//  NoteLabel - String - a description of the action in whose context the administration parameters are requested.
+//  Title - String -  the form header that describes what the administration parameters are requested for.
+//  NoteLabel - String -  explanation for the action being performed in the context of which parameters are requested.
 //
 Procedure ShowAdministrationParameters(OnCloseNotifyDescription, PromptForIBAdministrationParameters,
 	PromptForClusterAdministrationParameters, AdministrationParameters = Undefined,
@@ -38,11 +36,11 @@ Procedure ShowAdministrationParameters(OnCloseNotifyDescription, PromptForIBAdmi
 	
 EndProcedure
 
-// Sets and disables the session termination mode.
-// On exit and before lock, all active users will be notified about the session termination
-// and prompted
-// to save their data.
-// The current session closes last.
+// Sets and disables the user shutdown mode in the program.
+// Upon shutdown, before the moment of blocking, all active users
+// will be notified of the planned shutdown of the program and a recommendation
+// to save all their data.
+// The current session ends last.
 //
 // Parameters:
 //  ExitApplication - Boolean
@@ -59,11 +57,11 @@ Procedure SetTheUserShutdownMode(Val ExitApplication) Export
 	
 EndProcedure
 
-// Indicates whether it is necessary to close the session with enabled
-// application lock.
+// Allows you to note the need to terminate the session that has enabled blocking the work
+// of users in the program.
 //
 // Parameters:
-//   Value - Boolean - True if closing the current session is not required.
+//   Value - Boolean -  True if the current session does not need to be terminated.
 //
 Procedure SetTerminateAllSessionsExceptCurrentFlag(Value) Export
 	
@@ -75,10 +73,10 @@ EndProcedure
 
 #Region Internal
 
-// Sets the SessionTerminationInProgress variable to Value.
+// Sets the value of the user work variable Completed to the value Value.
 //
 // Parameters:
-//   Value - Boolean - a value being set.
+//   Value - Boolean -  set value.
 //
 Procedure SetUserTerminationInProgressFlag(Value) Export
 	
@@ -87,15 +85,15 @@ Procedure SetUserTerminationInProgressFlag(Value) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
-// The procedure is called when a user works interactively with a data area.
+// Called when the user interactively starts working with the data area.
 //
 // Parameters:
-//  StartupParameters - Array - an array of strings separated with semicolons ";" in the start parameter
+//  StartupParameters - Array -  an array of strings separated by the"; " character in the startup parameter
 //                     passed to the configuration using the /C command line key.
-//  Cancel            - Boolean - a return value. If True,
-//                     the OnStart event processing is canceled.
+//  Cancel            - Boolean -  the return value. If set to True,
+//                     the processing of the event at the beginning of the system's work will be interrupted.
 //
 Procedure LaunchParametersOnProcess(StartupParameters, Cancel) Export
 	
@@ -135,8 +133,8 @@ Procedure AfterStart() Export
 	If LockMode.Use 
 		 And (Not ValueIsFilled(LockMode.Begin) Or CurrentTime >= LockMode.Begin) 
 		 And (Not ValueIsFilled(LockMode.End) Or CurrentTime <= LockMode.End) Then
-		// If a user logged in to the infobase despite the lock, they used the "/UC" startup option.
-		// It is assumed that such a user session should not be closed.
+		// 
+		// 
 		Return;
 	EndIf;
 	
@@ -176,10 +174,10 @@ Procedure BeforeExit(Cancel, Warnings) Export
 	
 EndProcedure
 
-// The procedure is called during an unsuccessful attempt to set exclusive mode in a file infobase.
+// Called when an attempt to set exclusive mode in the file database fails.
 //
 // Parameters:
-//  Notification - NotifyDescription - describes the object which must be passed control after closing this form.
+//  Notification - NotifyDescription -  describes where to transfer control after closing the form.
 //
 Procedure OnOpenExclusiveModeSetErrorForm(Notification = Undefined, FormParameters = Undefined) Export
 	
@@ -191,12 +189,12 @@ EndProcedure
 // Returns:
 //  Structure:
 //   * Title - String
-//   * ErrorMessageText - String - Text of an error that occurs on form opening.
-//   * ErrorTextExitFailed - String - Text of an error that occurs when trying to terminate user sessions.
-//   * ShouldCloseDesignerSession - Boolean - If "True", the Designer session will be considered during the exclusive mode availability check.
+//   * ErrorMessageText - String - 
+//   * ErrorTextExitFailed - String - 
+//   * ShouldCloseDesignerSession - Boolean - 
 //   * ShouldCloseAllSessionsButCurrent - Boolean
 //   * LoginMessage - String
-//   * BlockingPeriod - Number - Lock time in seconds.
+//   * BlockingPeriod - Number - 
 //
 Function ExclusiveModeSetErrorFormOpenParameters() Export
 	
@@ -213,7 +211,7 @@ Function ExclusiveModeSetErrorFormOpenParameters() Export
 	
 EndFunction
 
-// Opens the user activity lock form.
+// Opens a form blocking the user experience.
 //
 Procedure OnOpenUserActivityLockForm(Notification = Undefined, FormParameters = Undefined) Export
 	
@@ -222,10 +220,10 @@ Procedure OnOpenUserActivityLockForm(Notification = Undefined, FormParameters = 
 	
 EndProcedure
 
-// Replaces the default notification with a custom form containing the active user list.
+// Overrides the standard warning by opening a custom form of active users.
 //
 // Parameters:
-//  FormName - String - a return value.
+//  FormName - String -  the return value.
 //
 Procedure OnDefineActiveUserForm(FormName) Export
 	
@@ -268,8 +266,8 @@ EndProcedure
 
 // Parameters:
 //  Parameters - 
-//  AreNotificationsReceived - Boolean - Indicates that all notifications are received for the given period of time
-//                                (via either the Collaboration System or the common server call).
+//  AreNotificationsReceived - Boolean - 
+//                                
 //
 Procedure BeforeRecurringClientDataSendToServer(Parameters, AreNotificationsReceived) Export
 	
@@ -331,7 +329,7 @@ EndProcedure
 
 Function IsSubsystemUsed()
 	
-	// See also: IBConnections.IsSubsystemUsed
+	//  
 	Return Not CommonClient.DataSeparationEnabled();
 	
 EndFunction
@@ -392,8 +390,8 @@ Function IsProcedureEndUserSessionsRunning()
 	
 EndFunction
 
-// Terminate active sessions if infobase connection lock is set. 
-// 
+// Terminate the current session if connections 
+// to the database are blocked.
 //
 Procedure SessionTerminationModeManagement(CurrentMode)
 
@@ -408,13 +406,13 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	LockBeginTime = CurrentMode.Begin;
 	LockEndTime = CurrentMode.End;
 	
-	// "ExitWithConfirmationTimeout" and "StopTimeout" are negative.
-	// Therefore, when comparing them to (LockBeginTime – CurrentMoment), the " less than or equal to"
-	// comparison is used ( <= ) as the difference tends towards zero.
+	// 
+	// 
+	// 
 	WaitTimeout    = CurrentMode.SessionTerminationTimeout;
 	ExitWithConfirmationTimeout = WaitTimeout / 3;
-	StopTimeoutSaaS = 60; // One minute before the lock is set.
-	StopTimeout        = 0; // One minute before the lock is set.
+	StopTimeoutSaaS = 60; // 
+	StopTimeout        = 0; // 
 	CurrentMoment             = CurrentMode.CurrentSessionDate;
 	
 	If LockEndTime <> '00010101' And CurrentMoment > LockEndTime Then
@@ -454,8 +452,8 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	
 EndProcedure
 
-// Terminate active sessions when timeout.
-// Then terminate the current session.
+// Terminate active sessions if the timeout is exceeded, and then
+// terminate the current session.
 //
 Procedure EndUserSessions(CurrentMode)
 
@@ -476,9 +474,9 @@ Procedure EndUserSessions(CurrentMode)
 	EndIf;
 	
 	If SessionCount <= 1 Then
-		// All user sessions, except for the current one, are closed.
-		// Last of all, offer to close the session started with the "EndUserSessions" parameter.
-		// The closure order is driven by the need to update the configuration from a file.
+		// 
+		// 
+		// 
 		SetUserTerminationInProgressFlag(False);
 		Notify("UsersSessions",
 			New Structure("Status, SessionCount", "Done", SessionCount));
@@ -491,15 +489,15 @@ Procedure EndUserSessions(CurrentMode)
 		Return;
 	EndIf;
 	
-	// For file infobases, some connections might not be force-closed.
+	// 
 	If CommonClient.FileInfobase() Then
 		Notify("UsersSessions",
 			New Structure("Status, SessionCount", "RefreshEnabled", SessionCount));
 		Return;
 	EndIf;
 	
-	// After the lock is started, all user sessions must be closed.
-	// If failed to do so, try to force-close them.
+	// 
+	// 
 	
 	Try
 		AdministrationParameters = SavedAdministrationParameters();
@@ -533,7 +531,7 @@ Procedure EndUserSessions(CurrentMode)
 	
 EndProcedure
 
-// Terminates the last remaining session of the administrator who initiated user session termination.
+// Crashes (last) session of the administrator who initiated the end-user experience.
 //
 Procedure TerminateThisSession(OutputQuestion1 = True)
 	
@@ -576,7 +574,7 @@ Procedure OpeningHandlerOfAppWorkBlockForm(Context) Export
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// Core subsystem event handlers.
+// 
 
 Function SessionTerminationInProgress() Export
 	
@@ -620,9 +618,9 @@ Procedure FillInClusterAdministrationParameters(StartupParameters)
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// Notification handlers.
+// 
 
-// Prompts users to unlock and log in, or close the application.
+// Offers to remove the lock and log in or stop the system.
 Procedure BeforeStartInteractiveHandler(Parameters, Context) Export
 	
 	ClientParameters = StandardSubsystemsClient.ClientParametersOnStart();
@@ -653,12 +651,12 @@ Procedure BeforeStartInteractiveHandler(Parameters, Context) Export
 	
 EndProcedure
 
-// Continues from the above procedure.
+// Continuation of the previous procedure.
 Procedure AfterAnswerToPromptToAuthorizeOrUnlock(Response, Parameters) Export
 	
-	If Response = DialogReturnCode.Yes Then // Logging on to the locked application.
+	If Response = DialogReturnCode.Yes Then // 
 		
-	ElsIf Response = DialogReturnCode.No Then // Removing the application lock and logging on.
+	ElsIf Response = DialogReturnCode.No Then // 
 		IBConnectionsServerCall.SetDataAreaSessionLock(
 			New Structure("Use", False));
 	Else
@@ -772,14 +770,14 @@ Procedure TerminateThisSessionCompletion(Response, Parameters) Export
 	
 EndProcedure	
 
-// Processes start parameters related to allowing or terminating infobase connections.
+// Process startup parameters related to the completion and resolution of is connections.
 //
 // Parameters:
-//  LaunchParameterValue - String - main launch parameter.
-//  StartupParameters          - Array of String - Semicolon-delimited additional startup parameters.
+//  Value of the startup parameter-String-the main startup parameter.
+//  StartupParameters          - Array of String - 
 //
 // Returns:
-//   Boolean   - True if system start must be canceled.
+//   Boolean   - 
 //
 Function ProcessStartParameters(Val StartupParameters)
 
@@ -787,7 +785,7 @@ Function ProcessStartParameters(Val StartupParameters)
 		Return False;
 	EndIf;
 	
-	// Process startup parameters for DisableUserAuthorisation and AllowUserAuthorization.
+	// 
 	ParameterNameAllowUsers = "AllowUserAuthorization";
 	ParameterNameShutdownUsers = "EndUserSessions";
 	If TheKeyIsContainedInTheStartupParameters(StartupParameters, ParameterNameAllowUsers) Then
@@ -807,9 +805,9 @@ Function ProcessStartParameters(Val StartupParameters)
 		Exit(False);
 		Return True;
 		
-	// The parameter can contain two additional semicolon-delimited ( ; ) parts: 
-	// The credentials of the admin on whose behalf the cluster is connected in the client/server mode.
-	// See the comments to the "EndUserSessions" procedure.
+	//  
+	// 
+	//  
 	ElsIf TheKeyIsContainedInTheStartupParameters(StartupParameters, ParameterNameShutdownUsers) Then
 		
 		AdditionalParameters = AdditionalParametersForUserShutdown();
@@ -828,7 +826,7 @@ Function ProcessStartParameters(Val StartupParameters)
 			Return False;
 		EndIf;
 		
-		// Offset cluster administration parameters in case of startup with a key.
+		// 
 		LaunchParametersRefined = LaunchParametersRefined(StartupParameters, AdditionalParameters);
 		FillInClusterAdministrationParameters(LaunchParametersRefined);
 		
@@ -842,7 +840,7 @@ Function ProcessStartParameters(Val StartupParameters)
 	
 EndFunction
 
-// Returns a string constant for generating event log messages.
+// Returns a string constant for generating log messages.
 //
 // Returns:
 //   String
@@ -855,22 +853,22 @@ EndFunction
 
 #Region AdditionalParametersForUserShutdown
 
-// Extracts the session lock parameters from the startup parameter.
+// Extracts session lock parameters from the startup parameter.
 //
 // Returns:
 //   Structure:
-//     * ClusterAdministratorName    - String - a name of 1C server cluster administrator.
-//     * ClusterAdministratorPassword - String - a password of 1C server cluster administrator.
-//     * MessageText               - String - text to be used in the error message
-//                                               displayed when someone attempts to connect
-//                                               to a locked infobase.
-//     * KeyCode                - String - string to be added to "/uc" command line parameter
-//                                                or to "uc" connection string parameter
-//                                               in order to establish connection to the infobase
-//                                               regardless of the lock.
-//                                               Cannot be used for data area session locks.
-//     * WaitingForTheStartOfBlockingMin  - Number -  delay time of the lock start in minutes.
-//     * BlockingDurationMin    - Number -  lock duration in minutes.
+//     * ClusterAdministratorName    - String -  name administrator of the 1C server cluster.
+//     * ClusterAdministratorPassword - String -  password administrator of the 1C server cluster.
+//     * MessageText               - String -  text that will be part of the error message
+//                                               when trying to establish a connection to a blocked
+//                                               database.
+//     * KeyCode                - String -  a string that must be added to
+//                                               the command line parameter "/uc" or to
+//                                               the connection string parameter "uc" in order to establish a connection to
+//                                               the information base despite the lock.
+//                                               Not applicable for blocking data area sessions.
+//     * WaitingForTheStartOfBlockingMin  - Number -    the time to delay the start of blocking in minutes.
+//     * BlockingDurationMin    - Number -    the duration of the block in minutes.
 //
 Function AdditionalParametersForUserShutdown() 
 	

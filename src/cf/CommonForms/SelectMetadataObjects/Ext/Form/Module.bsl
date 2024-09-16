@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -135,7 +133,7 @@ EndProcedure
 
 #Region FormHeaderItemsEventHandlers
 
-// Form tree "Mark" field click event handler procedure.
+// Procedure handler for the click event on the "Mark" field in the form tree.
 &AtClient
 Procedure CheckOnChange(Item)
 	
@@ -270,9 +268,9 @@ Procedure FillSubsystemList(SubsystemsList)
 	EndDo;
 EndProcedure
 
-// Populates the tree of configuration object values.
-// If value list MetadataObjectsToSelectCollection is not empty, pass a metadata object collection list.
-// If metadata objects from the tree are found in the "SelectedMetadataObjects", they are marked as selected.
+// 
+// 
+// 
 //  
 // 
 //
@@ -332,7 +330,7 @@ Procedure MetadataObjectTreeFill()
 	CollectionNewRow("Tasks",                       NStr("en = 'Tasks';"),                         PictureLib.MetadataTasks,                  False, MetadataObjects);
 	CollectionNewRow("ExternalDataSources",       NStr("en = 'External data sources';"),       PictureLib.MetadataExternalDataSources,  False, MetadataObjects);
 	
-	// Create predefined items.
+	// 
 	ItemParameters = MetadataObjectTreeItemParameters();
 	ItemParameters.Name = Metadata.Name;
 	ItemParameters.Synonym = Metadata.Synonym;
@@ -361,15 +359,15 @@ Procedure MetadataObjectTreeFill()
 	
 EndProcedure
 
-// Returns a metadata object tree item parameter structure.
+// 
 //
 // Returns:
 //   Structure:
-//     * Name           - String - Parent item name.
+//     * Name           - String - 
 //     * FullName     - String
-//     * Synonym       - String - Parent item synonym.
-//     * Check       - Number - Initial mark of a collection or metadata object.
-//     * Picture      - Picture - Parent item picture.
+//     * Synonym       - String - 
+//     * Check       - Number - 
+//     * Picture      - Picture - 
 //     * Parent      - ValueTreeRow
 //
 &AtServer
@@ -387,15 +385,15 @@ Function MetadataObjectTreeItemParameters()
 	
 EndFunction
 
-// Adds a new row to the form value tree
-// and fills the full row set from metadata by the passed parameter.
+// Adds a new row to the form value tree (tree),
+// and also fills in the full set of rows from the metadata for the passed parameter.
 //
-// If the Subsystems parameter is filled, the function is called recursively for all child subsystems.
+// If the Subsystem parameter is filled in, it is called recursively for all child subsystems.
 //
 // Parameters:
 //   ItemParameters - See MetadataObjectTreeItemParameters
-//   Subsystems - MetadataObjectCollection - If filled, it contains Metadata.Subsystems value (an item collection).
-//   Check       - Boolean - Flag indicating whether a check for subordination to parent subsystems is required.
+//   Subsystems - MetadataObjectCollection -  if filled in, it contains the value Metadata.Subsystems (a collection of elements).
+//   Check       - Boolean -  indicates whether the parent subsystem is checked for ownership.
 // 
 // Returns:
 //  FormDataTreeItem
@@ -404,7 +402,7 @@ EndFunction
 Function AddMetadataObjectTreeItem(ItemParameters, Subsystems = Undefined, Check = True,
 			ExternalDataSourceTableCollection = Undefined)
 	
-	// Checking whether command interface is available in tree leaves only.
+	// 
 	If Subsystems <> Undefined And SubsystemsWithCIOnly 
 		And Not IsBlankString(ItemParameters.FullName) 
 		And ItemsOfSubsystemsWithCommandInterface.FindByValue(ItemParameters.FullName) = Undefined Then
@@ -420,9 +418,9 @@ Function AddMetadataObjectTreeItem(ItemParameters, Subsystems = Undefined, Check
 		
 		If MetadataCollection.Count() = 0 Then
 			
-			// In case there's no metadata object from the given branch. 
-			// For example, if no accounting register is present,
-			// the "Accounting registers" should be skipped.
+			//  
+			// 
+			// 
 			Return Undefined;
 			
 		EndIf;
@@ -464,7 +462,7 @@ Function AddMetadataObjectTreeItem(ItemParameters, Subsystems = Undefined, Check
 	EndIf;
 		
 	If Subsystems.Count() = 0 And ItemParameters.Name = "Subsystems" Then
-		// If no subsystems are found, the Subsystems root should not be added.
+		// 
 		Return Undefined;
 	EndIf;
 	
@@ -523,15 +521,15 @@ Function NewTreeRow(RowParameters, IsMetadataObject = False)
 	
 EndFunction
 
-// Adds a new row to configuration metadata object type
-// value table.
+// Adds a new row to the table of values for types
+// of configuration metadata objects.
 //
 // Parameters:
-//   Name  - String - a metadata object name, or a metadata object kind name.
-//   Synonym - String - a metadata object synonym.
-//   Picture - Number - picture referring to the metadata object
-//                      or to the metadata object type.
-//   IsCommonCollection - Boolean - Flag indicating whether the current item has subitems.
+//   Name  - String -  the name of the metadata object or type of metadata object.
+//   Synonym - String -  synonym of the metadata object.
+//   Picture - Number -  a picture that matches the metadata object
+//                      or the type of metadata object.
+//   IsCommonCollection - Boolean -  indicates that the current element contains subelements.
 //   Table - ValueTable
 //
 &AtServer
@@ -635,12 +633,12 @@ Function ItemMarkValuesAtServer(ParentItems1)
 	
 EndFunction
 
-// Selects a mark of the metadata object
-// collections that does not have metadata objects 
-// or whose metadata object marks are selected.
+// The initial Tagging procedure sets a tag for collections
+// of metadata objects that do not have metadata objects (true) and 
+// that have metadata objects with the specified tag.
 //
 // Parameters:
-//   Element      - FormDataTreeItemCollection.
+//   Element-Data Formcollection Of Tree Elements.
 //
 &AtServer
 Procedure SetInitialCollectionMark(Parent)
@@ -821,14 +819,14 @@ Function MetadataObjectAvailable(MetadataObject)
 	FillPropertyValues(MetadataProperties, MetadataObject);
 	
 	If MetadataProperties.FullTextSearch = Undefined Then 
-		FullTextSearchUsing = True; // Ignore if the property is missing.
+		FullTextSearchUsing = True; // 
 	Else 
 		FullTextSearchUsing = (MetadataProperties.FullTextSearch = 
 			Metadata.ObjectProperties.FullTextSearchUsing.Use);
 	EndIf;
 	
 	If MetadataProperties.IncludeInCommandInterface = Undefined Then 
-		IncludeInCommandInterface = True; // Ignore if the property is missing.
+		IncludeInCommandInterface = True; // 
 	Else 
 		IncludeInCommandInterface = MetadataProperties.IncludeInCommandInterface;
 	EndIf;
@@ -911,7 +909,7 @@ Procedure PopulateObjectTreeOnServer(OnOpen, ExpandableRowIds)
 		ExpandableRowIds.Add(RootId);
 	EndIf;
 	
-	// Settings the initial selection value.
+	// 
 	If (OnOpen Or Not FlagDone)
 	   And CurrentLineIDOnOpen > 0 Then
 		
@@ -928,8 +926,8 @@ EndProcedure
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Procedure OnMarkTreeItem(TreeItem)
@@ -971,76 +969,76 @@ EndFunction
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Function NextItemCheckMarkValue(TreeItem)
 	
-	// 0 - Cleared Flag.
-	// 1 - Raised Flag.
-	// 2 - Raised Square.
+	// 
+	// 
+	// 
 	//
-	// Override the graph of a finite-state machine.
+	// 
 	//
-	// 1C:Enterprise runs a closed cycle when a mark is changed.
-	// That is, it has a strong connectivity component:
-	// 0-1-2-0-1-2-0-1...
+	// 
+	// 
+	// 
 	//
-	//    0
-	//   / \
-	//  2 - 1
+	//    
+	//   
+	//  
 	//
-	// Cycle: Cleared Flag - Raised Flag - Raised Square - Cleared Flag.
+	// 
 	//
-	// The required behavior is a nondeterministic finite automaton with a strong connectivity component:
-	// 0-1-0-1-0...
+	// 
+	// 
 	//
-	// That is, a Cleared Flag should transit into a Raised Flag, which transits into a Cleared Flag.
+	// 
 	//
-	// Also:
+	// 
 	//
-	// Cycles for sections:
-	// a) 1-0-1-0-1...
-	// b) 2-0-1-0-1-0-...
+	// 
+	// 
+	// 
 	//
-	//      /\
-	// 2 - 0 -1
+	//      
+	// 
 	//
-	// That is a Raised Square transits into a Cleared Flag.
+	// 
 	//
-	// Cycles for metadata objects:
-	// a) 1-0-1-0-1-0...
-	// b) 2-1-0-1-0-1-0...
+	// 
+	// 
+	// 
 	//
-	//      /\
-	// 2 - 1 -0
+	//      
+	// 
 	//
-	// That is, a Raised Square transits into a Raised Flag.
+	// 
 	
-	// At the time of checking, the platform has already changed the check box value.
+	// 
 	
 	If TreeItem.IsMetadataObject Then
-		// Previous check box value = 2: Square is selected.
+		// 
 		If TreeItem.Check = 0 Then
 			Return MarkCheckBoxIsSelected();
 		EndIf;
 	EndIf;
 	
-	// Previous check box value = 1: Check box is selected.
+	// 
 	If TreeItem.Check = 2 Then 
 		Return MarkCheckBoxIsNotSelected();
 	EndIf;
 	
-	// In all other cases, the platform sets a value.
+	// 
 	Return TreeItem.Check;
 	
 EndFunction
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Procedure MarkParentsItemsRecursively(TreeItem)
@@ -1066,8 +1064,8 @@ EndProcedure
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Function CheckMarkValueRelativeToNestedItems(TreeItem)
@@ -1079,12 +1077,12 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		// Since the object should be returned, its status matters.
-		// Do not reset the current flag.
+		// 
+		// 
 		// 
 		
 		If TreeItem.Check = MarkCheckBoxIsSelected() Then 
-			// Leave the check box selected, regardless of nested items.
+			// 
 			Return MarkCheckBoxIsSelected();
 		EndIf;
 		
@@ -1100,7 +1098,7 @@ Function CheckMarkValueRelativeToNestedItems(TreeItem)
 		
 	Else 
 		
-		// Sections' status is ignored as they depend on their children. 
+		//  
 		// 
 		
 		If HasMarkedItems Then
@@ -1121,8 +1119,8 @@ EndFunction
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Function NestedItemsState(TreeItem)
@@ -1144,9 +1142,9 @@ Function NestedItemsState(TreeItem)
 			
 			If NestedItem.IsMetadataObject Then 
 				
-				// Metadata objects marked for deletion can have
-				// child items that are not marked for deletion.
-				// To deal with this, elevate the child items to the parent's level.
+				// 
+				// 
+				// 
 				
 				State = NestedItemsState(NestedItem);
 				HasMarkedItems   = HasMarkedItems   Or State.HasMarkedItems;
@@ -1174,16 +1172,16 @@ EndFunction
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Function RequiredToMarkNestedItems(TreeItem)
 	
 	If TreeItem.IsMetadataObject Then 
 		
-		// If not all of the object's child items are selected, that indicates a user's choice.
-		// Skip these items to avoid affecting the user's choice.
+		// 
+		// 
 		
 		NestedItemsState = NestedItemsState(TreeItem);
 		
@@ -1201,8 +1199,8 @@ EndFunction
 
 // Parameters:
 //  TreeItem - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
 //
 &AtClientAtServerNoContext
 Procedure MarkNestedItemsRecursively(TreeItem)
@@ -1220,9 +1218,9 @@ EndProcedure
 
 // Parameters:
 //  ItemSearchSectionsTree - FormDataTreeItem:
-//      * Check             - Number  - a required tree attribute.
-//      * IsMetadataObject - Boolean - a required tree attribute.
-//  CheckMarkValue - Number - a value being set.
+//      * Check             - Number  -  required tree props.
+//      * IsMetadataObject - Boolean -  required tree props.
+//  CheckMarkValue - Number -  set value.
 //
 &AtClientAtServerNoContext
 Procedure MarkAllTreeItemsRecursively(ItemSearchSectionsTree, CheckMarkValue)

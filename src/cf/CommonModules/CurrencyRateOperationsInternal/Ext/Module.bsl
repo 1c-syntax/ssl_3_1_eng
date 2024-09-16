@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Import a complete rate list of all time.
+// Download the full list of all-time courses.
 //
 Procedure ImportCurrencyRates() Export
 	
@@ -36,7 +34,7 @@ Procedure ImportCurrencyRates() Export
 	
 EndProcedure
 
-// Is called when the currency rate setting method is changed.
+// Called when changing the method of setting the currency exchange rate.
 //
 // Parameters:
 //  Currency - CatalogObject.Currencies
@@ -62,9 +60,9 @@ Procedure ScheduleCopyCurrencyRates(Val Currency) Export
 
 EndProcedure
 
-// It is called after the data import to the region or when the currency rate setting method is changed.
-// Copies one currency rates for all dates 
-// from a separated xml file to the shared register.
+// Called after loading data to the area or when changing the way the currency exchange rate is set.
+// Copies the exchange rates of a single currency for all dates from 
+// an undivided xml file to a case-separated format.
 // 
 // Parameters:
 //  CurrencyCode_ - String
@@ -127,13 +125,13 @@ Procedure CopyCurrencyRates(Val CurrencyCode_) Export
 	
 	InformationRegisters.ExchangeRates.RecalcTotals();
 	
-	// Checks whether the exchange rate and multiplier as of January 1, 1980, are available.
+	// 
 	CurrencyRateOperations.CheckCurrencyRateAvailabilityFor01011980(CurrencyRef);
 
 EndProcedure
 
-// It is called after the data is imported to the area.
-// Updates currency rates from the default master data.
+// Called after loading data into the area.
+// Updates currency rates from the supplied data.
 //
 Procedure UpdateCurrencyRates() Export
 	
@@ -147,10 +145,10 @@ Procedure UpdateCurrencyRates() Export
 	|	Currencies.RateSource = VALUE(Enum.RateSources.DownloadFromInternet)";
 	Selection = Query.Execute().Select();
 	
-	// Copy the exchange rates synchronously. That is, the call to "UpdateCurrencyRates" is followed by
-	// an infobase update, which tries to lock the infobase. Note that 
-	// the copying takes a while, and in asynchronous mode can start
-	// at a random moment and prevent setting a lock.
+	// 
+	//  
+	// 
+	// 
 	While Selection.Next() Do
 		CopyCurrencyRates(Selection.Code);
 	EndDo;
@@ -158,28 +156,28 @@ Procedure UpdateCurrencyRates() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
-// The procedure is called when a new data notification is received.
-// In the procedure body, check whether the application requires this data. 
-// If it requires, select the Import check box.
+// Called when a notification of new data is received.
+// In the body, check whether the application needs this data, 
+// and if so, select the Upload checkbox.
 // 
 // Parameters:
-//   Descriptor - XDTODataObject - descriptor.
-//   ToImport - Boolean - If True, run import. Otherwise, False.
+//   Descriptor - XDTODataObject -  descriptor.
+//   ToImport - Boolean -  True if loaded, False otherwise.
 //
 Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
-	// When importing "CurrencyRatesForDay", the file data is appended to all stored exchanged rates and
-	// written to all data areas for the currencies mentioned in the area.
-	// Only the exchange rate for the current date is written.
+	// 
+	// 
+	// 
 	//
 	If Descriptor.DataType = "CurrencyRatesForDay" Then
 		ToImport = True;
-	// The data of "ExchangeRates" is obtained when: 
-	// - The infobase connects to the Service Manager. 
-	// The infobase was updated and it requires missing currencies.
-	// In either case, restore the cache and rewrite exchange rates in all data areas.
+	//  
+	//  
+	// 
+	// 
 	// 
 	ElsIf Descriptor.DataType = "ExchangeRates" Then
 		ToImport = True;
@@ -187,13 +185,13 @@ Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
 EndProcedure
 
-// The procedure is called after calling NewDataAvailable, it parses the data.
+// Called after calling available Data, allows you to parse the data.
 //
 // Parameters:
-//   Descriptor - XDTODataObject - descriptor.
-//   PathToFile - String - Full name of the extracted file. 
-//                  The file is automatically deleted once the procedure is completed.
-//                  If a file is not specified, it is set to Undefined.
+//   Descriptor - XDTODataObject -  descriptor.
+//   PathToFile - String -  full name of the extracted file. The file will be automatically deleted 
+//                  after the procedure is completed. If the
+//                  file was not specified in the service Manager, the argument value is Undefined.
 //
 Procedure ProcessNewData(Val Descriptor, Val PathToFile) Export
 	
@@ -205,10 +203,10 @@ Procedure ProcessNewData(Val Descriptor, Val PathToFile) Export
 	
 EndProcedure
 
-// The procedure is called if data processing is canceled due to an error.
+// Called when data processing is canceled in the event of a failure.
 //
 // Parameters:
-//   Descriptor - XDTODataObject - descriptor.
+//   Descriptor - XDTODataObject -  descriptor.
 //
 Procedure DataProcessingCanceled(Val Descriptor) Export 
 	
@@ -238,7 +236,7 @@ EndProcedure
 Procedure AfterImportData(Container) Export
 	
 	If Common.SubsystemExists("CloudTechnology.SuppliedData") Then
-		// Creating links between separated and shared currencies, copying rates.
+		// 
 		UpdateCurrencyRates();
 	EndIf;
 	
@@ -254,16 +252,16 @@ EndFunction
 
 #Region Private
 
-// Registers default master data handlers for the day and for all time.
+// Registers handlers of delivered data for the day and for the entire time.
 //
 // Parameters:
-//     Handlers - ValueTable - a table for adding handlers. Contains the following columns:
-//       * DataKind - String - code of the data kind processed by the handler.
-//       * HandlerCode - String - used for recovery after a data processing error.
-//       * Handler - CommonModule - module contains the following export procedures:
-//                                          NewDataAvailable(Descriptor, Import) Export  
-//                                          ProcessNewData(Descriptor, PathToFile) Export
-//                                          DataProcessingCanceled(Descriptor) Export
+//     Handlers - ValueTable - :
+//       * DataKind - String -  code of the data type processed by the handler.
+//       * HandlerCode - String -  it will be used when restoring data processing after a failure.
+//       * Handler - CommonModule - :
+//                                            
+//                                          
+//                                          
 //
 Procedure RegisterSuppliedDataHandlers(Val Handlers)
 	
@@ -280,13 +278,13 @@ Procedure RegisterSuppliedDataHandlers(Val Handlers)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Rate file serialization/deserialization.
+// 
 
-// Writes files in the default master data format.
+// Writes a file in the format of the delivered data.
 //
 // Parameters:
-//  RateTable - ValueTable - with the following columns Code, Date, Multiplier, Rate.
-//  File - String, TextWriter
+//  RateTable - ValueTable -  with the Code, date, Multiplicity, and Course columns.
+//  File - 
 //
 Procedure SaveRateTable(Val RateTable, Val File)
 	
@@ -316,14 +314,14 @@ Procedure SaveRateTable(Val RateTable, Val File)
 	
 EndProcedure
 
-// Reads files in the default master data format.
+// Reads the file in the supplied data format.
 //
 // Parameters:
-//  PathToFile - String - file name.
-//  SearchDuplicate - Boolean - collapses entries with the same date.
+//  PathToFile - String -  file name.
+//  SearchDuplicate - Boolean -  collapses records with the same date.
 //
-// Returns:
-//  ValueTable with the following columns Code, Date, Multiplier, Rate.
+// Returned value
+//  Table of values - with columns Code, date, Multiplicity, Rate.
 //
 Function ReadRateTable(Val PathToFile, Val SearchDuplicate = False)
 	
@@ -365,11 +363,11 @@ Function ReadRateTable(Val PathToFile, Val SearchDuplicate = False)
 		
 EndFunction
 
-// Is called when ExchangeRates data type is received.
+// Called when data of the "currency exchange Rate" type is received.
 //
 // Parameters:
-//   Descriptor   - XDTODataObject Descriptor.
-//   PathToFile   - String - a full name of the extracted file.
+//   Descriptor   - 
+//   PathToFile   - String -  full name of the extracted file.
 //
 Procedure HandleSuppliedRates(Val Descriptor, Val PathToFile)
 	
@@ -380,7 +378,7 @@ Procedure HandleSuppliedRates(Val Descriptor, Val PathToFile)
 	ModuleSuppliedData = Common.CommonModule("SuppliedData");
 	RateTable = ReadRateTable(PathToFile);
 	
-	// Split the files by currency and write them to the database.
+	// 
 	CodeTable = RateTable.Copy( , "Code");
 	CodeTable.GroupBy("Code");
 	For Each CodeString In CodeTable Do
@@ -409,11 +407,11 @@ Procedure HandleSuppliedRates(Val Descriptor, Val PathToFile)
 
 EndProcedure
 
-// Is called after getting new CurrencyRatesForDay data type.
+// Called after receiving new data of the form Kursyvalyutzaden.
 //
 // Parameters:
-//   Descriptor   - XDTODataObject Descriptor.
-//   PathToFile   - String - a full name of the extracted file.
+//   Descriptor   - 
+//   PathToFile   - String -  full name of the extracted file.
 //
 Procedure HandleSuppliedRatesPerDay(Val Descriptor, Val PathToFile)
 	
@@ -493,14 +491,14 @@ Procedure HandleSuppliedRatesPerDay(Val Descriptor, Val PathToFile)
 
 EndProcedure
 
-// Copies rates in all data areas
+// Copies courses to all ODS
 //
 // Parameters:
-//  RatesDate - Date, Undefined - the rates are added for the specified date or for all time.
-//  RateTable - ValueTable containing rates.
-//  AreasForUpdate - an array of area codes.
-//  FileID - file UUID of processed rates.
-//  HandlerCode - String - handler code.
+//  RatesDate - Date, Undefined -  courses are added for the specified date or for the entire time.
+//  RateTable - 
+//  AreasForUpdate - 
+//  FileID - 
+//  HandlerCode - String -   the handler code.
 //
 Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForUpdate, Val FileID, Val HandlerCode)
 	
@@ -544,7 +542,7 @@ Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForU
 		
 		BeginTransaction();
 		Try
-			// @skip-check query-in-loop - Data area processing.
+			// 
 			ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable);
 			ModuleSaaSOperations.SignOutOfDataArea();
 			ModuleSuppliedData.AreaProcessed(FileID, HandlerCode, DataArea);
@@ -653,14 +651,14 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 	|WHERE
 	|	Currencies.RateSource = VALUE(Enum.RateSources.DownloadFromInternet)";
 	
-	CurrencySelection1 = CurrencyQuery.Execute().Select(); // ACC:1328 - Lock not required.
+	CurrencySelection1 = CurrencyQuery.Execute().Select(); // 
 	
 	While CurrencySelection1.Next() Do
 		
 		CommonQuery.SetParameter("Currency", CurrencySelection1.Ref);
 		CommonQuery.SetParameter("CurrencyCode_", CurrencySelection1.Code);
 		
-		// @skip-check query-in-loop - A temporary table in the query is complemented with another temporary table.
+		// 
 		CurrencyProperties = SuppliedCurrencyProperties(AreaCurrencies, CurrencySelection1.Code, RateTable, CommonQuery);
 		
 		If Not CurrencyProperties.Supplied_3 Then
@@ -717,7 +715,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 		
 		CommonQuery.Text = StrReplace(QueryText, "NNN", CurrencyProperties.SequenceNumber);
 		
-		// @skip-check query-in-loop - A batch selection that simplifies the query.
+		// 
 		CommonResult1 = CommonQuery.Execute();
 		CommonSelection = CommonResult1.Select();
 		
@@ -741,7 +739,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 			RecordSet.Filter.Currency.Set(CurrencySelection1.Ref);
 			RecordSet.Filter.Period.Set(CommonSelection.Date);
 			If Not CommonQuery.Parameters.OneDayOnly Then
-				// Block the ineffective associated currency update.
+				// 
 				RecordSet.DataExchange.Load = True;
 			EndIf;
 			
@@ -755,7 +753,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 				
 			EndIf;
 			
-			// Check change closing date.
+			// 
 			
 			Write = True;
 			If Common.SubsystemExists("StandardSubsystems.PeriodClosingDates") Then
@@ -775,7 +773,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 			
 		EndDo;
 		
-		// Checks whether the exchange rate and multiplier as of January 1, 1980, are available.
+		// 
 		CurrencyRateOperations.CheckCurrencyRateAvailabilityFor01011980(CurrencySelection1.Ref);
 		
 	EndDo;

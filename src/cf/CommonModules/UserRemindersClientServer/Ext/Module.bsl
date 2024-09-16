@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Returns the annual schedule for the event as of the specified date.
+// Returns the annual schedule for the event on the specified date.
 //
 // Parameters:
-//  EventDate - Date - custom date.
+//  EventDate - Date -  any date.
 //
 // Returns:
-//  JobSchedule - schedule.
+//  JobSchedule -  schedule.
 //
 Function AnnualSchedule(EventDate) Export
 	Months = New Array;
@@ -37,12 +35,12 @@ EndFunction
 
 #Region Private
 
-// Returns the reminder structure with filled values.
+// Returns the reminder structure with the filled values.
 //
 // Parameters:
-//  DataToFill - Structure - values used to fill reminder parameters.
-//  AllAttributes - Boolean - if true, the function also returns attributes related to
-//                          reminder time settings.
+//  DataToFill - Structure -  the values to fill in the reminder settings.
+//  AllAttributes - Boolean -  if true, it also returns the details associated with setting
+//                          the reminder time.
 //
 Function ReminderDetails(DataToFill = Undefined, AllAttributes = False) Export
 	
@@ -76,26 +74,26 @@ Function ServerNotificationName() Export
 	
 EndFunction
 
-// Returns a text presentation of a time interval specified in seconds.
+// Returns a text representation of the time interval specified in seconds.
 //
 // Parameters:
 //
-//  Time - Number - Time interval in seconds.
+//  Time - Number -  time interval in seconds.
 //
-//  FullPresentation	- Boolean - The brief or full presentation of a time interval.
-//		For example, if the interval is 1,000,000 seconds::
-//		1. Its full presentation is "11 days 13 hours 46 minutes 40 seconds".
-//		2. Its brief presentation is "11 days 13 hours".
+//  FullPresentation	- Boolean - 
+//		:
+//		
+//		
 //  
-//  OutputSeconds - Boolean - False if seconds are not required.
+//  OutputSeconds - Boolean -  False if seconds are not required.
 //  
 // Returns:
-//   String - A time interval presentation.
+//   String - 
 //
 Function TimePresentation(Val Time, FullPresentation = True, OutputSeconds = True) Export
 	Result = "";
 	
-	// Presentation of time measurement units in Accusative for quantities: 1, 2-4, and 5-20.
+	// 
 	WeeksPresentation = NStr("en = ';%1 week;;;;%1 weeks';");
 	DaysPresentation   = NStr("en = ';%1 day;;;;%1 days';");
 	HoursPresentation  = NStr("en = ';%1 hour;;;;%1 hours';");
@@ -176,14 +174,14 @@ Function ReminderSettingsInForm(Form) Export
 	
 EndFunction
 
-// Gets a time interval in seconds from text details.
+// Gets the time interval in seconds from the text description.
 //
 // Parameters:
-//  StringWithTime - String - text details of time, where numbers are written in digits
-//								and units of measure are written as a string. 
+//  StringWithTime - String -  text description of time, where numbers are written as digits
+//								and units are written as a string. 
 //
 // Returns:
-//  Number - Time interval in seconds.
+//  Number -  time interval in seconds.
 // 
 Function TimeIntervalFromString(Val StringWithTime) Export
 	
@@ -246,14 +244,14 @@ Function TimeIntervalFromString(Val StringWithTime) Export
 	
 EndFunction
 
-// Analyzes the word for compliance with the time unit of measure and if it complies,
-// the function returns the number of seconds contained in the time unit of measure.
+// Analyzes the word for matching the time unit and, if the match is set,
+// returns the number of seconds contained in the time unit.
 //
 // Parameters:
-//  Unit - String - Word being analyzed.
+//  Unit - String -  the analyzed word.
 //
 // Returns:
-//  Number - The number of seconds in the unit. If the unit is unidentified or empty, returns "0".
+//  Number - 
 //
 Function ReplaceUnitOfMeasureByMultiplier(Val Unit)
 	

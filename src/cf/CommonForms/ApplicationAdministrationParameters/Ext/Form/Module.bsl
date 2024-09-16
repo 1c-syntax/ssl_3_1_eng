@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -19,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Parameters.PromptForClusterAdministrationParameters
 		And Common.IsMacOSClient() Then
-		Return; // Cancel is set in OnOpen.
+		Return; // 
 	EndIf;
 	
 	SeparatedDataUsageAvailable = Common.SeparatedDataUsageAvailable();
@@ -88,7 +86,7 @@ Procedure OnOpen(Cancel)
 		Try
 			CheckAdministrationParameters(AdministrationParameters);
 		Except
-			Return; // Don't process. The form opens in the regular mode.
+			Return; // 
 		EndTry;
 		Cancel = True;
 		ExecuteNotifyProcessing(OnCloseNotifyDescription, AdministrationParameters);
@@ -152,14 +150,14 @@ Procedure Write(Command)
 		Return;
 	EndIf;
 	
-	// Populate the settings structure.
+	// 
 	FillPropertyValues(AdministrationParameters, ThisObject);
 	
 	CheckAdministrationParameters(AdministrationParameters);
 	
 	SaveConnectionParameters();
 	
-	// Restore password values.
+	// 
 	FillPropertyValues(AdministrationParameters, ThisObject);
 	
 	Close(AdministrationParameters);
@@ -185,7 +183,7 @@ EndFunction
 &AtServer
 Procedure SaveConnectionParameters()
 	
-	// Saving the parameters to a constant, clearing the passwords.
+	// 
 	StandardSubsystemsServer.SetAdministrationParameters(AdministrationParameters);
 	
 EndProcedure
@@ -251,9 +249,9 @@ Procedure IsNecessaryToInputAdministrationParameters()
 		
 		If UsersCount > 0 Then
 			
-			// Calculate the up-to-date username even if it was changed in the current session.
-			// (For example, when the infobase is accessed via an external session.)
-			// In other cases, get "InfobaseUsers.CurrentUser".
+			// 
+			// 
+			// 
 			CurrentUser = InfoBaseUsers.FindByUUID(
 				InfoBaseUsers.CurrentUser().UUID);
 			
@@ -289,7 +287,7 @@ Procedure ValidateFileInfobaseAdministrationParameters()
 	
 	If Parameters.PromptForIBAdministrationParameters Then
 		
-		// Connection check is not performed for the base versions.
+		// 
 		If StandardSubsystemsServer.IsBaseConfigurationVersion() 
 			Or StandardSubsystemsServer.IsTrainingPlatform() Then
 			Return;

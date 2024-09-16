@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -74,7 +72,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EventLogFilter.Insert("Session", Parameters.Session);
 	EndIf;
 	
-	// Level - value list.
+	// 
 	If Parameters.Level <> Undefined Then
 		FilterByLevel = New ValueList;
 		If TypeOf(Parameters.Level) = Type("Array") Then
@@ -89,7 +87,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EventLogFilter.Insert("Level", FilterByLevel);
 	EndIf;
 	
-	// ApplicationName - value list.
+	// 
 	If Parameters.ApplicationName <> Undefined Then
 		ApplicationsList = New ValueList;
 		For Each Package In Parameters.ApplicationName Do
@@ -118,7 +116,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Severity = "AllEvents";
 	
-	// Switched to True if the event log must not be generated in background.
+	// 
 	ShouldNotRunInBackground = Parameters.ShouldNotRunInBackground;
 	
 	If Common.IsMobileClient() Then
@@ -429,7 +427,7 @@ EndProcedure
 //  Event - String
 //
 // Returns:
-//  String, Undefined
+//  
 //
 &AtServer
 Function EventPresentation(Event, FilterValues)
@@ -599,7 +597,7 @@ Function ReadEventLog()
 	ReportParameters = ReportParameters();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.WaitCompletion = 0; // Run immediately.
+	ExecutionParameters.WaitCompletion = 0; // 
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Updating event log';");
 	ExecutionParameters.RunNotInBackground1 = ShouldNotRunInBackground;
 	

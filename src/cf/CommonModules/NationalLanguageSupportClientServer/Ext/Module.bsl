@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// The function is called when receiving an object presentation or a reference presentation depending on the language
-// that is used when the user is working.
+// Called when getting a representation of an object or reference, depending on the language
+// used by the user.
 //
 // Parameters:
-//  Data               - Structure - contains the values of the fields from which presentation is being generated.
-//  Presentation        - String - a generated presentation must be put in this parameter.
-//  StandardProcessing - Boolean - a flag indicating whether the standard presentation is generated is passed to this parameter.
-//  AttributeName         - String - indicates which attribute stores the presentation in the main language.
+//  Data               - Structure -  contains the values of the fields that form the view.
+//  Presentation        - String -  the generated view should be placed in this parameter.
+//  StandardProcessing - Boolean -  this parameter is passed to indicate that the standard view is formed.
+//  AttributeName         - String -  specifies which props store the view in the main language.
 //
 Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing, AttributeName = "Description") Export
 	
@@ -79,16 +77,16 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing, Attr
 	
 EndProcedure
 
-// Called to generate the composition of the fields from which the presentation of an object or a link is formed.
-// The field composition is generated considering the current user language.
+// Called to form the composition of fields that form the representation of an object or reference.
+// The fields are formed based on the user's current language.
 //
 // Parameters:
-//  Fields                 - Array - an array that contains names of fields that are required to generate a presentation of an object
-//                                  or a reference.
-//  StandardProcessing - Boolean - this parameter stores the flag of whether the standard(system) event processing is executed. If this parameter is
-//                                  set to False in the processing procedure, standard processing
-//                                  is skipped.
-//  AttributeName         - String - indicates which attribute stores the presentation in the main language.
+//  Fields                 - Array -  an array containing the names of fields that are needed to form a representation of an object
+//                                  or reference.
+//  StandardProcessing - Boolean -  this parameter is passed to indicate that standard (system) event processing is performed.
+//                                  If this parameter is set to False in the body of the handler procedure,
+//                                  standard event processing will not be performed.
+//  AttributeName         - String -  specifies which props store the view in the main language.
 //
 Procedure PresentationFieldsGetProcessing(Fields, StandardProcessing, AttributeName = "Description") Export
 	

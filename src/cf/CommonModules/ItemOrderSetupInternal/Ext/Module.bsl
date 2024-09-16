@@ -1,24 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Returns a value of an additional order attribute for a new object.
+// Returns the value of the additional property. ordering for the new object.
 //
 // Parameters:
-//  Information - Structure - information on object metadata;
-//  Parent   - AnyRef - a reference to the object parent;
-//  Owner   - AnyRef - a reference to the object owner.
+//  Information - Structure -  information about object metadata;
+//  Parent   - AnyRef -  reference to the object's parent;
+//  Owner   - AnyRef -  link to the object owner.
 //
 // Returns:
-//  Number - Value of the additional order attribute.
+//  Number - 
 //
 Function GetNewAdditionalOrderingAttributeValue(Information, Parent, Owner) Export
 	
@@ -185,19 +183,19 @@ Function MoveItem(ItemList, CurrentItemRef, Direction) Export
 	Information = ItemOrderSetup.GetInformationForMoving(CurrentItemRef.Metadata());
 	DataCompositionSettings = ItemList.GetPerformingDataCompositionSettings();
 	
-	// Hierarchical catalogs support filters by parent.
-	// Otherwise, the display mode should be hierarchy or tree.
+	// 
+	// 
 	RepresentedAsList = ItemList.Representation = TableRepresentation.List;
 	If Information.HasParent And RepresentedAsList And Not ListContainsFilterByParent(DataCompositionSettings) Then
 		Return NStr("en = 'To change the item sequence, set the view mode to Tree or Hierarchical list.';");
 	EndIf;
 	
-	// For subordinate catalogs, filter by owner is to be set.
+	// 
 	If Information.HasOwner And Not ListContainsFilterByOwner(DataCompositionSettings) Then
 		Return NStr("en = 'To change the item sequence, filter the list by the Owner field.';");
 	EndIf;
 	
-	// Checking the Use flag of the AddlOrderingAttribute attribute for the item to be moved.
+	// 
 	If Information.HasGroups Then
 		IsFolder = Common.ObjectAttributeValue(CurrentItemRef, "IsFolder");
 		If IsFolder And Not Information.ForGroups Or Not IsFolder And Not Information.ForItems Then
@@ -251,7 +249,7 @@ Function MoveItem(ItemList, CurrentItemRef, Direction) Export
 		If CurrentItemIndex > 0 Then
 			NeighborItemIndex = CurrentItemIndex - 1;
 		EndIf;
-	Else // Downward.
+	Else // Down
 		If CurrentItemIndex < Parent.Rows.Count() - 1 Then
 			NeighborItemIndex = CurrentItemIndex + 1;
 		EndIf;

@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Sets the original state for selected documents. Called over the "Attachable commands" subsystem.
+// Sets the state of the original for a selected document. Is invoked via a subsystem of the "Plug-team."
 //
 //	Parameters:
-//  Ref - DocumentRef - document reference.
+//  Ref - DocumentRef -  link to the document.
 //  Parameters -See AttachableCommands.CommandExecuteParameters.
 //
 Procedure Attachable_SetOriginalState(Ref, Parameters) Export
@@ -61,12 +59,12 @@ Procedure Attachable_SetOriginalState(Ref, Parameters) Export
 	
 EndProcedure
 
-// Sets the original state for selected documents. Called without integrating the "Attachable commands" subsystem.
+// Sets the state of the original for a selected document. Called without connecting the "Pluggable commands" subsystem.
 //
 //	Parameters:
-//  Command - String- a name of the form command being executed.
-//  Form - ClientApplicationForm - a form of a list or a document.
-//  List - FormTable - a form list where the state will be changed.
+//  Command - String-  name of the form command to run.
+//  Form - ClientApplicationForm -  form of a list or document.
+//  List - FormTable -  list of the form where the state change will occur.
 //
 Procedure SetOriginalState(Command, Form, List) Export
 
@@ -115,13 +113,13 @@ Procedure SetOriginalState(Command, Form, List) Export
 	
 EndProcedure
 
-// Opens a drop-down menu to select an original state in a list form or a document form.
+// Opens drop-down menus for selecting the original state on the list or document form.
 //
 //	Parameters:
 //  Form - ClientApplicationForm:
-//   * Object - FormDataStructure, DocumentObject - Form's main attribute.
-//  Source - FormTable - A form's list or decoration where a drop-down list should be opened.
-//                            If not specified, the "OriginalStateDecoration" element opens.  
+//   * Object - FormDataStructure, DocumentObject - 
+//  Source - FormTable - 
+//                              
 //
 Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export 
 	
@@ -185,11 +183,11 @@ Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export
 
 EndProcedure
 
-// A notification handler of the "Source document tracking" subsystem events for the document form.
+// Event notification handler for the "Accounting for originals of primary documents" subsystem for the document form.
 //
 //	Parameters:
-//  EventName - String - a name of the event that occurred.
-//  Form - ClientApplicationForm - a document form.
+//  EventName - String -  name of the event that occurred.
+//  Form - ClientApplicationForm -  the form of the document.
 //
 Procedure NotificationHandlerDocumentForm(EventName, Form) Export           
 		
@@ -201,12 +199,12 @@ Procedure NotificationHandlerDocumentForm(EventName, Form) Export
 		
 EndProcedure
 
-// A notification handler of the "Source document tracking" subsystem events for the list form.
+// Event notification handler for the "Accounting for originals of primary documents" subsystem for the list form.
 //
 //	Parameters:
-//  EventName - String - a name of the event that occurred.
-//  Form - ClientApplicationForm - a list form of documents.
-//  List - FormTable - the main form list.
+//  EventName - String -  name of the event that occurred.
+//  Form - ClientApplicationForm -  form of list of documents.
+//  List - FormTable -  the main list of the form.
 //
 Procedure NotificationHandlerListForm(EventName, Form, List) Export 
 	
@@ -228,13 +226,13 @@ Procedure NotificationHandlerListForm(EventName, Form, List) Export
 
 EndProcedure
 
-// Handler of the "Choice" list event.
+// The event handler for the "Selection" list.
 //
 //	Parameters:
-//  FieldName - String - a description of the selected field.
-//  Form - ClientApplicationForm - a list form of documents.
-//  List - FormTable - the main form list.
-//  StandardProcessing - Boolean - True if standard processing of the "Choice" event is used in the form
+//  FieldName - String -  name of the selected field.
+//  Form - ClientApplicationForm -  form of list of documents.
+//  List - FormTable -  the main list of the form.
+//  StandardProcessing - Boolean -  True if the form uses standard handling of the "Select" event"
 //
 Procedure ListSelection(FieldName, Form, List, StandardProcessing) Export 
 	
@@ -253,11 +251,11 @@ Procedure ListSelection(FieldName, Form, List, StandardProcessing) Export
 	
 EndProcedure
 
-// The procedure processes actions of originals recording after scanning the document barcode.
+// The procedure processes actions for recording originals after scanning the document's barcode.
 //
 //	Parameters:
-//  Barcode - String - the scanned document barcode.
-//  EventName - String - a form event name.
+//  Barcode - String -  scanned barcode of the document.
+//  EventName - String -  name of the form event.
 //
 Procedure ProcessBarcode(Barcode, EventName) Export
 	
@@ -268,13 +266,13 @@ Procedure ProcessBarcode(Barcode, EventName) Export
 	
 EndProcedure
 
-// The procedure displays a notification about changing a document original state to the user.
+// The procedure shows the user a notification about changes in the States of the original document.
 //
 //	Parameters:
-//  ProcessedItemsCount - Number - a number of successfully processed documents.
-//  DocumentRef - DocumentRef - a reference to the document for processing the user notification click 
-//		in case of the single state setting. Optional parameter.
-//  StateName - String - a state to be set.
+//  ProcessedItemsCount - Number -  the number of successfully processed documents.
+//  DocumentRef - DocumentRef -  a link to a document for processing a click on a user notification 
+//		in the case of a single state setting. Optional parameter.
+//  StateName - String -  set state.
 //
 Procedure NotifyUserOfStatesSetting(ProcessedItemsCount, DocumentRef = Undefined, StateName = Undefined) Export
 
@@ -293,19 +291,19 @@ Procedure NotifyUserOfStatesSetting(ProcessedItemsCount, DocumentRef = Undefined
 
 EndProcedure
 
-// Opens a list form of the "SourceDocumentsOriginalsStates" catalog.
+// Opens the list form of the reference list "Statesoriginalspervicedocuments".
 Procedure OpenStatesSetupForm() Export
 	
 	OpenForm("Catalog.SourceDocumentsOriginalsStates.ListForm");
 
 EndProcedure
 
-// Called to record original states of print forms to the register after printing the form.
+// Called to write the States of the original printed forms to the register after printing the form.
 //
 //	Parameters:
-//  PrintObjects - ValueList - a list of references to print objects.
-//  PrintList - ValueList - a list with template names and print form presentations.
-//  Written1 - Boolean - indicates that the document state is written to the register.
+//  PrintObjects - ValueList -  list of links to print objects.
+//  PrintList - ValueList -  a list with the names of the models and views printed forms.
+//  Written1 - Boolean -  indicates that the status of the document is recorded in the register.
 //
 Procedure WriteOriginalsStatesAfterPrint(PrintObjects, PrintList, Written1 = False) Export
 
@@ -324,10 +322,10 @@ Procedure WriteOriginalsStatesAfterPrint(PrintObjects, PrintList, Written1 = Fal
 	
 EndProcedure
 
-// Opens a form to refine states of the document print forms.
+// Opens the form for specifying the States of printed document forms.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef - The reference to the document whose aggregated state record key should be received.
+//  DocumentRef - DocumentRef -  link to the document for which you need to get the shared state record key.
 //
 Procedure OpenPrintFormsStatesChangeForm(DocumentRef) Export
 
@@ -344,11 +342,11 @@ Procedure OpenPrintFormsStatesChangeForm(DocumentRef) Export
 
 EndProcedure
 
-// Called when opening the source document originals journal if peripheral equipment is used.
-// Allows you to define a custom process of connecting the peripheral equipment to the journal.
+// Called when opening the log of originals of primary documents in the case of connected equipment.
+// Allows you to define your own process for connecting connected hardware to the log.
 //	
 //	Parameters:
-//  Form - ClientApplicationForm - a document list form.
+//  Form - ClientApplicationForm -  the list form of the document.
 //
 Procedure OnConnectBarcodeScanner(Form) Export
 
@@ -360,11 +358,11 @@ EndProcedure
 
 #Region Private
 
-// Generates a label to display the current state information on a document form.
+// Creates a label for displaying information about the current state on the document form.
 //
 //	Parameters:
 //  Form - ClientApplicationForm:
-//   * Object - FormDataStructure, DocumentObject - Form's main attribute.
+//   * Object - FormDataStructure, DocumentObject - 
 //
 Procedure GenerateCurrentOriginalStateLabel(Form)
 	
@@ -390,7 +388,7 @@ Procedure GenerateCurrentOriginalStateLabel(Form)
 	
 EndProcedure
 
-// Handler of the notification that was called after completing the SetOriginalState(…) procedure.
+// Handler for an alert called after the setoriginal State (...) procedure is completed.
 Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 
 	If Response <> DialogReturnCode.Yes Then
@@ -431,14 +429,14 @@ Procedure SetOriginalStateCompletion(Response, AdditionalParameters) Export
 
 EndProcedure
 
-// Handler of the notification that was called after completing the OpenStateSelectionMenu(…) procedure.
+// Handler for an alert called after the open state selection (...) procedure completes.
 //	
 //	Parameters:
-//  SelectedStateFromList - String - the original state selected by the user.
-//  AdditionalParameters - Structure - information required to set the original state:
-//                            * Ref - DocumentRef - a reference to a document to set the original state.
+//  SelectedStateFromList - String -  the user-selected state of the original.
+//  AdditionalParameters - Structure - :
+//                            * Ref - DocumentRef -  link to the document to set the original state.
 //       	                - Array of DocumentRef:
-//                            * Ref - DocumentRef - a reference to a document to set the original state.
+//                            * Ref - DocumentRef -  link to the document to set the original state.
 //
 Procedure OpenStateSelectionMenuCompletion(SelectedStateFromList, AdditionalParameters) Export
 
@@ -470,7 +468,7 @@ Procedure OpenStateSelectionMenuCompletion(SelectedStateFromList, AdditionalPara
 
 EndProcedure
 
-// Handler of the notification that was called after completing the NotifyUserOfStatesSetting(…) procedure.
+// Handler for an alert called after the notify Userinstallationstates (...) procedure is completed.
 Procedure ProcessNotificationClick(AdditionalParameters) Export
 
 	ShowValue(,AdditionalParameters);

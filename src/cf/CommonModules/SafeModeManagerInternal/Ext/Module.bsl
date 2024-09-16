@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Checks whether the security profiles can be set up for the current infobase.
+// Checks whether security profiles can be configured from the current database.
 //
 // Returns: 
-//   Boolean - True if the setting is available.
+//   Boolean - 
 //
 Function CanSetUpSecurityProfiles() Export
 	
@@ -37,18 +35,18 @@ Function CanSetUpSecurityProfiles() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// External modules.
+// 
 //
 
-// Returns external module attachment mode.
+// Returns the connection mode of the external module.
 //
 // Parameters:
-//  ExternalModule - AnyRef - a reference that matches the external module for which
-//    the attaching mode is requested.
+//  ExternalModule - AnyRef -  the link corresponding to the external module for which
+//    the connection mode is requested.
 //
 // Returns:
-//   String - a name of the security profile to be used for attaching
-//  the external module. If the attachment mode is not registered for the external module, Undefined is returned.
+//   String - 
+//  
 //
 Function ExternalModuleAttachmentMode(Val ExternalModule) Export
 	
@@ -57,10 +55,10 @@ Function ExternalModuleAttachmentMode(Val ExternalModule) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Security profile usage.
+// 
 //
 
-// Returns a namespace URI of an XDTO package used to describe permissions
+// Returns the URI of the XDTO package namespace that is used to describe permissions
 // in security profiles.
 //
 // Returns:
@@ -73,20 +71,20 @@ Function Package() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Create permission requests.
+// 
 //
 
-// Creates requests to use external resources for the external module.
+// Creates requests to use external resources for an external module.
 //
 // Parameters:
-//  ProgramModule - AnyRef - a reference that matches the external module for which permissions are being requested.
-//  NewPermissions - Array of XDTODataObject - an array of XDTODataObjects that match internal details of external resource access permissions to be requested.
-//    It is assumed that all XDTODataObjects passed 
-//    as parameters are generated using the SafeModeManager.Permission*() functions.
-//    When requesting permissions for external modules, permissions are added in replacement mode.
+//  ProgramModule - AnyRef -  the link corresponding to the external module for which permissions are requested.
+//  NewPermissions - Array of XDTODataObject -  internal descriptions of the requested permissions to access external resources.
+//    It is assumed that all the XDTO objects passed as a parameter 
+//    are formed by calling functions in a safe mode.Permission*().
+//    When requesting permissions for external modules, permissions are always added in replacement mode.
 //
 // Returns:
-//   Array of UUID - IDs of the created requests.
+//   Array of UUID - 
 //
 Function PermissionsRequestForExternalModule(Val ProgramModule, Val NewPermissions = Undefined) Export
 	
@@ -98,7 +96,7 @@ Function PermissionsRequestForExternalModule(Val ProgramModule, Val NewPermissio
 	
 	If NewPermissions.Count() > 0 Then
 		
-		// If there is no security profile, create it.
+		// 
 		If ExternalModuleAttachmentMode(ProgramModule) = Undefined Then
 			Result.Add(RequestForSecurityProfileCreation(ProgramModule));
 		EndIf;
@@ -109,7 +107,7 @@ Function PermissionsRequestForExternalModule(Val ProgramModule, Val NewPermissio
 		
 	Else
 		
-		// If there is a security profile, delete it.
+		// 
 		If ExternalModuleAttachmentMode(ProgramModule) <> Undefined Then
 			Result.Add(RequestToDeleteSecurityProfile(ProgramModule));
 		EndIf;
@@ -121,19 +119,19 @@ Function PermissionsRequestForExternalModule(Val ProgramModule, Val NewPermissio
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Security profile usage.
+// 
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-// Cast the referenced to the format "Type + ID" for storing in permission registers.
-// A custom Ref storage method is used because permission registers don't require reference integrity
+// 
+// 
 //
-// and register records are not deleted following an object deletion.
+// 
 // 
 // 
 //
 
-// Generates parameters for storing references in permission registers.
+// Generates the parameters for storing the references in the registers of the permits.
 //
 // Parameters:
 //  Ref - AnyRef
@@ -141,8 +139,8 @@ EndFunction
 // Returns:
 //   Structure:
 //                        * Type - CatalogRef.MetadataObjectIDs,
-//                        * Id - UUID - a reference
-//                           UUID.
+//                        * Id - UUID -  unique
+//                           link ID.
 //
 Function PropertiesForPermissionRegister(Val Ref) Export
 	
@@ -165,15 +163,15 @@ Function PropertiesForPermissionRegister(Val Ref) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Applying the requests for permissions to use external resources.
+// 
 //
 
 Function PermissionsToUseExternalResourcesPresentation(Val ProgramModuleType, 
 	Val ModuleID, Val OwnerType, Val OwnerID, Val Permissions) Export
 	
-	// ACC:326-off - The transaction is intended to use the "PermissionsRequests" information register as an
-	// intermediate cache for estimating if the queries are used to allow external resources.
-	// Transaction rollbacks are used as a trigger for clearing up the calculation cache.
+	// 
+	// 
+	// 
 	
 	BeginTransaction();
 	Try
@@ -196,14 +194,14 @@ Function PermissionsToUseExternalResourcesPresentation(Val ProgramModuleType,
 		Raise;
 	EndTry;
 	
-	// ACC:326-on
+	// 
 	
 	Return Manager.Presentation(True);
 	
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonOverridable.OnAddClientParametersOnStart.
 Procedure OnAddClientParametersOnStart(Parameters, BeforeUpdateApplicationRunParameters = False) Export
@@ -253,15 +251,15 @@ EndProcedure
 
 #Region Private
 
-// Creates a request to create a security profile for the external module.
+// Creates a request to create a security profile for an external module.
 // For internal use only.
 //
 // Parameters:
-//  ExternalModule - AnyRef - a reference that matches the external module for which
-//    permissions are being requested (Undefined if permissions are requested for configurations, not for external modules).
+//  External Module-Any link-the link corresponding to the external module for which
+//    permissions are requested. (Undefined when requesting permissions for configuration, not for external modules).
 //
 // Returns:
-//   UUID - an ID of the created request.
+//   UUID - 
 //
 Function RequestForSecurityProfileCreation(Val ProgramModule)
 	
@@ -289,10 +287,10 @@ Function RequestForSecurityProfileCreation(Val ProgramModule)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Security profile usage.
+// 
 //
 
-// Checks whether the security profiles can be used for the current infobase.
+// Checks whether security profiles can be used for the current database.
 //
 // Returns:
 //   Boolean
@@ -311,15 +309,15 @@ Function SecurityProfilesUsageAvailable() Export
 	
 EndFunction
 
-// Returns checksums of add-in files from the bundle provided in the configuration template.
+// Returns checksums of the external component kit files that are supplied in the configuration layout.
 //
 // Parameters:
-//  TemplateName - String - a configuration template name.
+//  TemplateName - String -  name of the configuration layout that the external component kit is supplied with.
 //
 // Returns:
 //   FixedMap of KeyAndValue:
-//                         * Key - String - a file name,
-//                         * Value - String - a checksum.
+//                         * Key - String -  file name,
+//                         * Value - String -  checksum.
 //
 Function AddInBundleFilesChecksum(Val TemplateName) Export
 	
@@ -329,12 +327,12 @@ Function AddInBundleFilesChecksum(Val TemplateName) Export
 	
 	If NameStructure.Count() = 2 Then
 		
-		// This is a common template.
+		// 
 		Template = GetCommonTemplate(NameStructure[1]);
 		
 	ElsIf NameStructure.Count() = 4 Then
 		
-		// This is a metadata object template.
+		// 
 		ObjectManager = Common.ObjectManagerByFullName(NameStructure[0] + "." + NameStructure[1]);
 		Template = ObjectManager.GetTemplate(NameStructure[3]);
 		
@@ -418,11 +416,11 @@ Function AddInBundleFilesChecksum(Val TemplateName) Export
 	
 EndFunction
 
-// Generates a reference by data from the permission registers.
+// Creates a link from the data stored in the registers of the permits.
 //
 // Parameters:
 //  Type - CatalogRef.MetadataObjectIDs
-//  Id - UUID - a reference UUID.
+//  Id - UUID -  unique link ID.
 //
 // Returns:
 //   AnyRef
@@ -445,27 +443,27 @@ Function ReferenceFormPermissionRegister(Val Type, Val Id) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Create permission requests.
+// 
 //
 
-// Creates a request for changing permissions to use external resources.
+// Creates a request to change permissions for using external resources.
 // For internal use only.
 //
 // Parameters:
-//  Owner - AnyRef - an owner of permissions to use external resources.
-//    (Undefined when requesting permissions for the configuration, not for configuration objects).
-//  ReplacementMode - Boolean - replacement mode of permissions provided earlier for the permission owner.
-//  PermissionsToAdd - Array of XDTODataObject - an array of XDTODataObjects that match internal details
-//    of external resource access permissions to be requested. It is assumed that all XDTODataObjects passed
-//    as parameters are generated using the SafeModeManager.Permission*() functions.
-//  PermissionsToDelete - Array of XDTODataObject - an array of XDTODataObjects that match internal details
-//    of external resource access permissions to be canceled. It is assumed that all XDTODataObjects passed
-//    as parameters are generated using the SafeModeManager.Permission*() functions.
-//  ProgramModule - AnyRef - a reference that matches the external module for which
-//    permissions are being requested (Undefined if permissions are requested for configurations, not for external modules).
+//  Owner - AnyRef -  owner of permissions to use external resources.
+//    (Undefined when requesting permissions for configuration, not for configuration objects).
+//  ReplacementMode - Boolean -  the mode of substitution of previously granted permissions for the owner.
+//  PermissionsToAdd - Array of XDTODataObject -  array of xdto Objects corresponding to the internal descriptions
+//    of the requested permissions to access external resources. It is assumed that all xdto Objects passed
+//    as a parameter are formed by calling functions in the safe mode.Permission*().
+//  PermissionsToDelete - Array of XDTODataObject -  array of xdto Objects that correspond to internal descriptions
+//    of revoked permissions to access external resources. It is assumed that all xdto Objects passed
+//    as a parameter are formed by calling functions in the safe mode.Permission*().
+//  ProgramModule - AnyRef -  the link corresponding to the external module for which
+//    permissions are requested. (Undefined when requesting permissions for configuration, not for external modules).
 //
 // Returns:
-//   UUID - an ID of the created request.
+//   UUID - 
 //
 Function PermissionChangeRequest(Val Owner, Val ReplacementMode, Val PermissionsToAdd = Undefined, 
 	Val PermissionsToDelete = Undefined, Val ProgramModule = Undefined) Export
@@ -494,15 +492,15 @@ Function PermissionChangeRequest(Val Owner, Val ReplacementMode, Val Permissions
 	
 EndFunction
 
-// Creates a request to delete a security profile for the external module.
+// Creates a request to delete the security profile for the external module.
 // For internal use only.
 //
 // Parameters:
-//  ProgramModule - AnyRef - a reference that matches the external module for which
-//    permissions are being requested (Undefined if permissions are requested for configurations, not for external modules).
+//  ProgramModule - AnyRef -  the link corresponding to the external module for which
+//    permissions are requested. (Undefined when requesting permissions for configuration, not for external modules).
 //
 // Returns:
-//   UUID - an ID of the created request.
+//   UUID - 
 //
 Function RequestToDeleteSecurityProfile(Val ProgramModule) Export
 	
@@ -529,15 +527,15 @@ Function RequestToDeleteSecurityProfile(Val ProgramModule) Export
 	
 EndFunction
 
-// Creates requests for application permission update.
+// Creates requests to update configuration permissions.
 //
 // Parameters:
-//  IncludingIBProfileCreationRequest - Boolean - include a request to create a security profile
-//    for the current infobase to the result.
+//  IncludingIBProfileCreationRequest - Boolean -  include a request to create a security profile
+//    for the current database in the result.
 //
 // Returns: 
-//   Array of UUID - request IDs for updating the
-//                                       configuration permissions to the currently required ones.
+//   Array of UUID - 
+//                                       
 //
 Function RequestsToUpdateApplicationPermissions(Val IncludingIBProfileCreationRequest = True) Export
 	
@@ -574,13 +572,13 @@ Procedure FillPermissionsToUpdatesProtectionCenter(PermissionsRequests)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+// 
 //
 
-// Returns the module that is the external module manager.
+// Returns a software module that performs the functions of an external module manager.
 //
 // Parameters:
-//  ExternalModule - AnyRef - a reference that matches the external module for which the manager is being requested.
+//  ExternalModule - AnyRef -  the link corresponding to the external module for which the manager is requested.
 //
 // Returns:
 //   CommonModule
@@ -606,8 +604,8 @@ Function ExternalModuleManager(Val ExternalModule) Export
 	
 EndFunction
 
-// Must be called when recording any internal data that cannot
-// be changed in the safe mode.
+// The procedure must be called when writing any service data
+// that cannot be changed when safe mode is set.
 //
 Procedure OnSaveInternalData(Object) Export
 	
@@ -622,7 +620,7 @@ Procedure OnSaveInternalData(Object) Export
 	
 EndProcedure
 
-// Checks whether the interactive permission request mode is required.
+// Checks whether to use interactive mode for requesting permissions.
 //
 // Returns:
 //   Boolean
@@ -641,7 +639,7 @@ Function InteractivePermissionRequestModeUsed()
 	
 EndFunction
 
-// Returns an array of the catalog managers that are external module containers.
+// Returns an array of directory managers that are containers of external modules.
 //
 // Returns:
 //   Array of CatalogManager

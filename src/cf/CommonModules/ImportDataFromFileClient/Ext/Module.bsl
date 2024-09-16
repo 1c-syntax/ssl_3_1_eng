@@ -1,27 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Creates a new structure of parameters for importing data from a file to a tabular section.
+// Creates a new parameter structure for loading data from a file into the table part.
 //
 // Returns:
-//   Structure - The opening parameters used in the data import form.:
-//    * FullTabularSectionName - String   - a full path to the document tabular section 
-//                                           formatted as DocumentName.TabularSectionName.
-//    * Title               - String   - a header of the form for importing data from a file.
-//    * DataStructureTemplateName      - String   - a data input template name.
-//    * AdditionalParameters - Structure - any additional information that will be passed
-//                                           to the data mapping procedure.
+//   Structure - :
+//    * FullTabularSectionName - String   -  the full path to the table part of the document, 
+//                                           in the form of "document Name.Kataboliceski".
+//    * Title               - String   -  header of the form for uploading data from a file.
+//    * DataStructureTemplateName      - String   -  name of the layout with the template for entering data.
+//    * AdditionalParameters - Structure -  any additional information that will be passed
+//                                           to the data matching procedure.
 //    * TemplateColumns - Array of See ImportDataFromFileClientServer.TemplateColumnDetails
-//                    - Undefined - In case the column details are missing from the template for importing data from a file.
+//                    - Undefined - 
 //
 Function DataImportParameters() Export
 	
@@ -36,12 +34,12 @@ Function DataImportParameters() Export
 	
 EndFunction
 
-// Opens the data import form for filling the tabular section.
+// Opens the data upload form to fill in the table part.
 //
 // Parameters: 
 //   ImportParameters   - See ImportDataFromFileClient.DataImportParameters.
-//   ImportNotification - NotifyDescription  - the procedure called to add the imported data
-//                                               to the tabular section.
+//   ImportNotification - NotifyDescription  -  notification that will be called to add the loaded data to the
+//                                               table part.
 //
 Procedure ShowImportForm(ImportParameters, ImportNotification) Export
 	
@@ -55,12 +53,12 @@ EndProcedure
 
 #Region Internal
 
-// Opens the data import form to fill in a tabular section of link mapping in the "Report options" subsystem.
+// Opens the data upload form to fill in the tabular part of the link mapping in the report Options subsystem.
 //
 // Parameters: 
 //   ImportParameters   - See ImportDataFromFileClient.DataImportParameters.
-//   ImportNotification - NotifyDescription  - the procedure called to add the imported data
-//                                               to the tabular section.
+//   ImportNotification - NotifyDescription  -  notification that will be called to add the loaded data to the
+//                                               table part.
 //
 Procedure ShowRefFillingForm(ImportParameters, ImportNotification) Export
 	
@@ -73,11 +71,11 @@ EndProcedure
 
 #Region Private
 
-// Opens a file import dialog.
+// Opens the file upload dialog.
 //
 // Parameters:
-//  CompletionNotification - NotifyDescription - the procedure to call when a file is successfully put in a storage.
-//  FileName	         - String - a file name in the dialog.
+//  CompletionNotification - NotifyDescription -  called after successfully placing the file.
+//  FileName	         - String -  name of the file in the dialog.
 //
 Procedure FileImportDialog(CompletionNotification , FileName = "") Export
 	

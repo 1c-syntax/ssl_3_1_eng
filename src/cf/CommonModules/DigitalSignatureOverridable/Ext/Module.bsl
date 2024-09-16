@@ -1,92 +1,90 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Redefines the standard behavior of the DigitalSignature subsystem.
+// 
 //
 // Parameters:
 //  Settings - Structure:
-//   * IndividualUsed - Boolean - By default, "True". In this case, the "Individual" attribute 
-//         with the type See DefinedType.Individual
-//                                           is displayed in the certificate card and the certificate application.
+//   * IndividualUsed - Boolean - 
+//          See DefinedType.Individual
 //
 Procedure OnDefineSettings(Settings) Export
 	
 EndProcedure
 
-// It is called in the DigitalSignatureAndEncryptionKeysCertificates catalog item form and in other places
-// where certificates are created or refreshed, for example, in the SelectSigningOrDecryptionCertificate form.
-// Raising an exception is allowed if you need to stop an action and report something to the user,
-// for example, when attempting to create a copy item of a certificate, access to which is limited.
+// Called in the form of the certificate reference element for the key electronic signature Decryption and in other places
+// where certificates are created or updated, for example, in the select certificate for signing or Decryption form.
+// You can throw an exception if you want to stop the action and tell the user something -
+// for example, when you try to create a copy of a certificate element that has restricted access.
 //
 // Parameters:
-//  Ref     - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a blank reference for a new item.
+//  Ref     - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -  empty for the new element.
 //
-//  Certificate - CryptoCertificate - a certificate, for which the catalog item is created or updated.
+//  Certificate - CryptoCertificate -  the certificate for which the directory element is created or updated.
 //
 //  AttributesParameters - ValueTable:
-//               * AttributeName       - String - a name of the attribute, for which you can clarify parameters.
-//               * ReadOnly     - Boolean - if you set True, editing will be prohibited.
-//               * FillChecking - Boolean - if you set True, filling will be checked.
-//               * Visible          - Boolean - if you set True, the attribute will become hidden.
-//               * FillValue - Arbitrary - an initial attribute value of the new object.
-//                                    - Undefined - filling is not required.
+//               * AttributeName       - String -  name of the item to specify parameters for.
+//               * ReadOnly     - Boolean -  if set to True, editing will be prohibited.
+//               * FillChecking - Boolean -  if set to True, the filling will be checked.
+//               * Visible          - Boolean -  if set to True, the props will become invisible.
+//               * FillValue - Arbitrary -  the initial value of the new object's props.
+//                                    - Undefined - 
 //
 Procedure BeforeStartEditKeyCertificate(Ref, Certificate, AttributesParameters) Export
 	
-	
+	// 
+	// 
 	
 EndProcedure
 
-// It is called when creating the DataSigning and DataDecryption forms on the server.
-// It is used for additional actions that require
-// a server call not to call server once again.
+// Called when creating data Signing and Decryption forms on the server.
+// Used for additional actions that require a server call to avoid
+// calling the server again.
 //
 // Parameters:
-//  Operation          - String - the Signing or Decryption string.
+//  Operation          - String -  string Signing or Decryption.
 //
-//  InputParameters  - Arbitrary - AdditionalActionsParameters property value
-//                      of the DataDetails parameter of the Sign and Decrypt methods
-//                      of the ClientDigitalSignature common module.
+//  InputParameters  - Arbitrary -  the value of the parameteradditional Actions property of
+//                      the parameter description of the Given methods Sign, Decrypt the General
+//                      module of the electronic signature Client.
 //                      
-//  OutputParametersSet - Arbitrary - arbitrary returned data that
-//                      will be placed to the procedure of the same name in the common module.
-//                      DigitalSignatureClientOverridable after creating a form
-//                      on the server but before opening it.
+//  OutputParametersSet - Arbitrary -  arbitrary returned data that
+//                      will be placed in the same procedure in the General module.
+//                      E-signclientdetermined after the form
+//                      is created on the server, but before it is opened.
 //
 Procedure BeforeOperationStart(Operation, InputParameters, OutputParametersSet) Export
 	
 EndProcedure
 
-// It is called to extend the content of the executed checks.
+// Called to expand the list of checks being performed.
 //
 // Parameters:
-//  Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a certificate being checked.
+//  Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -  the certificate to verify.
 // 
 //  AdditionalChecks - ValueTable:
-//    * Name           - String - an additional check name, for example, AuthorizationInTaxcom.
-//    * Presentation - String - a check user name, for example, "Authorization at the Taxcom server".
-//    * ToolTip     - String - a tooltip that will be shown to a user when clicking the question mark.
+//    * Name           - String -  name of the additional check, for example, authorization in English.
+//    * Presentation - String -  the user name of the check, for example, "authorization on the taxi server".
+//    * ToolTip     - String -  a hint that will be shown to the user when the question mark is clicked.
 //
-//  AdditionalChecksParameters - Arbitrary - a value of the similarly named parameter, specified
-//    in the CheckCatalogCertificate procedure of the ClientDigitalSIgnature common module.
+//  AdditionalChecksParameters - Arbitrary -  the value of the parameter of the same name specified
+//    in the procedure check the certificate of the Reference of the General module of the electronic signature Client.
 //
-//  StandardChecks - Boolean - if you set False, then all standard checks will be
-//    skipped and hidden. Hidden checks do not get into the Result property
-//    of the CheckCatalogCertificate procedure of the DigitalSignatureClient common module. Besides,
-//    the CryptoManager parameter will not be defined in the OnAdditionalCertificateCheck procedures
-//    of the DigitalSignatureOverridable and DigitalSignatureClientOverridable common modules.
+//  StandardChecks - Boolean -  if set to False, then all standard checks will
+//    be skipped and hidden. Hidden checks are not included in the Result property
+//    of the check certificate procedure for the common e-signature Client module. in addition, the Cryptography Manager
+//    parameter will not be defined in the additional check Certificate procedures for the
+//    common e-signature Undetectable and e-signature client Undetectable.
 //
-//  EnterPassword - Boolean - if you set False, a password entry for the closed key part will be hidden.
-//    It is not considered if the StandardChecks parameter is not set to False.
+//  EnterPassword - Boolean -  if set to False, then entering the password for the private part of the certificate key will be hidden.
+//    It is ignored if the standard Check parameter is not set to False.
 //
 Procedure OnCreateFormCertificateCheck(Certificate, AdditionalChecks, AdditionalChecksParameters, StandardChecks, EnterPassword = True) Export
 	
@@ -94,28 +92,28 @@ Procedure OnCreateFormCertificateCheck(Certificate, AdditionalChecks, Additional
 	
 EndProcedure
 
-// It is called from the CertificateCheck form if additional checks were added when creating the form.
+// Called from the certificate Check form if additional checks were added when creating the form.
 //
 // Parameters:
 //  Parameters - Structure:
-//   * Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a certificate being checked.
-//   * Validation             - String - a check name, added in the OnCreateFormCertificateCheck procedure
-//                              of the DigitalSignatureOverridable common module.
-//   * CryptoManager - CryptoManager - a prepared crypto manager to
-//                              perform a check.
-//                         - Undefined - if standard checks are disabled in procedure
-//                              OnCreateFormCertificateCheck of the DigitalSignatureOverridable common module.
-//   * ErrorDescription       - String - a return value. An error description received when performing the check.
-//                              User can see the details by clicking the result picture.
-//   * IsWarning    - Boolean - a return value. A picture kind is Error/Warning,
+//   * Certificate           - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates -  the certificate to verify.
+//   * Validation             - String -  the name of the check added in the procedure for creating a form of verification Of the certificate of the
+//                              General module of the electronic signature Undetectable.
+//   * CryptoManager - CryptoManager -  prepared cryptography Manager for
+//                              performing verification.
+//                         - Undefined - 
+//                              
+//   * ErrorDescription       - String -  the return value. Description of the error received during the verification.
+//                              This description can be seen by the user when clicking on the result image.
+//   * IsWarning    - Boolean -  the return value. Image Type Error/Warning,
 //                            the initial value is False.
-//   * Password               - String - a password entered by the user.
-//                         - Undefined - if the EnterPassword property is set to False in the
-//                              OnCreateFormCertificateCheck procedure of the DigitalSignatureOverridable common module.
+//   * Password               - String -  password entered by the user.
+//                         - Undefined - 
+//                              
 //   * ChecksResults   - Structure:
-//      * Key     - String - a name of the additional check that is already performed.
-//      * Value - Undefined - an additional check was not performed (ErrorDetails is still Undefined).
-//                 - Boolean - an additional check execution result.
+//      * Key     - String -  name of the additional check that has already been performed.
+//      * Value - Undefined -  additional verification was not performed (the error Description remains Undefined).
+//                 - Boolean - 
 //
 Procedure OnAdditionalCertificateCheck(Parameters) Export
 	
@@ -125,25 +123,25 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillCompanyAttributesInApplicationForCertificate.
+// Deprecated.
 //
 Procedure OnFillCompanyAttributesInApplicationForCertificate(Parameters) Export
 	
 EndProcedure
 
-// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillOwnerAttributesInApplicationForCertificate.
+// Deprecated.
 //
 Procedure OnFillOwnerAttributesInApplicationForCertificate(Parameters) Export
 	
 EndProcedure
 
-// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillOfficerAttributesInApplicationForCertificate.
+// Deprecated.
 //
 Procedure OnFillOfficerAttributesInApplicationForCertificate(Parameters) Export
 	
 EndProcedure
 
-// Deprecated. Instead, use ApplicationForACertificateOverridable.OnFillPartnerAttributesInApplicationForCertificate.
+// Deprecated.
 //
 Procedure OnFillPartnerAttributesInApplicationForCertificate(Parameters) Export
 	

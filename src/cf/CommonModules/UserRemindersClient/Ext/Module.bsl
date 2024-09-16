@@ -1,32 +1,30 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Runs a repeated check of current user reminders.
+// Starts a periodic check of the user's current reminders.
 Procedure Enable() Export
 	CheckCurrentReminders();
 EndProcedure
 
-// Disables repeated check of current user reminders.
+// Disables periodic checking of the user's current reminders.
 Procedure Disable() Export
 	DetachIdleHandler("CheckCurrentReminders");
 EndProcedure
 
-// Creates a reminder with the given due time.
+// Creates a new reminder for the specified time.
 //
 // Parameters:
-//  Text - String - Reminder text;
-//  Time - Date - Reminder's due date and time.
-//  SubjectOf - AnyRef - Reminder's subject.
-//  Id - String - Describes the reminder's subject. For example, "Birthday".
+//  Text - String -  the reminder text;
+//  Time - Date -  date and time of the reminder;
+//  SubjectOf - AnyRef -  the subject of the reminder;
+//  Id - String -  specifies the subject of the reminder, for example, "Birthday".
 //
 Procedure RemindInSpecifiedTime(Text, Time, SubjectOf = Undefined, Id = Undefined) Export
 	
@@ -42,13 +40,13 @@ Procedure RemindInSpecifiedTime(Text, Time, SubjectOf = Undefined, Id = Undefine
 	
 EndProcedure
 
-// Creates a reminder for a time relative to the time in the subject.
+// Creates a new reminder for the time calculated relative to the time in the item.
 //
 // Parameters:
-//  Text - String - Reminder text;
-//  Interval - Number - Reminder interval in seconds before the subject attribute's date.
-//  SubjectOf - AnyRef - Reminder's subject.
-//  AttributeName - String - Name of the subject attribute, for which the reminder period is set.
+//  Text - String -  the reminder text;
+//  Interval - Number -  time in seconds to be reminded of the date in the item's details;
+//  SubjectOf - AnyRef -  the subject of the reminder;
+//  AttributeName - String -  name of the item details for which the reminder period is set.
 //
 Procedure RemindTillSubjectTime(Text, Interval, SubjectOf, AttributeName) Export
 	
@@ -60,16 +58,16 @@ Procedure RemindTillSubjectTime(Text, Interval, SubjectOf, AttributeName) Export
 	
 EndProcedure
 
-// Generates a reminder with arbitrary time or execution schedule.
+// Creates a reminder with a custom time or schedule.
 //
 // Parameters:
-//  Text - String - Reminder text.
-//  EventTime - Date - Date and time of the event, which needs a reminder;
-//               - JobSchedule - a schedule of a periodic event;
-//               - String - Name of the subject's attribute that contains the event time.
-//  IntervalTillEvent - Number - time in seconds, prior to which it is necessary to remind of the event time;
-//  SubjectOf - AnyRef - Reminder's subject.
-//  Id - String - Describes the reminder's subject. For example, "Birthday".
+//  Text - String -  the reminder text;
+//  EventTime - Date -  date and time of the event to be reminded of;
+//               - JobSchedule - 
+//               - String - 
+//  IntervalTillEvent - Number -  time in seconds to be reminded of the event time;
+//  SubjectOf - AnyRef -  the subject of the reminder;
+//  Id - String -  specifies the subject of the reminder, for example, "Birthday".
 //
 Procedure Remind(Text, EventTime, IntervalTillEvent = 0, SubjectOf = Undefined, Id = Undefined) Export
 	
@@ -81,13 +79,13 @@ Procedure Remind(Text, EventTime, IntervalTillEvent = 0, SubjectOf = Undefined, 
 	
 EndProcedure
 
-// Creates an annual reminder with the subject's due date.
+// Creates an annual reminder for the item date.
 //
 // Parameters:
-//  Text - String - Reminder text;
-//  Interval - Number - Reminder interval in seconds before the subject attribute's date.
-//  SubjectOf - AnyRef - Reminder's subject.
-//  AttributeName - String - Name of the subject attribute, for which the reminder period is set.
+//  Text - String -  the reminder text;
+//  Interval - Number -  time in seconds to be reminded of the date in the item's details;
+//  SubjectOf - AnyRef -  the subject of the reminder;
+//  AttributeName - String -  name of the item details for which the reminder period is set.
 //
 Procedure RemindOfAnnualSubjectEvent(Text, Interval, SubjectOf, AttributeName) Export
 	
@@ -99,11 +97,11 @@ Procedure RemindOfAnnualSubjectEvent(Text, Interval, SubjectOf, AttributeName) E
 	
 EndProcedure
 
-// A handler of the form's same-name event.
+// 
 //
 // Parameters:
-//   Item - FormField - The form containing the reminder settings elements.
-//   Form - ClientApplicationForm - The form containing the reminder settings elements.
+//   Item - FormField - 
+//   Form - ClientApplicationForm - 
 //	
 Procedure OnChangeReminderSettings(Item, Form) Export
 	
@@ -127,14 +125,14 @@ Procedure OnChangeReminderSettings(Item, Form) Export
 	
 EndProcedure
 
-// A handler of the form's same-name event.
+// 
 //
 // Parameters:
-//   Form - ClientApplicationForm - The form containing the reminder settings elements.
+//   Form - ClientApplicationForm - 
 //   EventName  - String
 //   Parameter    - See UserRemindersClientServer.ReminderDetails
 //   Source    - ClientApplicationForm
-//               - Arbitrary - Event source.
+//               - Arbitrary -  event source.
 //	
 Procedure NotificationProcessing(Form, EventName, Parameter, Source) Export
 	
@@ -157,7 +155,7 @@ Procedure NotificationProcessing(Form, EventName, Parameter, Source) Export
 	
 EndProcedure
 
-// Opens the reminder settings form.
+// 
 Procedure OpenSettings() Export
 	OpenForm("InformationRegister.UserReminders.Form.Settings");
 EndProcedure
@@ -167,7 +165,7 @@ EndProcedure
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonClientOverridable.AfterStart.
 Procedure AfterStart() Export
@@ -179,7 +177,7 @@ Procedure AfterStart() Export
 	ReminderSettings = StandardSubsystemsClient.ClientParametersOnStart().ReminderSettings;
 	If ReminderSettings.UseReminders Then
 		SettingsOnClient().CurrentRemindersList = ReminderSettings.CurrentRemindersList;
-		AttachIdleHandler("CheckCurrentReminders", 60, True); // 60 seconds after starting the client.
+		AttachIdleHandler("CheckCurrentReminders", 60, True); // 
 	EndIf;
 	
 EndProcedure
@@ -235,7 +233,7 @@ EndProcedure
 
 Procedure OpenNotificationForm() Export
 	
-	// The form is stored in a variable to prevent opening its duplicates and make fewer server calls.
+	// 
 	// 
 	ParameterName = "StandardSubsystems.NotificationForm";
 	If ApplicationParameters[ParameterName] = Undefined Then
@@ -247,11 +245,11 @@ Procedure OpenNotificationForm() Export
 
 EndProcedure
 
-// Returns cached notifications for the current user, excluding the ones that are not due yet.
+// Returns cached notifications for the current user, excluding non-triggered notifications from the result.
 //
 // Parameters:
-//  TimeOfClosest - Date - this parameter returns time of the closest future reminder. If
-//                           the closest reminder is outside the cache selection, Undefined returns.
+//  TimeOfClosest - Date -  this parameter returns the time of the nearest future reminder. If
+//                           the nearest reminder is outside the cache selection, it is returned Undefined.
 //
 // Returns: 
 //   See UserRemindersInternal.CurrentUserRemindersList
@@ -279,7 +277,7 @@ Function GetCurrentNotifications(TimeOfClosest = Undefined) Export
 	
 EndFunction
 
-// Updates a record in the current user's reminder cache.
+// 
 Procedure UpdateRecordInNotificationsCache(NotificationParameters) Export
 	NotificationsCache = SettingsOnClient().CurrentRemindersList;
 	Record = FindRecordInNotificationsCache(NotificationsCache, NotificationParameters);
@@ -290,7 +288,7 @@ Procedure UpdateRecordInNotificationsCache(NotificationParameters) Export
 	EndIf;
 EndProcedure
 
-// Deletes a record from the current user's reminder cache.
+// 
 Procedure DeleteRecordFromNotificationsCache(NotificationParameters) Export
 	NotificationsCache = SettingsOnClient().CurrentRemindersList;
 	Record = FindRecordInNotificationsCache(NotificationsCache, NotificationParameters);
@@ -299,7 +297,7 @@ Procedure DeleteRecordFromNotificationsCache(NotificationParameters) Export
 	EndIf;
 EndProcedure
 
-// Returns a record from the current user's reminder cache.
+// 
 //
 // Parameters:
 //  NotificationsCache - See UserRemindersInternal.CurrentUserRemindersList
@@ -317,14 +315,14 @@ Function FindRecordInNotificationsCache(NotificationsCache, NotificationParamete
 	Return Undefined;
 EndFunction
 
-// Gets a time interval from a string and returns its text presentation.
+// Gets a time interval from a string and returns its text representation.
 //
 // Parameters:
-//  TimeAsString - String - text details of time, where numbers are written in digits
-//							and units of measure are written as a string.
+//  TimeAsString - String -  text description of time, where numbers are written as digits
+//							and units are written as a string.
 //
 // Returns:
-//  String - an arranged time presentation.
+//  String - 
 //
 Function FormatTime(TimeAsString) Export
 	Return TimePresentation(GetTimeIntervalFromString(TimeAsString));

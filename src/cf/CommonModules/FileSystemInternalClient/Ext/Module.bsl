@@ -1,18 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
 #Region FilesImportFromFileSystem
 
-// Continuation of procedure FileSystemClient.ShowPutFile.
+// Continuation of the filesystem Client procedure.ShowMessage of the file.
 Procedure ShowPutFileOnAttachFileSystemExtension(ExtensionAttached, Context) Export
 	
 	Interactively         = Context.Interactively;
@@ -47,7 +45,7 @@ Procedure ShowPutFileOnAttachFileSystemExtension(ExtensionAttached, Context) Exp
 
 EndProcedure
 
-// Runs after a warning about an unavailable file.
+// 
 // 
 // Parameters:
 //  ProcessingResultsParameters - Structure:
@@ -107,7 +105,7 @@ Procedure StartProcessingPuttingFiles(Context)
 	EndIf;
 EndProcedure
 
-// Putting files completion.
+// End of file placement.
 Procedure ProcessPutFilesResult(PlacedFiles, ProcessingResultsParameters) Export
 	
 	ProcessPutFileResult(PlacedFiles <> Undefined, PlacedFiles, Undefined,
@@ -115,7 +113,7 @@ Procedure ProcessPutFilesResult(PlacedFiles, ProcessingResultsParameters) Export
 	
 EndProcedure
 
-// Putting file completion.
+// The end of the file has been placed.
 Procedure ProcessPutFileResult(SelectionDone, AddressOrSelectionResult, SelectedFileName,
 		ProcessingResultsParameters) Export
 	
@@ -158,7 +156,7 @@ EndProcedure
 
 #Region ModifiesStoredDataToFileSystem
 
-// Continuation of procedure FileSystemClient.ShowDownloadFiles procedure.
+// Continuation of the filesystem Client procedure.Showfiles received.
 Procedure ShowDownloadFilesOnAttachFileSystemExtension(ExtensionAttached, Context) Export
 	
 	If ExtensionAttached Then
@@ -190,7 +188,7 @@ Procedure ShowDownloadFilesOnAttachFileSystemExtension(ExtensionAttached, Contex
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.ShowDownloadFiles procedure.
+// Continuation of the filesystem Client procedure.Showfiles received.
 Procedure ShowDownloadFilesAfterGetTempFilesDirectory(TempFilesDirName, Context) Export
 	
 	Context.Dialog = TempFilesDirName;
@@ -198,7 +196,7 @@ Procedure ShowDownloadFilesAfterGetTempFilesDirectory(TempFilesDirName, Context)
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.ShowDownloadFiles procedure.
+// Continuation of the filesystem Client procedure.Showfiles received.
 Procedure ShowDownloadFilesToDirectory(Context)
 	
 	CallbackOnCompletion = New NotifyDescription("NotifyGetFilesCompletion", ThisObject, Context);
@@ -207,7 +205,7 @@ Procedure ShowDownloadFilesToDirectory(Context)
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.ShowDownloadFiles procedure.
+// Continuation of the filesystem Client procedure.Showfiles received.
 Procedure NotifyGetFilesCompletion(ObtainedFiles, AdditionalParameters) Export
 	
 	If AdditionalParameters.CompletionHandler <> Undefined Then
@@ -220,7 +218,7 @@ EndProcedure
 
 #Region OpeningFiles
 
-// Continuation of procedure FileSystemClient.OpenFile.
+// Continuation of the filesystem Client procedure.Open the file.
 Procedure OpenFileAfterSaving(SavedFiles, OpeningParameters) Export
 	
 	If SavedFiles = Undefined Then
@@ -242,17 +240,17 @@ Procedure OpenFileAfterSaving(SavedFiles, OpeningParameters) Export
 	
 EndProcedure
 
-// Continues the FileSystemClient.OpenFile procedure.
-// Opens the file in the application associated with the file type.
-// Prevents executable files from opening.
+// 
+// 
+// 
 //
 // Parameters:
-//  PathToFile        - String - The full path to the file to open.
-//  Notification        - NotifyDescription - Notifies about file opening attempt.
-//                    If not specified and an error occurs, the method returns a warning.:
-//   * ApplicationStarted      - Boolean - True if the external application opened successfully.
-//   * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
-//  ForEditing - Boolean - True to open the file for editing, False otherwise.
+//  PathToFile        - String - 
+//  Notification        - NotifyDescription - 
+//                    :
+//   * ApplicationStarted      - Boolean -  True if the external application did not cause errors when opening.
+//   * AdditionalParameters - Arbitrary -  the value that was specified when creating the message Description object.
+//  ForEditing - Boolean -  True if the file is opened for editing, otherwise False.
 //
 Procedure OpenFileInViewer(PathToFile, Val Notification = Undefined,
 		Val ForEditing = False)
@@ -272,7 +270,7 @@ Procedure OpenFileInViewer(PathToFile, Val Notification = Undefined,
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenFile.
+// Continuation of the filesystem Client procedure.Open the file.
 Procedure OpenFileInViewerAfterCheckFileSystemExtension(ExtensionAttached, Context) Export
 	
 	FileInfo3 = Context.FileInfo3;
@@ -292,7 +290,7 @@ Procedure OpenFileInViewerAfterCheckFileSystemExtension(ExtensionAttached, Conte
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenFile.
+// Continuation of the filesystem Client procedure.Open the file.
 Procedure OpenFileInViewerAfterCheckIfExists(Exists, Context) Export
 	
 	FileInfo3 = Context.FileInfo3;
@@ -315,10 +313,10 @@ Procedure OpenFileInViewerAfterCheckIfExists(Exists, Context) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenFile.
+// Continuation of the filesystem Client procedure.Open the file.
 Procedure OpenFileInViewerAfterCheckIsFIle(IsFile, Context) Export
 	
-	// CAC:534-off safe start methods are provided with this function
+	// 
 	
 	FileInfo3 = Context.FileInfo3;
 	If IsFile Then
@@ -366,11 +364,11 @@ Procedure OpenFileInViewerAfterCheckIsFIle(IsFile, Context) Export
 		
 	EndIf;
 	
-	// ACC:534-on
+	// 
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenFile.
+// Continuation of the filesystem Client procedure.Open the file.
 Procedure OpenFileInViewerAfterStartApplication(ReturnCode, Context) Export 
 	
 	Notification = Context.Notification;
@@ -382,7 +380,7 @@ Procedure OpenFileInViewerAfterStartApplication(ReturnCode, Context) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenFile.
+// Continuation of the filesystem Client procedure.Open the file.
 Procedure OpenFileInViewerOnProcessError(ErrorInfo, StandardProcessing, Context) Export
 	
 	StandardProcessing = False;
@@ -390,7 +388,7 @@ Procedure OpenFileInViewerOnProcessError(ErrorInfo, StandardProcessing, Context)
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenFile.
+// Continuation of the filesystem Client procedure.Open the file.
 Procedure OpenFileAfterEditingCompletion(ApplicationStarted, OpeningParameters) Export
 	
 	If ApplicationStarted
@@ -408,7 +406,7 @@ Procedure OpenFileAfterEditingCompletion(ApplicationStarted, OpeningParameters) 
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenFile.
+// Continuation of the filesystem Client procedure.Open the file.
 Procedure OpenFileAfterDataUpdateInStorage(IsDataUpdated, DataAddress, FileName,
 		OpeningParameters) Export
 	
@@ -429,7 +427,7 @@ Procedure OpenFileAfterDataUpdateInStorage(IsDataUpdated, DataAddress, FileName,
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenFile.
+// Continuation of the filesystem Client procedure.Open the file.
 Procedure OpenFileAfterTempFileDeletion(AdditionalParameters) Export
 	
 	ExecuteNotifyProcessing(AdditionalParameters.OpeningParameters.CompletionHandler,
@@ -437,7 +435,7 @@ Procedure OpenFileAfterTempFileDeletion(AdditionalParameters) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenFile.
+// Continuation of the filesystem Client procedure.Open the file.
 Procedure OpenFileInViewerNotifyOnError(ErrorDescription, Context)
 	
 	If Not IsBlankString(ErrorDescription) Then 
@@ -450,7 +448,7 @@ Procedure OpenFileInViewerNotifyOnError(ErrorDescription, Context)
 EndProcedure
 
 // Parameters:
-//  Extension - String - the Extension property of the File object.
+//  Extension - String -  property is an extension of the object File.
 //
 Function IsExecutableFileExtension(Val Extension)
 	
@@ -460,9 +458,9 @@ Function IsExecutableFileExtension(Val Extension)
 	Return Extension = ".BAT" // Batch File
 		Or Extension = ".BIN" // Binary Executable
 		Or Extension = ".CMD" // Command Script
-		Or Extension = ".COM" // MS-DOS application.
+		Or Extension = ".COM" // 
 		Or Extension = ".CPL" // Control Panel Extension
-		Or Extension = ".EXE" // Executable file.
+		Or Extension = ".EXE" // 
 		Or Extension = ".GADGET" // Binary Executable
 		Or Extension = ".HTA" // HTML Application
 		Or Extension = ".INF1" // Setup Information File
@@ -475,7 +473,7 @@ Function IsExecutableFileExtension(Val Extension)
 		Or Extension = ".MSI" // Windows Installer Package
 		Or Extension = ".MSP" // Windows Installer Patch
 		Or Extension = ".MST" // Windows Installer Setup Transform File
-		Or Extension = ".OTM" // Microsoft Outlook macro.
+		Or Extension = ".OTM" // 
 		Or Extension = ".PAF" // Portable Application Installer File
 		Or Extension = ".PIF" // Program Information File
 		Or Extension = ".PS1" // Windows PowerShell Cmdlet
@@ -494,24 +492,24 @@ Function IsExecutableFileExtension(Val Extension)
 	// Linux
 		Or Extension = ".CSH" // C Shell Script
 		Or Extension = ".KSH" // Unix Korn Shell Script
-		Or Extension = ".OUT" // Executable file.
-		Or Extension = ".RUN" // Executable file.
+		Or Extension = ".OUT" // 
+		Or Extension = ".RUN" // 
 		Or Extension = ".SH"  // Shell Script
 	// macOS
 		Or Extension = ".ACTION" // Automator Action
-		Or Extension = ".APP" // Executable file.
+		Or Extension = ".APP" // 
 		Or Extension = ".COMMAND" // Terminal Command
-		Or Extension = ".OSX" // Executable file.
-		Or Extension = ".WORKFLOW" // Automator Workflow
-	// Other OS
-		Or Extension = ".AIR" // Adobe AIR distribution package
-		Or Extension = ".COFFIE" // CoffeeScript (JavaScript) script.
-		Or Extension = ".JAR" // Java archive.
+		Or Extension = ".OSX" // 
+		Or Extension = ".WORKFLOW" // 
+	// 
+		Or Extension = ".AIR" // 
+		Or Extension = ".COFFIE" // 
+		Or Extension = ".JAR" // 
 		Or Extension = ".JS"  // JScript File
 		Or Extension = ".JSE" // JScript Encoded File
-		Or Extension = ".PLX" // Perl executable file
-		Or Extension = ".PYC" // Python compiled file
-		Or Extension = ".PYO"; // Python optimized code.
+		Or Extension = ".PLX" // 
+		Or Extension = ".PYC" // 
+		Or Extension = ".PYO"; // 
 	
 EndFunction
 
@@ -519,7 +517,7 @@ EndFunction
 
 #Region OpenExplorer
 
-// Continuation of procedure FileSystemClient.OpenExplorer.
+// Continuation of the Filesystem Client procedure.Open the conductor.
 Procedure OpenExplorerAfterCheckFileSystemExtension(ExtensionAttached, Context) Export
 	
 	FileInfo3 = Context.FileInfo3;
@@ -536,7 +534,7 @@ Procedure OpenExplorerAfterCheckFileSystemExtension(ExtensionAttached, Context) 
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenExplorer.
+// Continuation of the Filesystem Client procedure.Open the conductor.
 Procedure OpenExplorerAfterCheckIfExists(Exists, Context) Export 
 	
 	FileInfo3 = Context.FileInfo3;
@@ -556,10 +554,10 @@ Procedure OpenExplorerAfterCheckIfExists(Exists, Context) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenExplorer.
+// Continuation of the Filesystem Client procedure.Open the conductor.
 Procedure OpenExplorerAfterCheckIsFIle(IsFile, Context) Export 
 	
-	// CAC:534-off safe start methods are provided with this function
+	// 
 	
 	FileInfo3 = Context.FileInfo3;
 	
@@ -567,18 +565,18 @@ Procedure OpenExplorerAfterCheckIsFIle(IsFile, Context) Export
 	If IsFile Then
 		If CommonClient.IsWindowsClient() Then
 			BeginRunningApplication(Notification, "explorer.exe /select, """ + FileInfo3.FullName + """");
-		Else // It is Linux or macOS.
+		Else // 
 			BeginRunningApplication(Notification, "file:///" + FileInfo3.Path);
 		EndIf;
-	Else // It is a directory.
+	Else // 
 		BeginRunningApplication(Notification, "file:///" + FileInfo3.FullName);
 	EndIf;
 	
-	// ACC:534-on
+	// 
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenExplorer.
+// Continuation of the Filesystem Client procedure.Open the conductor.
 Procedure OpenExplorerOnProcessError(ErrorInfo, StandardProcessing, Context) Export 
 	
 	StandardProcessing = False;
@@ -586,7 +584,7 @@ Procedure OpenExplorerOnProcessError(ErrorInfo, StandardProcessing, Context) Exp
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenExplorer.
+// Continuation of the Filesystem Client procedure.Open the conductor.
 Procedure OpenExplorerNotifyOnError(ErrorDescription, Context)
 	
 	If Not IsBlankString(ErrorDescription) Then 
@@ -599,10 +597,10 @@ EndProcedure
 
 #Region OpenURL
 
-// Continuation of procedure FileSystemClient.OpenURL.
+// Continuation of the Filesystem Client procedure.Open the Navigation link.
 Procedure OpenURLAfterCheckFileSystemExtension(ExtensionAttached, Context) Export
 	
-	// CAC:534-off safe start methods are provided with this function
+	// 
 	
 	URL = Context.URL;
 	
@@ -623,11 +621,11 @@ Procedure OpenURLAfterCheckFileSystemExtension(ExtensionAttached, Context) Expor
 		OpenURLNotifyOnError(ErrorDescription, Context);
 	EndIf;
 	
-	// ACC:534-on
+	// 
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenURL.
+// Continuation of the Filesystem Client procedure.Open the Navigation link.
 Procedure OpenURLAfterStartApplication(ReturnCode, Context) Export 
 	
 	Notification = Context.Notification;
@@ -639,7 +637,7 @@ Procedure OpenURLAfterStartApplication(ReturnCode, Context) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenURL.
+// Continuation of the Filesystem Client procedure.Open the Navigation link.
 Procedure OpenURLOnProcessError(ErrorInfo, StandardProcessing, Context) Export 
 	
 	StandardProcessing = False;
@@ -647,7 +645,7 @@ Procedure OpenURLOnProcessError(ErrorInfo, StandardProcessing, Context) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.OpenURL.
+// Continuation of the Filesystem Client procedure.Open the Navigation link.
 Procedure OpenURLNotifyOnError(ErrorDescription, Context) Export
 	
 	Notification = Context.Notification;
@@ -663,25 +661,25 @@ Procedure OpenURLNotifyOnError(ErrorDescription, Context) Export
 	
 EndProcedure
 
-// Checks whether the passed string is a web URL.
+// Checks whether the passed string is a web link.
 // 
 // Parameters:
-//  String - String - passed URL.
+//  String - String -  passed link.
 // 
 // Returns:
 //  Boolean
 // 
 Function IsWebURL(String) Export
 	
-	Return StrStartsWith(String, "http://")  // A common connection.
-		Or StrStartsWith(String, "https://");// A secure connection.
+	Return StrStartsWith(String, "http://")  // 
+		Or StrStartsWith(String, "https://");// 
 	
 EndFunction
 
-// Checks whether the passed string is a reference to the online help.
+// Checks whether the passed string is a reference to the built-in help.
 // 
 // Parameters:
-//  String - String - passed URL.
+//  String - String -  passed link.
 // 
 // Returns:
 //  Boolean
@@ -692,10 +690,10 @@ Function IsHelpRef(String) Export
 	
 EndFunction
 
-// Checks whether the passed string is a valid reference to the protocol whitelist.
+// Checks whether the passed string is a valid link in the Protocol whitelist.
 // 
 // Parameters:
-//  String - String - passed URL.
+//  String - String -  passed link.
 // 
 // Returns:
 //  Boolean
@@ -720,7 +718,7 @@ EndFunction
 
 #Region StartApplication
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continuation of the Filesystem Client procedure.Run the program.
 Procedure StartApplicationAfterCheckFileSystemExtension(ExtensionAttached, Context) Export
 	
 	If ExtensionAttached Then
@@ -744,7 +742,7 @@ Procedure StartApplicationAfterCheckFileSystemExtension(ExtensionAttached, Conte
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continuation of the Filesystem Client procedure.Run the program.
 Procedure StartApplicationAfterCheckIfExists(Exists, Context) Export
 	
 	CurrentDirectory = Context.CurrentDirectory;
@@ -768,7 +766,7 @@ Procedure StartApplicationAfterCheckIfExists(Exists, Context) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemInternalClient.StartFileSystemExtensionAttaching.
+// 
 //
 Procedure StartApplicationAfterCheckIsDirectory(IsDirectory, Context) Export
 	
@@ -788,16 +786,16 @@ Procedure StartApplicationAfterCheckIsDirectory(IsDirectory, Context) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continuation of the Filesystem Client procedure.Run the program.
 Procedure StartApplicationBeginRunning(Context)
 	
-	// CAC:534-off safe start methods are provided with this function
+	// 
 	
 	If Context.ThreadsEncoding = Undefined Then 
 		Context.ThreadsEncoding = StandardStreamEncoding();
 	EndIf;
 	
-	// Hardcode the default code page since cmd does not always take the current code page.
+	// 
 	If Context.ExecutionEncoding = Undefined And CommonClient.IsWindowsClient() Then 
 		Context.ExecutionEncoding = "CP866";
 	EndIf;
@@ -854,11 +852,11 @@ Procedure StartApplicationBeginRunning(Context)
 			"StartApplicationOnProcessError", ThisObject);
 		BeginRunningApplication(Notification, CommandString, CurrentDirectory, WaitForCompletion);
 	EndIf;
-	// ACC:534-on
+	// 
 	
 EndProcedure
 
-// Returns the encoding of the standard output and error streams for the current OS.
+// 
 //
 // Returns:
 //  TextEncoding
@@ -869,7 +867,7 @@ Function StandardStreamEncoding()
 	
 EndFunction
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continuation of the Filesystem Client procedure.Run the program.
 Procedure StartApplicationAfterStartApplication(ReturnCode, Context) Export 
 	
 	Notification = Context.Notification;
@@ -908,7 +906,7 @@ Procedure StartApplicationAfterStartApplication(ReturnCode, Context) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continuation of the Filesystem Client procedure.Run the program.
 Procedure StartApplicationOnProcessError(ErrorInfo, StandardProcessing, Context) Export 
 	
 	StandardProcessing = False;
@@ -917,7 +915,7 @@ Procedure StartApplicationOnProcessError(ErrorInfo, StandardProcessing, Context)
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continuation of the Filesystem Client procedure.Run the program.
 Procedure StartApplicationNotifyOnError(ErrorDescription, Context)
 	
 	Notification = Context.Notification;
@@ -937,7 +935,7 @@ Procedure StartApplicationNotifyOnError(ErrorDescription, Context)
 	
 EndProcedure
 
-// Continues the FileSystemClient.StartApplication procedure.
+// Continuation of the Filesystem Client procedure.Run the program.
 Function ApplicationStartResult()
 	
 	Result = New Structure;
@@ -951,7 +949,7 @@ Function ApplicationStartResult()
 	
 EndFunction
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continuation of the Filesystem Client procedure.Run the program.
 Procedure StartApplicationWithFullRights(Context)
 	
 #If WebClient Then
@@ -987,7 +985,7 @@ Procedure StartApplicationWithFullRights(Context)
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// 
 //
 Procedure FillThreadResult(Result, Context)
 	
@@ -1007,11 +1005,11 @@ Procedure FillThreadResult(Result, Context)
 
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// 
 //
 Function ReadThreadFile(PathToFile, ThreadsEncoding)
 	
-	// CAC:566-off synchronous calls outside the thin client
+	// 
 	
 #If WebClient Then
 	Return "";
@@ -1030,17 +1028,17 @@ Function ReadThreadFile(PathToFile, ThreadsEncoding)
 	Return ?(Result = Undefined, "", Result);
 #EndIf
 	
-	// ACC:566-on
+	// 
 	
 EndFunction
 
 #If Not WebClient And Not MobileClient Then
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// 
 //
 Procedure StartApplicationWithFullWindowsRights(Context)
 	
-	// CAC:534-off safe start methods are provided with this function
+	// 
 	
 	CommandString = Context.CommandString;
 	CurrentDirectory = Context.CurrentDirectory;
@@ -1052,7 +1050,7 @@ Procedure StartApplicationWithFullWindowsRights(Context)
 	
 	Try
 		Shell = New COMObject("Shell.Application");
-		// Run with elevated permissions.
+		// 
 		ReturnCode = Shell.ShellExecute("cmd", "/c """ + CommandString + """",, "runas", 0);
 		Shell = Undefined;
 	Except
@@ -1069,15 +1067,15 @@ Procedure StartApplicationWithFullWindowsRights(Context)
 	
 	StartApplicationAfterStartApplication(ReturnCode, Context);
 	
-	// ACC:534-on
+	// 
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// 
 //
 Procedure StartApplicationWithFullLinuxRights(Context)
 	
-	// CAC:534-off safe start methods are provided with this function
+	// 
 	
 	CurrentDirectory = Context.CurrentDirectory;
 	CommandString = Context.CommandString;
@@ -1090,7 +1088,7 @@ Procedure StartApplicationWithFullLinuxRights(Context)
 		"StartApplicationOnProcessError", ThisObject);
 	BeginRunningApplication(Notification, CommandWithPrivilegeEscalation, CurrentDirectory, WaitForCompletion);
 	
-	// ACC:534-on
+	// 
 	
 EndProcedure
 
@@ -1100,7 +1098,7 @@ EndProcedure
 
 #Region ChooseDirectory
 
-// Continuation of procedure FileSystemClient.SelectDirectory.
+// Continuation of the filesystem Client procedure.Select the catalog.
 Procedure SelectDirectoryOnAttachFileSystemExtension(ExtensionAttached, Context) Export
 	
 	If Not ExtensionAttached Then
@@ -1124,7 +1122,7 @@ Procedure SelectDirectoryOnAttachFileSystemExtension(ExtensionAttached, Context)
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.SelectDirectory.
+// Continuation of the filesystem Client procedure.Select the catalog.
 Procedure SelectDirectoryAtSelectionEnd(DirectoriesArray, CompletionHandler) Export
 	
 	PathToDirectory = 
@@ -1140,7 +1138,7 @@ EndProcedure
 
 #Region ShowSelectionDialog
 
-// Continuation of procedure FileSystemClient.ShowSelectionDialog.
+// 
 //
 Procedure ShowSelectionDialogOnAttachFileSystemExtension(ExtensionAttached, Context) Export
 	
@@ -1159,13 +1157,13 @@ EndProcedure
 
 Procedure StartFileSystemExtensionAttachingOnSetExtension(Attached, Context) Export
 	
-	// If the extension is already installed, there is no need to ask about it
+	// 
 	If Attached Then
 		ExecuteNotifyProcessing(Context.NotifyDescriptionCompletion, "AttachmentNotRequired");
 		Return;
 	EndIf;
 	
-	// In macOS, the extension's web client supports only Google Chrome.
+	// 
 	If CommonClient.IsMacOSClient() 
 			And Not AnExtensionForWorkingWithFilesIsAvailable() Then
 		ExecuteNotifyProcessing(Context.NotifyDescriptionCompletion);
@@ -1240,7 +1238,7 @@ EndFunction
 
 #Region CreateTemporaryDirectory
 
-// Continuation of procedure FileSystemClient.CreateTemporaryDirectory.
+// Continuation of the filesystem Client procedure.Create a temporary directory.
 // 
 // Parameters:
 //  ExtensionAttached - Boolean
@@ -1261,7 +1259,7 @@ Procedure CreateTemporaryDirectoryAfterCheckFileSystemExtension(ExtensionAttache
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.CreateTemporaryDirectory.
+// Continuation of the filesystem Client procedure.Create a temporary directory.
 // 
 // Parameters:
 //  TempFilesDirName - String
@@ -1284,7 +1282,7 @@ Procedure CreateTemporaryDirectoryAfterGetTemporaryDirectory(TempFilesDirName, C
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.CreateTemporaryDirectory.
+// Continuation of the filesystem Client procedure.Create a temporary directory.
 Procedure CreateTemporaryDirectoryOnProcessError(ErrorInfo, StandardProcessing, Context) Export 
 	
 	StandardProcessing = False;
@@ -1293,7 +1291,7 @@ Procedure CreateTemporaryDirectoryOnProcessError(ErrorInfo, StandardProcessing, 
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.CreateTemporaryDirectory.
+// Continuation of the filesystem Client procedure.Create a temporary directory.
 Procedure CreateTemporaryDirectoryNotifyOnError(ErrorDescription, Context)
 	
 	ShowMessageBox(, ErrorDescription);

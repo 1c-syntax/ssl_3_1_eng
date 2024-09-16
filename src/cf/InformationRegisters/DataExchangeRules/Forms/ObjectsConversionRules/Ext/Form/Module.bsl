@@ -1,17 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	
+	If Not ValueIsFilled(Parameters.Key) Then
+		
+		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		
+	EndIf;
 	
 	UpdateExchangePlanChoiceList();
 	
@@ -111,7 +115,7 @@ Procedure ExchangePlanNameOnChange(Item)
 	
 	Record.RulesTemplateName = "";
 	
-	// Server call.
+	// 
 	UpdateRuleTemplateChoiceList();
 	
 EndProcedure
@@ -210,7 +214,7 @@ EndProcedure
 &AtClient
 Procedure ImportRules(Command)
 	
-	// Importing from file on the client
+	// 
 	NameParts = CommonClientServer.ParseFullFileName(Record.RulesFileName);
 	
 	DialogParameters = New Structure;
@@ -228,7 +232,7 @@ Procedure UnloadRules(Command)
 	
 	NameParts = CommonClientServer.ParseFullFileName(Record.RulesFileName);
 
-	// Export to an archive.
+	// 
 	StorageAddress = GetRuleArchiveTempStorageAddressAtServer();
 	
 	If IsBlankString(StorageAddress) Then
@@ -343,7 +347,7 @@ Procedure ImportRulesCompletion(Val PutFilesResult, Val AdditionalParameters) Ex
 		Return;
 	EndIf;
 		
-	// The file is successfully transferred, importing the file to the server.
+	// 
 	NameParts = CommonClientServer.ParseFullFileName(PutFilesResult.Name);
 	
 	PerformRuleImport(PutFileAddress, NameParts.Name, Lower(NameParts.Extension) = ".zip");
@@ -397,7 +401,7 @@ Procedure ImportRulesAtServer(Cancel, TempStorageAddress, RulesFileName, IsArchi
 		
 		Modified = False;
 		
-		// Open session cache for the registration mechanism has become obsolete.
+		// 
 		DataExchangeInternal.ResetObjectsRegistrationMechanismCache();
 		RefreshReusableValues();
 	EndIf;
@@ -411,7 +415,7 @@ EndProcedure
 &AtServer
 Function GetRuleArchiveTempStorageAddressAtServer()
 	
-	// Create the temporary directory at the server and generate file paths.
+	// 
 	TempDirectoryName = GetTempFileName("");
 	CreateDirectory(TempDirectoryName);
 	PathToFile = CommonClientServer.AddLastPathSeparator(TempDirectoryName) + "ExchangeRules";
@@ -442,7 +446,7 @@ Function GetRuleArchiveTempStorageAddressAtServer()
 		Selection = Result.Select();
 		Selection.Next();
 		
-		// Get, save to, and archive the rules file in a temporary directory.
+		// 
 		RuleBinaryData = Selection.XMLRules.Get(); // BinaryData
 		RuleBinaryData.Write(PathToFile + ".xml");
 		
@@ -452,7 +456,7 @@ Function GetRuleArchiveTempStorageAddressAtServer()
 		FilesPackingMask = CommonClientServer.AddLastPathSeparator(TempDirectoryName) + "*.xml";
 		DataExchangeServer.PackIntoZipFile(PathToFile + ".zip", FilesPackingMask);
 		
-		// Placing the ZIP archive with the rules in the storage.
+		// 
 		RuleArchiveBinaryData = New BinaryData(PathToFile + ".zip");
 		TempStorageAddress = PutToTempStorage(RuleArchiveBinaryData);
 		DeleteFiles(TempDirectoryName);
@@ -502,7 +506,7 @@ Procedure AllowExternalResourceCompletion(Result, WriteParameters) Export
 	If Result = DialogReturnCode.OK Then
 				
 		If RulesSource = "StandardRulesFromConfiguration" Then
-			// From configuration.
+			// 
 			PerformRuleImport(Undefined, "", False);
 		EndIf;
 		

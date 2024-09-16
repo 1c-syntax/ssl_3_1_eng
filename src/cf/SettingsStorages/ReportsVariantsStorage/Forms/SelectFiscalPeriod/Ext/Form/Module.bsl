@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -27,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ToCustomizeTheFormByLimitingThePeriodOf(ThisObject);
 	
-	// Determine the name of the active period.
+	// 
 	If BegOfDay(BeginOfPeriod) = BegOfDay(EndOfPeriod) Then
 		CurrentItemName = "SelectDay";
 	ElsIf BegOfMonth(BeginOfPeriod) = BegOfMonth(EndOfPeriod) Then
@@ -349,13 +347,13 @@ Procedure ToCustomizeTheFormByLimitingThePeriodOf(Form)
 	
 	FirstYear = (BegOfYear(Form.LowLimit) = Form.YearStartDate);
 	
-	// Select a year.
+	// 
 	Form.SelectedYearLimited = FirstYear;
 	
 	Form.Items.GoBackOneYearAvailable.Visible   = Not FirstYear;
-	Form.Items.GoBackOneYearUnavailable.Visible = FirstYear; // SelectStandardPeriodButtonBackground picture
+	Form.Items.GoBackOneYearUnavailable.Visible = FirstYear; // 
 	
-	// Select a quarter.
+	// 
 	TheMinimumQuarter = ?(Not FirstYear, 1, Month(EndOfQuarter(Form.LowLimit)) / 3);
 	
 	TheNamesOfTheQuartersCumulatively = New Map;
@@ -376,7 +374,7 @@ Procedure ToCustomizeTheFormByLimitingThePeriodOf(Form)
 		
 	EndDo;
 		
-	// Select a month.
+	// 
 	MinimumAMonth = ?(Not FirstYear, 1, Month(Form.LowLimit));
 	For MonthNumber = 1 To 12 Do
 		Form.Items["SelectMonth" + MonthNumber].Enabled = (MonthNumber >= MinimumAMonth);

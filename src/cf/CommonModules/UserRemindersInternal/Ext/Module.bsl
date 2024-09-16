@@ -1,17 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonOverridable.OnAddClientParametersOnStart.
 Procedure OnAddClientParametersOnStart(Parameters) Export
@@ -52,9 +50,9 @@ Procedure OnSendServerNotification(NameOfAlert, ParametersVariants) Export
 		Return;
 	EndIf;
 	
-	// Notifications are added when writing the "UserReminders" information register.
-	// Recurrent notification makes sure that the added notifications
-	// are delivered and the notification list for all users is up to date.
+	// 
+	// 
+	// 
 		
 	UpdateRemindersList(False);
 	
@@ -104,12 +102,12 @@ Procedure OnAddClientParameters(Parameters) Export
 	
 EndProcedure
 
-// Change the reminder text for this subject.
+// 
 // 
 // Parameters:
-//  SubjectOf - AnyRef - Reminder's subject.
-//  Id - String - Describes the reminder's subject. For example, "Birthday".
-//  NewText - String - Reminder text.
+//  SubjectOf - AnyRef -  the subject of the reminder;
+//  Id - String -  specifies the subject of the reminder, for example, "Birthday".
+//  NewText - String -  the reminder text;
 //
 Procedure EditReminderTextOnSubject(SubjectOf, Id, NewText) Export
 	
@@ -178,7 +176,7 @@ Function StandardSchedulesForReminder()
 	
 	Result = New Map;
 		
-	// On Mondays at 9 a.m.
+	// 
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -188,7 +186,7 @@ Function StandardSchedulesForReminder()
 	Schedule.WeekDays = WeekDays;
 	Result.Insert(NStr("en = 'on Mondays at 9.00 AM';"), Schedule);
 	
-	// On Fridays at 3 p.m.
+	// 
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -198,7 +196,7 @@ Function StandardSchedulesForReminder()
 	Schedule.WeekDays = WeekDays;
 	Result.Insert(NStr("en = 'on Fridays at 3.00 PM';"), Schedule);
 	
-	// Every day at 9:00 a.m.
+	// 
 	Schedule = New JobSchedule;
 	Schedule.DaysRepeatPeriod = 1;
 	Schedule.WeeksPeriod = 1;
@@ -230,7 +228,7 @@ EndFunction
 //   SearchForFutureDatesOnly - Boolean
 // 
 // Returns:
-//   Undefined, Date
+//   
 //
 Function NearestEventDateOnSchedule(Schedule, PreviousDate = '000101010000', SearchForFutureDatesOnly = True) Export
 
@@ -579,8 +577,8 @@ Function EventSchedule(Schedule, BeginOfPeriod, EndOfPeriod)
 	
 EndFunction
 
-// Checks attribute changes for the subjects the user subscribed to.
-// If necessary, changes the reminder time.
+// Checks changes to the details of items that have a user subscription,
+// and changes the reminder period if necessary.
 //
 Procedure UpdateRemindersForSubjects(Subjects) Export
 	
@@ -591,7 +589,7 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 	For Each TableRow In ResultTable2 Do
 		SubjectDate = Common.ObjectAttributeValue(TableRow.Source, TableRow.SourceAttributeName);
 		If (SubjectDate - TableRow.ReminderInterval) <> TableRow.EventTime Then
-			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+			// 
 			DisableReminder(TableRow, False);
 			TableRow.ReminderTime = SubjectDate - TableRow.ReminderInterval;
 			TableRow.EventTime = SubjectDate;
@@ -601,7 +599,7 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 			
 			ReminderParameters = Common.ValueTableRowToStructure(TableRow);
 			ReminderParameters.Schedule = TableRow.Schedule.Get();
-			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+			// 
 			Reminder = CreateReminder(ReminderParameters);
 			AttachReminder(Reminder);
 		EndIf;
@@ -654,7 +652,7 @@ Function RemindersBySubjects(Val Subjects)
 	
 EndFunction
 
-// Handler of subscription to event OnWrite object, for which you can create reminders.
+// Handler for subscribing to an event When recording an object for which you can create reminders.
 Procedure CheckForDateChangesInItemWhenRecording(Source, Cancel) Export
 	
 	If Source.DataExchange.Load Then
@@ -671,7 +669,7 @@ Procedure CheckForDateChangesInItemWhenRecording(Source, Cancel) Export
 	
 EndProcedure
 
-// Creates a user reminder. If an object already has a reminder, the procedure shifts reminder time forward by seconds.
+// Creates a reminder for the user. If the item already has a reminder, it moves the reminder time forward by seconds.
 Procedure AttachReminder(ReminderParameters, UpdateReminderPeriod = False, ShouldDisableClientNotifications = False) Export
 	
 	RecordSet = InformationRegisters.UserReminders.CreateRecordSet();
@@ -723,7 +721,7 @@ Procedure AttachReminder(ReminderParameters, UpdateReminderPeriod = False, Shoul
 	
 EndProcedure
 
-// Disables a reminder if any. If the reminder is repeated, the procedure attaches it to the nearest date on the schedule.
+// Disables the reminder, if there is one. If the reminder is periodic, it connects it to the nearest scheduled date.
 Procedure DisableReminder(ReminderParameters, AttachBySchedule = True, ShouldDisableClientNotifications = False) Export
 	
 	QueryText = 
@@ -766,7 +764,7 @@ Procedure DisableReminder(ReminderParameters, AttachBySchedule = True, ShouldDis
 			Reminder = QueryResult[0];
 		EndIf;
 		
-		// Delete the existing record.
+		// 
 		RecordSet = InformationRegisters.UserReminders.CreateRecordSet();
 		If ShouldDisableClientNotifications Then
 			RecordSet.AdditionalProperties.Insert("ShouldDisableClientNotifications");
@@ -776,7 +774,7 @@ Procedure DisableReminder(ReminderParameters, AttachBySchedule = True, ShouldDis
 		RecordSet.Filter.EventTime.Set(ReminderParameters.EventTime);
 		RecordSet.Write();
 		
-		// Attach the next reminder on the schedule.
+		// 
 		NextDateOnSchedule = Undefined;
 		DefinedNextDateOnSchedule = False;
 		
@@ -814,7 +812,7 @@ EndProcedure
 //   * ReminderTimeSettingMethod - EnumRef.ReminderTimeSettingMethods
 //   * ReminderInterval - Number
 //   * SourceAttributeName - String
-//   * Schedule - ValueStorage - the JobSchedule type value
+//   * Schedule - ValueStorage -  the value of the schedule type of the schedule task
 //   * SourcePresentation - String
 //   * Id - String
 //
@@ -853,7 +851,7 @@ Function AttachReminderTillSubjectTime(Text, Interval, SubjectOf, AttributeName,
 	Return Reminder;
 EndFunction
 
-// Returns structure of a new reminder for further attachment.
+// Returns the structure of a new reminder for later activation.
 Function CreateReminder(ReminderParameters)
 	
 	Reminder = UserRemindersClientServer.ReminderDetails(ReminderParameters, True);
@@ -919,7 +917,7 @@ Function NewModifiedReminders() Export
 	
 EndFunction
 
-// Stops overdue repeated reminders.
+// Stops expired periodic reminders.
 Procedure UpdateRemindersList(OnStart)
 	
 	QueryText =
@@ -962,26 +960,26 @@ Procedure UpdateRemindersList(OnStart)
 			Continue;
 		EndIf;
 		
-		// @skip-check query-in-loop - The query does not address infobase data.
+		// 
 		EventScheduleForYear = EventSchedule(Schedule, Reminder.EventTime, AddMonth(Reminder.EventTime, 12) - 1);
-		// @skip-check query-in-loop - The query does not address infobase data.
+		// 
 		ComingEventTime = EventSchedule(Schedule, Reminder.EventTime + 1, CurrentSessionDate());
 		
 		EventTime = Reminder.EventTime;
 		ShouldReconnectOnSchedule = False;
 		IsOverdueReminder = False;
 		
-		// - The next scheduled event time has come.
+		// - 
 		If ComingEventTime.Count() > 0 Then
 			EventTime = ComingEventTime[ComingEventTime.UBound()];
 			ShouldReconnectOnSchedule = True;
 		EndIf;
 		
-		// - Deadline is specified in the job schedule and it is overdue.
+		// - 
 		If ValueIsFilled(Schedule.CompletionTime) And CurrentSessionDate() > (EventTime + (Schedule.CompletionTime - Schedule.BeginTime))
-			// - The reminder is annual and the event happened a month ago.
+			// - 
 			Or EventScheduleForYear.Count() = 1 And CurrentSessionDate() > AddMonth(EventTime, 1)
-			// - The reminder is annual and the event happened a week ago.
+			// - 
 			Or EventScheduleForYear.Count() = 12 And CurrentSessionDate() > EventTime + 60*60*24*7 Then
 				IsOverdueReminder = True;
 		EndIf;
@@ -989,13 +987,13 @@ Procedure UpdateRemindersList(OnStart)
 		If ShouldReconnectOnSchedule Then
 			BeginTransaction();
 			Try
-				// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+				// 
 				DisableReminder(Reminder, IsOverdueReminder, OnStart);
 				
 				If Not IsOverdueReminder Then
 					ReminderParameters = Common.ValueTableRowToStructure(Reminder);
 					ReminderParameters.Schedule = Reminder.Schedule.Get();
-					// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+					// 
 					Reminder = CreateReminder(ReminderParameters);
 					Reminder.EventTime = EventTime;
 					Reminder.ReminderTime = Reminder.EventTime - Reminder.ReminderInterval;
@@ -1013,9 +1011,9 @@ Procedure UpdateRemindersList(OnStart)
 	
 EndProcedure
 
-// Obtains reminders for the current user for the next 30 minutes.
-// The time is shifted to keep the data up to date during the cache lifetime.
-// The functions that accept this function's result should take this into consideration.
+// 
+// 
+// 
 //
 // Returns:
 //  Array of Structure:
@@ -1298,7 +1296,7 @@ Procedure DeleteRemindersBySubject(SubjectOf, AttributeName)
 	RemindersBySubject = UserReminders.FindReminders(SubjectOf);
 	For Each Reminder In RemindersBySubject Do
 		If Lower(Reminder.SourceAttributeName) = Lower(AttributeName) Then
-			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
+			// 
 			DisableReminder(Reminder, False);
 		EndIf;
 	EndDo;

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -72,6 +70,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	DataToChangeMultilanguageAttributes = NationalLanguageSupportServer.DataToChangeMultilanguageAttributes();
 	If DataToChangeMultilanguageAttributes <> Undefined Then
+		If Not DataToChangeMultilanguageAttributes.MainLanguageChanged And Common.IsMainLanguage() Then
+			WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
+		EndIf;
 		ContinueChangingMultilingualDetails = True;
 	EndIf;
 	
@@ -409,14 +410,14 @@ Procedure AfterRefillInBackground(Result, AdditionalParameters) Export
 			Result.ErrorInfo);
 		Return;
 	EndIf;
-	
-	Items.Pages.CurrentPage = Items.CompletedSuccessfullyText;
+
 	RefreshReusableValues();
-	
+
+	Items.Close.DefaultButton = True;
 	Items.OK.Visible              = False;
 	Items.Close.Visible         = True;
-	Items.Close.DefaultButton = True;
-	CurrentItem = Items.Close;
+	CurrentItem                     = Items.Close;
+	Items.Pages.CurrentPage = Items.CompletedSuccessfullyText;
 	
 EndProcedure
 
@@ -576,7 +577,7 @@ Function OldAndNewValuesOfConstants()
 	
 EndFunction
 
-// Time zone.
+// 
 
 &AtServer
 Procedure FillInTimeZones()
@@ -615,9 +616,9 @@ EndProcedure
 &AtClient
 Function CurrentTimeOnTheClient()
 
-	// ACC:143-off To calculate the time offset for the form, CurrentDate is required.
+	// 
 	Return CurrentDate();
-	// ACC:143-on 
+	//  
 	
 EndFunction
 

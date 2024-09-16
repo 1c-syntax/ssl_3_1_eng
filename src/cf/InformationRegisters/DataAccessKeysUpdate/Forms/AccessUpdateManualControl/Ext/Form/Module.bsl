@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -263,7 +261,7 @@ Function ScheduleListsAccessUpdateAtServer()
 	
 EndFunction
 
-// AccessUpdateObjectStartChoice event handler continuation.
+// Continuation of the event handler for the object re-accessorydelection.
 &AtClient
 Procedure BeginSelectUpdateObjectFollowUp(SelectedElement, NotDefined) Export
 	
@@ -280,7 +278,7 @@ Procedure BeginSelectUpdateObjectFollowUp(SelectedElement, NotDefined) Export
 	
 EndProcedure
 
-// Completes the AccessUpdateObjectStartChoice event handler.
+// Completion of the event handler for the object re-accessorydelection.
 &AtClient
 Procedure AccessValueStartChoiceCompletion()
 	

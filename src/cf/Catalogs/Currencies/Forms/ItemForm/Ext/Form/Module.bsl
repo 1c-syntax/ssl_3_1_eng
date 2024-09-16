@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -74,7 +72,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// Basic Additional Data page.
+// 
 
 &AtClient
 Procedure MainCurrencyStartChoice(Item, ChoiceData, StandardProcessing)
@@ -119,7 +117,7 @@ EndProcedure
 &AtServerNoContext
 Procedure PrepareSubordinateCurrencyChoiceData(ChoiceData, Ref)
 	
-	// Prepare a choice list for the child currency so that the child currency itself is excluded from the list.
+	// 
 	// 
 
 	ChoiceData = New ValueList;

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -19,6 +17,13 @@ Var ExternalResourcesAllowed;
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	
+	// 
+	If Not ValueIsFilled(Parameters.ExchangePlanName) Then
+		
+		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		
+	EndIf;
 	
 	ExchangePlanName = Parameters.ExchangePlanName;
 	
@@ -76,7 +81,7 @@ Procedure OnOpen(Cancel)
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 &AtClient
 Procedure AfterCheckFileSystemExtension(Result, AdditionalParameters) Export
 	
@@ -92,7 +97,7 @@ Procedure AfterCheckFileSystemExtension(Result, AdditionalParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 &AtClient
 Procedure DetermineFileExists(Exists, AdditionalParameters) Export
 
@@ -142,7 +147,7 @@ Procedure DetermineFileExists(Exists, AdditionalParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 &AtClient
 Procedure DetermineDirectoryExists(Exists, AdditionalParameters) Export
 	
@@ -155,7 +160,7 @@ Procedure DetermineDirectoryExists(Exists, AdditionalParameters) Export
 	
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 &AtClient
 Procedure SetInformationTitleOnReceive(AdditionalParameters)
 	ToolTipText = SubstituteParametersInFormattedString(AdditionalParameters.TooltipTemplate, 
@@ -338,7 +343,7 @@ EndProcedure
 &AtClient
 Procedure ImportRules(Command)
 	
-	// Importing from file on the client
+	// 
 	NameParts = CommonClientServer.ParseFullFileName(RulesFileName);
 	
 	DialogParameters = New Structure;
@@ -356,7 +361,7 @@ Procedure UnloadRules(Command)
 	
 	NameParts = CommonClientServer.ParseFullFileName(RulesFileName);
 
-	// Export to an archive.
+	// 
 	StorageAddress = GetRuleArchiveTempStorageAddressAtServer();
 	
 	If IsBlankString(StorageAddress) Then
@@ -443,7 +448,7 @@ Procedure ImportRulesCompletion(Val PutFilesResult, Val AdditionalParameters) Ex
 		Return;
 	EndIf;
 		
-	// The file is successfully transferred, importing the file to the server.
+	// 
 	NameParts = CommonClientServer.ParseFullFileName(PutFilesResult.Name);
 	
 	If Lower(NameParts.Extension) <> ".zip" Then
@@ -555,7 +560,7 @@ Procedure ImportRulesAtServer(Cancel, TempStorageAddress, RulesFileName, ErrorDe
 		
 		Modified = False;
 		
-		// Open session cache for the registration mechanism has become obsolete.
+		// 
 		DataExchangeInternal.ResetObjectsRegistrationMechanismCache();
 		RefreshReusableValues();
 		UpdateRuleInfo();
@@ -567,7 +572,7 @@ EndProcedure
 &AtServer
 Function GetRuleArchiveTempStorageAddressAtServer()
 	
-	// Create the temporary directory at the server and generate file paths.
+	// 
 	TempDirectoryName = GetTempFileName("");
 	CreateDirectory(TempDirectoryName);
 	
@@ -605,16 +610,16 @@ Function GetRuleArchiveTempStorageAddressAtServer()
 			
 			If Selection.RulesKind = Enums.DataExchangeRulesTypes.ObjectsConversionRules Then
 				
-				// Get, save to, and archive the conversion rules file in a temporary directory.
+				// 
 				RuleBinaryData = Selection.XMLRules.Get(); // BinaryData
 				RuleBinaryData.Write(PathToFile + ".xml");
 				
-				// Get, save to, and archive peer's conversion rules file in a temporary directory.
+				// 
 				CorrespondentRulesBinaryData = Selection.XMLCorrespondentRules.Get(); // BinaryData
 				CorrespondentRulesBinaryData.Write(CorrespondentFilePath + ".xml");
 				
 			Else
-				// Get, save to, and archive the registration rules file in a temporary directory.
+				// 
 				RegistrationRulesBinaryData = Selection.XMLRules.Get(); // BinaryData
 				RegistrationRulesBinaryData.Write(RegistrationFilePath + ".xml");
 			EndIf;
@@ -624,7 +629,7 @@ Function GetRuleArchiveTempStorageAddressAtServer()
 		FilesPackingMask = CommonClientServer.AddLastPathSeparator(TempDirectoryName) + "*.xml";
 		DataExchangeServer.PackIntoZipFile(PathToFile + ".zip", FilesPackingMask);
 		
-		// Placing the ZIP archive with the rules in the storage.
+		// 
 		RuleArchiveBinaryData = New BinaryData(PathToFile + ".zip");
 		TempStorageAddress = PutToTempStorage(RuleArchiveBinaryData);
 		DeleteFiles(TempDirectoryName);
@@ -772,21 +777,21 @@ Function CreateRequestToUseExternalResources()
 EndFunction
 
 &AtClient
-// Returns a formatted string based on a template (for example, "%1 moved to %2").
+// 
 //
 // Parameters:
-//     Template - String - Generation template.
-//     String1 - String
-//             - FormattedString
-//             - Picture
-//             - Undefined - Value to set.
-//     String2 - String
-//             - FormattedString
-//             - Picture
-//             - Undefined - Value to set.
+//     
+//     
+//             
+//             
+//             
+//     
+//             
+//             
+//             
 //
 // Returns:
-//     FormattedString - Generated from input parameters.
+//     FormattedString - 
 //
 Function SubstituteParametersInFormattedString(Val Template,
 	Val String1 = Undefined, Val String2 = Undefined)
@@ -853,7 +858,7 @@ Function SubstituteParametersInFormattedString(Val Template,
 	
 EndFunction
 
-// Determining the "My Documents" directory of the current Windows user.
+// Defines the "My documents" folder of the current Windows user.
 //
 &AtClient
 Function AppDataDirectory()

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -179,11 +177,11 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// Check the description for uniqueness.
+	// 
 	DigitalSignatureInternal.CheckPresentationUniqueness(
 		DescriptionCertificate, Certificate, "DescriptionCertificate", Cancel);
 		
-	// Validate company value population.
+	// 
 	If Items.CertificateCompany.Visible
 	   And Not Items.CertificateCompany.ReadOnly
 	   And Items.CertificateCompany.AutoMarkIncomplete = True
@@ -390,7 +388,7 @@ Procedure Next(Command)
 	
 EndProcedure
 
-// Continues the Next procedure.
+// Continue the procedure Further.
 &AtClient
 Procedure NextAfterGoToCurrentCertificateSelection(Result, Context) Export
 	
@@ -410,7 +408,7 @@ Procedure NextAfterGoToCurrentCertificateSelection(Result, Context) Export
 	
 EndProcedure
 
-// Continues the Next procedure.
+// Continue the procedure Further.
 &AtClient
 Procedure NextAfterCertificatesListUpdate(Result, Context) Export
 	
@@ -506,13 +504,13 @@ Procedure SelectRef(Command)
 	EndIf;
 EndProcedure
 
-// Continues the SelectRef procedure.
+// 
 &AtClient
 Procedure SelectRefCompletion(Result, Context) Export 
 	Close(Result.Unload());
 EndProcedure
 
-// Continues the Select procedure.
+// Continue with the procedure to Choose.
 &AtClient
 Procedure SelectAfterCertificateCheck(Result, Context) Export
 	
@@ -551,7 +549,7 @@ Procedure SelectAfterCertificateCheck(Result, Context) Export
 	
 EndProcedure
 
-// Continues the Select procedure.
+// Continue with the procedure to Choose.
 &AtClient                                                                   
 Procedure SelectAfterVerifyingTheCloudSignatureCertificate(Result, Context) Export
 	
@@ -587,7 +585,7 @@ Procedure SelectAfterVerifyingTheCloudSignatureCertificate(Result, Context) Expo
 	
 EndProcedure
 
-// Continues the Select procedure.
+// Continue with the procedure to Choose.
 &AtClient
 Procedure SelectAfterCertificateCheckInSaaSMode(Result, Context) Export
 	
@@ -656,10 +654,10 @@ EndProcedure
 
 #Region Private
 
-// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
+// APK: 78-off: for secure data transfer on the client between forms, without sending them to the server.
 &AtClient
 Procedure ContinueOpening(Notification, CommonInternalData) Export
-// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
+// 
 	
 	InternalData = CommonInternalData;
 	DigitalSignatureInternalClient.ProcessPasswordInForm(ThisObject, InternalData, PasswordProperties);
@@ -678,7 +676,7 @@ Procedure ContinueOpening(Notification, CommonInternalData) Export
 	
 EndProcedure
 
-// Continues the ContinueOpening procedure.
+// Continue the procedure continue Opening.
 &AtClient
 Procedure ContinueOpeningAfterGoToChooseCurrentCertificate(Result, Context) Export
 	
@@ -743,7 +741,7 @@ Procedure UpdateCertificatesList(Notification = Undefined)
 	
 EndProcedure
 
-// Continues the UpdateCertificatesList procedure.
+// Continue the procedure to update the list of Certificates.
 &AtClient
 Procedure UpdateCertificatesListFollowUp(Result, Context) Export
 	
@@ -896,7 +894,7 @@ Procedure GoToCurrentCertificateChoice(Notification)
 	
 EndProcedure
 
-// Continues the GoToCurrentCertificateChoice procedure.
+// Continuation of the procedure for re-selecting the current Certificate.
 // 
 // Parameters:
 //   SearchResult - CryptoCertificate
@@ -923,7 +921,7 @@ Procedure GoToCurrentCertificateChoiceAfterCertificateSearch(SearchResult, Conte
 	
 EndProcedure
 
-// Continues the GoToCurrentCertificateChoice procedure.
+// Continuation of the procedure for re-selecting the current Certificate.
 // 
 // Parameters:
 //   SearchResult - Structure:
@@ -954,7 +952,7 @@ Procedure GoToCurrentCertificateChoiceAfterCertificateSearchInCloudService(Searc
 	
 EndProcedure
 
-// Continues the GoToCurrentCertificateChoice procedure.
+// Continuation of the procedure for re-selecting the current Certificate.
 // 
 // Parameters:
 //   SearchResult - Structure:
@@ -984,7 +982,7 @@ Procedure GoToTheCurrentCertificateSelectionAfterSearchingForTheCertificateInThe
 	
 EndProcedure
 
-// Continues the GoToCurrentCertificateChoice procedure.
+// Continuation of the procedure for re-selecting the current Certificate.
 &AtClient
 Async Procedure GoToCurrentCertificateChoiceAfterCertificateExport(ExportedData, Context) Export
 	
@@ -1006,7 +1004,7 @@ Async Procedure GoToCurrentCertificateChoiceAfterCertificateExport(ExportedData,
 	
 EndProcedure
 
-// Continues the GoToCurrentCertificateChoice procedure.
+// Continuation of the procedure for re-selecting the current Certificate.
 &AtClient
 Procedure GoToCurrentCertificateChoiceAfterFillCertificateProperties(Context)
 	

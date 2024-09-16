@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -57,7 +55,7 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 	
-	// If the "Reread" command is called, delete add-in data clipboard
+	// 
 	If IsTempStorageURL(ComponentBinaryDataAddress) Then
 		DeleteFromTempStorage(ComponentBinaryDataAddress);
 	EndIf;
@@ -71,7 +69,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// If there is binary add-in data to be saved, add them to AdditionalProperties.
+	// 
 	If IsTempStorageURL(ComponentBinaryDataAddress) Then
 		ComponentBinaryData = GetFromTempStorage(ComponentBinaryDataAddress);
 		CurrentObject.AdditionalProperties.Insert("ComponentBinaryData", ComponentBinaryData);
@@ -84,8 +82,8 @@ EndProcedure
 &AtServer
 Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	Saved = True; // Saving means successful closing,
-	Parameters.ShowImportFromFileDialogOnOpen = False; // Preventing closing form on error.
+	Saved = True; // 
+	Parameters.ShowImportFromFileDialogOnOpen = False; // 
 	
 EndProcedure
 
@@ -207,14 +205,14 @@ Procedure ImportAddInFromFile()
 	
 EndProcedure
 
-// Continues the ImportAddInFromFile procedure.
+// Continue with the upload component of the File procedure.
 &AtClient
 Procedure ImportAddInAfterSecurityWarning(Response, Context) Export
 	
-	// Response: 
-	// - Continue - Attach the add-in.
-	// - DialogReturnCode.Cancel - Cancel attachment.
-	// - Undefined - Close the dialog.
+	//  
+	// 
+	// 
+	// 
 	If Response <> "Continue" Then
 		ImportAddInOnErrorDisplay();
 		Return;
@@ -231,7 +229,7 @@ Procedure ImportAddInAfterSecurityWarning(Response, Context) Export
 
 EndProcedure
 
-// Continues the ImportAddInFromFile procedure.
+// Continue with the upload component of the File procedure.
 &AtClient
 Procedure ImportAddInAfterPutFile(FileThatWasPut, Context) Export
 	
@@ -254,7 +252,7 @@ Procedure ImportAddInAfterPutFile(FileThatWasPut, Context) Export
 	
 EndProcedure
 
-// Continues the ImportAddInFromFile procedure.
+// Continue with the upload component of the File procedure.
 &AtClient
 Procedure ImportAddInOnErrorDisplay(ErrorDescription = "", ErrorInfo = Undefined)
 	
@@ -277,11 +275,11 @@ Procedure ImportAddInOnErrorDisplay(ErrorDescription = "", ErrorInfo = Undefined
 	
 EndProcedure
 
-// Continues the ImportAddInFromFile procedure.
+// Continue with the upload component of the File procedure.
 &AtClient
 Procedure ImportAddInAfterErrorDisplay(AdditionalParameters) Export
 	
-	// Opened via application interface.
+	// 
 	If Parameters.ShowImportFromFileDialogOnOpen Then 
 		Close();
 	EndIf;
@@ -327,7 +325,7 @@ EndProcedure
 
 #Region ServerLogic
 
-// Server logic of the ImportAddInFromFile procedure.
+// Server logic of the upload component of the File procedure.
 &AtServer
 Function ImportAddInFromFileOnServer(Val ImportParameters)
 	
@@ -362,13 +360,13 @@ Function ImportAddInFromFileOnServer(Val ImportParameters)
 		
 	EndIf;
 	
-	FillPropertyValues(ObjectOfCatalog, Information.Attributes,, "Id"); // According to manifest data.
+	FillPropertyValues(ObjectOfCatalog, Information.Attributes,, "Id"); // 
 	TargetPlatforms = Information.Attributes.TargetPlatforms;
 	
 	If Not ValueIsFilled(ObjectOfCatalog.Id) Then 
 		ObjectOfCatalog.Id = Information.Attributes.Id;
 	EndIf;
-	ObjectOfCatalog.FileName =  ImportParameters.FileName;          // Set file name.
+	ObjectOfCatalog.FileName =  ImportParameters.FileName;          // 
 	ComponentBinaryDataAddress = PutToTempStorage(Information.BinaryData,
 		UUID);
 	
@@ -401,7 +399,7 @@ Function AddInImportResult()
 	
 EndFunction
 
-// Server logic of add-in update from the website.
+// Server logic for updating components from the site.
 &AtServer
 Procedure UpdateCardAfterAddInUpdateFromPortal()
 	
@@ -423,7 +421,7 @@ Procedure SetVisibilityAvailability()
 	
 	Items.Information.Visible = ValueIsFilled(Object.ErrorDescription);
 	
-	// WarningDisplayOnEditParameters
+	// 
 	DisplayWarning = WarningOnEditRepresentation.Show;
 	NotDisplayWarning = WarningOnEditRepresentation.DontShow;
 	If ValueIsFilled(Object.Description) Then
@@ -442,10 +440,10 @@ Procedure SetVisibilityAvailability()
 		Items.Version.WarningOnEditRepresentation = NotDisplayWarning;
 	EndIf;
 	
-	// "Save to file" button availability.
+	// 
 	Items.FormSaveAs.Enabled = Not IsNew;
 	
-	// Dependence of using and automatic update.
+	// 
 	ComponentIsDisabled = (Object.Use = Enums.AddInUsageOptions.isDisabled);
 	Items.UpdateFrom1CITSPortal.Enabled = Not ComponentIsDisabled And CatalogObject.ThisIsTheLatestVersionComponent();
 	
@@ -460,7 +458,7 @@ EndProcedure
 &AtClient
 Function FileNameOnly(SelectedFileName)
 	
-	// It's crucial to use it on the client, as GetPathSeparator() on the server can be different.
+	// 
 	SubstringsArray = StrSplit(SelectedFileName, GetPathSeparator(), False);
 	Return SubstringsArray.Get(SubstringsArray.UBound());
 	

@@ -1,38 +1,36 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Removes an infobase prefix and a company prefix from the ObjectNumber string.
-// The ObjectNumber variable must comply with the following template: CCIB-XXX…XX or IB-XXX…XX, where:
-//    CC - a company prefix.
-//    IB - an infobase prefix.
-//    "-" - a separator.
-//    XXX…XX - an object number/code.
-// Also removes insignificant prefix characters (zeros).
+// Deletes the information base prefix and the company prefix from the passed object Number string.
+// The variable of the number Object must match the template: OOGG-XXX ... XX or GG-XXX...XX, where:
+//    OO is the prefix of the company;
+//    GG - prefix of the information base;
+//    "- "separator;
+//    XXX...XX is the number/code of the object.
+// Non-significant prefix characters (the zero - "0" character) are also removed.
 //
 // Parameters:
-//    ObjectNumber - String - an object number or code from which prefixes are to be removed.
-//    DeleteCompanyPrefix - Boolean - shows whether a company prefix is to be removed.
-//                                         By default, it is equal to False.
-//    DeleteInfobasePrefix - Boolean - shows whether an infobase prefix is to be removed.
-//                                                By default, it is equal to False.
+//    ObjectNumber - String -  the number or code of the object from which you want to remove the prefixes.
+//    DeleteCompanyPrefix - Boolean -  whether to delete the company prefix;
+//                                         the default value is False.
+//    DeleteInfobasePrefix - Boolean -  a sign of the removal of the prefix information base;
+//                                                the default value is False.
 //
 // Returns:
-//     String - an object number without prefixes.
+//     String - 
 //
 // Example:
-//    DeletePrefixesFromObjectNumber("0FGL-000001234", True, True) = "000001234"
-//    DeletePrefixesFromObjectNumber("0FGL-000001234", False, True) = "F-000001234"
-//    DeletePrefixesFromObjectNumber("0FGL-000001234", True, False) = "GL-000001234"
-//    DeletePrefixesFromObjectNumber("0FGL-000001234", False, False) = "FGL-000001234"
+//    Delete object numberrefix ("0FGL-000001234", True, True) = " 000001234"
+//    Delete the prefix of the object's number ("0FGL-000001234", False, True)   = "F-000001234"
+//    Delete object numberrefixs ("0FGL-000001234", True, False) = " GL-000001234"
+//    Delete object numberrefixs ("0FGL-000001234", False, False)     = "FGL-000001234"
 //
 Function DeletePrefixesFromObjectNumber(Val ObjectNumber, DeleteCompanyPrefix = False, DeleteInfobasePrefix = False) Export
 	
@@ -40,7 +38,7 @@ Function DeletePrefixesFromObjectNumber(Val ObjectNumber, DeleteCompanyPrefix = 
 		Return ObjectNumber;
 	EndIf;
 	
-	// Initially blank string of object number prefix.
+	// 
 	ObjectPrefix = "";
 	
 	NumberContainsFiveDigitPrefix = NumberContainsFiveDigitPrefix(ObjectNumber);
@@ -56,14 +54,14 @@ Function DeletePrefixesFromObjectNumber(Val ObjectNumber, DeleteCompanyPrefix = 
 	CompanyPrefix        = StringFunctionsClientServer.DeleteDuplicateChars(CompanyPrefix, "0");
 	InfobasePrefix = StringFunctionsClientServer.DeleteDuplicateChars(InfobasePrefix, "0");
 	
-	// Add a company prefix.
+	// 
 	If Not DeleteCompanyPrefix Then
 		
 		ObjectPrefix = ObjectPrefix + CompanyPrefix;
 		
 	EndIf;
 	
-	// Adding an infobase prefix.
+	// 
 	If Not DeleteInfobasePrefix Then
 		
 		ObjectPrefix = ObjectPrefix + InfobasePrefix;
@@ -79,18 +77,18 @@ Function DeletePrefixesFromObjectNumber(Val ObjectNumber, DeleteCompanyPrefix = 
 	Return ObjectPrefix + Mid(ObjectNumber, ?(NumberContainsFiveDigitPrefix, 6, 4));
 EndFunction
 
-// Removes leading zeros from an object number.
-// The ObjectNumber variable must comply with the following template: CCIB-XXX…XX or IB-XXX…XX, where:
-// CC - a company prefix.
-// IB - an infobase prefix.
-// "-" - a separator.
-// XXX…XX - an object number/code.
+// Removes leading zeros from the object number.
+// The variable of the number Object must match the template: OOGG-XXX ... XX or GG-XXX...XX, where.
+// OO - prefix of the company;
+// GG - prefix of the information base;
+// "- "separator;
+// XXX...XX is the number/code of the object.
 //
 // Parameters:
-//    ObjectNumber - String - an object number or code from which leading zeroes are to be removed.
+//    ObjectNumber - String -  the number or code of the object from which leading zeros are required.
 // 
 // Returns:
-//     String - an object number without leading zeros.
+//     String - 
 //
 Function DeleteLeadingZerosFromObjectNumber(Val ObjectNumber) Export
 	
@@ -113,24 +111,24 @@ Function DeleteLeadingZerosFromObjectNumber(Val ObjectNumber) Export
 		
 	EndIf;
 	
-	// Removing leading zeros from the number.
+	// 
 	Number = StringFunctionsClientServer.DeleteDuplicateChars(Number, "0");
 	
 	Return Prefix + CustomPrefix + Number;
 EndFunction
 
-// Removes all custom prefixes (all nonnumeric characters) from an object number.
-// The ObjectNumber variable must comply with the following template: CCIB-XXX…XX or IB-XXX…XX, where:
-// CC - a company prefix.
-// IB - an infobase prefix.
-// "-" - a separator.
-// XXX…XX - an object number/code.
+// Removes all user prefixes from the object number (all non-numeric characters).
+// The variable of the number Object must match the template: OOGG-XXX ... XX or GG-XXX...XX, where.
+// OO - prefix of the company;
+// GG - prefix of the information base;
+// "- "separator;
+// XXX...XX is the number/code of the object.
 //
 // Parameters:
-//     ObjectNumber - String - an object number or code from which leading zeroes are to be removed.
+//     ObjectNumber - String -  the number or code of the object from which leading zeros are required.
 // 
 // Returns:
-//     String - an object number without custom prefixes.
+//     String - 
 //
 Function DeleteCustomPrefixesFromObjectNumber(Val ObjectNumber) Export
 	
@@ -169,23 +167,23 @@ Function DeleteCustomPrefixesFromObjectNumber(Val ObjectNumber) Export
 	Return Prefix + Number;
 EndFunction
 
-// Gets a custom object number/code prefix.
-// The ObjectNumber variable must comply with the following template: CCIB-AAH…XX or IB-AAH…XX, where:
-// CC - a company prefix.
-// IB - an infobase prefix.
-// "-" - a separator.
-// AA - a custom prefix.
-// XX…XX - an object number/code.
+// Gets a custom prefix for the object number / code.
+// The variable of the number Object must match the pattern: OOGG-AAH...XX or GG-AAH...XX, where.
+// OO - prefix of the company;
+// GG - prefix of the information base;
+// "-" - separator;
+// AA - user prefix;
+// XX..XX - object number / code.
 //
 // Parameters:
-//    ObjectNumber - String - an object number or object code from which a custom prefix is to be received.
+//    ObjectNumber - String -  the number or code of the object from which you want to get a custom prefix.
 // 
 // Returns:
-//     String - a custom prefix.
+//     String - 
 //
 Function CustomPrefix(Val ObjectNumber) Export
 	
-	// Function return value (custom prefix).
+	// 
 	Result = "";
 	
 	If NumberContainsStandardPrefix(ObjectNumber) Then
@@ -215,27 +213,24 @@ Function CustomPrefix(Val ObjectNumber) Export
 	Return Result;
 EndFunction
 
-// Gets a document number for printing, prefixes and leading zeros are removed from the number.
+// Gets the number of the document to print; prefixes and leading zeros are removed from the number.
 // Function:
-//  removes a company prefix,
-// removes an infobase prefix (optional),
-// removes custom prefixes (optional),
-// removes leading zeros from the object number.
+// discards the company prefix,
+// discards the information base prefix (optional),
+// discards user prefixes (optional),
+// and deletes leading zeros in the object number.
 //
 // Parameters:
-//    ObjectNumber - String - an object number or code that is converted for printing.
-//    DeleteInfobasePrefix - Boolean - shows whether an infobase prefix is to be removed.
-//    DeleteCustomPrefix - Boolean - shows whether a custom prefix is to be removed.
+//    ObjectNumber - String -  the number or code of the object that is being converted for printing.
+//    DeleteInfobasePrefix - Boolean -  indicates whether the database prefix is deleted.
+//    DeleteCustomPrefix - Boolean -  indicates whether the user prefix is deleted.
 //
 // Returns:
-//     String - a number for printing.
+//     String - 
 //
 Function NumberForPrinting(Val ObjectNumber, DeleteInfobasePrefix = False, DeleteCustomPrefix = False) Export
 	
-	// {Handler:- an owner object of contact information.
-// FormStructureData - an object containing a tabular section with contact information. Supports
-// hidden kinds of contact information only for already existing objects
-// as it is impossible to set a reference for a new object.} Start
+	// 
 	StandardProcessing = True;
 	
 	ObjectsPrefixesClientServerOverridable.OnGetNumberForPrinting(ObjectNumber, StandardProcessing,
@@ -244,21 +239,21 @@ Function NumberForPrinting(Val ObjectNumber, DeleteInfobasePrefix = False, Delet
 	If StandardProcessing = False Then
 		Return ObjectNumber;
 	EndIf;
-	// {Handler: OnGetNumberForPrinting} End
+	// 
 	
 	ObjectNumber = TrimAll(ObjectNumber);
 	
-	// Removing custom prefixes from the object number.
+	// 
 	If DeleteCustomPrefix Then
 		
 		ObjectNumber = DeleteCustomPrefixesFromObjectNumber(ObjectNumber);
 		
 	EndIf;
 	
-	// Removing leading zeros from the object number.
+	// 
 	ObjectNumber = DeleteLeadingZerosFromObjectNumber(ObjectNumber);
 	
-	// Removing a company prefix and an infobase prefix from the object number.
+	// 
 	ObjectNumber = DeletePrefixesFromObjectNumber(ObjectNumber, True, DeleteInfobasePrefix);
 	
 	Return ObjectNumber;

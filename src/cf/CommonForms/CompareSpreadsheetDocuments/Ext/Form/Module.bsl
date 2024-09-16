@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -137,16 +135,16 @@ Procedure PerformComparison()
 	
 	#Region Comparison
 	
-	// Exporting text from spreadsheet document cells to the value tables.
+	// 
 	LeftDocumentTable = ReadSpreadsheetDocument(SpreadsheetDocumentLeft);
 	RightDocumentTable = ReadSpreadsheetDocument(SpreadsheetDocumentRight);
 	
-	// Comparing the spreadsheet documents by lines and selecting the matching lines.
+	// 
 	Maps1 = GenerateMatches(LeftDocumentTable, RightDocumentTable, True);
 	RowsMapLeft = Maps1[0];
 	RowsMapRight = Maps1[1];
 	
-	// Comparing the spreadsheet documents by columns and selecting the matching columns.
+	// 
 	Maps1 = GenerateMatches(LeftDocumentTable, RightDocumentTable, False);
 	ColumnsMapLeft = Maps1[0];
 	ColumnsMapRight = Maps1[1];
@@ -170,7 +168,7 @@ Procedure PerformComparison()
 	RightTableHeight = SpreadsheetDocumentRight.TableHeight;
 	RightTableWidth = SpreadsheetDocumentRight.TableWidth;
 
-	// Lines that were deleted from the left spreadsheet document.
+	// 
 	For LineNumber = 1 To RowsMapLeft.Count()-1 Do
 		
 		If RowsMapLeft[LineNumber].Value = Undefined Then
@@ -186,7 +184,7 @@ Procedure PerformComparison()
 		
 	EndDo;
 	
-	// Columns that were deleted from the left spreadsheet document.
+	// 
 	For ColumnNumber = 1 To ColumnsMapLeft.Count()-1 Do
 		
 		If ColumnsMapLeft[ColumnNumber].Value = Undefined Then
@@ -202,7 +200,7 @@ Procedure PerformComparison()
 		
 	EndDo;
 	
-	// Lines that were added to the right spreadsheet document.
+	// 
 	For LineNumber = 1 To RowsMapRight.Count()-1 Do
 		
 		If RowsMapRight[LineNumber].Value = Undefined Then
@@ -218,7 +216,7 @@ Procedure PerformComparison()
 		
 	EndDo;
 	
-	// Columns that were added to the right spreadsheet document.
+	// 
 	For ColumnNumber = 1 To ColumnsMapRight.Count()-1 Do
 		
 		If ColumnsMapRight[ColumnNumber].Value = Undefined Then
@@ -234,7 +232,7 @@ Procedure PerformComparison()
 		
 	EndDo;
 	
-	// Cells that were modified.
+	// 
 	For LineNumber1 = 1 To RowsMapLeft.Count()-1 Do
 		
 		LineNumber2 = RowsMapLeft[LineNumber1].Value;
@@ -677,7 +675,7 @@ Function GenerateMatches(LeftTable, TableRight, ByRows)
 			|FROM
 			|	MapsWithConflict AS MapsWithConflict";
 			
-		Selection = Query.Execute().Select(); //@skip-check query-in-loop - Iterative processing of the table
+		Selection = Query.Execute().Select();
 		Selection.Next();
 		ConflictsLevel = Selection.NumberOfConflicts;
 		
@@ -691,7 +689,7 @@ Function GenerateMatches(LeftTable, TableRight, ByRows)
 		TempTablesToDelete.Add("ReplacementMaxWeight");
 		TempTablesToDelete.Add("FoundOptionsConflicts");
 		
-		DeleteTemporaryTables(Query, TempTablesToDelete); //@skip-check query-in-loop - Iterative processing of the table
+		DeleteTemporaryTables(Query, TempTablesToDelete);
 
 	EndDo;
 	

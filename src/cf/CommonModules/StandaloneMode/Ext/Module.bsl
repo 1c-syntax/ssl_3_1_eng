@@ -1,20 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// OnReadAtServer form event handler, which
-// is embedded into item forms
-// (these include forms of catalog items, documents, register records, etc).
-// It locks a form if this is an attempt to modify shared data
-// received from an application running in a standalone workstation.
+// The event handler for the account form in the Server, which
+// is embedded in the forms of data elements
+// (directory elements, documents, register entries, etc.)
+// to block the form if it is an attempt to change undivided data
+// received from the application in an offline workplace.
 //
 // Parameters:
 //  CurrentObject       - CatalogObject
@@ -25,8 +23,8 @@
 //                      - BusinessProcessObject
 //                      - TaskObject
 //                      - ExchangePlanObject
-//                      - InformationRegisterRecordManager - a record manager.
-//  ReadOnly - Boolean - a ReadOnly form property.
+//                      - InformationRegisterRecordManager - 
+//  ReadOnly - Boolean -  the form view property Only.
 //
 Procedure ObjectOnReadAtServer(CurrentObject, ReadOnly) Export
 	
@@ -39,11 +37,11 @@ Procedure ObjectOnReadAtServer(CurrentObject, ReadOnly) Export
 	
 EndProcedure
 
-// Disables automatic synchronization between a web application
-// and a standalone workstation when the password for connection is not specified.
+// Disables automatic syncing between the app on the Internet
+// and the offline workplace in cases when a password is not set to establish a connection.
 //
 // Parameters:
-//  Source - InformationRegisterRecordSet.DataExchangeTransportSettings - a transport settings register record
+//  Source - InformationRegisterRecordSet.DataExchangeTransportSettings -  record of the transport settings register
 //             that was changed.
 //
 Procedure DisableAutoDataSyncronizationWithWebApplication(Source) Export
@@ -52,14 +50,14 @@ Procedure DisableAutoDataSyncronizationWithWebApplication(Source) Export
 	
 EndProcedure
 
-// Reads and sets the notification option about long standalone workstation synchronization.
+// Reads and sets the alarm setting for continuous synchronization of the workstation.
 //
 // Parameters:
-//   FlagValue1     - Boolean - a flag value to be set
-//   SettingDetails - Structure - takes a value for the setting description.
+//   FlagValue1     - Boolean -  set the value of the flag
+//   SettingDetails - Structure -  takes a value to describe the setting.
 //
 // Returns:
-//   Boolean, Undefined - a setting value of the display warning of long-running synchronization.
+//   Boolean, Undefined - 
 //
 Function LongSynchronizationQuestionSetupFlag(FlagValue1 = Undefined, SettingDetails = Undefined) Export
 	
@@ -67,10 +65,10 @@ Function LongSynchronizationQuestionSetupFlag(FlagValue1 = Undefined, SettingDet
 	
 EndFunction
 
-// Returns the password recovery address of the online application account.
+// Returns the address for restoring the app's Internet account password.
 //
 // Returns:
-//   String - an address for account password recovery.
+//   String - 
 //
 Function AccountPasswordRecoveryAddress() Export
 	
@@ -78,15 +76,15 @@ Function AccountPasswordRecoveryAddress() Export
 	
 EndFunction
 
-// Initializes a standalone workstation upon the first start.
-// Fills in a list of users and other settings.
-// It is called before user authorization. It might require restarting the computer.
+// Configures a standalone workstation for the first time.
+// Fills in the list of users and other settings.
+// Called before user authorization. You may need to restart.
 //
 // Parameters:
-//   Parameters - Structure - a parameter structure.
+//   Parameters - Structure -  structure of parameters.
 //
 // Returns:
-//   Boolean - indicates whether it is possible to continue standalone workstation setup.
+//   Boolean - 
 //
 Function ContinueStandaloneWorkstationSetup(Parameters) Export
 	
@@ -146,7 +144,7 @@ Procedure DisablePropertyIB() Export
 	
 EndProcedure
 
-// Intended to be called from the master node reconnection form.
+// 
 // See CommonForm.ReconnectToMasterNode.
 //
 Procedure WhenConfirmingDisconnectionOfCommunicationWithTheMasterNode() Export

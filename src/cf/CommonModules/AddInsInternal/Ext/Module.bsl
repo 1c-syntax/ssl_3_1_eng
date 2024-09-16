@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// 1C-supplied add-ins.
+// 
 // 
 // Returns:
-//  Array - IDs of 1C-supplied add-ins
+//  Array - 
 //
 Function SuppliedAddIns() Export
 
@@ -22,7 +20,7 @@ Function SuppliedAddIns() Export
 		
 EndFunction
 
-// Add-in presentation for the event log
+// Components view for the log
 //
 Function AddInPresentation(Id, Version) Export
 
@@ -36,10 +34,10 @@ Function AddInPresentation(Id, Version) Export
 
 EndFunction
 
-// Checks whether the add-ins import from the portal is allowed.
+// Check whether external components can be downloaded from the portal.
 //
 // Returns:
-//  Boolean - flag of availability.
+//  Boolean -  the availability criterion.
 //
 Function CanImportFromPortal() Export
 
@@ -52,23 +50,23 @@ Function CanImportFromPortal() Export
 
 EndFunction
 
-// Returns information about an add-in from its file.
+// Returns information about the component from the external component file.
 //
 // Parameters:
-//  BinaryData - BinaryData - add-in binary data.
-//  ParseInfoFile - Boolean - whether INFO.XML file data is required
-//          to analyze additionally.
+//  BinaryData - BinaryData -  binary data of the components file.
+//  ParseInfoFile - Boolean -  do I need to further analyze
+//          the file data INFO.XML if there is one.
 //  AdditionalInformationSearchParameters - See AddInsClient.ImportParameters.
 //
 // Returns:
 //  Structure:
-//      * Disassembled - Boolean - True if information about an add-in is successfully extracted.
+//      * Disassembled - Boolean -  True if the component information was successfully extracted.
 //      * Attributes - See AddInAttributes
-//      * BinaryData - BinaryData - add-in file export.
-//      * AdditionalInformation - Map - information received by passed search parameters.
-//      * ErrorDescription - String - an error text if Disassembled = False.
-//      * ErrorInfo - ErrorInfo, Undefined - In case of exception if Disassembled = False.
-//      * IsFileOfService - Boolean - Flag indicating whether the add-in file was downloaded from the 1C:ITS Portal interactively.
+//      * BinaryData - BinaryData -  uploading the components file.
+//      * AdditionalInformation - Map -  information obtained from the passed search parameters.
+//      * ErrorDescription - String -  the text of the error if Parsed = False.
+//      * ErrorInfo - ErrorInfo, Undefined - 
+//      * IsFileOfService - Boolean - 
 //
 Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 	Val AdditionalInformationSearchParameters = Undefined) Export
@@ -102,7 +100,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 
 		If ArchiveItem.Encrypted Then
 
-			// Clear temporary files and memory.
+			// 
 			FileSystem.DeleteTemporaryDirectory(TempDirectory);
 			ReadingArchive.Close();
 			Stream.Close();
@@ -122,7 +120,7 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 				Return Result;
 			EndIf;
 			
-			// Manifest search and parsing.
+			// 
 			If OriginalFullName = "manifest.xml" Then
 
 				Attributes.VersionDate = ArchiveItem.Modified;
@@ -172,12 +170,12 @@ Function InformationOnAddInFromFile(BinaryData, ParseInfoFile = True,
 		EndTry;
 	EndDo;
 
-	// Clear temporary files and memory.
+	// 
 	FileSystem.DeleteTemporaryDirectory(TempDirectory);
 	ReadingArchive.Close();
 	Stream.Close();
 
-	// Add-in compatibility control.
+	// 
 	If Not ManifestIsFound Then
 		ErrorText = NStr("en = 'The required file MANIFEST.XML is missing from the archive.';");
 
@@ -203,8 +201,8 @@ Procedure CheckTheLocationOfTheComponent(Id, Location) Export
 		EndIf;
 	EndIf;
 
-	// In the SaaS mode, it's unsafe to attach add-ins on the 1C:Enterprise server from the "Add-ins" catalog. 
-	// It's acceptable to attach add-ins only from the "Common add-ins" catalog.
+	//  
+	// 
 	If Not (Common.DataSeparationEnabled()
 			And Common.SeparatedDataUsageAvailable()) Then
 		If Not StrStartsWith(Location, "e1cib/data/Catalog.AddIns.AddInStorage") Then
@@ -241,7 +239,7 @@ Function TemplateAddInCompatibilityError(Location) Export
 	
 EndFunction
 
-// Import parameters.
+// Download parameters.
 // 
 // Returns:
 //  Structure:
@@ -249,9 +247,9 @@ EndFunction
 //   * Description - String
 //   * Version - String
 //   * FileName - String
-//   * ErrorDescription - String - information about add-in import
+//   * ErrorDescription - String -  information about downloading components
 //   * UpdateFrom1CITSPortal - Boolean
-//   * Data - String - binary data address to temporary storage 
+//   * Data - String -  address of binary data in temporary storage 
 //          - BinaryData
 //
 Function ImportParameters() Export
@@ -269,12 +267,12 @@ Function ImportParameters() Export
 	
 EndFunction
 
-// Adds a binary data add-in to a catalog.
+// Add a component to the directory from binary data.
 // 
 // Parameters:
 //  Parameters - See ImportParameters
-//  ParseInfoFile - Boolean - whether INFO.XML file data is required
-//          to analyze additionally
+//  ParseInfoFile - Boolean -  is it necessary to analyze
+//          the file data additionally INFO.XML if there is one
 //  UsedAddIns - See UsedAddIns
 //
 Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAddIns = Undefined) Export
@@ -332,7 +330,7 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 			Try
 				TheResultOfComparingVersions = CommonClientServer.CompareVersions(Object.Version, Parameters.Version);
 			Except
-				// Overwrite the add-in if version comparison has failed.
+				// 
 				TheResultOfComparingVersions = -1;
 			EndTry;
 			If TheResultOfComparingVersions >= 0 Then
@@ -341,15 +339,15 @@ Procedure LoadAComponentFromBinaryData(Parameters, ParseInfoFile = True, UsedAdd
 			EndIf;
 		Else
 			Object = Catalogs.AddIns.CreateItem();
-			// Create an add-in instance.
-			Object.Fill(Undefined); // Default constructor.
+			// 
+			Object.Fill(Undefined); // 
 		EndIf;
 		
-		 // According to manifest data.
+		 // 
 		FillPropertyValues(Object, Information.Attributes, , "Description, Version, FileName");
 		
 		Object.Id = Id;
-		// If parameters Description, Version, and FileName are not assigned values, get the values from the information records.
+		// 
 		Object.Description = ?(ValueIsFilled(Parameters.Description), Parameters.Description, Information.Attributes.Description);
 		Object.Version = ?(ValueIsFilled(Parameters.Version), Parameters.Version, Information.Attributes.Version);
 		Object.FileName = ?(ValueIsFilled(Parameters.FileName), Parameters.FileName, Information.Attributes.FileName);
@@ -452,7 +450,7 @@ Procedure OnAddServerNotifications(Notifications) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// ToDoList subsystem event handlers.
+// 
 
 // Parameters:
 //   ToDoList - See ToDoListServer.ToDoList.
@@ -503,7 +501,7 @@ EndProcedure
 
 #Region Private
 
-// Add-ins used in the configuration.
+// 
 // 
 // Returns:
 //  ValueTable:
@@ -522,10 +520,10 @@ Function UsedAddIns() Export
 	
 EndFunction
 
-// Checks whether add-ins can be imported from the portal interactively.
+// 
 //
 // Returns:
-//  Boolean - flag of availability.
+//  Boolean -  the availability criterion.
 //
 Function CanImportFromPortalInteractively() Export
 
@@ -543,12 +541,12 @@ Function CanImportFromPortalInteractively() Export
 
 EndFunction
 
-// Returns a table of add-in details.
+// 
 //
 // Parameters:
-//  Variant - String - Valid values::
-//    ForUpdate - Add-ins from a catalog with the UpdateFrom1CITSPortal flag set.
-//    ForImport - Add-ins used in the configuration.
+//  Variant - String - :
+//    
+//    
 //
 // Returns:
 //   ValueTable:
@@ -770,16 +768,16 @@ Procedure AddAddInVersions(VersionsList, Selection)
 	
 EndProcedure
 
-// Checks whether an add-in from the add-in storage 
-// based on Native API or COM technologies can be attached on 1C:Enterprise server.
+// Checks connectivity on the 1C server:Create an external component from an external component store 
+// that uses the Native API or COM technology.
 //
 // Parameters:
-//   Id - String - the add-in identification code.
-//   Version        - String - an add-in version.
+//   Id - String - 
+//   Version        - String -  version of the component.
 //   ConnectionParameters - See AddInsServer.ConnectionParameters.
 //
 // Returns:
-//   String - brief error message. 
+//   String -  brief description of the error. 
 //
 Function CheckAddInAttachmentAbility(Val Id,
 		Val Version = Undefined,
@@ -916,18 +914,18 @@ Function ImportFromFileIsAvailable()
 EndFunction
 
 // Parameters:
-//   Id - String               - the add-in identification code.
+//   Id - String               - 
 //   Version        - String
-//                 - Undefined - an add-in version.
+//                 - Undefined -  version of the component.
 //   ThePathToTheLayoutToSearchForTheLatestVersion 
-//                 - Undefined
-//                  -String
+//                 - 
+//                 
 //
 // Returns:
 //  Structure:
 //    * CanImportFromPortal - Boolean
 //    * ImportFromFileIsAvailable - Boolean
-//    * State - String - "NotFound", "FoundInStorage", "FoundInSharedStorage", "DisabledByAdministrator" 
+//    * State - String -  "Not Found", "Found Storage", "Found General Storage", " Disabled By The Administrator" 
 //    * Location - String
 //    * Ref - AnyRef
 //    * Attributes - See AddInAttributes
@@ -1350,7 +1348,7 @@ Procedure FillAttributesByInfoXML(InfoXMLFileName, Attributes)
 
 	FileRead = False;
 
-	// TryingToParseByPLFormat
+	// 
 	XMLReader = New XMLReader;
 	XMLReader.OpenFile(InfoXMLFileName);
 
@@ -1376,7 +1374,7 @@ Procedure FillAttributesByInfoXML(InfoXMLFileName, Attributes)
 		Return;
 	EndIf;
 
-	// Trying to parse by EDL format.
+	// 
 	XMLReader = New XMLReader;
 	XMLReader.OpenFile(InfoXMLFileName);
 
@@ -1519,17 +1517,17 @@ Procedure NewAddInsFromPortal(ProcedureParameters, ResultAddress) Export
 
 		BeginTransaction();
 		Try
-			// Create an add-in instance.
+			// 
 			Object = Catalogs.AddIns.CreateItem();
-			Object.Fill(Undefined); // Default constructor
-			FillPropertyValues(Object, Information.Attributes); // According to manifest data.
-			FillPropertyValues(Object, ResultString1); // By data from the website.
+			Object.Fill(Undefined); // 
+			FillPropertyValues(Object, Information.Attributes); // 
+			FillPropertyValues(Object, ResultString1); // 
 			Object.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Imported from 1C:ITS Portal. %1.';"), CurrentSessionDate());
 			Object.TargetPlatforms = New ValueStorage(Information.Attributes.TargetPlatforms);
 			Object.AdditionalProperties.Insert("ComponentBinaryData", Information.BinaryData);
 
-			If Not ValueIsFilled(Version) Then // If the specific version is requested, then skip.
+			If Not ValueIsFilled(Version) Then // 
 				Object.UpdateFrom1CITSPortal = Object.ThisIsTheLatestVersionComponent()
 					And ProcedureParameters.AutoUpdate;
 			EndIf;

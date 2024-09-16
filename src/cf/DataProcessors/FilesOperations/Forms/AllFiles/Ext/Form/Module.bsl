@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -197,7 +195,7 @@ Procedure AfterDeleteData(Result, AdditionalParameters) Export
 	
 EndProcedure
 
-// File commands are available. There is at least one row in the list and grouping is not selected.
+// File commands are available - there is at least one line in the list and no grouping is selected.
 &AtClient
 Function FileCommandsAvailable()
 	

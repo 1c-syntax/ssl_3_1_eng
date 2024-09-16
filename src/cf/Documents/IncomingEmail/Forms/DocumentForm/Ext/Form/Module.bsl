@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -20,7 +18,7 @@ Var ChoiceContext;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Disable creation of new mail messages.
+	// 
 	If Not ValueIsFilled(Object.Ref) Then
 		Cancel = True;
 		Return;
@@ -39,7 +37,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ReviewAfter.Enabled = False;
 	EndIf;
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("ItemForPlacementName", "AdditionalAttributesPage");
@@ -53,7 +51,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.CommentPage.Picture = CommonClientServer.CommentPicture(Object.Comment);
 	EndIf;
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -65,14 +63,14 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// StandardSubsystems.Properties
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
 	EndIf;
 	// End StandardSubsystems.Properties
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -127,7 +125,7 @@ Procedure OnReadAtServer(CurrentObject)
 	SenderPresentation = InteractionsClientServer.GetAddresseePresentation(
 		Object.SenderPresentation, Object.SenderAddress,"");
 	
-	// Generating the To and CC presentation.
+	// 
 	RecipientsPresentation =
 		InteractionsClientServer.GetAddressesListPresentation(Object.EmailRecipients, False);
 	CCRecipientsPresentation =
@@ -146,21 +144,21 @@ Procedure OnReadAtServer(CurrentObject)
 	InteractionsClientServer.CheckContactsFilling(Object, ThisObject, "IncomingEmail");
 	Items.CommentPage.Picture = CommonClientServer.CommentPicture(Object.Comment);
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.Properties
 	
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -172,7 +170,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
-	// StandardSubsystems.Properties
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		If ModulePropertyManagerClient.ProcessNotifications(ThisObject, EventName, Parameter) Then
@@ -216,7 +214,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteMode, PostingMode)
 		SetNotificationSendingFlag(Object.Ref, True);
 	EndIf;
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.BeforeWriteAtServer(ThisObject, CurrentObject);
@@ -235,7 +233,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -249,7 +247,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// StandardSubsystems.Properties
+	// 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.FillCheckProcessing(ThisObject, Cancel, CheckedAttributes);
@@ -275,7 +273,7 @@ EndProcedure
 &AtClient
 Procedure DetailsPagesAdditionalOnCurrentPageChange(Item, CurrentPage)
 	
-	// StandardSubsystems.Properties
+	// 
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties")
 		And CurrentPage.Name = "AdditionalAttributesPage"
 		And Not PropertiesParameters.DeferredInitializationExecuted Then
@@ -375,7 +373,7 @@ Procedure FillClarifiedContacts(Result)
 	SenderPresentation = InteractionsClientServer.GetAddresseePresentation(
 		Object.SenderPresentation, Object.SenderAddress, "");
 	
-	// Generating the To and CC presentation.
+	// 
 	RecipientsPresentation       =
 		InteractionsClientServer.GetAddressesListPresentation(Object.EmailRecipients, False);
 	CCRecipientsPresentation  =
@@ -539,7 +537,7 @@ Procedure AttachmentProperties(Command)
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// 
 
 &AtClient
 Procedure UpdateAdditionalAttributesDependencies()
@@ -733,7 +731,7 @@ Procedure SelectEncodingAfterCompletion(SelectedElement, AdditionalParameters) E
 
 EndProcedure
 
-// StandardSubsystems.Properties
+// 
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -810,7 +808,7 @@ Procedure ReadHTMLEmailText()
 	SetSecurityWarningVisiblity();
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -458,9 +456,8 @@ EndProcedure
 
 #Region Private
 
-//CLIENT ///////////////////////////////////////////
 
-// Ending the form closing dialog.
+// The completion of the dialog form is closed.
 &AtClient
 Procedure FormClosingCompletion1(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult = DialogReturnCode.Yes Then
@@ -665,7 +662,6 @@ Procedure NotifyFormsAboutChange(ReferencesArrray)
 	StandardSubsystemsClient.NotifyFormsAboutChange(ReferencesArrray);
 EndProcedure
 
-//SERVER ///////////////////////////////////////////
 
 &AtServer
 Procedure InsertFromClipboardInitialization()
@@ -818,7 +814,7 @@ Procedure ExecuteStepFillTableWithDataAtServer(SelectionRowDetails)
 	
 EndProcedure
 
-// Returns import parameters stored in the form attribute.
+// Returns the upload parameters that are stored in the form details.
 // 
 // Returns:
 //   See ImportDataFromFile.ImportFromFileParameters
@@ -1190,7 +1186,7 @@ Procedure ExecuteDataToImportMappingStepClient()
 			FilterConflict1 = New Structure("RowMappingResult", ImportDataFromFileClientServer.StatusAmbiguity());
 			If DataMappingTable.FindRows(FilterNotMapped).Count() = 0
 				And DataMappingTable.FindRows(FilterConflict1).Count() = 0 Then
-				// All rows are mapped.
+				// 
 				ProceedToNextStepOfDataImport();
 			EndIf;
 			
@@ -1640,7 +1636,7 @@ Function ConditionsBySelectedColumns(CatalogName)
 				
 				ColumnType = Column.ColumnType.Types()[0];
 				If TypeOf(ColumnType) = Type("String") And Column.ColumnType.StringQualifiers.Length = 0 Then
-					Continue; // It is not allowed to compare lines of unlimited length.
+					Continue; // 
 				EndIf;
 				
 				ColumnTypeObjects = Metadata.FindByType(ColumnType);
@@ -1676,11 +1672,11 @@ Function ConditionsBySelectedColumns(CatalogName)
 					For Each InputString In Catalog.InputByString Do 
 						If InputString.Name = "Code" And Not Catalog.Autonumbering Then 
 							InputByStringConditionText = StringFunctionsClientServer.SubstituteParametersToString(
-								"MappingCatalog.%1.Code %2 MappingTable.%3", // ACC:1297 - The query fragment is not localizable.
+								"MappingCatalog.%1.Code %2 MappingTable.%3", // 
 								CatalogColumnName, ComparisonTypeSSL, Column.ColumnName);
 						Else
 							InputByStringConditionText = StringFunctionsClientServer.SubstituteParametersToString(
-								"MappingCatalog.%1.%2 %3 MappingTable.%4", // ACC:1297 - The query fragment is not localizable.
+								"MappingCatalog.%1.%2 %3 MappingTable.%4", // 
 								CatalogColumnName, InputString.Name, ComparisonTypeSSL, Column.ColumnName);
 						EndIf;
 						ConditionTextCatalog.Add(InputByStringConditionText);
@@ -2244,7 +2240,7 @@ Procedure CreateMappingTableByColumnsInformationAuto(MappingObjectTypeDetails)
 	For Each Column In TemporarySpecification.Columns Do
 		NewItem = Items.Add(StringFunctionsClientServer.SubstituteParametersToString("%1_%2",
 			ImportDataFromFileClientServer.MappingTablePrefix(), Column.Name),
-			Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForInputField
+			Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForATextBox
 		NewItem.Type = FormFieldType.InputField;
 		NewItem.DataPath = "DataMappingTable." + Column.Name;
 		NewItem.Title = Column.Title;
@@ -2325,7 +2321,7 @@ Procedure CreateMappingTableByColumnsInformation()
 	For Each Column In TemporarySpecification.Columns Do
 		NewItem = Items.Add(StringFunctionsClientServer.SubstituteParametersToString("%1_%2",
 			ImportDataFromFileClientServer.MappingTablePrefix(), Column.Name),
-			Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForInputField
+			Type("FormField"), Items.DataMappingTable); // FormFieldExtensionForATextBox
 		NewItem.Type = FormFieldType.InputField;
 		NewItem.DataPath = "DataMappingTable." + Column.Name;
 		NewItem.Title = Column.Title;
@@ -2562,7 +2558,6 @@ Function BatchAttributesModificationAtServer(UpperPosition, LowerPosition)
 	Return ReferencesArrray;
 EndFunction
 
-//File management //////////////////////
 
 &AtClient
 Procedure AfterFileChoiceForSaving(Result, AdditionalParameters) Export
@@ -2762,7 +2757,7 @@ EndProcedure
 
 #Region BackgroundJobs
 
-// Background import of file with data
+// 
 
 &AtServer
 Function ImportFileWithDataToSpreadsheetDocumentAtServer(TempStorageAddress, Extension)
@@ -2819,7 +2814,7 @@ Procedure AfterImportDataFileToSpreadsheetDocument(Result, AdditionalParameters)
 	
 EndProcedure
 
-// Background mapping of imported data
+// 
 
 &AtServer
 Function MapDataToImportAtServerUniversalImport()
@@ -2867,7 +2862,7 @@ Procedure AfterMapImportedData(Result, AdditionalParameters) Export
 	
 EndProcedure
 
-// Background recording of imported data
+// 
 
 &AtServer
 Function RecordDataToImportReportUniversalImport()
@@ -2924,7 +2919,7 @@ Procedure FillMappingTableFromTempStorage(AddressInTempStorage, RefsToNotificati
 	
 EndProcedure
 
-// Background report generation.
+// 
 
 &AtServer
 Function GenerateReportOnImport(ReportType = "AllItems",  CalculateProgressPercent = False)
@@ -2951,7 +2946,7 @@ EndFunction
 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.NewResultLongOperation
-//  AdditionalParameters - Undefined
+//  
 //
 &AtClient
 Procedure AfterCreateReport(Result, AdditionalResults) Export

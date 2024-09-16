@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Generates a signature file name from a template.
+// Generates the name of the signature file using a template.
 //
 Function SignatureFileName(BaseName, CertificateOwner, SignatureFilesExtension, SeparatorRequired = True) Export
 	
@@ -31,7 +29,7 @@ Function SignatureFileName(BaseName, CertificateOwner, SignatureFilesExtension, 
 
 EndFunction
 
-// Generates a certificate file name from a template.
+// Generates the certificate file name using a template.
 //
 Function CertificateFileName(BaseName, CertificateOwner, CertificateFilesExtension, SeparatorRequired = True) Export
 	
@@ -55,17 +53,17 @@ Function CertificateFileName(BaseName, CertificateOwner, CertificateFilesExtensi
 	
 EndFunction
 
-// Constructor of the result of the CA list check.
+// 
 // 
 // Returns:
-//  Structure - Constructor of the result of the default CA check.:
-//   * Valid_SSLyf - Boolean - Flag indicating whether the CA is valid on the date or the check was not performed 
-//                 (the certificate is unqualified or CA is missing from the list of qualified CAs)
-//   * FoundintheListofCAs - Boolean - Qualified certificate flag
-//   * IsState - Boolean - Flag indicating whether the CA is trusted and some checks must be skipped.
-//                                For example, in Russia, they include: Treasury of the Russian Federation, Bank of Russia,
-//   Federal Tax Service Certification Authority.
-//   * ThisIsQualifiedCertificate - Boolean - Flag indicating whether the certificate was issued during a CA accreditation period.
+//  Structure - :
+//   * Valid_SSLyf - Boolean -  
+//                 
+//   * FoundintheListofCAs - Boolean - 
+//   * IsState - Boolean - 
+//                                
+//   
+//   * ThisIsQualifiedCertificate - Boolean - 
 //   * Warning - See WarningWhileVerifyingCertificateAuthorityCertificate
 //
 Function DefaultCAVerificationResult() Export
@@ -82,12 +80,12 @@ Function DefaultCAVerificationResult() Export
 EndFunction
 
 // Returns:
-//   Structure - Error or warning on the certificate.:
+//   Structure - :
 //   * ErrorText - String
-//   * PossibleReissue - Boolean - Flag indicating whether users can apply for a new certificate from the application.
-//   * Cause - String - Error reason for display in the extended error form.
-//   * Decision - String - Solution for display in the extended error form.
-//   * AllowSigning - Boolean - It can be allowed in the user settings.
+//   * PossibleReissue - Boolean - 
+//   * Cause - String - 
+//   * Decision - String - 
+//   * AllowSigning - Boolean - 
 //
 Function WarningWhileVerifyingCertificateAuthorityCertificate() Export
 	
@@ -121,9 +119,18 @@ Function ErrorTextFailedToDefineApp(Error) Export
 	
 EndFunction
 
+Procedure FillInVerificationResultCertificateUnqualified(CheckParameters, Result) Export
+	If CheckParameters.VerifyCertificate = OnlyQualified() Then
+		ErrorText = NStr("en = 'The certificate is non-qualified. A signature made with such a certificate is not legally binding.';");
+		Result.Valid_SSLyf = False;
+		Result.Warning.ErrorText = ErrorText;
+		Result.Warning.AllowSigning = False;
+	EndIf;
+EndProcedure
+
 // Returns:
 //   String
-//   Array of See NewExtendedApplicationDetails
+//    An array of  See NewExtendedApplicationDetails
 //
 Function CryptoProvidersSearchResult(CryptoProvidersResult, ServerName = "") Export
 	
@@ -171,17 +178,17 @@ Function CryptoProvidersSearchResult(CryptoProvidersResult, ServerName = "") Exp
 	
 EndFunction
 
-// Address of the revocation list located on a different resource.
+// 
 // 
 // Parameters:
-//  CertificateAuthorityName - String - Issuer's name (Latin letters)
+//  CertificateAuthorityName - String - 
 //  Certificate  - BinaryData
 //              - String
 // 
 // Returns:
 //  Structure:
-//   * InternalAddress - String - ID for searching within the infobase
-//   * ExternalAddress - String - Resource address (for downloading)
+//   * InternalAddress - String - 
+//   * ExternalAddress - String - 
 //
 Function RevocationListInternalAddress(CertificateAuthorityName, Certificate) Export
 	
@@ -189,14 +196,14 @@ Function RevocationListInternalAddress(CertificateAuthorityName, Certificate) Ex
 	
 EndFunction
 
-// Determines the type of cryptographic data.
+// 
 // 
 // Parameters:
 //  Data - BinaryData
-//         - String - Data address
+//         - String - 
 // 
 // Returns:
-//  Undefined, String - Signature, EncryptedData, or Certificate
+//  Undefined, String - 
 //
 Function DefineDataType(Data) Export
 	
@@ -243,13 +250,13 @@ Function DefineDataType(Data) Export
 	
 EndFunction
 
-// Certificates up to the root one.
+// 
 // 
 // Parameters:
 //  Certificates - Array of CryptoCertificate
 // 
 // Returns:
-//  Array of CryptoCertificate - Certificates up to the root one.
+//  Array of CryptoCertificate - 
 //
 Function CertificatesInOrderToRoot(Certificates) Export
 	
@@ -282,7 +289,7 @@ Function AppsRelevantAlgorithms() Export
 	
 EndFunction
 
-// Add-in connection details (ExtraCryptoAPI).
+// Description of the connection of the external component (Extracryptoapi).
 //
 // Returns:
 //  Structure:
@@ -303,7 +310,7 @@ EndFunction
 
 #Region Private
 
-// Constructor for reading signature properties.
+// 
 // 
 // Returns:
 //   See DigitalSignature.SignatureProperties
@@ -626,12 +633,12 @@ Function DefineApp(CertificateProperties,
 			Continue;
 		EndIf;
 		
-		// If multiple apps installed, CryptoPro has a priority.
+		// 
 		If StrFind(Application, "CryptoPro") Then
 			Return InstalledCryptoProvider;
 		EndIf;
 		
-		// If multiple apps installed, Microsoft Enhanced CSP has a priority.
+		// 
 		If StrFind(Application, "MicrosoftEnhanced") Then
 			Return InstalledCryptoProvider;
 		EndIf;
@@ -645,7 +652,7 @@ Function DefineApp(CertificateProperties,
 		AlgorithmsIDs = IDsOfSignatureAlgorithms(True);
 		SignAlgorithm = AlgorithmByOID(CertificateProperties.AlgorithmOfPublicKey, AlgorithmsIDs, False);
 		
-		ErrorTemplate = NStr("en = 'Didn''t find apps supporting this signing algorithm: %1.';");
+		ErrorTemplate = NStr("en = 'Couldn''t find any apps that are configured for this signature algorithm: %1.';");
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 			TrimAll(StrSplit(SignAlgorithm, ",")[0]));
 			
@@ -662,12 +669,12 @@ Function ApplicationSearchKeyByNameWithType(Name, Type) Export
 EndFunction
 
 //  Returns:
-//   Structure - Contains operation errors occurred in the apps:
-//     * ErrorDescription  - String - a full error description (when returned as a string).
-//     * ErrorTitle - String - an error title that matches the operation
-//                                  when there is one operation (not filled in when there are several operations).
-//     * Shared3           - Boolean - if True, then one error is common for all applications.
-//     * ComputerName   - String - the computer name when executing the operation on the server side.
+//   Structure - :
+//     * ErrorDescription  - String -  full description of the error when it is returned as a string.
+//     * ErrorTitle - String -  error header that corresponds
+//                                  to the operation when there is one operation (not filled in when there are several operations).
+//     * Shared3           - Boolean -  if True, then one error is common to all programs.
+//     * ComputerName   - String -  name of the computer when performing the operation on the server side.
 //     * Errors          - Array of See NewErrorProperties
 //
 Function NewErrorsDescription(ComputerName = "") Export
@@ -683,24 +690,24 @@ Function NewErrorsDescription(ComputerName = "") Export
 	
 EndFunction
 
-// Returns the execution error properties of one operation by one application.
+// Returns the error properties of a single operation performed by a single program.
 //
 // Returns:
 //  Structure:
-//   * ErrorTitle   - String - an error title that matches the operation
-//                           when there are several operations (not filled in when there is one operation).
-//   * LongDesc          - String - a short error presentation.
-//   * FromException      - Boolean - a description contains a brief error description.
-//   * NoExtension     - Boolean - Flag indicating whether the 1C:Enterprise Extension failed to attach (needs to be installed).
-//   * ToAdministrator   - Boolean - administrator rights are required to patch an error.
-//   * Instruction        - Boolean - to correct, instruction on how to work with the digital signature applications is required.
-//   * ApplicationsSetUp - Boolean - to fix an error, you need to configure the applications.
+//   * ErrorTitle   - String -  error header that corresponds
+//                           to the operation when there are several operations (not filled in when there is only one operation).
+//   * LongDesc          - String -  a brief representation of the error.
+//   * FromException      - Boolean -  the error description contains a brief overview of the error information.
+//   * NoExtension     - Boolean - 
+//   * ToAdministrator   - Boolean -  administrator rights are required to fix the error.
+//   * Instruction        - Boolean -  to fix it, you need instructions for working with the EP programs.
+//   * ApplicationsSetUp - Boolean -  to fix the error, you need to configure the programs.
 //   * Application         - CatalogRef.DigitalSignatureAndEncryptionApplications
-//                       - String - if it is not
-//                           filled in, it means an error is common for all applications.
-//   * NoAlgorithm      - Boolean - the crypto manager does not support the algorithm specified
-//                                  for its creation in addition to the specified application.
-//   * PathNotSpecified      - Boolean - the path required for Linux OS is not specified for the application.
+//                       - String -  if it is not
+//                           filled in, it means an error common to all programs.
+//   * NoAlgorithm      - Boolean -  the cryptography Manager does not support the algorithm specified
+//                                  for creating it in addition to the specified program.
+//   * PathNotSpecified      - Boolean -  the program does not specify the path required for Linux.
 //
 Function NewErrorProperties() Export
 	
@@ -723,7 +730,7 @@ Function NewErrorProperties() Export
 	
 EndFunction
 
-// Error message of the ExtraCryptoAPI call.
+// 
 // 
 // Parameters:
 //  MethodName - String
@@ -740,13 +747,13 @@ Function ErrorCallMethodComponents(MethodName, ErrorInfo) Export
 	
 EndFunction
 
-// Error text for revoked certificates.
+// 
 // 
 // Parameters:
 //  SignatureVerificationResult - See DigitalSignatureClientServer.SignatureVerificationResult
 // 
 // Returns:
-//  String - Error text for revoked certificates
+//  String - 
 //
 Function ErrorTextForRevokedSignatureCertificate(SignatureVerificationResult) Export
 	
@@ -881,7 +888,7 @@ EndFunction
 //  IsLinux - Boolean
 //  Errors - Array
 //  IsServer - Boolean
-//  ApplicationsPathsAtLinuxServers -String
+//  Putyprogrammserverslinux-String
 // 
 // Returns:
 //  Structure:
@@ -949,7 +956,7 @@ EndFunction
 // Parameters:
 //  ApplicationDetails - Structure:
 //    * Ref - CatalogRef.DigitalSignatureAndEncryptionApplications
-//  SignAlgorithms - Array of String
+//  Algorithmsubscription-An array of Strings
 //  SignAlgorithm - String
 //  Errors - Array of See NewErrorProperties
 //  IsServer - Boolean
@@ -979,7 +986,7 @@ Function CryptoManagerSignAlgorithmSupported(ApplicationDetails, Operation,
 	EndIf;
 	
 	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'The application does not support the signing algorithm %1.';"),
+		NStr("en = 'The app does not support signature algorithm %1.';"),
 		TrimAll(StrSplit(PossibleAlgorithms, ",")[0]));
 	
 	CryptoManagerAddError(Errors, ApplicationDetails.Ref, ErrorText, IsServer, True);
@@ -1014,7 +1021,7 @@ Function CryptoManagerAlgorithmsSet(ApplicationDetails, Manager, Errors) Export
 		Manager.SignAlgorithm = SignAlgorithm;
 	Except
 		Manager = Undefined;
-		// 1C:Enterprise uses a vague message "Unknown crypto algorithm". Need to replace with a more specific message.
+		// 
 		CryptoManagerAddError(Errors, ApplicationDetails.Ref, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Unknown signature algorithm ""%1"" is selected.';"), SignAlgorithm), True);
 		Return False;
@@ -1025,9 +1032,9 @@ Function CryptoManagerAlgorithmsSet(ApplicationDetails, Manager, Errors) Export
 		Manager.HashAlgorithm = HashAlgorithm;
 	Except
 		Manager = Undefined;
-		// 1C:Enterprise uses a vague message "Unknown crypto algorithm". Need to replace with a more specific message.
+		// 
 		CryptoManagerAddError(Errors, ApplicationDetails.Ref, StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Unknown hash algorithm ""%1"" is selected.';"), HashAlgorithm), True);
+			NStr("en = 'Unknown hashing algorithm ""%1"" is selected.';"), HashAlgorithm), True);
 		Return False;
 	EndTry;
 	
@@ -1036,7 +1043,7 @@ Function CryptoManagerAlgorithmsSet(ApplicationDetails, Manager, Errors) Export
 		Manager.EncryptAlgorithm = EncryptAlgorithm;
 	Except
 		Manager = Undefined;
-		// 1C:Enterprise uses a vague message "Unknown crypto algorithm". Need to replace with a more specific message.
+		// 
 		CryptoManagerAddError(Errors, ApplicationDetails.Ref, StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Unknown encryption algorithm ""%1"" is selected.';"), EncryptAlgorithm), True);
 		Return False;
@@ -1046,7 +1053,7 @@ Function CryptoManagerAlgorithmsSet(ApplicationDetails, Manager, Errors) Export
 	
 EndFunction
 
-// For the CryptoManagerAlgorithmsSet function.
+// For the function managercriptographyalgorithms are Set.
 Function BackwardCompatibilityViolationInViPNetCSP44Bypassed(ApplicationDetails, Manager)
 	
 	SignAlgorithm     = String(ApplicationDetails.SignAlgorithm);
@@ -1056,15 +1063,15 @@ Function BackwardCompatibilityViolationInViPNetCSP44Bypassed(ApplicationDetails,
 #If WebClient Then
 	
 	If NamesOfSignatureAlgorithmsGOST_34_10_2012_256().Find(SignAlgorithm) <> Undefined Then
-		SignAlgorithm = "1.2.643.7.1.1.1.1"; // GOST 34.10-2012 256
+		SignAlgorithm = "1.2.643.7.1.1.1.1"; // 
 	ElsIf NamesOfSignatureAlgorithmsGOST_34_10_2012_512().Find(SignAlgorithm) <> Undefined Then
-		SignAlgorithm = "1.2.643.7.1.1.1.2"; // GOST 34.10-2012 512
+		SignAlgorithm = "1.2.643.7.1.1.1.2"; // 
 	EndIf;
 
 	If NamesOfHashingAlgorithmsGOST_34_11_2012_256().Find(HashAlgorithm) <> Undefined Then
-		HashAlgorithm = "1.2.643.7.1.1.2.2"; // GOST 34.11-2012 256
+		HashAlgorithm = "1.2.643.7.1.1.2.2"; // 
 	ElsIf NamesOfHashingAlgorithmsGOST_34_11_2012_512().Find(HashAlgorithm) <> Undefined Then
-		HashAlgorithm = "1.2.643.7.1.1.2.3"; // GOST 34.11-2012 512
+		HashAlgorithm = "1.2.643.7.1.1.2.3"; // 
 	EndIf;
 
 #Else
@@ -1227,9 +1234,9 @@ Procedure CryptoManagerFillErrorsPresentation(ErrorsDescription,
 		
 	If ErrorsDescription.Errors.Count() = 0 Then
 		If Not ValueIsFilled(SignAlgorithm) Then
-			ErrorText = NStr("en = 'No digital signing and encryption app is configured.';");
+			ErrorText = NStr("en = 'Couldn''t find any configured digital signing and encryption apps.';");
 		Else
-			ErrorTemplate = NStr("en = 'No digital signing and encryption app is configured for this signing algorithm: %1.';");
+			ErrorTemplate = NStr("en = 'Couldn''t find any apps that are configured for this signature algorithm: %1.';");
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				TrimAll(StrSplit(SignAlgorithm, ",")[0]));
 		EndIf;
@@ -1329,7 +1336,7 @@ EndFunction
 // For internal use only.
 Function CertificateAddingErrorTitle(Operation, ComputerName = "") Export
 	
-	If ValueIsFilled(ComputerName) Then // IsServer flag.
+	If ValueIsFilled(ComputerName) Then // 
 		If Operation = "Signing" Then
 			TitleTemplate1 = NStr("en = 'Cannot pass the signing check on the server %1 due to:';");
 		ElsIf Operation = "Encryption" Then
@@ -1513,7 +1520,7 @@ Function StorageTypeToSearchCertificate(InPersonalStorageOnly) Export
 	ElsIf InPersonalStorageOnly Then
 		StoreType = CryptoCertificateStoreType.PersonalCertificates;
 	Else
-		StoreType = Undefined; // The storage that contains certificates of all available types.
+		StoreType = Undefined; // 
 	EndIf;
 	
 	Return StoreType;
@@ -1544,7 +1551,7 @@ Procedure AddCertificatesProperties(Table, CertificatesArray, NoFilter,
 		AlreadyAddedCertificatesThumbprints = Table;
 		AtServer = False;
 	Else
-		AlreadyAddedCertificatesThumbprints = New Map; // Skip duplicates.
+		AlreadyAddedCertificatesThumbprints = New Map; // 
 		AtServer = TypeOf(Table) <> Type("Array");
 	EndIf;
 	
@@ -1554,7 +1561,7 @@ Procedure AddCertificatesProperties(Table, CertificatesArray, NoFilter,
 		
 		If CertificateDates.EndDate <= CurrentSessionDate Then
 			If Not NoFilter Then
-				Continue; // Skip overdue certificates.
+				Continue; // 
 			EndIf;
 		EndIf;
 		
@@ -1581,7 +1588,7 @@ Procedure AddCertificatesProperties(Table, CertificatesArray, NoFilter,
 				If InCloudService Then
 					String.InCloudService = True;
 				EndIf;
-				Continue; // Skipping certificates already added on the client.
+				Continue; // 
 			EndIf;
 		EndIf;
 		
@@ -1630,7 +1637,7 @@ Procedure AddCertificatesThumbprints(Array, CertificatesArray, UTCOffset, Curren
 			CertificateDates = CertificateDates(CurrentCertificate, UTCOffset);
 			
 			If CertificateDates.EndDate <= CurrentSessionDate Then
-				Continue; // Skipping overdue certificates.
+				Continue; // 
 			EndIf;
 		EndIf;
 		If Array.Find(Thumbprint) = Undefined Then
@@ -1643,11 +1650,11 @@ EndProcedure
 // For internal use only.
 // 
 // Parameters:
-//  SignatureBinaryData - BinaryData, String - String if an XML envelop is passed
+//  SignatureBinaryData - BinaryData, String - 
 //  CertificateProperties - See DigitalSignatureClient.CertificateProperties
 //  Comment - String
 //  AuthorizedUser - CatalogRef.Users
-//  SignatureFileName - String - Signature file name.
+//  SignatureFileName - String - 
 //  SignatureParameters - See ParametersCryptoSignatures
 //  
 // Returns:
@@ -1656,7 +1663,7 @@ EndProcedure
 //   * SignatureSetBy - CatalogRef.Users
 //   * Comment - String
 //   * SignatureFileName - String 
-//   * SignatureDate - Date - Unconfirmed signature date
+//   * SignatureDate - Date - 
 //   * SignatureValidationDate - Date
 //   * SignatureCorrect - Boolean
 //   * Certificate - BinaryData
@@ -1675,10 +1682,10 @@ Function SignatureProperties(SignatureBinaryData, CertificateProperties, Comment
 	SignatureProperties.Insert("SignatureSetBy", AuthorizedUser);
 	SignatureProperties.Insert("Comment",         Comment);
 	SignatureProperties.Insert("SignatureFileName",     SignatureFileName);
-	SignatureProperties.Insert("SignatureDate",         Date('00010101')); // Set before write.
-	SignatureProperties.Insert("SignatureValidationDate", Date('00010101')); // Date when the signature was last verified.
-	SignatureProperties.Insert("SignatureCorrect",        False);             // Most recent validation result.
-	// Derived properties:
+	SignatureProperties.Insert("SignatureDate",         Date('00010101')); // 
+	SignatureProperties.Insert("SignatureValidationDate", Date('00010101')); // 
+	SignatureProperties.Insert("SignatureCorrect",        False);             // 
+	// 
 	SignatureProperties.Insert("Certificate",          CertificateProperties.BinaryData);
 	SignatureProperties.Insert("Thumbprint",           CertificateProperties.Thumbprint);
 	SignatureProperties.Insert("CertificateOwner", CertificateProperties.IssuedTo);
@@ -1703,7 +1710,7 @@ EndFunction
 
 // For internal use only.
 // Returns:
-//  Date, Undefined - Date used to verify the signature certificate
+//  Date, Undefined - 
 //
 Function DateToVerifySignatureCertificate(SignatureParameters) Export
 	
@@ -1741,14 +1748,14 @@ EndFunction
 // For internal use only.
 //
 // Returns:
-//  Structure - Cryptographic signature parameters:
+//  Structure - :
 //   * SignatureType          - EnumRef.CryptographySignatureTypes
-//   * DateActionLastTimestamp - Date, Undefined - Filled only using the cryptographic manager.
-//   * DateSignedFromLabels - Date, Undefined - Date of the earliest timestamp.
-//   * UnverifiedSignatureDate - Date - Unconfirmed signature data.
-//                                 - Undefined - Unconfirmed signature data is missing from the signature data.
-//   * DateLastTimestamp - Date - Date of the latest timestamp.
-//   * Certificate   - CryptoCertificate - Signatory's certificate
+//   * DateActionLastTimestamp - Date, Undefined - 
+//   * DateSignedFromLabels - Date, Undefined - 
+//   * UnverifiedSignatureDate - Date - 
+//                                 - Undefined - 
+//   * DateLastTimestamp - Date - 
+//   * Certificate   - CryptoCertificate - 
 //   * CertificateDetails - See DigitalSignatureClient.CertificateProperties.
 //
 Function ParametersCryptoSignatures(SignatureParameters, Signature, IsCertificateExists, UTCOffset, SessionDate) Export
@@ -2380,13 +2387,13 @@ Function ReadDateFromClipboard(Buffer, Offset)
 	
 EndFunction
 
-// Intended for the SignaturePropertiesFromBinaryData function.
+// 
 Function ReadDateFromTimeStamp(Buffer)
 	
 	DataAnalysis = New Structure;
 	DataAnalysis.Insert("HasError", False);
-	DataAnalysis.Insert("ThisIsAnASN1EncodingError", False); // Data might be corrupted.
-	DataAnalysis.Insert("ThisIsADataStructureError", False); // An expected data item is not found.
+	DataAnalysis.Insert("ThisIsAnASN1EncodingError", False); // 
+	DataAnalysis.Insert("ThisIsADataStructureError", False); // 
 	DataAnalysis.Insert("Offset", 0);
 	DataAnalysis.Insert("Parents", New Array);
 	DataAnalysis.Insert("Buffer", Buffer);
@@ -2438,17 +2445,17 @@ Function ReadDateFromTimeStamp(Buffer)
 	
 EndFunction
 
-// Finds the tag content in XML.
+// Finds the content in the tag in XML.
 //
 // Parameters:
-//  Text                             - String - a searched XML text.
-//  NameTag                           - String - a tag whose content is to be found.
-//  IncludeStartEndTag - Boolean - flag shows whether the items found by the tag are required. 
-//                                               This tag was used for the search, the default value is False.
-//  SerialNumber                    - Number  - a position, from which the search starts, the default value is 1.
+//  Text                             - String -  the XML text in which the search is performed.
+//  NameTag                           - String -  tag to find the contents of.
+//  IncludeStartEndTag - Boolean -  indicates whether the tag
+//                                               that the search was performed on needs to be found. by default, it is False.
+//  SerialNumber                    - Number  -  the position from which the search starts is 1 by default.
 // 
 // Returns:
-//   String - String with removed new line characters and a carriage return.
+//   String - 
 //
 Function FindInXML(Text, NameTag, IncludeStartEndTag = False, SerialNumber = 1) Export
 	
@@ -2620,7 +2627,7 @@ Function CertificateProperties(Certificate, UTCOffset, CertificateBinaryData = U
 	
 EndFunction
 
-// Fills in the table of certificate description from four fields: IssuedTo, IssuedBy, ValidTo, Purpose.
+// Fills a table describing certificate four fields: Comunidad, Kembagan, Deystvuetdo, Purpose.
 Procedure FillCertificateDataDetails(Table, CertificateProperties) Export
 	
 	If CertificateProperties.Signing And CertificateProperties.Encryption Then
@@ -2779,15 +2786,15 @@ Function CertificateIssuerProperties(Certificate) Export
 	
 EndFunction
 
-// Removes all the data except for the name from the IssuedTo field
+// 
 // 
 // Parameters:
 //   IssuedTo - Array of String
 //             - String
 //            
 // Returns:
-//   - Array of String - If IssuedTo is Array 
-//   - String - If IssuedTo is Array
+//   - Array of String -  
+//   - String - 
 //
 Function ConvertIssuedToIntoFullName(IssuedTo) Export
 	
@@ -2897,7 +2904,7 @@ EndFunction
 
 // Returns:
 //   See ANewSetOfAlgorithmsForCreatingASignature
-//  Undefined - if a set is not found.
+//  Undefined - if the set is not found.
 //
 Function ASetOfAlgorithmsForCreatingASignature(IDOfThePublicKeyAlgorithm)
 	
@@ -2912,14 +2919,14 @@ Function ASetOfAlgorithmsForCreatingASignature(IDOfThePublicKeyAlgorithm)
 	
 EndFunction
 
-// Converts the binary data of the crypto certificate into
-// the correctly formatted string in the Base64 format.
+// Converts the binary data of the cryptography certificate
+// into a correctly formatted string in Base64 format.
 //
 // Parameters:
-//  CertificateData - BinaryData - the binary data of the crypto certificate.
+//  CertificateData - BinaryData -  binary data of the cryptography certificate.
 // 
 // Returns:
-//  String - the binary data of the certificate in the Base64 format.
+//  String - 
 //
 Function Base64CryptoCertificate(CertificateData) Export
 	
@@ -2933,13 +2940,13 @@ Function Base64CryptoCertificate(CertificateData) Export
 EndFunction
 
 // Parameters:
-//  Base64CryptoCertificate - String - the Base64 string.
+//  Base64CryptoCertificate - String -  Base64 string.
 //  SigningAlgorithmData    - See DigitalSignatureClient.XMLDSigParameters
 //  RaiseException1           - Boolean
 //  XMLEnvelopeProperties          - See DigitalSignatureInternal.XMLEnvelopeProperties
 //  
 // Returns:
-//   String - an error text, if it is filled in.
+//   String - 
 //
 Function CheckChooseSignAlgorithm(Base64CryptoCertificate, SigningAlgorithmData,
 			RaiseException1 = False, XMLEnvelopeProperties = Undefined) Export
@@ -3001,8 +3008,8 @@ Function CheckChooseSignAlgorithm(Base64CryptoCertificate, SigningAlgorithmData,
 	 Or Not ValueIsFilled(SigningAlgorithmData.SelectedHashAlgorithm) Then
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Signing and hash algorithms to create a signature
-			           |that match the public key algorithm of the certificate (OID %1) are not specified.';"),
+			NStr("en = 'Signature and hash algorithms that match the certificate''s public key
+			           |algorithm (OID %1) are not specified.';"),
 			OIDOfPublicKeyAlgorithm);
 		
 		If RaiseException1 Then
@@ -3021,9 +3028,9 @@ Function CheckChooseSignAlgorithm(Base64CryptoCertificate, SigningAlgorithmData,
 	     <> SigningAlgorithmData.SelectedSignatureAlgorithmOID Then
 		
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The specified signing algorithm
-			           |%1 (%2 OID)
-			           |in the XML document does not match the signing algorithm in the %3 OID certificate.';"),
+			NStr("en = 'The %1 signature algorithm
+			           |(%2 OID)
+			           |specified in the XML document does not match the signature algorithm in the certificate (%3 OID).';"),
 			XMLEnvelopeProperties.SignAlgorithm.Name,
 			XMLEnvelopeProperties.SignAlgorithm.Id,
 			SigningAlgorithmData.SelectedSignatureAlgorithmOID);
@@ -3090,9 +3097,9 @@ Function AddInParametersCMSSign(CMSParameters, DataDetails) Export
 			"DetachedAddIn", "CMSSign", "ExtraCryptoAPI");
 	EndIf;
 	
-	//  0 - CryptoCertificateIncludeMode.DontInclude.
-	//  1 - CryptoCertificateIncludeMode.IncludeSubjectCertificate.
-	// 17 - CryptoCertificateIncludeMode.IncludeWholeChain.
+	//  
+	//  
+	// 
 	AddInParameters.Insert("IncludeCertificatesInSignature", 17);
 	If CMSParameters.IncludeCertificatesInSignature = "DontInclude"
 		Or CMSParameters.IncludeCertificatesInSignature = CryptoCertificateIncludeMode.DontInclude Then
@@ -3108,7 +3115,7 @@ Function AddInParametersCMSSign(CMSParameters, DataDetails) Export
 	
 EndFunction
 
-// Prepares a string to use as a file name.
+// Prepares a string to use as the file name.
 Function PrepareStringForFileName(String, SpaceReplacement = Undefined) Export
 	
 	CharsReplacement = New Map;
@@ -3125,7 +3132,7 @@ Function PrepareStringForFileName(String, SpaceReplacement = Undefined) Export
 	CharsReplacement.Insert(Chars.LF, " ");
 	CharsReplacement.Insert(Chars.Tab, " ");
 	CharsReplacement.Insert(Chars.NBSp, " ");
-	// Remove quotation characters.
+	// 
 	CharsReplacement.Insert(Char(171), "");
 	CharsReplacement.Insert(Char(187), "");
 	CharsReplacement.Insert(Char(8195), "");
@@ -3158,9 +3165,9 @@ Function PrepareStringForFileName(String, SpaceReplacement = Undefined) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
-// For the CertificateOverdue, CertificatePresentation, and CertificateProperties functions.
+// For functions, the certificate is Expired, certificate Representationsertificate, and certificate Properties.
 //
 // Parameters:
 //   Certificate - CryptoCertificate
@@ -3175,7 +3182,7 @@ Function CertificateDates(Certificate, UTCOffset) Export
 	
 EndFunction
 
-// For the CertificateProperties function.
+// For the certificate Property function.
 Function GetPurpose(Certificate)
 	
 	If Not Certificate.Extensions.Property("EKU") Then
@@ -3195,7 +3202,7 @@ Function GetPurpose(Certificate)
 	
 EndFunction
 
-// Returns information records from certificate properties as String.
+// 
 //
 // Parameters:
 //  CertificateProperties - See DigitalSignature.CertificateProperties
@@ -3220,14 +3227,14 @@ Function DetailsCertificateString(CertificateProperties) Export
 	
 EndFunction
 
-// For the CertificateSubjectProperties and CertificateIssuerProperties functions.
+// For functions of the property of the certificate's sub-Object, property of the certificate's Publisher.
 Function PrepareRow(RowFromCertificate)
 	
 	Return TrimAll(CommonClientServer.ReplaceProhibitedXMLChars(RowFromCertificate));
 	
 EndFunction
 
-// For the GeneralErrorDescription function.
+// For the General description Error function.
 Function SimplifiedErrorStructure(Error, ErrorTitle)
 	
 	SimplifiedStructure = New Structure;
@@ -3278,10 +3285,10 @@ Function SimplifiedErrorStructure(Error, ErrorTitle)
 	
 EndFunction
 
-// Returns the information about the computer being used.
+// Returns information about the computer being used.
 //
 // Returns:
-//   String - computer information.
+//   String - 
 //
 Function DiagnosticsInformationOnComputer(ForTheClient = False) Export
 	
@@ -3324,9 +3331,9 @@ EndFunction
 // For internal use only.
 // 
 // Parameters:
-//  Cryptoprovider - Map - Taken from the add-in response
+//  Cryptoprovider - Map - 
 //  ApplicationsByNamesWithType - See DigitalSignatureInternalCached.CommonSettings
-//  CheckAtCleint - Boolean - Flag indicating whether the CSP is installed on the client local machine
+//  CheckAtCleint - Boolean - 
 // 
 // Returns:
 //   See NewExtendedApplicationDetails
@@ -3471,7 +3478,7 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * Ref - Undefined, CatalogRef.DigitalSignatureAndEncryptionKeysCertificates
+//   * Ref - 
 //   * Presentation - String
 //   * ApplicationName - String
 //   * ApplicationType - Number
@@ -3482,10 +3489,10 @@ EndFunction
 //   * ApplicationPath - String
 //   * PathToAppAuto - String
 //   * AppPathAtServerAuto - String
-//   * Version - String - Library version
-//   * ILicenseInfo - Boolean - App license presence flag
+//   * Version - String - 
+//   * ILicenseInfo - Boolean - 
 //   * UsageMode - EnumRef.DigitalSignatureAppUsageModes
-//   * AutoDetect - Boolean - Flag indicating whether the app is determined automatically
+//   * AutoDetect - Boolean - 
 //
 Function NewExtendedApplicationDetails() Export
 	
@@ -3605,10 +3612,10 @@ Function TimestampServersDiagnostics(TimestampServersAddresses, StringForConnect
 
 EndFunction
 
-// A function for timestamp diagnostics.
+// 
 //
 // Parameters:
-//   URL - String - file URL in the following format: [Protocol://]<Server>/<Path to the file on the server>.
+//   URL - String -  file url in the format: [Protocol://]<Server>/<Path to the file on the server>.
 //
 // Returns:
 //   Structure:
@@ -3714,7 +3721,7 @@ Function TimestampServerDiagnostics(Val URL, Redirections = Undefined)
 					
 					Redirections.Add(URL);
 					If Not StrStartsWith(NewURL1, "http") Then
-						// <scheme>://<host>:<port>/<path>
+						// 
 						NewURL1 = StringFunctionsClientServer.SubstituteParametersToString(
 							"%1://%2:%3/%4", Protocol, Server, Format(Port, "NG="), NewURL1);
 					EndIf;
@@ -3779,14 +3786,14 @@ Function XMLScope(XMLLine, TagName, NumberSingnature = 1) Export
 	
 	Result = XMLScopeProperties(TagName);
 	
-	// Extract the item name, as the document might have other items that start with the same characters.
+	// 
 	// 
 	IndicatesTheBeginningOfTheArea = "<" + TagName + " ";
 	IndicatesTheEndOfTheArea = "</" + TagName + ">";
 	
 	Position = StrFind(XMLLine, IndicatesTheBeginningOfTheArea, , , NumberSingnature);
 	If Position = 0 Then
-		// If no item was found, try to remove the whitespace.
+		// 
 		IndicatesTheBeginningOfTheArea = "<" + TagName;
 		Position = StrFind(XMLLine, IndicatesTheBeginningOfTheArea, , , NumberSingnature);
 		If Position = 0 Then
@@ -3986,7 +3993,7 @@ Function SignAlgorithmCorrespondsToCertificate(CertificatePresentation, Certific
 				And AlgorithmsForCheck.SignatureAlgorithmNames.Find(Upper(SignAlgorithm)) = Undefined Then
 				Error = StringFunctionsClientServer.SubstituteParametersToString(
 							NStr(
-							"en = 'Certificate %1 is linked with an app whose signing algorithm (%2) does not support the certificate. Link the certificate to an app with the %3 algorithm.';"),
+							"en = 'Certificate %1 is associated with an app whose signature algorithm (%2) does not support the certificate. Associate the certificate with an app that uses the %3 algorithm.';"),
 					CertificatePresentation, SignAlgorithm, AlgorithmPresentation(
 							AlgorithmsForCheck.SignatureAlgorithmNames));
 
@@ -4000,7 +4007,7 @@ Function SignAlgorithmCorrespondsToCertificate(CertificatePresentation, Certific
 							HashAlgorithm)) = Undefined Then
 				Error = StringFunctionsClientServer.SubstituteParametersToString(
 							NStr(
-								"en = 'Certificate %1 is linked with an app whose hash algorithm (%2) does not support the certificate. Link the certificate to an app with the %3 algorithm.';"),
+								"en = 'Certificate %1 is associated with an app whose hashing algorithm (%2) does not support the certificate. Associate the certificate with an app that uses the %3 algorithm.';"),
 					CertificatePresentation, HashAlgorithm, AlgorithmPresentation(
 								AlgorithmsForCheck.HashAlgorithmNames));
 				Return Error;
@@ -4287,7 +4294,7 @@ Function SignAlgorithm(Data, IsCertificateData, IncludingOID = False, OIDOnly = 
 		HashAlgorithm = AlgorithmByOID(HashingAlgorithmOID, AlgorithmsIDs, True);
 		
 		SignAlgorithmDoesNotComplyWithGOST = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'The %1 algorithm specified in the signature does not comply with the standard. Specify the %2 algorithm that corresponds to the %3 hash algorithm.';"),
+			NStr("en = 'The %1 algorithm specified in the signature does not comply with the standard. Specify the %2 algorithm that corresponds to the %3 hashing algorithm.';"),
 			AlgorithmIncorrect, AlgorithmCorrect, HashAlgorithm);
 		SignatureAlgorithmOID = SignatureRelatedOID;
 	EndIf;
@@ -4356,7 +4363,7 @@ Function HashAlgorithm(Data, IncludingOID = False) Export
 	
 EndFunction
 
-// Intended for: DownloadRevocationListFileAtServer procedure and the BeforeWrite check in the CertificateRevocationLists register.
+// 
 Function RevocationListProperties(Data) Export
 	
 	BinaryData = BinaryDataFromTheData(
@@ -4484,8 +4491,8 @@ Function NewDataAnalysis(BinaryData) Export
 	
 	DataAnalysis = New Structure;
 	DataAnalysis.Insert("HasError", False);
-	DataAnalysis.Insert("ThisIsAnASN1EncodingError", False); // Data might be corrupted.
-	DataAnalysis.Insert("ThisIsADataStructureError", False); // An expected data item is not found.
+	DataAnalysis.Insert("ThisIsAnASN1EncodingError", False); // 
+	DataAnalysis.Insert("ThisIsADataStructureError", False); // 
 	DataAnalysis.Insert("Offset", 0);
 	DataAnalysis.Insert("Parents", New Array);
 	DataAnalysis.Insert("Buffer", GetBinaryDataBufferFromBinaryData(BinaryData));
@@ -4749,7 +4756,7 @@ Procedure SkipTheBeginningOfABlockOrBlock(DataAnalysis, StartOfTheBlock,
 				OffsetOfTheFollowing = DataAnalysis.Buffer.Size - 2;
 				DataSize = OffsetOfTheFollowing - DataAnalysis.Offset;
 			Else
-				// For a block of undefined length, NextOffset is a border.
+				// 
 				OffsetOfTheFollowing = DataAnalysis.Parents[0].OffsetOfTheFollowing;
 			EndIf;
 		Else
@@ -4866,7 +4873,7 @@ Function ToReadTheSizeData(DataAnalysis)
 	NumberOfBytes = Byte - 128;
 	If NumberOfBytes = 0 Or NumberOfBytes > 8 Then
 		If Byte = 128 Then
-			Return 0; // Block of undefined length.
+			Return 0; // 
 		EndIf;
 		IfTheEncodingErrorIsASN1(DataAnalysis);
 		Return Undefined;
@@ -4964,7 +4971,7 @@ Function SetsOfAlgorithmsForCreatingASignature() Export
 	
 	Sets = New Array;
 	
-	// GOST 94
+	// GOST94
 	Properties = ANewSetOfAlgorithmsForCreatingASignature();
 	Properties.IDOfThePublicKeyAlgorithm = "1.2.643.2.2.20";
 	Properties.IDOfTheSignatureAlgorithm        = "1.2.643.2.2.4";
@@ -4975,7 +4982,7 @@ Function SetsOfAlgorithmsForCreatingASignature() Export
 	Properties.NameOfTheXMLHashingAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#gostr3411";
 	Sets.Add(Properties);
 	
-	// GOST 2001
+	// GOST2001
 	Properties = ANewSetOfAlgorithmsForCreatingASignature();
 	Properties.IDOfThePublicKeyAlgorithm = "1.2.643.2.2.19";
 	Properties.IDOfTheSignatureAlgorithm        = "1.2.643.2.2.3";
@@ -4986,7 +4993,7 @@ Function SetsOfAlgorithmsForCreatingASignature() Export
 	Properties.NameOfTheXMLHashingAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#gostr3411";
 	Sets.Add(Properties);
 	
-	// GOST 2012/256
+	// 
 	Properties = ANewSetOfAlgorithmsForCreatingASignature();
 	Properties.IDOfThePublicKeyAlgorithm = "1.2.643.7.1.1.1.1";
 	Properties.IDOfTheSignatureAlgorithm        = "1.2.643.7.1.1.3.2";
@@ -4998,7 +5005,7 @@ Function SetsOfAlgorithmsForCreatingASignature() Export
 	Properties.NameOfTheXMLHashingAlgorithm = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34112012-256";
 	Sets.Add(Properties);
 	
-	// GOST 2012/512
+	// 
 	Properties = ANewSetOfAlgorithmsForCreatingASignature();
 	Properties.IDOfThePublicKeyAlgorithm = "1.2.643.7.1.1.1.2";
 	Properties.IDOfTheSignatureAlgorithm        = "1.2.643.7.1.1.3.3";
@@ -5120,7 +5127,7 @@ EndFunction
 Function NamesOfSignatureAlgorithmsGOST_34_10_94()
 	
 	Names = New Array;
-	Names.Add("GOST 34.10-94"); // Presentation.
+	Names.Add("GOST 34.10-94"); // 
 	Names.Add("GOST R 34.10-94");
 	
 	Return Names;
@@ -5130,7 +5137,7 @@ EndFunction
 Function NamesOfSignatureAlgorithmsGOST_34_10_2001()
 	
 	Names = New Array;
-	Names.Add("GOST 34.10-2001"); // Presentation.
+	Names.Add("GOST 34.10-2001"); // 
 	Names.Add("GOST R 34.10-2001");
 	Names.Add("ECR3410-CP");
 	
@@ -5141,7 +5148,7 @@ EndFunction
 Function NamesOfSignatureAlgorithmsGOST_34_10_2012_256()
 	
 	Names = New Array;
-	Names.Add("GOST 34.10-2012 256"); // Presentation.
+	Names.Add("GOST 34.10-2012 256"); // 
 	Names.Add("GR 34.10-2012 256");
 	Names.Add("GOST 34.10-2012 256");
 	Names.Add("GOST R 34.10-12 256");
@@ -5154,7 +5161,7 @@ EndFunction
 Function NamesOfSignatureAlgorithmsGOST_34_10_2012_512()
 	
 	Names = New Array;
-	Names.Add("GOST 34.10-2012 512"); // Presentation.
+	Names.Add("GOST 34.10-2012 512"); // 
 	Names.Add("GR 34.10-2012 512");
 	Names.Add("GOST 34.10-2012 512");
 	
@@ -5165,7 +5172,7 @@ EndFunction
 Function NamesOfHashingAlgorithmsGOST_34_11_94()
 	
 	Names = New Array;
-	Names.Add("GOST 34.11-94"); // Presentation.
+	Names.Add("GOST 34.11-94"); // 
 	Names.Add("GOST R 34.11-94");
 	Names.Add("RUS-HASH-CP");
 	
@@ -5176,7 +5183,7 @@ EndFunction
 Function NamesOfHashingAlgorithmsGOST_34_11_2012_256()
 	
 	Names = New Array;
-	Names.Add("GOST 34.11-2012 256"); // Presentation.
+	Names.Add("GOST 34.11-2012 256"); // 
 	Names.Add("GR 34.11-2012 256");
 	Names.Add("GOST 34.11-2012 256");
 	Names.Add("GOST R 34.11-12 256");
@@ -5189,7 +5196,7 @@ EndFunction
 Function NamesOfHashingAlgorithmsGOST_34_11_2012_512()
 	
 	Names = New Array;
-	Names.Add("GOST 34.11-2012 512"); // Presentation.
+	Names.Add("GOST 34.11-2012 512"); // 
 	Names.Add("GR 34.11-2012 512");
 	Names.Add("GOST 34.11-2012 512");
 	
@@ -5231,7 +5238,7 @@ Function IsCertificateExists(CryptoCertificate) Export
 	EndIf;
 	
 	Try
-		// Raise an exception if the certificate is not initialized. For example, if the certificate is missing from the signature container.
+		// 
 		SerialNumber = CryptoCertificate.SerialNumber;
 		Return True;
 	Except

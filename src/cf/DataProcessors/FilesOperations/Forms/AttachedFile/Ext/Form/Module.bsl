@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -39,7 +37,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	DigitalSignatureAvailable = FilesOperationsInternal.DigitalSignatureAvailable(TypeOf(AttachedFileObject));
 	SetTheVisibilityOfTheFormCommands();
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		PlacementParameters = ModuleAttachableCommands.PlacementParameters();
@@ -79,7 +77,7 @@ Procedure OnOpen(Cancel)
 	FilesOperationsInternalClient.ReadSignaturesCertificates(ThisObject);
 	DisplayAdditionalDataTabs();
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -183,7 +181,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-// File command handlers.
+// 
 
 &AtClient
 Procedure ShowInList(Command)
@@ -324,7 +322,7 @@ Procedure Print(Command)
 	
 	File = CurrentRefToFile();
 	If ValueIsFilled(File) Or HandleFileRecordCommand() Then
-		Files = CommonClientServer.ValueInArray(CurrentRefToFile()); // Re-obtain the reference if the new file is written.
+		Files = CommonClientServer.ValueInArray(CurrentRefToFile()); // 
 		FilesOperationsClient.PrintFiles(Files, ThisObject.UUID);
 	EndIf;
 	
@@ -352,7 +350,7 @@ Procedure Send(Command)
 	
 EndProcedure
 
-// StandardSubsystems.Properties
+// 
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -367,7 +365,7 @@ EndProcedure
 // End StandardSubsystems.Properties
 
 ///////////////////////////////////////////////////////////////////////////////////
-// Digital signature and encryption command handlers.
+// 
 
 &AtClient
 Procedure Sign(Command)
@@ -700,7 +698,7 @@ Procedure SetAvaliabilityOfEncryptionList()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-// Command handlers to support collaborative file management.
+// 
 
 &AtClient
 Procedure Lock(Command)
@@ -863,8 +861,8 @@ EndProcedure
 &AtServer
 Procedure SetTheVisibilityOfTheFormCommands()
 	
-	// Handle the external flag "OnlyFileDataReader".
-	// For example, see "Interactions.OnCreateFilesItemForm".
+	// 
+	//  
 	For Each Command In NamesOfCommandsForChangingFileData() Do
 		For Each FormCommand In Command.Value Do
 			Items[FormCommand].Visible = Not OnlyFileDataReader And Items[FormCommand].Visible;	
@@ -1094,7 +1092,7 @@ Function OtherCommandsNames()
 	
 	CommandsNames = New Array;
 	
-	// Simple commands that are available to any user that reads the files
+	// 
 	CommandsNames.Add("SaveWithDigitalSignature");
 	
 	CommandsNames.Add("OpenCertificate");
@@ -1406,7 +1404,7 @@ Function HandleFileRecordCommand()
 	
 	If DescriptionBeforeWrite <> ThisObject.Object.Description Then
 		
-		// update file in cache
+		// 
 		FilesOperationsInternalClient.RefreshInformationInWorkingDirectory(
 			ThisObject.Object.Ref, ThisObject.Object.Description);
 		
@@ -1501,9 +1499,9 @@ Procedure UnlockObject(Val Ref, Val UUID)
 	
 EndProcedure
 
-// Continue the SignDSFile procedure.
-// It is called from the DigitalSignature subsystem after signing data for non-standard
-// way of adding a signature to the object.
+// The continuation of the procedure Podpischiki.
+// Called from the electronic Signature subsystem after signing data for a non
+// -standard way to add a signature to an object.
 //
 &AtClient
 Procedure OnGetSignature(ExecutionParameters, Context) Export
@@ -1513,9 +1511,9 @@ Procedure OnGetSignature(ExecutionParameters, Context) Export
 	
 EndProcedure
 
-// Continue the SignDSFile procedure.
-// It is called from the DigitalSignature subsystem after preparing signatures from files
-// for non-standard way of adding a signature to the object.
+// The continuation of the procedure Podpischiki.
+// Called from the electronic Signature subsystem after preparing signatures from files
+// for a non-standard way to add a signature to an object.
 //
 &AtClient
 Procedure OnGetSignatures(ExecutionParameters, Context) Export
@@ -1676,7 +1674,7 @@ Function CurrentRefToFileServer()
 
 EndFunction
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

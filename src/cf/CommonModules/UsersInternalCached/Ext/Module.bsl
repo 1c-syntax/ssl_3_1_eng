@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -36,20 +34,20 @@ Function AllRoles() Export
 	
 EndFunction
 
-// Returns roles unavailable for the specified assignment (with or without SaaS mode).
+// Returns roles that are not available for the specified assignment (with or without the service model).
 //
 // Parameters:
-//  Purpose - String - ForAdministrators, ForUsers, ForExternalUsers,
-//                         BothForUsersAndExternalUsers.
+//  Purpose - String -  "For Admins", "For Users", "For External Users",
+//                        "For Joint Usersexternal Users".
 //     
-//  Service     - Undefined - determine the current mode automatically.
-//             - Boolean       - False - for a local mode (unavailable roles only for assignment),
-//                              True - for SaaS mode (including the roles of shared users).
+//  Service     - Undefined -  detect the current mode automatically.
+//             - Boolean       - 
+//                              
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - String - a role name.
-//   * Value - Boolean - True.
+//   * Key     - String -  role name.
+//   * Value - Boolean -  Truth.
 //
 Function UnavailableRoles(Purpose = "ForUsers", Service = Undefined) Export
 	
@@ -67,17 +65,17 @@ Function UnavailableRoles(Purpose = "ForUsers", Service = Undefined) Export
 	For Each Role In Metadata.Roles Do
 		If (Purpose <> "ForAdministrators" Or Service)
 		   And RolesAssignment.ForSystemAdministratorsOnly.Get(Role.Name) <> Undefined
-		 // For external users.
+		 // 
 		 Or Purpose = "ForExternalUsers"
 		   And RolesAssignment.ForExternalUsersOnly.Get(Role.Name) = Undefined
 		   And RolesAssignment.BothForUsersAndExternalUsers.Get(Role.Name) = Undefined
-		 // For users.
+		 // 
 		 Or (Purpose = "ForUsers" Or Purpose = "ForAdministrators")
 		   And RolesAssignment.ForExternalUsersOnly.Get(Role.Name) <> Undefined
-		 // Shared by users and external users.
+		 // 
 		 Or Purpose = "BothForUsersAndExternalUsers"
 		   And Not RolesAssignment.BothForUsersAndExternalUsers.Get(Role.Name) <> Undefined
-		 // With SaaS mode.
+		 // 
 		 Or Service
 		   And RolesAssignment.ForSystemUsersOnly.Get(Role.Name) <> Undefined Then
 			
@@ -89,23 +87,23 @@ Function UnavailableRoles(Purpose = "ForUsers", Service = Undefined) Export
 	
 EndFunction
 
-// Returns the role assignment defined by the developer.
-// See the "UsersOverridable .OnDetermineRoleAssignment" procedure.
+// 
+// 
 //
 // Returns:
 //  FixedStructure:
 //   * ForSystemAdministratorsOnly - FixedMap of KeyAndValue:
-//      ** Key     - String - a role name.
-//      ** Value - Boolean - True.
+//      ** Key     - String -  role name.
+//      ** Value - Boolean -  Truth.
 //   * ForSystemUsersOnly - FixedMap of KeyAndValue:
-//      ** Key     - String - a role name.
-//      ** Value - Boolean - True.
+//      ** Key     - String -  role name.
+//      ** Value - Boolean -  Truth.
 //   * ForExternalUsersOnly - FixedMap of KeyAndValue:
-//      ** Key     - String - a role name.
-//      ** Value - Boolean - True.
+//      ** Key     - String -  role name.
+//      ** Value - Boolean -  Truth.
 //   * BothForUsersAndExternalUsers - FixedMap of KeyAndValue:
-//      ** Key     - String - a role name.
-//      ** Value - Boolean - True.
+//      ** Key     - String -  role name.
+//      ** Value - Boolean -  Truth.
 //
 Function RolesAssignment() Export
 	
@@ -178,7 +176,7 @@ Function IsExternalUserSession() Export
 	
 	If Common.DataSeparationEnabled()
 	   And SessionWithoutSeparators Then
-		// Shared users cannot be external users.
+		// 
 		Return False;
 	EndIf;
 	
@@ -200,30 +198,30 @@ Function IsExternalUserSession() Export
 	|WHERE
 	|	ExternalUsers.IBUserID = &IBUserID";
 	
-	// A user who is not found in the ExternalUsers catalog cannot be external.
+	// 
 	Return Not Query.Execute().IsEmpty();
 	
 EndFunction
 
-// Settings of the "Users" subsystem.
-// See the "UsersOverridable .OnDetermineSettings" procedure.
+// 
+// 
 //
 // Returns:
 //  Structure:
-//   * CommonAuthorizationSettings - Boolean - If False,
-//          the option to open the authorization settings form is hidden from the "Users and rights settings" administration
-//          panel, as well as the ValidityPeriod field in profiles
-//          of users and external users.
+//   * CommonAuthorizationSettings - Boolean -  if it is False,
+//          then in the administration panel "rights and user Settings" the ability
+//          to open the login settings form will be hidden, as well as the Expiration date field in
+//          the user and external user cards.
 //
-//   * EditRoles - Boolean - If False,
-//          hide the role editing interface from profiles of users, external users,
-//          and groups of external users. This affects both regular users and administrators.
+//   * EditRoles - Boolean -  if False, then
+//          the interface for changing roles in the user, external user, and
+//          external user group cards will be hidden (including for the administrator).
 //
-//   * IndividualUsed - Boolean - If set to "True", then it is displayed in the user card.
-//                                             By default, "True".
+//   * IndividualUsed - Boolean - 
+//                                             
 //
-//   * IsDepartmentUsed  - Boolean - If set to "True", then it is displayed in the user card.
-//                                             By default, "True".
+//   * IsDepartmentUsed  - Boolean - 
+//                                             
 //
 Function Settings() Export
 	
@@ -280,8 +278,8 @@ EndFunction
 
 
 // Returns:
-//  Boolean - A single value for all the users.
-//  Undefined - Users can have different values.
+//  Boolean - 
+//  
 //
 Function ShowInList() Export
 	
@@ -309,19 +307,19 @@ Function ShowInList() Export
 	
 EndFunction
 
-// Returns a tree of roles (with the option to group roles by subsystem).
-// If a role is not included in any subsystem, it is added to the root.
+// Returns a tree of roles with or without subsystems.
+// If the role does not belong to any subsystem, it is added "to the root".
 // 
 // Parameters:
-//  BySubsystems - Boolean - If False, all roles are added to the root.
-//  Purpose    - String - ForAdministrators, ForUsers, ForExternalUsers,
-//                            BothForUsersAndExternalUsers.
+//  BySubsystems - Boolean -  if False, all roles are added to the "root".
+//  Purpose    - String -  "For Admins", "For Users", "For External Users",
+//                           "For Joint Usersexternal Users".
 // 
 // Returns:
 //  ValueTree:
 //    * IsRole - Boolean
-//    * Name     - String - name of a role or a subsystem.
-//    * Synonym - String - a synonym of a role or a subsystem.
+//    * Name     - String -  name of the role or subsystem.
+//    * Synonym - String -  synonym for a role or subsystem.
 //
 Function RolesTree(BySubsystems = True, Purpose = "ForUsers") Export
 	
@@ -340,7 +338,7 @@ Function RolesTree(BySubsystems = True, Purpose = "ForUsers") Export
 		FillSubsystemsAndRoles(Tree.Rows, Undefined, UnavailableRoles);
 	EndIf;
 	
-	// Add roles that are not found.
+	// 
 	For Each Role In Metadata.Roles Do
 		
 		If UnavailableRoles.Get(Role.Name) <> Undefined
@@ -378,7 +376,7 @@ Function CurrentIBUserProperties1() Export
 		AccessRight("Administration", Metadata, IBUser),
 		AccessRight("Administration", Metadata)));
 	
-	// ACC:336-off - Do not replace with "RolesAvailable". This is a special administrator role check.
+	// 
 	
 	//@skip-check using-isinrole
 	Properties.Insert("SystemAdministratorRoleAvailable",
@@ -388,21 +386,21 @@ Function CurrentIBUserProperties1() Export
 	Properties.Insert("RoleAvailableFullAccess",
 		IsInRole(Metadata.Roles.FullAccess));
 	
-	// ACC:336-on
+	// 
 	
 	Return New FixedStructure(Properties);
 	
 EndFunction
 
-// Returns empty references of the authorization objects types
-// specified in the ExternalUser type collection.
+// Returns empty references to the types of authorization objects
+// specified in the external User type being defined.
 //
-// If the String type or other non-reference types are specified in the type collection,
-// it is ignored.
+// If the defined type specifies a String type or
+// other non-reference type, it is skipped.
 //
 // Returns:
-//  FixedArray - Has the following values:
-//   * Value - AnyRef - an empty reference of an authorization object type.
+//  FixedArray - :
+//   * Value - AnyRef -  an empty link of the authorization object type.
 //
 Function BlankRefsOfAuthorizationObjectTypes() Export
 	
@@ -427,15 +425,15 @@ Function StandardUsersGroup(GroupName) Export
 	
 EndFunction
 
-// Returns the properties of reference types filled in the "OnFillRegisteredRefKinds"
-// procedures of common subsystem modules.
+// 
+// 
 //
-// Intended for the function "RegisteredRefs" and
-// procedure "RegisterRefs" of the "UsersInternal" common module.
+// 
+// 
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//   * Key - String - Ref type name.
+//   * Key - String - 
 //   * Value -  FixedStructure:
 //      ** AllowedTypes - TypeDescription
 //      ** ParameterNameExtensionsOperation - String
@@ -476,8 +474,8 @@ EndFunction
 
 // Returns:
 //  FixedMap of KeyAndValue:
-//   * Key - String - Role name.
-//   * Value - Boolean - True.
+//   * Key - String -  role name.
+//   * Value - Boolean -  Truth.
 //
 Function ExtensionsRoles() Export
 	
@@ -495,7 +493,7 @@ Function ExtensionsRoles() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
 Procedure FillSubsystemsAndRoles(TreeRowsCollection, Subsystems, UnavailableRoles, AllRoles = Undefined)
 	

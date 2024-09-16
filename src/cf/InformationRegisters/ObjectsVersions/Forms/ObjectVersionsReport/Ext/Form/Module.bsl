@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -27,9 +25,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndDo;
 	ElsIf TypeOf(Parameters.VersionsToCompare) = Type("ValueList") Then
 		VersionsToCompare = Parameters.VersionsToCompare;
-	Else // Using the passed object version.
+	Else // 
 		SerializedObject = GetFromTempStorage(Parameters.SerializedObjectAddress);
-		If Parameters.ByVersion Then // Using single-version report.
+		If Parameters.ByVersion Then // 
 			ReportTable = ObjectsVersioning.ReportOnObjectVersion(ObjectReference, SerializedObject);
 		EndIf;
 		Return;

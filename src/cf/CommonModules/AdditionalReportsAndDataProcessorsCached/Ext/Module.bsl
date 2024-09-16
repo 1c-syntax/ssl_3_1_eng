@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Returns additional report or data processor publication kinds, which are available in the application.
+// Types of publishing additional treatments available in the program.
 Function AvaliablePublicationKinds() Export
 	
 	Result = New Array();
@@ -28,7 +26,7 @@ Function AvaliablePublicationKinds() Export
 	
 EndFunction
 
-// Settings of the form of the object being assigned.
+// Settings for the form of the assigned object.
 Function AssignedObjectFormParameters(FullFormName, FormType = Undefined) Export
 	If Not AccessRight("Read", Metadata.Catalogs.AdditionalReportsAndDataProcessors) Then
 		Return "";
@@ -66,7 +64,7 @@ Function AssignedObjectFormParameters(FullFormName, FormType = Undefined) Export
 		Result.IsObjectForm = (Collection.DefaultObjectForm = MetadataForm);
 	EndIf;
 	
-	If Result.IsObjectForm Then // Object form.
+	If Result.IsObjectForm Then // 
 		Result.FormType = AdditionalReportsAndDataProcessorsClientServer.ObjectFormType();
 	Else // List form
 		Result.FormType = AdditionalReportsAndDataProcessorsClientServer.ListFormType();

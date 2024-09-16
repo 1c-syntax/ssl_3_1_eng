@@ -1,39 +1,37 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Returns new interaction contact details.
-// To use in InteractionsClientServerOverridable.OnDeterminePossibleContacts.
+// Returns a new description of the interaction contact.
+// For use in interactionclientserver is Undefined.When defining possible contacts.
 //
 // Returns:
-//   Structure - Contact properties:
-//     * Type                                - Type     - a contact reference type.
-//     * Name                                 - String - a contact type name as it is defined in metadata.
-//     * Presentation                       - String - a contact type presentation to be displayed to a user.
-//     * Hierarchical                       - Boolean - indicates that this catalog is hierarchical.
-//     * HasOwner                        - Boolean - indicates that the contact has an owner.
-//     * OwnerName                        - String - a contact owner name as it is defined in metadata.
-//     * SearchByDomain                      - Boolean - indicates that contacts of this type will be picked
-//                                                      by the domain map and not by the full email address.
-//     * Link                               - String - describes a possible link of this contact with some other contact
-//                                                      when the current contact is an attribute of other contact.
-//                                                      It is described with the "TableName.AttributeName" string.
-//     * ContactPresentationAttributeName   - String - a contact attribute name, from which a contact presentation
-//                                                      will be received. If it is not specified, the standard
-//                                                      Description attribute is used.
-//     * InteractiveCreationPossibility   - Boolean - indicates that a contact can be created interactively from interaction
-//                                                      documents.
-//     * NewContactFormName              - String - a full form name to create a new contact,
-//                                                      for example, "Catalog.Partners.Form.NewContactWizard".
-//                                                      If it is not filled in, a default item form is opened.
+//   Structure - :
+//     * Type                                - Type     -  type of contact link.
+//     * Name                                 - String -  name of the contact type as defined in the metadata.
+//     * Presentation                       - String -  representation of the contact type to display to the user.
+//     * Hierarchical                       - Boolean -  indicates whether the directory is hierarchical.
+//     * HasOwner                        - Boolean -  indicates that the contact has an owner.
+//     * OwnerName                        - String -  name of the contact owner, as defined in the metadata.
+//     * SearchByDomain                      - Boolean -  indicates that contacts of this type will be selected
+//                                                      by matching the domain, and not by the full email address.
+//     * Link                               - String -  describes the possible connection of this contact with another contact,
+//                                                      if the current contact is a detail of another contact.
+//                                                      Described by the following line " table Name.Requestname".
+//     * ContactPresentationAttributeName   - String -  name of the contact details that the contact view will be received from
+//                                                      . If not specified,
+//                                                      the standard name is used.
+//     * InteractiveCreationPossibility   - Boolean - 
+//                                                      
+//     * NewContactFormName              - String -  full name of the form for creating a new contact,
+//                                                      for example, " Directory.Partners.Form.Assistant Manager".
+//                                                      If not filled in, the default element form opens.
 //
 Function NewContactDescription() Export
 	
@@ -55,25 +53,25 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use InteractionsClientServer.NewContactDetails.
-// Adds an element to a contact structure array.
+// Deprecated.
+// 
 //
 // Parameters:
-//  DetailsArray                     - Array - an array, to which a contact description structure will be added.
-//  Type                                - Type    - a contact reference type.
-//  InteractiveCreationPossibility  - Boolean - indicates that a contact can be created interactively from interaction
-//                                                documents.
-//  Name                                 - String - a contact type name as it is defined in metadata.
-//  Presentation                       - String - a contact type presentation to be displayed to a user.
-//  Hierarchical                       - Boolean - indicates that this catalog is hierarchical.
-//  HasOwner                        - Boolean - indicates that the contact has an owner.
-//  OwnerName                        - String - a contact owner name as it is defined in metadata.
-//  SearchByDomain                      - Boolean - indicates that this contact type will be searched
-//                                                 by domain.
-//  Link                               - String - describes a possible link of this contact with some other contact
-//                                                 when the current contact is an attribute of other contact.
-//                                                 It is described with the "TableName.AttributeName" string.
-//  ContactPresentationAttributeName   - String - a contact attribute name, from which a contact presentation will be received.
+//  DetailsArray                     - Array -  the array to which will be added to the structure of the description of the contact.
+//  Type                                - Type    -  type of contact link.
+//  InteractiveCreationPossibility  - Boolean -  indicates whether a contact can be created interactively from
+//                                                interaction documents.
+//  Name                                 - String -  name of the contact type as defined in the metadata.
+//  Presentation                       - String -  representation of the contact type to display to the user.
+//  Hierarchical                       - Boolean -  indicates whether the directory is hierarchical.
+//  HasOwner                        - Boolean -  indicates that the contact has an owner.
+//  OwnerName                        - String -  name of the contact owner, as defined in the metadata.
+//  SearchByDomain                      - Boolean -  indicates that the domain will be
+//                                                 searched for this type of contact.
+//  Link                               - String -  describes the possible connection of this contact with another contact,
+//                                                 if the current contact is a detail of another contact.
+//                                                 Described by the following line " table Name.Requestname".
+//  ContactPresentationAttributeName   - String -  name of the contact details that the contact view will be received from.
 //
 Procedure AddPossibleContactsTypesDetailsArrayElement(
 	DetailsArray,
@@ -116,13 +114,13 @@ Function PrefixTable() Export
 EndFunction
 	
 ////////////////////////////////////////////////////////////////////////////////
-// Define the reference type.
+// 
 
 // Parameters:
-//  ObjectRef  - AnyRef - a reference, to which a check is required.
+//  ObjectRef  - AnyRef -  which needs to be checked.
 //
 // Returns:
-//   Boolean   - True if the passed reference refers to an interaction document.
+//   Boolean   - 
 //
 Function IsInteraction(ObjectRef) Export
 	
@@ -142,10 +140,10 @@ Function IsInteraction(ObjectRef) Export
 EndFunction
 
 // Parameters:
-//  ObjectRef  - AnyRef - a reference, to which a check is required.
+//  ObjectRef  - AnyRef -  which needs to be checked.
 //
 // Returns:
-//   Boolean   - True if the passed reference is associated with an interaction attachment.
+//   Boolean   - 
 //
 Function IsAttachedInteractionsFile(ObjectRef) Export
 	
@@ -159,11 +157,11 @@ Function IsAttachedInteractionsFile(ObjectRef) Export
 EndFunction
 
 // Parameters:
-//  ObjectRef - AnyRef - a reference, which is checked
-//                               if it is a reference to an interaction subject.
+//  ObjectRef - AnyRef -  the link that is being checked
+//                               for whether it is a link to the subject of interactions.
 //
 // Returns:
-//   Boolean   - True if the conditions are met.
+//   Boolean   - 
 //
 Function IsSubject(ObjectRef) Export
 	
@@ -178,13 +176,13 @@ Function IsSubject(ObjectRef) Export
 EndFunction 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+// Other
 
 // Parameters:
-//  FileName  - String - a checked file name.
+//  FileName  - String -  name of the file being checked.
 //
 // Returns:
-//   Boolean   - True if the file extension is an email file extension. 
+//   Boolean   - 
 //
 Function IsFileEmail(FileName) Export
 
@@ -195,12 +193,12 @@ Function IsFileEmail(FileName) Export
 EndFunction
 
 // Parameters:
-//  SendInTransliteration  - Boolean - SendInTransliteration - Boolean - indicates that a message 
-//                                   will be automatically transformed into Latin characters when sending it.
-//  MessageText  - String       - a message text, for which a message is being generated.
+//  SendInTransliteration  - Boolean -  indicates that the message will be automatically 
+//                                   converted to Latin characters when sent.
+//  MessageText  - String       -  the text of the message that the message is generated for.
 //
 // Returns:
-//   String   - a generated information message.
+//   String   - 
 //
 Function GenerateInfoLabelMessageCharsCount(SendInTransliteration, MessageText) Export
 
@@ -214,26 +212,26 @@ Function GenerateInfoLabelMessageCharsCount(SendInTransliteration, MessageText) 
 EndFunction
 
 // Returns:
-//  FixedArray of Structure - Includes:
-//     * Type                                 - Type     - a contact reference type.
-//     * Name                                 - String - a contact type name as it is defined in metadata.
-//     * Presentation                       - String - a contact type presentation to be displayed to a user.
-//     * Hierarchical                       - Boolean - indicates that this catalog is hierarchical.
-//     * HasOwner                        - Boolean - indicates that the contact has an owner.
-//     * OwnerName                        - String - a contact owner name as it is defined in metadata.
-//     * SearchByDomain                      - Boolean - indicates that contacts of this type will be picked
-//                                                      by the domain map and not by the full email address.
-//     * Link                               - String - describes a possible link of this contact with some other contact
-//                                                      when the current contact is an attribute of other contact.
-//                                                      It is described with the "TableName.AttributeName" string.
-//     * ContactPresentationAttributeName   - String - a contact attribute name, from which a contact presentation
-//                                                      will be received. If it is not specified, the standard
-//                                                      Description attribute is used.
-//     * InteractiveCreationPossibility   - Boolean - indicates that a contact can be created interactively from interaction
-//                                                      documents.
-//     * NewContactFormName              - String - a full form name to create a new contact,
-//                                                      for example, "Catalog.Partners.Form.NewContactWizard".
-//                                                      If it is not filled in, a default item form is opened.
+//  FixedArray of Structure - Contains:
+//     * Type                                 - Type     -  type of contact link.
+//     * Name                                 - String -  name of the contact type as defined in the metadata.
+//     * Presentation                       - String -  representation of the contact type to display to the user.
+//     * Hierarchical                       - Boolean -  indicates whether the directory is hierarchical.
+//     * HasOwner                        - Boolean -  indicates that the contact has an owner.
+//     * OwnerName                        - String -  name of the contact owner, as defined in the metadata.
+//     * SearchByDomain                      - Boolean -  indicates that contacts of this type will be selected
+//                                                      by matching the domain, and not by the full email address.
+//     * Link                               - String -  describes the possible connection of this contact with another contact,
+//                                                      if the current contact is a detail of another contact.
+//                                                      Described by the following line " table Name.Requestname".
+//     * ContactPresentationAttributeName   - String -  name of the contact details that the contact view will be received from
+//                                                      . If not specified,
+//                                                      the standard name is used.
+//     * InteractiveCreationPossibility   - Boolean - 
+//                                                      
+//     * NewContactFormName              - String -  full name of the form for creating a new contact,
+//                                                      for example, " Directory.Partners.Form.Assistant Manager".
+//                                                      If not filled in, the default element form opens.
 //
 Function ContactsDetails() Export
 	
@@ -241,12 +239,12 @@ Function ContactsDetails() Export
 	
 EndFunction
 
-// Checks if contacts are populated in an interaction document and updates the interaction document form
+// 
 //
 // Parameters:
-//  Object - DocumentObject - an interaction document being checked.
-//  Form - ClientApplicationForm - a form for an interactions document.
-//  DocumentKind - String - a string name of an interaction document.
+//  Object - DocumentObject - 
+//  Form - ClientApplicationForm -  the form of the document interactions.
+//  DocumentKind - String -  string name of the interaction document.
 //
 Procedure CheckContactsFilling(Object,Form,DocumentKind) Export
 	
@@ -261,10 +259,10 @@ Procedure CheckContactsFilling(Object,Form,DocumentKind) Export
 EndProcedure
 
 // Parameters:
-//  SizeInBytes - Number - Attachment size in bytes.
+//  SizeInBytes - Number -  size in bytes of the attached email file.
 //
 // Returns:
-//   String   - Attachment size presentation as String.
+//   String   - 
 //
 Function GetFileSizeStringPresentation(SizeInBytes) Export
 	
@@ -279,12 +277,12 @@ Function GetFileSizeStringPresentation(SizeInBytes) Export
 	
 EndFunction
 
-// Processes quick filter change of the dynamic interaction document list.
+// Handles changes to the quick selection of a dynamic list of interaction documents.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a form for which actions are performed.
-//  FilterName - String - name of a filter being changed.
-//  IsFilterBySubject - Boolean - indicates that the list form is parametrical and it is filtered by subject.
+//  Form - ClientApplicationForm -  the form that the action is being performed for.
+//  FilterName - String -  name of the selection to change.
+//  IsFilterBySubject - Boolean -  indicates that the list form is parametric and subject selection is applied to it.
 //
 Procedure QuickFilterListOnChange(Form, FilterName, DateForFilter = Undefined, IsFilterBySubject = True) Export
 	
@@ -321,21 +319,21 @@ Procedure QuickFilterListOnChange(Form, FilterName, DateForFilter = Undefined, I
 	
 EndProcedure
 
-// Processes quick filter change by interaction type in a dynamic interaction document list.
+// Handles changes to the quick selection by interaction type of the dynamic list of interaction documents.
 //
 // Parameters:
-//  Form - ClientApplicationForm - Contains the dynamic list the filter is applied to.
-//  InteractionType - String - Filter name.
+//  Form - ClientApplicationForm -  contains a dynamic list that contains the selection that is being modified.
+//  InteractionType - String -  name of the overlay selection.
 //
 Procedure OnChangeFilterInteractionType(Form,InteractionType) Export
 	
 	Filter = DynamicListFilter(Form.List);
 	
-	// Clear linked filters.
+	// 
 	FilterGroup = CommonClientServer.CreateFilterItemGroup(
 		Filter.Items, NStr("en = 'Filter by interaction category';"), DataCompositionFilterItemsGroupType.AndGroup);
 	
-	// .Set filters by type.
+	// 
 	If InteractionType = "AllEmails" Then
 		
 		EmailTypesList = New ValueList;
@@ -432,12 +430,12 @@ Procedure OnChangeFilterInteractionType(Form,InteractionType) Export
 EndProcedure
 
 // Parameters:
-//  Name     - String - a recipient's name.
-//  Address   - String - an addressee email address.
-//  Contact - CatalogRef - a contact that owns the name and email address.
+//  Name     - String -  destination name.
+//  Address   - String -  the recipient's email address.
+//  Contact - CatalogRef -  the contact that the name and email address belong to.
 //
 // Returns:
-//   String - Generated presentation of the addressee.
+//   String - 
 //
 Function GetAddresseePresentation(Name, Address, Contact) Export
 	
@@ -451,12 +449,12 @@ Function GetAddresseePresentation(Name, Address, Contact) Export
 EndFunction
 
 // Parameters:
-//  AddresseesTable    - ValueTable - Table with addressee data.
-//  IncludeContactName - Boolean - Flag indicating whether to include it in contact details into the presentation.
-//  Contact - CatalogRef - Contact the name and email address belongs to.
+//  AddresseesTable    - ValueTable -  table with destination data.
+//  IncludeContactName - Boolean -  indicates whether to include contact data in the view.
+//  Contact-reference Link - the contact who owns the name and email address.
 //
 // Returns:
-//  String - Generated presentation of the email addressee list.
+//  String - 
 //
 Function GetAddressesListPresentation(AddresseesTable, IncludeContactName = True) Export
 
@@ -473,11 +471,11 @@ Function GetAddressesListPresentation(AddresseesTable, IncludeContactName = True
 EndFunction
 
 // Parameters:
-//  InteractionObject - DocumentObject - an interaction document being checked.
-//  DocumentKind - String - a document name.
+//  InteractionObject - DocumentObject -  the interaction document that is being validated.
+//  DocumentKind - String -  document name.
 //
 // Returns:
-//  Boolean - True if contacts are specified. Otherwise, False.
+//  Boolean - 
 //
 Function ContactsFilled(InteractionObject, DocumentKind)
 	
@@ -556,10 +554,10 @@ Function GetContactPresentation(Contact)
 EndFunction
 
 // Parameters:
-//  List  - DynamicList - a list, whose filter has to be determined.
+//  List  - DynamicList -  the list for which it is necessary to determine the selection.
 //
 // Returns:
-//   Filter   - Filter.
+//   Filter   - 
 //
 Function DynamicListFilter(List) Export
 
@@ -573,11 +571,11 @@ EndFunction
 //                      - DocumentObject.SMSMessage
 //                      - DocumentObject.Meeting
 //                      - DocumentObject.IncomingEmail
-//                      - DocumentObject.OutgoingEmail - Interaction whose presentation is received.
+//                      - DocumentObject.OutgoingEmail - 
 //  Data              - Structure:
-//                        * StartDate - Date - the beginning of the scheduled interaction.
-//  Presentation        - String - a generated presentation.
-//  StandardProcessing - Boolean - indicates whether standard processing is necessary.
+//                        * StartDate - Date -  start of the planned interaction.
+//  Presentation        - String -  generated view.
+//  StandardProcessing - Boolean - 
 //
 Procedure PresentationGetProcessing(ObjectManager, Data, Presentation, StandardProcessing) Export
 	
@@ -606,7 +604,7 @@ Procedure PresentationGetProcessing(ObjectManager, Data, Presentation, StandardP
 	 
 EndProcedure
 
-// Receives the fields required for generating a presentation for interactions.
+// Gets the fields required to form the view for interactions.
 // 
 // Parameters:
 //  ObjectManager - DocumentObject.PhoneCall
@@ -614,9 +612,9 @@ EndProcedure
 //                  - DocumentObject.SMSMessage
 //                  - DocumentObject.Meeting
 //                  - DocumentObject.IncomingEmail
-//                  - DocumentObject.OutgoingEmail - Interaction whose presentation is received.
-//  Fields                  - Array - an array that contains names of fields that are required to generate presentation of an object or a reference.
-//  StandardProcessing  - Boolean - indicates whether standard processing is necessary.
+//                  - DocumentObject.OutgoingEmail - 
+//  Fields                  - Array -  names of fields that are needed to form a representation of an object or link.
+//  StandardProcessing  - Boolean -  indicates whether standard processing is required.
 //
 Procedure PresentationFieldsGetProcessing(ObjectManager, Fields, StandardProcessing) Export
 	

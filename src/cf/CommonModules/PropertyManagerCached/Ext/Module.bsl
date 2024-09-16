@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
@@ -48,19 +46,19 @@ Function SetPropertiesTypes(Ref, ConsiderDeletionMark = True) Export
 		Return SetPropertiesTypes;
 	EndIf;
 	
-	// Checking additional attributes usage.
+	// 
 	SetPropertiesTypes.Insert(
 		"AdditionalAttributes",
 		OwnerMetadata <> Undefined
 		And OwnerMetadata.TabularSections.Find("AdditionalAttributes") <> Undefined);
 	
-	// Checking additional info usage.
+	// 
 	SetPropertiesTypes.Insert(
 		"AdditionalInfo",
 		      Metadata.CommonCommands.Find("AdditionalInfoCommandBar") <> Undefined
 		    And Metadata.CommonCommands.AdditionalInfoCommandBar.CommandParameterType.ContainsType(RefType));
 	
-	// Check label usage.
+	// 
 	LabelsOwners = Metadata.DefinedTypes.LabelsOwner.Type;
 	SetPropertiesTypes.Insert(
 		"Labels",

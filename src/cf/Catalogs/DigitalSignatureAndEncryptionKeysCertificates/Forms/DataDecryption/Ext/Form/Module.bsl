@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -134,7 +132,7 @@ Procedure CertificateOnChange(Item)
 	
 EndProcedure
 
-// Continues the CertificateOnChange procedure.
+// Continuation of the certificate Change procedure.
 &AtClient
 Procedure CertificateOnChangeCompletion(CertificatesThumbprintsAtClient, Context) Export
 	
@@ -217,7 +215,7 @@ Procedure CertificateChoiceProcessing(Item, ValueSelected, StandardProcessing)
 		
 EndProcedure
 
-// Continues the CertificateChoiceProcessing procedure.
+// Continuation of the certificate processing Selection procedure.
 &AtClient
 Procedure CertificateChoiceProcessingCompletion(CertificatesThumbprintsAtClient, ValueSelected) Export
 	
@@ -332,7 +330,7 @@ Procedure Decrypt(Command)
 	
 EndProcedure
 
-// Continues the Decrypt procedure.
+// Continue with the procedure to Decipher.
 &AtClient
 Procedure DecryptCompletion(Result, Context) Export
 	
@@ -380,7 +378,7 @@ Procedure ContinueOpening(Notification, CommonInternalData, ClientParameters) Ex
 	
 EndProcedure
 
-// Continues the ContinueOpening procedure.
+// Continue the procedure continue Opening.
 &AtClient
 Procedure ContinueOpeningAfterStart(Result, Context) Export
 	
@@ -439,7 +437,7 @@ Procedure ContinueOpeningAfterStart(Result, Context) Export
 	
 EndProcedure
 
-// Continues the ContinueOpening procedure.
+// Continue the procedure continue Opening.
 &AtClient
 Procedure ContinueOpeningAfterDataDecryption(Result, Context) Export
 	
@@ -447,7 +445,7 @@ Procedure ContinueOpeningAfterDataDecryption(Result, Context) Export
 	
 EndProcedure
 
-// Continues the ContinueOpening procedure.
+// Continue the procedure continue Opening.
 &AtClient
 Procedure ContinueOpeningCompletion(Context, Result = Undefined)
 	
@@ -477,10 +475,10 @@ Function VariablesCleared()
 	
 EndFunction
 
-// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
+// APK: 78-off: for secure data transfer on the client between forms, without sending them to the server.
 &AtClient
 Procedure ExecuteDecryption(ClientParameters, CompletionProcessing) Export
-// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
+// 
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	
@@ -495,7 +493,7 @@ Procedure ExecuteDecryption(ClientParameters, CompletionProcessing) Export
 	
 EndProcedure
 
-// Continues the ExecuteDecryption procedure.
+// Continue with the Decryption procedure.
 &AtClient
 Procedure ExecuteDecryptionCompletion(Result, Context) Export
 	
@@ -512,7 +510,7 @@ Procedure OnChangeCertificatesList()
 	
 EndProcedure
 
-// Continues the OnChangeCertificatesList procedure.
+// Continuation of the procedure for changing the list of Certificates.
 &AtClient
 Procedure OnChangeCertificatesListCompletion(CertificatesThumbprintsAtClient, Context) Export
 	
@@ -582,7 +580,7 @@ Procedure DecryptData(Notification)
 	
 EndProcedure
 
-// Continues the DecryptData procedure.
+// Continue the decrypt Data procedure.
 &AtClient
 Async Procedure DecryptDataAfterProcessingBeforeExecute(Result, Context) Export
 	
@@ -607,7 +605,7 @@ Async Procedure DecryptDataAfterProcessingBeforeExecute(Result, Context) Export
 	ExecutionParameters.Insert("Form",              ThisObject);
 	ExecutionParameters.Insert("FormIdentifier", Context.FormIdentifier);
 	ExecutionParameters.Insert("PasswordValue",     PasswordProperties.Value);
-	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // Intended for automatically determining the app.
+	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // 
 	
 	Context.Insert("ExecutionParameters", ExecutionParameters);
 	
@@ -619,7 +617,7 @@ Async Procedure DecryptDataAfterProcessingBeforeExecute(Result, Context) Export
 			CertificateAtServerErrorDescription = New Structure;
 			DecryptDataAfterExecuteAtServerSide(Result, Context);
 		Else
-			// An attempt to encrypt on the server.
+			// 
 			DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 					"DecryptDataAfterExecuteAtServerSide", ThisObject, Context),
 				"Details", "AtServerSide", Context.ExecutionParameters);
@@ -630,7 +628,7 @@ Async Procedure DecryptDataAfterProcessingBeforeExecute(Result, Context) Export
 	
 EndProcedure
 
-// Continues the DecryptData procedure.
+// Continue the decrypt Data procedure.
 &AtClient
 Async Procedure DecryptDataAfterExecuteAtServerSide(Result, Context) Export
 	
@@ -653,7 +651,7 @@ Async Procedure DecryptDataAfterExecuteAtServerSide(Result, Context) Export
 			EndIf;
 		EndIf;
 		
-		// An attempt to sign on the client.
+		// 
 		DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 				"DecryptDataAfterExecuteAtClientSide", ThisObject, Context),
 			"Details", "OnClientSide", Context.ExecutionParameters);
@@ -661,7 +659,7 @@ Async Procedure DecryptDataAfterExecuteAtServerSide(Result, Context) Export
 	
 EndProcedure
 
-// Continues the DecryptData procedure.
+// Continue the decrypt Data procedure.
 &AtClient
 Procedure DecryptDataAfterExecuteAtClientSide(Result, Context) Export
 	
@@ -706,7 +704,7 @@ Procedure DecryptDataAfterExecuteAtClientSide(Result, Context) Export
 	
 EndProcedure
 
-// Continues the DecryptData procedure.
+// Continue the decrypt Data procedure.
 &AtClient
 Procedure DecryptDataAfterExecute(Result)
 	

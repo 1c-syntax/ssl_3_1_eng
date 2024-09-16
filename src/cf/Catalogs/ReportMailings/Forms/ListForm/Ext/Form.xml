@@ -45,6 +45,12 @@
 				<LabelDecoration name="TitleDistributionAcceleration" id="181">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<AutoMaxHeight>false</AutoMaxHeight>
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reports can be sent faster.</v8:content>
+						</v8:item>
+					</Title>
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>

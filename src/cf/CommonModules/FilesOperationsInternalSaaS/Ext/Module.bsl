@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
 #Region TextExtraction
 
-// Adds and removes records in the TextExtractionQueue information register on change
-// state of file version text extraction.
+// Adds and deletes entries to the text extraction Queue information register when
+// the text extraction status of file versions changes.
 //
 // Parameters:
-//  TextSource - DefinedType.AttachedFile - file with changed text extraction state.
-//  TextExtractionState - EnumRef.FileTextExtractionStatuses - a new status.
+//  TextSource - DefinedType.AttachedFile -  the file that has changed the text extraction state.
+//  TextExtractionState - EnumRef.FileTextExtractionStatuses -  new status.
 //
 Procedure UpdateTextExtractionQueueState(TextSource, TextExtractionState) Export
 	
@@ -93,7 +91,7 @@ Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
 	
 EndProcedure
 
-// CloudTechnology.ExportImportData
+// 
 
 // See ExportImportDataOverridable.OnFillTypesExcludedFromExportImport.
 Procedure OnFillTypesExcludedFromExportImport(Types) Export
@@ -156,7 +154,7 @@ Procedure OnRegisterDataImportHandlers(HandlersTable) Export
 	
 EndProcedure
 
-// Attached in the ExportImportDataOverridable.OnRegisterDataExportHandlers.
+// It is connected to the offload of the unloaded data, which is undetectable.When registering the data handlers, the data loads.
 //
 // Parameters:
 //   Container - DataProcessorObject.ExportImportDataContainerManager
@@ -254,7 +252,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// Attached in the ExportImportDataOverridable.OnRegisterDataImportHandlers.
+// It is connected to the offload of the unloaded data, which is undetectable.When registering the processing of the data upload.
 //
 // Parameters:
 //   Container - DataProcessorObject.ExportImportDataContainerManager
@@ -307,8 +305,8 @@ EndProcedure
 
 // End CloudTechnology.ExportImportData
 
-// Creates and queues jobs that will transfer data to the file
-// storage with deduplication for the used data areas.
+// 
+// 
 //
 Procedure StartDeduplication() Export
 	
@@ -354,12 +352,12 @@ EndProcedure
 
 #Region Private
 
-// ACC:299-disable - event and infobase update handlers.
+// 
 
 #Region InfobaseUpdate
 
-// Fills text extraction queue for the current data area. Is used for initial filling on
-// refresh.
+// Fills the text extraction queue for the current data area. Used for initial filling when
+// updating.
 //
 Procedure FillTextExtractionQueue() Export
 	
@@ -386,12 +384,12 @@ EndProcedure
 
 #EndRegion
 
-// ACC:299-on
+// 
 
 #Region TextExtraction
 
-// Determines the list of data areas where text extraction is required and plans
-// it using the job queue.
+// Defines a list of data areas where text extraction is required and schedules
+// it for them using the task queue.
 //
 Procedure HandleTextExtractionQueue() Export
 	
@@ -439,9 +437,9 @@ Procedure HandleTextExtractionQueue() Export
 	Result = Undefined;
 	While True Do
 		Try
-			Result = Query.Execute(); // Reading outside a transaction. This might cause the following error:
-			                                // "Could not continue scan with NOLOCK due to data movement"
-			                                // In case of the error, try to read again.
+			Result = Query.Execute(); // 
+			                                // 
+			                                // 
 			Break;
 		Except
 			AttemptsNumber = AttemptsNumber + 1;
@@ -453,9 +451,9 @@ Procedure HandleTextExtractionQueue() Export
 		
 	Selection = Result.Select();
 	While Selection.Next() Do
-		// Check for data area lock.
+		// 
 		If ModuleSaaSOperations.DataAreaLocked(Selection.DataArea) Then
-			// The area is locked, proceeding to the next record.
+			// 
 			Continue;
 		EndIf;
 		

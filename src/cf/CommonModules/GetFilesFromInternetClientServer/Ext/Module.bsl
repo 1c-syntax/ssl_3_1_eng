@@ -1,39 +1,37 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Returns the parameter structure for getting a file from the Internet.
+// Returns the structure of parameters for retrieving a file from the Internet.
 //
 // Returns:
 //  Structure:
-//     * PathForSaving            - String       - path on the server (including file name) for saving the downloaded file.
-//                                                     Not filled in if a file is saved to the temporary storage.
-//     * User                 - String       - a user that established the connection.
-//     * Password                       - String       - the password of the user that established the connection.
-//     * Port                         - Number        - a port used for connecting to the server.
-//     * Timeout                      - Number        - the file download timeout, in seconds.
-//     * SecureConnection         - Boolean       - indicates the use of secure ftps or https connection.
+//     * PathForSaving            - String       -  the path on the server (including the file name) to save the downloaded file.
+//                                                     Not filled in when saving a file to temporary storage.
+//     * User                 - String       -  the user on whose behalf the connection is established.
+//     * Password                       - String       -  password of the user from whom the connection was established.
+//     * Port                         - Number        -  port of the server to which the connection is established.
+//     * Timeout                      - Number        -  timeout for getting the file in seconds.
+//     * SecureConnection         - Boolean       -  indicates whether a secure ftps or https connection is being used.
 //                                    - OpenSSLSecureConnection
-//                                    - Undefined - In case secure connection is not used.
-//     * IsPackageDeliveryCheckOnErrorEnabled - Boolean - If failed to access the URL, include a PING command in the diagnostics.
+//                                    - Undefined - 
+//     * IsPackageDeliveryCheckOnErrorEnabled - Boolean - 
 //
-//    The parameters for HTTP (HTTPS) connection only:
-//     * Headers                    - Map - see details of the Headers parameter of the HTTPRequest object in Syntax Assistant.
-//     * UseOSAuthentication - Boolean       - see Syntax Assistant for details of
-//                                                     the UseOSAuthentication parameter of the HTTPConnection object.
+//    :
+//     * Headers                    - Map - see the syntax assistant for a description of the Headers parameter of the NTTRQUERY object.
+//     * UseOSAuthentication - Boolean       - 
+//                                                     
 //
-//    Parameters only for ftp (ftps) connection:
-//     * PassiveConnection          - Boolean       - a flag that indicates that the connection should be passive (or active).
-//     * SecureConnectionUsageLevel - FTPSecureConnectionUsageLevel - see details
-//         of the property with the same name in the platform Syntax Assistant. Default value is Auto.
+//    :
+//     * PassiveConnection          - Boolean       -  this flag indicates that the connection must be passive (or active).
+//     * SecureConnectionUsageLevel - FTPSecureConnectionUsageLevel - see the description
+//         of the property of the same name in the platform's syntax assistant. The default value is Auto.
 //
 Function FileGettingParameters() Export
 	
@@ -56,18 +54,18 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Instead, use GetFilesFromInternet.GetProxy.
-// Returns an InternetProxy object for Internet access.
-// Valid protocols to create InternetProxy: HTTP, HTTPS, FTP, and FTPS.
+// Deprecated.
+// 
+// 
 //
 // Parameters:
-//    URLOrProtocol - String - URL in the following format: [Protocol://]<Server>/<Path to the file on the server>,
-//                              or protocol identifier (http, ftp, …).
+//    URLOrProtocol - String -  url in the [Protocol] format://]<Server>/<The path to the file on the server>,
+//                              or the Protocol ID (http, ftp,...).
 //
 // Returns:
-//    InternetProxy - describes proxy server parameters for various protocols.
-//                     If the network protocol scheme cannot be recognized,
-//                     the proxy will be created based on the HTTP protocol.
+//    InternetProxy - 
+//                     
+//                     
 //
 Function GetProxy(Val URLOrProtocol) Export
 	
@@ -99,17 +97,17 @@ Function GetProxy(Val URLOrProtocol) Export
 	
 EndFunction
 
-// Deprecated. Instead, use CommonClientServer.URIStructure.
-// Splits the URL into protocol, server, and path to resource.
+// Deprecated.
+// 
 //
 // Parameters:
-//    URL - String - link to a web resource.
+//    URL - String -  link to a resource on the Internet.
 //
 // Returns:
 //    Structure:
-//        * Protocol            - String - protocol of access to the resource.
-//        * ServerName          - String - server the resource is located on.
-//        * PathToFileAtServer - String - path to the resource on the server.
+//        * Protocol            - String -  the Protocol to access the resource.
+//        * ServerName          - String -  the server where the resource is located.
+//        * PathToFileAtServer - String -  path to the resource on the server.
 //
 Function SplitURL(Val URL) Export
 	
@@ -124,23 +122,23 @@ Function SplitURL(Val URL) Export
 	
 EndFunction
 
-// Deprecated. Instead, use CommonClientServer.URIStructure.
-// Splits the URL into protocol, server, and path to resource. Splits the URI string and returns it as a structure.
-// The following normalizations are described based on RFC 3986.
+// Deprecated.
+// 
+// 
 //
 // Parameters:
-//     URIString1 - String - link to the resource in the following format:
-//                          <schema>://<username>:<password>@<host>:<port>/<path>?<parameters>#<anchor>.
+//     URIString1 - String - :
+//                          
 //
 // Returns:
-//    Structure - composite parts of the URI according to the format:
-//        * Schema         - String - URI schema.
-//        * Login         - String - username.
-//        * Password        - String - User password.
-//        * ServerName    - String - part <host>:<port> of the input parameter.
-//        * Host          - String - Server name.
-//        * Port          - String - server port.
-//        * PathAtServer - String - part <path>?<parameters>#<anchor> of the input parameter.
+//    Structure - :
+//        * Schema         - String -  URI scheme.
+//        * Login         - String -  user name.
+//        * Password        - String -  user password.
+//        * ServerName    - String -  part <host>:< port> of the input parameter.
+//        * Host          - String -  server name.
+//        * Port          - String -  server port.
+//        * PathAtServer - String -  the <path>part?<characteristic>#< anchor> of the input parameter.
 //
 Function URIStructure(Val URIString1) Export
 	
@@ -156,12 +154,12 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Service information that displays current settings and proxy states to perform diagnostics.
+// Service information for displaying current proxy settings and States for performing diagnostics.
 //
 // Returns:
 //  Structure:
-//     * ProxyConnection - Boolean - flag that indicates that proxy connection should be used.
-//     * Presentation - String - presentation of the current set up proxy.
+//     * ProxyConnection - Boolean -  indicates that the connection should be made via a proxy.
+//     * Presentation - String -  representation of the currently configured proxy.
 //
 Function ProxySettingsState() Export
 	
@@ -196,23 +194,23 @@ EndFunction
 
 #If Not WebClient Then
 
-// Returns proxy according to settings ProxyServerSetting for the specified Protocol protocol.
+// Returns proxy by proxy settings for the specified Protocol.
 //
 // Parameters:
 //   ProxyServerSetting -  Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//    Keys:
-//      # UseProxy - Boolean - indicates whether to use the proxy server.
-//      # BypassProxyOnLocal - Boolean - indicates whether to use the proxy server for local addresses.
-//      # UseSystemSettings - Boolean - indicates whether to use system settings of the proxy server.
-//      # Server - String - a proxy server address.
-//      # Port - Number - a proxy server port.
-//      # User - String - a username to authorize on the proxy server.
-//      # Password - String - a user password.
-//      # UseOSAuthentication - Boolean - indicates that authentication by operating system is used.
-//      # Protocol - String - a protocol for which proxy server parameters, for example, HTTP, HTTPS,
-//                            or FTP are set.
+//    :
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//      
+//                            
 //
 // Returns:
 //   InternetProxy
@@ -220,26 +218,26 @@ EndFunction
 Function NewInternetProxy(ProxyServerSetting, Protocol)
 	
 	If ProxyServerSetting = Undefined Then
-		// Proxy server system settings.
+		// 
 		Return Undefined;
 	EndIf;
 	
 	UseProxy = ProxyServerSetting.Get("UseProxy");
 	If Not UseProxy Then
-		// Do not use a proxy server.
+		// 
 		Return New InternetProxy(False);
 	EndIf;
 	
 	UseSystemSettings = ProxyServerSetting.Get("UseSystemSettings");
 	If UseSystemSettings Then
-		// Proxy server system settings.
+		// 
 		Return New InternetProxy(True);
 	EndIf;
 	
-	// Manually configured proxy settings.
+	// 
 	Proxy = New InternetProxy;
 	
-	// Detecting a proxy server address and port.
+	// 
 	AdditionalSettings = ProxyServerSetting.Get("AdditionalProxySettings");
 	ProxyByProtocol = Undefined;
 	If TypeOf(AdditionalSettings) = Type("Map") Then
@@ -274,7 +272,7 @@ EndFunction
 
 Function ProxyServerSetting()
 	
-	// ACC:547-off This code is required for backward compatibility. It is used in an obsolete API.
+	// 
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	ProxyServerSetting = GetFilesFromInternet.ProxySettingsAtServer();
@@ -282,7 +280,7 @@ Function ProxyServerSetting()
 	ProxyServerSetting = StandardSubsystemsClient.ClientRunParameters().ProxyServerSettings;
 #EndIf
 	
-	// ACC:547-on
+	// 
 	
 	Return ProxyServerSetting;
 	

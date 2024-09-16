@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -79,7 +77,7 @@ EndProcedure
 Procedure MoveUp(Command)
 	
 	Modified = True;
-	// Move the current row up one position.
+	// 
 	CurrentTreeRow = Items.DisplayedUserTasksTree.CurrentData;
 	
 	If CurrentTreeRow.IsSection Then
@@ -91,11 +89,11 @@ Procedure MoveUp(Command)
 	
 	CurrentRowIndex = CurrentTreeRow.IndexOf;
 	If CurrentRowIndex = 0 Then
-		Return; // The current row is at the top of the list. Do not move.
+		Return; // 
 	EndIf;
 	TreeSections.Move(CurrentTreeRow.IndexOf, -1);
 	CurrentTreeRow.IndexOf = CurrentRowIndex - 1;
-	// Change the previous row index.
+	// 
 	PreviousString = TreeSections.Get(CurrentRowIndex);
 	PreviousString.IndexOf = CurrentRowIndex;
 	If PreviousString.IsHidden Then
@@ -108,7 +106,7 @@ EndProcedure
 Procedure MoveDown(Command)
 	
 	Modified = True;
-	// Move the current row down one position.
+	// 
 	CurrentTreeRow = Items.DisplayedUserTasksTree.CurrentData;
 	
 	If CurrentTreeRow.IsSection Then
@@ -120,11 +118,11 @@ Procedure MoveDown(Command)
 	
 	CurrentRowIndex = CurrentTreeRow.IndexOf;
 	If CurrentRowIndex = (TreeSections.Count() -1) Then
-		Return; // The current row is at the bottom of the list. Do not move.
+		Return; // 
 	EndIf;
 	TreeSections.Move(CurrentTreeRow.IndexOf, 1);
 	CurrentTreeRow.IndexOf = CurrentRowIndex + 1;
-	// Change the next row index.
+	// 
 	NextRow = TreeSections.Get(CurrentRowIndex);
 	NextRow.IndexOf = CurrentRowIndex;
 	If NextRow.IsHidden Then
@@ -325,7 +323,7 @@ Procedure ShouldSaveSettings()
 	ViewSettings.UserTasksTree = UserTasksTree;	
 	Common.CommonSettingsStorageSave("ToDoList", "ViewSettings", ViewSettings);
 	
-	// Save auto-refresh settings.
+	// 
 	AutoRefreshSettings = Common.CommonSettingsStorageLoad("ToDoList", "AutoRefreshSettings");
 	
 	If AutoRefreshSettings = Undefined Then

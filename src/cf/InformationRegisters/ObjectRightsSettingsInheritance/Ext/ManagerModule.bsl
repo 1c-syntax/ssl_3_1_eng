@@ -1,31 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Updates a hierarchy of object right setting owners.
-// For example, a hierarchy of the FilesFolders catalog items.
+// Updates the hierarchy of owners of object rights settings.
+// For example, the hierarchy of elements in the folder directory.
 //
 // Parameters:
-//  RightsSettingsOwners - DefinedType.RightsSettingsOwner - for example, CatalogRef.FilesFolders
-//                          or another type used to configure the rights directly.
-//                        - Array - array of values of the types specified above.
-//                        - Undefined - no filtering for all types.
-//                        - DefinedType.RightsSettingsOwnerObject - — for example, CatalogObject.FilesFolders,
-//                          when passing an object, update is possible only if the object is to be written and
-//                          the parent is changed.
+//  RightsSettingsOwners - DefinedType.RightsSettingsOwner -  for example, a reference link.Folder
+//                          files or another type by which the rights are configured directly.
+//                        - Array - 
+//                        - Undefined - 
+//                        - DefinedType.RightsSettingsOwnerObject - 
+//                          
+//                          
 //
-//  HasChanges         - Boolean - (return value) - if recorded,
-//                          True is set, otherwise, it does not change.
+//  HasChanges         - Boolean -  (return value) - if a record was made,
+//                          it is set to True, otherwise it is not changed.
 //
 Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = Undefined) Export
 	
@@ -42,11 +40,11 @@ Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = 
 		For Each KeyAndValue In AvailableRights.ByFullNames Do
 			
 			Query.Text = StrReplace(QueryText, "&CurrentTable", KeyAndValue.Key);
-			// @skip-check query-in-loop - A minor loop (1 or 2 iterations)
+			// 
 			Selection = Query.Execute().Select();
 			
 			While Selection.Next() Do
-				// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
+				// 
 				UpdateOwnerParents(Selection.Ref, HasChanges);
 			EndDo;
 		EndDo;
@@ -54,7 +52,7 @@ Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = 
 	ElsIf TypeOf(RightsSettingsOwners) = Type("Array") Then
 		
 		For Each RightsSettingsOwner In RightsSettingsOwners Do
-			// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
+			// 
 			UpdateOwnerParents(RightsSettingsOwner, HasChanges);
 		EndDo;
 	Else
@@ -67,23 +65,23 @@ EndProcedure
 
 #Region Private
 
-// Updates parents of object right settings owner.
-// For example, the FilesFolders catalog.
+// Updates the parents of the owner of the object rights settings.
+// For example, the directory of folder Files.
 // 
 // Parameters:
-//  RightsSettingsOwner - DefinedType.RightsSettingsOwner - for example, CatalogRef.FilesFolders
-//                          or another type used to configure the rights directly.
-//                       - DefinedType.RightsSettingsOwnerObject - — for example, CatalogObject.FilesFolders,
-//                         when passing an object, update is possible only if the object is to be written and
-//                         the parent is changed.
+//  RightsSettingsOwner - DefinedType.RightsSettingsOwner -  for example, Spravochniki.Folders
+//                          of files or other types for which rights are configured directly.
+//                       - DefinedType.RightsSettingsOwnerObject - 
+//                         
+//                         
 //
-//  HasChanges        - Boolean - (return value) - if recorded,
-//                         True is set, otherwise, it does not change.
+//  HasChanges        - Boolean -  (return value) - if a record was made,
+//                         it is set to True, otherwise it is not changed.
 //
-//  UpdateHierarchy     - Boolean - updates the subordinate hierarchy forcibly,
-//                         regardless of any changes to owner parents.
+//  UpdateHierarchy     - Boolean -  forces updates to the lower hierarchy,
+//                         regardless of changes to the owner's parents.
 //
-//  ObjectsWithChanges  - Array - for internal use only.
+//  ObjectsWithChanges  - Array -  for internal use only.
 //
 Procedure UpdateOwnerParents(RightsSettingsOwner, HasChanges = False, UpdateHierarchy = False, ObjectsWithChanges = Undefined) Export
 	
@@ -119,7 +117,7 @@ Procedure UpdateOwnerParents(RightsSettingsOwner, HasChanges = False, UpdateHier
 		ObjectParentProperties = ParentProperties(Ref);
 		
 		If Object <> Undefined Then
-			// Check for object modifications.
+			// 
 			If ObjectParentProperties.Ref <> Object.Parent Then
 				UpdateRequired = True;
 			EndIf;
@@ -154,7 +152,7 @@ Procedure UpdateOwnerParents(RightsSettingsOwner, HasChanges = False, UpdateHier
 		RecordSet = CreateRecordSet();
 		RecordSet.Filter.Object.Set(Ref);
 		
-		// Prepare parent objects.
+		// 
 		If Hierarchical Then
 			NewRecords = ObjectParents(Ref, Ref, ObjectParentProperties);
 		Else
@@ -198,17 +196,17 @@ Procedure UpdateOwnerParents(RightsSettingsOwner, HasChanges = False, UpdateHier
 	
 EndProcedure
 
-// Fills RecordSet with object parents including itself as a parent.
+// Fills the Recordset with the object's parents, including itself as the parent.
 //
 // Parameters:
-//  Ref                  - DefinedType.RightsSettingsOwner - a reference in the ObjectRef hierarchy or ObjectRef.
+//  Ref                  - DefinedType.RightsSettingsOwner -  a link in the hierarchy of a reference Object or a reference Object.
 //  ObjectRef2           - DefinedType.RightsSettingsOwner
-//                          - Undefined - a reference to the initial object.
+//                          - Undefined - 
 //  ObjectParentProperties - Structure:
-//                            * Ref      - DefinedType.RightsSettingsOwner - a reference to the source object parent
-//                                            that can differ from the parent
+//                            * Ref      - DefinedType.RightsSettingsOwner -  a reference to the parent of the source object,
+//                                            which may differ from the parent
 //                                            recorded in the database.
-//                            * Inherit - Boolean - inheriting settings by the parent.
+//                            * Inherit - Boolean -  inheritance of settings by the parent.
 //  GetInheritance    - Boolean
 //
 // Returns:
@@ -219,7 +217,7 @@ Function ObjectParents(Ref, ObjectRef2 = Undefined, ObjectParentProperties = "",
 	NewRecords = AccessManagementInternalCached.BlankRecordSetTable(
 		Metadata.InformationRegisters.ObjectRightsSettingsInheritance.FullName()).Get(); // ValueTable
 	
-	// Getting an inheritance flag of parent rights settings for the reference.
+	// 
 	If GetInheritance Then
 		Inherit = SettingsInheritance(Ref);
 	Else
@@ -257,7 +255,7 @@ Function ObjectParents(Ref, ObjectRef2 = Undefined, ObjectParentProperties = "",
 			Break;
 		EndIf;
 		
-		// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
+		// 
 		CurrentParentProperties = ParentProperties(CurrentParentProperties.Ref);
 	EndDo;
 	
@@ -285,10 +283,10 @@ Function SettingsInheritance(Ref) Export
 	
 EndFunction
 
-// For the UpdateOwnerParents procedure.
+// For the procedure, update the owner's Parent.
 Procedure UpdateOwnerHierarchy(Ref, HasChanges, ObjectsWithChanges)
 	
-	// Updating the list of item parents in the current value hierarchy.
+	// 
 	Query = New Query;
 	Query.SetParameter("Ref", Ref);
 	Query.Text =
@@ -305,7 +303,7 @@ Procedure UpdateOwnerHierarchy(Ref, HasChanges, ObjectsWithChanges)
 	
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
-		// @skip-check query-in-loop - Iterate through an item hierarchy with batch updates.
+		// 
 		NewRecords = ObjectParents(Selection.SubordinateRef, Ref);
 		
 		RecordSet = CreateRecordSet();
@@ -330,7 +328,7 @@ Procedure UpdateOwnerHierarchy(Ref, HasChanges, ObjectsWithChanges)
 	
 EndProcedure
 
-// For the UpdateOwnerParents and ObjectParents procedures.
+// For procedures update the parent of the Owner, parent of the Object.
 Function ParentProperties(Ref)
 	
 	Query = New Query;

@@ -978,7 +978,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Attachments display list</v8:content>
+															<v8:content>Attachments output list</v8:content>
 														</v8:item>
 													</Title>
 													<ExtendedTooltip name="AttachmentsGroupOutputListExtendedTooltip" id="206"/>
@@ -1076,7 +1076,7 @@
 												<Title>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Attachments display list context menu</v8:content>
+														<v8:content>Attachments output list context menu</v8:content>
 													</v8:item>
 												</Title>
 												<ExtendedTooltip name="AttachmentsGroupOutputListContextMenuExtendedTooltip" id="212"/>

@@ -1,57 +1,55 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Updates user groups to check allowed values
-// for the Users and ExternalUsers access kinds.
+// Updates user groupings to check allowed values
+// by access type Users and external Users.
 //
-// It must be called:
-// 1) When adding a new user (or an external user),
-//    When adding a new user group (or an external user group),
-//    when changing the user group members (or groups of external users).
-//    Parameters = Structure with one of the properties or both of them:
-//    - Users: a single user or an array.
-//    - UserGroups: a single user group or an array.
+// Need to call:
+// 1) when adding a new user        (or an external user),
+//    When adding a new user group (or a group of external users),
+//    or when changing the composition of user groups (or groups of external users).
+//    Parameters = Structure with one of the properties or two properties at once:
+//    - Users:        a single user or an array.
+//    - User group: a single user group or array.
 //
-// 2) When changing assignee groups.
+// 2) when changing groups of performers.
 //    Parameters = Structure with one property:
-//    - PerformersGroups: Undefined, a single assignee group or an array.
+//    - Executor groups: Undefined, one executor group, or an array.
 //
-// 3) When changing an authorization object of an external user.
+// 3) when changing the authorization object of an external user.
 //    Parameters = Structure with one property:
-//    - AuthorizationObjects: Undefined, a single authorization object or an array.
+//    - authorization Objects: Undefined, one authorization object, or array.
 //
-// Types used in the parameters:
+// Types used in parameters:
 //
-//  User - CatalogRef.Users;
-//                         CatalogRef.ExternalUsers.
+//  user-reference Link.Users,
+//                         Spravochnike.External users.
 //
-//  User group - CatalogRef.UserGroups,
-//                         CatalogRef.ExternalUsersGroups.
+//  User group-reference Link.User groups,
+//                         Spravochnike.Groups of external users.
 //
-//  Performer - CatalogRef.Users,
-//                         CatalogRef.ExternalUsers.
+//  Performer-Reference Link.Users,
+//                         Spravochnike.External users.
 //
-//  Group of assignees - for example, CatalogRef.TaskPerformersGroups.
+//  A group of performers - for example, a reference link.Groups of task executers.
 //
-//  Authorization object - for example, CatalogRef.Individuals.
+//  Authorization object - for example, reference link.Physical particle.
 //
 // Parameters:
-//  Parameters     - Undefined - Update everything without applying filters.
-//                  See options above.
+//  Parameters     - Undefined - 
+//                  
 //
-//  HasChanges - Boolean - (return value) - if recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  (return value) - if a record was made,
+//                  it is set to True, otherwise it is not changed.
 //
 Procedure UpdateUsersGroups(Parameters = Undefined, HasChanges = Undefined) Export
 	
@@ -135,7 +133,7 @@ Procedure UpdateUsersGroups(Parameters = Undefined, HasChanges = Undefined) Expo
 	
 EndProcedure
 
-// Removes unused data after changing content
+// The procedure deletes unnecessary data based on the result of changing the composition
 // of value types and access value groups.
 //
 Procedure UpdateAuxiliaryRegisterDataByConfigurationChanges1() Export
@@ -155,11 +153,11 @@ EndProcedure
 
 #Region Private
 
-// Updates register data after changing access values.
+// The procedure updates the register data when access values change.
 //
 // Parameters:
-//  HasChanges - Boolean - (return value) - if recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  (return value) - if a record was made,
+//                  it is set to True, otherwise it is not changed.
 //
 Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	
@@ -171,18 +169,18 @@ Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	
 EndProcedure
 
-// Updates access value groups in the InformationRegister.AccessValuesGroups.
+// Updates groups of access values in the data Register.Access value groups.
 //
 // Parameters:
-//  AccessValue - DefinedType.AccessValueObject - Object before writing.
-//                  - DefinedType.AccessValue - Empty references are ignored.
-//                      The value type must be included in the type list of the "AccessValue"
-//                      dimension in the "AccessValuesGroups" information register.
+//  AccessValue - DefinedType.AccessValueObject - 
+//                  - DefinedType.AccessValue - 
+//                      
+//                      
 //                  - Array of DefinedType.AccessValue
-//                  - Undefined - Update for all values of any type.
+//                  - Undefined - 
 //
-//  HasChanges   - Boolean - (return value) - if recorded,
-//                    True is set, otherwise, it does not change.
+//  HasChanges   - Boolean -  (return value) - if a record was made,
+//                    it is set to True, otherwise it is not changed.
 //
 Procedure UpdateAccessValuesGroups(AccessValue = Undefined,
                                         HasChanges   = Undefined) Export
@@ -195,11 +193,11 @@ Procedure UpdateAccessValuesGroups(AccessValue = Undefined,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// 
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	// Data registration is not required.
+	// 
 	Return;
 	
 EndProcedure
@@ -213,9 +211,9 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
-// Deletes unnecessary records if any are found.
+// Deletes rows that should not be present if they were added in any way.
 Procedure DeleteUnusedRecords(HasChanges = Undefined)
 	
 	AccessKindsProperties = AccessManagementInternal.AccessKindsProperties();
@@ -234,12 +232,12 @@ Procedure DeleteUnusedRecords(HasChanges = Undefined)
 		String.ValuesGroupsType = KeyAndValue.Value;
 	EndDo;
 	
-	// Data groups in the register.
-	// 0 - Standard access values.
-	// 1 - Internal or external users.
-	// 2 - Internal or external user groups.
-	// 3 - Assignee groups.
-	// 4 - Authorization objects.
+	// 
+	// 
+	// 
+	// 
+	// 
+	// 
 	
 	
 	Query = New Query;
@@ -458,7 +456,7 @@ Procedure DeleteUnusedRecords(HasChanges = Undefined)
 	
 EndProcedure
 
-// Fills groups for blank references to the access value types in use.
+// Populates groups for empty references of the access value types used.
 //
 // Parameters:
 //  HasChanges - See UpdateAccessValuesGroups.HasChanges
@@ -498,9 +496,9 @@ Procedure UpdateEmptyAccessValuesGroups(HasChanges = Undefined)
 	QueriesTextsForMissing = New Array;
 	QueriesTextsForRedundant = New Array;
 	
-	// ACC:1319-off - The lock is set in the called procedure "UpdateFromQueryResult".
+	// 
 	Block = New DataLock;
-	// ACC:1319-on
+	// 
 	
 	For Each TableName In AccessValuesWithGroups.NamesOfTablesToUpdate Do
 		RefType = Type(StrReplace(TableName, ".", "Ref."));
@@ -544,7 +542,7 @@ Procedure UpdateEmptyAccessValuesGroups(HasChanges = Undefined)
 	
 EndProcedure
 
-// Updates access value groups in "InformationRegister.AccessValuesGroups".
+// 
 //
 // Parameters:
 //  AccessValue - See UpdateAccessValuesGroups.AccessValue
@@ -732,9 +730,9 @@ Procedure UpdateAccessGroupsWithFilledValues(AccessValue, HasChanges)
 		Return;
 	EndIf;
 	
-	// ACC:1319-off - The lock is set in the called procedure "UpdateFromQueryResult".
+	// 
 	Block = New DataLock;
-	// ACC:1319-on
+	// 
 	
 	If TypeOf(AccessValue) = Type("Array") And AccessValue.Count() <= 1000 Then
 		For Each CurrentRef In AccessValue Do
@@ -757,7 +755,7 @@ Procedure UpdateAccessGroupsWithFilledValues(AccessValue, HasChanges)
 	
 EndProcedure
 
-// Intended for procedures "UpdateAccessValueGroups" and "UpdateEmptyAccessValuesGroups".
+// 
 Procedure UpdateFromQueryResult(Query, Block,
 			ByRefTypesForUpdate, NamesOfTablesToUpdate, HasChanges, IsNew = False)
 	
@@ -778,7 +776,7 @@ Procedure UpdateFromQueryResult(Query, Block,
 				RecordSet.Filter.DataGroup.Set(0);
 				RecordSet.Filter.AccessValue.Set(Selection.AccessValue);
 				RecordSet.Filter.AccessValuesGroup.Set(Selection.AccessValuesGroup);
-				RecordSet.Write(); // Delete unnecessary linkage records.
+				RecordSet.Write(); // 
 				
 				ValueType = TypeOf(Selection.AccessValue);
 				IsTypeProcessed = ProcessedTypes.Get(ValueType);
@@ -801,7 +799,7 @@ Procedure UpdateFromQueryResult(Query, Block,
 				RecordSet.Filter.AccessValuesGroup.Set(Selection.AccessValuesGroup);
 				RecordSet.Filter.DataGroup.Set(0);
 				FillPropertyValues(Record, Selection);
-				RecordSet.Write(); // Add missing linkage records.
+				RecordSet.Write(); // 
 				
 				ValueType = TypeOf(Selection.AccessValue);
 				IsTypeProcessed = ProcessedTypes.Get(ValueType);
@@ -826,7 +824,7 @@ Procedure UpdateFromQueryResult(Query, Block,
 	
 EndProcedure
 
-// Intended for procedure "UpdateAccessGroupsWithFilledValues".
+// 
 Procedure DoAddChanges(Ref, IsNew, ByRefTypesForUpdate, ValuesWithChangesByTypes, IsTypeProcessed)
 	
 	AccessKindProperties = ByRefTypesForUpdate.Get(TypeOf(Ref));
@@ -848,7 +846,7 @@ Procedure DoAddChanges(Ref, IsNew, ByRefTypesForUpdate, ValuesWithChangesByTypes
 	
 EndProcedure
 
-// Intended for procedure "UpdateAccessGroupsWithFilledValues".
+// 
 Function ErrorTextTypeNotConfigured(AccessValueType)
 	
 	ErrorTitle =
@@ -865,7 +863,7 @@ Function ErrorTextTypeNotConfigured(AccessValueType)
 	
 EndFunction
 
-// Intended for procedure "UpdateAccessValueGroups".
+// 
 Procedure CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate) Export
 	
 	ErrorTitle =
@@ -908,28 +906,28 @@ Procedure CheckTablesMetadata(NamesOfTablesToUpdate, ByRefTypesForUpdate) Export
 	
 EndProcedure
 
-// Updates user groups to check allowed values
-// for the Users and ExternalUsers access kinds.
+// Updates user groupings to check allowed values
+// by access type Users and external Users.
 //
-// <AccessValue field components> <AccessValuesGroup field components>.
-//                               <DataGroup field components>.
+// <Composition of the access Value field>    <The composition of the access assignment Group field>.
+//                               <Structure of the data Group field>.
 //
-// A) for the Users access kind:
-// {comparing with T.<field>} {Comparing with AccessGroupsValues.AccessValue}.
-//                                  {Comparing with &CurrentUser}.
+// A) for the type of access Users:
+// {comparison with T.<field>}           {Comparison with the value of the access Group.Access value}.
+//                                  {Comparison with &current User}.
 //
-// User 1 - The same User.
+// User 1 is The same User.
 //
-//                               1 - User group
+//                               1 - a group of users
 //                                   of the same user.
 //
-// B) for the External users access kind:
-// {comparing with T.<field>} {Comparing with AccessGroupsValues.AccessValue}.
-//                                  {Comparing with &CurrentExternalUser}.
+// B) for the type of access External users:
+// {comparison with T.<field>}           {Comparison with the value of the access Group.Access value}.
+//                                  {Comparison with &current external User}.
 //
-// External user 1 - The same External user.
+// External user 1 is The same External user.
 //
-//                               1 - External user group
+//                               1 - group of external users
 //                                   of the same external user.
 //
 Procedure UpdateUsers(Users1 = Undefined,
@@ -962,7 +960,7 @@ Procedure UpdateUsers(Users1 = Undefined,
 	|	VALUETYPE(UserGroupCompositions.User) = TYPE(Catalog.ExternalUsers)
 	|	AND &UserFilterCriterion1";
 	
-	// Preparing the selected fields with optional filter.
+	// 
 	Fields = New Array; 
 	Fields.Add(New Structure("AccessValue",       "&UserFilterCriterion2"));
 	Fields.Add(New Structure("AccessValuesGroup"));
@@ -988,29 +986,29 @@ Procedure UpdateUsers(Users1 = Undefined,
 	
 EndProcedure
 
-// Updates user groups to check allowed values
-// for the Users and ExternalUsers access kinds.
+// Updates user groupings to check allowed values
+// by access type Users and external Users.
 //
-// <AccessValue field components> <AccessValuesGroup field components>.
-//                               <DataGroup field components>.
+// <Composition of the access Value field>    <The composition of the access assignment Group field>.
+//                               <Structure of the data Group field>.
 //
-// A) for the Users access kind:
-// {comparing with T.<field>} {Comparing with AccessGroupsValues.AccessValue}.
-//                                  {Comparing with &CurrentUser}.
+// A) for the type of access Users:
+// {comparison with T.<field>}           {Comparison with the value of the access Group.Access value}.
+//                                  {Comparison with &current User}.
 //
-// User group 2 - The same User group.
+// User group 2 - The same user Group.
 //
-//                               2 - A user
+//                               2 - User
 //                                   of the same user group.
 //
-// B) for the External users access kind:
-// {comparing with T.<field>} {Comparing with AccessGroupsValues.AccessValue}.
-//                                  {Comparing with &CurrentExternalUser}.
+// B) for the type of access External users:
+// {comparison with T.<field>}           {Comparison with the value of the access Group.Access value}.
+//                                  {Comparison with &current external User}.
 //
-// External user group 2 - The same External user group.
+// External user group 2 - The same external user Group.
 //
-//                               2 - An external user
-//                                   from the same external user group.
+//                               2 - an External user
+//                                   of the same group of external users.
 //
 //
 Procedure UpdateUserGroups(UserGroups = Undefined,
@@ -1071,7 +1069,7 @@ Procedure UpdateUserGroups(UserGroups = Undefined,
 	|	AND VALUETYPE(UserGroupCompositions.User) = TYPE(Catalog.ExternalUsers)
 	|	AND &UserGroupFilterCriterion1";
 	
-	// Preparing the selected fields with optional filter.
+	// 
 	Fields = New Array; 
 	Fields.Add(New Structure("AccessValue",         "&UserGroupFilterCriterion2"));
 	Fields.Add(New Structure("AccessValuesGroup"));
@@ -1097,32 +1095,32 @@ Procedure UpdateUserGroups(UserGroups = Undefined,
 	
 EndProcedure
 
-// Updates user groups to check allowed values
-// for the Users and ExternalUsers access kinds.
+// Updates user groupings to check allowed values
+// by access type Users and external Users.
 //
-// <AccessValue field components> <AccessValuesGroup field components>.
-//                               <DataGroup field components>.
+// <Composition of the access Value field>    <The composition of the access assignment Group field>.
+//                               <Structure of the data Group field>.
 //
-// A) for the Users access kind:
-// {comparing with T.<field>} {Comparing with AccessGroupsValues.AccessValue}.
-//                                  {Comparing with &CurrentUser}.
+// A) for the type of access Users:
+// {comparison with T.<field>}           {Comparison with the value of the access Group.Access value}.
+//                                  {Comparison with &current User}.
 //
-// Assignee group 3 - A user
-//                                   of the same assignee group.
+// Artist group 3 - User
+//                                   of the same artist group.
 //
-//                               3 - User group
-//                                   of the same assignee group user.
+//                               3 - user Group of a user
+//                                   of the same group of performers.
 //
-// B) for the External users access kind:
-// {comparing with T.<field>} {Comparing with AccessGroupsValues.AccessValue}.
-//                                  {Comparing with &CurrentExternalUser}.
+// B) for the type of access External users:
+// {comparison with T.<field>}           {Comparison with the value of the access Group.Access value}.
+//                                  {Comparison with &current external User}.
 //
-// Assignee group 3 - An external user
-//                                   of the same assignee group.
+// Artist group 3 - an External user
+//                                   of the same artist group.
 //
-//                               3 - An external user group
-//                                   of an external user
-//                                   of the same assignee group.
+//                               3 - group of external users
+//                                   of the external user
+//                                   of the same group of performers.
 //
 Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
                                      Assignees        = Undefined,
@@ -1130,7 +1128,7 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 	
 	SetPrivilegedMode(True);
 	
-	// Prepare a table with additional user (assignee) groups.
+	// 
 	// 
 	
 	Query = New Query;
@@ -1176,7 +1174,7 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 		Return;
 	EndIf;
 	
-	// Preparing selected links of assignees and assignee groups.
+	// 
 	Query.SetParameter("EmptyValueGroupsReferences",
 		AccessManagementInternalCached.BlankSpecifiedTypesRefsTable(
 			"InformationRegister.AccessValuesGroups.Dimension.AccessValuesGroup").Get());
@@ -1236,8 +1234,8 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 	If PerformersGroups = Undefined
 	   And Assignees <> Undefined Then
 		
-		// ACC:96-off - No.434. Using JOIN is acceptable as the rows should be unique and
-		// the dataset is small (from units to hundreds).
+		// 
+		// 
 		QueryText =
 		"SELECT
 		|	AssigneeGroupsUsers.PerformersGroup
@@ -1250,7 +1248,7 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 		|	ExternalPerformerGroupUsers.PerformersGroup
 		|FROM
 		|	ExternalPerformerGroupUsers AS ExternalPerformerGroupUsers";
-		// ACC:96-on
+		// 
 		
 		Query.Text = TemporaryTablesQueriesText + "
 		|;
@@ -1310,7 +1308,7 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 	|		ON ExternalPerformerGroupUsers.ExternalUser = UserGroupCompositions.User
 	|			AND (VALUETYPE(UserGroupCompositions.UsersGroup) = TYPE(Catalog.ExternalUsersGroups))";
 	
-	// Preparing the selected fields with optional filter.
+	// 
 	Fields = New Array; 
 	Fields.Add(New Structure("AccessValue",         "&AssigneeGroupFilterCriterion"));
 	Fields.Add(New Structure("AccessValuesGroup"));
@@ -1334,21 +1332,21 @@ Procedure UpdatePerformersGroups(PerformersGroups = Undefined,
 	
 EndProcedure
 
-// Updates user groups to check allowed values
-// for the Users and ExternalUsers access kinds.
+// Updates user groupings to check allowed values
+// by access type Users and external Users.
 //
-// <AccessValue field components> <AccessValuesGroup field components>.
-//                               <DataGroup field components>.
+// <Composition of the access Value field>    <The composition of the access assignment Group field>.
+//                               <Structure of the data Group field>.
 //
-// For the External users access kind:
-// {comparing with T.<field>} {Comparing with AccessGroupsValues.AccessValue}.
-//                                  {Comparing with &CurrentExternalUser}.
+// For the External users access type:
+// {comparison with T.<field>}           {Comparison with the value of the access Group.Access value}.
+//                                  {Comparison with &current external User}.
 //
-// Authorization object 4 - An external user
+// Authorization object 4 - an External user
 //                                   of the same authorization object.
 //
-//                               4 - An external user group
-//                                   of an external user
+//                               4 - group of external users
+//                                   of the external user
 //                                   of the same authorization object.
 //
 Procedure UpdateAuthorizationObjects(AuthorizationObjects = Undefined, HasChanges = Undefined)
@@ -1387,7 +1385,7 @@ Procedure UpdateAuthorizationObjects(AuthorizationObjects = Undefined, HasChange
 	|WHERE
 	|	&AuthorizationObjectFilterCriterion1";
 	
-	// Preparing the selected fields with optional filter.
+	// 
 	Fields = New Array; 
 	Fields.Add(New Structure("AccessValue", "&AuthorizationObjectFilterCriterion2"));
 	Fields.Add(New Structure("AccessValuesGroup"));

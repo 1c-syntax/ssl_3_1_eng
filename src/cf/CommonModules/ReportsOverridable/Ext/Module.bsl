@@ -1,36 +1,34 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Called in the same-name event handler after executing the report form code.
-// See "ReportsClientOverridable.CommandHandler" and "ClientApplicationForm.OnCreateAtServer" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
-//   Form - ClientApplicationForm - Report form.
+//   Form - ClientApplicationForm -  report form.
 //         - ManagedFormExtensionForReports
 //         - Structure:
 //           * ReportSettings - See ReportsClientServer.DefaultReportSettings
-//   Cancel - Boolean - Flag indicating that the form creation is canceled.
-//   StandardProcessing - Boolean - Flag indicating whether standard (system) event processing is executed.
+//   Cancel - Boolean -  indicates that the form was not created.
+//   StandardProcessing - Boolean -  indicates whether standard (system) event processing is performed.
 //
 // Example:
-//	Add a command with a handler to ReportsClientOverridable.CommandHandler:
-//	Command = ReportForm.Commands.Add("MySpecialCommand");
-//	Command.Action = Attachable_Command;
-//	Command.Header = NStr("en = 'My command…'");
 //	
-//	Button = ReportForm.Items.Add(Command.Name, Type("FormButton"), ReportForm.Items.<SubmenuName>);
-//	Button.CommandName = Command.Name;
 //	
-//	ReportForm.ConstantCommands.Add(CreateCommand.Name);
+//	
+//	
+//	
+//	
+//	
+//	
+//	
 //
 Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
@@ -38,12 +36,12 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 EndProcedure
 
-// Called in the event handler of the report form and the report settings form.
-// See "Managed form extension for reports.BeforeLoadOptionAtServer" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
-//   Form - ClientApplicationForm - Report form or a report settings form.
-//   NewDCSettings - DataCompositionSettings - Settings to load into the Settings Composer.
+//   Form - ClientApplicationForm -  report form or report settings.
+//   NewDCSettings - DataCompositionSettings -  settings to upload to the settings Builder.
 //
 Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 	
@@ -51,57 +49,57 @@ Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 	
 EndProcedure
 
-// Called in the report form and report settings form before displaying the setting 
-// for specifying additional choice parameters.
-// Obsolete, use the AfterLoadSettingsInLinker event of the report module instead.
+//  
+// 
+// 
 // 
 // Parameters:
 //  Form - ClientApplicationForm
 //        - ManagedFormExtensionForReports
-//        - Undefined - Report form.
-//  SettingProperties - Structure - Details of the report setting to be displayed in the report form, where::
-//      * DCField - DataCompositionField - Setting to be output.
-//      * TypeDescription - TypeDescription - Type of a setting to be output.
-//      * ValuesForSelection - ValueList - Objects to be prompted to a user in the choice list.
-//                            The parameter adds items to the list of objects previously selected by a user.
-//                            Note: Do not assign new value lists to this parameter.
-//      * SelectionValuesQuery - Query - Query to obtain objects to be added to ValuesForSelection. 
-//                               As the first column (with 0 index), select the object,
-//                               that has to be added to the ValuesForSelection.Value.
-//                               To disable autofilling, assign the SelectionValuesQuery.Text property
-//                               to a blank string.
-//      * RestrictSelectionBySpecifiedValues - Boolean - Pass True to restrict user selection
-//                                                with values specified in ValuesForSelection (its final state).
+//        - Undefined -  report form.
+//  SettingProperties - Structure - :
+//      * DCField - DataCompositionField -  output setting.
+//      * TypeDescription - TypeDescription -  type of output setting.
+//      * ValuesForSelection - ValueList -  specify the objects that will be offered to the user in the selection list.
+//                            Complements the list of objects that the user has already selected earlier.
+//                            However, you should not assign a new list of values to this parameter.
+//      * SelectionValuesQuery - Query -  to specify the query to select objects that you want to Supplement 
+//                               Values for the selection. The first column (with index 0) should select the object
+//                               to add to the selection Value.Value.
+//                               To disable AutoFill in the query property, select Values.The text should be written
+//                               as an empty string.
+//      * RestrictSelectionBySpecifiedValues - Boolean -  specify True to restrict the user's selection
+//                                                to the values specified in the selection Value (its final state).
 //      * Type - String
 //
 // Example:
-//   1. For all CatalogRef.Users settings, hide and do not allow selecting users marked for deletion, 
-//   inactive users, and utility users.
+//   1. for all settings of the reference Link type.Users hide and do not allow to select marked for deletion, 
+//   invalid and service users.
 //
-//   If SettingProperties.TypeDescription.ContainsType(Type("CatalogRef.Users")) Then
-//     SettingProperties.RestrictSelectionBySpecifiedValues = True;
-//     SettingProperties.ValuesForSelection.Clear();
-//     SettingProperties.SelectionValuesQuery.Text =
-//       "SELECT Ref FROM Catalog.Users
-//       |WHERE NOT DeletionMark AND NOT Invalid AND NOT IsInternal";
-//   EndIf;
+//   If The Properties Of The Configuration.Apisination.Stereotip(Type("Spravochniki.Users")) Then
+//     Properties of the configuration.Restrict Selectionsreferences = True;
+//     Properties of the configuration.Values for the selection.Clear();
+//     Properties of the configuration.Zaproszenie.Text =
+//       " SELECT Link from directory.Users
+//       |WHERE not marked as Deleted and not Invalid AND not Official";
+//   Conicelli;
 //
-//   2. Provide an additional value for selection for the Size setting.
+//   2. For setting "Size" to provide additional value for selection.
 //
-//   If SettingProperties.DCField = New DataCompositionField("DataParameters.Size") Then
-//     SettingProperties.ValuesForSelection.Add(10000000, NStr("en = 'Over 10 MB'"));
-//   EndIf;
+//   If The Properties Of The Configuration.Poland = New Precompounding("Parametrizing.Size") Then
+//     Properties of the configuration.Values for the selection.Add(10000000, NSTR ("ru = 'More Than 10 MB'"));
+//   Conicelli;
 //
 Procedure OnDefineSelectionParameters(Form, SettingProperties) Export
 	
 EndProcedure
 
-// Allows to set a list of frequently used fields displayed in the submenu for context menu commands 
-// "Insert field to the left", "Insert grouping below", etc.  
+// Allows you to set a list of frequently used fields that will be displayed in the submenu for the context menu commands 
+// "Insert field on the left", "Insert grouping below", etc.  
 //
 // Parameters:
-//   Form - ClientApplicationForm - Report form.
-//   MainField - Array of String - Names of the most frequently used report fields.
+//   Form - ClientApplicationForm -  report form.
+//   MainField - Array of String -  names are often used in the report field.
 //
 Procedure WhenDefiningTheMainFields(Form, MainField) Export 
 	

@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Handles mouse double-click, "Enter" key, and hyperlink activation in report spreadsheets.
-// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
-//   ReportForm          - ClientApplicationForm - a report form.
-//   Item              - FormField        - a spreadsheet document.
-//   Area              - SpreadsheetDocumentRange - a selected value.
-//   StandardProcessing - Boolean - indicates whether standard event processing is executed.
+//   ReportForm          - ClientApplicationForm -  report form.
+//   Item              - FormField        -  table document.
+//   Area              - SpreadsheetDocumentRange -  selected value.
+//   StandardProcessing - Boolean -  indicates whether standard event processing is being performed.
 //
 Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardProcessing) Export
 	
@@ -36,16 +34,16 @@ EndProcedure
 
 #Region Private
 
-// Open the register form with filter by recorder
+// Opens the register form with selection by Registrar
 //
 // Parameters:
-//   ReportForm      - ClientApplicationForm - a report form.
+//   ReportForm      - ClientApplicationForm -  report form.
 //   Details      - Structure:
-//      * RegisterType - a register kind: "AccumulationRegister", "InformationRegister", "AccountingRegister", or "CalculationRegister".
-//      * RegisterName - a name of a register as a metadata object.
-//      * Recorder - a reference to a document recorder for which you need to make a filter
-//                      in the opened register form.
-//   StandardProcessing - Boolean  - indicates whether standard (system) event processing is executed.
+//      * RegisterType - 
+//      * RegisterName - 
+//      * Recorder - 
+//                      
+//   StandardProcessing - Boolean  -  indicates whether standard (system) event processing is performed.
 //
 Procedure OpenRegisterFormFromRecordsReport(ReportForm, Details, StandardProcessing)
 
@@ -80,22 +78,22 @@ Procedure OpenRegisterFormFromRecordsReport(ReportForm, Details, StandardProcess
 	
 EndProcedure
 
-// Adds a filter to the collection of the composer filters or group of selections
+// Adds a selection to the linker's selection collection or selection group
 //
 // Parameters:
 //   StructureItem        - DataCompositionSettingsComposer
-//                           - DataCompositionSettings - a data composition structure item.
-//   FilterParameters         - Structure - contains data composition filter parameters.:
-//     * Field                - String - a field name, by which a filter is added.
-//     * Value            - Arbitrary - a filter value of data composition (Undefined by default).
-//     * ComparisonType        - DataCompositionComparisonType - a comparison type of data composition (Undefined by default).
-//     * Use       - Boolean - indicates that filter is used (True by default).
-//   AdditionalParameters - Structure - contains additional parameters, listed below:
-//     * ToUserSettings - Boolean - a flag of adding to data composition user settings (False by default).
-//     * ReplaceCurrent       - Boolean - a flag of complete replacement of existing filter by field (True by default).
+//                           - DataCompositionSettings - 
+//   FilterParameters         - Structure - :
+//     * Field                - String -  name of the field to add the selection to.
+//     * Value            - Arbitrary -  CD selection value (default: Undefined).
+//     * ComparisonType        - DataCompositionComparisonType -  type of CD comparisons (default: Undefined).
+//     * Use       - Boolean -  indicates whether selection is used (default: True).
+//   AdditionalParameters - Structure - :
+//     * ToUserSettings - Boolean -  whether to add a CD to the user settings (by default: Lie).
+//     * ReplaceCurrent       - Boolean -  indicates whether the existing selection by field is completely replaced (default: True).
 //
 // Returns:
-//   DataCompositionFilterItem - an added filter.
+//   DataCompositionFilterItem - 
 //
 Function AddFilter(StructureItem, FilterParameters, AdditionalParameters = Undefined)
 	

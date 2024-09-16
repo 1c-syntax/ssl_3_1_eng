@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -481,7 +479,7 @@ Procedure UpdateList(AfterAdd = False)
 	Items.WarningGroup.Visible = ExtensionsStateChanged;
 	SetPrivilegedMode(False);
 	
-	// Updating the form attribute for conditional formatting.
+	// 
 	IsSharedUserInArea = IsSharedUserInArea();
 	
 	Items.WarningDetails.Visible = Not IsSharedUserInArea;
@@ -1548,7 +1546,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// Setting ReadOnly appearance parameter for common extensions and extensions passed from the master node to the subordinate DIB node.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1847,10 +1845,10 @@ Procedure DisableAttachExtensions()
 		Else
 			ExtensionsWithDataText = StrConcat(ExtensionsSynonyms.WithData, Chars.LF + " - ");
 			QueryText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Som of the selected extensions stores its data in the app. This data will become unavailable.
+				NStr("en = 'Some selected extensions store their data in the app. This data will become unavailable.
 				           |The related app data might become unchangeable.
 				           |
-				           |The extension with data:
+				           |The extensions with data stored in the app:
 				           | - %1';"),
 				ExtensionsWithDataText);
 		EndIf;
@@ -2104,7 +2102,7 @@ EndProcedure
 
 &AtClient
 Procedure AfterSettingTheExclusiveMode(Result, AdditionalParameters) Export
-	If Result = False Then // The exclusive mode is set.
+	If Result = False Then // 
 		ShowTimeConsumingOperation();
 		AttachIdleHandler("ReAddExtensionWithData", 0.1, True);
 	EndIf;

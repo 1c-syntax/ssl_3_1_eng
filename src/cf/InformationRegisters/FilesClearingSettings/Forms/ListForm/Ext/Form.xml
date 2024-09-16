@@ -124,6 +124,12 @@
 				</ChildItems>
 			</Popup>
 			<Popup name="ReportsSubmenu" id="156">
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reports</v8:content>
+					</v8:item>
+				</Title>
 				<Picture>
 					<xr:Ref>CommonPicture.Reports</xr:Ref>
 					<xr:LoadTransparent>false</xr:LoadTransparent>

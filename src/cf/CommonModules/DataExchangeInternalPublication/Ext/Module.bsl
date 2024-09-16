@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -49,9 +47,18 @@ Procedure RunDataExchangeByScenario(ExchangeScenarioCode) Export
 		Return;
 	EndIf;
 	
-	// Jobs from the last runtime scenario must be completed.
+	// 
 	If Not IsTaskQueueCompleted(Scenario) Then
+		
+		MessageText = NStr("en = 'A scenario-based synchronization run couldn not start.
+                               |The previous synchronization session has not neem completed.';",
+			Common.DefaultLanguageCode());
+		
+		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
+			EventLogLevel.Information,,,MessageText);
+		
 		Return;
+		
 	EndIf;
 			
 	FirstTask = Undefined;
@@ -89,7 +96,7 @@ Procedure RunDataExchangeManually(Node, ExchangeParameters, ExportAddition = Und
 	JobParameters.Insert("ScheduledStartTime", CurrentUniversalDate());
 	JobParameters.Insert("Parameters", ProcedureParameters);
 	JobParameters.Insert("RestartCountOnFailure", 3);
-	JobParameters.Insert("RestartIntervalOnFailure", 300);
+	JobParameters.Insert("RestartIntervalOnFailure", 900);
 
 	ModuleJobsQueue = Common.CommonModule("JobsQueue");
 	ModuleJobsQueue.AddJob(JobParameters);
@@ -97,6 +104,10 @@ Procedure RunDataExchangeManually(Node, ExchangeParameters, ExportAddition = Und
 EndProcedure	
 
 Procedure RunTaskQueue(Task, JobPrev = "") Export
+	
+	If Task = Undefined Then
+		Return;
+	EndIf;
 	
 	If TypeOf(Task) = Type("String") Then
 		CurrTask = TaskByID(Task);
@@ -121,7 +132,7 @@ Procedure RunTaskQueue(Task, JobPrev = "") Export
 	
 	EndIf;
 	
-	// Actions running in the source infobase. The next task can start after their completion.
+	// 
 	ActionsInSource = New Array;
 	ActionsInSource.Add(Enums.ActionsAtCancelInternalPublication.DataExport);
 	ActionsInSource.Add(Enums.ActionsAtCancelInternalPublication.DataImport);
@@ -146,7 +157,7 @@ Procedure RunTaskQueue(Task, JobPrev = "") Export
 			
 		EndIf;
 		
-		// No more tasks left.
+		// 
 		If CurrTask = Undefined Then
 			Break;
 		EndIf;
@@ -170,7 +181,9 @@ Function TaskByID(TaskID__) Export
 		|	Tasks.OperationSuccessful AS OperationSuccessful,
 		|	Tasks.OperationFailed AS OperationFailed,
 		|	Tasks.Error AS Error,
-		|	Tasks.Parameters AS Parameters
+		|	Tasks.Parameters AS Parameters,
+		|	Tasks.Mode AS Mode,
+		|	Tasks.CorrespondentDataArea AS CorrespondentDataArea
 		|FROM
 		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
 		|WHERE
@@ -205,7 +218,9 @@ Function NextTask(TaskID__) Export
 		|	TaskNxt.OperationSuccessful AS OperationSuccessful,
 		|	TaskNxt.OperationFailed AS OperationFailed,
 		|	TaskNxt.Error AS Error,
-		|	TaskNxt.Parameters AS Parameters
+		|	TaskNxt.Parameters AS Parameters,
+		|	TaskNxt.Mode AS Mode,
+		|	TaskNxt.CorrespondentDataArea AS CorrespondentDataArea
 		|FROM
 		|	InformationRegister.DataExchangeTasksInternalPublication AS Task
 		|		INNER JOIN InformationRegister.DataExchangeTasksInternalPublication AS TaskNxt
@@ -264,74 +279,42 @@ Function HasNodeScheduledExchange(Node, Scenario = "", ExchangeID = "") Export
 EndFunction
 
 Procedure CancelTaskQueue(Node, Scenario, ExchangeID) Export
-	
+
 	Query = New Query;
 	Query.Text = 
-		"SELECT TOP 1
-		|	Tasks.CreationDate AS CreationDate,
-		|	Tasks.Scenario AS Scenario,
-		|	Tasks.ExchangeID AS ExchangeID
-		|INTO ttLastScenario
-		|FROM
-		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
-		|WHERE
-		|	Tasks.ExchangeID = &ExchangeID
-		|
-		|ORDER BY
-		|	CreationDate DESC
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT
+		"SELECT
 		|	Tasks.CreationDate AS CreationDate,
 		|	Tasks.InfobaseNode AS InfobaseNode,
 		|	Tasks.TaskNumber AS TaskNumber,
 		|	Tasks.ExchangeID AS ExchangeID,
-		|	Tasks.TaskID__ AS TaskID__
-		|FROM
-		|	ttLastScenario AS ttLastScenario
-		|		INNER JOIN InformationRegister.DataExchangeTasksInternalPublication AS Tasks
-		|		ON ttLastScenario.CreationDate = Tasks.CreationDate
-		|			AND ttLastScenario.ExchangeID = Tasks.ExchangeID
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT
 		|	Tasks.TaskID__ AS TaskID__,
-		|	Tasks.Action AS Action,
 		|	Tasks.OperationSuccessful AS OperationSuccessful,
-		|	Tasks.OperationFailed AS OperationFailed
+		|	Tasks.OperationFailed AS OperationFailed,
+		|	Tasks.Action AS Action
 		|FROM
-		|	ttLastScenario AS ttLastScenario
-		|		LEFT JOIN InformationRegister.DataExchangeTasksInternalPublication AS Tasks
-		|		ON ttLastScenario.CreationDate = Tasks.CreationDate
-		|			AND ttLastScenario.ExchangeID = Tasks.ExchangeID";
+		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
+		|WHERE
+		|	Tasks.ExchangeID = &ExchangeID";
 	
 	Query.SetParameter("ExchangeID", ExchangeID);
 	
-	Result = Query.ExecuteBatch();
-		
-	Selection = Result[1].Select();
+	Result = Query.Execute();
 	
-	While Selection.Next() Do
+	If Result.IsEmpty() Then
+		Return;
+	EndIf;
 		
-		Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
-		FillPropertyValues(Record, Selection);
-		Record.Read();
-		Record.Delete();
-		
-	EndDo;
+	Selection = Result.Select();
 	
 	SourceTasks = New Array;
 	
-	If TypeOf(Scenario) = Type("CatalogRef.DataExchangeScenarios") Then
-		SourceTasks.Add(Scenario.GUIDScheduledJob);
+	If ValueIsFilled(Scenario) Then
+		GUIDScheduledJob = Common.ObjectAttributeValue(Scenario, "GUIDScheduledJob");
+		SourceTasks.Add(GUIDScheduledJob);
 	EndIf;
 	
 	DestinationTasks = New Array;
-	
-	Selection = Result[2].Select();
-	
+		
 	While Selection.Next() Do
 		
 		If (Selection.Action = Enums.ActionsAtCancelInternalPublication.DataExportPeer
@@ -342,15 +325,17 @@ Procedure CancelTaskQueue(Node, Scenario, ExchangeID) Export
 			
 		ElsIf Selection.Action = Enums.ActionsAtCancelInternalPublication.DataExport
 			Or Selection.Action = Enums.ActionsAtCancelInternalPublication.DataImport
-			Or Selection.Action = Enums.ActionsAtCancelInternalPublication.AdditionalRegistration Then
+			Or Selection.Action = Enums.ActionsAtCancelInternalPublication.AdditionalRegistration
+			And Not Selection.OperationSuccessful Then
 			
 			SourceTasks.Add(Selection.TaskID__);
 			
 		EndIf;
 		
-		If Not Selection.OperationSuccessful Then
-			Break;
-		EndIf;
+		Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
+		FillPropertyValues(Record, Selection);
+		Record.Read();
+		Record.Delete();
 		
 	EndDo;
 	
@@ -362,23 +347,25 @@ Procedure CancelTaskQueue(Node, Scenario, ExchangeID) Export
 		
 		Filter = New Structure("Key", TaskID__); 
 		Jobs = ModuleJobsQueue.GetJobs(Filter);
-		
-		If Jobs.Count() = 0 Then
-			Continue;
-		EndIf;
+	
+		For Each Job In Jobs Do
 			
-		BackgrJobUUID = Jobs[0].Id.ActiveBackgroundJob;
+			JobParameters = New Structure;
+			JobParameters.Insert("RestartCountOnFailure", 0);
 			
-		If Not ValueIsFilled(BackgrJobUUID) Then
-			Continue;
-		EndIf;
+			ModuleJobsQueue.ChangeJob(Job.Id, JobParameters);
+			ModuleJobsQueue.DeleteJob(Job.Id);
+			
+			BackgrJobUUID = Common.ObjectAttributeValue(
+				Job.Id, "ActiveBackgroundJob");
+				
+			TimeConsumingOperations.CancelJobExecution(BackgrJobUUID);	
 		
-		BackgroundJob = BackgroundJobs.FindByUUID(BackgrJobUUID);
-		If BackgroundJob <> Undefined Then
-			BackgroundJob.Cancel();
-		EndIf;
+		EndDo;
 		
 	EndDo;
+	
+	SetPrivilegedMode(False);
 	
 	If DestinationTasks.Count() > 0 Then
 		
@@ -582,7 +569,7 @@ Function ExchangeSettingsForInfobaseNode(Node, Action, Cancel) Export
 		Node, ActionOnExchange, Enums.ExchangeMessagesTransportTypes.WS, False);
 	
 	If ExchangeSettingsStructure.Cancel Then
-		// If a setting contains errors, canceling the exchange, Canceled status.
+		// 
 		DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
 		Cancel = True;
 		Return Undefined;
@@ -602,57 +589,121 @@ EndFunction
 
 Procedure DeleteObsoleteTasks(Scenario = Undefined, ManualExchange = False)
 	
-	// Keep N newest records.
-	Query = New Query;
-	Query.Text = 
-		"SELECT DISTINCT TOP 5
-		|	Tasks.CreationDate AS CreationDate
-		|INTO TTDates
-		|FROM
-		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
-		|WHERE
-		|	(&ManualExchange
-		|				AND VALUETYPE(Tasks.Scenario) = TYPE(STRING)
-		|			OR NOT &ManualExchange
-		|				AND Tasks.Scenario = &Scenario)
-		|
-		|ORDER BY
-		|	CreationDate DESC
-		|;
-		|
-		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT
-		|	Tasks.CreationDate AS CreationDate,
-		|	Tasks.InfobaseNode AS InfobaseNode,
-		|	Tasks.TaskNumber AS TaskNumber,
-		|	Tasks.ExchangeID AS ExchangeID,
-		|	Tasks.TaskID__ AS TaskID__
-		|FROM
-		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
-		|WHERE
-		|	Tasks.Scenario = &Scenario
-		|	AND NOT Tasks.CreationDate IN
-		|				(SELECT
-		|					TTDates.CreationDate
-		|				FROM
-		|					TTDates)";
+	BeginTransaction();
 	
-	Query.SetParameter("Scenario", Scenario);
-	Query.SetParameter("ManualExchange", ManualExchange);
-	
-	Selection = Query.Execute().Select();
-	
-	While Selection.Next() Do
+	Try
 		
-		Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
-		FillPropertyValues(Record, Selection);
-		Record.Read();
+		// 
+		Query = New Query;
+		Query.Text = 
+			"SELECT ALLOWED
+			|	Tasks.CreationDate AS CreationDate,
+			|	Tasks.InfobaseNode AS InfobaseNode,
+			|	Tasks.TaskNumber AS TaskNumber,
+			|	Tasks.ExchangeID AS ExchangeID,
+			|	Tasks.TaskID__ AS TaskID__
+			|FROM
+			|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
+			|WHERE
+			|	Tasks.InfobaseNode.Code IS NULL";
 		
-		If Record.Selected() Then
-			Record.Delete();
+		Selection = Query.Execute().Select();
+		
+		While Selection.Next() Do 
+			
+			Block = New DataLock;
+			LockItem = Block.Add("InformationRegister.DataExchangeTasksInternalPublication");
+			LockItem.SetValue("CreationDate", Selection.CreationDate);
+			LockItem.SetValue("InfobaseNode", Selection.InfobaseNode);
+			LockItem.SetValue("TaskNumber", Selection.TaskNumber);
+			LockItem.SetValue("ExchangeID", Selection.ExchangeID);
+			LockItem.SetValue("TaskID__", Selection.TaskID__);
+			LockItem.Mode = DataLockMode.Exclusive;
+			Block.Lock();
+			
+			Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
+			FillPropertyValues(Record, Selection);
+			Record.Read();
+			
+			If Record.Selected() Then
+				Record.Delete();
+			EndIf;
+			
+		EndDo;
+			
+		// 
+		Query = New Query;
+		Query.Text = 
+			"SELECT DISTINCT TOP 5
+			|	Tasks.ExchangeID AS ExchangeID
+			|INTO TTLastSync
+			|FROM
+			|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
+			|WHERE
+			|	Tasks.Scenario = &Scenario
+			|;
+			|
+			|////////////////////////////////////////////////////////////////////////////////
+			|SELECT
+			|	Tasks.CreationDate AS CreationDate,
+			|	Tasks.InfobaseNode AS InfobaseNode,
+			|	Tasks.TaskNumber AS TaskNumber,
+			|	Tasks.ExchangeID AS ExchangeID,
+			|	Tasks.TaskID__ AS TaskID__
+			|FROM
+			|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
+			|		FULL JOIN TTLastSync AS TTLastSync
+			|		ON Tasks.ExchangeID = TTLastSync.ExchangeID
+			|WHERE
+			|	TTLastSync.ExchangeID IS NULL
+			|	AND Tasks.Scenario = &Scenario
+			|
+			|ORDER BY
+			|	CreationDate";
+		
+		If ValueIsFilled(Scenario) Then
+			Query.SetParameter("Scenario", Scenario);
+		Else
+			Query.SetParameter("Scenario", Catalogs.DataExchangeScenarios.EmptyRef());	
 		EndIf;
 		
-	EndDo;
+		Selection = Query.Execute().Select();
+		
+		While Selection.Next() Do
+			
+			Block = New DataLock;
+			LockItem = Block.Add("InformationRegister.DataExchangeTasksInternalPublication");
+			LockItem.SetValue("CreationDate", Selection.CreationDate);
+			LockItem.SetValue("InfobaseNode", Selection.InfobaseNode);
+			LockItem.SetValue("TaskNumber", Selection.TaskNumber);
+			LockItem.SetValue("ExchangeID", Selection.ExchangeID);
+			LockItem.SetValue("TaskID__", Selection.TaskID__);
+			LockItem.Mode = DataLockMode.Exclusive;
+			Block.Lock();
+			
+			Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
+			FillPropertyValues(Record, Selection);
+			Record.Read();
+			
+			If Record.Selected() Then
+				Record.Delete();
+			EndIf;
+			
+		EndDo;
+		
+		CommitTransaction();
+	
+	Except
+				
+		RollbackTransaction();
+		
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		
+		Event = NStr("en = 'Data exchange.Records deleted from task register';", Common.DefaultLanguageCode());
+		
+		WriteLogEvent(Event, EventLogLevel.Error, , , ErrorMessage);
+	
+	EndTry;
 	
 EndProcedure
 
@@ -794,26 +845,57 @@ Procedure DeleteTasksAccordingToScriptWithError(Scenario) Export
 	
 EndProcedure	
 
-Function IsTaskQueueCompleted(Scenario = "", ExchangeID = "", Error = "")
+Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "")
 	
-	// Assume that the scenario (or manual exchange) is completed if "CompletedSuccessfully" is set to "True" for all tasks, or an error occurred. 
+	//  
+	If ValueIsFilled(Scenario) And Not ValueIsFilled(ExchangeID) Then
+		
+		Query = New Query;
+		Query.Text = 
+			"SELECT TOP 1
+			|	Tasks.ExchangeID AS ExchangeID
+			|FROM
+			|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
+			|WHERE
+			|	Tasks.Scenario = &Scenario
+			|
+			|ORDER BY
+			|	Tasks.CreationDate DESC";
+		
+		Query.SetParameter("Scenario", Scenario);
+		
+		Selection = Query.Execute().Select();
+		
+		If Selection.Next() Then
+			ExchangeID = Selection.ExchangeID;		
+		Else	
+			Return True;	
+		EndIf;
+		
+	EndIf;
 	
 	Query = New Query;
 	Query.Text = 
 		"SELECT
-		|	Tasks.TaskID__ AS TaskID__,
+		|	Tasks.CreationDate AS CreationDate,
 		|	Tasks.InfobaseNode AS InfobaseNode,
 		|	Tasks.TaskNumber AS TaskNumber,
+		|	Tasks.ExchangeID AS ExchangeID,
+		|	Tasks.TaskID__ AS TaskID__,
 		|	Tasks.Action AS Action,
 		|	Tasks.OperationSuccessful AS OperationSuccessful,
 		|	Tasks.OperationFailed AS OperationFailed,
-		|	Tasks.Error AS Error
+		|	Tasks.Error AS Error,
+		|	CASE
+		|		WHEN Tasks.TaskCheckTime = DATETIME(1, 1, 1)
+		|			THEN Tasks.CreationDate
+		|		ELSE Tasks.TaskCheckTime
+		|	END AS TaskCheckTime
 		|INTO TTTasks
 		|FROM
 		|	InformationRegister.DataExchangeTasksInternalPublication AS Tasks
 		|WHERE
-		|	(Tasks.Scenario = &Scenario
-		|			OR Tasks.ExchangeID = &ExchangeID)
+		|	Tasks.ExchangeID = &ExchangeID
 		|;
 		|
 		|////////////////////////////////////////////////////////////////////////////////
@@ -843,10 +925,13 @@ Function IsTaskQueueCompleted(Scenario = "", ExchangeID = "", Error = "")
 		|
 		|////////////////////////////////////////////////////////////////////////////////
 		|SELECT TOP 1
-		|	TTTasks.TaskID__ AS TaskID__,
+		|	TTTasks.CreationDate AS CreationDate,
 		|	TTTasks.InfobaseNode AS InfobaseNode,
+		|	TTTasks.TaskNumber AS TaskNumber,
+		|	TTTasks.ExchangeID AS ExchangeID,
+		|	TTTasks.TaskID__ AS TaskID__,
 		|	TTTasks.Action AS Action,
-		|	TTTasks.TaskNumber AS TaskNumber
+		|	DATEDIFF(TTTasks.TaskCheckTime, &CurrentDate, HOUR) AS LastCheck
 		|FROM
 		|	TTTasks AS TTTasks
 		|WHERE
@@ -855,30 +940,95 @@ Function IsTaskQueueCompleted(Scenario = "", ExchangeID = "", Error = "")
 		|
 		|ORDER BY
 		|	TaskNumber";
-	
-	Query.SetParameter("Scenario", Scenario);
+		
 	Query.SetParameter("ExchangeID", ExchangeID);
+	Query.SetParameter("CurrentDate", CurrentUniversalDate());
 	
 	Result = Query.ExecuteBatch();
 	
-	// Completed with errors
+	// 
 	Selection = Result[1].Select();
 	If Selection.Next() Then
 		Error = Selection.Error;
 		Return True;
 	EndIf;
 	
-	// All tasks completed
+	// 
 	Selection = Result[2].Select();
 	If Selection.Next() Then
 		Return True;
 	EndIf;
 	
-	// Current task
+	// 
 	Selection = Result[3].Select();
 	
 	If Selection.Next() Then
-		Return False
+		
+		If (Selection.Action = Enums.ActionsAtCancelInternalPublication.DataImport
+			Or Selection.Action = Enums.ActionsAtCancelInternalPublication.DataExport
+			Or Selection.Action = Enums.ActionsAtCancelInternalPublication.AdditionalRegistration) Then
+			
+			Return False;
+			
+		EndIf;	
+		
+		// 
+		
+		State = "";
+		
+		If Selection.LastCheck >= 1 Then
+			
+			Proxy = Undefined;
+			ProxyParameters = New Structure;
+			Cancel = False;
+			
+			ExchangeSettingsStructure = ExchangeSettingsForInfobaseNode(
+				Selection.InfobaseNode, "CheckingStateOfTask", Cancel);
+			
+			Try
+				ProxyInitialization(Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error);
+				State = Proxy.TaskStatus(Selection.TaskID__);
+			Except
+				// 
+				Return False;
+			EndTry
+		Else
+			
+			Return False;
+			
+		EndIf;
+			
+		If State = "Scheduled" Or State = "Running" Then
+			
+			Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
+			FillPropertyValues(Record, Selection);
+			Record.Read();
+			Record.TaskCheckTime = CurrentUniversalDate();
+			Record.Write();
+			
+			Return False;
+			
+		Else
+			
+			Record = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordManager();
+			FillPropertyValues(Record, Selection);
+			Record.Read();
+			
+			Template = NStr("en = 'Active exchange tasks not found in the peer infobase.
+                                |For information, see the event log in the peer infobase (%1).';", Common.DefaultLanguageCode());
+			
+			Error = StrTemplate(Template, Selection.InfobaseNode);
+				
+			DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);	
+				
+			Record.OperationFailed = True;
+			Record.Error = Error; 
+			Record.Write();
+			
+			Return True;
+			
+		EndIf;
+		
 	EndIf;
 		
 	Return True;
@@ -897,6 +1047,9 @@ Function StructureOfTask()
 	Task.Insert("Action");
 	Task.Insert("OperationSuccessful");
 	Task.Insert("OperationFailed");
+	Task.Insert("TaskCheckTime");
+	Task.Insert("Mode");
+	Task.Insert("CorrespondentDataArea");
 	Task.Insert("Parameters");
 	
 	Return Task;
@@ -914,13 +1067,14 @@ Procedure RunTaskByScenario(Scenario, FirstTask = Undefined)
 		|	Catalog.DataExchangeScenarios.ExchangeSettings AS ExchangeSettings
 		|WHERE
 		|	ExchangeSettings.Ref = &Ref
+		|	AND NOT ExchangeSettings.InfobaseNode.Code IS NULL
 		|
 		|ORDER BY
 		|	ExchangeSettings.LineNumber";
 	
 	Query.SetParameter("Ref", Scenario);
 	
-	Selection = Query.Execute().Select(); // ACC:1328 - Lock not required.
+	Selection = Query.Execute().Select(); // 
 	
 	TaskNumber = 1;
 	
@@ -936,6 +1090,12 @@ Procedure RunTaskByScenario(Scenario, FirstTask = Undefined)
 	While Selection.Next() Do
 		
 		Record.Insert("InfobaseNode", Selection.InfobaseNode);
+		
+		TransportSettings = 
+			InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(Selection.InfobaseNode);
+		
+		Record.CorrespondentDataArea = TransportSettings.WSCorrespondentDataArea;
+		Record.Mode = NStr("en = 'Automatic';", Common.DefaultLanguageCode());
 		
 		If Selection.CurrentAction = Enums.ActionsOnExchange.DataImport Then
 			
@@ -1005,12 +1165,17 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	Record.OperationSuccessful = False;
 	Record.OperationFailed = False;
 	Record.ExchangeID = ExchangeID;
+	
+	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
+	
+	Record.CorrespondentDataArea = TransportSettings.WSCorrespondentDataArea;
+	Record.Mode = NStr("en = 'Manual';", Common.DefaultLanguageCode());
 		
 	Set = InformationRegisters.DataExchangeTasksInternalPublication.CreateRecordSet();
 	
 	TaskNumber = 1;
 			
-	// Receive data (UploadDataInt)
+	// 
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataExportPeer;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -1021,7 +1186,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 			
 	FirstTask = Common.CopyRecursive(Record, False);
 	
-	// Receive data (Load)
+	// 
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataImport;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -1030,7 +1195,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	TaskNumber = TaskNumber + 1;
 	
-	// Additional registration
+	// 
 	If ExportAddition <> Undefined Then
 
 		Record.Action = Enums.ActionsAtCancelInternalPublication.AdditionalRegistration;
@@ -1044,7 +1209,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	EndIf;
 		
-	// Send data (Upload0)
+	// 
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataExport;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -1053,7 +1218,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	TaskNumber = TaskNumber + 1;
 		
-	// Send data (DownloadDataInt)
+	// 
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataImportPeer;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;	
@@ -1072,13 +1237,24 @@ Procedure CallingBack(ExchangePlanName, InfobaseNodeCode, TaskID__, Error = "")
 	
 	Proxy = DataExchangeWebService.WSProxyForInfobaseNode(Node, ErrorMessageString);
 	
-	Proxy.Callback(TaskID__, Error, TransportSettings.WSCorrespondentDataArea);
+	If Proxy = Undefined Then
+		ExceptionText = NStr("en = 'Couldn''t connect to the peer infobase';",
+			Common.DefaultLanguageCode());
+		Raise ExceptionText;
+	EndIf;
+	
+	Try
+		Proxy.Callback(TaskID__, Error, TransportSettings.WSCorrespondentDataArea);
+	Except
+		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		Raise ErrorPresentation;	
+	EndTry;
 
 EndProcedure
 
 Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 	
-	// Syncing might be canceled by user.
+	// 
 	If Task.OperationFailed Then
 		Cancel = True;
 		Return;
@@ -1093,6 +1269,14 @@ Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 	Error = "";
 	Node = Task.InfobaseNode;
 	Action = Task.Action;
+	
+	Template = NStr("en = 'Running a synchronization scenario step.
+                   |SequenceNumber: %1; App: %2; Action: %3; Mode: %4.';");
+	
+	Comment = StrTemplate(Template, Task.TaskNumber, Task.CorrespondentDataArea, Task.Action, Task.Mode); 
+		
+	WriteLogEvent(DataExchangeSaaS.DataSyncronizationLogEvent(),
+		EventLogLevel.Information, , , Comment);
 
 	If Action = Enums.ActionsAtCancelInternalPublication.DataExportPeer Then
 		
@@ -1143,7 +1327,10 @@ Procedure RunTaskExportDataPeer(Task, Proxy, ExchangeSettingsStructure, Cancel, 
 								
 	Except
 		
-		Error = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		Error = StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"),
+			Chars.LF,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		
 		Cancel = True;
 		DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
@@ -1157,18 +1344,35 @@ Procedure ImportDataImportTask(Task, ExchangeParameters, ExchangeSettingsStructu
 	If Cancel Then
 		Return;
 	EndIf;
-
+	
 	Try
 		
 		UIDOfTheMessageFile = New UUID(ExchangeParameters.TaskIDPrev);
 		FileExchangeMessages = DataExchangeWebService.GetFileFromStorageInService(UIDOfTheMessageFile,
 			ExchangeSettingsStructure.InfobaseNode, 1024, ExchangeParameters.AuthenticationParameters);
-
+		
+	Except
+		
+		Error = StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"), 
+			Chars.LF, 
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		
+		DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
+		
+		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
+	
+	EndTry;
+		
+	If ExchangeResultCompletedWithError(ExchangeSettingsStructure, Cancel, Error) Then
+		Return;
+	EndIf;
+	
+	Try
+		
 		DataExchangeServer.ReadMessageWithNodeChanges(ExchangeSettingsStructure, FileExchangeMessages);
 		
 	Except
 		
-		Cancel = True;
 		Error = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
@@ -1232,24 +1436,27 @@ Procedure PerformTaskDataExport(Task, Proxy, ProxyParameters, ExchangeSettingsSt
 			If ExchangeResultCompletedWithError(ExchangeSettingsStructure, Cancel, Error) Then
 				Return;
 			EndIf;
-	    				
-			Try
-				DeleteFiles(TempDirectory);
-			Except
-				WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-					EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			EndTry;
 			
 		Except
 			
 			Cancel = True;
-			Error = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+			Error = StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"),
+				Chars.LF,
+				ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+			
 			DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
 			ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
-						
+			
 		EndTry;
 		
 	EndIf;
+	
+	Try
+		DeleteFiles(TempDirectory);
+	Except
+		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
+			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+	EndTry;
 	
 EndProcedure	
 
@@ -1268,7 +1475,11 @@ Procedure RunTaskImportDataPeer(Task, Proxy, ExchangeParameters, ExchangeSetting
 	Except
 		
 		Cancel = True;
-		Error = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		
+		Error = StrTemplate(NStr("en = 'Peer infobase error:%1 %2';"),
+			Chars.LF,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		
 		DataExchangeServer.WriteEventLogDataExchange(Error, ExchangeSettingsStructure, True);
 		ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.Error;
 		
@@ -1296,11 +1507,11 @@ Procedure PerformTaskAdditionalRegistration(Task, Cancel, Error)
 		ObjectExportAddition.AllDocumentsComposerAddress = PutToTempStorage(ExportAddition.AllDocumentsComposer);
 	EndIf;
 	
-	// Saving export addition settings.
+	// 
 	DataExchangeServer.InteractiveExportChangeSaveSettings(ObjectExportAddition, 
 		DataExchangeServer.ExportAdditionSettingsAutoSavingName());
 	
-	// Register additional data.
+	// 
 	Try
 		DataExchangeServer.InteractiveExportChangeRegisterAdditionalData(ObjectExportAddition);
 	Except
@@ -1422,11 +1633,11 @@ Procedure SetUpFormElementsForMigrationToWS(Form, TransportSettings)
 	ElsIf Not ShouldMutePromptToMigrateToWebService Then
 												
 		PanelText = 
-			NStr("en = 'For this synchronization, you can configure exchange over the Internet (web service). 
-                  |<br>It allows you to speed up the exchange and set up a more flexible synchronization schedule. 
-                  |<br>To switch to exchange using a web service, use the <a href=ФормаПомощникПереходаНаИнтернетВнутренняяПубликация>switch to Internet connection wizard</a>.
+			NStr("en = 'For this synchronization, you can configure exchange over the Internet (web service).
+                  |<br>It allows you to speed up the exchange and set up a more flexible synchronization schedule.
+                  |<br>To switch to exchange using a web service, use the switch to the <a href=ФормаПомощникПереходаНаИнтернетВнутренняяПубликация>Internet connection wizard</a>.
                   |<br><br>
-                  |НеПредлагатьПерейтиНаВебСервис>Do not offer to switch to a web service again</a>. You can call the wizard in the <b>More<b> menu';");
+                  |<a href=НеПредлагатьПерейтиНаВебСервис>Do not offer to switch to a web service again</a>. You can call the wizard in the <b>More<b> menu.';");
 									
 	EndIf;
 	

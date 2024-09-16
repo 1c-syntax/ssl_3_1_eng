@@ -1,24 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Adds currencies from the classifier to the currency catalog.
-// If ImportCurrenciesRates data processor is unavailable, exchange rates are added with a "Currency" name
-// and an alphabetic code is the same as numeric.
+// Adds currencies from the classifier to the currency directory.
+// If there is no processing of course Uploadsvalue currencies are added with the name "currency",
+// the character code corresponds to a digital one.
 //
 // Parameters:
-//   Codes - Array - numeric codes for the currencies to be added.
+//   Codes - Array -  digital codes of the added currencies.
 //
 // Returns:
-//   Array, CatalogRef.Currencies - references to the created currencies.
+//   Array, CatalogRef.Currencies - 
 //
 Function AddCurrenciesByCode(Val Codes) Export
 	
@@ -45,18 +43,18 @@ Function AddCurrenciesByCode(Val Codes) Export
 	
 EndFunction
 
-// Returns a currency rate for a specific date.
+// Returns the currency exchange rate on the date.
 //
 // Parameters:
-//   Currency    - CatalogRef.Currencies - the currency, for which the exchange rate is calculated.
-//   DateOfCourse - Date - the date the exchange rate is calculated for.
+//   Currency    - CatalogRef.Currencies -  the currency for which the exchange rate is obtained.
+//   DateOfCourse - Date -  the date on which the course is obtained.
 //
 // Returns: 
 //   Structure:
-//    * Rate      - Number - the currency rate as of the specified date.
-//    * Repetition - Number - the currency rate multiplier as of the specified date.
-//    * Currency    - CatalogRef.Currencies - the reference to the currency.
-//    * DateOfCourse - Date - the exchange rate date.
+//    * Rate      - Number -  currency exchange rate on the specified date.
+//    * Repetition - Number -  multiple of the currency on the specified date.
+//    * Currency    - CatalogRef.Currencies -  the reference currency.
+//    * DateOfCourse - Date -  date the course was received.
 //
 Function GetCurrencyRate(Currency, DateOfCourse) Export
 	
@@ -69,20 +67,20 @@ Function GetCurrencyRate(Currency, DateOfCourse) Export
 	
 EndFunction
 
-// Generates a presentation of an amount of a given currency in words.
+// Generates a representation of the amount in words in the specified currency.
 //
 // Parameters:
-//   AmountAsNumber - Number - the amount to be presented in words.
-//   Currency - CatalogRef.Currencies - the currency the amount must be presented in.
-//   OmitFractionalPart - Boolean - specify as True if a sum should be presented without a fractional part (kopeks, cents, etc.).
-//   LanguageCode - String - a language in which the amount in words needs to be displayed.
-//                       Consists of the ISO 639-1 language code and the ISO 3166-1 country code (optional)
-//                       separated by the underscore character. Examples: "en", "en_US", "en_GB", "ru", "ru_RU".
+//   AmountAsNumber - Number -  the amount to be presented in words.
+//   Currency - CatalogRef.Currencies -  the currency in which to submit the amount.
+//   OmitFractionalPart - Boolean -  specify True if you want to get the amount without a fractional part (without kopecks).
+//   LanguageCode - String -  the language in which you want to get the amount in words.
+//                       It consists of the ISO 639-1 language code and, optionally, the ISO 3166-1 country code, separated
+//                       by an underscore. Examples: "en", "en_US", "en_GB", "ru", "ru_RU".
 //                       The default value is the configuration language.
 //   IsFractionalPartInWords - Boolean
 //
 // Returns:
-//   String - the amount in words.
+//   String - 
 //
 Function GenerateAmountInWords(AmountAsNumber, Currency, OmitFractionalPart = False, Val LanguageCode = Undefined, IsFractionalPartInWords = False) Export
 	
@@ -94,7 +92,7 @@ Function GenerateAmountInWords(AmountAsNumber, Currency, OmitFractionalPart = Fa
 	
 	Sum = ?(AmountAsNumber < 0, -AmountAsNumber, AmountAsNumber);
 	Format = StrTemplate("L=%1;DP=%2", LanguageCode, ?(IsFractionalPartInWords, "True", "False"));
-	Result = NumberInWords(Sum, Format, AmountInWordsParameters); // ACC:1297 ACC:1357
+	Result = NumberInWords(Sum, Format, AmountInWordsParameters); // 
 	If OmitFractionalPart And Int(Sum) = Sum Then
 		Result = Left(Result, StrFind(Result, "0") - 1);
 	EndIf;
@@ -103,16 +101,16 @@ Function GenerateAmountInWords(AmountAsNumber, Currency, OmitFractionalPart = Fa
 	
 EndFunction
 
-// Converts an amount from one currency to another.
+// Converts the amount from one currency to another.
 //
 // Parameters:
-//  Sum          - Number - the source amount.
-//  SourceCurrency - CatalogRef.Currencies - the source currency.
-//  NewCurrency    - CatalogRef.Currencies - the new currency.
-//  Date           - Date - the exchange rate date.
+//  Sum          - Number -  amount to be recalculated;
+//  SourceCurrency - CatalogRef.Currencies -  currency to be converted;
+//  NewCurrency    - CatalogRef.Currencies -  the currency in which you want to convert;
+//  Date           - Date -  date of currency exchange rates.
 //
 // Returns:
-//  Number - the converted amount.
+//  Number - 
 //
 Function ConvertToCurrency(Sum, SourceCurrency, NewCurrency, Date) Export
 	
@@ -122,13 +120,13 @@ Function ConvertToCurrency(Sum, SourceCurrency, NewCurrency, Date) Export
 		
 EndFunction
 
-// Used in constructor of the Number for money fields type.
+// It is intended for use in the constructor of the Number type for money fields.
 //
 // Parameters:
-//  AllowedSignOfField - AllowedSign - indicates the allowed sign of a number. Value by default - AllowedSign.Any.
+//  AllowedSignOfField - AllowedSign -  specifies the valid character of the number. The default value is a valid Sign.Any.
 // 
 // Returns:
-//  TypeDescription - type of a value for a money field.
+//  TypeDescription - 
 //
 Function MoneyFieldTypeDescription(Val AllowedSignOfField = Undefined) Export
 	
@@ -144,8 +142,8 @@ Function MoneyFieldTypeDescription(Val AllowedSignOfField = Undefined) Export
 	
 EndFunction
 
-// Allows to output numeric attributes in words on print forms.
-// Called from PrintManagementOverridable.OnPrintDataSourcesDefine.
+// 
+// 
 // 
 // Parameters:
 //  PrintDataSources - See PrintManagementOverridable.OnDefinePrintDataSources.PrintDataSources
@@ -161,7 +159,7 @@ EndProcedure
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // Parameters:
 //   ToDoList - See ToDoListServer.ToDoList.
@@ -174,7 +172,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	EndIf;
 
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
-	If Common.DataSeparationEnabled() // Automatic update in SaaS mode.
+	If Common.DataSeparationEnabled() // 
 		Or Common.IsStandaloneWorkplace()
 		Or Not CurrencyRateOperationsInternal.HasRightToChangeExchangeRates()
 		Or ModuleToDoListServer.UserTaskDisabled("CurrencyClassifier") Then
@@ -183,8 +181,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	RatesUpToDate = RatesUpToDate();
 	
-	// The procedure can be called only if the "To-do list" subsystem is integrated.
-	// Therefore, don't check if the subsystem is integrated.
+	// 
+	// 
 	Sections = ModuleToDoListServer.SectionsForObject(MetadataObject.FullName());
 	
 	For Each Section In Sections Do
@@ -206,7 +204,7 @@ EndProcedure
 // See ImportDataFromFileOverridable.OnDefineCatalogsForDataImport.
 Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 	
-	// Import to the currency classifier is denied.
+	// 
 	TableRow = CatalogsToImport.Find(Metadata.Catalogs.Currencies.FullName(), "FullName");
 	If TableRow <> Undefined Then 
 		CatalogsToImport.Delete(TableRow);
@@ -229,7 +227,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment.
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// BothForUsersAndExternalUsers.
+	// 
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.ReadCurrencyRates.Name);
 	
@@ -283,11 +281,11 @@ Procedure OnChangeOnlineSupportAuthenticationData(UserData) Export
 	
 EndProcedure
 
-// Checks whether the exchange rate and multiplier as of January 1, 1980, are available.
-// If they are not available, sets them both to one.
+// Checks whether there is a set exchange rate and currency multiplicity as of January 1, 1980.
+// In case of absence, sets the rate and multiplicity equal to one.
 //
 // Parameters:
-//  Currency - a reference to a Currencies catalog item.
+//  Currency - 
 //
 Procedure CheckCurrencyRateAvailabilityFor01011980(Currency) Export
 	
@@ -347,7 +345,7 @@ Procedure ImportActualRate(ImportParameters = Undefined, ResultAddress = Undefin
 	
 EndProcedure
 
-// Returns a list of permissions to import currency rates from external resources.
+// Returns a list of permissions for loading currency rates from external resources.
 //
 // Returns:
 //  Array
@@ -365,9 +363,9 @@ Function Permissions()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+// 
 
-// Returns an array of currencies whose exchange rates are imported from external resources.
+// Returns an array of currencies whose exchange rates are loaded from external resources.
 //
 Function CurrenciesToImport() Export
 	
@@ -523,9 +521,9 @@ Procedure UpdateCurrencyRate(Parameters, ResultAddress) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Update currency rates.
+// 
 
-// Checks whether all currency rates are up-to-date.
+// Checks the current exchange rates of all currencies.
 //
 Function RatesUpToDate() Export
 	QueryText =
@@ -557,11 +555,11 @@ Function RatesUpToDate() Export
 	Return Query.Execute().IsEmpty();
 EndFunction
 
-// Intended for procedure OnAddClientParametersOnStart
+// 
 //
 Function ShouldNotifyWhenExchageRatesOutdated()
 	
-	// Auto-updates in SaaS.
+	// 
 	If Common.DataSeparationEnabled() Or Common.IsStandaloneWorkplace() 
 		Or Not CurrencyRateOperationsInternal.HasRightToChangeExchangeRates() Then
 		Return False;

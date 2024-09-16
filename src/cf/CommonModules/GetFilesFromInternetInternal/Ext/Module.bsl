@@ -1,17 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonOverridable.OnAddClientParameters.
 Procedure OnAddClientParameters(Parameters) Export
@@ -23,7 +21,7 @@ EndProcedure
 // See SafeModeManagerOverridable.OnEnableSecurityProfiles.
 Procedure OnEnableSecurityProfiles() Export
 	
-	// Reset proxy settings to default condition.
+	// 
 	SaveServerProxySettings(Undefined);
 	
 	WriteLogEvent(EventLogEvent(),
@@ -39,8 +37,8 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
 	Permissions = New Array();
 	
-	// Permissions for running the procedures "GetFilesFromInternetInternal.CheckServerAvailability"
-	// and "GetFilesFromInternetInternal.ServerRouteTraceLog".
+	// 
+	// 
 	If Common.IsWindowsServer() Then
 		Permissions.Add(ModuleSafeModeManager.PermissionToUseOperatingSystemApplications("cmd /S /C ""%(ping %)%""",
 			NStr("en = 'Permission for ping';", Common.DefaultLanguageCode())));
@@ -65,7 +63,7 @@ EndProcedure
 
 #Region Proxy
 
-// Saves proxy server setting parameters on the 1C:Enterprise server side.
+// Saves proxy server settings on the 1C server side:Company.
 //
 Procedure SaveServerProxySettings(Val Settings) Export
 	
@@ -84,32 +82,32 @@ EndProcedure
 
 #If Not WebClient Then
 
-// function meant for getting files from the Internet
+// Function for getting a file from the Internet.
 //
 // Parameters:
-//   URL           - String - file url.
+//   URL           - String -  the url of the file.
 //   ReceivingParameters   - Structure:
-//    * PathForSaving            - String - path on the server (including file name) for saving the downloaded file.
-//    * User                 - String - a user that established the connection.
-//    * Password                       - String - the password of the user that established the connection.
-//    * Port                         - Number  - a port used for connecting to the server.
-//    * Timeout                      - Number  - the file download timeout, in seconds.
-//    * SecureConnection         - Boolean - in case of http download the flag shows
-//                                             that the connection must be established via https.
-//    * PassiveConnection          - Boolean - in case of ftp download the flag shows
+//    * PathForSaving            - String -  the path on the server (including the file name) to save the downloaded file.
+//    * User                 - String - 
+//    * Password                       - String - 
+//    * Port                         - Number  - 
+//    * Timeout                      - Number  -  timeout for getting the file, in seconds.
+//    * SecureConnection         - Boolean -  for the http download case, the flag indicates
+//                                             that the connection must be made over https.
+//    * PassiveConnection          - Boolean -  for the ftp upload case, the flag indicates
 //                                             that the connection must be passive (or active).
-//    * Headers                    - Map - see the details of the Headers parameter of the HTTPRequest object.
-//    * UseOSAuthentication - Boolean - see the details of the UseOSAuthentication parameter of the HTTPConnection object.
+//    * Headers                    - Map - see the description of the Headers parameter of the NTTRQUERY object.
+//    * UseOSAuthentication - Boolean - see the description of the Use Authentication parameter for the NTTR Connection object.
 //    * IsPackageDeliveryCheckOnErrorEnabled - See GetFilesFromInternet.ConnectionDiagnostics.IsPackageDeliveryCheckEnabled.
 //    
 //
-//   SavingSetting - Map - contains parameters to save the downloaded file. Keys:
-//                 StorageLocation - String - can include
-//                        "Server" - server,
-//                        "TemporaryStorage" - temporary storage.
-//                 Path - String (optional parameter) -
-//                        path to folder at client or at server or temporary storage address will be generated
-//                        if not specified.
+//   SavingSetting - Map - :
+//                 
+//                        
+//                        
+//                 
+//                        
+//                        
 //   WriteError1 - Boolean                     
 //
 // Returns:
@@ -140,38 +138,38 @@ Function DownloadFile(Val URL, Val ReceivingParameters, Val SavingSetting, Val W
 	
 EndFunction
 
-// function meant for getting files from the Internet
+// Function for getting a file from the Internet.
 //
 // Parameters:
-//   URL - String - file URL in the following format: [Protocol://]<Server>/<Path to the file on the server>.
+//   URL - String -  file url in the format: [Protocol://]<Server>/<Path to the file on the server>.
 //   
-// SavingSetting - Map - contains parameters to save the downloaded file.
-//		StorageLocation - String - Valid values are
-//			"Server" - A server.
-//			"TemporaryStorage" - A temporary storage.
-//		Path - String - (Optional) Either the path to a folder at the client or at the server
-//			or the address in a temporary storage. If not specified, it will be generated automatically.
+// SavingSetting - Map - 
+//		
+//			
+//			
+//		
+//			
 //
 // ConnectionSetting - Map -
-//		SecureConnection* - Boolean - Secure connection.
-//		PassiveConnection* - Boolean - Secure connection.
-//		User - String - User that established the connection.
-//		Password - String - Password of the user that established the connection.
-//		Port - Number - Port used for connecting to the server.
-//		... - See GetFilesFromInternet.ConnectionDiagnostics.IsPackageDeliveryCheckEnabled
-//		* - Mutually exclusive keys.
+//		
+//		
+//		
+//		
+//		
+//		 See GetFilesFromInternet.ConnectionDiagnostics.IsPackageDeliveryCheckEnabled
+//		
 //
 // ProxySettings - Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//    Keys are:
-//		# UseProxy - Boolean - Indicates whether to use the proxy server.
-//		# BypassProxyOnLocal - Boolean - Indicates whether to use the proxy server for local addresses.
-//		# UseSystemSettings - Boolean - Indicates whether to use the system settings of the proxy server.
-//		# Server - String - a proxy server address.
-//		# Port - Number - Proxy server port.
-//		# User - String - Username for authorization on the proxy server.
-//		# Password - String - User password.
+//    :
+//		
+//		
+//		
+//		
+//		
+//		
+//		
 //		
 //
 //
@@ -211,7 +209,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 		SecureConnection = CommonClientServer.NewSecureConnection();
 	ElsIf SecureConnection = False Then
 		SecureConnection = Undefined;
-		// Otherwise the SecureConnection parameter was specified explicitly.
+		// 
 	EndIf;
 	
 	If Port = Undefined Then
@@ -227,7 +225,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 	If SavingSetting["Path"] <> Undefined Then
 		PathForSaving = SavingSetting["Path"];
 	Else
-		PathForSaving = GetTempFileName(); // ACC:441 The temporary file must be deleted by the calling code.
+		PathForSaving = GetTempFileName(); // 
 	EndIf;
 	
 	If Timeout = Undefined Then 
@@ -310,7 +308,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 			
 		EndTry;
 		
-	Else // HTTP protocol is used.
+	Else // 
 		
 		Headers                    = ConnectionSetting.Headers;
 		UseOSAuthentication = ConnectionSetting.UseOSAuthentication;
@@ -419,7 +417,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 				
 				Redirections.Add(URL);
 				If Not StrStartsWith(NewURL1, "http") Then
-					// <scheme>://<host>:<port>/<path>
+					// 
 					NewURL1 = StringFunctionsClientServer.SubstituteParametersToString(
 						"%1://%2:%3/%4", Protocol, Server, Format(Port, "NG="), NewURL1);
 				EndIf;
@@ -524,7 +522,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 		
 	EndIf;
 	
-	// If the file is saved in accordance with the setting.
+	// 
 	If SavingSetting["StorageLocation"] = "TemporaryStorage" Then
 		UniqueKey = New UUID;
 		Address = PutToTempStorage (New BinaryData(PathForSaving), UniqueKey);
@@ -540,7 +538,7 @@ Function GetFileFromInternet(Val URL, Val SavingSetting, Val ConnectionSetting,
 EndFunction
 
 // Parameters:
-//   Status - Boolean - success or failure of the operation.
+//   Status - Boolean -  success or failure of the operation.
 //   MessagePath - String
 //   HTTPResponse - HTTPResponse
 //
@@ -831,23 +829,23 @@ Function InternetProxyPresentation(Proxy, Protocol = Undefined)
 	
 EndFunction
 
-// Returns proxy according to settings ProxyServerSetting for the specified Protocol protocol.
+// Returns proxy by proxy settings for the specified Protocol.
 //
 // Parameters:
 //   ProxyServerSetting - Map of KeyAndValue:
-//    * Key - String - see the list of available keys below.
+//    * Key - String - 
 //    * Value - Arbitrary
-//    UseProxy - Boolean - indicates whether to use the proxy server.
-//    BypassProxyOnLocal - indicates whether to use the proxy server for local addresses.
-//    BypassProxyOnAddresses - Array from String
-//    UseSystemSettings - Boolean - indicates whether to use system settings of the proxy server.
-//    Server - String - a proxy server address.
-//    Port - String - a proxy server port.
-//    User - String - a username to authorize on the proxy server.
-//    Password - String - a user password.
-//    UseOSAuthentication - Boolean - indicates that authentication by operating system is used.
-//   URLOrProtocol - String - resource address or protocol for which proxy server parameters are set, for example
-//                             "https://1ci.com", "http", "https", "ftp", "ftps".
+//    
+//    
+//    
+//    
+//    
+//    
+//    
+//    
+//    
+//   URLOrProtocol - String -  address of the resource or Protocol for which proxy server parameters are set,
+//                             for example "https://1c.ru", "http", "https", "ftp", "ftps".
 //
 // Returns:
 //   InternetProxy
@@ -855,19 +853,19 @@ EndFunction
 Function NewInternetProxy(ProxyServerSetting, URLOrProtocol) Export
 	
 	If ProxyServerSetting = Undefined Then
-		// Proxy server system settings.
+		// 
 		Return Undefined;
 	EndIf;
 	
 	UseProxy = ProxyServerSetting.Get("UseProxy");
 	If Not UseProxy Then
-		// Do not use a proxy server.
+		// 
 		Return New InternetProxy(False);
 	EndIf;
 	
 	UseSystemSettings = ProxyServerSetting.Get("UseSystemSettings");
 	If UseSystemSettings Then
-		// Proxy server system settings.
+		// 
 		Return New InternetProxy(True);
 	EndIf;
 	
@@ -879,7 +877,7 @@ Function NewInternetProxy(ProxyServerSetting, URLOrProtocol) Export
 		AdditionalSettings = New Map;
 	EndIf;
 	
-	// Manually configured proxy settings.
+	// 
 	Proxy = New InternetProxy;
 	
 	Logs = StrSplit("http,https,ftp,ftps", ",", False);
@@ -914,10 +912,10 @@ Function NewInternetProxy(ProxyServerSetting, URLOrProtocol) Export
 	
 EndFunction
 
-// Writes the error to the event log as "Network download".
+// Writes an error event to the log with the name "Getting files from the Internet".
 //
 // Parameters:
-//   ErrorMessage - String - error message.
+//   ErrorMessage - String -  error message.
 // 
 Procedure WriteErrorToEventLog(Val ErrorMessage)
 	
@@ -938,15 +936,15 @@ EndFunction
 
 #Region ConnectionDiagnostics
 
-// Service information that displays current settings and proxy states to perform diagnostics.
+// Service information for displaying current proxy settings and States for performing diagnostics.
 //
 // Parameters:
-//  Protocol - String - a protocol for which you need to get the proxy settings.
+//  Protocol - String -  the Protocol for which to get the proxy settings.
 //
 // Returns:
 //  Structure:
-//     * ProxyConnection - Boolean - flag that indicates that proxy connection should be used.
-//     * Presentation - String - presentation of the current set up proxy.
+//     * ProxyConnection - Boolean -  indicates that the connection should be made via a proxy.
+//     * Presentation - String -  representation of the currently configured proxy.
 //
 Function ProxySettingsState(Val Protocol = Undefined) Export
 	
@@ -1036,19 +1034,19 @@ Function CheckServerAvailability(ServerAddress) Export
 		Return Result; 
 	EndTry;	
 	
-	// Error handling differs between OS:
-	// - Windows sends errors to the output stream.
-	// - Debian and RHEL send errors to the error stream.
+	// 
+	// 
+	// 
 	AvailabilityLog = RunResult.OutputStream + RunResult.ErrorStream;
 	
 	If Common.IsWindowsServer() Then
-		Available = StrFind(AvailabilityLog, "Destination host unreachable") = 0 // Do not localize.
-			And (StrFind(AvailabilityLog, "(0% loss)") > 0 // Do not localize.
-			Or StrFind(AvailabilityLog, "(25% loss)") > 0); // Do not localize.
+		Available = StrFind(AvailabilityLog, "Destination host unreachable") = 0 // 
+			And (StrFind(AvailabilityLog, "(0% loss)") > 0 // 
+			Or StrFind(AvailabilityLog, "(25% loss)") > 0); // 
 	Else 
-		Available = StrFind(AvailabilityLog, "Destination Host Unreachable") = 0 // Do not localize.
-			And (StrFind(AvailabilityLog, "(0% packet loss)") > 0 // Do not localize.
-			Or StrFind(AvailabilityLog, "(25% packet loss)") > 0); // Do not localize.
+		Available = StrFind(AvailabilityLog, "Destination Host Unreachable") = 0 // 
+			And (StrFind(AvailabilityLog, "(0% packet loss)") > 0 // 
+			Or StrFind(AvailabilityLog, "(25% packet loss)") > 0); // 
 	EndIf;
 	
 	Log = New Array;
@@ -1082,9 +1080,9 @@ Function ServerRouteTraceLog(ServerAddress) Export
 	If Common.IsWindowsServer() Then
 		CommandTemplate = "tracert -w 100 -h 15 %1";
 	Else 
-		// If traceroute is not installed, the output stream will have an error.
-		// You can ignore that since the output is not parseable.
-		// For the administrator, it will be clear what utility should be installed.
+		// 
+		// 
+		// 
 		CommandTemplate = "traceroute -w 100 -m 100 %1";
 	EndIf;
 	

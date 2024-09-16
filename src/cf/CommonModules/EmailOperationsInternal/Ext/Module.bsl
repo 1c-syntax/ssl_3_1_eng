@@ -1,24 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Creates the profile of the passed email for connection to the mail server.
+// 
 // 
 // Parameters:
 //  Account - CatalogRef.EmailAccounts
 //  ForReceiving  - Boolean
 //  
 // Returns:
-//  InternetMailProfile - an account profile.
-//  Undefined - cannot get the account by reference.
+//  InternetMailProfile - 
+//  
 //
 Function InternetMailProfile(Account, Val ForReceiving = False) Export
 	
@@ -127,16 +125,16 @@ Function InternetMailProfile(Account, Val ForReceiving = False) Export
 	
 EndFunction
 
-// The function is used for integration with the Data exchange subsystem.
-// Returns the email settings that match the
-// email settings of the correspondent infobase for data exchange setup (see parameters).
-// Account search is performed by a predefined item name or by address. If search fails, a new account is created.
-// Email settings of this infobase are matched with the email settings of the correspondent account.
+// 
+// 
+// 
+// 
+// 
 //
 // Parameters:
-//   CorrespondentAccount1 - CatalogObject.EmailAccounts - email settings
-//                   of a correspondent infobase obtained from the data synchronization settings file by deserialization
-//                   using the ReadXML method.
+//   CorrespondentAccount1 - CatalogObject.EmailAccounts - 
+//                   
+//                   
 //
 // Returns:
 //  CatalogObject.EmailAccounts
@@ -150,11 +148,11 @@ Function ThisInfobaseAccountByCorrespondentAccountData(CorrespondentAccount1) Ex
 		Block.Lock();
 		
 		ThisInfobaseAccount = Undefined;
-		// For a predefined account - overwriting the predefined item of the current infobase.
+		// 
 		If CorrespondentAccount1.Predefined Then
 			ThisInfobaseAccount = Catalogs.EmailAccounts[CorrespondentAccount1.PredefinedDataName].GetObject();
 		Else
-			// For a regular account - searching for an existing account with the same address.
+			// 
 			Query = New Query;
 			Query.Text = "SELECT TOP 1
 			|	Ref
@@ -185,7 +183,7 @@ Function ThisInfobaseAccountByCorrespondentAccountData(CorrespondentAccount1) Ex
 	
 EndFunction
 
-// Returns email text types by description.
+// Returns the text type of emails by name.
 //
 Function EmailTextsType(Description) Export
 	
@@ -193,7 +191,7 @@ Function EmailTextsType(Description) Export
 	
 EndFunction
 
-// Defines if an application supports receiving emails.
+// Determines whether the program provides for receiving emails.
 // 
 // Returns:
 //  Boolean
@@ -204,18 +202,18 @@ Function CanReceiveEmails() Export
 	
 EndFunction
 
-// Returns the settings for connecting to the email server for sending emails.
-// If the email settings do not exist or are not accessible by rights, returns an empty structure.
+// 
+// 
 //
 // Parameters:
-//  Account - CatalogRef.EmailAccounts - email settings.
+//  Account - CatalogRef.EmailAccounts - 
 //
 // Returns:
 //  Structure:
 //   * SMTPServerAddress - String
-//   * SMTPPort - Number - port STMP, by default 25.
-//   * SMTPPassword - String - a password for server STMP
-//   * UseSSL - Boolean - the default value is False.
+//   * SMTPPort - Number -  STMP port, default is 25.
+//   * SMTPPassword - String -  password for the STMP server
+//   * UseSSL - Boolean -  False by default.
 //   * SMTPUser - String
 //   * SenderName - String
 //
@@ -278,7 +276,7 @@ Function InternetMailMessageImportanceFromString(Importance) Export
 	
 EndFunction 
 
-// Restore password.
+// 
 
 Procedure UpdateMailRecoveryServerSettings(Ref) Export
 	
@@ -349,7 +347,7 @@ Function DescriptionOfAccountSettingsForPasswordRecovery() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See BatchEditObjectsOverridable.OnDefineObjectsWithEditableAttributes.
 Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
@@ -489,7 +487,7 @@ Procedure OnAddMetadataObjectsRenaming(Total) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnDefineSettings
+// See also updating the information base undefined.When defining settings
 //
 // Parameters:
 //  Objects - Array of MetadataObject
@@ -507,13 +505,13 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
 EndProcedure
 
-// Encodes a string using the Punycode algorithm
+// 
 // 
 // Parameters:
-//  String - String - source string
+//  String - String - 
 // 
 // Returns:
-//  String - encoded string
+//  String - 
 //
 Function StringIntoPunycode(Val String) Export
 
@@ -529,10 +527,10 @@ Function StringIntoPunycode(Val String) Export
 	Return Result;
 EndFunction
 
-// Decodes email addresses using the Punycode algorithm
+// 
 // 
 // Parameters:
-//  MailMessage - InternetMailMessage - email to process
+//  MailMessage - InternetMailMessage - 
 //
 Procedure DecodeAddressesInEmail(MailMessage) Export
 	DecodeAddressesCollection(MailMessage.ReadReceiptAddresses);
@@ -546,7 +544,7 @@ EndProcedure
 
 #Region Private
 
-// Checks whether the predefined system email account
+// Verifies that the predefined system email account
 // is available for use.
 //
 Function CheckSystemAccountAvailable() Export
@@ -664,16 +662,16 @@ EndFunction
 //
 Function DownloadMessages(Val UserAccountOrConnection, Val ImportParameters = Undefined) Export
 	
-	// Used to check whether authorization at the mail server can be performed.
+	// 
 	Var TestMode;
 	
-	// Receive only message headers.
+	// 
 	Var GetHeaders;
 	
-	// Convert messages to simple type
+	// 
 	Var CastMessagesToType;
 	
-	// Headers or IDs of messages whose full texts are to be retrieved.
+	// 
 	Var HeadersIDs;
 	
 	Var Account, Join;
@@ -764,9 +762,9 @@ Function DownloadMessages(Val UserAccountOrConnection, Val ImportParameters = Un
 		If Account <> Undefined Then
 			Try
 				Join.Logoff();
-			Except // ACC:280
-				// Do not handle and log exceptions. The original exception 
-				// is passed to the calling code and will be handled there.
+			Except // 
+				//  
+				// 
 			EndTry;
 		EndIf;
 		Raise;
@@ -796,8 +794,8 @@ Function DownloadMessages(Val UserAccountOrConnection, Val ImportParameters = Un
 	
 EndFunction
 
-// Converts a set of emails to a value table with columns of simple types.
-// Column values of the types not supported on the client are converted to the String type.
+// Converts a set of mail messages to a table of values with columns of simple types.
+// Column values whose types are not supported on the client are converted to a string format.
 //
 Function ConvertedEmailSet(Val EmailSet, Val Columns = Undefined)
 	
@@ -895,14 +893,14 @@ Procedure FillEmailAttachments(Attachments, MailMessage)
 	
 EndProcedure
 
-// Prepares a table for
-// storing messages retrieved from the mail server.
+// This function prepares a table that will later
+// store messages from the mail server.
 // 
 // Parameters:
-//   Columns - String - a list of message fields (comma-separated)
-//                    to be written to the table. The parameter changes the type to Array.
-// Returns
-//   ValueTable - empty value table with columns.
+//   Columns - String -  a comma-separated list of email fields that should
+//                    be written to the table. The parameter changes the type to an array.
+// Returned value
+//   Table of values - an empty table of values with columns.
 //
 Function CreateAdaptedEmailMessageDetails(Columns = Undefined)
 	
@@ -987,7 +985,7 @@ Procedure CheckSendReceiveEmailAvailability(Account, ErrorMessage, AdditionalMes
 	
 EndProcedure
 
-// Disables all accounts. The procedure is used on DIB node initial setup.
+// Disables all accounts. Used for initial configuration of the rib node.
 Procedure DisableAccounts()
 	
 	QueryText =
@@ -1008,22 +1006,22 @@ Procedure DisableAccounts()
 	|	EmailAccounts.UseForSending";
 	
 	Query = New Query(QueryText);
-	Selection = Query.Execute().Select(); // ACC:1328 data lock is not required upon initial setup of a DIB node.
+	Selection = Query.Execute().Select(); // 
 	While Selection.Next() Do
 		Account = Selection.Ref.GetObject();
 		Account.UseForSending = False;
 		Account.UseForReceiving = False;
 		Account.DataExchange.Load = True;
-		Account.Write(); // CAC:1327 data lock is not required upon initial setup of a DIB node.
+		Account.Write(); // 
 	EndDo;
 	
 EndProcedure
 
-// Handler for OnReceiveDataFromMaster and OnReceiveDataFromSlave events that occur
-// during data exchange in a distributed infobase.
+// The procedure is a handler for the main and Subordinate data Acquisition events that occur
+// during data exchange in a distributed information database.
 //
 // Parameters:
-//   see descriptions of the relevant event handlers in Syntax Assistant.
+//   see the description of the corresponding event handlers in the syntax assistant.
 //
 Procedure OnDataGet(DataElement, ItemReceive, SendBack, Sender)
 	
@@ -1044,7 +1042,7 @@ Procedure PrepareAttachments(Attachments, SettingsForSaving) Export
 	
 	Result = New Array;
 	
-	// Prepare an archive.
+	// 
 	HasFilesAddedToArchive = False;
 	If SettingsForSaving.PackToArchive Then
 		ArchiveName = GetTempFileName("zip");
@@ -1119,12 +1117,12 @@ Procedure PrepareAttachments(Attachments, SettingsForSaving) Export
 		EndDo;
 	EndDo;
 	
-	// If the archive is prepared, writing it and putting in the temporary storage.
+	// 
 	If HasFilesAddedToArchive Then 
 		ZipFileWriter.Write();
 		BinaryData = New BinaryData(ArchiveName);
 		
-		// Using the existing temporary storage address related to the form.
+		// 
 		PutToTempStorage(BinaryData, AddressInTempStorage);
 		
 		FileDetails = New Structure;
@@ -1163,7 +1161,7 @@ Procedure InsertPicturesToHTML(HTMLFileName)
 	PicturesDirectoryName = HTMLFile.BaseName + "_files";
 	PicturesDirectoryPath = StrReplace(HTMLFile.FullName, HTMLFile.Name, PicturesDirectoryName);
 	
-	// The folder is only for pictures.
+	// 
 	PicturesFiles = FindFiles(PicturesDirectoryPath, "*");
 	
 	For Each PicturesFile In PicturesFiles Do
@@ -1252,18 +1250,18 @@ EndFunction
 
 Function GetFormattedDocumentHTMLForEmail(FormattedDocument)
 	
-	// Exports formatted document to HTML text and pictures.
+	// 
 	HTMLText = "";
 	Images = New Structure;
 	FormattedDocument.GetHTML(HTMLText, Images);
 	
-	// Converting HTML text to HTMLDocument.
+	// 
 	Builder = New DOMBuilder;
 	HTMLReader = New HTMLReader;
 	HTMLReader.SetString(HTMLText);
 	HTMLDocument = Builder.Read(HTMLReader);
 	
-	// Replacing picture names in the HTML document with IDs.
+	// 
 	For Each Picture In HTMLDocument.Images Do
 		AttributePictureSource = Picture.Attributes.GetNamedItem("src");
 		If StrStartsWith(AttributePictureSource.TextContent, "data:") Then
@@ -1273,14 +1271,14 @@ Function GetFormattedDocumentHTMLForEmail(FormattedDocument)
 		AttributePictureSource.TextContent = "cid:" + AttributePictureSource.TextContent;
 	EndDo;
 	
-	// Converting HTMLDocument back to HTML text
+	// 
 	DOMWriter = New DOMWriter;
 	HTMLWriter = New HTMLWriter;
 	HTMLWriter.SetString();
 	DOMWriter.Write(HTMLDocument, HTMLWriter);
 	HTMLText = HTMLWriter.Close();
 	
-	// Prepare the result.
+	// 
 	Result = New Structure;
 	Result.Insert("HTMLText", HTMLText);
 	Result.Insert("Images", Images);
@@ -1299,9 +1297,9 @@ Function EmailPresentation(EmailSubject, EmailDate)
 	
 EndFunction
 
-// Converts the collection of passed attachments to a standard format.
-// It is used to bypass the situations when the source form does not consider lifetime of the temporary storage 
-// where attachments are uploaded to. The attachments are uploaded to the temporary storage for the session time.
+// Converts a collection of passed attachments to a single view.
+// Required to work around cases where the original form doesn't care about the lifetime of the temporary storage 
+// that the attachments are placed in. Attachments are moved to temporary storage "for the duration of the session".
 //
 Function AttachmentsDetails(AttachmentCollection) Export
 	If TypeOf(AttachmentCollection) <> Type("ValueList") And TypeOf(AttachmentCollection) <> Type("Array") Then
@@ -1324,7 +1322,7 @@ Function AttachmentsDetails(AttachmentCollection) Export
 					BinaryData = New BinaryData(PathToFile);
 				EndIf;
 			EndIf;
-		Else // TypeOf(Parameters.Attachments) = "array of structures"
+		Else // 
 			BinaryData = GetFromTempStorage(Attachment.AddressInTempStorage);
 			FillPropertyValues(AttachmentDetails, Attachment, , "AddressInTempStorage");
 		EndIf;
@@ -1567,9 +1565,9 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 		If Account <> Undefined Then
 			Try
 				Join.Logoff();
-			Except // ACC:280
-				// Do not handle and log exceptions. The original exception 
-				// is passed to the calling code and will be handled there.
+			Except // 
+				//  
+				// 
 			EndTry;
 		EndIf;
 
@@ -1661,7 +1659,7 @@ Function PrepareEmail(Account, EmailParameters) Export
 				If Attachment.Property("Id") Then
 					NewAttachment.CID = Attachment.Id;
 				EndIf;
-			Else // For backward compatibility with version 2.2.1.
+			Else // 
 				If TypeOf(Attachment.Value) = Type("Structure") Then
 					NewAttachment = MailMessage.Attachments.Add(Attachment.Value.BinaryData, Attachment.Key);
 					If Attachment.Value.Property("Id") Then
@@ -1783,7 +1781,7 @@ Function PrepareEmail(Account, EmailParameters) Export
 	
 EndFunction
 
-// Returns a list of permissions for automatic email setting search.
+// Returns a list of permissions for automatic search of mail settings.
 //
 // Returns:
 //  Array
@@ -2785,13 +2783,13 @@ Function DecodePunycodeString(Val EncodedString)
 	Return StrConcat(Result);
 EndFunction
 
-// Decodes a string using the Punycode algorithm
+// 
 // 
 // Parameters:
-//  String - String - encoded string
+//  String - String - 
 // 
 // Returns:
-//  String - decoded string
+//  String - 
 //
 Function PunycodeIntoString(Val String) Export
 	URIStructure = CommonClientServer.URIStructure(String);

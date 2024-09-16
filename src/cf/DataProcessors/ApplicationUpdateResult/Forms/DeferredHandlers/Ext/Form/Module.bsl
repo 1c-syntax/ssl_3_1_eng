@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -347,9 +345,9 @@ Procedure StartSelectedProcedureForDebug(HandlerName)
 	Handler.Status = Enums.UpdateHandlersStatuses.NotPerformed;
 	Handler.ExecutionStatistics = New ValueStorage(New Map);
 	
-	// ACC:1327-off No competitive usage of the register.
+	// 
 	RecordSet.Write();
-	// ACC:1327-on
+	// 
 	InfobaseUpdateInternal.ExecuteDeferredUpdateNow(Undefined);
 	
 EndProcedure
@@ -701,7 +699,7 @@ Procedure AddDeferredHandler(HandlerRow, HandlersNotExecuted, AllHandlersExecute
 	EndIf;
 	
 	If ChangingPriority And ListLine.Priority = "Undefined" Then
-		// The priority for this string does not change.
+		// 
 	ElsIf HandlerRow.Priority = "HighPriority" Then
 		ListLine.PriorityPicture = PictureLib.ExclamationPointRed;
 		ListLine.Priority = HandlerRow.Priority;

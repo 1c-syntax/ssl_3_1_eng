@@ -340,7 +340,7 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Choice table context menu link group</v8:content>
+												<v8:content>Mapping table context menu link group</v8:content>
 											</v8:item>
 										</Title>
 										<ExtendedTooltip name="MappingTableContextMenuLinksGroupExtendedTooltip" id="363"/>
@@ -375,7 +375,7 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Choice table context menu find group</v8:content>
+												<v8:content>Mapping table context menu find group</v8:content>
 											</v8:item>
 										</Title>
 										<ExtendedTooltip name="MappingTableContextMenuFindGroupExtendedTooltip" id="366"/>
@@ -407,7 +407,7 @@ Then, if any items are left unmapped, you can map them manually.</v8:content>
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Choice table context menu output list group</v8:content>
+												<v8:content>Mapping table context menu output list group</v8:content>
 											</v8:item>
 										</Title>
 										<ExtendedTooltip name="MappingTableContextMenuOutputListGroupExtendedTooltip" id="370"/>

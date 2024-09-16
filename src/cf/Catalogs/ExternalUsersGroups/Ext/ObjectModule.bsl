@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -29,17 +27,17 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
 	Errors = Undefined;
 	
-	// Check the parent.
+	// 
 	ErrorText = ParentCheckErrorText();
 	If ValueIsFilled(ErrorText) Then
 		CommonClientServer.AddUserError(Errors,
 			"Object.Parent", ErrorText, "");
 	EndIf;
 	
-	// Checking for unfilled and duplicate external users.
+	// 
 	VerifiedObjectAttributes.Add("Content.ExternalUser");
 	
-	// Check the group purpose.
+	// 
 	ErrorText = PurposeCheckErrorText();
 	If ValueIsFilled(ErrorText) Then
 		CommonClientServer.AddUserError(Errors,
@@ -50,7 +48,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	For Each CurrentRow In Content Do
 		LineNumber = Content.IndexOf(CurrentRow);
 		
-		// Check whether the value is filled.
+		// 
 		If Not ValueIsFilled(CurrentRow.ExternalUser) Then
 			CommonClientServer.AddUserError(Errors,
 				"Object.Content[%1].ExternalUser",
@@ -61,7 +59,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 			Continue;
 		EndIf;
 		
-		// Checking for duplicate values.
+		// 
 		FoundValues = Content.FindRows(New Structure("ExternalUser", CurrentRow.ExternalUser));
 		If FoundValues.Count() > 1 Then
 			CommonClientServer.AddUserError(Errors,
@@ -81,17 +79,11 @@ EndProcedure
 
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - The check "DataExchange.Import" should run after the register is locked.
+	// 
 	If Common.FileInfobase() Then
-		// Set an exclusive lock on the registers right away
-		// instead of automatically setting a shared lock when reading.
-		// The latter leads to a deadlock upon updating the membership of user groups.
-		Block = New DataLock;
-		Block.Add("InformationRegister.UserGroupsHierarchy");
-		Block.Add("InformationRegister.UserGroupCompositions");
-		Block.Lock();
+		UsersInternal.LockRegistersBeforeWritingToFileInformationSystem(True);
 	EndIf;
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;
@@ -255,15 +247,15 @@ EndFunction
 
 Function PurposeCheckErrorText()
 	
-	// Checking whether the group purpose is filled.
+	// 
 	If Purpose.Count() = 0 Then
 		Return NStr("en = 'The type of group members is not specified.';");
 	EndIf;
 	
-	// Checking whether the group of all authorization objects of the specified type is unique.
+	// 
 	If AllAuthorizationObjects Then
 		
-		// Checking whether the purpose matches the "All external users" group.
+		// 
 		AllExternalUsersGroup = ExternalUsers.AllExternalUsersGroup();
 		AllExternalUsersPurpose = Common.ObjectAttributeValue(
 			AllExternalUsersGroup, "Purpose").Unload().UnloadColumn("UsersType");
@@ -316,8 +308,8 @@ Function PurposeCheckErrorText()
 		EndIf;
 	EndIf;
 	
-	// Check if the type of the authentication objects matches their parent's type.
-	// It's acceptable if their parent's type is not specified.
+	// 
+	// 
 	If ValueIsFilled(Parent) Then
 		
 		ParentUsersType = Common.ObjectAttributeValue(
@@ -333,8 +325,8 @@ Function PurposeCheckErrorText()
 		EndDo;
 	EndIf;
 	
-	// If the member type of an external user group is changed to "All users of the type",
-	// check if the group has child groups.
+	// 
+	// 
 	If AllAuthorizationObjects
 		And ValueIsFilled(Ref) Then
 		Query = New Query;
@@ -355,8 +347,8 @@ Function PurposeCheckErrorText()
 		EndIf;
 	EndIf;
 	
-	// When changing the type of authentication objects, check if they have
-	// child items with a different type (cleating the type is acceptable).
+	// 
+	// 
 	If ValueIsFilled(Ref) Then
 		
 		Query = New Query;

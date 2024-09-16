@@ -1,24 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Attaches an external report or data processor.
-// For details, See AdditionalReportsAndDataProcessors.AttachExternalDataProcessor.
+// Enables external processing (report).
+// More detailed  See AdditionalReportsAndDataProcessors.AttachExternalDataProcessor.
 //
 // Parameters:
-//   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a data processor to attach.
+//   Ref - CatalogRef.AdditionalReportsAndDataProcessors -  plug-in processing.
 //
 // Returns: 
-//   String       - a name of the attached report or data processor.
-//   Undefined - if an invalid reference is passed.
+//   String       - 
+//   
 //
 Function AttachExternalDataProcessor(Ref) Export
 	
@@ -26,16 +24,16 @@ Function AttachExternalDataProcessor(Ref) Export
 	
 EndFunction
 
-// Creates and returns an instance of an external report or data processor.
-// For details, See AdditionalReportsAndDataProcessors.ExternalDataProcessorObject.
+// Creates and returns an instance of external processing (report).
+// More detailed  See AdditionalReportsAndDataProcessors.ExternalDataProcessorObject.
 //
 // Parameters:
-//   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a report or a data processor to attach.
+//   Ref - CatalogRef.AdditionalReportsAndDataProcessors -  plug-in report or processing.
 //
 // Returns:
 //   ExternalDataProcessor 
-//   ExternalReport     
-//   Undefined     - if an invalid reference is passed.
+//   External Report     
+//   Undefined     - if an invalid link is passed.
 //
 Function ExternalDataProcessorObject(Ref) Export
 	
@@ -47,8 +45,8 @@ EndFunction
 
 #Region Private
 
-// Runs a data processor command and puts the result in a temporary storage.
-//   For details, See AdditionalReportsAndDataProcessors.ExecuteCommand.
+// Executes the processing command and puts the result in temporary storage.
+//   More detailed -  See AdditionalReportsAndDataProcessors.ExecuteCommand.
 //
 Function ExecuteCommand(CommandParameters, ResultAddress = Undefined) Export
 	
@@ -56,7 +54,7 @@ Function ExecuteCommand(CommandParameters, ResultAddress = Undefined) Export
 	
 EndFunction
 
-// Puts binary data of an additional report or data processor in a temporary storage.
+// Places binary data from an additional report or processing in temporary storage.
 Function PutInStorage(Ref, FormIdentifier) Export
 	If TypeOf(Ref) <> Type("CatalogRef.AdditionalReportsAndDataProcessors") 
 		Or Ref = Catalogs.AdditionalReportsAndDataProcessors.EmptyRef() Then

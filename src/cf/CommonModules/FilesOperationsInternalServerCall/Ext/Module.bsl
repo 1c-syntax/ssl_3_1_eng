@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -16,7 +14,7 @@ Procedure UpdateAttachedFile(Val AttachedFile, Val FileInfo) Export
 
 EndProcedure
 
-// See the AddAttachedFile function in the FilesOperations module.
+// See the Add a Connected File function in the Work with Files module.
 Function AppendFile(FileParameters, Val FileAddressInTempStorage, Val TempTextStorageAddress = "",
 	Val LongDesc = "") Export
 
@@ -25,13 +23,13 @@ Function AppendFile(FileParameters, Val FileAddressInTempStorage, Val TempTextSt
 
 EndFunction
 
-// Receives file data and its binary data.
+// Retrieves file data and its binary data.
 //
 // Parameters:
 //  FileOrVersionRef - CatalogRef.Files
-//                      - CatalogRef.FilesVersions - file or file version.
-//  SignatureAddress - String - URL to the signature file in a temporary storage.
-//  FormIdentifier  - UUID - a form UUID.
+//                      - CatalogRef.FilesVersions - 
+//  SignatureAddress - String -  a navigation link that contains the address of the signature file in temporary storage.
+//  FormIdentifier  - UUID -  unique form ID.
 //
 // Returns:
 //   Structure:
@@ -100,11 +98,11 @@ EndFunction
 // Create a folder of files.
 //
 // Parameters:
-//   Name - String - folder name
-//   Parent - DefinedType.AttachedFilesOwner - parent folder.
-//   User - CatalogRef.Users - a person responsible for a folder.
-//   FilesGroup - DefinedType.AttachedFile - a group (for hierarchical file catalogs).
-//   WorkingDirectory - String - a folder working directory in the file system.
+//   Name - String -  folder name
+//   Parent - DefinedType.AttachedFilesOwner -  parent folder.
+//   User - CatalogRef.Users -  responsible for the folder.
+//   FilesGroup - DefinedType.AttachedFile -  group (for hierarchical file directories).
+//   WorkingDirectory - String -  the working directory of a folder in the file system.
 //
 // Returns:
 //   CatalogRef.FilesFolders
@@ -143,16 +141,16 @@ Function CreateFilesFolder(Name, Parent, User = Undefined, FilesGroup = Undefine
 
 EndFunction
 
-// Creates a file in the infobase together with its version.
+// Creates a file in the IB along with the version.
 //
 // Parameters:
-//   Owner       - CatalogRef.FilesFolders
-//                  - , AnyRef - it will be set to the FileOwner attribute of
-//                    the created file.
+//   Owner        Spravochnike.Pacifico
+//                  - Any link - will be set to the owner of The file in the
+//                    created file.
 //   FileInfo1 - See FilesOperationsClientServer.FileInfo1
 //
 // Returns:
-//    CatalogRef.Files - created file.
+//    CatalogRef.Files -  generated file.
 //
 Function CreateFileWithVersion(FileOwner, FileInfo1) Export
 
@@ -204,11 +202,11 @@ Function CreateFileWithVersion(FileOwner, FileInfo1) Export
 
 EndFunction
 
-// Releases the file.
+// Frees the file.
 //
 // Parameters:
 //   FileData - See FileData.
-//   UUID - UUID - a form UUID.
+//   UUID - UUID -  unique form ID.
 //
 Procedure UnlockFile(FileData, UUID = Undefined) Export
 
@@ -258,17 +256,17 @@ Function UnlockFiles(Val Files) Export
 
 EndFunction
 
-// Lock the file for editing.
+// 
 //
 // Parameters:
-//  FileData  - Structure - Output parameter.
-//  ErrorString - String - Contains the error reason.
-//                          For example, "The file is locked by another user".
+//  FileData  - Structure -  output parameter.
+//  ErrorString - String - 
+//                          
 //  AdditionalParameters - See FilesOperationsInternalClientServer.FileLockParameters
 //
 //
 // Returns:
-//   Boolean  - shows whether the operation is performed successfully.
+//   Boolean  -  whether the operation was completed successfully.
 //
 Function LockFile(FileData, ErrorString = "", AdditionalParameters = Undefined) Export
 
@@ -331,14 +329,14 @@ Function LockFile(FileData, ErrorString = "", AdditionalParameters = Undefined) 
 
 EndFunction
 
-// Returns an array of structures or a structure (depending on the passed data) 
-// with various information records about the file.
+//  
+// 
 //
 // Parameters:
-//  Files  - Array from:
-//         - CatalogRef.Files
-//  FormIdentifier             - UUID - a form UUID. The method puts the file to the temporary storage
-//                                 of this form and returns the address in the RefToBinaryFileData property.
+//  Files  - 
+//         
+//  FormIdentifier             - UUID -  unique ID of the form
+//                                 to put the file in temporary storage and return the address in the link property of the Binary data file.
 //
 // Returns:
 //  - Array of See FilesOperations.FileData
@@ -365,12 +363,12 @@ Function FileDataForSigning(Val Files, FormIdentifier = Undefined) Export
 
 EndFunction
 
-// Returns a structure with various information records on the file and version.
+// Returns a structure containing various file and version information.
 // 
 // Parameters: 
 //  FileRef - See FilesOperations.FileBinaryData.AttachedFile.
-//  VersionRef - CatalogRef.FilesVersions - a version of the file by which the data is generated. If it is not specified,
-//                                                 data is generated by the current version or file.
+//  VersionRef - CatalogRef.FilesVersions - 
+//                                                 
 //  FileDataParameters - See FilesOperationsClientServer.FileDataParameters.
 // 
 // Returns:
@@ -538,7 +536,7 @@ Function FileDataToPrint(Val AttachedFile, Val FormIdentifier = Undefined) Expor
 
 EndFunction
 
-// Returns information records about the file and its version.
+// 
 // 
 // Parameters:
 //  FileRef - CatalogRef.Files
@@ -753,12 +751,12 @@ EndFunction
 
 #Region Private
 
-// Saves the path to the user's working directory to the settings.
+// Saves the path to the user's working directory in the settings.
 //
 // Parameters:
-//  DirectoryName - String - a directory name.
-//  User - CatalogRef.Users - the user for whom the working directory will be set.
-//               - Undefined - sets a working directory for the current user.
+//  DirectoryName - String -  directory name.
+//  User - CatalogRef.Users -  the user for which the working directory will be installed.
+//               - Undefined - 
 //
 Procedure SetUserWorkingDirectory(DirectoryName, User = Undefined) Export
 
@@ -789,16 +787,16 @@ Function FileStoringCatalogName(FilesOwner) Export
 
 EndFunction
 
-// Creates a file in the infobase.
+// Creates a file in the IB.
 //
 // Parameters:
 //   Owner       - CatalogRef.FilesFolders
-//                  - AnyRef - will be set to the FilesOwner attribute
-//                    of the created file.
+//                  - AnyRef - 
+//                    
 //   FileInfo1 - See FilesOperationsClientServer.FileInfo1
 //
 // Returns:
-//    CatalogRef.Files - created file.
+//    CatalogRef.Files -  generated file.
 //
 Function CreateFile(Val Owner, Val FileInfo1)
 
@@ -824,7 +822,7 @@ Function CreateFile(Val Owner, Val FileInfo1)
 		= FullTextSearchUsing Then
 
 		If TypeOf(FileInfo1.TempTextStorageAddress) = Type("ValueStorage") Then
-			// When creating a File from a template, the value storage is copied directly.
+			// 
 			File.TextStorage = FileInfo1.TempTextStorageAddress;
 		ElsIf Not IsBlankString(FileInfo1.TempTextStorageAddress) Then
 			TextExtractionResult = FilesOperationsInternal.ExtractText1(
@@ -844,18 +842,18 @@ Function CreateFile(Val Owner, Val FileInfo1)
 
 EndFunction
 
-// Updates or creates a File version and returns a reference to the updated version (or False if the file is
-// not modified binary).
+// Updates or creates a version of the File and returns a reference to the updated version (or False if the file is not binary
+// modified).
 //
 // Parameters:
-//   FileRef     - CatalogRef.Files        - a file, for which a new version is created.
+//   FileRef     - CatalogRef.Files        -  the file to create a new version for.
 //   FileInfo1 - See FilesOperationsClientServer.FileInfo1
-//   VersionRef   - CatalogRef.FilesVersions - a file version that needs to be updated.
-//   FormUniqueID                   - UUID - the UUID of 
-//                                                    the form that provides operation context.
+//   VersionRef   - CatalogRef.FilesVersions -  the version of the file that needs to be updated.
+//   FormUniqueID                   - UUID -  unique ID of the form 
+//                                                    in the context of which the operation is performed.
 //
 // Returns:
-//   CatalogRef.FilesVersions - created or changed version; Undefined if the file has not been binarily changed.
+//   CatalogRef.FilesVersions - 
 //
 Function RefreshFileObject(FileRef, FileInfo1, VersionRef = Undefined,
 	FormUniqueID = Undefined, User = Undefined)
@@ -912,7 +910,7 @@ Function RefreshFileObject(FileRef, FileInfo1, VersionRef = Undefined,
 
 		BinaryData = FilesOperationsInternal.BinaryDataFromFileInformation(FileInfo1);
 		If PreviousVersionBinaryData = BinaryData Then
-			Return Undefined; // If the file is not changed binary, returning False.
+			Return Undefined; // 
 		EndIf;
 
 	EndIf;
@@ -970,11 +968,11 @@ Function RefreshFileObject(FileRef, FileInfo1, VersionRef = Undefined,
 				FilesOperationsInternal.CheckFileSizeForImport(Version);
 			EndIf;
 			
-			// Clear fields.
+			// 
 			Version.PathToFile = "";
 			Version.Volume = Catalogs.FileStorageVolumes.EmptyRef();
 
-		Else // store in a volume
+		Else // 
 
 			If Version.Size = 0 Then
 				Version.Size = BinaryData.Size();
@@ -1051,20 +1049,20 @@ Function RefreshFileObject(FileRef, FileInfo1, VersionRef = Undefined,
 
 EndFunction
 
-// Updates or creates a file version and unlocks it. 
+// Updates or creates a version of the file and removes the lock. 
 // 
-// Throws exceptions.
+// Throws an exception.
 //
 // Parameters:
-//   FileData                  - Structure - a structure with file data.
+//   FileData                  - Structure -  the structure of the data file.
 //   FileInfo1               - See FilesOperationsClientServer.FileInfo1
-//   DontChangeRecordInWorkingDirectory - Boolean  - do not change record the FilesInWorkingDirectory information register.
-//   FullFilePath             - String    - specified if DontChangeRecordInWorkingDirectory = False.
-//   UserWorkingDirectory   - String    - specified if DontChangeRecordInWorkingDirectory = False.
-//   FormUniqueID - UUID - a form UUID.
+//   DontChangeRecordInWorkingDirectory - Boolean  -  do not change the entry in the file information register in the work Directory.
+//   FullFilePath             - String    -  specified if not change_recording in the work Directory = False.
+//   UserWorkingDirectory   - String    -  specified if not change_recording in the work Directory = False.
+//   FormUniqueID - UUID -  unique form ID.
 //
 // Returns:
-//   Boolean - True if the version is created (and the file has been binarily changed).
+//   Boolean -  True if the version was created (and the file was binary modified).
 //
 Function SaveChangesAndUnlockFile(FileData, FileInfo1, DontChangeRecordInWorkingDirectory,
 	FullFilePath, UserWorkingDirectory, FormUniqueID = Undefined) Export
@@ -1106,20 +1104,20 @@ Function SaveChangesAndUnlockFile(FileData, FileInfo1, DontChangeRecordInWorking
 
 EndFunction
 
-// Receives file data and then updates or creates a File version and unlocks it.
-// It is necessary for cases, when the FileData is missing on the client (for reasons of saving client-server calls).
+// Retrieves the file data, then updates or creates a version of the File and releases the lock.
+// It is necessary for cases when the client does not have a data File (for reasons of saving client-server calls).
 //
 // Parameters:
-//   FileRef       - CatalogRef.Files - a file where a version is updated.
+//   FileRef       - CatalogRef.Files -  the file where the version is updated.
 //   FileInfo1   - See FilesOperationsClientServer.FileInfo1
 //   FullFilePath             - String
 //   UserWorkingDirectory   - String
-//   FormUniqueID - UUID - a form UUID.
+//   FormUniqueID - UUID -  unique form ID.
 //
 // Returns:
 //   Structure:
-//     * Success     - Boolean    - True if the version is created (and file is binary changed).
-//     * FileData - Structure - a structure with file data.
+//     * Success     - Boolean    -  True if the version was created (and the file was binary modified).
+//     * FileData - Structure -  the structure of the data file.
 //
 Function SaveChangesAndUnlockFileByRef(FileRef, FileInfo1, FullFilePath,
 	UserWorkingDirectory, FormUniqueID = Undefined) Export
@@ -1134,22 +1132,22 @@ Function SaveChangesAndUnlockFileByRef(FileRef, FileInfo1, FullFilePath,
 
 EndFunction
 
-// It is designed to save file changes without unlocking it.
+// It is intended for recording changes to a file without releasing it.
 //
 // Parameters:
-//   FileRef                  - DefinedType.AttachedFile - Attachment.
+//   FileRef                  - DefinedType.AttachedFile -  attached file.
 //   FileInfo1               - See FilesOperationsClientServer.FileInfo1
-//   DontChangeRecordInWorkingDirectory - Boolean  - do not change record the FilesInWorkingDirectory information register.
-//   RelativeFilePath      - String    - a relative path without a working directory path, for example,
-//                                              "A1/Order.doc"; it is required if DontChangeRecordInWorkingDirectory =
+//   DontChangeRecordInWorkingDirectory - Boolean  -  do not change the entry in the file information register in the work Directory.
+//   RelativeFilePath      - String    -  a relative path without the working directory path, such
+//                                              as " A1/".doc"; specified if not change_recording in the work Directory =
 //                                              False.
-//   FullFilePath             - String    - a path on the client in the working directory. It is specified if
-//                                              DontChangeRecordInWorkingDirectory = False.
-//   InOwnerWorkingDirectory    - Boolean    - the file is stored in the working directory of its owner.
-//   FormUniqueID - UUID - a form UUID.
+//   FullFilePath             - String    -  path on the client in the working directory; specified if
+//                                              Do Not Change The Record In The Work Directory = False.
+//   InOwnerWorkingDirectory    - Boolean    -  the file is located in the owner's working directory.
+//   FormUniqueID - UUID -  unique form ID.
 //
 // Returns:
-//   Boolean  - True if the version is created (and the file has been binarily changed).
+//   Boolean  -  True if the version was created (and the file was binary modified).
 //
 Function SaveFileChanges(FileRef, FileInfo1, DontChangeRecordInWorkingDirectory, RelativeFilePath,
 	FullFilePath, InOwnerWorkingDirectory, FormUniqueID = Undefined) Export
@@ -1195,14 +1193,14 @@ Function SaveFileChanges(FileRef, FileInfo1, DontChangeRecordInWorkingDirectory,
 
 EndFunction
 
-// Creates a new file similarly to the specified one and returns a reference to it.
+// Creates a new file similar to the specified one and returns a link to it.
 // 
 // Parameters:
-//  SourceFile  - CatalogRef.Files - an existing file.
-//  NewFileOwner - DefinedType.FilesOwner - file owner.
+//  SourceFile  - CatalogRef.Files -  existing file.
+//  NewFileOwner - DefinedType.FilesOwner -  file owner.
 //
 // Returns:
-//   CatalogRef.Files - new file.
+//   CatalogRef.Files - 
 //
 Function CopyAttachedFile(SourceFile, NewFileOwner)
 
@@ -1298,7 +1296,7 @@ Function CopyAttachedFile(SourceFile, NewFileOwner)
 					FillPropertyValues(RecordManager, Certificate);
 					RecordManager.Write(True);
 				EndDo;
-				// To write a previously signed object.
+				// 
 				NewFile.AdditionalProperties.Insert("WriteSignedObject", True);
 				NewFile.Write();
 
@@ -1318,7 +1316,7 @@ EndFunction
 //
 // Parameters:
 //  FileData - See FileData
-//  Folder - CatalogRef.FilesFolders - a reference to the folder, to which you need to move the file.
+//  Folder - CatalogRef.FilesFolders -  link to the folder where you want to move the file.
 //
 Procedure TransferFile(FileData, Folder)
 
@@ -1344,8 +1342,8 @@ EndProcedure
 // Moves Files to another folder.
 //
 // Parameters:
-//   ObjectsRef - Array - an array of file references.
-//   Folder - CatalogRef.FilesFolders - a reference to the folder, to which you need to move the files.
+//   ObjectsRef - Array -  array of links to files.
+//   Folder - CatalogRef.FilesFolders -  link to the folder where you want to move the files.
 //
 // Returns:
 //    Array of See FilesOperationsInternalServerCall.FileData
@@ -1367,17 +1365,17 @@ Function MoveFiles(ObjectsRef, Folder) Export
 
 EndFunction
 
-// Gets file data and performs a checkout. To reduce the number of client/server 
-// calls, GetFileData and LockFile are combined into a single function.
+// Gets file data and makes a loan (checkout) - to save calls 
+// , the client and server put getfile Data and takefile In the same function.
 // Parameters:
-//  FileRef  - CatalogRef.Files - file.
-//  FileData  - Structure - a structure with file data.
-//  ErrorString - String - where the reason of an error is returned (for example, "File is locked by another
+//  FileRef  - CatalogRef.Files -  file.
+//  FileData  - Structure -  the structure of the data file.
+//  ErrorString - String -  which returns the reason for the error in case of failure (for example, "the File is occupied by another
 //                 user").
-//  UUID - form UUID.
+//  UUID - unique form ID.
 //
 // Returns:
-//   Boolean  - shows whether the operation is performed successfully.
+//   Boolean  -  whether the operation was completed successfully.
 //
 Function GetFileDataAndLockFile(FileRef, FileData, ErrorString, UUID = Undefined) Export
 
@@ -1403,11 +1401,11 @@ Function GetFileDataAndLockFile(FileRef, FileData, ErrorString, UUID = Undefined
 
 EndFunction
 
-// Receives FileData for files and places it into FileDataArray.
+// Gets the file Data for files and puts it in the file data Array.
 //
 // Parameters:
 //  FilesArray - Array of DefinedType.AttachedFile
-//  FileDataArray - Array - structures with file data.
+//  FileDataArray - Array -  the structure of the data files.
 //
 Procedure GetDataForFilesArray(Val FilesArray, FileDataArray) Export
 
@@ -1418,20 +1416,20 @@ Procedure GetDataForFilesArray(Val FilesArray, FileDataArray) Export
 
 EndProcedure
 
-// Locks the file and returns the file data for further editing.
+// 
 // 
 // Parameters:
 //  FileRef  - CatalogRef.Files
-//  UUID - form UUID.
-//  OwnerWorkingDirectory - String - a working directory of the file owner.
+//  UUID - unique form ID.
+//  OwnerWorkingDirectory - String -  working directory of the file owner.
 //  VersionRef - CatalogRef.FilesVersions
 //
 // Returns:
 //   Structure:
-//    * DataReceived - Boolean  - True if the operation is successful.
+//    * DataReceived - Boolean  - 
 //    * FileData    - Structure
-//    * MessageText - String - Contains the error reason. For example, "The file is locked by another user".
-//    * FileIsAlreadyEditedByCurrentUser - Boolean - True if the file has already been locked for editing.
+//    * MessageText - String - 
+//    * FileIsAlreadyEditedByCurrentUser - Boolean - 
 ///
 Function BorrowFileToEdit(FileRef, UUID = Undefined,
 	OwnerWorkingDirectory = Undefined, VersionRef = Undefined) Export
@@ -1462,14 +1460,14 @@ Function BorrowFileToEdit(FileRef, UUID = Undefined,
 
 EndFunction
 
-// Executes PutInTempStorage (if the file is stored in a volume) and returns a required reference.
+// 
 //
 // Parameters:
 //   VersionRef - file version.
-//   FormIdentifier - form UUID.
+//   FormIdentifier - unique form ID.
 //
 // Returns:
-//   String  - URL in the temporary storage.
+//   String  - 
 //
 Function GetURLToOpen(VersionRef, FormIdentifier = Undefined) Export
 
@@ -1483,15 +1481,15 @@ Function GetURLToOpen(VersionRef, FormIdentifier = Undefined) Export
 
 EndFunction
 
-// Executes FileData and calculates OwnerWorkingDirectory.
+// Executes the file Data and calculates the working directory of the Owner.
 //
 // Parameters:
 //  FileOrVersionRef     - CatalogRef.Files
-//                          - CatalogRef.FilesVersions - file or file version.
-//  OwnerWorkingDirectory - String - the user working directory is returned in it.
+//                          - CatalogRef.FilesVersions - 
+//  OwnerWorkingDirectory - String -  it returns the working directory of the file owner.
 //
 // Returns:
-//   Structure - structure with file data:
+//   Structure - :
 //     * Ref - DefinedType.AttachedFile
 //
 Function FileDataAndWorkingDirectory(FileOrVersionRef, OwnerWorkingDirectory = Undefined) Export
@@ -1522,8 +1520,8 @@ Function FileDataAndWorkingDirectory(FileOrVersionRef, OwnerWorkingDirectory = U
 	If OwnerWorkingDirectory <> "" Then
 
 		FullFileNameInWorkingDirectory = "";
-		DirectoryName = ""; // Path to the local cache is not used here.
-		InWorkingDirectoryForRead = True; // Path to the local cache is not used here. 
+		DirectoryName = ""; // 
+		InWorkingDirectoryForRead = True; //  
 		InOwnerWorkingDirectory = True;
 
 		If VersionRef <> Undefined Then
@@ -1543,12 +1541,12 @@ Function FileDataAndWorkingDirectory(FileOrVersionRef, OwnerWorkingDirectory = U
 	Return FileData;
 EndFunction
 
-// Makes GetFileData and calculates the number of file versions.
+// Retrieves the file Data and calculates the number of file versions.
 // Parameters:
-//  FileRef  - CatalogRef.Files - file.
+//  FileRef  - CatalogRef.Files -  file.
 //
 // Returns:
-//   Structure - structure with file data.
+//   Structure -  the structure of the data file.
 //
 Function GetFileDataAndVersionsCount(FileRef) Export
 
@@ -1563,11 +1561,11 @@ Function GetFileDataAndVersionsCount(FileRef) Export
 
 EndFunction
 
-// Unlocking File with receiving data.
+// The release of the File to obtain data.
 // Parameters:
-//  FileRef  - CatalogRef.Files - file.
-//  FileData  - Structure - with the file data.
-//  UUID - form UUID.
+//  FileRef  - CatalogRef.Files -  file.
+//  FileData  - Structure -  with the file data.
+//  UUID - unique form ID.
 //
 Procedure GetFileDataAndUnlockFile(FileRef, FileData, UUID = Undefined) Export
 
@@ -1576,23 +1574,23 @@ Procedure GetFileDataAndUnlockFile(FileRef, FileData, UUID = Undefined) Export
 
 EndProcedure
 
-// To save file changes without unlocking it.
+// To record changes to a file without releasing it.
 //
 // Parameters:
-//   FileRef                   - Structure - a structure with file data.
+//   FileRef                   - Structure -  the structure of the data file.
 //   FileInfo1               - See FilesOperationsClientServer.FileInfo1
-//   RelativeFilePath      - String    - a relative path without a working directory path, for example,
-//                                              "A1/Order.doc"; it is required if DontChangeRecordInWorkingDirectory =
+//   RelativeFilePath      - String    -  a relative path without the working directory path, such
+//                                              as " A1/".doc"; specified if not change_recording in the work Directory =
 //                                              False.
-//   FullFilePath             - String    - a path on the client in the working directory. It is specified if
-//                                              DontChangeRecordInWorkingDirectory = False.
-//   InOwnerWorkingDirectory    - Boolean    - the file is stored in the working directory of its owner.
-//   FormUniqueID - UUID - a form UUID.
+//   FullFilePath             - String    -  path on the client in the working directory; specified if
+//                                              Do Not Change The Record In The Work Directory = False.
+//   InOwnerWorkingDirectory    - Boolean    -  the file is located in the owner's working directory.
+//   FormUniqueID - UUID -  unique form ID.
 //
 // Returns:
 //   Structure:
-//     * Success     - Boolean    - True if the version is created (and file is binary changed).
-//     * FileData - Structure - a structure with file data.
+//     * Success     - Boolean    -  True if the version was created (and the file was binary modified).
+//     * FileData - Structure -  the structure of the data file.
 //
 Function GetFileDataAndSaveFileChanges(FileRef, FileInfo1, RelativeFilePath,
 	FullFilePath, InOwnerWorkingDirectory, FormUniqueID = Undefined) Export
@@ -1611,13 +1609,13 @@ Function GetFileDataAndSaveFileChanges(FileRef, FileInfo1, RelativeFilePath,
 
 EndFunction
 
-// Receives the synthetic working directory of the folder on the computer (it can be obtained from the parent folder).
+// 
 //
 // Parameters:
-//  FolderRef  - CatalogRef.FilesFolders - file owner.
+//  FolderRef  - CatalogRef.FilesFolders -  file owner.
 //
 // Returns:
-//   String  - working directory.
+//   String  -  working directory.
 //
 Function FolderWorkingDirectory(FolderRef) Export
 
@@ -1629,20 +1627,20 @@ Function FolderWorkingDirectory(FolderRef) Export
 
 	WorkingDirectory = "";
 	
-	// Prepare a filter structure by dimensions.
+	// 
 
 	FilterStructure1 = New Structure;
 	FilterStructure1.Insert("Folder", FolderRef);
 	FilterStructure1.Insert("User", Users.AuthorizedUser());
 	
-	// Receive structure with the data of record resources.
+	// 
 	ResourcesStructure = InformationRegisters.FileWorkingDirectories.Get(FilterStructure1);
 	
-	// Getting a path from the register
+	// 
 	WorkingDirectory = ResourcesStructure.Path;
 
 	If Not IsBlankString(WorkingDirectory) Then
-		// Add a slash at the end (unless it is already there).
+		// 
 		WorkingDirectory = CommonClientServer.AddLastPathSeparator(WorkingDirectory);
 	EndIf;
 
@@ -1664,13 +1662,13 @@ Function FileInWorkingDirectory()
 
 EndFunction
 
-// Saves a folder working directory to the information register and
-// replaces paths in the FilesInWorkingDirectory information register.
+// Saves the working directory of the folder in the details register and
+// replaces the paths in the file details register with the working Directory.
 //
 // Parameters:
-//  FolderRef  - CatalogRef.FilesFolders - file owner.
-//  FolderWorkingDirectory - String - a folder working directory.
-//  DirectoryNamePreviousValue - String - a previous value of the working directory.
+//  FolderRef  - CatalogRef.FilesFolders -  file owner.
+//  FolderWorkingDirectory - String -  working directory of the folder.
+//  DirectoryNamePreviousValue - String -  the previous value of the working directory.
 //
 Procedure SaveFolderWorkingDirectoryAndReplacePathsInRegister(FolderRef, FolderWorkingDirectory,
 	DirectoryNamePreviousValue) Export
@@ -1730,14 +1728,14 @@ Procedure SaveFolderWorkingDirectoryAndReplacePathsInRegister(FolderRef, FolderW
 
 EndProcedure
 
-// After changing the path, write it again with the same values of other fields.
+// After changing the path, we will write it again with the same values of the other fields.
 // Parameters:
-//  Version - CatalogRef.FilesVersions - a version.
-//  Path - String - a relative path inside the working directory.
+//  Version-Reference Link.Versitile version.
+//  Path - String -  relative path inside the working directory.
 //  Size  - file size in bytes.
-//  PutFileInWorkingDirectoryDate - Date - the date when the file was stored to the working directory.
-//  ForReading - Boolean - a file is placed for reading.
-//  InOwnerWorkingDirectory - Boolean - a file is in owner working directory (not in the main working directory).
+//  PutFileInWorkingDirectoryDate - Date -  date when the file was placed in the working directory.
+//  ForReading - Boolean -  the file has been placed for reading.
+//  InOwnerWorkingDirectory - Boolean -  the file is in the owner's working directory (not the main working directory).
 //
 Procedure WriteRecordStructureToRegister(File, Path, Size, PutFileInWorkingDirectoryDate, ForReading,
 	InOwnerWorkingDirectory)
@@ -1750,7 +1748,7 @@ Procedure WriteRecordStructureToRegister(File, Path, Size, PutFileInWorkingDirec
 
 	SetPrivilegedMode(True);
 	
-	// Create a record set.
+	// 
 	RecordSet = InformationRegisters.FilesInWorkingDirectory.CreateRecordSet();
 
 	RecordSet.Filter.File.Set(File);
@@ -1770,25 +1768,25 @@ Procedure WriteRecordStructureToRegister(File, Path, Size, PutFileInWorkingDirec
 
 EndProcedure
 
-// Returns information records from the "FilesInWorkingDirectory" register for passing filenames.
+// 
 //
 // Parameters:
-//  FilesNames - Array of String - file names with a relative path (without a path to the working directory).
+//  FilesNames - Array of String - 
 //
 // Returns:
 //  Map of KeyAndValue:
-//    * Key - String - File name.
+//    * Key - String -  file name.
 //    * Value - Structure:
-//        * FileIsInRegister - Boolean - Information records on the passed file were found.
-//        * File              - DefinedType.AttachedFile - File associated with the given name.
-//        * PutFileDate     - the date when the file was stored to the working directory.
-//        * Owner          - DefinedType.AttachedFile - If "File" is "CatalogRef.FilesVersions",
-//                              it contains its "CatalogRef.Files".
-//        * VersionNumber       - Number - Version number.
+//        * FileIsInRegister - Boolean - 
+//        * File              - DefinedType.AttachedFile - 
+//        * PutFileDate     - date when the file was placed in the working directory.
+//        * Owner          - DefinedType.AttachedFile - 
+//                              
+//        * VersionNumber       - Number -  version number.
 //        * EditedByCurrentUser - Boolean
-//        * InRegisterForReading - Boolean - Value of the "ForReading" resource.
-//        * FileCodeInRegister - Number - File code.
-//        * InRegisterFolder    - DefinedType.FilesOwner - File owner or directory.
+//        * InRegisterForReading - Boolean - 
+//        * FileCodeInRegister - Number - 
+//        * InRegisterFolder    - DefinedType.FilesOwner - 
 //
 Function FilesInfoInWorkingDir(Val FilesNames) Export
 
@@ -1839,7 +1837,7 @@ Function FilesInfoInWorkingDir(Val FilesNames) Export
 			FillPropertyValues(FileInfo1, Selection);
 			FileInfo1.FileIsInRegister = True;
 
-			// @skip-check query-in-loop - Addressing flexible-type tables
+			// 
 			FileOwner = Common.ObjectAttributesValues(Selection.Owner, "FileOwner,BeingEditedBy");
 			FileInfo1.InRegisterFolder = FileOwner.FileOwner;
 			FileInfo1.EditedByCurrentUser = FileOwner.BeingEditedBy = AuthorizedUser;
@@ -1881,14 +1879,14 @@ Function FileInfoInWorkingDir()
 EndFunction
 
 
-// Finds information on FileVersions in the FilesInWorkingDirectory information register:
-// The path to the version file in a working directory and its status: read-only editable.
+// 
+// 
 // 
 // Parameters:
-//  Version - CatalogRef.FilesVersions - Version.
-//  DirectoryName - String - working directory path.
-//  InWorkingDirectoryForRead - Boolean - a file is placed for reading.
-//  InOwnerWorkingDirectory - Boolean - a file is in owner working directory (not in the main working directory).
+//  Version - CatalogRef.FilesVersions -  version.
+//  DirectoryName - String -  path of the working directory.
+//  InWorkingDirectoryForRead - Boolean -  the file has been placed for reading.
+//  InOwnerWorkingDirectory - Boolean -  the file is in the owner's working directory (not the main working directory).
 //
 Function FullFileNameInWorkingDirectory(Val Version, Val DirectoryName, InWorkingDirectoryForRead,
 	InOwnerWorkingDirectory) Export
@@ -1918,18 +1916,18 @@ Function FullFileNameInWorkingDirectory(Val Version, Val DirectoryName, InWorkin
 
 EndFunction
 
-// Writing information about a file path to the FilesInWorkingDirectory information register.
+// Write information about the file path to the file information register in the work directory.
 // Parameters:
-//  CurrentVersion - CatalogRef.FilesVersions - version.
-//  FullFileName - name with a path in the working directory.
-//  ForReading - Boolean - a file is placed for reading.
-//  InOwnerWorkingDirectory - Boolean - a file is in owner working directory (not in the main working directory).
+//  CurrentVersion - CatalogRef.FilesVersions -  version.
+//  FullFileName - 
+//  ForReading - Boolean -  the file has been placed for reading.
+//  InOwnerWorkingDirectory - Boolean -  the file is in the owner's working directory (not the main working directory).
 //
 Procedure WriteFullFileNameToRegister(CurrentVersion, FullFileName, ForReading, InOwnerWorkingDirectory) Export
 
 	SetPrivilegedMode(True);
 	
-	// Create a record set.
+	// 
 	RecordSet = InformationRegisters.FilesInWorkingDirectory.CreateRecordSet();
 
 	RecordSet.Filter.File.Set(CurrentVersion.Ref);
@@ -1949,9 +1947,9 @@ Procedure WriteFullFileNameToRegister(CurrentVersion, FullFileName, ForReading, 
 
 EndProcedure
 
-// Delete a record about the specified version of the file from the FilesInWorkingDirectory information register.
+// Delete an entry about this file version from the file information register in the work Directory.
 // Parameters:
-//  Version - CatalogRef.FilesVersions - a version.
+//  Version-Reference Link.Versitile version.
 //
 Procedure DeleteFromRegister(File) Export
 
@@ -1971,13 +1969,13 @@ Procedure DeleteFromRegister(File) Export
 
 EndProcedure
 
-// Delete a record about the previous version in the FilesInWorkingDirectory information register and write the new one.
+// Delete an entry about the old version from the file's work Directory information register and make an entry about the new one.
 // Parameters:
-//  OldVersion - CatalogRef.FilesVersions - an old version.
-//  NewVersion - CatalogRef.FilesVersions - new version.
-//  FullFileName - name with a path in the working directory.
-//  DirectoryName - working directory path.
-//  InOwnerWorkingDirectory - Boolean - a file is in owner working directory (not in the main working directory).
+//  OldVersion - CatalogRef.FilesVersions -  old version.
+//  NewVersion - CatalogRef.FilesVersions -  new version.
+//  FullFileName - 
+//  DirectoryName - path of the working directory.
+//  InOwnerWorkingDirectory - Boolean -  the file is in the owner's working directory (not the main working directory).
 //
 Procedure DeleteVersionAndPutFileInformationIntoRegister(OldVersion, NewVersion, FullFileName, DirectoryName,
 	InOwnerWorkingDirectory)
@@ -1996,15 +1994,15 @@ Procedure DeleteVersionAndPutFileInformationIntoRegister(OldVersion, NewVersion,
 
 EndProcedure
 
-// Writing information about a file path to the FilesInWorkingDirectory information register.
+// Write information about the file path to the file information register in the work directory.
 // 
 // Parameters:
-//  Version - CatalogRef.FilesVersions - version.
-//  FullPath - String - a full file path.
-//  DirectoryName - String - a working directory path.
-//  ForReading - Boolean - a file is placed for reading.
-//  FileSize  - Number - File size in bytes.
-//  InOwnerWorkingDirectory - Boolean - a file is in owner working directory (not in the main working directory).
+//  Version - CatalogRef.FilesVersions -  version.
+//  FullPath - String -  the full path of the file.
+//  DirectoryName - String -  path of the working directory.
+//  ForReading - Boolean -  the file has been placed for reading.
+//  FileSize  - Number -  file size in bytes.
+//  InOwnerWorkingDirectory - Boolean -  the file is in the owner's working directory (not the main working directory).
 //
 Procedure PutFileInformationInRegister(Version, FullPath, DirectoryName, ForReading, FileSize,
 	InOwnerWorkingDirectory) Export
@@ -2024,7 +2022,7 @@ Procedure PutFileInformationInRegister(Version, FullPath, DirectoryName, ForRead
 
 	SetPrivilegedMode(True);
 	
-	// Create a record set.
+	// 
 	RecordSet = InformationRegisters.FilesInWorkingDirectory.CreateRecordSet();
 
 	RecordSet.Filter.File.Set(Version.Ref);
@@ -2049,7 +2047,7 @@ Procedure PutFileInformationInRegister(Version, FullPath, DirectoryName, ForRead
 
 EndProcedure
 
-// Sorts an array of structures by the Date field on the server, since there is no ValueTable on the thin client.
+// Sorts an array of structures by the date - on-server field, because there are no value Tables on the thin client.
 //
 // Parameters:
 //   StructuresArray - Array of Structure
@@ -2068,7 +2066,7 @@ Procedure SortStructuresArray(StructuresArray) Export
 		FillPropertyValues(NewRow, FileInfo1, "Path, Size, Version, PutFileInWorkingDirectoryDate");
 	EndDo;
 	
-	// Sorting by date means that in the beginning there will be items, placed in the working directory long ago.
+	// 
 	TableOfFiles.Sort("PutFileInWorkingDirectoryDate Asc");
 
 	Result = New Array;
@@ -2086,20 +2084,20 @@ Procedure SortStructuresArray(StructuresArray) Export
 
 EndProcedure
 
-// The function changes FileOwner for the objects as Catalog.File, and returns True if successful.
+// This function changes the file Owner to objects of the Directory type.The file will return True on success.
 // Parameters:
-//  ArrayOfRefsToFiles - Array - an array of files.
-//  NewFileOwner1  - AnyRef - a new file owner.
+//  ArrayOfRefsToFiles - Array -  array of files.
+//  NewFileOwner1  - AnyRef -  new owner of the file.
 //
 // Returns:
-//   Boolean  - shows whether the operation is performed successfully.
+//   Boolean  -  whether the operation was completed successfully.
 //
 Function SetFileOwner(ArrayOfRefsToFiles, NewFileOwner1) Export
 	If ArrayOfRefsToFiles.Count() = 0 Or Not ValueIsFilled(NewFileOwner1) Then
 		Return False;
 	EndIf;
 	
-	// Parent is the same, you do not have to do anything.
+	// 
 	If ArrayOfRefsToFiles.Count() > 0 And (ArrayOfRefsToFiles[0].FileOwner = NewFileOwner1) Then
 		Return False;
 	EndIf;
@@ -2130,16 +2128,16 @@ Function SetFileOwner(ArrayOfRefsToFiles, NewFileOwner1) Export
 
 EndFunction
 
-// The function changes the Parent property to objects of the Catalog.FilesFolders type. It returns True if successful 
-// in the variable LoopFound it returns True if one of the folders is transferred to its child folder.
+// The function changes the Parent property to objects of the reference Type.The file folder will return True if successful, 
+// and the variable Naydenozatsiklivanie will return True if one of the folders is moved to its child folder.
 //
 // Parameters:
-//  ArrayOfRefsToFiles - Array - an array of files.
-//  NewParent  - AnyRef - a new file owner.
-//  LoopFound - Boolean - returns True if a loop is found.
+//  ArrayOfRefsToFiles - Array -  array of files.
+//  NewParent  - AnyRef -  new owner of the file.
+//  LoopFound - Boolean -  returns True if a loop is found.
 //
 // Returns:
-//   Boolean  - Shows whether the operation is performed successfully.
+//   Boolean  -  whether the operation was completed successfully.
 //
 Function ChangeFoldersParent(ArrayOfRefsToFiles, NewParent, LoopFound) Export
 	LoopFound = False;
@@ -2148,7 +2146,7 @@ Function ChangeFoldersParent(ArrayOfRefsToFiles, NewParent, LoopFound) Export
 		Return False;
 	EndIf;
 	
-	// Parent is the same, you do not have to do anything.
+	// 
 	If ArrayOfRefsToFiles.Count() = 1 And (ArrayOfRefsToFiles[0].Parent = NewParent) Then
 		Return False;
 	EndIf;
@@ -2184,16 +2182,16 @@ Function ChangeFoldersParent(ArrayOfRefsToFiles, NewParent, LoopFound) Export
 
 EndFunction
 
-// Receives file data to open and reads from the common settings of FolderToSaveAs.
+// Gets the file data to open and reads from the General settings of the folder to save As.
 //
 // Parameters:
-//  FileOrVersionRef     - CatalogRef.Files
-//                          - , CatalogRef.FilesVersions - a file or a file version.
-//  FormIdentifier      - UUID - a form UUID.
-//  OwnerWorkingDirectory - String - a working directory of the file owner.
+//  
+//                          
+//  FormIdentifier      - UUID -  unique form ID.
+//  OwnerWorkingDirectory - String -  working directory of the file owner.
 //
 // Returns:
-//   Structure - structure with file data.
+//   Structure -  the structure of the data file.
 //
 Function FileDataToSave(FileRef, VersionRef = Undefined, FormIdentifier = Undefined,
 	OwnerWorkingDirectory = Undefined) Export
@@ -2207,13 +2205,13 @@ Function FileDataToSave(FileRef, VersionRef = Undefined, FormIdentifier = Undefi
 	Return FileData;
 EndFunction
 
-// Receives FileData and VersionURL of all subordinate files.
+// Retrieves the datafile And navigation Linkversions of all subordinate files.
 // Parameters:
-//  FileRef - CatalogRef.Files - file.
-//  FormIdentifier - form UUID.
+//  FileRef - CatalogRef.Files -  file.
+//  FormIdentifier - unique form ID.
 //
 // Returns:
-//   Array - array of structures with file data.
+//   Array - 
 //
 Function FileDataAndURLOfAllFileVersions(FileRef, FormIdentifier) Export
 
@@ -2254,7 +2252,7 @@ Function FileDataAndURLOfAllFileVersions(FileRef, FormIdentifier) Export
 
 	EndDo;
 	
-	// If versions are not stored, encrypting the file.
+	// 
 	StoreVersions = Common.ObjectAttributeValue(FileRef, "StoreVersions");
 	
 	If Not StoreVersions 
@@ -2326,10 +2324,10 @@ Function FilesDeletionResult(FilesOrVersions, UUID) Export
 		Result = New Structure("WarningText, Files", "", New Array);
 		If Common.ObjectAttributeValue(FileOrVersion, "Author") = AuthorizedUser Then
 			If IsFileVersion Then
-				// @skip-check query-in-loop - Batch-wise deletion of versions in transactions. 
+				//  
 				DeleteVersionData(FileOrVersion, UUID, Result);
 			Else
-				// @skip-check query-in-loop - Batch-wise deletion of files in transactions. 
+				//  
 				DeleteFileData(FileOrVersion, UUID, Result, AuthorizedUser);
 			EndIf;
 		Else
@@ -2493,8 +2491,8 @@ Procedure DeleteData(FileOrVersion, UUID)
 					FileProperties));
 
 			EndIf;
-			// Change the file path to make sure that it is unique.
-			// Do not validate the extension since the data is deleted from the computer.
+			// 
+			// 
 			FileOrVersionObject.PathToFile = FileOrVersionObject.PathToFile + "_remove";//@Non-NLS
 		Else
 			SetPrivilegedMode(True);
@@ -2519,15 +2517,15 @@ EndProcedure
 
 #EndRegion
 
-// Information.
+// 
 
-// The function returns the number of Files locked by the current user
+// The function returns the number of Files occupied by the current user
 // by owner.
 // Parameters:
-//  FileOwner  - AnyRef - file owner.
+//  FileOwner  - AnyRef -  file owner.
 //
 // Returns:
-//   Number  - number of locked files.
+//   Number  - 
 //
 Function FilesLockedByCurrentUserCount(FileOwner) Export
 
@@ -2535,12 +2533,12 @@ Function FilesLockedByCurrentUserCount(FileOwner) Export
 
 EndFunction
 
-// Receives the number of file versions.
+// Gets the number of file versions.
 // Parameters:
-//  FileRef - CatalogRef.Files - file.
+//  FileRef - CatalogRef.Files -  file.
 //
 // Returns:
-//   Number - number of versions
+//   Number - 
 //
 Function GetVersionsCount(FileRef)
 
@@ -2563,18 +2561,18 @@ Function GetVersionsCount(FileRef)
 
 EndFunction
 
-// Returns True if there is looping (if a folder is moved into its own child folder).
+// Returns True if there is a loop (if one of the folders is moved to its child folder).
 // Parameters:
-//  ArrayOfRefsToFiles - Array - an array of files.
-//  NewParent  - AnyRef - a new file owner.
+//  ArrayOfRefsToFiles - Array -  array of files.
+//  NewParent  - AnyRef -  new owner of the file.
 //
 // Returns:
-//   Boolean  - there is a loop.
+//   Boolean  - 
 //
 Function HasLoop(Val ArrayOfRefsToFiles, NewParent)
 
 	If ArrayOfRefsToFiles.Find(NewParent) <> Undefined Then
-		Return True; // A looping is found.
+		Return True; // 
 	EndIf;
 
 	Query = New Query;
@@ -2598,15 +2596,15 @@ Function HasLoop(Val ArrayOfRefsToFiles, NewParent)
 
 EndFunction
 
-// Returns True if the specified item of the FilesFolders has a child node with this name.
+// Returns True if the specified element in the Folder directory has a child element with the same name.
 //
 // Parameters:
-//  FolderName					 - String					     - folder name
-//  Parent					 - DefinedType.AttachedFilesOwner	 - a folder parent.
-//  FirstFolderWithSameName	 - DefinedType.AttachedFilesOwner	 - the first found folder with the specified name.
+//  FolderName					 - String					     -  folder name
+//  Parent					 - DefinedType.AttachedFilesOwner	 -  parent of the folder.
+//  FirstFolderWithSameName	 - DefinedType.AttachedFilesOwner	 -  the first folder found with the specified name.
 // 
 // Returns:
-//  Boolean - there is a child item with this name.
+//  Boolean - 
 //
 Function HasFolderWithThisName(FolderName, Parent, FirstFolderWithSameName) Export
 
@@ -2691,12 +2689,12 @@ Function ImageAddingOptions(FilesOwner, PlacementAttribute = Undefined) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// 
 
-// Creates new files by analogy with the specified ones.
+// Creates new files similar to the specified ones.
 // Parameters:
-//  FilesArray  - Array - an array of files CatalogRef.Files - the existing files.
-//  NewFileOwner - AnyRef - file owner.
+//  FilesArray  - Array -  array of Reference link objects.Files - existing files.
+//  NewFileOwner - AnyRef -  file owner.
 //
 Procedure DoCopyAttachedFiles(FilesArray, NewFileOwner) Export
 
@@ -2706,7 +2704,7 @@ Procedure DoCopyAttachedFiles(FilesArray, NewFileOwner) Export
 
 EndProcedure
 
-// Checks the Encrypted flag for the file.
+// Sets the file to Encrypted.
 Procedure CheckEncryptedFlag(FileRef, Encrypted, UUID = Undefined) Export
 
 	BeginTransaction();
@@ -2720,7 +2718,7 @@ Procedure CheckEncryptedFlag(FileRef, Encrypted, UUID = Undefined) Export
 		LockDataForEdit(FileRef,, UUID);
 
 		FileObject1.Encrypted = Encrypted;
-		// To write a previously signed object.
+		// 
 		FileObject1.AdditionalProperties.Insert("WriteSignedObject", True);
 		FileObject1.Write();
 		UnlockDataForEdit(FileRef, UUID);
@@ -2733,7 +2731,7 @@ Procedure CheckEncryptedFlag(FileRef, Encrypted, UUID = Undefined) Export
 
 EndProcedure
 
-// Updates the size of the file and current version.
+// 
 //
 // Parameters:
 //   FileData - See FileData
@@ -2763,13 +2761,13 @@ Procedure UpdateSizeOfFileAndVersion(FileData, FileSize, FormIdentifier) Export
 
 		VersionObject = FileData.Version.GetObject();
 		VersionObject.Size = FileSize;
-		// To write a signed object.
+		// 
 		VersionObject.AdditionalProperties.Insert("WriteSignedObject", True);
 		VersionObject.Write();
 
 		If FileVersionIsSpecified Then
 			FileObject1 = FileData.Ref.GetObject();
-			// To write a signed object.
+			// 
 			FileObject1.AdditionalProperties.Insert("WriteSignedObject", True);
 			FileObject1.Write();
 		EndIf;
@@ -2797,12 +2795,12 @@ Procedure WriteFileVersionEncoding(VersionRef, Encoding) Export
 
 EndProcedure
 
-// Writes the file version encoding.
+// Records the encoding of the file version.
 //
 // Parameters:
-//   VersionRef - reference to the file version.
-//   Encoding - encoding string.
-//   ExtractedText - text extracted from the file.
+//   VersionRef - link to the file version.
+//   Encoding - 
+//   ExtractedText - 
 //
 Procedure WriteFileVersionEncodingAndExtractedText(VersionRef, Encoding, ExtractedText) Export
 
@@ -2812,7 +2810,7 @@ Procedure WriteFileVersionEncodingAndExtractedText(VersionRef, Encoding, Extract
 
 EndProcedure
 
-// Writes to the server the text extraction results that are the extracted text and the TextExtractionStatus.
+// Writes the result of text extraction to the server - the extracted text and the status of text Extraction.
 Procedure WriteTextExtractionResultOnWrite(VersionRef, ExtractionResult,
 	TempTextStorageAddress)
 
@@ -2831,7 +2829,7 @@ Procedure WriteTextExtractionResultOnWrite(VersionRef, ExtractionResult,
 				LockDataForEdit(File);
 				FileLocked = True;
 			Except
-				// Exception if the object is already locked, including the Lock method.
+				// 
 				Return;
 			EndTry;
 
@@ -2892,14 +2890,14 @@ Procedure WriteTextExtractionResultOnWrite(VersionRef, ExtractionResult,
 			VersionObject.TextExtractionStatus = Enums.FileTextExtractionStatuses.FailedExtraction;
 		EndIf;
 	
-		// To write a previously signed object.
+		// 
 		VersionObject.AdditionalProperties.Insert("WriteSignedObject", True);
 		VersionObject.Write();
 
 		If FileToCompare = VersionRef Then
 			FileObject1 = File.GetObject();
 			FileObject1.TextStorage = VersionObject.TextStorage;
-			// To write a previously signed object.
+			// 
 			FileObject1.AdditionalProperties.Insert("WriteSignedObject", True);
 			FileObject1.Write();
 		EndIf;
@@ -2922,8 +2920,8 @@ Procedure WriteTextExtractionResultOnWrite(VersionRef, ExtractionResult,
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-//Common file functions.
-// See this procedure in the FilesOperationsInternal module.
+//
+// 
 //
 Procedure RecordTextExtractionResult(FileOrVersionRef, ExtractionResult, TempTextStorageAddress) Export
 
@@ -2935,7 +2933,7 @@ EndProcedure
 // For internal use only.
 // 
 // Parameters:
-//  RawData - String - Address of the data piece in a temporary storage.
+//  RawData - String - 
 //  RowsData - Array of See DigitalSignatureClientServer.ResultOfSignatureValidationOnForm
 //  SignedObject - AnyRef
 //
@@ -2957,7 +2955,7 @@ Procedure VerifySignatures(RawData, RowsData, SignedObject) Export
 		SignatureRow.SignatureValidationDate = CurrentSessionDate();
 		SignatureRow.SignatureCorrect      = (SignatureVerificationResult.Result = True);
 		If SignatureRow.ErrorDescription <> Undefined Then
-			SignatureRow.ErrorDescription    = ErrorDescription; // Intended for compatibility purposes.
+			SignatureRow.ErrorDescription    = ErrorDescription; // 
 		EndIf;
 		FillPropertyValues(SignatureRow.CheckResult, SignatureVerificationResult);
 		SignatureRow.CheckResult.IsAdditionalAttributesCheckedManually = False;
@@ -2974,7 +2972,7 @@ Procedure VerifySignatures(RawData, RowsData, SignedObject) Export
 		
 
 		If SignatureRow.ErrorDescription <> Undefined Then
-			FilesOperationsInternalClientServer.FillSignatureStatus(SignatureRow, CurrentSessionDate()); // Intended for compatibility purposes.
+			FilesOperationsInternalClientServer.FillSignatureStatus(SignatureRow, CurrentSessionDate()); // 
 		EndIf;
 		ModuleDigitalSignatureClientServer.FillSignatureStatus(SignatureRow, CurrentSessionDate());
 		
@@ -2995,15 +2993,15 @@ Function CheckSignaturesByMachineReadableLOA(Signatures, SignedObject) Export
 
 EndFunction
 
-// Enters the number to the ScannedFilesNumbers information register.
+// Enters the number in the data register of the scanned file Number.
 //
 // Parameters:
-//   Owner - AnyRef - file owner.
-//   NewNumber -  Number  - max number for scanning.
+//   Owner - AnyRef -  file owner.
+//   NewNumber -  Number  -  maximum number to scan.
 //
 Procedure EnterMaxNumberToScan(Owner, NewNumber) Export
 	
-	// Prepare a filter structure by dimensions.
+	// 
 	FilterStructure1 = New Structure;
 	FilterStructure1.Insert("Owner", Owner);
 
@@ -3014,12 +3012,12 @@ Procedure EnterMaxNumberToScan(Owner, NewNumber) Export
 		LockItem.SetValue("Owner", Owner);
 		Block.Lock();   		
 		
-		// Receive structure with the data of record resources.
+		// 
 		ResourcesStructure = InformationRegisters.ScannedFilesNumbers.Get(FilterStructure1);
 		   
-		// Receive the max number from the register.
+		// 
 		Number = ResourcesStructure.Number;
-		If NewNumber <= Number Then // Somebody has already written the bigger number.
+		If NewNumber <= Number Then // 
 			RollbackTransaction();
 			Return;
 		EndIf;
@@ -3027,7 +3025,7 @@ Procedure EnterMaxNumberToScan(Owner, NewNumber) Export
 		Number = NewNumber;
 		SetPrivilegedMode(True);
 		
-		// Writing a new number to the register.
+		// 
 		RecordSet = InformationRegisters.ScannedFilesNumbers.CreateRecordSet();
 
 		RecordSet.Filter.Owner.Set(Owner);
@@ -3058,7 +3056,7 @@ Function PutFilesInTempStorage(Parameters) Export
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////////
-// Insets a digital signature stamp to a spreadsheet or office document.
+// 
 
 Function DocumentWithStamp(Val FileData) Export
 
@@ -3117,10 +3115,10 @@ Function DocumentWithStamp(Val FileData) Export
 EndFunction
 
 
-// Checks whether the file is on the computer.
+// 
 //
 // Parameters:
-//   AttachedFile - DefinedType.AttachedFile - a catalog item to check with a file.
+//   AttachedFile - DefinedType.AttachedFile - 
 //
 // Returns:
 //   Boolean
@@ -3197,9 +3195,9 @@ EndProcedure
 
 // Returns:
 //  Structure:
-//   * EventLog - BinaryData - Event log export data.
+//   * EventLog - BinaryData - 
 //   * TechnicalInfoOnExtensionsAndSubsystemsVersions - String
-//   * NameOfLogFile - String - Name of the log file used by the scan add-in.
+//   * NameOfLogFile - String - 
 //
 Function TechnicalInformation() Export
 

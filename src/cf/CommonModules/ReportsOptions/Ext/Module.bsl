@@ -1,27 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Returns a reference to the report option.
+// Returns a reference to the version of the report.
 //
 // Parameters:
 //  Report - CatalogRef.ExtensionObjectIDs
 //        - CatalogRef.MetadataObjectIDs
 //        - CatalogRef.AdditionalReportsAndDataProcessors
-//        - String - Reference to a report or an external report full name.
-//  VariantKey - String - Report option name.
+//        - String - 
+//  VariantKey - String -  name of the report variant.
 //
 // Returns:
-//  CatalogRef.ReportsOptions, Undefined - Report option. 
-//          If the report is missing or the user has insufficient access rights, returns Undefined.
+//  CatalogRef.ReportsOptions, Undefined -  
+//          
 //
 Function ReportVariant(Report, VariantKey) Export
 	Result = Undefined;
@@ -69,22 +67,22 @@ Function ReportVariant(Report, VariantKey) Export
 	Return Result;
 EndFunction
 
-// Returns reports (CatalogRef.ReportsOptions) that are available to the current user.
-// They must be used in all queries to the "ReportsOptions" catalog table
-// as the filter by the "Report" attribute
-// except for filtering options from external reports.
+// Returns reports (reference Link.Report options) available to the current user.
+// They should be used in all queries to the table
+// of the "report Variationsreport" reference list as a selection based on the "Report" attribute,
+// except for cases when selecting variants from external reports.
 //
 // Returns:
-//  Array - Report that are available to the current user (CatalogRef.ExtensionObjectIDs, 
-//           String, CatalogRef.AdditionalReportsAndDataProcessors, 
-//           CatalogRef.MetadataObjectIDs).
-//           The item type repeats the type of the Catalogs.ReportOptions.Attributes.Report attribute.
+//  Array -  
+//            
+//           
+//           
 //
 Function CurrentUserReports() Export
 	
 	AvailableReports = New Array(ReportsOptionsCached.AvailableReports());
 	
-	// Additional reports that are available to the current user.
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
 		ModuleAdditionalReportsAndDataProcessors.OnAddAdditionalReportsAvailableForCurrentUser(AvailableReports);
@@ -94,24 +92,24 @@ Function CurrentUserReports() Export
 	
 EndFunction
 
-// Returns a list of report options from the ReportsOptionsStorage settings storage. 
-// See also StandardSettingsStorageManager.GetList in Syntax Assistant.
-// Unlike the 1C:Enterprise method, this function checks access rights to the report instead of the DataAdministration right.
+//  
+// 
+// 
 //
 // Parameters:
-//  ReportKey - String - Full report name (dot-delimited).
+//  ReportKey - String -  full name of the report with a dot.
 //  User - String
 //               - UUID
 //               - InfoBaseUser
 //               - Undefined
-//               - CatalogRef.Users - Name, ID, or reference to the user 
-//                                                 whose settings to be obtained.
-//                                                 If Undefined, takes the current user.
+//               - CatalogRef.Users -  
+//                                                 
+//                                                 
 //
 // Returns: 
-//   ValueList - List of report options, where::
-//       * Value - String - Report option key.
-//       * Presentation - String - Report option presentation.
+//   ValueList - :
+//       * Value - String -  the key version of the report.
+//       * Presentation - String -  presentation of a report variant.
 //
 //
 Function ReportOptionsKeys(ReportKey, Val User = Undefined) Export
@@ -120,22 +118,22 @@ Function ReportOptionsKeys(ReportKey, Val User = Undefined) Export
 	
 EndFunction
 
-// The procedure deletes options of the specified report or all reports.
-// See also StandardSettingsStorageManager.Delete in Syntax Assistant.
+// 
+// 
 //
 // Parameters:
 //  ReportKey - String
-//             - Undefined - Full report name (dot-delimited).
-//                              If Undefined, settings of all reports will be deleted.
+//             - Undefined - 
+//                              
 //  VariantKey - String
-//               - Undefined - Key of the report option to be deleted.
-//                                If Undefined, all the report options will be deleted.
+//               - Undefined - 
+//                                
 //  User - String
 //               - UUID
 //               - InfoBaseUser
 //               - Undefined
-//               - CatalogRef.Users - Name, ID, or reference to the user whose settings will be deleted. 
-//                                                 If Undefined, settings of all users will be deleted.
+//               - CatalogRef.Users -  
+//                                                 
 //                                                 
 //
 Procedure DeleteReportOption(ReportKey, VariantKey, Val User) Export
@@ -145,15 +143,15 @@ Procedure DeleteReportOption(ReportKey, VariantKey, Val User) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Support for overridable modules.
+// 
 
-// The procedure calls the report manager module to fill in its settings.
-// It is used for calling from the ReportsOptionsOverridable.CustomizeReportsOptions.
+// Calls the report Manager module to fill in its settings.
+// To call from the procedure, the report variantdefinable.Set up report variants.
 //
 // Parameters:
 //  Settings - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
-//  ReportMetadata - MetadataObject - Metadata of the object that has the SetUpReportOptions(Settings, ReportSettings)
-//                                       export procedure in its manager module.
+//  ReportMetadata - MetadataObject -  metadata of the report whose Manager module contains the
+//                                       export procedure set up report Variants(Settings, report Settings).
 //
 Procedure CustomizeReportInManagerModule(Settings, ReportMetadata) Export
 	ReportSettings = DescriptionOfReport(Settings, ReportMetadata);
@@ -171,66 +169,64 @@ Procedure CustomizeReportInManagerModule(Settings, ReportMetadata) Export
 	EndTry;
 EndProcedure
 
-// The function returns settings of the specified report. It is used for setting up the location and common report parameters
-//   in ReportsOptionsOverridable.CustomizeReportsOptions.
+// Returns the settings for the specified report. Used to configure the placement and General parameters of the report
+//   in the report variationdefinable.Set up report variants.
 //
 // Parameters:
 //  Settings - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
 //  Report     - MetadataObjectReport
-//            - CatalogRef.MetadataObjectIDs - Report reference or metadata.
+//            - CatalogRef.MetadataObjectIDs - 
 //
 // Returns:
-//   ValueTreeRow - Report settings and default settings for the report options of this report, where::
-//       * Enabled              - Boolean - If False, the report option is hidden from the report panel.
-//       * DefaultVisibility - Boolean - If False, the report option is hidden from the report panel by default.
-//       * ShouldShowInOptionsSubmenu - Boolean - If False, the report is hidden from the report choice submenu  
-//                                                in the report form. It's used if Enabled is False.
-//       * Location           - Map of KeyAndValue - Settings that specify the report option location in sections, where::
-//           ** Key     - MetadataObject - Subsystem that contains the report or report option.
-//           ** Value - String           - The settings of placing the report in a subsystem or a group. Valid values are:
-//               "" - Display the name as normal text in the subsystem.
-//               "Important" - Display the name as bold text in the subsystem.
-//               "SeeAlso" - Display the name in the "See also" group.
-//       * FunctionalOptions - Array of String - Names of the report option's functional options.
-//       * SearchSettings  - Structure - Additional settings for searching this report option, where::
-//             ** FieldDescriptions - String - Names of report option fields.
-//             ** FilterParameterDescriptions - String - Names of report option settings.
-//             ** Keywords - String - Additional terminology (including specialized and obsolete).
-//             ** TemplatesNames  - String - This parameter is used instead of FieldDescriptions.
-//       * DCSSettingsFormat - Boolean - This report uses a standard settings storage format based on the DCS mechanics,
-//           and its main forms support the standard schema of interaction between forms
-//           (the type and parameters of return values).
-//           If False, then the consistency checks and some components that require
-//           the standard format will be disabled for this report.
-//       * DefineFormSettings - Boolean - The report has an API for integration with the report form
-//           including overriding some form settings and subscribing to its events.
-//           If True and the report is attached to the general ReportForm form,
-//           then the procedure must be defined in the report object module according to the following template::
+//   ValueTreeRow - :
+//       * Enabled              - Boolean - 
+//       * DefaultVisibility - Boolean -  if False, the report option is hidden in the report panel by default.
+//       * ShouldShowInOptionsSubmenu - Boolean -   
+//                                                
+//       * Location           - Map of KeyAndValue - :
+//           ** Key     - MetadataObject -  the subsystem that hosts the report or report variant.
+//           ** Value - String           - :
 //               
-//               Set report form settings.
+//               
+//               
+//       * FunctionalOptions - Array of String -  names of functional options for the report option.
+//       * SearchSettings  - Structure - :
+//             ** FieldDescriptions - String -  field names of the report variant.
+//             ** FilterParameterDescriptions - String -  the names settings option of the report.
+//             ** Keywords - String -  additional terminology (including specialized or outdated).
+//             ** TemplatesNames  - String -  used instead of field Names.
+//       * DCSSettingsFormat - Boolean -  the report uses a standard format for storing settings on the SKD mechanics,
+//           and its main forms support the standard scheme of interaction between forms (parameters and
+//           return value type).
+//           If False, then consistency checks and some mechanisms that
+//           rely on the standard format are disabled for the report.
+//       * DefineFormSettings - Boolean - 
+//           
+//           
+//           :
+//               
+//               
 //               //
 //               
-//               Parameters:
-//               Form - ClientApplicationForm, Undefined
-//               OptionKey - String, Undefined See ReportsClientServer.DefaultReportSettings
+//               
+//               
+//                See ReportsClientServer.DefaultReportSettings
 //               //
-//               Settings - 
+//               
 //               	
-//               Procedure DefineFormSettings(Form, OptionKey, Settings) Export
-//                                             Procedure code.
-//                                             EndProcedure
+//               
 //               
 //       * Report - CatalogRef.ExtensionObjectIDs
 //               - CatalogRef.AdditionalReportsAndDataProcessors
 //               - CatalogRef.MetadataObjectIDs
-//               - String - Report full name or reference. 
-//       * Metadata - MetadataObjectReport - Report metadata.
-//       * VariantKey - String - Report option name.
-//       * DetailsReceived - Boolean - Flag indicating whether the row details are already received.
-//           The details are generated by the OptionDetails() method.
-//       * SystemInfo - Structure - Other internal information.
-//     The following columns are internal and read-only:
-//     Report, Metadata, OptionKey, DetailsReceived, SystemInfo.
+//               - String -  
+//       * Metadata - MetadataObjectReport -  the report metadata.
+//       * VariantKey - String -  name of the report variant.
+//       * DetailsReceived - Boolean -  check box that the string description has already been received.
+//           The description is obtained using the variant Description () method.
+//       * SystemInfo - Structure -  other service information.
+//     However, the Report, Metadata, option Key,
+//     description Received, and system Information columns are service columns and are read-only.
 //
 Function DescriptionOfReport(Settings, Report) Export
 	If TypeOf(Report) = Type("MetadataObject") Then
@@ -253,72 +249,70 @@ Function DescriptionOfReport(Settings, Report) Export
 	Return Result[0];
 EndFunction
 
-// The function searches for report option settings. It is used for setting up the location.
-// Intended for ReportsOptionsOverridable.CustomizeReportsOptions.
+// Retrieves the configuration of the variant of the report. Used for setting up placement.
+// For use in report Variationdefinable.Set up report variants.
 //
 // Parameters:
 //  Settings    - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
 //  Report        - ValueTreeRow
-//               - MetadataObject - Settings details, metadata, or a report reference.
-//  VariantKey - String - Report option name as it is defined in the data composition schema.
+//               - MetadataObject - 
+//  VariantKey - String -  name of the report variant as specified in the data layout scheme.
 //
 // Returns:
-//   ValueTreeRow - Report option settings, where::
-//       * Enabled              - Boolean - If False, the report option is hidden from the report panel.
-//       * DefaultVisibility - Boolean - If False, the report option is hidden from the report panel by default.
-//       * ShouldShowInOptionsSubmenu - Boolean - If False, the report is hidden from the report choice submenu  
-//                                                in the report form. It's used if Enabled is False.
-//       * Description         - String - Report option name.
-//       * LongDesc             - String - Report option tooltip.
-//       * Location           - Map of KeyAndValue - Settings that define the report option location in sections, where::
-//           ** Key     - MetadataObject - Subsystem where the report or report option is located.
-//           ** Value - String           - The settings of placing the report option in a subsystem or a group. Valid values are:
-//               "" - Display the name as normal text in the subsystem.
-//               "Important" - Display the name as bold text in the subsystem.
-//               "SeeAlso" - Display the name in the "See also" group.
-//       * FunctionalOptions - Array of String - Names of the report option's functional options.
-//       * SearchSettings  - Structure - Additional settings for searching this report option, where::
-//           ** FieldDescriptions              - String - Names of report option fields.
-//           ** FilterParameterDescriptions - String - Names of report option settings.
-//           ** Keywords                  - String - Additional terminology (including specialized and obsolete).
-//           ** TemplatesNames                   - String - This parameter is used instead of FieldDescriptions.
-//       * DCSSettingsFormat - Boolean - This report uses a standard settings storage format based on the DCS mechanics,
-//           and its main forms support the standard schema of interaction between forms
-//           (the type and parameters of return values).
-//           If False, then the consistency checks and some components that require
-//           the standard format will be disabled for this report.
-//       * DefineFormSettings - Boolean - The report has an API for integration with the report form
-//           including overriding some form settings and subscribing to its events.
-//           If True and the report is attached to the general ReportForm form,
-//           then the procedure must be defined in the report object module according to the following template::
+//   ValueTreeRow - :
+//       * Enabled              - Boolean - 
+//       * DefaultVisibility - Boolean -  if False, the report option is hidden in the report panel by default.
+//       * ShouldShowInOptionsSubmenu - Boolean -   
+//                                                
+//       * Description         - String - 
+//       * LongDesc             - String -  a hint to the version of the report.
+//       * Location           - Map of KeyAndValue - :
+//           ** Key     - MetadataObject -  the subsystem that hosts the report or report variant.
+//           ** Value - String           - :
 //               
-//               Set report form settings.
+//               
+//               
+//       * FunctionalOptions - Array of String -  names of functional options for the report option.
+//       * SearchSettings  - Structure - :
+//           ** FieldDescriptions              - String -  field names of the report variant.
+//           ** FilterParameterDescriptions - String -  the names settings option of the report.
+//           ** Keywords                  - String -  additional terminology (including specialized or outdated).
+//           ** TemplatesNames                   - String -  used instead of field Names.
+//       * DCSSettingsFormat - Boolean -  the report uses a standard format for storing settings on the SKD mechanics,
+//           and its main forms support the standard scheme of interaction between forms (parameters and
+//           return value type).
+//           If False, then consistency checks and some mechanisms that
+//           rely on the standard format are disabled for the report.
+//       * DefineFormSettings - Boolean - 
+//           
+//           
+//           :
+//               
+//               
 //               //
 //               
-//               Parameters:
-//               Form - ClientApplicationForm, Undefined
-//               OptionKey - String, Undefined
+//               
+//               
+//               
 //               //
-//               Settings - See the ReportsClientServer.DefaultReportSettings value
+//               
 //               	
-//               Procedure DefineFormSettings(Form, OptionKey, Settings) Export
-//                                             Procedure code.
-//                                             EndProcedure
+//               
 //               
 //       * Report - CatalogRef.ExtensionObjectIDs
 //               - CatalogRef.AdditionalReportsAndDataProcessors
 //               - CatalogRef.MetadataObjectIDs
-//               - String - Report full name or reference.
+//               - String - 
 //       * LongDesc - String
-//       * Metadata - MetadataObjectReport - Report metadata.
-//       * VariantKey - String - Report option name.
-//       * Purpose - EnumRef.ReportOptionPurposes - Report option assignment (by default, ForComputersAndTablets).
+//       * Metadata - MetadataObjectReport -  the report metadata.
+//       * VariantKey - String -  name of the report variant.
+//       * Purpose - EnumRef.ReportOptionPurposes - 
 //                                                                      
-//       * DetailsReceived - Boolean - Flag indicating whether the row details are already received.
-//           Details are generated by the OptionDetails() method.
-//       * SystemInfo - Structure - Other internal information.
-//     The following columns are internal and read-only:
-//     Report, Metadata, OptionKey, DetailsReceived, SystemInfo.
+//       * DetailsReceived - Boolean -  check box that the string description has already been received.
+//           The description is obtained using the variant Description () method.
+//       * SystemInfo - Structure -  other service information.
+//     However, the Report, Metadata, option Key,
+//     description Received, and system Information columns are service columns and are read-only.
 //
 Function OptionDetails(Settings, Report, VariantKey) Export
 	If TypeOf(Report) = Type("ValueTableRow") Then
@@ -349,28 +343,28 @@ Function OptionDetails(Settings, Report, VariantKey) Export
 	Return Result[0];
 EndFunction
 
-// The procedure sets the output mode for Reports and Options in report panels.
-// To be called from the ReportsOptionsOverridable.CustomizeReportsOptions procedure of the overridable module
-// and from the CustomizeReportOptions procedure of the report object module.
+// Sets the output mode of the Report and the Options in the panels report.
+// To call from the procedure, the report variantdefinable.Set up report variantsof the module to be redefined
+// and from the procedure set up Report variantsof the module of the report object.
 //
 // Parameters:
 //  Settings - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
 //  ReportOrSubsystem - ValueTreeRow
 //                     - MetadataObjectReport
-//                     - MetadataObjectSubsystem - Details of a report or subsystem
-//                       the output mode will apply to. If a subsystem is passed,
-//                       the mode is set recursively for all reports of this subsystem.
+//                     - MetadataObjectSubsystem - 
+//                       
+//                       
 //  GroupByReports - Boolean
-//                        - String - Display mode of this report's hyperlinks in the report panel::
-//                          If True, ByReports, options are grouped by a report.
-//                          By default, report panels output only a main report option.
-//                          Other options of the report are displayed under the main one and are hidden.
-//                          However, they can be found by the search or enabled by check boxes in the setup mode.
-//                          The main option is the first predefined option in the report schema.
-//                          This mode was introduced in version 2.2.2. It reduces the number of hyperlinks displayed in report panels.
-//                          If False, ByOptions, all report options are considered independent.
-//                          They are visible by default and are displayed independently in report panels.
-//                          This mode was used in version 2.2.1 and earlier.
+//                        - String - :
+//                          
+//                          
+//                          
+//                          
+//                          
+//                          
+//                          
+//                          
+//                          
 //
 Procedure SetOutputModeInReportPanels(Settings, ReportOrSubsystem, GroupByReports) Export
 	
@@ -412,14 +406,14 @@ Procedure SetOutputModeInReportPanels(Settings, ReportOrSubsystem, GroupByReport
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Intended for being called from reports.
+// 
 
-// Updates content of the UserReportSettings catalog after saving the new setting.
-// Called in the same name handler of the report form after the form code execution.
+// Updates the list of user settings for Reports after saving the new setting.
+// Called in the report form handler of the same name after executing the form code.
 //
 // Parameters:
-//  Form - ClientApplicationForm - Report form.
-//  Settings - DataCompositionUserSettings - It is passed from the OnSaveUserSettingsAtServer procedure as is.
+//  Form - ClientApplicationForm -  report form.
+//  Settings - DataCompositionUserSettings -  passed "as is" from the procedure for saving user settings to the Server.
 //
 Procedure OnSaveUserSettingsAtServer(Form, Settings) Export
 	
@@ -474,8 +468,8 @@ Procedure OnSaveUserSettingsAtServer(Form, Settings) Export
 			SettingObject = Setting.Ref.GetObject(); // CatalogObject.UserReportSettings
 			SettingObject.Description = ListItem.Presentation;
 			
-			// The lock isn't set as the user settings are broken down user-wise.
-			// Therefore, competitive runtimes are not expected.
+			// 
+			// 
 			SettingObject.Write(); // 
 		EndIf;
 		
@@ -490,33 +484,33 @@ Procedure OnSaveUserSettingsAtServer(Form, Settings) Export
 		SettingObject.Variant                       = FormAttributes.OptionRef;
 		SettingObject.User                  = UserRef;
 		
-		// The lock isn't set as the user settings are broken down user-wise.
-		// Therefore, competitive runtimes are not expected.
+		// 
+		// 
 		SettingObject.Write(); // 
 	EndDo;
 	
 EndProcedure
 
-// Extracts information on tables used in a schema or query.
-// The calling code handles exceptions (for example, if an incorrect query text was passed).
+// Retrieves information about tables used in the schema or query.
+// Exception handling (for example, if invalid request text is passed) is performed by the calling code.
 //
 // Parameters:
 //  Object - DataCompositionSchema
-//         - String - Report schema or query text.
+//         - String - 
 //
 // Returns:
-//   Array - Names of tables used in the schema or query.
+//   Array - 
 //
 // Example:
-//  // Call from the native form of the report using DCS.
-//  UsedTables = ReportsOptions.UsedTables(FormAttributeToValue(Report).DataCompositionSchema);
-//  ReportsOptions.CheckUsedTables(UsedTables).
-//  // Call from the OnComposeResult handler of the report using DCS.
-//  UsedTables = ReportsOptions.UsedTables(DataCompositionSchema);
-//  ReportsOptions.CheckUsedTables(UsedTables).
-//  // Call from the OnComposeResult handler of the report using query.
-//  UsedTables = ReportsOptions.UsedTables(QueryText);
-//  ReportsOptions.CheckUsedTables(UsedTables).
+//  
+//  
+//  
+//  
+//  
+//  
+//  
+//  
+//  
 //
 Function TablesToUse(Object) Export
 	Tables = New Array;
@@ -530,7 +524,7 @@ Function TablesToUse(Object) Export
 	Return Tables;
 EndFunction
 
-// Extracts information on tables used in a schema or query.
+// Retrieves information about tables used in the schema or query.
 //
 // Parameters:
 //  Report - MetadataObjectReport
@@ -558,29 +552,29 @@ Function UsedReportTables(Report) Export
 	Return TablesToUse;
 EndFunction
 
-// Checks whether tables used in the schema or query are updated and inform the user about it.
-// Check is executed by the InfobaseUpdate.ObjectProcessed() method.
-// The calling code handles exceptions (for example, if an incorrect query text was passed).
+// Checks that the tables used in the schema or query are still being updated, and notifies the user.
+// Verification is performed by updating the information Database.Object processed().
+// Exception handling (for example, if invalid request text is passed) is performed by the calling code.
 //
 // Parameters:
-//  Object - DataCompositionSchema - Report schema.
-//         - String - Query text.
-//         - Array - Names of the tables the report uses::
-//           * String - Table name.
-//  ToReport - Boolean - If True and the tables used by the report have not yet been updated,
-//             outputs the message "The report can contain incorrect data."
+//  Object - DataCompositionSchema -  the report schema.
+//         - String -  query text.
+//         - Array - :
+//           * String - table name.
+//  ToReport - Boolean -  when the Truth and tables used by the report are not updated yet,
+//             a message like "the Report may contain incorrect data"will be displayed.
 //             Optional. By default, True.
 //
 // Returns:
-//   Boolean - True if the table list contains tables that pending an update.
+//   Boolean - 
 //
 // Example:
-//  Call from the native form of the report.
-//  ReportsOptions.CheckUsedTables(FormAttributeToValue("Report").DataCompositionSchema);
-//  Call from the OnComposeResult report handler.
-//  ReportsOptions.CheckUsedTables(DataCompositionSchema);
-//  Call upon query execution.
-//  ReportsOptions.CheckUsedTables(QueryText);
+//  
+//  
+//  
+//  
+//  
+//  
 //
 Function CheckUsedTables(Object, ToReport = True) Export
 	If TypeOf(Object) = Type("Array") Then
@@ -600,24 +594,24 @@ Function CheckUsedTables(Object, ToReport = True) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// For calling from applied configuration update handlers.
+// 
 
-// Resets user settings of specified reports.
+// Resets the user settings for the specified reports.
 //
 // Parameters:
-//  Var_Key - MetadataObjectReport - Metadata of the report for which settings must be reset.
-//       - CatalogRef.ReportsOptions - Report option whose settings must be reset.
-//       - String - Full name of the report option whose settings must be reset.
-//                  Name format: <NameOfReport>/<NameOfOption>.
-//                  If you pass "*", settings of all configuration reports will be reset.
-//  SettingsTypes1 - Structure - Types of user settings that have to be reset.
-//      Structure keys are also optional. The default value is in parentheses::
-//      * FilterElement - Boolean - Flag indicating whether to clear the DataCompositionFilterItem setting. By default, False.
-//      * SettingsParameterValue - Boolean - Flag indicating whether to clear the DataCompositionSettingsParameterValue setting. By default, False.
-//      * SelectedFields - Boolean - Flag indicating whether to reset the DataCompositionSelectedFields setting. Taken from the "Other" key.
-//      * Order - Boolean - Flag indicating whether to reset the DataCompositionOrder setting. Taken from the "Other" key.
-//      * ConditionalAppearanceItem - Boolean - Flag indicating whether to reset the DataCompositionConditionalAppearanceItem setting. Taken from the "Other" key.
-//      * OtherItems - Boolean - Flag indicating whether to reset other settings not explicitly described in the structure. By default, True.
+//  Var_Key - MetadataObjectReport -  metadata of the report that you want to reset.
+//       - CatalogRef.ReportsOptions - 
+//       - String - 
+//                  
+//                  
+//  SettingsTypes1 - Structure - 
+//      :
+//      * FilterElement - Boolean -  (False) to reset the setting "Elementborderwidth".
+//      * SettingsParameterValue - Boolean -  (False) reset the "value of the parameterconfigurationcomposed" setting.
+//      * SelectedFields - Boolean -  (taken from the other key) reset the setting "selected fields for new data".
+//      * Order - Boolean -  (taken from the other key) reset the "order of data Collections" setting.
+//      * ConditionalAppearanceItem - Boolean -  (taken from the other key) reset the setting to"wordformatementcomposedata".
+//      * OtherItems - Boolean -  (True) reset other settings that are not explicitly described in the structure.
 //
 Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 	CommonClientServer.CheckParameter(
@@ -626,9 +620,9 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 		Var_Key,
 		New TypeDescription("String, MetadataObject, CatalogRef.ReportsOptions"));
 	
-	ObjectsKeys = New Array; // The final list of keys to be cleared.
+	ObjectsKeys = New Array; // 
 	
-	// The list of keys can be filled from the query or you can pass one specific key from the outside.
+	// 
 	Query = New Query(
 	"SELECT
 	|	&ReportName AS ReportName,
@@ -774,27 +768,27 @@ Procedure ResetCustomSettings(Var_Key, SettingsTypes1 = Undefined) Export
 	EndDo;
 EndProcedure
 
-// Moves user options from standard options storage to the subsystem storage.
-// Used on partial deployment - when the ReportsOptionsStorage is set not for the entire configuration,
+// Migrates custom variants from the standard variant store to the subsystem store.
+// Used for partial deployment - when the storage of report Variants is set not for the entire configuration,
 // but in the properties of specific reports connected to the subsystem.
-// It is recommended for using in specific version update handlers.
+// It is recommended to use updates to a specific version in handlers.
 //
 // Parameters:
-//  ReportsNames - String - Comma-delimited report names.
-//                          If the parameter is not specified, all reports are moved from standard
-//                          storage and then it is cleared up.
+//  ReportsNames - String -  comma-separated report names.
+//                          If this parameter is omitted, all reports
+//                          from the standard storage are transferred, and then it is completely cleared.
 //
 // Example:
-//  Move all user report options upon update.
-//  ReportsOptions.MoveUsersOptionsFromStandardStorage();
-//  Move user report options transferred to the Report options subsystem storage.
-//  ReportsOptions.MoveUsersOptionsFromStandardStorage("EventLogAnalysis, ExpiringTasksOnDate");
+//  
+//  
+//  
+//  
 //
 Procedure MoveUsersOptionsFromStandardStorage(ReportsNames = "") Export
 	ProcedurePresentation = NStr("en = 'Direct conversion of report options';");
 	WriteProcedureStartToLog(ProcedurePresentation);
 	
-	// The result that will be saved in the storage.
+	// 
 	VariantsTable = Common.CommonSettingsStorageLoad("TransferReportOptions", "OptionsTable", , , "");
 	If TypeOf(VariantsTable) <> Type("ValueTable") Or VariantsTable.Count() = 0 Then
 		VariantsTable = New ValueTable;
@@ -840,7 +834,7 @@ Procedure MoveUsersOptionsFromStandardStorage(ReportsNames = "") Export
 			EndIf;
 		EndIf;
 		
-		// Skip unattached built-in reports.
+		// 
 		ReportMetadata = Common.MetadataObjectByFullName(StorageSelection.ObjectKey); // MetadataObjectReport 
 		If ReportMetadata <> Undefined Then
 			StorageMetadata1 = ReportMetadata.VariantsStorage;
@@ -850,8 +844,8 @@ Procedure MoveUsersOptionsFromStandardStorage(ReportsNames = "") Export
 			EndIf;
 		EndIf;
 		
-		// All external report options are moved as it's impossible to determine
-		// whether they are connected to the subsystem's storage.
+		// 
+		// 
 		ArrayOfObjectsKeysToDelete.Add(StorageSelection.ObjectKey);
 		
 		IBUser = InfoBaseUsers.FindByName(StorageSelection.User);
@@ -879,7 +873,7 @@ Procedure MoveUsersOptionsFromStandardStorage(ReportsNames = "") Export
 		EndIf;
 	EndDo;
 	
-	// Clear the standard storage.
+	// 
 	If RemoveAll Then
 		ReportsVariantsStorage.Delete(Undefined, Undefined, Undefined);
 	Else
@@ -888,29 +882,29 @@ Procedure MoveUsersOptionsFromStandardStorage(ReportsNames = "") Export
 		EndDo;
 	EndIf;
 	
-	// Runtime result.
+	// 
 	WriteProcedureCompletionToLog(ProcedurePresentation);
 	
-	// Import options to the subsystem storage.
+	// 
 	ImportUserOptions(VariantsTable);
 EndProcedure
 
-// Imports to the subsystem storage reports options previously saved
-// from the system option storage to the common settings storage.
-// It is used to import report options upon full or partial deployment.
-// At full deployment it can be called from the TransferReportOptions data processor.
-// It is recommended for using in specific version update handlers.
+// Loads report variants that were previously saved
+// from the system variant store in the General settings store to the subsystem storage.
+// Used for loading report variants during full or partial deployment.
+// With the full implementation can be called from processing "Paranormalactivity".
+// It is recommended to use updates to a specific version in handlers.
 //
 // Parameters:
 //  UserOptions1 - ValueTable
-//                           - Undefined - Optional. Used in utility scripts.:
-//       * Report - String - Full report name in the format: Report.<ReportName>.
-//       * Variant - String - Report option name.
-//       * Author - String - Username.
-//       * Setting - ValueStorage - DataCompositionUserSettings.
-//       * ReportPresentation - String - Report presentation.
-//       * VariantPresentation - String - Option presentation.
-//       * AuthorID - UUID - User ID.
+//                           - Undefined - :
+//       * Report - String -  full name of the report in the format " Report.<ReportName>".
+//       * Variant - String -  name of the report variant.
+//       * Author - String -  user name.
+//       * Setting - ValueStorage -  custom set-up of data components.
+//       * ReportPresentation - String -  report view.
+//       * VariantPresentation - String -  representation of the option.
+//       * AuthorID - UUID -  user ID.
 //
 Procedure ImportUserOptions(UserOptions1 = Undefined) Export
 	If UserOptions1 = Undefined Then
@@ -926,14 +920,14 @@ Procedure ImportUserOptions(UserOptions1 = Undefined) Export
 	ProcedurePresentation = NStr("en = 'Finalize report option conversion';");
 	WriteProcedureStartToLog(ProcedurePresentation);
 	
-	// Replace the column names with the names from the catalog structure.
+	// 
 	Columns = UserOptions1.Columns; // ValueTableColumnCollection
 	
 	Columns.Find("Report").Name = "ReportFullName";
 	Columns.Find("Variant").Name = "VariantKey";
 	Columns.Find("VariantPresentation").Name = "Description";
 	
-	// Convert report names into "Metadata object IDs" catalog references.
+	// 
 	Columns.Add("Report", Metadata.Catalogs.ReportsOptions.Attributes.Report.Type);
 	Columns.Add("Defined", New TypeDescription("Boolean"));
 	Columns.Add("ReportType", Metadata.Catalogs.ReportsOptions.Attributes.ReportType.Type);
@@ -1012,8 +1006,8 @@ Procedure ImportUserOptions(UserOptions1 = Undefined) Export
 			OptionStorage.Settings = New ValueStorage(OptionDetails.Settings);
 		EndIf;
 		
-		// As custom report options are being moved,
-		// the location settings are obtained only from the report's metadata.
+		// 
+		// 
 		FoundSubsystems = ReportsSubsystems.FindRows(New Structure("ReportFullName", OptionDetails.ReportFullName));
 		For Each SubsystemDetails In FoundSubsystems Do
 			Subsystem = Common.MetadataObjectID(SubsystemDetails.SubsystemMetadata1);
@@ -1025,7 +1019,7 @@ Procedure ImportUserOptions(UserOptions1 = Undefined) Export
 			Section.Subsystem = Subsystem;
 		EndDo;
 		
-		// Report options are being created, so concurrent operations with them are excluded.
+		// 
 		OptionStorage.Write();
 	EndDo;
 	
@@ -1038,24 +1032,24 @@ EndProcedure
 
 #Region Internal
 
-// The function gets the report object from the report option reference.
+// Gets the report object by reference to the report variant.
 //
 // Parameters:
 //   Parameters - See ReportGenerationParameters
 //
 // Returns:
 //   Structure:
-//       * RefOfReport - Arbitrary     - Report reference.
-//       * FullName    - String           - Report full name.
-//       * Metadata   - MetadataObject - Report metadata.
+//       * RefOfReport - Arbitrary     -  the link for the report.
+//       * FullName    - String           -  full name of the report.
+//       * Metadata   - MetadataObject -  the report metadata.
 //       * Object       - ReportObject
-//                      - ExternalReport - Report object.:
-//           ** SettingsComposer - DataCompositionSettingsComposer - Report settings.
-//           ** DataCompositionSchema - DataCompositionSchema - Report schema.
-//       * VariantKey - String           - Predefined report option name or a user report option ID.
-//       * SchemaURL   - String           - Address in the temporary storage where the report schema is placed.
-//       * Success        - Boolean           - True if the report is attached.
-//       * ErrorText  - String           - Error text.
+//                      - ExternalReport - :
+//           ** SettingsComposer - DataCompositionSettingsComposer -  the report settings.
+//           ** DataCompositionSchema - DataCompositionSchema -  the report schema.
+//       * VariantKey - String           -  name of the predefined or ID of the custom version of the report.
+//       * SchemaURL   - String           -  address of the temporary storage where the report schema is located.
+//       * Success        - Boolean           -  True if the report was enabled.
+//       * ErrorText  - String           -  error text.
 //
 Function AttachReportAndImportSettings(Val Parameters) Export
 	
@@ -1072,12 +1066,12 @@ Function AttachReportAndImportSettings(Val Parameters) Export
 	Result.SchemaModified = False;
 	PredefinedOptionKey = "";
 	
-	// Support the ability to directly select additional reports references in reports mailings.
+	// 
 	If TypeOf(Result.DCSettings) <> Type("DataCompositionSettings")
 		And Result.VariantKey = Undefined
 		And Result.Object = Undefined
 		And TypeOf(Result.OptionRef1) = AdditionalReportRefType() Then
-		// Automatically detecting a key and option reference if only a reference of additional report is passed.
+		// 
 		Result.RefOfReport = Result.OptionRef1;
 		Result.OptionRef1 = Undefined;
 		ConnectingReport = AttachReportObject(Result.RefOfReport, True);
@@ -1115,7 +1109,7 @@ Function AttachReportAndImportSettings(Val Parameters) Export
 			EndIf;
 		EndIf;
 		PropertiesNames = "VariantKey,Custom,Parent,Parent.VariantKey" + ?(MustReadReportRef, ",Report", "")
-			+ ?(MustReadSettings, ",Settings", "");  // ACC:1297 - These are attribute names. They do not require NStr.
+			+ ?(MustReadSettings, ",Settings", "");  // 
 		OptionProperties = Common.ObjectAttributesValues(Result.OptionRef1, PropertiesNames);
 		Result.VariantKey = OptionProperties.VariantKey;
 		If OptionProperties.Custom And ValueIsFilled(OptionProperties.Parent) Then
@@ -1159,7 +1153,7 @@ Function AttachReportAndImportSettings(Val Parameters) Export
 		Return Result;
 	EndIf;
 	
-	// Read settings.
+	// 
 	If MustReadSettings Then
 		DCSettingsOptions = ReportObject.DataCompositionSchema.SettingVariants;
 		DCSettingsOption = DCSettingsOptions.Find(PredefinedOptionKey);
@@ -1182,7 +1176,7 @@ Function AttachReportAndImportSettings(Val Parameters) Export
 		EndIf;
 	EndIf;
 	
-	// Schema initialization.
+	// 
 	SchemaURLFilled = (TypeOf(Result.SchemaURL) = Type("String") And IsTempStorageURL(Result.SchemaURL));
 	If SchemaURLFilled And TypeOf(Result.DCSchema) <> Type("DataCompositionSchema") Then
 		Result.DCSchema = GetFromTempStorage(Result.SchemaURL);
@@ -1238,15 +1232,15 @@ Function AttachReportAndImportSettings(Val Parameters) Export
 	Return Result;
 EndFunction
 
-// Updates additional report options when writing it.
+// Updates options for an additional report when it is written.
 //
 // Parameters:
-//  CurrentObject - CatalogObject.AdditionalReportsAndDataProcessors - Object of the additional report storage. 
-//  Cancel - Boolean - Flag indicating whether handler execution was canceled.
-//  ExternalObject - ExternalReport - Flag indicating whether handler execution was canceled.
+//  CurrentObject - CatalogObject.AdditionalReportsAndDataProcessors -  a storage object of a supplementary report. 
+//  Cancel - Boolean -  indicates whether the handler is canceled.
+//  ExternalObject - ExternalReport - 
 //  
-// Usage locations::
-//   Catalog.AdditionalReportsAndDataProcessors.OnWriteGlobalReport().
+// :
+//   
 //
 Procedure OnWriteAdditionalReport(CurrentObject, Cancel, ExternalObject) Export
 	
@@ -1280,8 +1274,8 @@ Procedure OnWriteAdditionalReport(CurrentObject, Cancel, ExternalObject) Export
 		EndIf;
 	EndIf;
 	
-	// When clearing a deletion mark from an additional report,
-	// it is not cleared from custom options that were marked interactively.
+	// 
+	// 
 	QueryText =
 	"SELECT ALLOWED
 	|	ReportsOptions.Ref AS Ref,
@@ -1298,10 +1292,10 @@ Procedure OnWriteAdditionalReport(CurrentObject, Cancel, ExternalObject) Export
 	
 	Query = New Query(QueryText);
 	Query.SetParameter("Report", CurrentObject.Ref);
-	// When marking an additional report for deletion, all report options are also marked for deletion.
+	// 
 	Query.SetParameter("DeletionMark", DeletionMark = True);
 	
-	// Set deletion mark.
+	// 
 	AdditionalReportOptions = Query.Execute().Unload();
 	
 	Block = New DataLock;
@@ -1315,7 +1309,7 @@ Procedure OnWriteAdditionalReport(CurrentObject, Cancel, ExternalObject) Export
 		OptionDeletionMark = DeletionMark;
 		Presentation = PredefinedOptions[ReportVariant.VariantKey];
 		If Not OptionDeletionMark And Not ReportVariant.Custom And Presentation = Undefined Then
-			// A predefined item that doesn't exist in the list of predefined items for this report.
+			// 
 			OptionDeletionMark = True;
 		EndIf;
 		
@@ -1353,7 +1347,7 @@ Procedure OnWriteAdditionalReport(CurrentObject, Cancel, ExternalObject) Export
 	EndDo;
 	
 	If Not DeletionMark Then
-		// Register new report options.
+		// 
 		For Each Presentation In PredefinedOptions Do
 			OptionObject = Catalogs.ReportsOptions.CreateItem();
 			OptionObject.Report = CurrentObject.Ref;
@@ -1375,17 +1369,17 @@ Procedure OnWriteAdditionalReport(CurrentObject, Cancel, ExternalObject) Export
 	
 EndProcedure
 
-// Gets options of the passed report and their presentations.
+// Retrieves options for the transmitted report and their presentation.
 //
 // Parameters:
-//  FullReportName - See MetadataObjectReport.FullName()
-//  InfoBaseUser - String - Name of the infobase user.
-//  ReportOptionTable - ValueTable - Table that stores report option data:
-//       * ObjectKey - String - Report key in format "Report.ReportName".
-//       * VariantKey - String - Report option key.
-//       * Presentation - String - Report option presentation.
-//       * StandardProcessing - Boolean - If True, a report option is saved to the standard storage.
-//  StandardProcessing - Boolean - If True, the report option is saved to the standard storage.
+//  FullReportName - 
+//  InfoBaseUser - String -  name of the database user.
+//  ReportOptionTable - ValueTable - :
+//       * ObjectKey - String -  report key of the " Report.Report name".
+//       * VariantKey - String -  the key version of the report.
+//       * Presentation - String -  presentation of a report variant.
+//       * StandardProcessing - Boolean -  if True, the report version is saved in the standard storage.
+//  StandardProcessing - Boolean -  if True, the report version is saved in the standard storage.
 //
 Procedure UserReportOptions(FullReportName, InfoBaseUser, ReportOptionTable, StandardProcessing) Export
 	ReportKey = FullReportName;
@@ -1422,7 +1416,7 @@ Procedure UserReportOptions(FullReportName, InfoBaseUser, ReportOptionTable, Sta
 	EndIf;
 EndProcedure
 
-// Deletes the passed report option from the report option storage.
+// Removes the passed version of the report storage options report.
 //
 Procedure DeleteUserReportOption(ReportOptionInfo, InfoBaseUser, StandardProcessing) Export
 	
@@ -1435,15 +1429,15 @@ Procedure DeleteUserReportOption(ReportOptionInfo, InfoBaseUser, StandardProcess
 	
 EndProcedure
 
-// Generates additional parameters to open a report option.
+// Generates additional parameters for opening the report form.
 //
 // Parameters:
-//   OptionRef - CatalogRef.ReportsOptions - Reference of the report option being opened.
+//   OptionRef - CatalogRef.ReportsOptions -  link to the report version to open.
 //
 Function OpeningParameters(OptionRef) Export
 	OpeningParameters = New Structure("Ref, Report, ReportType, ReportName, VariantKey, MeasurementsKey");
 	If TypeOf(OptionRef) = AdditionalReportRefType() Then
-		// Support the ability to directly select additional reports references in reports mailings.
+		// 
 		OpeningParameters.Report     = OptionRef;
 		OpeningParameters.ReportType = "Additional";
 	Else
@@ -1484,7 +1478,7 @@ Function OpeningParameters(OptionRef) Export
 	Return OpeningParameters;
 EndFunction
 
-// Attaching additional reports.
+// Connection of additional reports.
 Procedure OnAttachReport(OpeningParameters) Export
 	
 	OpeningParameters.Insert("Connected", False);
@@ -1502,7 +1496,7 @@ Procedure OnAttachReport(OpeningParameters) Export
 				OpeningParameters.Report);
 		EndIf;
 		OpeningParameters.ReportName = MetadataOfReport.Name;
-		OpeningParameters.Connected = True; // Configuration reports are always attached.
+		OpeningParameters.Connected = True; // 
 		
 	ElsIf OpeningParameters.ReportType = "Extension" Then
 		If Metadata.Reports.Find(OpeningParameters.ReportName) = Undefined Then
@@ -1522,7 +1516,7 @@ Procedure OnAttachReport(OpeningParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Other procedures of internal interface.
+// 
 
 Function SettingsUpdateParameters() Export
 	
@@ -1539,10 +1533,10 @@ Function SettingsUpdateParameters() Export
 	If Common.DataSeparationEnabled() Then
 		If Common.SeparatedDataUsageAvailable() Then
 			Settings.SharedData = False;
-		Else // Shared session.
+		Else // 
 			Settings.SeparatedData = False;
 		EndIf;
-	ElsIf Common.IsStandaloneWorkplace() Then // SWP.
+	ElsIf Common.IsStandaloneWorkplace() Then // 
 		Settings.SharedData = False;
 	EndIf;
 	
@@ -1552,18 +1546,18 @@ Function SettingsUpdateParameters() Export
 	
 EndFunction
 
-// Updates subsystem metadata caches considering application operation mode.
-// Usage example: after clearing settings storage.
+// Updates the subsystem's metadata caches based on the program's operating mode.
+// Usage example: after clearing the settings storage.
 //
 // Parameters:
 //   Settings - Structure:
-//     * Configuration - Boolean - Update the PredefinedReportsOptions shared catalog.
-//     * Extensions   - Boolean - Update the PredefinedExtensionsReportsOptions separated catalog.
-//     * SharedData       - Boolean - Update the PredefinedReportsOptions shared catalog.
-//     * SeparatedData - Boolean - Update the ReportsOptions separated catalog.
-//     * Nonexclusive - Boolean - Update the list of report options, their descriptions, and details.
-//     * Deferred2  - Boolean - Populate descriptions of fields, parameters, filters, and search keywords.
-//     * IndexSchema - Boolean - Always index schemas (ignore the hash sums).
+//     * Configuration - Boolean -  update the undivided reference list of predefined report Variants.
+//     * Extensions   - Boolean -  update the split reference list of predefined reportsextensions.
+//     * SharedData       - Boolean -  update the undivided reference list of predefined report Variants.
+//     * SeparatedData - Boolean -  to update the divided reference Varietythat.
+//     * Nonexclusive - Boolean -  update the list of report options, their names and descriptions.
+//     * Deferred2  - Boolean -  fill in the names of fields, parameters, selections, and keywords for the search.
+//     * IndexSchema - Boolean -  always index schemas (don't count hash sums).
 //
 Function Refresh(Val Settings = Undefined) Export
 	
@@ -1680,11 +1674,11 @@ EndProcedure
 //
 // Parameters:
 //   Parameters - See ReportGenerationParameters.
-//   CheckFilling - Boolean - If True, validate the report parameters before generating the report.
-//   GetCheckBoxEmpty - Boolean - If True, returns the flag indicating whether the generated report is empty.
+//   CheckFilling - Boolean - 
+//   GetCheckBoxEmpty - Boolean - 
 //
 // Returns:
-//   Structure - Generation result.
+//   Structure - 
 //
 Function GenerateReport(Val Parameters, Val CheckFilling, Val GetCheckBoxEmpty) Export
 	Result = New Structure("SpreadsheetDocument, Details,
@@ -1711,7 +1705,7 @@ Function GenerateReport(Val Parameters, Val CheckFilling, Val GetCheckBoxEmpty) 
 	
 	Connection = ?(Parameters.Connection <> Undefined, Parameters.Connection, 
 		AttachReportAndImportSettings(Parameters));
-	FillPropertyValues(Result, Connection); // "Object, Metadata, FullName, OptionKey, DCSchema, SchemaURL, SchemaModified, FormSettings"
+	FillPropertyValues(Result, Connection); // 
 	
 	If Not Connection.Success Then
 		Result.ErrorText = NStr("en = 'Cannot generate the report:';") + Chars.LF + Connection.ErrorText;
@@ -1727,7 +1721,7 @@ Function GenerateReport(Val Parameters, Val CheckFilling, Val GetCheckBoxEmpty) 
 	AuxProperties.Insert("VariantKey", Result.VariantKey);
 	AuxProperties.Insert("TablesToUse", Parameters.TablesToUse);
 	
-	// Validate data used for report generation.
+	// 
 	
 	If CheckFilling Then
 		OriginalUserMessages = GetUserMessages(True);
@@ -1762,7 +1756,7 @@ Function GenerateReport(Val Parameters, Val CheckFilling, Val GetCheckBoxEmpty) 
 		WriteToLog(EventLogLevel.Error, ErrorText, Result.OptionRef1);
 	EndTry;
 	
-	// Generate and estimate the speed.
+	// 
 	RunMeasurements = RunMeasurements();
 	If RunMeasurements Then
 		KeyOperationName = Parameters.KeyOperationName;
@@ -1806,7 +1800,7 @@ Function GenerateReport(Val Parameters, Val CheckFilling, Val GetCheckBoxEmpty) 
 			KeyOperationComment);
 	EndIf;
 	
-	// Commit the result.
+	// 
 	
 	If AuxProperties <> DCSettingsComposer.UserSettings.AdditionalProperties Then
 		NewAuxProperties = DCSettingsComposer.UserSettings.AdditionalProperties;
@@ -1843,7 +1837,7 @@ Function GenerateReport(Val Parameters, Val CheckFilling, Val GetCheckBoxEmpty) 
 		Result.VariantKey));
 	FillPropertyValues(Result.SpreadsheetDocument, PrintSettings);
 	
-	// Set headers and footers.
+	// 
 	
 	HeaderOrFooterSettings = Undefined;
 	If Result.DCSettings <> Undefined Then 
@@ -1865,7 +1859,7 @@ Function GenerateReport(Val Parameters, Val CheckFilling, Val GetCheckBoxEmpty) 
 	
 	Result.Success = True;
 	
-	// Clear trash items.
+	// 
 	
 	AuxProperties.Delete("VariantModified");
 	AuxProperties.Delete("UserSettingsModified");
@@ -1880,7 +1874,7 @@ EndFunction
 //   Structure:
 //     * RefOfReport   - Arbitrary
 //     * OptionRef1 - CatalogRef.ReportsOptions
-//     * VariantKey   - String - Name of a predefined report option or ID of a user report option.
+//     * VariantKey   - String -  name of the predefined or ID of the custom version of the report.
 //     * Object         - ReportObject
 //     * FullName      - String
 //     * SchemaKey      - String
@@ -1891,10 +1885,10 @@ EndFunction
 //     * DCSchema        - DataCompositionSchema
 //     * FixedDCSettings - DataCompositionSettings
 //     * DCUserSettings - DataCompositionUserSettings
-//     * FormIdentifier - UUID - ID of the form from which the report is attached.
-//     * ExternalReportBinaryData - Undefined, BinaryData - For execution in a long-running operation.
+//     * FormIdentifier - UUID - 
+//     * ExternalReportBinaryData - Undefined, BinaryData - 
 //     * KeyOperationName - String
-//     * KeyOperationComment - String, Map
+//     * KeyOperationComment - 
 //     * TablesToUse - Array
 //     * Connection - See AttachReportAndImportSettings
 //
@@ -1930,7 +1924,7 @@ Function ReportGenerationParameters() Export
 	
 EndFunction
 	
-// Details report availability by access rights and functional options.
+// Details the availability of reports on rights and functional options.
 Function ReportsAvailability(ReportsReferences) Export
 
 	Result = New ValueTable;
@@ -2018,15 +2012,13 @@ Function ReportsAvailability(ReportsReferences) Export
 	
 EndFunction
 
-// Returns report information including a reference and a report type by the full report name.
+// Returns information about the report, including the link and report type, by the full report name.
 //
 // Parameters:
-//   ReportFullName - String - Full report name in either of the formats:
-//                             Report.<NameOfReport>
-//                             ExternalReport.<NameOfReport>
-//   RaiseException1 - Boolean - If True, raise an exception when an error occurs. Possible errors::
-//                                 Insufficient access rights to the report.
-//                                 Unknown report type.
+//   ReportFullName - String -  full name of the report in the format " Report.<ReportName>" or " external Report.<ReportName>".
+//   RaiseException1 - Boolean - :
+//                                 
+//                                 
 //
 // Returns: 
 //   Structure:
@@ -2035,10 +2027,10 @@ EndFunction
 //                        - CatalogRef.AdditionalReportsAndDataProcessors
 //                        - CatalogRef.MetadataObjectIDs
 //       * ReportType      - EnumRef.ReportsTypes
-//       * ReportShortName       - String - For example, FilesChangesDynamics.
-//       * ReportFullName - String - For example, Report.FilesChangesDynamics.
+//       * ReportShortName       - String -  for example, "dynamics of file Changes".
+//       * ReportFullName - String -  for example, " Report.Dynamics of file changes".
 //       * ReportMetadata - MetadataObjectReport
-//       * ErrorText - String - Error text.
+//       * ErrorText - String -  error text.
 //
 Function ReportInformation(Val ReportFullName, Val RaiseException1 = False) Export
 	Result = New Structure("Report, ReportType, ReportFullName, ReportShortName, ReportMetadata, ErrorText");
@@ -2069,7 +2061,7 @@ Function ReportInformation(Val ReportFullName, Val RaiseException1 = False) Expo
 				ReportFullName);
 		EndIf;
 	ElsIf Upper(Prefix) = "EXTERNALREPORT" Then
-		// It is not required to get metadata and perform checks.
+		// 
 	Else
 		Result.ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Report ""%1"" has unknown type. Expected types: ""%2"" or ""%3"".';"),
@@ -2085,7 +2077,7 @@ Function ReportInformation(Val ReportFullName, Val RaiseException1 = False) Expo
 		Result.Report = Result.ReportFullName;
 		Result.ReportType = Enums.ReportsTypes.External;
 		
-		// Replace a type and a reference of the external report for additional reports attached to the subsystem storage.
+		// 
 		If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 			
 			Result.Insert("ByDefaultAllAttachedToStorage", ByDefaultAllAttachedToStorage());
@@ -2111,17 +2103,17 @@ Function ReportInformation(Val ReportFullName, Val RaiseException1 = False) Expo
 	
 EndFunction
 
-// Checks the property value of the Option storage report.
+// Checks the value of the option Store report property.
 //
 // Parameters:
-//   MetadataOfReport - MetadataObject - Metadata of the report whose property is being checked.
-//   WarningText - String - Check result details.
+//   MetadataOfReport - MetadataObject -  metadata of the report whose property is being checked.
+//   WarningText - String -  description of the verification result.
 //
 // Returns: 
 //   Boolean:
-//       * True - The option storage property is set to ReportsOptionsStorage.
-//       * False - The property value is either not specified or specified but refers
-//                to an option storage not supported by the subsystem.
+//       * True - 
+//       * False - 
+//                
 //
 Function AdditionalReportOptionsStorageCorrect(MetadataOfReport, WarningText = "") Export 
 	If MetadataOfReport.VariantsStorage = Metadata.SettingsStorages.ReportsVariantsStorage Then 
@@ -2144,7 +2136,7 @@ Function AdditionalReportOptionsStorageCorrect(MetadataOfReport, WarningText = "
 	Return False;
 EndFunction
 
-// Whether it is possible to index report schema content.
+// Whether the contents of the report schema can be indexed.
 // 
 // Returns:
 //  Boolean
@@ -2154,7 +2146,7 @@ Function SharedDataIndexingAllowed() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Intended for the integration report.
+// 
 
 // Parameters:
 //  ReportsType - String
@@ -2196,13 +2188,13 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 		
 		DescriptionOfReport = DefaultReportDetails(Result, ReportMetadata, ReportRef, ReportType, GroupByReports);
 		
-		// Location.
+		// 
 		FoundItems = ReportsSubsystems.FindRows(New Structure("ReportMetadata", ReportMetadata)); 
 		For Each RowSubsystem In FoundItems Do
 			DescriptionOfReport.Location.Insert(RowSubsystem.SubsystemMetadata1, "");
 		EndDo;
 		
-		// Predefined options.
+		// 
 		If DescriptionOfReport.UsesDCS Then
 			ReportManager = Reports[ReportMetadata.Name];
 			DCSchema = Undefined;
@@ -2215,7 +2207,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 						|%2';"), ReportMetadata.Name, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				WriteToLog(EventLogLevel.Warning, ErrorText, ReportMetadata);
 			EndTry;
-			// Read report option settings from the schema.
+			// 
 			If DCSchema <> Undefined Then
 				Try
 					SettingVariants = DCSchema.SettingVariants;
@@ -2239,7 +2231,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 					WriteToLog(EventLogLevel.Warning, ErrorText, ReportMetadata);
 				EndTry;
 			EndIf;
-			// Read report option settings from the manager module (if failed to read them from the schema).
+			// 
 			If SettingVariants = Undefined Then
 				Try
 					SettingVariants = ReportManager.SettingVariants();
@@ -2250,7 +2242,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 					WriteToLog(EventLogLevel.Error, ErrorText, ReportMetadata);
 				EndTry;
 			EndIf;
-			// Found option registration.
+			// 
 			If SettingVariants <> Undefined Then
 				For Each DCSettingsOption In SettingVariants Do
 					OptionDetails = Result.Add();
@@ -2258,8 +2250,8 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 					OptionDetails.ReportFullName = DescriptionOfReport.ReportFullName;
 					OptionDetails.VariantKey = DCSettingsOption.Name;
 					OptionDetails.Description = DCSettingsOption.Presentation;
-					If IsBlankString(OptionDetails.Description) Then // if configuration is partly localized
-						OptionDetails.Description = ?(OptionDetails.VariantKey <> "Main", OptionDetails.VariantKey,  // Do not localize.
+					If IsBlankString(OptionDetails.Description) Then // 
+						OptionDetails.Description = ?(OptionDetails.VariantKey <> "Main", OptionDetails.VariantKey,  // 
 							DescriptionOfReport.Description + "." + OptionDetails.VariantKey);
 					EndIf;	
 					OptionDetails.Type          = ReportType;
@@ -2290,7 +2282,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 			DescriptionOfReport.MainOption = OptionDetails.VariantKey;
 		EndIf;
 		
-		// Process reports included in the AttachableReportsAndDataProcessors subsystem.
+		// 
 		If HasAttachableCommands And AttachableReportsAndProcessorsComposition.Contains(ReportMetadata) Then
 			VenderSettings = ModuleAttachableCommands.AttachableObjectSettings(ReportMetadata.FullName());
 			If VenderSettings <> Undefined Then
@@ -2306,7 +2298,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 	
 	ResultCache = Result.Copy(, "Report, Description");
 	
-	// Extension functionality.
+	// 
 	If ReportsType = Undefined Or ReportsType = "BuiltIn" Then
 		CustomizeReportInManagerModule(Result, Metadata.Reports.UniversalReport);
 	EndIf;
@@ -2321,7 +2313,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 	
 	FillClearedDescriptions(Result, ResultCache);
 	
-	// Define main report options.
+	// 
 	For Each DescriptionOfReport In Result.FindRows(New Structure("IsOption", False)) Do
 		
 		If Not DescriptionOfReport.GroupByReport Then
@@ -2367,7 +2359,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 	Return Result;
 EndFunction
 
-// Defines whether a report is attached to the report option storage.
+// Determines whether the report is connected to the report variant store.
 Function ReportAttachedToStorage(ReportMetadata, AllAttachedByDefault = Undefined) Export
 	StorageMetadata1 = ReportMetadata.VariantsStorage;
 	If StorageMetadata1 = Undefined Then
@@ -2381,7 +2373,7 @@ Function ReportAttachedToStorage(ReportMetadata, AllAttachedByDefault = Undefine
 	Return ReportAttached;
 EndFunction
 
-// Defines whether a report is attached to the common report form.
+// Determines whether the report is connected to the General report form.
 Function ReportAttachedToMainForm(ReportMetadata, AllAttachedByDefault = Undefined) Export
 	MetadataForm = ReportMetadata.DefaultForm;
 	If MetadataForm = Undefined Then
@@ -2395,7 +2387,7 @@ Function ReportAttachedToMainForm(ReportMetadata, AllAttachedByDefault = Undefin
 	Return ReportAttached;
 EndFunction
 
-// Defines whether a report is attached to the common report settings form.
+// Determines whether the report is connected to the General report settings form.
 Function ReportAttachedToSettingsForm(ReportMetadata, AllAttachedByDefault = Undefined) Export
 	MetadataForm = ReportMetadata.DefaultSettingsForm;
 	If MetadataForm = Undefined Then
@@ -2409,10 +2401,10 @@ Function ReportAttachedToSettingsForm(ReportMetadata, AllAttachedByDefault = Und
 	Return ReportAttached;
 EndFunction
 
-// List of objects where report commands are used.
+// List of objects that use report commands.
 //
 // Returns:
-//   Array of MetadataObject - Metadata objects with report commands.
+//   Array of MetadataObject - 
 //
 Function ObjectsWithReportCommands() Export
 	
@@ -2424,13 +2416,13 @@ Function ObjectsWithReportCommands() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
 	
 	////////////////////////////////////////////////////////////////////////////////
-	// 1. Update shared data.
+	// 
 	
 	Handler = Handlers.Add();
 	Handler.HandlerManagement = True;
@@ -2441,9 +2433,9 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Priority       = 90;
 	
 	////////////////////////////////////////////////////////////////////////////////
-	// Update separated data.
+	// 
 	
-	// 2.3. Update separated data in local mode.
+	// 
 	Handler = Handlers.Add();
 	Handler.ExecuteInMandatoryGroup = True;
 	Handler.SharedData     = False;
@@ -2452,7 +2444,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Priority       = 70;
 	Handler.Procedure       = "ReportsOptions.ConfigurationSharedDataNonexclusiveUpdate";
 	
-	// 2.4. Update data of a utility user to update the presentations.
+	// 
 	Handler = Handlers.Add();
 	Handler.ExecuteInMandatoryGroup = True;
 	Handler.SharedData     = False;
@@ -2462,9 +2454,9 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure       = "ReportsOptions.InternalUserNonexclusiveUpdate";
 	
 	////////////////////////////////////////////////////////////////////////////////
-	// 3. Deferred update.
+	// 
 	
-	// 3.2. Populate information to search for predefined report options.
+	// 
 	If SharedDataIndexingAllowed() Then
 		Handler = Handlers.Add();
 		If Common.DataSeparationEnabled() Then
@@ -2480,7 +2472,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		Handler.Comment   = NStr("en = 'Update search index for predefined reports.';");
 	EndIf;
 	
-	// 3.3. Populate information to search for user report options.
+	// 
 	Handler = Handlers.Add();
 	Handler.ExecutionMode = "Deferred";
 	Handler.SharedData     = False;
@@ -2489,7 +2481,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.Procedure       = "ReportsOptions.UpdateUserReportOptionsSearchIndex";
 	Handler.Comment     = NStr("en = 'Update search index for custom reports.';");
 	
-	// 3.4. Set the corresponding references to metadata object IDs in settings of universal report options.
+	// 
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.9.5";
 	Handler.Id = New UUID("6cd3c6c1-6919-4e18-9725-eb6dbb841f4a");
@@ -2515,7 +2507,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		NewRow.Order = "Before";
 	EndIf;
 	
-	// 3.5. Register settings of report options availability by users (user groups).
+	// 
 	Handler = Handlers.Add();
 	Handler.Version = "3.1.2.64";
 	Handler.Id = New UUID("eba9f8fb-2755-4d1a-99f5-cdd132e48cfc");
@@ -2582,7 +2574,7 @@ EndProcedure
 // See ImportDataFromFileOverridable.OnDefineCatalogsForDataImport.
 Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 	
-	// Cannot import to the UserReportSettings catalog.
+	// 
 	TableRow = CatalogsToImport.Find(Metadata.Catalogs.UserReportSettings.FullName(), "FullName");
 	If TableRow <> Undefined Then 
 		CatalogsToImport.Delete(TableRow);
@@ -2601,7 +2593,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// BothForUsersAndExternalUsers.
+	// 
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.AddEditPersonalReportsOptions.Name);
 	
@@ -2651,13 +2643,13 @@ EndProcedure
 // See AttachableCommandsOverridable.OnDefineCommandsAttachedToObject.
 // 
 // Parameters:
-//   AttachableCommandsKinds - ValueTable - Supported command kinds, where::
-//       * Name - String - Command kind name.
-//       * SubmenuName - String - Name of the submenu that will contain the commands of this kind on the object forms.
-//       * Title - String - Name of the submenu displayed to users.
-//       * Picture - Picture - Submenu picture.
-//       * Representation - ButtonRepresentation - Submenu representation mode.
-//       * Order - Number - Submenu order in the command bar of the form.
+//   AttachableCommandsKinds - ValueTable - :
+//       * Name - String -  name of the command type.
+//       * SubmenuName - String -  name of the submenu for placing commands of this type on object forms.
+//       * Title - String -  the name of the submenu that will be displayed to the user.
+//       * Picture - Picture -  picture of the submenu.
+//       * Representation - ButtonRepresentation -  the display mode submenu.
+//       * Order - Number -  the order of submenus in the form's command panel.
 //
 Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 	Kind = AttachableCommandsKinds.Add();
@@ -2789,34 +2781,34 @@ EndProcedure
 
 #Region Private
 
-// Subsystem presentation. It is used for writing to the event log and in other places.
+// Representation of the subsystem. Used when writing to the log and in other places.
 Function SubsystemDescription(LanguageCode)
 	Return NStr("en = 'Report options';", ?(LanguageCode = Undefined, Common.DefaultLanguageCode(), LanguageCode));
 EndFunction
 
-// Initialize reports.
+// 
 
-// The function gets the report object from the report option reference.
+// Retrieves the report object from the report variant link.
 //
 // Parameters:
 //   RefOfReport
-//     - CatalogRef.MetadataObjectIDs - Reference to a configuration report.
-//     - CatalogRef.ExtensionObjectIDs - Reference to an extension report.
-//     - Arbitrary - Reference to an additional or external report.
+//     - 
+//     
+//     
 //
 // Returns:
-//   Structure - Report parameters (including report's Object)::
+//   Structure - :
 //       * Object      - ReportObject
-//                     - ExternalReport - Report object.
-//       * Name         - String           - Report object name.
-//       * FullName   - String           - Full name of the report object.
-//       * Metadata  - MetadataObject - Report metadata object.
-//       * Ref      - Arbitrary     - Report reference.
-//       * Success       - Boolean           - True if the report is attached.
-//       * ErrorText - String           - Error text.
+//                     - ExternalReport - 
+//       * Name         - String           -  name of the report object.
+//       * FullName   - String           -  full name of the report object.
+//       * Metadata  - MetadataObject -  the metadata object of the report.
+//       * Ref      - Arbitrary     -  the link for the report.
+//       * Success       - Boolean           -  The truth is if you were able to connect to the report.
+//       * ErrorText - String           - 
 //
-// Usage locations::
-//   ReportMailing.InitializeReport().
+// :
+//   
 //
 Function AttachReportObject(RefOfReport, GetMetadata)
 	Result = New Structure("Object, Name, FullName, Metadata, Ref, ErrorText");
@@ -2879,9 +2871,9 @@ Function AttachReportObject(RefOfReport, GetMetadata)
 	Return Result;
 EndFunction
 
-// Data composition.
+// 
 
-// Generates a report with the specified settings. Used in background jobs.
+// Generates a report with the specified settings and is used in background tasks.
 Procedure GenerateReportInBackground(Parameters, StorageAddress) Export
 	
 	ReportGenerationResult = GenerateReport(Parameters, False, False);
@@ -2902,7 +2894,7 @@ Procedure GenerateReportInBackground(Parameters, StorageAddress) Export
 	
 EndProcedure
 
-// Fills in settings details for a report option row if it is not filled in.
+// Fills in the description of settings for the report variant line, if it is not already filled in.
 //
 // Parameters:
 //   OptionDetails - See DefaultReportDetails
@@ -2913,18 +2905,18 @@ Procedure FillOptionRowDetails(OptionDetails, DescriptionOfReport)
 		Return;
 	EndIf;
 	
-	// Settings modification flag.
+	// 
 	OptionDetails.DetailsReceived = True;
 	
-	// Copy report settings.
+	// 
 	FillPropertyValues(OptionDetails, DescriptionOfReport, "Enabled, DefaultVisibility, GroupByReport, ShouldShowInOptionsSubmenu");
 	
 	If OptionDetails.VariantKey = DescriptionOfReport.MainOption Then
-		// Default option.
+		// 
 		OptionDetails.LongDesc = DescriptionOfReport.LongDesc;
 		OptionDetails.DefaultVisibility = True;
 	Else
-		// Predefined option.
+		// 
 		If OptionDetails.GroupByReport Then
 			OptionDetails.DefaultVisibility = False;
 		EndIf;
@@ -2942,12 +2934,12 @@ Procedure FillOptionRowDetails(OptionDetails, DescriptionOfReport)
 	EndIf;
 EndProcedure
 
-// Report panels.
+// 
 
-// Generates a list of sections where the report panel calling commands are available.
+// Generates a list of sections that contain commands for calling the report panel.
 //
 // Returns:
-//   ValueList - see description 1 of the ReportsOptionsOverridable.DefineSectionsWithReportOptions() procedure parameter
+//   ValueList - See the description of the 1 parameter of the Report option procedure, undetectable.Define the division of the variantsreferences()
 //
 Function SectionsList() Export
 	SectionsList = New ValueList;
@@ -2963,15 +2955,15 @@ Function SectionsList() Export
 	Return SectionsList;
 EndFunction
 
-// Sets output mode for report options in report panels.
+// Sets the mode for displaying report options in report panels.
 //
 // Parameters:
-//   Settings - ValueTable - Passed from the CustomizeReportsOptions procedure as is.
+//   Settings - ValueTable -  passed "as is" from the set up report Variants procedure.
 //   Report - ValueTableRow:
-//         - MetadataObjectReport - Settings details or report metadata.
-//   GroupByReports - Boolean - Report display mode.
-//                           If True, then "by reports" (options are hidden, the report is enabled and visible).
-//                           If False, then "by options" (options are visible, the report is disabled).
+//         - MetadataObjectReport - 
+//   GroupByReports - Boolean -  output mode in the report panel.
+//                           If True, then by reports (the options are hidden, and the report is enabled and visible).
+//                           If False, then by options (options are visible, but the report is disabled).
 //
 Procedure SetReportOutputModeInReportsPanels(Settings, Report, GroupByReports)
 	If TypeOf(Report) = Type("ValueTableRow") Then
@@ -2989,18 +2981,18 @@ Procedure SetReportOutputModeInReportsPanels(Settings, Report, GroupByReports)
 	DescriptionOfReport.GroupByReport = GroupByReports;
 EndProcedure
 
-// Generates a table of replacements of old option keys for relevant ones.
+// Generates a table for replacing old variant keys with current ones.
 //
 // Returns:
-//   ValueTable - Table of changed report option names. Columns::
-//       * ReportMetadata - MetadataObjectReport - Metadata of the report whose schema contains the new option name.
-//       * OldOptionName - String - Old name of the report option.
-//       * RelevantOptionName - String - Current (last relevant) option name.
+//   ValueTable - :
+//       * ReportMetadata - MetadataObjectReport -  the report metadata in the scheme which has changed the name of the option.
+//       * OldOptionName - String -  the old variant name, before the change.
+//       * RelevantOptionName - String -  the current (last current) name of the option.
 //       * Report - CatalogRef.MetadataObjectIDs
-//               - String - Report reference or name used for storing.
-//           See also:
+//               - String - 
+//           
 //
-// ReportOptionsOverridable.RegisterChangesOfReportOptionsKeys().:
+// :
 //   
 //
 Function KeysChanges()
@@ -3012,7 +3004,7 @@ Function KeysChanges()
 	Changes.Columns.Add("OldOptionName",     OptionsAttributes.VariantKey.Type);
 	Changes.Columns.Add("RelevantOptionName", OptionsAttributes.VariantKey.Type);
 	
-	// Overridable part.
+	// 
 	SSLSubsystemsIntegration.OnChangeReportsOptionsKeys(Changes);
 	ReportsOptionsOverridable.RegisterChangesOfReportOptionsKeys(Changes);
 	
@@ -3020,7 +3012,7 @@ Function KeysChanges()
 	Changes.Columns.Add("Report", OptionsAttributes.Report.Type);
 	Changes.Indexes.Add("ReportMetadata, OldOptionName");
 	
-	// Check replacements for correctness.
+	// 
 	For Each Update In Changes Do
 		Update.Report = Common.MetadataObjectID(Update.ReportMetadata);
 		FoundItems = Changes.FindRows(New Structure("ReportMetadata, OldOptionName", Update.ReportMetadata, Update.RelevantOptionName));
@@ -3054,14 +3046,14 @@ Function KeysChanges()
 	Return Changes;
 EndFunction
 
-// Generates a table of report locations by configuration subsystem.
+// Generates a table for placing reports on configuration subsystems.
 //
 // Parameters:
-//   Result          - Undefined - Used for recursion.
-//   SubsystemParent - Undefined - Used for recursion.
+//   Result          - Undefined -  used for recursion.
+//   The parent subsystem-Undefined-is used for recursion.
 //
 // Returns:
-//   ValueTable - Result - ValueTable - Report location settings by subsystem.:
+//   ValueTable - :
 //       * ReportMetadata      - MetadataObjectReport
 //       * ReportFullName       - String
 //       * SubsystemMetadata1 - MetadataObjectSubsystem
@@ -3083,7 +3075,7 @@ Function PlacingReportsToSubsystems(Result = Undefined, ParentSubsystem = Undefi
 		ParentSubsystem = Metadata;
 	EndIf;
 	
-	// Iterate through the nested subsystems.
+	// 
 	For Each ChildSubsystem In ParentSubsystem.Subsystems Do
 		
 		If ChildSubsystem.IncludeInCommandInterface Then
@@ -3107,12 +3099,12 @@ Function PlacingReportsToSubsystems(Result = Undefined, ParentSubsystem = Undefi
 	Return Result;
 EndFunction
 
-// Reset the settings of the "Report options" predefined item
-//   connected to the "Report options" catalog item.
+// Resets the settings of the predefined report Options reference item
+//   associated with the report Options reference item.
 //
 // Parameters:
 //   OptionObject - CatalogObject.ReportsOptions
-//                 - FormDataStructure - Report options.
+//                 - FormDataStructure - 
 //
 Function ResetReportOptionSettings(OptionObject) Export
 	If OptionObject.Custom
@@ -3133,12 +3125,12 @@ Function ResetReportOptionSettings(OptionObject) Export
 	Return True;
 EndFunction
 
-// Generates description of the String types of the specified length.
+// Generates a description of the String types of the specified length.
 Function TypesDetailsString(StringLength = 1000) Export
 	Return New TypeDescription("String", , New StringQualifiers(StringLength));
 EndFunction
 
-// It defines full rights to subsystem data by role composition.
+// Defines full rights to the subsystem data based on the role structure.
 Function FullRightsToOptions() Export
 	
 	ReportsOptionsMetadata = Metadata.Catalogs.ReportsOptions;
@@ -3150,10 +3142,10 @@ Function FullRightsToOptions() Export
 	
 EndFunction
 
-// Checks whether a report option name is not occupied.
+// Checks whether the name of the report variant is free.
 Function DescriptionIsUsed(Report, Ref, Description) Export
 	If Description = String(Ref) Then
-		Return False; // Check is disabled as the name did not change.
+		Return False; // 
 	EndIf;
 	
 	Query = New Query;
@@ -3184,7 +3176,7 @@ Function DescriptionIsUsed(Report, Ref, Description) Export
 	Return False;
 EndFunction
 
-// Checks whether a report option key is not occupied.
+// Checks whether the report variant key is available.
 Function OptionKeyIsUsed(Report, Ref, VariantKey) Export
 	Query = New Query;
 	Query.Text = 
@@ -3208,7 +3200,7 @@ Function OptionKeyIsUsed(Report, Ref, VariantKey) Export
 	Return Result;
 EndFunction
 
-// Creates a filter by the ObjectKey attribute for StandardSettingsStorageManager.Select().
+// Creates a filter based on the key Object's details for the standard storagesconstruction Manager.Choose().
 Function NewFilterByObjectKey(ReportsNames)
 	If ReportsNames = "" Or ReportsNames = "*" Then
 		Return Undefined;
@@ -3252,7 +3244,7 @@ Function GlobalSettings() Export
 	Return Result;
 EndFunction
 
-// Global settings of a report panel.
+// Global settings for the report panel.
 Function CommonPanelSettings() Export
 	CommonSettings = Common.CommonSettingsStorageLoad(
 		ReportsOptionsClientServer.FullSubsystemName(),
@@ -3270,7 +3262,7 @@ Function CommonPanelSettings() Export
 	Return CommonSettings;
 EndFunction
 
-// Global settings of a report panel.
+// Global settings for the report panel.
 Function SaveCommonPanelSettings(CommonSettings) Export
 	If TypeOf(CommonSettings) <> Type("Structure") Then
 		Return Undefined;
@@ -3302,16 +3294,16 @@ Function RunMeasurements()
 	Return False;
 EndFunction
 
-// Fills in a report option description if it was cleared while applying settings.
+// Fills in the name of the report variant, if it was cleared when applying the settings.
 //
 // Parameters:
 //  ReportsOptionsProperties - See PredefinedReportsOptionsCollection.
-//  ReportsOptionsPropertiesCache - ValueTable - Copy of the ReportsOptionsProperties table before applying settings, where::
-//      * Description - String - Report option description before applying settings.
+//  ReportsOptionsPropertiesCache - ValueTable - :
+//      * Description - String -  name of the report option before applying the settings.
 //      * Report - CatalogRef.ExtensionObjectIDs
 //              - CatalogRef.AdditionalReportsAndDataProcessors
 //              - CatalogRef.MetadataObjectIDs
-//              - String - Reference to a report metadata ID.
+//              - String - 
 //
 Procedure FillClearedDescriptions(ReportsOptionsProperties, ReportsOptionsPropertiesCache)
 	FoundProperties = ReportsOptionsProperties.FindRows(New Structure("Description", "")); // See PredefinedReportsOptionsCollection
@@ -3334,7 +3326,7 @@ Procedure FillClearedDescriptions(ReportsOptionsProperties, ReportsOptionsProper
 	EndDo;
 EndProcedure
 
-// For execution in a long-running operation.
+// 
 //
 // Parameters:
 //  ReportObject - ReportObject
@@ -3353,9 +3345,9 @@ Procedure PopulateExternalReportBinaryData(ReportObject, Parameters)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Event log
+// 
 
-// Record to the event log.
+// The entry in the log.
 Procedure WriteToLog(Level, Message, ReportVariant = Undefined) Export
 	If TypeOf(ReportVariant) = Type("MetadataObject") Then
 		MetadataObject = ReportVariant;
@@ -3368,7 +3360,7 @@ Procedure WriteToLog(Level, Message, ReportVariant = Undefined) Export
 		Level, MetadataObject, Data, Message);
 EndProcedure
 
-// Writes a procedure start event to the event log.
+// Writes the procedure start event to the log.
 Procedure WriteProcedureStartToLog(ProcedureName)
 	
 	EventLog.AddMessageForEventLog(SubsystemDescription(Undefined),
@@ -3377,7 +3369,7 @@ Procedure WriteProcedureStartToLog(ProcedureName)
 		
 EndProcedure
 
-// Writes a procedure completion event to the event log.
+// Writes a procedure completion event to the log.
 Procedure WriteProcedureCompletionToLog(ProcedureName, ObjectsChanged = Undefined)
 	
 	Text = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Finishing %1.';"), ProcedureName);
@@ -3391,9 +3383,9 @@ Procedure WriteProcedureCompletionToLog(ProcedureName, ObjectsChanged = Undefine
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Standard event handlers.
+// 
 
-// Deleting personal report options upon user deletion.
+// Deleting personal report options when deleting a user.
 Procedure OnRemoveUser(UserObject, Cancel) Export
 	If UserObject.IsNew()
 		Or UserObject.DataExchange.Load
@@ -3402,7 +3394,7 @@ Procedure OnRemoveUser(UserObject, Cancel) Export
 		Return;
 	EndIf;
 	
-	// Set a deletion mark of personal user options.
+	// 
 	QueryText =
 	"SELECT
 	|	ReportsOptions.Ref
@@ -3425,7 +3417,7 @@ Procedure OnRemoveUser(UserObject, Cancel) Export
 	EndDo;
 EndProcedure
 
-// Delete subsystems references before their deletion.
+// Deleting subsystem references before deleting them.
 Procedure BeforeDeleteMetadataObjectID(MetadataObjectIDObject, Cancel) Export
 	If MetadataObjectIDObject.DataExchange.Load Then
 		Return;
@@ -3475,10 +3467,10 @@ Procedure BeforeDeleteMetadataObjectID(MetadataObjectIDObject, Cancel) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// 
 
-// [*] Updates cache of configuration metadata: the PredefinedReportOptions catalog
-//     and report option parameters in the register.
+// [ * ] Updates the configuration metadata cache: reference Predopredelyaet
+//     and settings options of reports in the register.
 //
 Procedure ConfigurationCommonDataNonexclusiveUpdate(ParametersOfUpdate) Export
 	
@@ -3490,14 +3482,14 @@ Procedure ConfigurationCommonDataNonexclusiveUpdate(ParametersOfUpdate) Export
 	
 EndProcedure
 
-// [*] Updates data of the ReportsOptions catalog in some configuration reports. 
+// [ * ] Updates the data in the report Options directory in the configuration reports section.
 Procedure ConfigurationSharedDataNonexclusiveUpdate() Export
 	
 	UpdateReportsOptions("SeparatedConfigurationData");
 	
 EndProcedure
 
-// [*] Updates data of a utility user to update the presentations.
+// [ * ] Updates service user data to update views.
 Procedure InternalUserNonexclusiveUpdate() Export 
 	
 	SetPrivilegedMode(True);
@@ -3560,13 +3552,13 @@ Procedure UpdateUserReportOptionsSearchIndex(Parameters = Undefined) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update / Initial population and update of catalogs.
+// 
 
-// Updates cache of configuration metadata/applied extensions.
+// Updates the cache of configuration metadata/connected extensions.
 Function CommonDataNonexclusiveUpdate(Mode, SeparatedHandlers)
 	
 	////////////////////////////////////////////////////////////////////////////////
-	// Only for predefined report options.
+	// 
 	
 	Result = CommonDataUpdateResult(Mode, SeparatedHandlers);
 	
@@ -3577,7 +3569,7 @@ Function CommonDataNonexclusiveUpdate(Mode, SeparatedHandlers)
 	WriteFunctionalOptionsTable(Mode, Result);
 	RecordCurrentExtensionsVersion();
 	
-	// Update separated data in SaaS mode.
+	// 
 	If Result.SaaSModel And Result.HasImportantChanges Then
 		Handlers = Result.SeparatedHandlers;
 		If Handlers = Undefined Then
@@ -3595,22 +3587,22 @@ Function CommonDataNonexclusiveUpdate(Mode, SeparatedHandlers)
 	Return Result;
 EndFunction
 
-// Updates data of the ReportsOptions catalog.
+// Updates the master data of Varietythat.
 Function UpdateReportsOptions(Mode)
 	
 	Result = ReportsOptionsUpdateResult();
 	
-	// 1. Update separated report options.
+	// 
 	UpdateReportsOptionsByPredefinedOnes(Mode, Result);
 
-	// 2. Set a deletion mark for options of deleted reports.
+	// 
 	MarkOptionsOfDeletedReportsForDeletion(Mode, Result);
 	
 	Return Result;
 	
 EndFunction
 
-// Update the search index of report options.
+// Updating the search index for report variants.
 Function UpdateSearchIndex(Mode, IndexSchema)
 	StartPresentationsFilling(Mode, False);
 	
@@ -3677,7 +3669,7 @@ Function UpdateSearchIndex(Mode, IndexSchema)
 	While Selection.Next() Do
 		
 		If ReportsWithIssues[Selection.Report] = True Then
-			Continue; // Report is not attached. Error was registered earlier.
+			Continue; // 
 		EndIf;
 		
 		BeginTransaction();
@@ -3708,17 +3700,17 @@ Function UpdateSearchIndex(Mode, IndexSchema)
 						OptionObject.VariantKey, OptionObject.Report);
 					WriteToLog(EventLogLevel.Error, ErrorText, OptionObject.Ref);
 					RollbackTransaction();
-					Continue; // An error occurred.
+					Continue; // 
 				EndIf;
 				
 				OptionDetails = FoundItems[0]; // See DefaultReportDetails
 				FillOptionRowDetails(OptionDetails, PredefinedOptions.FindRows(
 					New Structure("Report,IsOption", OptionObject.Report, False))[0]);
 				
-				// If an option is disabled, it cannot be searched for.
+				// 
 				If Not OptionDetails.Enabled Then
 					RollbackTransaction();
-					Continue; // No need to populate.
+					Continue; // 
 				EndIf;
 				
 				ReportInfo.DCSettings = CommonClientServer.StructureProperty(OptionDetails.SystemInfo, "DCSettings");
@@ -3727,7 +3719,7 @@ Function UpdateSearchIndex(Mode, IndexSchema)
 			
 			FillPropertyValues(PreviousInfo, FieldsForSearch(OptionObject));
 			PreviousInfo.SettingsHash = OptionObject.SettingsHash;
-			ReportInfo.IndexSchema = IndexSchema; // Reindex forcedly, without checking the hash.
+			ReportInfo.IndexSchema = IndexSchema; // 
 			
 			Try
 				SchemaIndexed = FillFieldsForSearch(OptionObject, ReportInfo);
@@ -3751,7 +3743,7 @@ Function UpdateSearchIndex(Mode, IndexSchema)
 			EndIf;
 			
 			If ReportInfo.ReportObject = Undefined Then
-				ReportsWithIssues[Selection.Report] = True; // The report was not attached
+				ReportsWithIssues[Selection.Report] = True; // 
 			EndIf;
 			
 			CommitTransaction();
@@ -3767,7 +3759,7 @@ Function UpdateSearchIndex(Mode, IndexSchema)
 	Return Undefined;
 EndFunction
 
-// Replace obsolete report option keys with relevant ones.
+// Replace the old keys of the records to-date.
 Procedure UpdateKeysOfPredefinedItems(Mode, Result)
 	
 	ProcedurePresentation = StringFunctionsClientServer.SubstituteParametersToString(
@@ -3775,12 +3767,12 @@ Procedure UpdateKeysOfPredefinedItems(Mode, Result)
 		?(Mode = "ConfigurationCommonData", NStr("en = 'configuration metadata';"), NStr("en = 'extension metadata';")));
 	WriteProcedureStartToLog(ProcedurePresentation);
 	
-	// Generate a table of replacements of old option keys for relevant ones.
+	// 
 	Changes = KeysChanges();
 	
-	// Get the references to the report options for key replacement.
-	// Don't include the report options whose current keys are registered
-	// or whose old keys are vacant.
+	// 
+	// 
+	// 
 	// 
 	QueryText =
 	"SELECT
@@ -3820,7 +3812,7 @@ Procedure UpdateKeysOfPredefinedItems(Mode, Result)
 	Query.SetParameter("Changes", Changes);
 	Query.Text = QueryText;
 	
-	// Replace obsolete option names with relevant ones.
+	// 
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
 		Result.HasChanges = True;
@@ -3864,7 +3856,7 @@ Procedure MarkDeletedPredefinedItems(Mode, Result)
 		TableName = "Catalog.PredefinedExtensionsReportsOptions";
 	EndIf;
 	
-	// Map the information from database and the metadata. Mark the obsolete infobase objects for deletion.
+	// 
 	Result.ReportsOptions.Indexes.Add("Report, VariantKey, FoundInDatabase, IsOption");
 	SearchForOption = New Structure("Report, VariantKey, FoundInDatabase, IsOption");
 	SearchForOption.FoundInDatabase = False;
@@ -3887,7 +3879,7 @@ Procedure MarkDeletedPredefinedItems(Mode, Result)
 		EndIf;
 		
 		If OptionFromBase.DeletionMark And OptionFromBase.Parent = EmptyRef Then
-			Continue; // No action required.
+			Continue; // 
 		EndIf;
 		
 		BeginTransaction();
@@ -3951,7 +3943,7 @@ Procedure GenerateOptionsFunctionalityTable(Mode, Result)
 			Continue;
 		EndIf;
 		
-		// Set the ParentOption attribute to relate report options to main report options.
+		// 
 		DescriptionOfReport = Result.ReportsOptions.FindRows(New Structure("Report, IsOption", OptionDetails.Report, False))[0];
 		FillOptionRowDetails(OptionDetails, DescriptionOfReport);
 		If IsBlankString(DescriptionOfReport.MainOption) Or OptionDetails.VariantKey = DescriptionOfReport.MainOption Then
@@ -3987,16 +3979,16 @@ Procedure GenerateOptionsFunctionalityTable(Mode, Result)
 
 EndProcedure
 
-// Writes option settings to catalog data.
+// Writes the option settings to the directory data.
 //
 // Parameters:
-//   Mode - String - Data update kind.
-//   OptionDetails - ValueTableRow - Properties of the report option, where::
-//       * OptionFromBase - ValueTableRow - Properties of the main report option, where::
+//   Mode - String -  type of data update.
+//   OptionDetails - ValueTableRow - :
+//       * OptionFromBase - ValueTableRow - :
 //             * Ref - CatalogRef.PredefinedExtensionsReportsOptions
-//                      - CatalogRef.PredefinedReportsOptions - Reference to a predefined report option.
-//       * Description - String - Report option name.
-//       * LongDesc - String - Brief information about the report option.
+//                      - CatalogRef.PredefinedReportsOptions - 
+//       * Description - String - 
+//       * LongDesc - String -  brief information about the report version.
 //   Result - See CommonDataUpdateResult
 //
 Function UpdatePredefinedReportOption(Mode, OptionDetails, Result)
@@ -4009,9 +4001,9 @@ Function UpdatePredefinedReportOption(Mode, OptionDetails, Result)
 			RegisterOptionMeasurementsForUpdate(Var_Key, OptionDetails.MeasurementsKey, OptionDetails.Description, Result);
 		EndIf;
 		If OptionDetails.FoundInDatabase Then
-			If OptionFromBase.DeletionMark = True // Details obtained. Remove the deletion mark.
+			If OptionFromBase.DeletionMark = True // 
 				Or KeySettingsOfPredefinedItemChanged(OptionDetails, OptionFromBase) Then
-				Result.HasImportantChanges = True; // Rewrite key settings (rewriting separated data is required).
+				Result.HasImportantChanges = True; // 
 			ElsIf Not SecondarySettingsOfPredefinedItemChanged(OptionDetails, OptionFromBase) Then
 				CommitTransaction();
 				Return OptionFromBase.Ref;
@@ -4035,7 +4027,7 @@ Function UpdatePredefinedReportOption(Mode, OptionDetails, Result)
 				OptionObject.DeletionMark = False;
 			EndIf;
 		Else
-			Result.HasImportantChanges = True; // Register the new object (separated data update is required).
+			Result.HasImportantChanges = True; // 
 			If Mode = "ConfigurationCommonData" Then
 				OptionObject = Catalogs.PredefinedReportsOptions.CreateItem();
 			ElsIf Mode = "ExtensionsCommonData" Then
@@ -4124,7 +4116,7 @@ Function UpdatePredefinedReportOption(Mode, OptionDetails, Result)
 	Return OptionObject.Ref;
 EndFunction
 
-// Defines whether key settings of a predefined report option are changed.
+// Determines whether the key settings of the predefined report variant have changed.
 Function KeySettingsOfPredefinedItemChanged(OptionDetails, OptionFromBase)
 	Return (OptionFromBase.Description <> OptionDetails.Description
 		Or OptionFromBase.Parent <> OptionDetails.ParentOption
@@ -4132,14 +4124,14 @@ Function KeySettingsOfPredefinedItemChanged(OptionDetails, OptionFromBase)
 		Or OptionFromBase.DefaultVisibility <> OptionDetails.DefaultVisibility);
 EndFunction
 
-// Defines whether secondary settings of a predefined report option are changed.
+// Determines whether the secondary settings of the predefined report variant have changed.
 //
 // Parameters:
 //   OptionDetails - See DefaultReportDetails
 //   OptionFromBase - See DefaultReportDetails
 //
 Function SecondarySettingsOfPredefinedItemChanged(OptionDetails, OptionFromBase)
-	// Header.
+	// Header
 	If OptionFromBase.Enabled <> OptionDetails.Enabled
 		Or OptionFromBase.LongDesc <> OptionDetails.LongDesc
 		Or OptionFromBase.MeasurementsKey <> OptionDetails.MeasurementsKey
@@ -4148,7 +4140,7 @@ Function SecondarySettingsOfPredefinedItemChanged(OptionDetails, OptionFromBase)
 		Return True;
 	EndIf;
 	
-	// Placement table.
+	// 
 	PlacementTable = OptionFromBase.Location;
 	If PlacementTable.Count() <> OptionDetails.Location.Count() Then
 		Return True;
@@ -4170,7 +4162,7 @@ Function SecondarySettingsOfPredefinedItemChanged(OptionDetails, OptionFromBase)
 	Return False;
 EndFunction
 
-// Defines whether search settings of a predefined report option are changed.
+// Determines whether the search settings for a predefined report variant have changed.
 Function SearchSettingsChanged(OptionFromBase, PreviousInfo)
 	Return OptionFromBase.SettingsHash <> PreviousInfo.SettingsHash
 		Or OptionFromBase.FieldDescriptions <> PreviousInfo.FieldDescriptions
@@ -4178,14 +4170,14 @@ Function SearchSettingsChanged(OptionFromBase, PreviousInfo)
 		Or OptionFromBase.Keywords <> PreviousInfo.Keywords;
 EndFunction
 
-// Adjusts separated data to shared data.
+// Results of divided data in accordance with the undivided data.
 Procedure UpdateReportsOptionsByPredefinedOnes(Mode, Result)
 	
 	ProcedurePresentation = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Updating report options (%1)';"), 
 		Lower(ModePresentation(Mode)));
 	WriteProcedureStartToLog(ProcedurePresentation);
 	
-	// Update predefined option information.
+	// 
 	QueryText =
 	"SELECT
 	|	PredefinedConfigurations.Ref AS PredefinedOption,
@@ -4322,7 +4314,7 @@ Procedure UpdateReportsOptionsByPredefinedOnes(Mode, Result)
 	PredefinedItemsPivotTable.Columns.Add("Processed1", New TypeDescription("Boolean"));
 	PredefinedItemsPivotTable.Columns.Add("Parent", New TypeDescription("CatalogRef.ReportsOptions"));
 	
-	// Update main predefined options (without a parent).
+	// 
 	Search = New Structure("PredefinedOptionParent, SetDeletionMark", Undefined, False);
 	FoundItems = PredefinedItemsPivotTable.FindRows(Search);
 	For Each TableRow In FoundItems Do
@@ -4347,7 +4339,7 @@ Procedure UpdateReportsOptionsByPredefinedOnes(Mode, Result)
 		EndIf;
 	EndDo;
 	
-	// Update all remaining predefined options (subordinates).
+	// 
 	PredefinedItemsPivotTable.Sort("SetDeletionMark Asc");
 	For Each TableRow In PredefinedItemsPivotTable Do
 		If TableRow.Processed1 Then
@@ -4366,7 +4358,7 @@ Procedure UpdateReportsOptionsByPredefinedOnes(Mode, Result)
 		UpdateSeparatedPredefinedItem(Result, AttributesToChange, TableRow, MatchingBankDetails);
 	EndDo;
 	
-	// Update user option parents.
+	// 
 	QueryText = 
 	"SELECT
 	|	MainReportsOptions.Report,
@@ -4419,7 +4411,7 @@ Procedure UpdateReportsOptionsByPredefinedOnes(Mode, Result)
 	WriteProcedureCompletionToLog(ProcedurePresentation);
 EndProcedure
 
-// Updates predefined data in separated mode.
+// Updates the predefined data in the split mode.
 Procedure UpdateSeparatedPredefinedItem(Result, AttributesToChange, TableRow, MatchingBankDetails)
 	If TableRow.Processed1 Then
 		Return;
@@ -4431,7 +4423,7 @@ Procedure UpdateSeparatedPredefinedItem(Result, AttributesToChange, TableRow, Ma
 		
 		If TableRow.AttributeParent = Result.EmptyRef 
 			And TableRow.AttributeDeletionMark = True Then
-			Return; // Already marked.
+			Return; // 
 		EndIf;
 		
 		BeginTransaction();
@@ -4466,22 +4458,22 @@ Procedure UpdateSeparatedPredefinedItem(Result, AttributesToChange, TableRow, Ma
 	AttributesToChange.DeletionMark = False;
 	
 	If Not TableRow.CreateNew And PropertiesValuesMatch(AttributesToChange, TableRow, MatchingBankDetails) Then
-		Return; // No changes.
+		Return; // 
 	EndIf;
 	
 	BeginTransaction();
 	Try
-		If TableRow.CreateNew Then // Add.
+		If TableRow.CreateNew Then // 
 			OptionObject = Catalogs.ReportsOptions.CreateItem();
 			OptionObject.PredefinedOption = TableRow.PredefinedOption;
 			OptionObject.Custom = False;
-		Else // Update (if has changes).
+		Else // 
 			Block = New DataLock;
 			LockItem = Block.Add("Catalog.ReportsOptions");
 			LockItem.SetValue("Ref", TableRow.AttributeRef);
 			Block.Lock();
 			
-			// Transfer user settings.
+			// 
 			ReplaceUserSettingsKeys(AttributesToChange, TableRow);
 			
 			OptionObject = TableRow.AttributeRef.GetObject();
@@ -4511,7 +4503,7 @@ Procedure UpdateSeparatedPredefinedItem(Result, AttributesToChange, TableRow, Ma
 	
 EndProcedure
 
-// Returns True if values of the Structure and Collection properties match the PrefixInCollection prefix.
+// Returns true if the matching values of properties of the Structure and a Collection with a prefix of Prefixpolicy.
 Function PropertiesValuesMatch(Structure, Collection, MatchingBankDetails)
 	For Each KeyAndValue In Structure Do
 		If Collection[MatchingBankDetails[KeyAndValue.Key]] <> KeyAndValue.Value Then
@@ -4521,7 +4513,7 @@ Function PropertiesValuesMatch(Structure, Collection, MatchingBankDetails)
 	Return True;
 EndFunction
 
-// Setting a deletion mark for deleted report options.
+// Setting the delete option for deleted reports.
 Procedure MarkOptionsOfDeletedReportsForDeletion(Mode, Result)
 	
 	ProcedurePresentation = StringFunctionsClientServer.SubstituteParametersToString(
@@ -4531,7 +4523,7 @@ Procedure MarkOptionsOfDeletedReportsForDeletion(Mode, Result)
 	
 	Query = New Query;
 	
-	// ACC:1377-off "Report" attribute consists of 4 types. For this scenario, dereferencing is not essential.
+	// 
 	QueryText =
 	"SELECT
 	|	ReportsOptions.Ref AS Ref
@@ -4541,7 +4533,7 @@ Procedure MarkOptionsOfDeletedReportsForDeletion(Mode, Result)
 	|	NOT ReportsOptions.DeletionMark
 	|	AND ReportsOptions.ReportType = &ReportType
 	|	AND ISNULL(ReportsOptions.Report.DeletionMark, TRUE)";
-	// ACC:1377-on
+	// 
 	
 	TableName = "Catalog.ReportsOptions";
 	If Mode = "ConfigurationCommonData" Then
@@ -4591,11 +4583,11 @@ Procedure MarkOptionsOfDeletedReportsForDeletion(Mode, Result)
 	WriteProcedureCompletionToLog(ProcedurePresentation);
 EndProcedure
 
-// Transfer custom settings of the option from the relevant storage.
+// Migrating user settings of a variant from the corresponding storage.
 //
 // Parameters:
-//   OldOption - Structure - Values of report option attributes, where::
-//       * Ref - CatalogRef.ReportsOptions - Report option reference.
+//   OldOption - Structure - :
+//       * Ref - CatalogRef.ReportsOptions -  link to the report version.
 //   UpdatedOption - ValueTableRow
 //
 Procedure ReplaceUserSettingsKeys(OldOption, UpdatedOption)
@@ -4614,7 +4606,7 @@ Procedure ReplaceUserSettingsKeys(OldOption, UpdatedOption)
 	StorageSelection = ReportsUserSettingsStorage.Select(Filter);
 	SuccessiveReadingErrors = 0;
 	While True Do
-		// Read settings from the storage by the old key.
+		// 
 		Try
 			GotSelectionItem = StorageSelection.Next();
 			SuccessiveReadingErrors = 0;
@@ -4637,13 +4629,13 @@ Procedure ReplaceUserSettingsKeys(OldOption, UpdatedOption)
 			EndIf;
 		EndIf;
 		
-		// Read settings details.
+		// 
 		SettingsDescription = ReportsUserSettingsStorage.GetDescription(
 			StorageSelection.ObjectKey,
 			StorageSelection.SettingsKey,
 			StorageSelection.User);
 		
-		// Write settings to the storage by a new key.
+		// 
 		ReportsUserSettingsStorage.Save(
 			NewObjectKey,
 			StorageSelection.SettingsKey,
@@ -4652,7 +4644,7 @@ Procedure ReplaceUserSettingsKeys(OldOption, UpdatedOption)
 			StorageSelection.User);
 	EndDo;
 	
-	// Clear old storage settings.
+	// 
 	ReportsUserSettingsStorage.Delete(OldObjectKey, Undefined, Undefined);
 EndProcedure
 
@@ -4665,9 +4657,9 @@ EndProcedure
 // Registers changes in the measurement table.
 //
 // Parameters:
-//   OldKey - String - Previous measurement key.
-//   UpdatedKey - String - Current measurement key.
-//   UpdatedDescription - String - Report's current description.
+//   OldKey - String -  the measurement key is not up-to-date.
+//   UpdatedKey - String -  current measurement key.
+//   UpdatedDescription - String -  current name of the report.
 //   Result - See CommonDataUpdateResult
 //
 Procedure RegisterOptionMeasurementsForUpdate(Val OldKey, Val UpdatedKey, Val UpdatedDescription, Result)
@@ -4696,32 +4688,32 @@ Procedure RegisterOptionMeasurementsForUpdate(Val OldKey, Val UpdatedKey, Val Up
 		NStr("en = 'Report %1 (settings)';"), UpdatedDescription);
 EndProcedure
 
-// Write report option parameters (metadata cache for application speed).
+// 
 //
 // Parameters:
-//   Mode - String - Update mode: ConfigurationCommonData or ExtensionsCommonData.
+//   Mode - String -  Update mode: "General configuration" or "General extension"
 //   Result - Structure:
 //     * ReportsOptions - See PredefinedReportsOptions
-//     * HasImportantChanges - Boolean - Flag indicating whether the report options have important changes.
-//     * HasChanges - Boolean - Flag indicating whether the report options have changes.
-//     * SaaSModel - Boolean - Flag indicating whether the mode is SaaS.
-//     * UpdateMeasurements - Boolean - Flag indicating whether the PerformanceMonitor subsystem is integrated.
-//     * UpdateConfiguration1 - Boolean - Flag indicating whether configuration data must be updated.
-//     * UpdateExtensions - Boolean - Flag indicating whether extension data must be updated.
+//     * HasImportantChanges - Boolean -  indicates whether there are important changes in the report options.
+//     * HasChanges - Boolean -  indicates whether there are changes in the report options.
+//     * SaaSModel - Boolean -  indicates whether it works in the service model.
+//     * UpdateMeasurements - Boolean -  indicates whether the performance Evaluation subsystem is present.
+//     * UpdateConfiguration1 - Boolean -  indicates whether configuration data needs to be updated.
+//     * UpdateExtensions - Boolean -  indicates whether the extension data needs to be updated.
 //     * ReportsWithSettingsList - ValueList:
-//         ** Value - CatalogRef.MetadataObjectIDs - Reports whose object module contains
-//                                                                           procedures of integrating with the common report form.
+//         ** Value - CatalogRef.MetadataObjectIDs -  reports, in the object module of which
+//                                                                           integration procedures with the general report form are placed.
 //     * SeparatedHandlers - Undefined
 //                              - Structure
 //     * MeasurementsTable - See MeasurementsTable
-//     * FunctionalOptionsTable - ValueTable - Association between functional options and predefined report options::
+//     * FunctionalOptionsTable - ValueTable - :
 //         ** Report - CatalogRef.MetadataObjectIDs
 //         ** PredefinedOption - CatalogRef.PredefinedReportsOptions
 //         ** FunctionalOptionName - String
 //
 Procedure WriteFunctionalOptionsTable(Mode, Result)
 	If Mode = "ExtensionsCommonData" And Not ValueIsFilled(SessionParameters.ExtensionsVersion) Then
-		Return; // The update is not required.
+		Return; // 
 	EndIf;
 	ProcedurePresentation = NStr("en = 'Save shared cache to register';");
 	WriteProcedureStartToLog(ProcedurePresentation);
@@ -4744,20 +4736,20 @@ Procedure WriteFunctionalOptionsTable(Mode, Result)
 	WriteProcedureCompletionToLog(ProcedurePresentation);
 EndProcedure
 
-// Write the PredefinedExtensionsVersionsReportsOptions register.
+// Record a register of predefined variantsreportsextensions.
 //
-// Value to save:
-//   ValueStorage (Structure) - Cached parameters:
-//       * FunctionalOptionsTable - ValueTable - Options and predefined report options names.
-//           ** Report - CatalogRef.ExtensionObjectIDs - Report reference.
-//           ** PredefinedOption - CatalogRef.PredefinedExtensionsReportsOptions - The option reference.
-//           ** FunctionalOptionName - String - Functional option name.
-//       * ReportsWithSettings - Array from CatalogRef.ExtensionObjectIDs - reports
-//           whose object module contains procedures of deep integration with the common report form.
+// Stored value:
+//   Storagesvalues (Structure) - Cached parameters:
+//       * functionaloptions Table-value Tables - Names of options and predefined report options.
+//           ** Reference Report Link.Extension object IDs - report Reference.
+//           ** Predefined Option-Reference Link.Predefined variantsreportsextensions-option Reference.
+//           ** Impunctuality - String - the name of the FO.
+//       * Report with settings-Array from the reference link.Extension object IDs - Reports
+//           whose object module contains procedures for close integration with the General report form.
 //
 Procedure RecordCurrentExtensionsVersion()
 	If Not ValueIsFilled(SessionParameters.ExtensionsVersion) Then
-		Return; // The update is not required.
+		Return; // 
 	EndIf;
 	
 	ProcedurePresentation = NStr("en = 'Save extension version register';");
@@ -4784,9 +4776,9 @@ Procedure RecordCurrentExtensionsVersion()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Update of presentations in other languages.
+// 
 
-// Handler of the "PredefinedReportOptionsUpdate" scheduled job.
+// 
 Procedure FillPredefinedReportsOptionsPresentations(Languages, CurrentLanguageIndex) Export
 	
 	Common.OnStartExecuteScheduledJob(
@@ -4920,7 +4912,7 @@ Function InternalUser(Val LanguageCode)
 	
 	UserName = InternalUsername();
 	
-	// Update the infobase user.
+	// 
 	IBUser = InfoBaseUsers.FindByName(UserName);
 	
 	If IBUser = Undefined Then
@@ -4938,7 +4930,7 @@ Function InternalUser(Val LanguageCode)
 	IBUser.Language = LanguageByCode(LanguageCode);
 	IBUser.Write();
 	
-	// Update the user (an item of the Users catalog).
+	// 
 	IBUserDetails = New Structure;
 	IBUserDetails.Insert("Action", "Write");
 	IBUserDetails.Insert("Name", IBUser.Name);
@@ -4990,13 +4982,13 @@ Function InternalUser(Val LanguageCode)
 	
 EndFunction
 
-// Returns metadata by the configuration language code.
+// Returns metadata for the configuration language code.
 //
 // Parameters:
-//   LanguageCode - String - Language code, for example "en" (as it is set in the LanguageCode property of the MetadataObject metadata: Language).
+//   LanguageCode - String -  the language code, such as " en " (as set in the metadata object language Property: Language).
 //
 // Returns:
-//   MetadataObjectLanguage - If it's found by the passed language code. Otherwise, Undefined.
+//   MetadataObjectLanguage - 
 //   
 Function LanguageByCode(Val LanguageCode)
 	For Each Language In Metadata.Languages Do
@@ -5028,17 +5020,17 @@ Function ModePresentation(Mode)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Operations with the subsystem tree from forms.
+// 
 
-// Adds conditional appearance items of the subsystem tree.
+// Adds elements for the conditional design of the subsystem tree.
 //
 // Parameters:
-//   Form - ClientApplicationForm - ReportsOptions catalog item form, report option saving form,
-//           or report option location setup form, where::
-//       * Items - FormAllItems - Items of the passed form, where::
-//             ** SubsystemsTree - FormTable - List of available configuration sections.
-//             ** SubsystemsTreeImportance - FormField - Form table field to set the importance of a report option.
-//             ** SubsystemsTreeUse - FormField - Flag indicating whether a report option is used in the matching section.
+//   Form - ClientApplicationForm - 
+//           :
+//       * Items - FormAllItems - :
+//             ** SubsystemsTree - FormTable -  list of available configuration sections,
+//             ** SubsystemsTreeImportance - FormField -  a field in the form table for setting the importance of a report variant.
+//             ** SubsystemsTreeUse - FormField -  indicates whether the report option is used in the corresponding section.
 //
 Procedure SetSubsystemsTreeConditionalAppearance(Form) Export
 	
@@ -5080,9 +5072,9 @@ Procedure SetSubsystemsTreeConditionalAppearance(Form) Export
 	
 EndProcedure
 
-// Generates a subsystem tree according to base option data.
+// Creates a tree of subsystems based on the base variant data.
 Function SubsystemsTreeGenerate(Form, OptionBasis) Export
-	// Empty tree without settings.
+	// 
 	Prototype = Form.FormAttributeToValue("SubsystemsTree", Type("ValueTree")); // ValueTree
 	SubsystemsTree = ReportsOptionsCached.CurrentUserSubsystems().Tree.Copy();
 	For Each PrototypeColumn In Prototype.Columns Do
@@ -5091,18 +5083,18 @@ Function SubsystemsTreeGenerate(Form, OptionBasis) Export
 		EndIf;
 	EndDo;
 	
-	// Parameters.
+	// 
 	Context = New Structure("SubsystemsTree");
 	Context.SubsystemsTree = SubsystemsTree;
 	
-	// Location set by the administrator.
+	// 
 	Subsystems = New Array;
 	For Each AssignmentRow2 In OptionBasis.Location Do
 		Subsystems.Add(AssignmentRow2.Subsystem);
 		SubsystemsTreeRegisterSubsystemsSettings(Context, AssignmentRow2, AssignmentRow2.Use);
 	EndDo;
 	
-	// Default layout set by the developer.
+	// 
 	QueryText = 
 	"SELECT
 	|	Location.Ref,
@@ -5122,7 +5114,7 @@ Function SubsystemsTreeGenerate(Form, OptionBasis) Export
 	
 	Query = New Query(QueryText);
 	Query.SetParameter("Ref", OptionBasis.PredefinedOption);
-	// Do not read subsystem settings predefined by the administrator.
+	// 
 	Query.SetParameter("Subsystems", Subsystems);
 	PredefinedItemPlacement = Query.Execute().Unload();
 	For Each AssignmentRow2 In PredefinedItemPlacement Do
@@ -5135,9 +5127,9 @@ EndFunction
 // Adds a subsystem to the tree.
 //
 // Parameters:
-//   Context - Structure - Properties of the report location setting, where::
-//       * SubsystemsTree - ValueTree - List of subsystems that use the report, where::
-//             ** Importance - String - Report importance.
+//   Context - Structure - :
+//       * SubsystemsTree - ValueTree - :
+//             ** Importance - String -  the importance of the report.
 //
 Procedure SubsystemsTreeRegisterSubsystemsSettings(Context, AssignmentRow2, Use)
 	Search = New Structure("Ref", AssignmentRow2.Subsystem);
@@ -5158,21 +5150,21 @@ Procedure SubsystemsTreeRegisterSubsystemsSettings(Context, AssignmentRow2, Use)
 	TreeRow.Use = Use;
 EndProcedure
 
-// Saves location settings changed by the user to the tabular section of the report option.
+// Saves the placement settings changed by the user in the table part of the report variant.
 //
 // Parameters:
-//   OptionObject - CatalogObject.ReportsOptions - Report option object, where::
-//   ChangedSubsystems - Array of ValueTreeRow - Value tree rows with a changed location, where::
+//   OptionObject - CatalogObject.ReportsOptions - :
+//   ChangedSubsystems - Array of ValueTreeRow - :
 //       * Ref - CatalogRef.ExtensionObjectIDs
-//                - CatalogRef.MetadataObjectIDs - Subsystem metadata ID.
-//       * Importance - String - Report importance for the subsystem.
+//                - CatalogRef.MetadataObjectIDs - 
+//       * Importance - String -  the level of importance of the report for the corresponding subsystem.
 //
 Procedure SubsystemsTreeWrite(OptionObject, ChangedSubsystems) Export
 	For Each Subsystem In ChangedSubsystems Do 
 		LineOfATabularSection = OptionObject.Location.Find(Subsystem.Ref, "Subsystem");
 		If LineOfATabularSection = Undefined Then
-			// Register the report option's location setting unconditionally ("Use" is cleared).
-			// - Only in this case, the setting will replace the predefined one (from the shared catalog).
+			// 
+			// 
 			LineOfATabularSection = OptionObject.Location.Add();
 			LineOfATabularSection.Subsystem = Subsystem.Ref;
 		EndIf;
@@ -5182,7 +5174,7 @@ Procedure SubsystemsTreeWrite(OptionObject, ChangedSubsystems) Export
 		ElsIf Subsystem.Use = 1 Then
 			LineOfATabularSection.Use = True;
 		Else
-			// Keep as-is.
+			// 
 		EndIf;
 		
 		If Subsystem.Importance = ImportantPresentation() Then
@@ -5198,30 +5190,30 @@ Procedure SubsystemsTreeWrite(OptionObject, ChangedSubsystems) Export
 	EndDo;
 EndProcedure
 
-// Importance group presentation.
+// Representation of the importance group.
 //
 // Returns:
-//   String - Report importance.
+//   String - 
 //
 Function SeeAlsoPresentation() Export
 	Return NStr("en = 'See also:';");
 EndFunction 
 
-// Importance group presentation.
+// Representation of the importance group.
 //
 // Returns:
-//   String - Report importance.
+//   String - 
 //
 Function ImportantPresentation() Export
 	Return NStr("en = 'Important';");
 EndFunction
 
-// Separator that is used to display several descriptions in the interface.
+// A separator that is used to display multiple names in the interface.
 Function PresentationSeparator()
 	Return ", ";
 EndFunction
 
-// The function converts a report type into a string ID.
+// Turns the report type into a string identifier.
 Function ReportType(ReportRef) Export
 	RefType = TypeOf(ReportRef);
 	If RefType = Type("CatalogRef.MetadataObjectIDs") Then
@@ -5252,7 +5244,7 @@ Function ReportByStringType(ReportRef) Export
 	Return Undefined;
 EndFunction
 
-// Returns an additional report reference type.
+// Returns the link type of the supplementary report.
 Function AdditionalReportRefType()
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		Return Type("CatalogRef.AdditionalReportsAndDataProcessors");
@@ -5262,13 +5254,13 @@ Function AdditionalReportRefType()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Manage the report option list.
+// 
 
-// Handler for setting conditional appearance of the list of report option users.
+// Handler for setting the conditional design of the list of users for the report variant.
 //
 // Parameters:
-//  Form - ClientApplicationForm - Form for saving a report option or a form of a report option catalog item, where::
-//      * Items - FormAllItems - Items of the given form.
+//  Form - ClientApplicationForm - :
+//      * Items - FormAllItems -  elements of the corresponding form.
 //
 Procedure SetConditionalAppearanceOfReportOptionUsersList(Form) Export 
 	
@@ -5304,17 +5296,17 @@ Procedure SetConditionalAppearanceOfReportOptionUsersList(Form) Export
 	
 EndProcedure
 
-// Handler of setting user list properties depending on the Availability radio button.
+// Handler for setting user list properties, depending on the Availability radio button.
 //
 // Parameters:
-//  Form - ClientApplicationForm - Form for saving a report option or a form of a report option catalog item, where::
-//      * Items - FormAllItems - Items of the given form.
+//  Form - ClientApplicationForm - :
+//      * Items - FormAllItems -  elements of the corresponding form.
 //      * UseUserGroups - FormAttribute
-//                                        - Boolean - Flag indicating whether the UserGroups catalog
-//                                                   is used in the infobase.
+//                                        - Boolean - 
+//                                                   
 //      * UseExternalUsers - FormAttribute
-//                                         - Boolean - Flag indicating whether the ExternalUserGroups catalog
-//                                                    is used in the infobase.
+//                                         - Boolean - 
+//                                                    
 //
 Procedure DefineReportOptionUsersListBehavior(Form) Export 
 	
@@ -5351,22 +5343,22 @@ Procedure DefineReportOptionUsersListBehavior(Form) Export
 	
 EndProcedure
 
-// Returns keys of user settings of the matching report option.
+// Returns keys for the user settings of the corresponding report variant.
 //
 // Parameters:
-//  ReportVariant - CatalogRef.ReportsOptions - Reference to a report option.
+//  ReportVariant - CatalogRef.ReportsOptions -  link to the report version.
 //  User - CatalogRef.ExternalUsers
-//               - CatalogRef.Users - Reference to the settings user.
+//               - CatalogRef.Users - 
 //  SettingsKey - String
-//                - Undefined - User settings ID.
+//                - Undefined -  ID of the user settings.
 //
 // Returns:
-//   ValueTable, Undefined - Collection of user settings keys, where::
-//       * Description - String - Settings description.
-//       * Variant - CatalogRef.ReportsOptions - Reference to a report option.
+//   ValueTable, Undefined - :
+//       * Description - String -  name of the settings.
+//       * Variant - CatalogRef.ReportsOptions -  link to the report version.
 //       * User - CatalogRef.ExternalUsers
-//                      - CatalogRef.Users - Reference to the settings user.
-//       * UserSettingKey - String - User settings ID.
+//                      - CatalogRef.Users - 
+//       * UserSettingKey - String -  ID of the user settings.
 //
 Function UserReportOptionSettings(ReportVariant, Val User, SettingsKey = Undefined)
 	
@@ -5419,11 +5411,11 @@ Procedure DisplayTheFlagForNotifyingUsersOfTheReportVariant(Flag) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Generate the presentations of search filters, fields, and parameters.
+// 
 
-// The function is called from the OnWrite option event.
+// Called from the option Recording event.
 // Returns:
-//   Boolean - True if the search fields are filled in and OptionObject must be written.
+//   Boolean - 
 //
 Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 	
@@ -5431,21 +5423,21 @@ Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 	
 	CheckHash = ReportInfo = Undefined Or Not ReportInfo.IndexSchema;
 	If CheckHash Then
-		// Check if fields were filled in earlier.
+		// 
 		FillFields = Left(FieldsForSearch.FieldDescriptions, 1) <> "#";
 		FillParametersAndFilters = Left(FieldsForSearch.FilterParameterDescriptions, 1) <> "#";
 		If Not FillFields And Not FillParametersAndFilters Then
-			Return False; // No need to populate.
+			Return False; // 
 		EndIf;
 	Else	
 		FillFields = True;
 		FillParametersAndFilters = True;
 	EndIf;
 	
-	// Get a report object, DCS settings, and a report option.
+	// 
 	IsPredefined = IsPredefinedReportOption(OptionObject);
 	
-	// Preset search settings.
+	// 
 	SearchSettings = ?(ReportInfo <> Undefined, ReportInfo.SearchSettings, Undefined);
 	If SearchSettings <> Undefined Then
 		WritingRequired = False;
@@ -5465,14 +5457,14 @@ Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 		EndIf;
 		If Not FillFields And Not FillParametersAndFilters Then
 			SetFieldsForSearch(OptionObject, FieldsForSearch);
-			Return WritingRequired; // Filling is completed, write the object.
+			Return WritingRequired; // 
 		EndIf;
 	EndIf;
 	
-	// In some scenarios, an object can be already cached in additional properties.
+	// 
 	ReportObject = ?(ReportInfo <> Undefined, ReportInfo.ReportObject, Undefined);
 	
-	// When a report object is not cached, attach an object in the regular way.
+	// 
 	If ReportObject = Undefined Then
 		Connection = AttachReportObject(OptionObject.Report, False);
 		If Connection.Success Then
@@ -5483,23 +5475,23 @@ Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 		EndIf;
 		If ReportObject = Undefined Then
 			WriteToLog(EventLogLevel.Error, Connection.ErrorText, OptionObject.Ref);
-			Return False; // An issue occurred during report attachment.
+			Return False; // 
 		EndIf;
 	EndIf;
 	
-	// Extracting template texts is possible only once a report object is received.
+	// 
 	If SearchSettings <> Undefined And ValueIsFilled(SearchSettings.TemplatesNames) Then
 		FieldsForSearch.FieldDescriptions = "#" + ExtractTemplateText(ReportObject, SearchSettings.TemplatesNames);
 		If Not FillParametersAndFilters Then
 			SetFieldsForSearch(OptionObject, FieldsForSearch);
-			Return True; // Filling is completed, write the object.
+			Return True; // 
 		EndIf;
 	EndIf;
 	
-	// The composition schema that will be a basis for report execution.
+	// 
 	DCSchema = ReportObject.DataCompositionSchema;
 	
-	// If a report is not on DCS, presentations are not filled or filled by applied features.
+	// 
 	If DCSchema = Undefined Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Report %2, option %1. Search settings required:
@@ -5523,7 +5515,7 @@ Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 		EndIf;
 	EndIf;
 	
-	// Read settings from option data.
+	// 
 	If TypeOf(DCSettings) <> Type("DataCompositionSettings")
 		And TypeOf(OptionObject) = Type("CatalogObject.ReportsOptions") Then
 		Try
@@ -5540,7 +5532,7 @@ Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 		EndTry;
 	EndIf;
 	
-	// Last check.
+	// 
 	If TypeOf(DCSettings) <> Type("DataCompositionSettings") Then
 		If TypeOf(OptionObject) = Type("CatalogObject.PredefinedReportsOptions")
 			Or TypeOf(OptionObject) = Type("CatalogObject.PredefinedExtensionsReportsOptions") Then
@@ -5554,7 +5546,7 @@ Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 	
 	NewSettingsHash = Common.CheckSumString(Common.ValueToXMLString(DCSettings));
 	If CheckHash And OptionObject.SettingsHash = NewSettingsHash Then
-		Return False; // Settings did not change.
+		Return False; // 
 	EndIf;
 	OptionObject.SettingsHash = NewSettingsHash;
 	
@@ -5562,9 +5554,9 @@ Function FillFieldsForSearch(OptionObject, ReportInfo = Undefined) Export
 	ReportsClientServer.LoadSettings(ReportObject.SettingsComposer, DCSettings);
 	
 	If FillFields Then
-		// Convert all autogrouping settings into field sets.
-		//   See the Syntax Assistant for "DataCompositionAutoSelectedField",
-		//   "DataCompositionAutoGroupField", and "DataCompositionAutoOrderItem".
+		// 
+		//   
+		//   
 		ReportObject.SettingsComposer.ExpandAutoFields();
 		FieldsForSearch.FieldDescriptions = GenerateFiledsPresentations(ReportObject.SettingsComposer);
 	EndIf;
@@ -5591,7 +5583,7 @@ Function FieldsForSearch(ReportVariant)
 		Result.Insert("Description", "");
 	EndIf;
 	
-	// Subsystem check.
+	// 
 	If Common.IsMainLanguage() Or IsUserReportOption Then
 		FillPropertyValues(Result, ReportVariant);
 		Return Result;
@@ -5698,13 +5690,13 @@ Function PresentationsFilled(Val Mode = "") Export
 	
 	Result = Parameters[CurrentLanguage().LanguageCode];
 	If TypeOf(Result) = Type("Date") Then
-		Return ?(CurrentSessionDate() - Result < 15 * 60, "ToFill", "NotFilled1"); // Timeout is 15 minutes.
+		Return ?(CurrentSessionDate() - Result < 15 * 60, "ToFill", "NotFilled1"); // 
 	EndIf;
 	Return ?(Result = True, "Filled1", "NotFilled1");
 	
 EndFunction	
 
-// Presentations of groups and fields from DCS.
+// Views of groupings and fields from the SKD.
 //
 // Parameters:
 //    DCSettingsComposer - DataCompositionSettingsComposer
@@ -5770,10 +5762,10 @@ Function GenerateFiledsPresentations(DCSettingsComposer)
 	Return StrConcat(Result, Chars.LF);
 EndFunction
 
-// Presentations of parameters and filters from DCS.
+// Views of parameters and selections from the SKD.
 //
 // Parameters:
-//   SettingsComposer - DataCompositionSettingsComposer - See Syntax Assistant
+//   SettingsComposer - DataCompositionSettingsComposer - 
 //
 Function GenerateParametersAndFiltersPresentations(SettingsComposer)
 	Result = New Array;
@@ -5838,7 +5830,7 @@ Function GenerateParametersAndFiltersPresentations(SettingsComposer)
 	Return StrConcat(Result, Chars.LF);
 EndFunction
 
-// Extracts text information from a template.
+// Retrieves text information from the layout.
 Function ExtractTemplateText(ReportObject, TemplatesNames)
 	If TypeOf(TemplatesNames) = Type("String") Then
 		TemplatesNames = StrSplit(TemplatesNames, ",", False);
@@ -5877,7 +5869,7 @@ Function ExtractTemplateText(ReportObject, TemplatesNames)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Reduce the number of user settings.
+// 
 
 // Parameters:
 //  ReportRef - CatalogRef.ReportsOptions
@@ -5885,7 +5877,7 @@ EndFunction
 //  ReportObject - ReportObject
 //
 // Returns:
-//   Structure - ReportSettings in the report form and report settings form (stored in form data)::
+//   Structure - :
 //       * OptionRef - Undefined
 //                       - CatalogRef.ReportsOptions
 //       * PredefinedRef - Undefined
@@ -5900,41 +5892,41 @@ EndFunction
 //       * OptionSelectionAllowed - Boolean
 //       * SchemaModified - Boolean
 //       * PredefinedOptions - ValueList:
-//           ** Value      - String - Report option name.
-//           ** Presentation - String - Option presentation.
-//       * SchemaURL - String - Address of the ReportObject's temp storage obtained as FormAttributeToValue("Report").
+//           ** Value      - String - 
+//           ** Presentation - String - 
+//       * SchemaURL - String - 
 //                               
 //       * SchemaKey - String
-//       * Contextual - Boolean - True if OptionContext is assigned a value.
-//       * FullName - String - Full name of the report metadata object.
-//       * Description - String - Report metadata object presentation.
+//       * Contextual - Boolean - 
+//       * FullName - String -  full name of the report metadata object.
+//       * Description - String - 
 //       * ReportRef - CatalogRef.MetadataObjectIDs
 //                     - CatalogRef.ExtensionObjectIDs
-//                     - String - Full name of the external report.
-//       * External - Boolean - If ReportRef type is String.
+//                     - String - 
+//       * External - Boolean - 
 //       * Subsystem - CatalogRef.MetadataObjectIDs
-//                    - CatalogRef.ExtensionObjectIDs - "Subsystem" parameter of the report form.
-//       * Safe - Boolean - If SafeMode() <> False when creating the form.
-//       * TablesToUse - Array of String - Full names of metadata object tables.
+//                    - CatalogRef.ExtensionObjectIDs - 
+//       * Safe - Boolean - 
+//       * TablesToUse - Array of String - 
 //                             - Undefined
 //       * ResultProperties  - See ReportsOptionsInternal.PropertiesOfTheReportResult
 //       * UsedFieldsOfTheUniversalSearchByType - Map
 //       * EventsSettings - Map of KeyAndValue:
-//          ** Key - String - Event (action) name.
-//          ** Value - String - Event (action) presentation.
-//       * NewXMLSettings - Undefined - No settings.
+//          ** Key - String - 
+//          ** Value - String - 
+//       * NewXMLSettings - Undefined - 
 //                           - String
-//       * NewUserXMLSettings - Undefined - No settings.
+//       * NewUserXMLSettings - Undefined - 
 //                                           - String
-//       * SettingsFormAdvancedMode - Number - 0 for common, 1 for extended.
+//       * SettingsFormAdvancedMode - Number - 
 //       * SettingsFormPageName - String
 //       * MeasurementsKey - Undefined
 //                     - String
 //       
-//       The further properties are taken from ReportsOptions.ClientParameters.
+//       
 //       * RunMeasurements - Boolean
 //       
-//       The further properties are taken from ReportsClientServer.DefaultReportSettings.
+//       
 //       * GenerateImmediately - Boolean
 //       * OutputSelectedCellsTotal - Boolean
 //       * EditStructureAllowed - Boolean
@@ -6024,7 +6016,7 @@ EndFunction
 // Returns:
 //  Structure:
 //   * GenerateOnOpen - Boolean
-//   * Filter - Structure - Filter to pass to the form.
+//   * Filter - Structure - 
 //   * PurposeUseKey - String
 //   * UserSettingsKey - String
 //   * ReadOnly - Boolean
@@ -6151,7 +6143,7 @@ Function IsExternalReport(ReportObject)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Search.
+// 
 
 // Parameters:
 //  SearchParameters - Structure
@@ -6165,35 +6157,35 @@ Function ReportOptionTable(Val SearchParameters) Export
 	
 EndFunction
 
-// Returns the list of report options according to specified parameters.
-// When searching by the SearchString substring, it also highlights found places in report names and details.
+// Returns a list of report options according to the specified parameters.
+// When searching by substring, the search String also highlights the places found in the report names and descriptions.
 //
 // Parameters:
 //   SearchParameters - Structure:
-//     * SearchString  - String - Optional. One or several words from the titles or details of the required reports. 
-//                                
-//     * Subsystems    - Array of CatalogRef.MetadataObjectIDs - Optional.
-//                       Search only within the report options that belong to the given subsystems.
-//     * ExactFilterBySubsystems - Boolean - Optional. If True, show results from the specified subsystems only.
-//                       Otherwise, show relevant search results from all the subsystems.
-//     * Reports        - Array of CatalogRef.ReportsOptions - Optional. Search only within the given reports.
-//     * ReportsTypes   - Array of EnumRef.ReportsTypes - Optional. Search only in the given reports. 
-//                       
-//     * DeletionMark - Boolean - Optional. If False, returns all report options. 
-//                       If True or not specified, returns only the reports not marked for deletion.
-//     * OnlyPersonal  - Boolean - Optional. If False or not specified, the administrators receives all the report options,
-//                       while common users receive only the report options they have access to.
-//                       If True, both common users and the administrators receive only personal report options.
-//                       
-//   GetSummaryTable - Boolean - If True, populate the ValueTable property in the return value.
-//   GetHighlight - Boolean - If True, populate the following properties in the return value:
-//                       OptionsHighlight, Subsystems, SubsystemsHighlight, OptionsLinkedWithSubsystems, ParentsLinkedWithOptions. 
+//     * SearchString  - String -  optional. One or more words that are contained in the names and descriptions 
+//                                of the report options you are looking for.
+//     * Subsystems    - Array of CatalogRef.MetadataObjectIDs -  optional.
+//                       Search only among report variants related to the specified subsystems.
+//     * ExactFilterBySubsystems - Boolean -  optional. If True, output results only from the specified subsystems.
+//                       Otherwise, you can also offer relevant search results from other subsystems.
+//     * Reports        - Array of CatalogRef.ReportsOptions -  optional. Search only among the specified reports.
+//     * ReportsTypes   - Array of EnumRef.ReportsTypes -  optional. Search only among the specified 
+//                       report types.
+//     * DeletionMark - Boolean -  optional. If False, it returns all versions of the reports. 
+//                       If True or omitted, only report variants that are not marked for deletion are returned.
+//     * OnlyPersonal  - Boolean -  optional. If False or omitted, all report options are returned to the administrator,
+//                       and only the available report options are returned to the user.
+//                       If True, only personal report options are returned to the administrator, just like for
+//                       a non-authorized user.
+//   GetSummaryTable - Boolean -  if True, the property of the value table is filled in in the returned value.
+//   GetHighlight - Boolean -  if True, the properties are filled in in the returned value
+//                       Highlighting of options, Subsystems, highlighting of subsystems, variants of related subsystems, parents of related options. 
 //
 // Returns: 
 //   Structure:
-//       * References - Array of CatalogRef.ReportsOptions - Report options whose names and details contain
-//                  all the search words.
-//       * OptionsHighlight - Map of KeyAndValue - Highlight the found words (if SearchString is specified), where::
+//       * References - Array of CatalogRef.ReportsOptions -  versions of reports that
+//                  contain all the words you are looking for in their names and descriptions.
+//       * OptionsHighlight - Map of KeyAndValue - :
 //           ** Key - CatalogRef.ReportsOptions
 //           ** Value - Structure:
 //               *** Ref - CatalogRef.ReportsOptions
@@ -6208,17 +6200,17 @@ EndFunction
 //                   **** Keywords                        - Number
 //                   **** LongDesc                             - Number
 //                   **** UserSettingsDescriptions - Number
-//       * Subsystems - Array of CatalogRef.MetadataObjectIDs - Filled in with subsystems
-//                      whose names contain all the search words.
-//                      All nested report options must be displayed for such subsystems.
-//       * SubsystemsHighlight - Map of KeyAndValue - Highlight the found words (if SearchString is specified), where::
+//       * Subsystems - Array of CatalogRef.MetadataObjectIDs -  it is filled in by subsystems
+//                      whose names contain all the words you are looking for.
+//                      For such subsystems, all nested report variants should be displayed.
+//       * SubsystemsHighlight - Map of KeyAndValue - :
 //           ** Key - CatalogRef.ReportsOptions
 //           ** Value - Structure:
 //               *** Ref - CatalogRef.MetadataObjectIDs
 //               *** SubsystemDescription - String
-//       * OptionsLinkedWithSubsystems - Map of KeyAndValue - Report options and their subsystems, where::
-//           ** Key - CatalogRef.ReportsOptions - Option.
-//           ** Value - Array of CatalogRef.MetadataObjectIDs - Subsystems.
+//       * OptionsLinkedWithSubsystems - Map of KeyAndValue - :
+//           ** Key - CatalogRef.ReportsOptions -  option.
+//           ** Value - Array of CatalogRef.MetadataObjectIDs -  subsystems.
 //       * ValueTable - See SourceTableOfReportVariants
 //
 Function FindReportsOptions(Val SearchParameters, Val GetSummaryTable = False, Val GetHighlight = False) Export
@@ -6402,7 +6394,7 @@ Function PrepareSearchConditionByRow(Val Query, QueryText, Val HasSearchString, 
 			SearchTemplate = StrReplace("&NameOfTheSearchField LIKE &ParameterName ESCAPE ""~""", "ParameterName", WordName); // @query-part-1
 			SearchTemplates.Add(SearchTemplate);
 		EndDo;
-		SearchTemplate = StrConcat(SearchTemplates, " OR "); // Do not localize. This is a query fragment.
+		SearchTemplate = StrConcat(SearchTemplates, " OR "); // 
 		
 		SearchFields = New Array;
 		SearchFields.Add("ReportsOptions.CurrentOptionName"); 
@@ -6418,16 +6410,16 @@ Function PrepareSearchConditionByRow(Val Query, QueryText, Val HasSearchString, 
 		For IndexOf = 0 To SearchFields.Count() - 1 Do
 			SearchFields[IndexOf] = StrReplace(SearchTemplate, "&NameOfTheSearchField", SearchFields[IndexOf]);
 		EndDo;
-		OptionsAndSubsystemsBySearchString = "(" + StrConcat(SearchFields, " OR ") + ")"; // Do not localize. This is a query fragment.
+		OptionsAndSubsystemsBySearchString = "(" + StrConcat(SearchFields, " OR ") + ")"; // 
 		QueryText = StrReplace(QueryText, "&OptionsAndSubsystemsBySearchString", OptionsAndSubsystemsBySearchString);
 		
 		UserSettingsBySearchString = "(" + StrReplace(SearchTemplate, "&NameOfTheSearchField", "UserSettings2.Description") + ")";
 		QueryText = StrReplace(QueryText, "&UserSettingsBySearchString", UserSettingsBySearchString);
 		
 	Else
-		// Delete the filter used to search in data of report options subsystems.
+		// 
 		QueryText = StrReplace(QueryText, "AND &OptionsAndSubsystemsBySearchString", "");
-		// Delete the table used to search in user settings.
+		// 
 		StartOfSelectionFromTable = (
 		"UNION ALL
 		|
@@ -7173,25 +7165,25 @@ Function SourceTableOfReportVariants(Query) Export
 	
 EndFunction
 
-// Visualizes a result of search for report options.
+// Visualizes the search result for report options.
 //
 // Parameters:
-//   WordArray - Array - Search query keywords, where::
-//       * Item - String - Keyword.
-//   SourceTable - ValueTable - Result of the report option query, where::
-//       * OptionDescription - String - Report option name.
-//       * LongDesc - String - Brief information about a report option.
-//       * FieldDescriptions - String - String enumeration of report fields.
-//       * FilterParameterDescriptions - String - String enumeration of data parameters and filters of report settings.
-//       * Keywords - String - String enumeration of keywords.
-//       * AuthorPresentation - String - Report author presentation.
-//       * UserSettingPresentation - String - User setting description
-//                                                           displayed in the settings list.
+//   WordArray - Array - :
+//       * Item - String -  keyword.
+//   SourceTable - ValueTable - :
+//       * OptionDescription - String - 
+//       * LongDesc - String -  brief information about the report version.
+//       * FieldDescriptions - String -  a string listing the fields in the report.
+//       * FilterParameterDescriptions - String -  a string listing the options and data selection settings of the report.
+//       * Keywords - String -  string enumeration of keywords.
+//       * AuthorPresentation - String -  representation of the report author.
+//       * UserSettingPresentation - String -  name of the user setting that
+//                                                           is displayed in the list of settings.
 //       * Subsystem - CatalogRef.ExtensionObjectIDs
-//                    - CatalogRef.MetadataObjectIDs - Reference to the metadata ID
-//                                                                          of the subsystem containing the report.
-//       * SubsystemDescription - String - Presentation of a subsystem where a report is placed.
-//       * Ref - CatalogRef.ReportsOptions - Reference to a report option.
+//                    - CatalogRef.MetadataObjectIDs - 
+//                                                                          
+//       * SubsystemDescription - String -  view of the subsystem that hosts the report.
+//       * Ref - CatalogRef.ReportsOptions -  link to the report version.
 //   Result - See FindReportsOptions
 //
 Procedure GenerateSearchResults(Val WordArray, Val SourceTable, Result)
@@ -7207,7 +7199,7 @@ Procedure GenerateSearchResults(Val WordArray, Val SourceTable, Result)
 	
 	Count = SourceTable.Count();
 	For IndexOf = 1 To Count Do
-		// Populate variables.
+		// 
 		If Not ValueIsFilled(Variant.OptionDescription.Value) And ValueIsFilled(TableRow.OptionDescription) Then
 			Variant.OptionDescription.Value = TableRow.OptionDescription;
 		EndIf;
@@ -7274,7 +7266,7 @@ Procedure GenerateSearchResults(Val WordArray, Val SourceTable, Result)
 		EndIf;
 		
 		If IndexOf = Count Or TableRow.Ref <> Variant.Ref Then
-			// Analyze the collected option information.
+			// 
 			AllWordsFound = True;
 			LinkedSubsystems = New Array;
 			For Each Word In WordArray Do
@@ -7301,13 +7293,13 @@ Procedure GenerateSearchResults(Val WordArray, Val SourceTable, Result)
 				EndIf;
 			EndDo;
 			
-			If AllWordsFound Then // Commit the result.
+			If AllWordsFound Then // 
 				Result.References.Add(Variant.Ref);
 				Result.OptionsHighlight.Insert(Variant.Ref, Variant);
 				If LinkedSubsystems.Count() > 0 Then
 					Result.OptionsLinkedWithSubsystems.Insert(Variant.Ref, LinkedSubsystems);
 				EndIf;
-				// Delete the connection from the subordinate if the parent is found independently.
+				// 
 				ParentIndex = Result.ParentsLinkedWithOptions.Find(Variant.Ref);
 				If ParentIndex <> Undefined Then
 					Result.ParentsLinkedWithOptions.Delete(ParentIndex);
@@ -7372,7 +7364,7 @@ Function DisabledReportOptions(Val UserReports = Undefined) Export
 		UserReports = New Array(ReportsOptionsCached.AvailableReports());
 	EndIf;
 	
-	// Get options that are unavailable by functional options.
+	// 
 	
 	OptionsTable = ReportsOptionsCached.Parameters().FunctionalOptionsTable;
 	VariantsTable = OptionsTable.CopyColumns("PredefinedOption, FunctionalOptionName");
@@ -7395,7 +7387,7 @@ Function DisabledReportOptions(Val UserReports = Undefined) Export
 	DisabledItemsTable.GroupBy("PredefinedOption");
 	DisabledItemsByFunctionalOptions = DisabledItemsTable.UnloadColumn("PredefinedOption");
 	
-	// Add options disabled by the developer.
+	// 
 	Query = New Query(
 	"SELECT ALLOWED
 	|	ConfigurationOptions.Ref
@@ -7431,18 +7423,18 @@ Function DisabledReportOptions(Val UserReports = Undefined) Export
 	
 EndFunction
 
-// Finds a word and marks a place where it was found.
+// Finds a word and marks the place where it is found.
 //
 // Parameters:
 //   StructureWhere - Structure:
-//       * Value - String - Source string.
-//       * FoundWordsCount - Number - Search statistics.
-//       * WordHighlighting - ValueList - Highlighted word fragments.
-//   Word - String - Search substring.
-//   UseSeparator - String - Word separator.
+//       * Value - String -  original string.
+//       * FoundWordsCount - Number -  search statistics.
+//       * WordHighlighting - ValueList -  fragments of the word that are highlighted.
+//   Word - String -  the substring search.
+//   UseSeparator - String -  word separator.
 //
 // Returns:
-//   Boolean - True if the word is found.
+//   Boolean - 
 //
 Function MarkWord(StructureWhere, Word, UseSeparator = False) Export
 	If StrStartsWith(StructureWhere.Value, "#") Then
@@ -7454,9 +7446,9 @@ Function MarkWord(StructureWhere, Word, UseSeparator = False) Export
 		Return False;
 	EndIf;
 	If StructureWhere.FoundWordsCount = 0 Then
-		// Initialize the variable that contains directives for highlighting words.
+		// 
 		StructureWhere.WordHighlighting = New ValueList;
-		// Scroll the focus to a meaningful word (of the found information).
+		// 
 		If UseSeparator Then
 			StorageSeparator = Chars.LF;
 			PresentationSeparator = PresentationSeparator();
@@ -7467,7 +7459,7 @@ Function MarkWord(StructureWhere, Word, UseSeparator = False) Export
 					Break;
 				EndIf;
 				If SeparatorPosition < Position Then
-					// Move the fragment before the separator to the end of area.
+					// 
 					StructureWhere.Value = (
 						Mid(StructureWhere.Value, SeparatorPosition + SeparatorLength)
 						+ StorageSeparator
@@ -7476,7 +7468,7 @@ Function MarkWord(StructureWhere, Word, UseSeparator = False) Export
 						Mid(RemainderInReg, SeparatorPosition + SeparatorLength)
 						+ StorageSeparator
 						+ Left(RemainderInReg, SeparatorPosition - 1));
-					// Updating information on word location.
+					// 
 					Position = Position - SeparatorPosition - SeparatorLength + 1;
 				Else
 					Break;
@@ -7487,9 +7479,9 @@ Function MarkWord(StructureWhere, Word, UseSeparator = False) Export
 			Position = StrFind(RemainderInReg, Word);
 		EndIf;
 	EndIf;
-	// Append a word found.
+	// 
 	StructureWhere.FoundWordsCount = StructureWhere.FoundWordsCount + 1;
-	// Mark the words.
+	// 
 	LeftPartLength = 0;
 	WordLength = StrLen(Word);
 	While Position > 0 Do
@@ -7502,7 +7494,7 @@ Function MarkWord(StructureWhere, Word, UseSeparator = False) Export
 	Return True;
 EndFunction
 
-// Returns information on the available report options.
+// Returns information about available report options.
 //
 // Parameters:
 //   FillParameters - Structure
@@ -7566,7 +7558,7 @@ Procedure FindReportOptionsForOutput(FillParameters, ResultAddress) Export
 	ResultTable1.Indexes.Add("Ref");
 	
 	If SearchByRow Then
-		// Delete records about options that are linked to subsystems if a record is not mentioned in the link.
+		// 
 		For Each KeyAndValue In SearchResult.OptionsLinkedWithSubsystems Do
 			OptionRef = KeyAndValue.Key;
 			LinkedSubsystems = KeyAndValue.Value;
@@ -7577,7 +7569,7 @@ Procedure FindReportOptionsForOutput(FillParameters, ResultAddress) Export
 				EndIf;
 			EndDo;
 		EndDo;
-		// Delete records about parents that are linked to options if a parent attempts to output without options.
+		// 
 		For Each ParentReference In SearchResult.ParentsLinkedWithOptions Do
 			OutputLocation = ResultTable1.FindRows(New Structure("Ref", ParentReference));
 			For Each TableRow In OutputLocation Do
@@ -8240,17 +8232,17 @@ Function QueryTextAvailableReportOptions()
 
 EndFunction
 
-// Sets report names by metadata.
+// Sets report names based on metadata.
 //
 // Parameters:
-//   ResultTable1 - ValueTable - Collection of the found report options, where::
-//       * ReportName - String - Report name as it appears in metadata.
-//       * Description - String - Report option name.
+//   ResultTable1 - ValueTable - :
+//       * ReportName - String -  name of the report, as specified in the metadata.
+//       * Description - String - 
 //       * Report - CatalogRef.ExtensionObjectIDs
 //               - CatalogRef.AdditionalReportsAndDataProcessors
 //               - CatalogRef.MetadataObjectIDs
-//               - String - Reference to a report metadata ID.
-//        * ReportType - EnumRef.ReportsTypes - Report category.
+//               - String - 
+//        * ReportType - EnumRef.ReportsTypes -  the report category.
 //
 Procedure FillReportsNames(ResultTable1)
 	
@@ -8289,7 +8281,7 @@ Procedure FillReportsNames(ResultTable1)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Determine tables to use.
+// 
 
 // Registers tables used in data sets in the array.
 Procedure RegisterDataSetsTables(Tables, DataSets)
@@ -8299,12 +8291,12 @@ Procedure RegisterDataSetsTables(Tables, DataSets)
 		ElsIf TypeOf(Set) = Type("DataCompositionSchemaDataSetUnion") Then
 			RegisterDataSetsTables(Tables, Set.Items);
 		ElsIf TypeOf(Set) = Type("DataCompositionSchemaDataSetObject") Then
-			// Nothing to register.
+			// 
 		EndIf;
 	EndDo;
 EndProcedure
 
-// Registers tables used in the query in the array.
+// Registers the tables used in the query in the array.
 Procedure RegisterQueryTables(Tables, QueryText)
 	If Not ValueIsFilled(QueryText) Then
 		Return;
@@ -8315,12 +8307,12 @@ Procedure RegisterQueryTables(Tables, QueryText)
 		If TypeOf(Query) = Type("QuerySchemaSelectQuery") Then
 			RegisterQueryOperatorsTables(Tables, Query.Operators);
 		ElsIf TypeOf(Query) = Type("QuerySchemaTableDropQuery") Then
-			// Nothing to register.
+			// 
 		EndIf;
 	EndDo;
 EndProcedure
 
-// Continuation of the procedure (see above).
+// 
 Procedure RegisterQueryOperatorsTables(Tables, Operators)
 	For Each Operator In Operators Do
 		For Each Source In Operator.Sources Do
@@ -8332,21 +8324,21 @@ Procedure RegisterQueryOperatorsTables(Tables, Operators)
 			ElsIf TypeOf(Source) = Type("QuerySchemaNestedQuery") Then
 				RegisterQueryOperatorsTables(Tables, Source.Query.Operators);
 			ElsIf TypeOf(Source) = Type("QuerySchemaTempTableDescription") Then
-				// Nothing to register.
+				// 
 			EndIf;
 		EndDo;
 	EndDo;
 EndProcedure
 
-// Returns a message text that the report data is still being updated.
+// Returns the text of the message that the report data is still being updated.
 Function DataIsBeingUpdatedMessage() Export
 	Return NStr("en = 'The report might contain incorrect data since the migration to the new version is not completed. If the report is not available for a while, contact the administrator.';");
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Reports submenu.
+// 
 
-// Called from OnDefineCommandsAttachedToObject.
+// Called from when defining the connected object Command.
 Procedure OnAddReportsCommands(Commands, ObjectInfo, FormSettings)
 	ObjectInfo.Manager.AddReportCommands(Commands, FormSettings);
 	AddedCommands = Commands.FindRows(New Structure("Processed1", False));
@@ -8357,7 +8349,7 @@ Procedure OnAddReportsCommands(Commands, ObjectInfo, FormSettings)
 		If Not ValueIsFilled(Command.ParameterType) Then
 			If TypeOf(ObjectInfo.DataRefType) = Type("Type") Then
 				Command.ParameterType = New TypeDescription(CommonClientServer.ValueInArray(ObjectInfo.DataRefType));
-			Else // Type("TypeDescription") or Undefined.
+			Else // 
 				Command.ParameterType = ObjectInfo.DataRefType;
 			EndIf;
 		EndIf;
@@ -8366,9 +8358,9 @@ Procedure OnAddReportsCommands(Commands, ObjectInfo, FormSettings)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Service API auxiliaries
+// 
 
-// Handler determining whether configuration reports and extensions are available.
+// Handler for determining the availability of configuration reports and extensions.
 Procedure OnDefineReportsAvailability(ReportsReferences, Result)
 	ReportsNames = Common.ObjectsAttributeValue(ReportsReferences, "Name", True);
 	For Each Report In ReportsReferences Do
@@ -8412,26 +8404,26 @@ Procedure OnDefineReportsAvailability(ReportsReferences, Result)
 	EndDo;
 EndProcedure
 
-// Determines an attachment method of the common report form.
+// Defines how to enable the General report form.
 Function ByDefaultAllConnectedToMainForm()
 	MetadataForm = Metadata.DefaultReportForm;
 	Return (MetadataForm <> Undefined And MetadataForm = Metadata.CommonForms.ReportForm);
 EndFunction
 
-// Defines an attachment method of the common report settings form.
+// Defines how to enable the General report settings form.
 Function ByDefaultAllAttachedToSettingsForm()
 	MetadataForm = Metadata.DefaultReportSettingsForm;
 	Return (MetadataForm <> Undefined And MetadataForm = Metadata.CommonForms.ReportSettingsForm);
 EndFunction
 
-// Defines an attachment method of the report option storage.
+// Determines how the storage connection options of the report.
 Function ByDefaultAllAttachedToStorage()
 	StorageMetadata = Metadata.ReportsVariantsStorage; // MetadataObjectSettingsStorage
 	
 	Return (StorageMetadata <> Undefined And StorageMetadata.Name = "ReportsVariantsStorage");
 EndFunction
 
-// Returns the predefined report option flag.
+// Returns whether the report variant is predefined.
 //
 // Parameters:
 //  ReportVariant - CatalogObject.ReportsOptions
@@ -8443,7 +8435,7 @@ EndFunction
 //                - Structure
 //
 // Returns:
-//   Boolean - If True, the report option is predefined.
+//   Boolean - 
 //
 Function IsPredefinedReportOption(ReportVariant) Export 
 	
@@ -8466,9 +8458,9 @@ Function IsPredefinedReportOption(ReportVariant) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Filters.
+// 
 
-// Sets filters based on extended information from the structure.
+// Sets selections based on extended information from the structure.
 Procedure ComplementFiltersFromStructure(Filter, Structure, ViewMode = Undefined) Export
 	If ViewMode = Undefined Then
 		ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
@@ -8505,7 +8497,7 @@ Procedure ComplementFiltersFromStructure(Filter, Structure, ViewMode = Undefined
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Report option settings exchange
+// 
 
 #Region ExchangeSettingsBetweenInfobases
 
@@ -8538,7 +8530,7 @@ Function UpdateReportOptionsFromFiles(FilesDetails) Export
 	For Each FileDetails In FilesDetails Do 
 		
 		ReportOptionDetails = ReportOptionDetails(FileDetails);
-		Ref = UpdateReportOptionByDetails(ReportOptionDetails); // @skip-check query-in-loop - Save data object-by-object.
+		Ref = UpdateReportOptionByDetails(ReportOptionDetails); // 
 		ReportOptionDetails.Insert("Ref", Ref);
 		
 		ReportsOptionsDetails.Add(ReportOptionDetails);
@@ -8592,7 +8584,7 @@ EndFunction
 Function ReportOptionDetails(FileDetails)
 	
 	DirectoryName = CommonClientServer.AddLastPathSeparator(FileSystem.CreateTemporaryDirectory());
-	ArchiveFileName = GetTempFileName("zip"); // ACC:441 - The DeleteReportOptionDetailsFiles procedure deletes temporary files
+	ArchiveFileName = GetTempFileName("zip"); // 
 	
 	BinaryData = GetFromTempStorage(FileDetails.Location); // BinaryData
 	BinaryData.Write(ArchiveFileName);
@@ -8768,24 +8760,24 @@ Function ReadReportOptionSettings(DirectoryName)
 	
 EndFunction
 
-// Report settings details constructor.
+// Constructor for describing report settings.
 //
 // Returns:
-//   Structure - Report settings details, where::
-//       * ReportName - String - Full name of the report metadata object.
+//   Structure - :
+//       * ReportName - String -  full name of the report metadata object.
 //       * Settings - DataCompositionSettings
 //                   - DataCompositionUserSettings
-//                   - Undefined - Passed settings.
-//       * VariantKey - String - Report option ID.
-//       * VariantPresentation - String - Report option presentation.
-//       * CurrentUserSettingsKey - String - Current user settings ID.
-//       * CurrentUserSettingsPresentation - String - Presentation of the current user settings.
-//       * UserSettings - ValueList - List of user settings, where::
-//             * Value - String - User settings key.
-//             * Presentation - String - User settings presentation.
-//       * UserSettingsStorage - Map of KeyAndValue - List of user settings, where::
-//             * Key - String - User settings key.
-//             * Value - DataCompositionUserSettings - User settings key.
+//                   - Undefined - 
+//       * VariantKey - String -  the identifier of the version of the report.
+//       * VariantPresentation - String -  presentation of a report variant.
+//       * CurrentUserSettingsKey - String -  ID of the current user settings.
+//       * CurrentUserSettingsPresentation - String -  representation of the current user settings.
+//       * UserSettings - ValueList - :
+//             * Value - String -  user settings key.
+//             * Presentation - String -  representation of user settings.
+//       * UserSettingsStorage - Map of KeyAndValue - :
+//             * Key - String -  user settings key.
+//             * Value - DataCompositionUserSettings -  customization.
 //
 Function ReportOptionSettingsDetails()
 	
@@ -9124,13 +9116,13 @@ EndProcedure
 //     * Value - CatalogRef.Users
 //                - CatalogRef.UserGroups
 //                - CatalogRef.ExternalUsersGroups
-//  SettingsDetailsTemplate - Structure - Opening parameters of the choice form for selecting users or user groups, where::
-//      * Settings - DataCompositionUserSettings - Settings that are exchanged.
-//      * ReportVariant - CatalogRef.ReportsOptions - Reference to a report option property storage.
-//      * ObjectKey - String - Settings storage dimension.
-//      * SettingsKey - String - Dimension - User settings ID.
-//      * Presentation - String - User settings description.
-//      * VariantModified - Boolean - Flag indicating whether a report option was modified.
+//  SettingsDetailsTemplate - Structure - :
+//      * Settings - DataCompositionUserSettings -  settings that are exchanged.
+//      * ReportVariant - CatalogRef.ReportsOptions -  the reference to the property store version of the report.
+//      * ObjectKey - String -  measurement of settings storage.
+//      * SettingsKey - String -  dimension-ID of user settings.
+//      * Presentation - String -  name of the user settings.
+//      * VariantModified - Boolean -  indicates that the report version has been changed.
 //
 Procedure ShareUserSettings(SelectedUsers, SettingsDetailsTemplate) Export 
 	
@@ -9212,7 +9204,7 @@ Function SettingsUsersProperties(SelectedUsers, CurrentUser)
 	
 	UseUserGroups = GetFunctionalOption("UseUserGroups");
 	
-	// ACC:96 -off The result must contain unique values.
+	// 
 	
 	Query = New Query(
 	"SELECT ALLOWED
@@ -9246,7 +9238,7 @@ Function SettingsUsersProperties(SelectedUsers, CurrentUser)
 	|	AND NOT Users.Invalid
 	|	AND NOT Users.IsInternal");
 	
-	// ACC:96-on
+	// 
 	
 	Query.SetParameter("SelectedUsers", SelectedUsers);
 	Query.SetParameter("CurrentUser", CurrentUser);
@@ -9427,7 +9419,7 @@ Procedure UpdateInternalUserSettingsInformation(User, SettingsDescription, Setti
 		Object.UserSettingKey = SettingsDescription.SettingsKey;
 		Object.Variant = SettingsDescription.ReportVariant;
 		Object.User = User;
-		Object.Write(); // ACC:1327
+		Object.Write(); // 
 		Return;
 		
 	EndIf;
@@ -9440,10 +9432,10 @@ Procedure UpdateInternalUserSettingsInformation(User, SettingsDescription, Setti
 		Return;
 	EndIf;
 	
-	Object = Item.Ref.GetObject(); // CatalogObject.UserReportSettings
+	Object = Item.Ref.GetObject(); // 
 	Object.Description = SettingsDescription.Presentation;
 	Object.DeletionMark = False;
-	Object.Write(); // ACC:1327
+	Object.Write(); // 
 	
 EndProcedure
 
@@ -9520,11 +9512,11 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// Constructors.
+// 
 
 #Region Constructors
 
-// The constructor of a collection of predefined report options.
+// Constructor for a collection of predefined report options.
 //
 // Returns:
 //   See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
@@ -9568,9 +9560,9 @@ Function PredefinedReportsOptionsCollection()
 	Result.Columns.Add("DefineFormSettings", FlagDetails);
 	Result.Columns.Add("Purpose", New TypeDescription("EnumRef.ReportOptionPurposes"));
 	
-	// Auxiliary information records for the UpdateSettingsOfPredefinedItems procedure.
+	// 
 	Result.Columns.Add("FoundInDatabase", FlagDetails);
-	Result.Columns.Add("OptionFromBase"); // Selection row from the table
+	Result.Columns.Add("OptionFromBase"); // 
 	Result.Columns.Add("ParentOption", ReportOptionDetails);
 	
 	Result.Indexes.Add("Report");
@@ -9585,7 +9577,7 @@ Function PredefinedReportsOptionsCollection()
 	
 EndFunction
 
-// Returns details of a specified report by default.
+// Returns a description of the specified default report.
 //
 // Parameters:
 //  ReportsDetails - See PredefinedReportsOptionsCollection
@@ -9633,11 +9625,11 @@ Function DefaultReportDetails(ReportsDetails, MetadataOfReport, RefOfReport,
 
 EndFunction
 
-// Returns an array with one element, which is details of the report specified by default.
+// Returns an array with a single element-the default description of the specified report.
 //
 // Parameters:
 //  Report - MetadataObjectReport
-//        - CatalogRef.MetadataObjectIDs - Report reference or metadata.
+//        - CatalogRef.MetadataObjectIDs - 
 //
 // Returns:
 //   Array of See PredefinedReportsOptionsCollection
@@ -9667,14 +9659,14 @@ Function FoundReportDetails(Report)
 	
 EndFunction
 
-// The constructor of the report option update result.
+// The constructor for the result of updating the versions of the reports.
 //
 // Returns:
-//   Structure - Collection of properties of the report option update result, where::
-//       * HasChanges - Boolean - Flag indicating whether report options have changes.
-//       * HasImportantChanges - Boolean - Flag indicating whether report options have important changes.
-//       * EmptyRef - CatalogRef.ReportsOptions - Reference to an empty report option.
-//       * ProcessedPredefinedItems - Map - Index of processed report options.
+//   Structure - :
+//       * HasChanges - Boolean -  indicates whether there are changes in the report options.
+//       * HasImportantChanges - Boolean -  indicates whether there are important changes in the report options.
+//       * EmptyRef - CatalogRef.ReportsOptions -  link to an empty version of the report.
+//       * ProcessedPredefinedItems - Map -  the index of the processed versions of the reports.
 //       * MainOptions - See MainReportsOptionsCollection
 //
 Function ReportsOptionsUpdateResult()
@@ -9692,15 +9684,15 @@ Function ReportsOptionsUpdateResult()
 	
 EndFunction
 
-// The constructor of a collection of main report options.
+// Constructor for a collection of basic report options.
 //
 // Returns:
-//   ValueTable - Collection of the main report options, where::
+//   ValueTable - :
 //       * Report - CatalogRef.ExtensionObjectIDs
 //               - CatalogRef.AdditionalReportsAndDataProcessors
 //               - CatalogRef.MetadataObjectIDs
-//               - String - Reference to a report metadata ID.
-//       * Variant - CatalogRef.ReportsOptions - Report option reference.
+//               - String - 
+//       * Variant - CatalogRef.ReportsOptions -  link to the report version.
 //
 Function MainReportsOptionsCollection()
 	
@@ -9713,23 +9705,23 @@ Function MainReportsOptionsCollection()
 	
 EndFunction
 
-// The constructor of updating shared data.
+// Constructor for the result of updating shared data.
 //
 // Parameters:
-//  Mode - String - Data update kind.
+//  Mode - String -  type of data update.
 //  SeparatedHandlers - Structure
 //
 // Returns:
-//   Structure - Properties of the shared data update result, where::
-//       * UpdateConfiguration1 - Boolean - Flag indicating whether configuration data must be updated.
-//       * UpdateExtensions - Boolean - Flag indicating whether extension data must be updated.
+//   Structure - :
+//       * UpdateConfiguration1 - Boolean -  indicates whether configuration data needs to be updated.
+//       * UpdateExtensions - Boolean -  indicates whether the extension data needs to be updated.
 //       * SeparatedHandlers - Structure
-//       * HasChanges - Boolean - Flag indicating whether report options have changes.
-//       * HasImportantChanges - Boolean - Flag indicating whether report options have important changes.
+//       * HasChanges - Boolean -  indicates whether there are changes in the report options.
+//       * HasImportantChanges - Boolean -  indicates whether there are important changes in the report options.
 //       * ReportsOptions - ValueTable
-//       * UpdateMeasurements - Boolean - Flag indicating whether the PerformanceMonitor subsystem exists.
+//       * UpdateMeasurements - Boolean -  indicates whether the performance Evaluation subsystem is present.
 //       * MeasurementsTable - See MeasurementsTable
-//       * SaaSModel - Boolean - Flag indicating SaaS operations.
+//       * SaaSModel - Boolean -  indicates whether it works in the service model.
 //
 Function CommonDataUpdateResult(Val Mode, Val SeparatedHandlers)
 	
@@ -9749,13 +9741,13 @@ Function CommonDataUpdateResult(Val Mode, Val SeparatedHandlers)
 	
 EndFunction
 
-// Measurement table constructor.
+// Constructor of the measurement table.
 //
 // Returns:
 //   ValueTable:
-//       * OldName - String - Outdated measurement key.
-//       * UpdatedName - String - Current measurement key.
-//       * UpdatedDescription - String - Current description of a report.
+//       * OldName - String -  the measurement key is not up-to-date.
+//       * UpdatedName - String -  current measurement key.
+//       * UpdatedDescription - String -  current name of the report.
 //
 Function MeasurementsTable()
 	
@@ -9769,7 +9761,7 @@ Function MeasurementsTable()
 	
 EndFunction
 
-// Constructor of the structure containing the result of available report option search.
+// Constructor of the structure containing the search result for available report options.
 // 
 // Returns:
 //  Structure:

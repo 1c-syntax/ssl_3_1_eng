@@ -855,7 +855,12 @@
 				</dcsat:tableCell>
 				<dcsat:tableCell>
 					<dcsat:item xsi:type="dcsat:Field">
-						<dcsat:value xsi:type="v8:LocalStringType"/>
+						<dcsat:value xsi:type="v8:LocalStringType">
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>In command bar</v8:content>
+							</v8:item>
+						</dcsat:value>
 					</dcsat:item>
 					<dcsat:appearance>
 						<dcscor:item>

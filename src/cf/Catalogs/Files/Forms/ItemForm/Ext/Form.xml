@@ -1271,8 +1271,8 @@
 													<v8:content>Status</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="DigitalSignaturesBriefCheckResultContextMenu" id="324"/>
-											<ExtendedTooltip name="DigitalSignaturesBriefCheckResultExtendedTooltip" id="325"/>
+											<ContextMenu name="ElectronicSignaturesVerificationResultIsShortContextMenu" id="324"/>
+											<ExtendedTooltip name="ElectronicSignaturesVerificationResultIsShortExtendedTooltip" id="325"/>
 										</InputField>
 										<InputField name="DigitalSignaturesSignatureValidationDate" id="151">
 											<DataPath>DigitalSignatures.SignatureValidationDate</DataPath>

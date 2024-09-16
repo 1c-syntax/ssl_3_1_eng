@@ -1220,7 +1220,7 @@ Not applicable to administrators.</v8:content>
 									<ToolTip>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>The user is shown the warning if either the login time restriction is enabled in the user card or the checkbox "User inactivity timeout: &lt;&gt; days" is selected in the common settings.</v8:content>
+											<v8:content>A user will receive a warning if either the login time restriction is enabled in the user card or the "User inactivity timeout" checkbox is selected in the common settings.</v8:content>
 										</v8:item>
 									</ToolTip>
 									<ToolTipRepresentation>Button</ToolTipRepresentation>

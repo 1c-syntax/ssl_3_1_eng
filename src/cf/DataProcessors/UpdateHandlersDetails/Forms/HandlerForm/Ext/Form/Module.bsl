@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -137,7 +135,7 @@ Procedure FormClosingCompletion(Result, AdditionalParameters) Export
 		Close(Address);
 		
 	ElsIf Result = DialogReturnCode.Cancel Then
-		// No action required.
+		// 
 	Else
 		Modified = False;
 		Close(Address);
@@ -1336,10 +1334,10 @@ Function MetadataObjectAttributes1(ObjectName)
 		
 		For Each Attribute In Collection.Value Do
 			FullAttributeName = FullObjectName + "." + EdH[Collection.Key];
-			// Loop through the attribute types.
+			// 
 			For Each Type In Attribute.Type.Types() Do
-				// If at least one reference type is found.
-				If Common.IsReference(Type) Then // Add it to the list.
+				// 
+				If Common.IsReference(Type) Then // 
 					FullAttributeName = FullAttributeName + "." + Attribute.Name;
 					Result.Add(FullAttributeName, Attribute.Name);
 					Break;

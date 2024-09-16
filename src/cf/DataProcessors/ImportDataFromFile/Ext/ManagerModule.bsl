@@ -1,32 +1,30 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Reports the details required for importing data from a file for an external data processor.
+// Provides all required information about the procedure for loading data from a file for external processing.
 //
 // Parameters: 
-//    CommandName - String - Command name (ID).
-//    DataProcessorRef - AnyRef - a link to the data processor.
+//    CommandName - String -  team name (ID).
+//    DataProcessorRef - AnyRef -  link to processing.
 //    ImportParameters - Structure:
-//     * Presentation                           - String - a presentation in the list of import options.
-//     * DataStructureTemplateName                      - String - a template name with data structure (optional
-//                                                          parameter, default value is ImportDataFromFile).
-//     * RequiredTemplateColumns               - Array - contains the list of required fields.
-//     * TitleMappingColumns            - String - Mapping column presentation in the data mapping
-//                                                           table header (an optional parameter, its default
-//                                                           value is formed as follows: "Catalog: <catalog
-//                                                           synonym>").
-//     * ObjectName                               - String - the Object name.
+//     * Presentation                           - String -  view in the list of download options.
+//     * DataStructureTemplateName                      - String -  the name of the layout with the data structure (optional
+//                                                          parameter, the default value is "File Data upload").
+//     * RequiredTemplateColumns               - Array -  contains a list of required fields to fill in.
+//     * TitleMappingColumns            - String -  the representation of the mapping column in the header
+//                                                           of the data mapping table (optional parameter, the
+//                                                           default value is generated - "Directory: <synonym
+//                                                           of directory>").
+//     * ObjectName                               - String -  object name.
 //
 Procedure ParametersOfImportFromFileExternalDataProcessor(CommandName, DataProcessorRef, ImportParameters) Export
 	
@@ -43,7 +41,7 @@ EndProcedure
 
 #Region Private
 
-// Reports the details required for importing data from a file into the Tabular section.
+// Provides all required information about the procedure for loading data from a file to the Table part.
 Function FileToTSImportParameters(TabularSectionName, AdditionalParameters)
 	
 	DefaultParameters= New Structure;
@@ -58,59 +56,59 @@ Function FileToTSImportParameters(TabularSectionName, AdditionalParameters)
 EndFunction
 
 Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
-	
-	StringType = New TypeDescription("String");
-	BooleanType = New TypeDescription("Boolean");
 
-	CatalogsInformation = New ValueTable;
-	CatalogsInformation.Columns.Add("FullName", StringType);
-	CatalogsInformation.Columns.Add("Presentation", StringType);
-	CatalogsInformation.Columns.Add("AppliedImport", BooleanType);
-	
+	CatalogsToImport = CatalogsInformation();
 	FunctionalOptions = StandardSubsystemsCached.ObjectsEnabledByOption();
-
-	SSLSubsystemsIntegration.OnDefineCatalogsForDataImport(CatalogsInformation);
-	ImportDataFromFileOverridable.OnDefineCatalogsForDataImport(CatalogsInformation);
-	
-	CatalogsInformation.Columns.Add("ImportTypeInformation");
 	
 	For Each MetadataObjectForOutput In Metadata.Catalogs Do
 		
 		FullName = MetadataObjectForOutput.FullName();
-		If FunctionalOptions.Get(FullName) = False 
-			Or CatalogsInformation.Find(FullName, "FullName") <> Undefined Then
+		If FunctionalOptions.Get(FullName) = False Then
 			Continue;
 		EndIf;
 	
 		If CanImportDataFromFile(MetadataObjectForOutput) Then
 			
-			Presentation = MetadataObjectForOutput.Presentation();
-
-			TableRow = CatalogsInformation.Find(Presentation, "Presentation");
-			If TableRow <> Undefined Then
-				TableRow.Presentation = Presentation + " (" + TableRow.FullName +")";
-				Presentation               = Presentation + " (" + FullName +")";
-			EndIf;
-			
-			CatalogInformation = CatalogsInformation.Add();
-			CatalogInformation.Presentation = Presentation;
+			CatalogInformation = CatalogsToImport.Add();
+			CatalogInformation.Presentation = MetadataObjectForOutput.Presentation();
 			CatalogInformation.FullName     = FullName;
 			
-			ImportTypeInformation = NewInfoOnImportType();
-		
-			ImportTypeInformation.Type = ?(CatalogInformation.AppliedImport, "AppliedImport", "UniversalImport");
-			ImportTypeInformation.Insert("FullMetadataObjectName", FullName);
-			CatalogInformation.ImportTypeInformation = ImportTypeInformation;
 		EndIf;
 		
 	EndDo;
 	
-	For Each CatalogInformation In CatalogsInformation Do
-		ImportTypeInformation = NewInfoOnImportType();
+	SSLSubsystemsIntegration.OnDefineCatalogsForDataImport(CatalogsToImport);
+	ImportDataFromFileOverridable.OnDefineCatalogsForDataImport(CatalogsToImport);
+	
+	CatalogsInformation = AdvancedInformationAboutCatalogs();
+	
+	For Each CatalogInformation In CatalogsToImport Do
 		
+		TableRow = CatalogsInformation.Find(CatalogInformation.FullName, "FullName");
+		If TableRow = Undefined Then
+			
+			TableRow = CatalogsInformation.Add();
+			TableRow.FullName      = CatalogInformation.FullName;
+			
+			TableRowByPresentation = CatalogsInformation.Find(CatalogInformation.Presentation, "Presentation");
+			If TableRowByPresentation <> Undefined Then
+				TableRowByPresentation.Presentation = TableRowByPresentation.Presentation + " (" + TableRowByPresentation.FullName + ")";
+				TableRow.Presentation                = CatalogInformation.Presentation + " (" + CatalogInformation.FullName + ")";
+			Else
+				TableRow.Presentation                = CatalogInformation.Presentation;
+			EndIf;
+			
+		ElsIf TableRow.AppliedImport Then
+			Continue;
+		EndIf;
+		
+		TableRow.AppliedImport = CatalogInformation.AppliedImport; 
+		
+		ImportTypeInformation     = NewInfoOnImportType();
 		ImportTypeInformation.Type = ?(CatalogInformation.AppliedImport, "AppliedImport", "UniversalImport");
 		ImportTypeInformation.Insert("FullMetadataObjectName", CatalogInformation.FullName);
-		CatalogInformation.ImportTypeInformation = ImportTypeInformation;
+		TableRow.ImportTypeInformation = ImportTypeInformation;
+		
 	EndDo;
 	
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
@@ -139,7 +137,7 @@ Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
 	For Each CatalogInformation In CatalogsInformation Do 
 		
 		Presentation = "";
-		If CatalogInformation.AppliedImport Then
+		If CatalogInformation.AppliedImport And IsBlankString(CatalogInformation.Presentation) Then
 			Presentation = CatalogPresentation(CatalogInformation.FullName);
 		EndIf;
 				
@@ -160,10 +158,48 @@ Procedure CreateCatalogsListForImport(CatalogsListForImport) Export
 EndProcedure 
 
 // Returns:
+//  ValueTable:
+//   * FullName          - String
+//   * Presentation      - String
+//   * AppliedImport - Boolean
+// 
+Function CatalogsInformation()
+	
+	StringType = New TypeDescription("String");
+	
+	Result = New ValueTable;
+	Result.Columns.Add("FullName",          StringType);
+	Result.Columns.Add("Presentation",      StringType);
+	Result.Columns.Add("AppliedImport", New TypeDescription("Boolean"));
+	
+	Return Result;
+	
+EndFunction
+
+// Returns:
+//  ValueTable:
+//   * FullName               - String
+//   * Presentation           - String
+//   * AppliedImport      - Boolean
+//   * ImportTypeInformation - Structure
+// 
+Function AdvancedInformationAboutCatalogs()
+	
+	StructureType = New TypeDescription("Structure");
+	
+	Result = CatalogsInformation();
+	Result.Columns.Add("ImportTypeInformation", StructureType);
+	
+	Return Result;
+	
+EndFunction
+
+
+// Returns:
 //  Structure:
 //   * Type - String
 //   * FullMetadataObjectName - String 
-//   * Ref - Undefined, CatalogRef
+//   * Ref - 
 //   * Id - String 
 //   * Presentation - String
 // 
@@ -210,7 +246,7 @@ EndFunction
 #Region RefsSearch
 
 
-// Description
+// LongDesc
 // 
 // Parameters:
 //  TemplateWithData - SpreadsheetDocument
@@ -381,7 +417,7 @@ Procedure MapAutoColumnValue(MappingTable, ColumnName) Export
 	
 EndProcedure
 
-// Recognizes the document by presentation for reference search mode.
+// Recognizes the document by view for link search mode.
 //
 Function DocumentByPresentation(Presentation, Types)
 	
@@ -455,7 +491,7 @@ Function QueryString(QueryText, ObjectType, ObjectName, ColumnsArray1)
 	
 EndFunction
 
-// Adding information by column for reference search mode.
+// Adding column information for link search mode.
 //
 Procedure AddInformationByColumn(ColumnsInformation, Name, Presentation, Type, IsRequiredInfo, Position, Group = "")
 	ColumnsInfoRow = ColumnsInformation.Add();
@@ -470,7 +506,7 @@ EndProcedure
 
 #EndRegion
 
-// Fills in the data mapping value table by template data.
+// Fills the value table with mapped data based on data from the layout.
 //
 // Parameters:
 //  ExportingParameters - Structure:
@@ -527,7 +563,6 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 				DataType = TypeOf(NewRow[ColumnName]);
 				
 				If DataType <> Type("String") And DataType <> Type("Boolean") And DataType <> Type("Number") And DataType <> Type("Date")  And DataType <> Type("UUID") Then 
-					//@skip-check query-in-loop - Row-by-row import of heterogeneous data.
 					CellData = CellValue(Column, Cell.Text);
 				Else
 					If DataType = Type("Boolean") Then
@@ -590,7 +625,6 @@ Function CellValue(Column, CellValue)
 			If Not ValueIsFilled(CellData)
 			   And ValueIsFilled(CellValue)
 			   And MetadataObject.DescriptionLength > 0 Then
-				//@skip-check query-in-loop - Individual queries for heterogeneous data.
 				CellData = FindByDescription(CellValue, MetadataObject, Column);
 			EndIf;
 			If Not ValueIsFilled(CellData)
@@ -730,7 +764,7 @@ Function TableTemplateHeaderArea(Template)
 	
 EndFunction
 
-// Generates a spreadsheet document template based on catalog attributes for universal import.
+// Creates the layout of a table document based on the details of the reference list for universal loading.
 //
 Procedure ColumnsInformationFromCatalogAttributes(ImportParameters, ColumnsInformation)
 	
@@ -822,7 +856,7 @@ Procedure ColumnsInformationFromCatalogAttributes(ImportParameters, ColumnsInfor
 	
 EndProcedure
 
-// Adding information on a column for a standard attribute upon universal import.
+// Adding information about the column for standard props for universal loading.
 //
 Procedure CreateStandardAttributesColumn(ColumnsInformation, CatalogMetadata, ColumnName, Position)
 	
@@ -866,7 +900,7 @@ Procedure CreateStandardAttributesColumn(ColumnsInformation, CatalogMetadata, Co
 	
 EndProcedure
 
-// Determines column content for data import.
+// Defines the composition of columns for loading data.
 //
 // Parameters:
 //  ImportParameters - Structure
@@ -1023,14 +1057,14 @@ Procedure DetermineColumnsInformationTabularSection(Val ColumnsInformation, Temp
 
 EndProcedure
 
-// Fills in the table on template columns. This information is used for generating a mapping table.
+// Fills in the table about columns in the layout. The information is used to build a mapping table.
 //
 // Parameters:
-//  TableHeaderArea  - SpreadsheetDocument - a table header area.
-//  ImportFromFileParameters - Structure - import parameters.
-//  ColumnsInformation     - ValueTable - TabularSectionDetails with column details.
-//  NamesOfColumnsToAdd  - String - Comma-separated list of columns. If a value is not filled in,
-//                                      then all values are added.
+//  TableHeaderArea  - SpreadsheetDocument -  the header area of the layout.
+//  ImportFromFileParameters - Structure -  boot parameter.
+//  ColumnsInformation     - ValueTable -  Description of the table part with column descriptions.
+//  NamesOfColumnsToAdd  - String -  comma-separated list of columns to add. If the value is not filled in, then
+//                                      all are added.
 //
 Procedure CreateColumnsInformationFromTemplate(TableHeaderArea, ImportFromFileParameters, ColumnsInformation, NamesOfColumnsToAdd = Undefined)
 	
@@ -1235,7 +1269,7 @@ Procedure FillTemplateHeaderCell(Cell, Text, Width, ToolTip, RequiredField, Name
 	
 EndProcedure
 
-// Generates a template header by column information.
+// Creates a form header based on column information.
 //
 Function HeaderOfTemplateForFillingColumnsInformation(ColumnsInformation) Export
 
@@ -1301,7 +1335,7 @@ EndFunction
 
 #EndRegion
 
-// Creates a value table by the template data and saves it to a temporary storage.
+// Creates a table of values based on data from the template and saves it to temporary storage.
 //
 Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformation, ImportedDataAddress) Export
 	
@@ -1344,7 +1378,6 @@ Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformatio
 				ColumnName = FoundColumn.ColumnName;
 				NewRow[ColumnName] = AdjustValueToType(Cell.Text, FoundColumn.ColumnType);
 				If Not ValueIsFilled(NewRow[ColumnName]) And ValueIsFilled(Cell.Text) Then
-					//@skip-check query-in-loop - Row-by-row import of heterogeneous data.
 					NewRow[ColumnName] = CellValue(FoundColumn, Cell.Text);
 				EndIf;
 				If EmptyTableRow Then
@@ -1521,16 +1554,16 @@ Function FullTabularSectionObjectName(ObjectName) Export
 	
 EndFunction
 
-// Returns an object name as a structure.
+// Returns the name of the object as a structure.
 //
 // Parameters:
 //  FullObjectName - String
 //  
 // Returns:
 //  Structure:
-//    * ObjectType - String - object type.
-//    * NameOfObject - String - an object name.
-//    * TabularSectionName - String - tabular section name.
+//    * ObjectType - String -  object type.
+//    * NameOfObject - String - 
+//    * TabularSectionName - String -  name of the table part.
 //
 Function SplitFullObjectName(FullObjectName) Export
 	Result = StrSplit(FullObjectName, ".", False);
@@ -1610,7 +1643,6 @@ Function ObjectManager(MappingObjectName)
 	
 EndFunction
 
-//Data import //////////////////////////
 
 Procedure InitializeColumns(ColumnsInformation, TemplateWithData, HeaderHeight = 1)
 	
@@ -1651,7 +1683,7 @@ Procedure ImportFileToTable(ServerCallParameters, StorageAddress) Export
 			ImportCSVFileToTable(TempFileName, TemplateWithData, ColumnsInformation);
 		Else
 			
-			// Check file availability.
+			// 
 			BinaryDataFromFile = New BinaryData(TempFileName);
 			BinaryDataFromFile = Undefined;
 			
@@ -1666,7 +1698,7 @@ Procedure ImportFileToTable(ServerCallParameters, StorageAddress) Export
 					Raise;
 				EndIf;
 				
-				// Replace unexpected error text with text for user message.
+				// 
 				Refinement = CommonClientServer.ExceptionClarification(ErrorInfo);
 				ClarifiedText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = '%1
@@ -1947,7 +1979,7 @@ Procedure WriteMappedData(ExportingParameters, StorageAddress) Export
 			EndIf;
 			
 			CatalogItem.Write();
-			// Write properties when an object already exists.
+			// 
 			If PropertiesTable.Count() > 0 And Common.SubsystemExists("StandardSubsystems.Properties") Then
 				ModulePropertyManager = Common.CommonModule("PropertyManager");
 				ModulePropertyManager.WriteObjectProperties(CatalogItem.Ref, PropertiesTable);
@@ -2103,16 +2135,15 @@ EndFunction
 
 #EndRegion
 
-//Functional options ///////////////////////////////////////
 
-// Returns attribute columns dependent on functional options.
+// Returns columns-details that depend on functional options.
 //
 // Parameters:
-//  FullObjectName - String - a full object description.
+//  FullObjectName - String - 
 // Returns:
 //   -  Map of KeyAndValue:
-//       * Key - String - Column name.
-//       * Value - Boolean - Availability flag.
+//       * Key - String -  column name.
+//       * Value - Boolean -  the availability criterion.
 //
 Function ColumnsDependentOnFunctionalOptions(FullObjectName)
 	
@@ -2132,7 +2163,6 @@ Function ColumnsDependentOnFunctionalOptions(FullObjectName)
 	
 EndFunction
 
-//Service methods ///////////////////////////////////////////
 
 Procedure AddPropertyValue(PropertiesTable, Properties, Prefix, ColumnName, Value)
 	PropertyName = TrimAll(StandardSubsystemsServer.TransformAdaptedColumnDescriptionToString(Mid(ColumnName, StrLen(Prefix) + 1)));
@@ -2144,7 +2174,7 @@ Procedure AddPropertyValue(PropertiesTable, Properties, Prefix, ColumnName, Valu
 	EndIf;
 EndProcedure
 
-// Returns a string constant for generating event log messages.
+// Returns a string constant for generating log messages.
 //
 // Returns:
 //   String

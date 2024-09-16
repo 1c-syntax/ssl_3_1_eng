@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -176,8 +174,8 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// The "Rescan" button replaces the selected picture (or the only picture if there are no more pictures) 
-//  , (or adds new pictures to the end if nothing is selected) with a new image (images).
+// The "Rescan" button replaces the selected image (or the only one, if there is one) 
+//  (or adds new images to the end, if nothing is selected) with a new image (s).
 //
 &AtClient
 Procedure Rescan(Command)
@@ -199,11 +197,11 @@ Procedure Save(Command)
 		ExecutionParameters.FileArrayCopy.Add(New Structure("PathToFile", String.PathToFile));
 	EndDo;
 	
-	// Working with one file here.
+	// 
 	TableRow = TableOfFiles.Get(0);
 	PathToFileLocal = TableRow.PathToFile;
 	
-	TableOfFiles.Clear(); // Not to delete files in OnClose.
+	TableOfFiles.Clear(); // 
 	
 	ResultExtension = String(ScannedImageFormat);
 	ResultExtension = Lower(ResultExtension); 
@@ -216,7 +214,7 @@ Procedure Save(Command)
 	If ShouldSaveAsPDF Then
 		
 #If Not WebClient And Not MobileClient Then
-		ExecutionParameters.ResultFile = GetTempFileName("pdf"); // ACC:441 - Delete a temporary file See AcceptCompletion.
+		ExecutionParameters.ResultFile = GetTempFileName("pdf"); //  See AcceptCompletion.
 #EndIf
 		
 		GraphicDocumentConversionParameters = FilesOperationsClient.GraphicDocumentConversionParameters();
@@ -282,9 +280,9 @@ Procedure SaveAllAsSingleFile(Command)
 		ExecutionParameters.FileArrayCopy.Add(New Structure("PathToFile", String.PathToFile));
 	EndDo;
 	
-	TableOfFiles.Clear(); // Not to delete files in OnClose.
+	TableOfFiles.Clear(); // 
 	
-	// Working with all pictures here. Uniting them in one multi-page file.
+	// 
 	
 	PathsToFiles = New Array;
 	
@@ -302,7 +300,7 @@ Procedure SaveAllAsSingleFile(Command)
 #If Not WebClient And Not MobileClient Then
 	ResultExtension = String(MultipageStorageFormat);
 	ResultExtension = Lower(ResultExtension); 
-	ExecutionParameters.ResultFile = GetTempFileName(ResultExtension); // ACC:441 - Delete a temporary file See AcceptAllAsOneFileCompletion
+	ExecutionParameters.ResultFile = GetTempFileName(ResultExtension); //  See AcceptAllAsOneFileCompletion
 	GraphicDocumentConversionParameters.ResultFormat = ResultExtension;
 #EndIf
 		
@@ -323,7 +321,7 @@ Procedure SaveAllAsSeparateFiles(Command)
 		FileArrayCopy.Add(New Structure("PathToFile", String.PathToFile));
 	EndDo;
 	
-	TableOfFiles.Clear(); // Not to delete files in OnClose.
+	TableOfFiles.Clear(); // 
 	
 	If ShouldSaveAsPDF Then
 		ResultExtension = "pdf";
@@ -462,7 +460,7 @@ Procedure BeforeOpenAutomatFollowUp(OpeningParameters)
 	
 	If OpeningParameters.CurrentStep = 3 Then
 		If OpeningParameters.SelectedDevice = "" Then 
-			Return; // Do not open the form.
+			Return; // 
 		EndIf;
 		
 		RotationNumber = FilesOperationsInternalClient.ScannerSetting(ThisObject, Attachable_Module,
@@ -523,9 +521,9 @@ EndProcedure
 Procedure TransformCalculationsToParametersAndGetPresentation()
 	
 	Presentation = "";
-		// Label in the following format:
-		// "Storage format: PDF. Scan format: JPG. Quality: 75.
-		// Multi-page storage format: PDF. Resolution: 200. Colored."
+		// 
+		// 
+		// 
 	
 	If Not ShowScannerDialog Then
 	
@@ -701,7 +699,7 @@ Procedure ExternalEvent(Source, Event, Data)
 		FilesOperationsInternalClient.DeleteScanError(Attachable_Module, CompletionNotification, False);
 	ElsIf Source = "TWAIN" And Event = "UserPressedCancel" Then
 		If IsOpen() Then
-			CurrentDate = CurrentDate(); // ACC:143 - "CurrentDate" to calculate the time interval
+			CurrentDate = CurrentDate(); // 
 			If CurrentDate < StartScanning_ + 3 And TableOfFiles.Count() = 0 Then
 				ErrorPresentation = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Scanning is canceled (event %1) in %2 sec. See %3';"), Event, 
@@ -934,7 +932,7 @@ Procedure SaveAsSeparateFilesRecursively(Context)
 	AddingOptions = Context.AddingOptions;
 	ScannedFiles = Context.ScannedFiles;
 	
-	// All pictures are processed here. Each of them is accepted as a separate file.
+	// 
 	If Context.FileIndex <= Context.FilesArray.UBound() Then
 		String = Context.FilesArray[Context.FileIndex];
 		
@@ -945,10 +943,10 @@ Procedure SaveAsSeparateFilesRecursively(Context)
 		If ResultExtension = "pdf" Then
 			
 #If Not WebClient And Not MobileClient Then
-		// ACC:441-off - The temporary file is not deleted if the function
-		// "FilesOperationsClient.AddFromScanner" should return the file path.
+		// 
+		// 
 		Context.ResultFile = GetTempFileName("pdf");
-		// ACC:441-on
+		// 
 #EndIf
 			GraphicDocumentConversionParameters = FilesOperationsClient.GraphicDocumentConversionParameters();
 			GraphicDocumentConversionParameters.ResultFileName = Context.ResultFile;
@@ -1104,7 +1102,7 @@ Procedure DoStartScan()
 	ScanningParameters.DuplexScanning = DuplexScanning;
 	ScanningParameters.DocumentAutoFeeder = DocumentAutoFeeder;
 
-	StartScanning_ = CurrentDate();// ACC:143 - Intended for calculation time intervals
+	StartScanning_ = CurrentDate();// 
 	ScanJobParameters = New Structure();
 	ScanJobParameters.Insert("StartScanning_", StartScanning_);
 	ScanJobParameters.Insert("ScanningParameters", ScanningParameters);

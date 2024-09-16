@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -27,8 +25,8 @@ Procedure ExecuteAutomaticDataMapping(Parameters, TempStorageAddress) Export
 EndProcedure
 
 // For internal use.
-// Imports an exchange message from the external source
-//  (ftp, email, network directory) to the temporary directory of the operational system user.
+// Loads an exchange message from an external source
+//  (ftp, e-mail, network directory) to the temporary directory of the operating system user.
 //
 Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress) Export
 	
@@ -55,8 +53,8 @@ Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress)
 			
 			File = New File(TempFileName);			
 			If File.Exists() And File.IsFile() Then
-				// Put the message info for mapping back to the storage.
-				// Intended to restore the data in case of abnormal analysis termination.
+				// 
+				// 
 				DataExchangeServer.PutFileInStorage(TempFileName, CommonSettings.MessageForDataMapping);
 				
 				DataPackageFileID = File.GetModificationTime();
@@ -80,7 +78,7 @@ Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress)
 		EndIf;
 		
 		If IsBlankString(StructureOfData.ExchangeMessageFileName) Then
-			// A message file for mapping is not found.
+			// 
 			Cancel = True;
 			
 			ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
@@ -121,7 +119,7 @@ Procedure GetExchangeMessageToTemporaryDirectory(Parameters, TempStorageAddress)
 EndProcedure
 
 // For internal use.
-// Gets an exchange message from the correspondent infobase via web service to the temporary directory of OS user.
+// Receives an exchange message from the correspondent's information base via the web service to the temporary directory of the OS user.
 //
 Procedure GetExchangeMessageFromCorrespondentToTemporaryDirectory(Parameters, TempStorageAddress) Export
 	
@@ -144,11 +142,7 @@ Procedure GetExchangeMessageFromCorrespondentToTemporaryDirectory(Parameters, Te
 	
 EndProcedure
 
-// Imports data into the infobase for StatisticsInformation table rows.
-// If all exchange message data is imported, the incoming exchange message
-// number is stored in the exchange node.
-// It implies that all data is imported to the infobase.
-// The repeat import of this message will be canceled.
+// For internal use.
 //
 Procedure RunDataImport(Parameters, TempStorageAddress) Export
 	
@@ -163,7 +157,7 @@ Procedure RunDataImport(Parameters, TempStorageAddress) Export
 EndProcedure
 
 // For internal use.
-// It exports data and is called by a background job.
+// Performs data upload, called by a background task.
 // Parameters - a structure with parameters to pass.
 //
 Procedure RunDataExport(Parameters, TempStorageAddress) Export
@@ -332,11 +326,11 @@ Procedure RegisterDataforExport(Parameters, ResultAddress) Export
 		ExportAddition.AllDocumentsComposerAddress = PutToTempStorage(StructureAddition.AllDocumentsComposer);
 	EndIf;
 	
-	// Saving export addition settings.
+	// 
 	DataExchangeServer.InteractiveExportChangeSaveSettings(ExportAddition, 
 		DataExchangeServer.ExportAdditionSettingsAutoSavingName());
 	
-	// Register additional data.
+	// 
 	Try
 		DataExchangeServer.InteractiveExportChangeRegisterAdditionalData(ExportAddition);
 	Except
@@ -534,12 +528,12 @@ EndProcedure
 
 #EndRegion
 
-// Analyzes the incoming exchange message. Fills in the StatisticsInformation table with data.
+// Analyzes the incoming exchange message. Fills in the statistics Information table with data.
 //
 // Parameters:
 //   Parameters - Structure
-//   Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
-//   ExchangeExecutionResult - EnumRef.ExchangeExecutionResults - data exchange result.
+//   Cancel - Boolean -  failure flag; raised if errors occur during the procedure.
+//   ExchangeExecutionResult - EnumRef.ExchangeExecutionResults -  the result of the data exchange.
 //
 Function StatisticsTableExchangeMessages(Parameters,
 		Cancel, ExchangeExecutionResult = Undefined, ErrorMessage = "")
@@ -552,7 +546,7 @@ Function StatisticsTableExchangeMessages(Parameters,
 	ExchangeMessageFileName              = Parameters.ExchangeMessageFileName;
 	
 	If IsBlankString(TempExchangeMessagesDirectoryName) Then
-		// Data from the correspondent infobase cannot be received.
+		// 
 		Cancel = True;
 		Return StatisticsInformation;
 	EndIf;
@@ -585,11 +579,11 @@ Function StatisticsTableExchangeMessages(Parameters,
 		FillPropertyValues(StatisticsInformationString, BatchTitleDataLine);
 	EndDo;
 	
-	// Supplying the statistic table with utility data
+	// 
 	ErrorMessage = "";
 	SupplementStatisticTable(StatisticsInformation, Cancel, ErrorMessage);
 	
-	// Determining table strings with the OneToMany flag
+	// 
 	TempStatistics = StatisticsInformation.Copy(, "DestinationTableName, IsObjectDeletion");
 	
 	AddColumnWithValueToTable(TempStatistics, 1, "Iterator_SSLy");
@@ -631,13 +625,13 @@ Function AutomaticDataMappingResult(Val Peer,
 	Result.Insert("ErrorMessage",         "");
 	Result.Insert("ExchangeExecutionResult", Undefined);
 	
-	// Auto-map the data received from the peer infobase.
-	// Gather the mapping statistics.
+	// 
+	// 
 	SetPrivilegedMode(True);
 	
 	DataExchangeServer.InitializeVersionDifferenceCheckParameters(CheckVersionDifference);
 	
-	// Analyzing exchange messages.
+	// 
 	AnalysisParameters = New Structure;
 	AnalysisParameters.Insert("TempExchangeMessagesDirectoryName", TempExchangeMessagesDirectoryName);
 	AnalysisParameters.Insert("InfobaseNode",               Peer);
@@ -663,7 +657,7 @@ Function AutomaticDataMappingResult(Val Peer,
 	
 	InteractiveDataExchangeWizard.StatisticsInformation.Load(StatisticsInformation);
 	
-	// Mapping data and getting statistics.
+	// 
 	InteractiveDataExchangeWizard.ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Result.Cancel);
 	
 	If Result.Cancel Then

@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Returns a flag that shows whether user modification is available.
+// Returns the flag for whether user change actions are available.
 //
 // Returns:
-//   Boolean - True if user modification is available. Otherwise, False.
+//   Boolean - 
 //
 Function CanChangeUsers() Export
 	
@@ -25,17 +23,17 @@ Function CanChangeUsers() Export
 	
 EndFunction
 
-// Returns available actions for the current user with the specified
-// SaaS user.
+// Returns actions available to the current user with the specified
+// service user.
 //
 // Parameters:
-//  User - CatalogRef.Users - User whose available actions to get.
-//   If not specified, get available actions for the active user.
+//  User - CatalogRef.Users - 
+//   
 //   
 //
-//  MinimalActions - Undefined - Return value.
-//   Contains minimal actions of the "NewActionsWithSaaSUser" type,
-//   including the cases where a service interaction error occurred.
+//  MinimalActions - Undefined - 
+//   
+//   
 //  
 // Returns:
 //   See NewActionsWithSaaSUser
@@ -73,15 +71,15 @@ Function GetActionsWithSaaSUser(Val User = Undefined,
 	
 EndFunction
 
-// Generates a request for changing SaaS
-// user email address.
+// Generates a request to change the service user's email address
+// .
 //
 // Parameters:
-//  NewEmailAddress - String - the new email address of the user.
-//  User - CatalogRef.Users - the user whose
-//   email address is to be changed.
-//  ServiceUserPassword - String - user password
-//   for service manager.
+//  NewEmailAddress - String -  the user's new email address.
+//  User - CatalogRef.Users -  the user who
+//   needs to change the email address.
+//  ServiceUserPassword - String -  password of the current user
+//   to access the service Manager.
 //
 Procedure CreateEmailAddressChangeRequest(Val NewEmailAddress, Val User, Val ServiceUserPassword) Export
 	
@@ -104,18 +102,18 @@ Procedure CreateEmailAddressChangeRequest(Val NewEmailAddress, Val User, Val Ser
 	
 EndProcedure
 
-// Creates or updates a SaaS user record.
+// Creates / updates a record of the service user.
 // 
 // Parameters:
 //  User - CatalogRef.Users
 //               - CatalogObject.Users
 //
 //  CreateServiceUser - Boolean
-//     if True create new SaaS user,
-//     if False update existing.
+//     The truth is to create a new user of the service,
+//     False - update an existing one.
 //
-//  ServiceUserPassword - String - user password
-//   for service manager.
+//  ServiceUserPassword - String -  password of the current user
+//   to access the service Manager.
 //
 Procedure WriteSaaSUser(Val User, Val CreateServiceUser, Val ServiceUserPassword) Export
 	
@@ -187,14 +185,14 @@ Procedure WriteSaaSUser(Val User, Val CreateServiceUser, Val ServiceUserPassword
 	
 EndProcedure
 
-// Notifies the service manager about the updated logon permissions.
+// 
 // 
 // 
 // Parameters:
 //  User - CatalogRef.Users
 //  IBUser - InfoBaseUser
-//  InfobaseOldUser - Undefined - Send unconditionally.
-//                       - InfoBaseUser - Send if a change was made.
+//  InfobaseOldUser - Undefined - 
+//                       - InfoBaseUser - 
 //
 Procedure NotifyAppStartupModified(User, IBUser, InfobaseOldUser = Undefined) Export
 	
@@ -237,7 +235,7 @@ EndProcedure
 
 #Region SharedInfobaseUsersOperations
 
-// It is called before running the application and before calling all other handlers.
+// Called before starting the program before calling all other handlers.
 Procedure BeforeStartApplication() Export
 	
 	If IsSharedIBUser() Then
@@ -246,13 +244,13 @@ Procedure BeforeStartApplication() Export
 	
 EndProcedure
 
-// Checks whether an infobase user with the specified ID is
-// in the list of shared users.
+// Checks whether the is user with the specified ID
+// is included in the list of undivided users.
 //
 // Parameters:
-//   IBUserID - UUID - infobase user
-//        ID for which the belonging to the shared users
-//        is to be checked.
+//   IBUserID - UUID -  the ID
+//        of the IB user for whom it is necessary to check
+//        whether they belong to undivided users.
 //
 // Returns:
 //  Boolean
@@ -302,8 +300,8 @@ EndFunction
 Procedure OnNoCurrentUserInCatalog(CreateUser) Export
 	
 	If IsSharedIBUser() Then
-		// Automatically create an item in the "Users" catalog
-		// in the current data area for each shared user.
+		// 
+		// 
 		CreateUser = True;
 	EndIf;
 	
@@ -343,7 +341,7 @@ Procedure OnAuthorizeNewIBUser(Val CurrentIBUser, StandardProcessing) Export
 		
 		If Not UsersInternal.UserByIDExists(CurrentIBUser.UUID) Then
 			
-			// The user is shared, an item in the current area must be created.
+			// 
 			UserObject = Catalogs.Users.CreateItem();
 			UserObject.Description = InternalUserFullName(CurrentIBUser.UUID);
 			UserObject.IsInternal = True;
@@ -379,8 +377,8 @@ Procedure OnStartIBUserProcessing(ProcessingParameters, IBUserDetails) Export
 	        And UserRegisteredAsShared(
 	              IBUserDetails.UUID) Then
 		
-		// Skip re-writing the infobase user when writing the "Users" catalog items
-		// that correspond to shared users.
+		// 
+		// 
 		ProcessingParameters.Delete("Action");
 		
 		If IBUserDetails.Count() > 2
@@ -403,8 +401,8 @@ Procedure BeforeWriteIBUser(IBUser) Export
 	
 EndProcedure
 
-// Processes the infobase user when writing an item of the Users or ExternalUsers catalogs.
-// The procedure is called from the StartIBUserProcessing() procedure to add SaaS support.
+// Processing of an information security user during the recording of an element of the directory Users and external users.
+// Called from the Start User Processing procedure to support the service model.
 // 
 // Parameters:
 //  UserObject - CatalogObject.Users
@@ -475,7 +473,7 @@ Procedure BeforeStartIBUserProcessing(Val UserObject, ProcessingParameters) Expo
 	
 EndProcedure
 
-// The procedure is called from the StartInfobaseUserProcessing() procedure to add SaaS support.
+// Called from the start user processing procedure To support the service model.
 //
 // Parameters:
 //  UserObject - CatalogObject.Users
@@ -500,14 +498,14 @@ Procedure AfterStartIBUserProcessing(UserObject, ProcessingParameters) Export
 			ProcessingParameters.Insert("CreateServiceUser", True);
 			UserObject.ServiceUserID = New UUID;
 			
-			// Updating value of the attribute that is checked during the writing
+			// 
 			AutoAttributes.ServiceUserID = UserObject.ServiceUserID;
 		EndIf;
 	EndIf;
 	
 EndProcedure
 
-// The procedure is called from the EndInfobaseUserProcessing() procedure to add SaaS support.
+// Called from the end user processing procedure To support the service model.
 //
 // Parameters:
 //  UserObject - CatalogObject.Users
@@ -531,13 +529,13 @@ Procedure BeforeEndIBUserProcessing(UserObject, ProcessingParameters) Export
 	
 EndProcedure
 
-// The procedure is called from the EndInfobaseUserProcessing() procedure to add SaaS support.
+// Called from the end user processing procedure To support the service model.
 // 
 // Parameters:
 //  UserObject - CatalogObject.Users
 //                     - CatalogObject.ExternalUsers
 //  ProcessingParameters - Structure
-//  UpdateRoles      - Boolean - a return value.
+//  UpdateRoles      - Boolean -  the return value.
 //
 Procedure OnEndIBUserProcessing(UserObject, ProcessingParameters, UpdateRoles) Export
 	
@@ -562,7 +560,7 @@ Procedure OnEndIBUserProcessing(UserObject, ProcessingParameters, UpdateRoles) E
 			CancelSaaSUserAccess(UserObject);
 			SetPrivilegedMode(False);
 			
-		Else // IBUserAdded or IBUserChanged.
+		Else // 
 			
 			SetPrivilegedMode(True);
 			If UserObject.AdditionalProperties.Property("SynchronizeWithService")
@@ -587,7 +585,7 @@ Procedure OnEndIBUserProcessing(UserObject, ProcessingParameters, UpdateRoles) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Event handlers of the SaaSOperations SSL subsystem
+// 
 
 // See SSLSubsystemsIntegration.OnDefineUserAlias
 Procedure OnDefineUserAlias(UserIdentificator, Alias) Export
@@ -599,8 +597,8 @@ Procedure OnDefineUserAlias(UserIdentificator, Alias) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Event handlers for the "ExportImportData" CTL subsystem
-// (importing and exporting infobase users).
+// 
+// 
 
 // See ExportImportDataOverridable.OnFillTypesThatRequireRefAnnotationOnImport.
 Procedure OnFillTypesThatRequireRefAnnotationOnImport(Types) Export
@@ -632,7 +630,7 @@ Procedure OnImportInfobaseUser(Container, Serialization, IBUser, Cancel) Export
 	If Not Common.DataSeparationEnabled() Then
 		
 		IBUser.ShowInList = True;
-		// Assign the SystemAdministrator role to the user with the FullAccess role.
+		// 
 		If IBUser.Roles.Contains(Metadata.Roles.FullAccess) Then
 			IBUser.Roles.Add(Metadata.Roles.SystemAdministrator);
 		EndIf;
@@ -739,7 +737,7 @@ EndFunction
 // For internal use only.
 //
 // Parameters:
-//   User - CatalogRef.Users - a user.
+//   User - CatalogRef.Users -  user.
 //
 // Returns:
 //   See NewActionsWithSaaSUser
@@ -799,7 +797,7 @@ EndFunction
 // For internal use only.
 //
 // Returns:
-//   Boolean - True if the user has the right.
+//   Boolean - 
 //
 Function HasRightToAddUsers()
 	
@@ -841,7 +839,7 @@ Procedure UpdateDetailsSaasManagerWebService()
 	EndIf;
 	
 	SetPrivilegedMode(True);
-	// The cache must be filled before writing a user to the infobase.
+	// 
 	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	ModuleSaaSOperations.GetProxyServiceManager();
 	SetPrivilegedMode(False);
@@ -849,7 +847,7 @@ Procedure UpdateDetailsSaasManagerWebService()
 EndProcedure
 
 // Parameters:
-//  IBUser - Undefined, IBUser
+//  IBUser - 
 //
 // Returns:
 //  Boolean
@@ -866,7 +864,7 @@ EndFunction
 //
 // Parameters:
 //  ServiceUserPassword - String
-//                            - Undefined - If an error occurs, set to Undefined.
+//                            - Undefined - 
 //
 // Returns:
 //  ValueTable:
@@ -939,7 +937,7 @@ Procedure GrantSaaSUserAccess(Val ServiceUserID, Val ServiceUserPassword) Export
 	
 EndProcedure
 
-// For the OnCompleteInfobaseUserProcessing procedure.
+// For the user's pre-completion procedure.
 Procedure CancelSaaSUserAccess(UserObject)
 	
 	If Not Common.SubsystemExists("CloudTechnology.Core")
@@ -972,8 +970,8 @@ Procedure CancelSaaSUserAccess(UserObject)
 	
 EndProcedure
 
-// Checks whether the user passed to the function matches the current
-// infobase user in the current data area.
+// Checks that the passed user corresponds to an existing user of the information
+// database in the current data area.
 //
 // Parameters:
 //  User - CatalogRef.Users
@@ -1139,10 +1137,10 @@ Function GetLanguageCode(Val Language)
 	
 EndFunction
 
-// Handles web service errors.
-// If the passed error info is not empty, writes
-// the error details to the event log and raises
-// an exception with the brief error description.
+// Processes error information received from the web service.
+// If non-empty error information is passed, writes
+// a detailed representation of the error to the log and raises
+// an exception with the text of the error summary.
 //
 Procedure HandleWebServiceErrorInfo(Val ErrorInfo, Val OperationName)
 	
@@ -1154,14 +1152,14 @@ Procedure HandleWebServiceErrorInfo(Val ErrorInfo, Val OperationName)
 		ModuleSaaSOperations.HandleWebServiceErrorInfo(
 			ErrorInfo,
 			Subsystem.Name,
-			"ManageApplication", // Do not localize.
+			"ManageApplication", // 
 			OperationName);
 		
 	EndIf;
 	
 EndProcedure
 
-// Intended for procedure "NotifyHasRightsToLogIn".
+// 
 Function MessagesSupportedHasRightsToLogIn()
 	
 	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
@@ -1190,7 +1188,7 @@ EndFunction
 
 #Region SharedIBUsersOperations
 
-// Returns a full name of the utility user to be displayed in UI.
+// Returns the full name of the service user to display in interfaces.
 //
 // Parameters:
 //  Id - UUID
@@ -1218,7 +1216,7 @@ Function InternalUserFullName(Val Id = Undefined) Export
 	
 EndFunction
 
-// Checks whether the current infobase user is shared.
+// Checks whether the current is user is undivided.
 //
 // Returns:
 //   Boolean
@@ -1251,8 +1249,8 @@ Function IsSharedIBUser()
 	
 EndFunction
 
-// In SaaS mode, adds the current user to the list of shared ones
-// if usage of separators is not set for it.
+// When working in the service model, it adds the current user to the list of undivided users,
+// if they do not have the use of separators set.
 //
 Procedure RecordSharedUserInRegister()
 	
@@ -1305,12 +1303,12 @@ EndFunction
 
 #EndRegion
 
-// Updates infobase user IDs in the user catalog, clears the ServiceUserID field.
+// Updates the IDS of is users in the user directory and clears the service user ID field.
 //
 // Parameters:
 //  IDsMap - Map of KeyAndValue:
-//    * Key - UUID - Original ID of the infobase user.
-//    * Value - UUID - Current ID of the infobase user.
+//    * Key - UUID - 
+//    * Value - UUID - 
 //
 Procedure UpdateIBUsersIDs(Val IDsMap)
 	

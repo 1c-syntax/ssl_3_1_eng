@@ -1,18 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 #Region ForCallsFromOtherSubsystems
 
-// Returns the current (used by the calling code) message interface version
+// Returns the current (used by the calling code) version of the message interface
 //
 // Returns:
 //   String
@@ -29,10 +27,10 @@ EndFunction
 
 #Region Private
 
-// Returns a namespace of the current (used by the calling code) message interface version.
+// Returns the namespace of the current (used by the calling code) version of the message interface.
 //
 // Parameters:
-//   Version - String - if the parameter is specified, the specified version is included in the namespace instead of the current one.
+//   Version - String -  if this parameter is set, the specified version is included in the namespace instead of the current version.
 //
 // Returns:
 //   String
@@ -47,7 +45,7 @@ Function Package(Val Version = "") Export
 	
 EndFunction
 
-// Returns a name of the message API
+// Returns the name of the message programming interface
 //
 // Returns:
 //   String
@@ -58,20 +56,20 @@ Function Public() Export
 	
 EndFunction
 
-// Registers message handlers as message exchange channel handlers.
+// Registers message handlers as message channel handlers.
 //
 // Parameters:
-//  HandlersArray - Array - common modules or manager modules.
+//  HandlersArray - Array -  General modules or Manager modules.
 //
 Procedure MessagesChannelsHandlers(Val HandlersArray) Export
 	
 EndProcedure
 
-// Returns type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionAssignmentObject
+// Returns the type of {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionAssignmentObject
 //
 // Parameters:
-//  PackageToUse - String - a namespace of the message interface version, for which
-//    the message type is being received.
+//  PackageToUse - String -  namespace of the message interface version for which
+//    the message type is obtained.
 //
 // Returns:
 //  XDTODataObject
@@ -82,11 +80,11 @@ Function TypeRelatedObject(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionSubsystemsAssignment
+// Returns the type of {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionSubsystemsAssignment
 //
 // Parameters:
-//  PackageToUse - String - a namespace of the message interface version, for which
-//    the message type is being received.
+//  PackageToUse - String -  namespace of the message interface version for which
+//    the message type is obtained.
 //
 // Returns:
 //  XDTOObjectType
@@ -97,11 +95,11 @@ Function AssignmentToSectionsType(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionCatalogsAndDocumentsAssignment
+// Returns the type of {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionCatalogsAndDocumentsAssignment
 //
 // Parameters:
-//  PackageToUse - String - a namespace of the message interface version, for which
-//    the message type is being received.
+//  PackageToUse - String -  namespace of the message interface version for which
+//    the message type is obtained.
 //
 // Returns:
 //  XDTOObjectType
@@ -112,11 +110,11 @@ Function AssignmentToCatalogsAndDocumentsType(Val PackageToUse = Undefined) Expo
 	
 EndFunction
 
-// Returns type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionCommand
+// Returns the type of {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionCommand
 //
 // Parameters:
-//  PackageToUse - String - a namespace of the message interface version, for which
-//    the message type is being received.
+//  PackageToUse - String -  namespace of the message interface version for which
+//    the message type is obtained.
 //
 // Returns:
 //  XDTOObjectType
@@ -127,11 +125,11 @@ Function CommandType(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionReportVariantAssignment
+// Returns the type of {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionReportVariantAssignment
 //
 // Parameters:
-//  PackageToUse - String - a namespace of the message interface version, for which
-//    the message type is being received.
+//  PackageToUse - String -  namespace of the message interface version for which
+//    the message type is obtained.
 //
 // Returns:
 //  XDTOObjectType
@@ -142,11 +140,11 @@ Function ReportOptionAssignmentType(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionReportVariant
+// Returns the type of {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionReportVariant
 //
 // Parameters:
-//  PackageToUse - String - a namespace of the message interface version, for which
-//    the message type is being received.
+//  PackageToUse - String -  namespace of the message interface version for which
+//    the message type is obtained.
 //
 // Returns:
 //  XDTOObjectType
@@ -157,11 +155,11 @@ Function ReportOptionType1(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionCommandSettings
+// Returns the type of {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionCommandSettings
 //
 // Parameters:
-//  PackageToUse - String - a namespace of the message interface version, for which
-//    the message type is being received.
+//  PackageToUse - String -  namespace of the message interface version for which
+//    the message type is obtained.
 //
 // Returns:
 //  XDTOObjectType
@@ -172,11 +170,11 @@ Function CommandSettingsType(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionManifest
+// Returns the type of {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionManifest
 //
 // Parameters:
-//  PackageToUse - String - a namespace of the message interface version, for which
-//    the message type is being received.
+//  PackageToUse - String -  namespace of the message interface version for which
+//    the message type is obtained.
 //
 // Returns:
 //  XDTOObjectType
@@ -187,8 +185,8 @@ Function ManifestType(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns dictionary of mapping enumeration values AdditionalReportsAndDataProcessorsKinds
-// of the XDTO type value {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionCategory
+// Returns a dictionary of matches
+// of enumeration values of the viewadditional reports and Processing to values of the XDTO type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d} ExtensionCategory
 //
 // Returns:
 //  Structure
@@ -210,8 +208,8 @@ Function AdditionalReportsAndDataProcessorsKindsDictionary() Export
 	
 EndFunction
 
-// Returns dictionary of mapping enumeration values AdditionalDataProcessorsCallMethods
-// of the XDTO type value {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d}ExtensionStartupType
+// Returns a dictionary of matches
+// of enumeration values for the method of additional processing To values of the XDTO type {http://www.1c.ru/1cFresh/ApplicationExtensions/Core/a.b.c.d} ExtensionStartupType
 //
 // Returns:
 //  Structure

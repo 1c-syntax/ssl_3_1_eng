@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -59,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		StandardSubsystemsServer.SetFormAssignmentKey(ThisObject, "CustomCertificate");
 	EndIf;
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -84,7 +82,7 @@ Procedure OnOpen(Cancel)
 		Return;
 	EndIf;
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -100,7 +98,7 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -123,7 +121,7 @@ EndProcedure
 &AtClient
 Procedure AfterWrite(WriteParameters)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
@@ -171,7 +169,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// Check the description for uniqueness.
+	// 
 	If Not Items.Description.ReadOnly Then
 		DigitalSignatureInternal.CheckPresentationUniqueness(
 			Object.Description, Object.Ref, "Object.Description", Cancel);
@@ -438,7 +436,7 @@ Procedure PickIndividual(Command)
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
@@ -509,7 +507,7 @@ Procedure OnCreateAtServerOnReadAtServer()
 		Items.FieldsAutoPopulatedFromCertificateData.Visible = True;
 		Items.FormShowAutoPopulatedAttributes.Check = True;
 		If ValueIsFilled(CertificateBinaryData) Then
-			// Supporting display of main properties of non-standard certificates (iBank2 system).
+			// 
 			DigitalSignatureInternalClientServer.FillCertificateDataDetails(CertificateDataDetails, Object);
 		EndIf;
 	EndIf;
@@ -521,17 +519,17 @@ Procedure OnCreateAtServerOnReadAtServer()
 		CertificateIsAvailable = TheCertificateIsAvailableToTheUser();
 		
 		If Not ThisIsTheAuthor And Not CertificateIsAvailable Then
-			// Standard users can change only their own certificates.
+			// 
 			ReadOnly = True;
 			Items.EditFirstNameAndPatronymic.Visible = False;
 			
 		Else
-			// Standard users cannot change access rights.
+			// 
 			Items.Individual.ReadOnly       =  ValueIsFilled(Object.Individual);
 			Items.PickIndividual.Enabled =  Not Items.Individual.ReadOnly;
 			If Not ThisIsTheAuthor Then
-				// An ordinary user cannot change the "User" attribute
-				// unless the user added the certificate.
+				// 
+				// 
 				Items.Users.ReadOnly = True;
 				Items.Users.OpenButton = True;
 			EndIf;
@@ -542,7 +540,7 @@ Procedure OnCreateAtServerOnReadAtServer()
 	Items.Organization.Visible = HasCompanies;
 	
 	If Not ValueIsFilled(CertificateAddress) Then
-		Return; // Certificate = Undefined.
+		Return; // 
 	EndIf;
 	
 	EditFirstNameAndPatronymic = False;

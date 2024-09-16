@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -70,7 +68,7 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 		FilterParameterStructure = GetEventLogFilterValues(ParametersToSelect);
 		FilterValues = FilterParameterStructure[ParametersToSelect];
 	EndIf;
-	// Getting a list of event presentations.
+	// 
 	If ParametersToSelect = "Event" Or ParametersToSelect = "Event" Then
 		
 		For Each MapItem In FilterValues Do
@@ -95,7 +93,7 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 			Or ParametersToSelect = "Metadata"
 			Or ParametersToSelect = "Metadata" Then
 			
-			// Getting as a tree.
+			// 
 			For Each MapItem In FilterValues Do
 				NewItem = GetTreeBranch(MapItem.Value, ParametersToSelect);
 				NewItem.Check = False;
@@ -108,7 +106,7 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 			EndDo;
 			
 		Else 
-			// Getting as a flat list.
+			// 
 			IsUnspecifiedUserAdded = False;
 			ListItems = List.GetItems();
 			For Each MapItem In FilterValues Do
@@ -121,15 +119,15 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 				EndIf;
 				
 				If (ParametersToSelect = "User" Or ParametersToSelect = "User") Then
-					// In this case, the username serves as a key.
+					// 
 					NewItem.Value = MapItem.Key;
 					
 					If MapItem.Value = "" Then
-						// For default users.
+						// 
 						IsUnspecifiedUserAdded = True;
 						NewItem.Presentation = UnspecifiedUserFullName();
 					Else
-						// For utility users.
+						// 
 						InternalUserPresentation = InternalUserFullName(MapItem.Key);
 						If Not IsBlankString(InternalUserPresentation) Then
 							NewItem.Presentation = InternalUserPresentation;
@@ -170,11 +168,11 @@ Procedure SetEditorParameters(ListToEdit, ParametersToSelect)
 		
 	EndIf;
 	
-	// Selecting marks of tree items that are mapped to ListToEdit items.
+	// 
 	SelectFoundItems(List.GetItems(), ListToEdit);
 	
-	// Check if the list has child items.
-	// If it has, change the control to "List".
+	// 
+	// 
 	IsTree = False;
 	For Each TreeItem In List.GetItems() Do
 		If TreeItem.GetItems().Count() > 0 Then 
@@ -224,7 +222,7 @@ Function GetTreeBranch(Presentation, ParametersToSelect, Recursion = False)
 		TreeItems = List.GetItems();
 		BranchName = "";
 	Else
-		// Assembling a path to the parent branch by path fragments.
+		// 
 		ParentPathPresentation = "";
 		For Cnt = 0 To PathStrings.Count() - 2 Do
 			If Not IsBlankString(ParentPathPresentation) Then
@@ -240,7 +238,7 @@ Function GetTreeBranch(Presentation, ParametersToSelect, Recursion = False)
 		For Each TreeItem In TreeItems Do
 			If TreeItem.Presentation = BranchName Then
 				If TreeItem.GetItems().Count() = 0 Then
-					// This is a standalone event, don't include in groups.
+					// 
 					Continue;
 				EndIf;
 				
@@ -251,7 +249,7 @@ Function GetTreeBranch(Presentation, ParametersToSelect, Recursion = False)
 			EndIf;
 		EndDo;
 	EndIf;
-	// The tree item is not found, it has to be created.
+	// 
 	AddedBranches.Add(BranchName);
 	
 	TreeItem = TreeItems.Add();
@@ -296,11 +294,11 @@ EndProcedure
 &AtClient
 Procedure SelectTreeItem(TreeItem, Check, CheckBranchMarked = True)
 	TreeItem.Check = Check;
-	// Selecting marks of all child items of the tree.
+	// 
 	For Each TreeChildItem In TreeItem.GetItems() Do
 		SelectTreeItem(TreeChildItem, Check, False);
 	EndDo;
-	// Checking if parent item state should be changed.
+	// 
 	If CheckBranchMarked Then
 		CheckBranchMarked(TreeItem.GetParent());
 	EndIf;
@@ -331,20 +329,20 @@ Procedure CheckBranchMarked(Branch)
 	
 	If HasTrue Then
 		If HasFalse Then
-			// There are branches with both selected and cleared marks. If necessary, clearing the mark of the current item and then checking the parent.
+			// 
 			If Branch.Check Then
 				Branch.Check = False;
 				CheckBranchMarked(Branch.GetParent());
 			EndIf;
 		Else
-			// All child branch marks are selected.
+			// 
 			If Not Branch.Check Then
 				Branch.Check = True;
 				CheckBranchMarked(Branch.GetParent());
 			EndIf;
 		EndIf;
 	Else
-		// All child branch marks are cleared.
+		// 
 		If Branch.Check Then
 			Branch.Check = False;
 			CheckBranchMarked(Branch.GetParent());

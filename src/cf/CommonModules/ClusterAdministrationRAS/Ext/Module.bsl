@@ -1,18 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
 #Region SessionAndJobLock
 
-// Returns the current state of infobase session locks and scheduled job locks.
+// Returns the current state of blocking sessions and scheduled tasks for the information database.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -49,7 +47,7 @@ Function InfobaseSessionAndJobLock(Val ClusterAdministrationParameters, Val IBAd
 	
 EndFunction
 
-// Sets the state of infobase session locks and scheduled job locks.
+// Sets a new state for blocking sessions and scheduled tasks for the information database.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -66,14 +64,14 @@ Procedure SetInfobaseSessionAndJobLock(Val ClusterAdministrationParameters, Val 
 	
 EndProcedure
 
-// Validates administration parameters.
+// Checks whether the administration parameters are correct.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   CheckInfobaseAdministrationParameters - Boolean - Flag indicating whether to validate administration parameters.
-//                  
-//   CheckClusterAdministrationParameters - Boolean - Flag indicating whether to validate administration parameters.
+//   CheckInfobaseAdministrationParameters - Boolean -  the flag you want to check the settings
+//                  cluster administration.
+//   CheckClusterAdministrationParameters - Boolean -  flag for checking cluster administration parameters
 //
 Procedure CheckAdministrationParameters(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined,
 	CheckInfobaseAdministrationParameters = True,
@@ -118,7 +116,7 @@ EndProcedure
 
 #Region LockScheduledJobs
 
-// Returns the current state of infobase scheduled job locks.
+// Returns the current status of blocking scheduled tasks for the information database.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -136,12 +134,12 @@ Function InfobaseScheduledJobLock(Val ClusterAdministrationParameters, Val IBAdm
 	
 EndFunction
 
-// Sets the state of infobase scheduled job locks.
+// Sets a new state for blocking routine tasks for the information database.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   LockScheduledJobs - Boolean - Indicates whether infobase scheduled jobs are locked.
+//   LockScheduledJobs - Boolean -  flag for setting blocking of scheduled tasks in the information database.
 //
 Procedure SetInfobaseScheduledJobLock(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val LockScheduledJobs) Export
 	
@@ -160,13 +158,13 @@ EndProcedure
 
 #Region InfobaseSessions
 
-// Returns descriptions of infobase sessions.
+// Returns descriptions of sessions in the information database.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
-//            , Array of
+//            
 //
 // Returns: 
 //   Array of See ClusterAdministration.SessionProperties
@@ -178,7 +176,7 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 		
 	ClusterParameters = ClusterParameters(ClusterAdministrationParameters, ClusterID);
 	
-	// Process licenses.
+	// 
 	Command = "process list --licenses " + ClusterParameters;
 	ProcessLicenses = New Map;
 	For Each ILicenseInfo In RunCommand(Command, ClusterAdministrationParameters, , , LicensePropertyTypes()) Do
@@ -186,17 +184,17 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 		ProcessLicenses.Insert(ILicenseInfo["process"], ILicenseInfo); 
 	EndDo;
 	
-	// Processes.
+	// 
 	Command = "process list " + ClusterParameters;
 	Processes = New Map;
 	For Each Process_ In RunCommand(Command, ClusterAdministrationParameters, , , WorkingProcessPropertyTypes()) Do
 		Process_.Insert("license", ProcessLicenses[Process_["process"]]);
 		Process_.Insert("running", ?(Process_["running"], 1, 0));
-		Process_.Insert("use", ?(Process_["use"] = "used", 1, ?(Process_["use"] = "not-used", 0, 2)));  // "not-used" is inaccurate value.
+		Process_.Insert("use", ?(Process_["use"] = "used", 1, ?(Process_["use"] = "not-used", 0, 2)));  // 
 		Processes.Insert(Process_["process"], Process_);
 	EndDo;
 	
-	// Connection details.
+	// 
 	Command = "connection list " + ClusterParameters;
 	ConnectionDetails1 = New Map;
 	For Each Join In RunCommand(Command, ClusterAdministrationParameters, , , ConnectionDetailsPropertyTypes()) Do
@@ -204,7 +202,7 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 		ConnectionDetails1.Insert(Join["connection"], Join);
 	EndDo;
 	
-	// Sessions licenses.
+	// 
 	Command = "session list --licenses " + ClusterParameters;
 	SessionLicenses = New Map;
 	For Each SessionLicense In RunCommand(Command, ClusterAdministrationParameters, , , LicensePropertyTypes()) Do
@@ -212,7 +210,7 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 		SessionLicenses.Insert(SessionLicense["session"], SessionLicense);
 	EndDo;
 	
-	// Session locks.
+	// 
 	Command = "lock list --infobase=%1 " + ClusterParameters;
 	SubstituteParametersToCommand(Command, InfoBaseID);
 	SessionLocks = New Map();
@@ -224,7 +222,7 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 
 	EndDo;
 	
-	// Sessions.
+	// 
 	Command = "session list --infobase=%1 " + ClusterParameters;
 	SubstituteParametersToCommand(Command, InfoBaseID);
 	Filter = FilterToRacNotation(Filter, SessionPropertiesDictionary());
@@ -245,13 +243,13 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 	
 EndFunction
 
-// Deletes infobase sessions according to filter.
+// Deletes sessions with the information base by filter.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
-//            , Array of
+//            
 //
 Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -288,7 +286,7 @@ Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdmi
 				
 			Except
 				
-				// The session might close before rac session terminate is called.
+				// 
 				Continue;
 				
 			EndTry;
@@ -309,13 +307,13 @@ EndProcedure
 
 #Region InfobaseConnections
 
-// Returns descriptions of infobase connections.
+// Returns descriptions of connections to the information base.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
-//            , Array of
+//            
 //
 // Returns:
 //   Array of See ClusterAdministration.ConnectionProperties
@@ -328,13 +326,13 @@ Function InfobaseConnections(Val ClusterAdministrationParameters, Val IBAdminist
 	
 EndFunction
 
-// Terminates infobase connections by filter.
+// Breaks connections to the information base by filter.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.JoinsFilters See ClusterAdministration.JoinsFilters
-//            , Array of
+//            
 //
 Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -344,14 +342,14 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	ClusterParameters = ClusterParameters(ClusterAdministrationParameters, ClusterID);
 	
 	Value = New Array;
-	Value.Add("1CV8");               // ID of 1C:Enterprise application running in thick client mode.
-	Value.Add("1CV8C");              // ID of 1C:Enterprise application running in thin client mode.
-	Value.Add("WebClient");          // ID of 1C:Enterprise application running in web client mode.
-	Value.Add("Designer");           // Designer ID.
-	Value.Add("COMConnection");      // ID of 1C:Enterprise external COM connection session.
-	Value.Add("WSConnection");       // Web service session ID.
-	Value.Add("BackgroundJob");      // ID of job processing session.
-	Value.Add("WebServerExtension"); // Web server extension ID.
+	Value.Add("1CV8");               // 
+	Value.Add("1CV8C");              // 
+	Value.Add("WebClient");          // 
+	Value.Add("Designer");           // 
+	Value.Add("COMConnection");      // 
+	Value.Add("WSConnection");       // 
+	Value.Add("BackgroundJob");      // 
+	Value.Add("WebServerExtension"); // 
 
 	ClusterAdministration.AddFilterCondition(Filter, "ClientApplicationID", ComparisonType.InList, Value);
 	
@@ -387,7 +385,7 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 				
 			Except
 				
-				// Connection might terminate before "rac connection disconnect" is called.
+				// 
 				Continue;
 				
 			EndTry;
@@ -408,15 +406,15 @@ EndProcedure
 
 #Region SecurityProfiles
 
-// Returns the name of a security profile assigned to the infobase.
+// Returns the name of the security profile assigned to the information database.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
-//   String - Name of the security profile assigned for the infobase.
-//            If no profile is assigned, returns an empty string.
+//   String - 
+//            
 //
 Function InfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -432,16 +430,16 @@ Function InfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdmi
 	
 EndFunction
 
-// Returns the name of the security profile that was set as the infobase safe mode security profile.
-//  
+// Returns the name of the security profile assigned to the information database as
+//  the safe mode security profile.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
-//   String - Name of the security profile assigned as a safe mode security profile.
-//            If no profile is assigned, returns an empty string.
+//   String - 
+//            
 //
 Function InfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters) Export
 	
@@ -457,13 +455,13 @@ Function InfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Va
 	
 EndFunction
 
-// Assigns a security profile to an infobase.
+// Assigns the use of a security profile for the information database.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   ProfileName - String - Security profile name. If the passed string is empty, the security profile is 
-//                         disabled for the infobase.
+//   ProfileName - String -  name of the security profile. If an empty string is passed 
+//                         , the use of the security profile will be disabled for the information database.
 //
 Procedure SetInfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val ProfileName = "") Export
 	
@@ -481,13 +479,13 @@ Procedure SetInfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IB
 	
 EndProcedure
 
-// Assigns a safe-mode security profile to an infobase.
+// Assigns the information base to use the safe mode security profile.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   ProfileName - String - Security profile name. If the passed string is empty, the safe mode security profile is
-//                         disabled for the infobase.
+//   ProfileName - String -  name of the security profile. If an empty string is passed
+//                         , the use of the safe mode security profile will be disabled for the information database.
 //
 Procedure SetInfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val ProfileName = "") Export
 	
@@ -509,7 +507,7 @@ EndProcedure
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   ProfileName - String - Name of the security profile being checked.
+//   ProfileName - String -  name of the security profile that is being checked for existence.
 //
 // Returns:
 //   Boolean
@@ -526,12 +524,12 @@ Function SecurityProfileExists(Val ClusterAdministrationParameters, Val ProfileN
 	
 EndFunction
 
-// Returns properties of a security profile.
+// Returns the properties of the security profile.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   ProfileName - String - Security profile name.
-//   ClusterID - String - Internal server cluster ID.
+//   ProfileName - String -  name of the security profile.
+//   ClusterID - String - internal ID of the server cluster.
 //
 // Returns: 
 //   See ClusterAdministration.SecurityProfileProperties
@@ -553,27 +551,27 @@ Function SecurityProfile(Val ClusterAdministrationParameters, Val ProfileName, V
 	Result = SecurityProfiles[0];
 	Result = ConvertAccessListsUsagePropertyValues(Result);
 	
-	// Virtual directories.
+	// 
 	Result.Insert("VirtualDirectories",
 		GetVirtualDirectories(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// Allowed COM classes.
+	// 
 	Result.Insert("COMClasses",
 		GetAllowedCOMClass(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// Add-ins.
+	// 
 	Result.Insert("AddIns",
 		GetAllowedAddIns(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// External modules.
+	// 
 	Result.Insert("ExternalModules",
 		GetAllowedExternalModules(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// OS applications.
+	// 
 	Result.Insert("OSApplications",
 		GetAllowedOSApplications(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
-	// Internet resources.
+	// 
 	Result.Insert("InternetResources",
 		GetAllowedInternetResources(ClusterID, ClusterAdministrationParameters, ProfileName));
 	
@@ -581,7 +579,7 @@ Function SecurityProfile(Val ClusterAdministrationParameters, Val ProfileName, V
 	
 EndFunction
 
-// Creates a security profile on the basis of the passed description.
+// Creates a security profile based on the passed description.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -605,7 +603,7 @@ Procedure CreateSecurityProfile(Val ClusterAdministrationParameters, Val Securit
 	
 EndProcedure
 
-// Sets properties for a security profile on the basis of the passed description.
+// Sets properties for an existing security profile based on the passed description.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -631,11 +629,11 @@ Procedure SetSecurityProfileProperties(Val ClusterAdministrationParameters, Val 
 	
 EndProcedure
 
-// Deletes a security profile.
+// Deletes the security profile.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   ProfileName - String - Security profile name.
+//   ProfileName - String -  name of the security profile.
 //
 Procedure DeleteSecurityProfile(Val ClusterAdministrationParameters, Val ProfileName) Export
 	
@@ -649,12 +647,12 @@ EndProcedure
 
 #Region Infobases
 
-// Returns an internal infobase ID.
+// Returns the internal ID of the information database.
 //
 // Parameters:
-//   ClusterID - String - Internal server cluster ID.
+//   ClusterID - String - internal ID of the server cluster.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
+//   Parameteradministrationib -  See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
 //   String
@@ -673,12 +671,12 @@ Function InfoBaseID(Val ClusterID, Val ClusterAdministrationParameters, Val Info
 	
 EndFunction
 
-// Returns infobase details.
+// Returns descriptions of information databases.
 //
 // Parameters:
-//   ClusterID - String - Internal server cluster ID.
+//   ClusterID - String - internal ID of the server cluster.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   Filter - Structure - Infobase filter criteria.
+//   Filter - Structure -  the parameters of the filtering databases.
 //
 // Returns:
 //   Array of Structure
@@ -696,7 +694,7 @@ EndFunction
 
 #Region Cluster
 
-// Returns an internal ID of a server cluster.
+// Returns the internal ID of the server cluster.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -718,14 +716,14 @@ Function ClusterID(Val ClusterAdministrationParameters) Export
 	
 EndFunction
 
-// Returns server cluster details.
+// Returns the description of server clusters.
 //
 // Parameters:  
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   Filter - Structure - Server cluster filter criteria.
+//   Filter - Structure -  parameters for filtering server clusters.
 //
 // Returns: 
-//   Array - Array of mappings and cluster details in the rac notation.
+//   Array - 
 //
 Function ClusterProperties(Val ClusterAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -746,15 +744,15 @@ EndFunction
 
 #Region WorkingProcessesServers
 
-// Returns active process details.
+// Returns the description of workflows.
 //
 // Parameters:
-//   ClusterID - String - Internal server cluster ID.
+//   ClusterID - String -  internal ID of the server cluster,
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   Filter - Structure - Active process filter criteria.
+//   Filter - Structure -  the filtering options work processes.
 //
 // Returns: 
-//   Array - Array of mappings and running process details in the rac notation.
+//   Array - 
 //
 Function WorkingProcessesProperties(Val ClusterID, Val ClusterAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -762,15 +760,15 @@ Function WorkingProcessesProperties(Val ClusterID, Val ClusterAdministrationPara
 	
 EndFunction
 
-// Returns descriptions of active servers.
+// Returns the description of the production servers.
 //
 // Parameters:
-//  ClusterID - String - Internal server cluster ID.
+//  ClusterID - String -  internal ID of the server cluster,
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   Filter - Structure - Active server filter criteria.
+//   Filter - Structure -  parameters for filtering production servers.
 //
 // Returns: 
-//   Array - an array of map, and active process details in the rac notation.
+//   Array - 
 //
 Function WorkingServerProperties(Val ClusterID, Val ClusterAdministrationParameters, Val Filter = Undefined) Export
 	
@@ -782,16 +780,16 @@ EndFunction
 
 #EndRegion
 
-// Returns descriptions of infobase sessions.
+// Returns descriptions of sessions in the information database.
 //
 // Parameters:
-//   ClusterID - String - Internal server cluster ID.
+//   ClusterID - String - internal ID of the server cluster.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   InfoBaseID - String - Internal infobase ID.
-//   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
+//   InfoBaseID - String -  internal ID of the information database.
+//   Parameteradministrationib -  See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
-//            , Array of
-//   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
+//            
+//   UseDictionary - Boolean - 
 //
 // Returns: 
 //   - Array of See ClusterAdministration.SessionProperties
@@ -815,16 +813,16 @@ Function SessionsProperties(Val ClusterID, Val ClusterAdministrationParameters, 
 	
 EndFunction
 
-// Returns descriptions of infobase connections.
+// Returns descriptions of connections to the information base.
 //
 // Parameters:
-//   ClusterID - String - Internal server cluster ID.
+//   ClusterID - String - internal ID of the server cluster.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   InfoBaseID - String - Internal infobase ID.
+//   InfoBaseID - String -  internal ID of the information database.
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.SessionsFilter See ClusterAdministration.SessionsFilter
-//            , Array of
-//   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
+//            
+//   UseDictionary - Boolean - 
 //
 // Returns: 
 //   - Array of See ClusterAdministration.ConnectionProperties
@@ -877,7 +875,7 @@ Function ConnectionsProperties(Val ClusterID, Val ClusterAdministrationParameter
 	
 EndFunction
 
-// Returns path to the console client of the administration server.
+// Returns the path to the console client of the administration server.
 //
 // Returns:
 //   String
@@ -950,7 +948,7 @@ Procedure SetInfobaseProperties(Val ClusterAdministrationParameters, Val IBAdmin
 		IBAdministrationParameters.InfobaseAdministratorName, 
 		IBAdministrationParameters.InfobaseAdministratorPassword);
 		
-	// For these two boolean properties the presentation differs.
+	// 
 	NewPropertiesValues = Common.CopyRecursive(PropertiesValues);
 	For Each KeyAndValue In Dictionary Do
 		If KeyAndValue.Value = "scheduled-jobs-deny" Or KeyAndValue.Value = "sessions-deny" Then
@@ -979,7 +977,7 @@ Function GetVirtualDirectories(Val ClusterID, Val ClusterAdministrationParameter
 		ClusterID,
 		ClusterAdministrationParameters,
 		ProfileName,
-		"directory", // Not localizable.
+		"directory", // 
 		VirtualDirectoryPropertiesDictionary(),
 		,
 		VirtualDirectoryPropertyTypes());
@@ -992,7 +990,7 @@ Function GetAllowedCOMClass(Val ClusterID, Val ClusterAdministrationParameters, 
 		ClusterID,
 		ClusterAdministrationParameters,
 		ProfileName,
-		"com", // Not localizable.
+		"com", // 
 		COMClassPropertiesDictionary(),
 		,
 		COMClassPropertyTypes());
@@ -1005,7 +1003,7 @@ Function GetAllowedAddIns(Val ClusterID, Val ClusterAdministrationParameters, Va
 		ClusterID,
 		ClusterAdministrationParameters,
 		ProfileName,
-		"addin", // Not localizable.
+		"addin", // 
 		AddInPropertiesDictionary(),
 		,
 		AddInPropertyTypes());
@@ -1018,7 +1016,7 @@ Function GetAllowedExternalModules(Val ClusterID, Val ClusterAdministrationParam
 		ClusterID,
 		ClusterAdministrationParameters,
 		ProfileName,
-		"module", // Not localizable.
+		"module", // 
 		ExternalModulePropertiesDictionary(),
 		,
 		ExternalModulePropertyType());
@@ -1031,7 +1029,7 @@ Function GetAllowedOSApplications(Val ClusterID, Val ClusterAdministrationParame
 		ClusterID,
 		ClusterAdministrationParameters,
 		ProfileName,
-		"app", // Not localizable.
+		"app", // 
 		OSApplicationPropertiesDictionary(),
 		,
 		OSApplicationPropertyTypes());
@@ -1044,7 +1042,7 @@ Function GetAllowedInternetResources(Val ClusterID, Val ClusterAdministrationPar
 		ClusterID,
 		ClusterAdministrationParameters,
 		ProfileName,
-		"inet", // Not localizable.
+		"inet", // 
 		InternetResourcePropertiesDictionary(),
 		,
 		InternetResourcePropertyTypes());
@@ -1097,7 +1095,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		SetAccessManagementListUsage(ClusterID, ClusterAdministrationParameters, ProfileName, DictionaryFragment.Value, Not NewProperties[DictionaryFragment.Key]);
 	EndDo;
 	
-	// Virtual directories.
+	// 
 	UpdateAccessControlListItems(ClusterID, 
 		ClusterAdministrationParameters, 
 		ProfileName, 
@@ -1106,7 +1104,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		NewProperties.VirtualDirectories,
 		PreviousProperties.VirtualDirectories);
 	
-	// Allowed COM classes.
+	// 
 	UpdateAccessControlListItems(ClusterID, 
 		ClusterAdministrationParameters, 
 		ProfileName, 
@@ -1115,7 +1113,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		NewProperties.COMClasses,
 		PreviousProperties.COMClasses);
 	
-	// Add-ins.
+	// 
 	UpdateAccessControlListItems(ClusterID, 
 		ClusterAdministrationParameters, 
 		ProfileName, 
@@ -1124,7 +1122,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		NewProperties.AddIns,
 		PreviousProperties.AddIns);
 	
-	// External modules.
+	// 
 	UpdateAccessControlListItems(ClusterID, 
 		ClusterAdministrationParameters, 
 		ProfileName, 
@@ -1133,7 +1131,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		NewProperties.ExternalModules,
 		PreviousProperties.ExternalModules);
 		
-	// OS applications.
+	// 
 	UpdateAccessControlListItems(ClusterID, 
 		ClusterAdministrationParameters, 
 		ProfileName, 
@@ -1142,7 +1140,7 @@ Procedure UpdateSecurityProfileProperties(Val ClusterAdministrationParameters, V
 		NewProperties.OSApplications,
 		PreviousProperties.OSApplications);
 	
-	// Internet resources.
+	// 
 	UpdateAccessControlListItems(ClusterID, 
 		ClusterAdministrationParameters,
 		ProfileName, 
@@ -1214,7 +1212,7 @@ Procedure UpdateAccessControlListItems(Val ClusterID, Val ClusterAdministrationP
 		ItemsToDelete1.Insert(OldItem[KeyParameterName], OldItem);
 	EndDo;
 	
-	// Create or update (if properties differ).
+	// 
 	For Each NewItem In NewItems Do
 		Var_Key = NewItem[KeyParameterName];
 		OldItem = ItemsToDelete1.Get(Var_Key);
@@ -1222,7 +1220,7 @@ Procedure UpdateAccessControlListItems(Val ClusterID, Val ClusterAdministrationP
 			UpdateAccessControlListItem(ClusterID, ClusterAdministrationParameters, ProfileName, ListName, Dictionary, NewItem);
 		Else
 			ItemsToDelete1.Delete(Var_Key);
-			// Update only if properties differ.
+			// 
 			For Each KeyAndValue In NewItem Do
 				If KeyAndValue.Value <> OldItem[KeyAndValue.Key] Then
 					UpdateAccessControlListItem(ClusterID, ClusterAdministrationParameters, ProfileName, ListName, Dictionary, NewItem);
@@ -1232,7 +1230,7 @@ Procedure UpdateAccessControlListItems(Val ClusterID, Val ClusterAdministrationP
 		EndIf;
 	EndDo;
 	
-	// Delete redundant items.
+	// 
 	For Each KeyAndValue In ItemsToDelete1 Do
 		DeleteAccessManagementListItem(ClusterID, ClusterAdministrationParameters, ProfileName, ListName, KeyAndValue.Key);
 	EndDo;
@@ -1289,11 +1287,11 @@ Function AdjustValue(Val Value)
 		
 	ElsIf TypeOf(Value) = Type("String") Then
 		
-		// The documentation stipulates:
-		// Arbitrary strings are enclosed in double quotation marks, and double quotation marks within such strings should be duplicated.
+		// 
+		// 
 		Digits = "0123456789";
 		LatinCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-		CyrillicCharacters = "ABVGDEZHZIYKLMNOPRSTUFKHTSCHSHSHYEYUYaabvgdezhziyklmnoprstufkhtschshyeyu"; // ACC:1036 - Orthography check is not required.
+		CyrillicCharacters = "ABVGDEZHZIYKLMNOPRSTUFKHTSCHSHSHYEYUYaabvgdezhziyklmnoprstufkhtschshyeyu"; // 
 		AllowedChars = Digits + LatinCharacters + CyrillicCharacters + "-";
 		If StringContainsAllowedCharsOnly(Value, AllowedChars) Then
 			Return Value;
@@ -1366,9 +1364,9 @@ Function CastOutputItem(OutputItem, ElementType)
 		
 	ElsIf ElementType = Undefined Then
 		
-		// Skip identifying the data type in the string as 
-		// an empty string may be an empty date, and 
-		// the string can contain only numbers (for example, a process PID).
+		//  
+		//  
+		// 
 		
 		If IsBlankString(OutputItem) Then
 			Return Undefined;
@@ -1422,7 +1420,7 @@ Function ReadUpToSeparator(Stream, Position, Separator)
 	
 	CurrentChar = Mid(Stream, Position, 1);
 	
-	// Offset the position up to a meaningful character.
+	// 
 	While IsBlankString(CurrentChar) And Not CurrentChar = Separator And Position < StrLen(Stream) Do
 		Position = Position + 1;
 		CurrentChar = Mid(Stream, Position, 1);
@@ -1437,7 +1435,7 @@ Function ReadUpToSeparator(Stream, Position, Separator)
 	If CurrentChar = QuotationMark Then
 		Position = Position + 1;
 		StartPosition = Position;
-		// Find the next single quotation mark.
+		// 
 		While Position <= StrLen(Stream) Do
 			FoundQuotationMark = StrFind(Stream, QuotationMark, SearchDirection.FromBegin, Position); 
 			If FoundQuotationMark = 0 Then
@@ -1446,7 +1444,7 @@ Function ReadUpToSeparator(Stream, Position, Separator)
 				Position = FoundQuotationMark + 2;
 			Else
 				Position = FoundQuotationMark + 1;
-				// A quotation mark might be followed by a separator.
+				// 
 				If Mid(Stream, Position, 1) = Separator Then
 					Position = Position + 1;
 				EndIf;
@@ -1460,7 +1458,7 @@ Function ReadUpToSeparator(Stream, Position, Separator)
 		Value = StrReplace(Value, QuotationMark + QuotationMark, QuotationMark);
 		Return Value;
 	Else
-		// A simple case: Read till the next separator.
+		// 
 		SeparatorPosition = StrFind(Stream, Separator, SearchDirection.FromBegin, Position);
 		Value = TrimAll(Mid(Stream, Position, SeparatorPosition - Position));
 		Position = SeparatorPosition + 1;
@@ -2098,19 +2096,19 @@ Function LicensePropertyTypes()
 	
 	Types = New Map;
 	
-	// Returns only for active process license.
+	// 
 	Types.Insert("process", Type("String"));
 	Types.Insert("port", Type("Number"));
 	Types.Insert("pid", Type("String"));
 	Types.Insert("host", Type("String"));
 	
-	// Returns only for session license.
+	// 
 	Types.Insert("session", Type("String"));
 	Types.Insert("user-name", Type("String"));
 	Types.Insert("app-id", Type("String"));	
 	Types.Insert("host", Type("String"));
 	
-	// Common to all licenses.
+	// 
 	Types.Insert("full-name", Type("String"));
 	Types.Insert("series", Type("String"));
 	Types.Insert("issued-by-server", Type("Boolean"));
@@ -2272,7 +2270,7 @@ Function RunCommand(Command, ClusterAdministrationParameters, Dictionary = Undef
 		Raise NStr("en = 'SaaS mode does not support cluster administration.';");
 	EndIf;
 	
-	// Substituting path to the rac utility and the ras server address to the command line.
+	// 
 	Client = PathToAdministrationServerClient();
 	ClientFile = New File(Client);
 	If Not ClientFile.Exists() Then

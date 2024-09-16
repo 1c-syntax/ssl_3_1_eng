@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -71,12 +69,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AutoURL = False;
 	URL = "e1cib/list/InformationRegister.UserPrintTemplates";
 	
+	If ValueIsFilled(Parameters.TemplatePath) Then
+		PositionInTree = PositionOfTemplateInTree(Parameters.TemplatePath);
+		If ValueIsFilled(PositionInTree) Then
+			NavigateToItem(PositionInTree);
+		EndIf;
+	EndIf;
+	
 EndProcedure
 
 &AtServer
 Procedure OnLoadDataFromSettingsAtServer(Settings)
 	
-	NavigateToItem(PositionInTree);
+	If Not ValueIsFilled(Parameters.TemplatePath) Then
+		NavigateToItem(PositionInTree);
+	EndIf;
 	
 EndProcedure
 
@@ -276,7 +283,7 @@ EndProcedure
 &AtClient
 Procedure TemplatesOnActivateRow(Item)
 	
-	PositionInTree = PathToTemplateInTree(Items.Templates.CurrentData);
+	PositionInTree = PathToElementInTree(Items.Templates.CurrentData);
 	DetachIdleHandler("SetCommandBarButtonsEnabled");
 	AttachIdleHandler("SetCommandBarButtonsEnabled", 0.1, True);
 	
@@ -464,7 +471,7 @@ EndProcedure
 
 #EndRegion
 
-// Template opening
+// 
 
 &AtClient
 Procedure OpenPrintFormTemplate()
@@ -491,7 +498,8 @@ Procedure OpenPrintFormTemplateForView()
 		EditorParameters = StandardSubsystemsClient.SpreadsheetEditorParameters();
 		EditorParameters.DocumentName = CurrentData.Presentation;
 		EditorParameters.Insert("TemplateMetadataObjectName", CurrentData.TemplateMetadataObjectName);
-		StandardSubsystemsClient.ShowSpreadsheetEditor(Undefined, EditorParameters);
+		StandardSubsystemsClient.ShowSpreadsheetEditor(Undefined, EditorParameters,,
+			ThisObject);
 		Return;
 	ElsIf CurrentData.TemplateType = "DOCX" Then
 		If TemplateVersion(CurrentData.Id, CurrentData.TemplateType) = "Areas" Then
@@ -556,7 +564,7 @@ Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Exp
 		FormParameters.DocumentName = CurrentData.Presentation;
 		FormParameters.Edit = Not ReadOnly;
 		CommonClientServer.SupplementStructure(FormParameters, OpeningParameters, True);
-		StandardSubsystemsClient.ShowSpreadsheetEditor(Undefined, FormParameters);
+		StandardSubsystemsClient.ShowSpreadsheetEditor(Undefined, FormParameters,, ThisObject);
 		Return;
 	ElsIf CurrentData.TemplateType = "DOCX" Then
 		If TemplateVersion(CurrentData.Id, CurrentData.TemplateType) = "Areas" Then
@@ -573,7 +581,7 @@ Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Exp
 	
 EndProcedure
 
-// Template actions
+// 
 
 &AtServerNoContext
 Function TemplateVersion(Id, TemplateType)
@@ -637,7 +645,7 @@ Procedure DeleteModifiedTemplates(TemplatesToDelete)
 	
 EndProcedure
 
-// Common
+// Overall
 
 &AtClient
 Procedure SetPictureUsage(TemplateDetails)
@@ -758,7 +766,7 @@ Procedure OnSelectingLayoutName(TemplateName, NotificationParameters) Export
 		FormParameters = StandardSubsystemsClient.SpreadsheetEditorParameters();
 		FormParameters.Edit = True;
 		CommonClientServer.SupplementStructure(FormParameters, OpeningParameters, True);
-		StandardSubsystemsClient.ShowSpreadsheetEditor(Undefined, FormParameters);
+		StandardSubsystemsClient.ShowSpreadsheetEditor(Undefined, FormParameters,, ThisObject);
 		Return;
 	EndIf;
 	
@@ -882,7 +890,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.FunctionsPanelSectionColor);
 	
-	// Color of disabled items
+	// 
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -896,7 +904,7 @@ Procedure SetConditionalAppearance()
 	
 	AppearanceItem.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
-	// Hide the usage flag for groups
+	// 
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -910,7 +918,7 @@ Procedure SetConditionalAppearance()
 	
 	AppearanceItem.Appearance.SetParameterValue("Show", False);
 	
-	// Hide the usage flag for 1C-supplied templates.
+	// 
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -944,7 +952,7 @@ Procedure SetConditionalAppearance()
 	AppearanceItem.Appearance.SetParameterValue("Show", False);
 	AppearanceItem.Appearance.SetParameterValue("Visible", False);
 	
-	// Mismatches 
+	//  
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -1245,6 +1253,29 @@ Function FindTemplates(Val Id, Val Branch1)
 	
 EndFunction
 
+&AtServer
+Function FindElementInTemplateTree(Val Id, Val Branch1 = Undefined)
+	
+	If Branch1 = Undefined Then
+		Branch1 = Templates;
+	EndIf;
+	
+	For Each Item In Branch1.GetItems() Do
+		If Item.Id = Id Then
+			FoundItem = Item;
+		Else
+			FoundItem = FindElementInTemplateTree(Id, Item);
+		EndIf;
+
+		If FoundItem <> Undefined Then
+			Return FoundItem;
+		EndIf;
+	EndDo;
+	
+	Return Undefined;
+	
+EndFunction
+
 &AtClient
 Procedure ApplySelection()
 	
@@ -1262,7 +1293,7 @@ Procedure ApplySelection()
 
 	If Items.Templates.CurrentData <> Undefined Then
 		If MatchesFilter(Items.Templates.CurrentData) Then
-			// Move to the next row if it's not visible after the list of visible rows is modified.
+			// 
 			CurrentRow = Items.Templates.CurrentRow;
 			Items.Templates.CurrentRow = 0;
 			Items.Templates.CurrentRow = CurrentRow;
@@ -1321,7 +1352,17 @@ EndFunction
 &AtClient
 Function MatchesFilter(Item)
 	
-	Return (Not ValueIsFilled(SearchString) Or StrFind(Item.SearchString, Lower(TrimAll(SearchString))))
+	TheStringMatchesTheTemplate = Not ValueIsFilled(SearchString);
+	
+	If StrFind(SearchString, "*") Then
+		SearchTemplate = Lower(TrimAll(SearchString));
+	Else
+		SearchTemplate = StrReplace(Lower(TrimAll(SearchString)), " ", "*");
+	EndIf;
+	
+	TheStringMatchesTheTemplate = TheStringMatchesTheTemplate Or TheStringMatchesTheTemplate(Item.SearchString, SearchTemplate);
+	
+	Return TheStringMatchesTheTemplate
 		And (Not Item.IsFolder And ShowChanged And Item.Changed 
 			And (ShowUsed And Item.Used Or ShowUnused And Not Item.Used)
 			Or ShowUnmodified And Not Item.Changed)
@@ -1412,13 +1453,13 @@ Procedure NavigateToItem(Val PathToItem, Val Branch1 = Undefined)
 EndProcedure
 
 &AtClientAtServerNoContext
-Function PathToTemplateInTree(Template)
+Function PathToElementInTree(Item)
 	
-	If Template = Undefined Then
+	If Item = Undefined Then
 		Return "";
 	EndIf;
 	
-	Return PathToTemplateInTree(Template.GetParent()) + "/" + Template.Id;
+	Return PathToElementInTree(Item.GetParent()) + "/" + Item.Id;
 	
 EndFunction
 
@@ -1558,5 +1599,66 @@ Procedure ImportBranch(Branch1)
 	EndDo;
 	
 EndProcedure
+
+&AtClient
+Function TheStringMatchesTheTemplate(Val String, Val Template)
+	
+	String = StrConcat(StrSplit(String, " " + Chars.LF + Chars.CR + Chars.Tab, False), " ");
+	TheStringMatchesTheTemplate = True;
+	
+	For Each PartsOfTheTemplate In StrSplit(Template, "*", False) Do
+		FragmentToSearchFor = StrConcat(StrSplit(PartsOfTheTemplate, " " + Chars.LF + Chars.CR + Chars.Tab, False), " ");
+		
+		Position = StrFind(String, FragmentToSearchFor);
+		If Position = 0 Then
+			TheStringMatchesTheTemplate = False;
+			Break;
+		EndIf;
+		
+		String = Mid(String, Position + StrLen(FragmentToSearchFor));
+	EndDo;
+	
+	Return TheStringMatchesTheTemplate;
+	
+EndFunction
+
+&AtServerNoContext
+Function IdOfTemplateOwner(TemplatePath)
+	
+	TemplateDataSource = PrintManagement.TemplateDataSource(TemplatePath);
+	
+	If Not ValueIsFilled(TemplateDataSource) Then
+		Return Undefined;
+	EndIf;
+	
+	MetadataObjects = Common.MetadataObjectsByIDs(TemplateDataSource, False);
+	IdOfTemplateOwner = Undefined;
+	
+	For Each DataSource In TemplateDataSource Do
+		If MetadataObjects[DataSource] <> Undefined Then
+			IdOfTemplateOwner = MetadataObjects[DataSource].FullName();
+			Break;
+		EndIf;
+	EndDo;
+	
+	Return IdOfTemplateOwner;
+	
+EndFunction
+
+&AtServer
+Function PositionOfTemplateInTree(Val TemplatePath)
+	
+	Result = "";
+	
+	IdOfTemplateOwner = IdOfTemplateOwner(TemplatePath);
+	LayoutOwner = FindElementInTemplateTree(IdOfTemplateOwner);
+	
+	If LayoutOwner <> Undefined Then
+		Result = PathToElementInTree(LayoutOwner) + "/" + TemplatePath;
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
 
 #EndRegion

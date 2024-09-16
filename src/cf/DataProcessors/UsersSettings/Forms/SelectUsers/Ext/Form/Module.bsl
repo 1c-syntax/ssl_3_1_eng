@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -61,7 +59,7 @@ Procedure OnSaveDataInSettingsAtServer(Settings)
 	
 	Settings.Delete("AllUsersList");
 	
-	// If the form is opened from the "Clear application user settings" form or from the "Copy application user settings" form, do not save the settings.
+	// 
 	If AddCheckMarksToPassedUsers Then
 		Return;
 	EndIf;
@@ -81,7 +79,7 @@ EndProcedure
 &AtServer
 Procedure BeforeLoadDataFromSettingsAtServer(Settings)
 	
-	// If the form is opened from the "Application user settings clearing" form or from the "Application user settings copying" form, do not load the settings
+	// 
 	If AddCheckMarksToPassedUsers Then
 		Settings.Delete("AllUsersList");
 		Settings.Delete("MarkedUsers");
@@ -160,7 +158,7 @@ Procedure ShowUsersFromSubgroupsOnChange(Item)
 	SelectedUserGroup = Items.UserGroups.CurrentData;
 	ApplyGroupFilter(SelectedUserGroup);
 	
-	// Update group titles.
+	// 
 	ClearGroupTitles();
 	UpdateGroupTitlesOnToggleCheckBox();
 	
@@ -407,7 +405,7 @@ Procedure UpdateGroupTitle(Form, UsersGroup, UserListRow, CheckMarkValue)
 			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 (%2)';"), String(UsersGroup.Group), UsersGroup.MarkedUsersCount);
 	EndIf;
 	
-	// Update the titles of all subgroups recursively.
+	// 
 	SubordinateGroups = UsersGroup.GetItems();
 	For Each SubordinateGroup In SubordinateGroups Do
 		UpdateGroupTitle(Form, SubordinateGroup, UserListRow, CheckMarkValue);

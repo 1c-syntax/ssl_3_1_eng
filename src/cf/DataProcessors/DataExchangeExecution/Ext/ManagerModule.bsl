@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Starts data exchange and is used in the background job.
+// Starts data exchange and is used in the background task.
 //
 // Parameters:
-//   JobParameters - Structure - parameters required to execute the procedure.
-//   StorageAddress   - String - address of the temporary storage.
+//   JobParameters - Structure -  parameters required to perform the procedure.
+//   StorageAddress   - String -  the address of the temporary storage.
 //
 Procedure StartDataExchangeExecution(JobParameters, StorageAddress) Export
 	
@@ -52,10 +50,10 @@ Procedure StartDataExchangeExecution(JobParameters, StorageAddress) Export
 			JobParameters.AuthenticationParameters             = ExchangeParameters.AuthenticationParameters;
 			
 			If ValueIsFilled(JobParameters.TimeConsumingOperationID) Then
-				// If the job is performed at correspondent, then it will be necessary to import the received file to the database later.
+				// 
 				JobParameters.MessageFileIDInService = ExchangeParameters.FileID;
 			Else
-				// File with data is already received and imported to the base, there is no need to import it additionally.
+				// 
 				JobParameters.MessageFileIDInService = "";
 			EndIf;
 			
@@ -67,11 +65,11 @@ Procedure StartDataExchangeExecution(JobParameters, StorageAddress) Export
 	
 EndProcedure
 
-// Starts importing a file received from the Internet. It is used in a background job.
+// Starts downloading a file received from the Internet and is used in the background task.
 //
 // Parameters:
-//   JobParameters - Structure - parameters required to execute the procedure.
-//   StorageAddress   - String - address of the temporary storage.
+//   JobParameters - Structure -  parameters required to perform the procedure.
+//   StorageAddress   - String -  the address of the temporary storage.
 //
 Procedure ImportFileDownloadedFromInternet(JobParameters, StorageAddress) Export
 	

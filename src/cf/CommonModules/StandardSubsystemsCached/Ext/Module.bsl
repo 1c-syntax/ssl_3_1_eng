@@ -1,17 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
 // Returns descriptions of all configuration libraries, including
-// the configuration itself.
+// a description of the configuration itself.
 // 
 // Returns:
 //  FixedStructure:
@@ -60,9 +58,9 @@ Function SubsystemsDetails() Export
 		LongDesc.Insert("MainServerModule", ModuleName);
 		
 		SubsystemsDetails.ByNames.Insert(LongDesc.Name, LongDesc);
-		// Setting up the subsystem order according to the adding order of main modules.
+		// 
 		SubsystemsDetails.Order.Add(LongDesc.Name);
-		// Collecting all required subsystems.
+		// 
 		For Each RequiredSubsystem In LongDesc.RequiredSubsystems1 Do
 			If AllRequiredSubsystems.Get(RequiredSubsystem) = Undefined Then
 				AllRequiredSubsystems.Insert(RequiredSubsystem, New Array);
@@ -71,7 +69,7 @@ Function SubsystemsDetails() Export
 		EndDo;
 	EndDo;
 	
-	// Verifying the main configuration description.
+	// 
 	If ConfigurationDetailsFound Then
 		LongDesc = SubsystemsDetails.ByNames[Metadata.Name];
 		
@@ -100,7 +98,7 @@ Function SubsystemsDetails() Export
 		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
-	// Checking whether all required subsystems are presented.
+	// 
 	For Each KeyAndValue In AllRequiredSubsystems Do
 		If SubsystemsDetails.ByNames.Get(KeyAndValue.Key) = Undefined Then
 			DependentSubsystems = "";
@@ -116,7 +114,7 @@ Function SubsystemsDetails() Export
 		EndIf;
 	EndDo;
 	
-	// Setting up the subsystem order according to dependencies.
+	// 
 	For Each KeyAndValue In SubsystemsDetails.ByNames Do
 		Name = KeyAndValue.Key;
 		Order = SubsystemsDetails.Order.Find(Name);
@@ -138,7 +136,7 @@ Function SubsystemsDetails() Export
 			EndIf;
 		EndDo;
 	EndDo;
-	// Moving the configuration description to the end of the array.
+	// 
 	IndexOf = SubsystemsDetails.Order.Find(Metadata.Name);
 	If SubsystemsDetails.Order.Count() > IndexOf + 1 Then
 		SubsystemsDetails.Order.Delete(IndexOf);
@@ -157,11 +155,11 @@ Function SubsystemsDetails() Export
 	
 EndFunction
 
-// Returns True if the privileged mode has been set
-// using the UsePrivilegedMode start parameter.
+// Returns True if the privileged mode was set
+// at startup using the UsePrivilegedMode parameter.
 //
-// Supported client applications only
-// (external connections are not supported).
+// Supported only when running client applications
+// (external connection is not supported).
 // 
 // Returns:
 //  Boolean
@@ -174,7 +172,7 @@ Function PrivilegedModeSetOnStart() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Application and extension metadata object ID usage.
+// 
 
 // For internal use only.
 // 
@@ -230,16 +228,16 @@ Function MetadataObjectIDsUsageCheck(CheckForUpdates = False, ExtensionsObjects 
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Data exchange operation procedures and functions.
+// 
 
-// Returns a flag that shows whether the full DIB is used in the infobase (without filters).
-// Checking with more accurately algorithm if the "Data exchange" subsystem is used.
+// Returns whether the full rib is used in the information database (without filter).
+// Verification is performed using a more accurate algorithm if the "data Exchange" subsystem is used.
 //
 // Parameters:
-//  FilterByPurpose - String - clarifies which DIB is checked:
-//                                Empty string - any DIB;
-//                                WithFilter - DIB with the;
-//                                Full filter - DIB without filters.
+//  FilterByPurpose - String - :
+//                                
+//                                
+//                                
 //
 // Returns:
 //   Boolean
@@ -250,14 +248,14 @@ Function DIBUsed(FilterByPurpose = "") Export
 	
 EndFunction
 
-// Returns a list of the DIB nodes used in the infobase (without filters).
-// Checking with more accurately algorithm if the "Data exchange" subsystem is used.
+// Returns a list of rib nodes used in the information database (without filters).
+// Verification is performed using a more accurate algorithm if the "data Exchange" subsystem is used.
 //
 // Parameters:
-//  FilterByPurpose - String - specifies the purposes of DIB exchange plan nodes to be returned:
-//                                Empty string - all DIB nodes;
-//                                WithFilter will be returned - DIB nodes with the;
-//                                Full filter will be returned - DIB nodes without filters will be returned.
+//  FilterByPurpose - String - :
+//                                
+//                                
+//                                
 //
 // Returns:
 //   ValueList
@@ -293,7 +291,7 @@ Function DIBNodes(FilterByPurpose = "") Export
 		|	NOT ExchangePlan.ThisNode
 		|	AND NOT ExchangePlan.DeletionMark";
 		Query.Text = StrReplace(Query.Text, "&ExchangePlanName", "ExchangePlan" + "." + ExchangePlanName);
-		// @skip-check query-in-loop - Set of reference from tables.
+		// 
 		NodeSelection = Query.Execute().Select();
 		While NodeSelection.Next() Do
 			NodesList.Add(NodeSelection.Ref);
@@ -304,9 +302,9 @@ Function DIBNodes(FilterByPurpose = "") Export
 	
 EndFunction
 
-// Returns a list of DIB exchange plans.
-// For SaaS mode,
-// returns the list of a separated DIB exchange plans.
+// Returns a list of rib exchange plans.
+// If the configuration works in the service model,
+// it returns a list of shared rib exchange plans.
 // 
 // Returns:
 //  Array of String
@@ -362,20 +360,20 @@ Function DIBExchangePlans() Export
 	
 EndFunction
 
-// Determines the data registration mode on exchange plan nodes.
+// Defines the mode of data logging on exchange plan nodes.
 // 
 // Parameters:
-//  FullObjectName - String - the full name of a metadata object to check.
-//  ExchangePlanName - String - exchange plan to check.
+//  FullObjectName - String -  full name of the metadata object to check.
+//  ExchangePlanName - String -  check the plan of exchange.
 //
 // Returns:
-//  Undefined - Object not included in the exchange plan,
-//  "AutoRecordEnabled" - Object included in the exchange plan, autoregistration enabled,
-//  "AutoRecordDisabled" - Object included in the exchange plan, autoregistration disabled,
-//                               object processed during the creation of the initial DIB image.
-//  "ProgramRegistration" - Object included in the exchange plan, autoregistration disabled,
-//                               object registered programmatically using event subscriptions,
-//                               object processed during the creation of the initial DIB image.
+//  Undefined - 
+//  
+//  
+//                               
+//  
+//                               
+//                               
 //
 Function ExchangePlanDataRegistrationMode(FullObjectName, ExchangePlanName) Export
 	
@@ -388,8 +386,8 @@ Function ExchangePlanDataRegistrationMode(FullObjectName, ExchangePlanName) Expo
 		Return "AutoRecordEnabled";
 	EndIf;
 	
-	// Analyze event subscriptions for more complex use cases when
-	// the 1C:Enterprise auto-registration is disabled for the metadata object.
+	// 
+	// 
 	For Each Subscription In Metadata.EventSubscriptions Do
 		SubscriptionTitleBeginning = ExchangePlanName + "Registration";
 		If Upper(Left(Subscription.Name, StrLen(SubscriptionTitleBeginning))) = Upper(SubscriptionTitleBeginning) Then
@@ -406,9 +404,9 @@ Function ExchangePlanDataRegistrationMode(FullObjectName, ExchangePlanName) Expo
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Miscellaneous.
+// 
 
-// Metadata object availability by functional options.
+// The availability of the metadata objects by functional options.
 // 
 // Returns:
 //  FixedMap of KeyAndValue:
@@ -443,13 +441,13 @@ Function ObjectsEnabledByOption() Export
 	
 EndFunction
 
-// The latest version of the template add-in.
+// The latest version of the components from the layout.
 // 
 // Parameters:
-//  Location - String - full name of the metadata template
+//  Location - String -  the full name of the layout in the metadata
 // 
 // Returns:
-//  FixedStructure - Latest version of the template add-in:
+//  FixedStructure - :
 //   * Version - String
 //   * Location - String
 //
@@ -551,7 +549,26 @@ EndFunction
 
 #Region Private
 
-// Caches the common operating parameters between server calls.
+Function IsSeparatedModeWithoutDataAreaExtensions() Export
+	
+	ThisIsSplitSessionModeWithNoDelimiters = StandardSubsystemsServer.ThisIsSplitSessionModeWithNoDelimiters();
+	
+	If Not ThisIsSplitSessionModeWithNoDelimiters Then
+		Return False;
+	EndIf;
+	
+	BackgroundJob = GetCurrentInfoBaseSession().GetBackgroundJob();
+	If BackgroundJob <> Undefined
+	   And BackgroundJob.DataSeparation.Count() > 0 Then
+		
+		Return False;
+	EndIf;
+	
+	Return True;
+	
+EndFunction
+
+// 
 //
 // Returns:
 //   See CommonOverridable.OnDetermineCommonCoreParameters.CommonParameters
@@ -562,7 +579,7 @@ Function CommonCoreParameters() Export
 
 EndFunction
 
-// Parameters applied to command interface items associated with parametric functional options.
+// The settings applied to the elements of the command interface associated with a parametric functional options.
 // 
 // Returns:
 //  FixedStructure:
@@ -577,8 +594,8 @@ Function InterfaceOptions() Export
 	
 EndFunction
 
-// Returns a map of the "functional" subsystem names and the True value.
-// A subsystem is considered functional if its "Include in command interface" check box is cleared.
+// Returns a match between the names of "functional" subsystems and the value True.
+// The" functional "subsystem has the" Include in command interface " checkbox unchecked.
 //
 // Returns:
 //  FixedMap of KeyAndValue:
@@ -729,9 +746,9 @@ EndFunction
 
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String - Name of the predefined shared scheduled job that is used
-//                      as a templated for the job queue.
-//    * Value - Boolean - the True value.
+//    * Key - String - 
+//                      
+//    * Value - Boolean -  the value is True.
 //  
 Function QueueJobTemplates() Export
 	
@@ -750,7 +767,7 @@ Function QueueJobTemplates() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// For the MetadataObjectIDs catalog.
+// 
 
 // See Catalogs.MetadataObjectIDs.MetadataObjectIDCache
 Function MetadataObjectIDCache(CachedDataKey) Export
@@ -782,31 +799,31 @@ Function RolesByKeysMetadataObjects() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Predefined data processing.
+// 
 
-// Returns the map of predefined value names and their references.
+// Returns whether the names of predefined values match their references.
 //
 // Parameters:
-//  FullMetadataObjectName - String - For example, "Catalog.ProductAndServiceTypes".
-//                               Only tables
-//                               with the following predefined items are supported:
-//                               > Catalogs,
-//                               > Charts of characteristic types,
-//                               > Charts of accounts,
-//                               > Charts of calculation types.
+//  FullMetadataObjectName - String - 
+//                               
+//                               :
+//                               
+//                               
+//                               
+//                               
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//      * Key     - String - a name of the predefined item,
+//      * Key     - String -  name of the predefined,
 //      * Value - CatalogRef
 //                 - ChartOfCharacteristicTypesRef
 //                 - ChartOfAccountsRef
 //                 - ChartOfCalculationTypesRef
-//                 - Null - a reference of the redefined item or Null if the object is not in infobase.
+//                 - Null - 
 //
-//  If there is an error in the metadata name or an inappropriate metadata type, Undefined is returned.
-//  If metadata has no predefined items, empty fixed map is returned.
-//  If the predefined item is defined in metadata, but it is not created in infobase, Null is returned for it in the map.
+//  
+//  
+//  
 //
 Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
 	
@@ -814,12 +831,12 @@ Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
 	
 	ObjectMetadata = Common.MetadataObjectByFullName(FullMetadataObjectName);
 	
-	// If metadata does not exist.
+	// 
 	If ObjectMetadata = Undefined Then 
 		Return Undefined;
 	EndIf;
 	
-	// If inappropriate type of metadata .
+	// 
 	If Not Metadata.Catalogs.Contains(ObjectMetadata)
 		And Not Metadata.ChartsOfCharacteristicTypes.Contains(ObjectMetadata)
 		And Not Metadata.ChartsOfAccounts.Contains(ObjectMetadata)
@@ -830,12 +847,12 @@ Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
 	
 	PredefinedItemsNames = ObjectMetadata.GetPredefinedNames();
 	
-	// If metadata has no predefined items.
+	// 
 	If PredefinedItemsNames.Count() = 0 Then 
 		Return New FixedMap(PredefinedValues);
 	EndIf;
 	
-	// Default filling by the absence flag in the infobase (the present ones will be redefined).
+	// 
 	For Each PredefinedItemName In PredefinedItemsNames Do 
 		PredefinedValues.Insert(PredefinedItemName, Null);
 	EndDo;
@@ -860,7 +877,7 @@ Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
 	SetPrivilegedMode(False);
 	SetSafeModeDisabled(False);
 	
-	// Filling the present items in the infobase.
+	// 
 	While Selection.Next() Do
 		PredefinedValues.Insert(Selection.PredefinedDataName, Selection.Ref);
 	EndDo;
@@ -870,7 +887,7 @@ Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions
+// 
 
 // Returns:
 //   Structure:
@@ -892,19 +909,19 @@ Function NewSubsystemDescription() Export
 	LongDesc.Insert("RequiredSubsystems1", New Array);
 	LongDesc.Insert("OnlineSupportID", "");
 	
-	// The property is set automatically.
+	// 
 	LongDesc.Insert("IsConfiguration", False);
 	
-	// The name of the library's main module.
-	// Can be empty for applied configurations.
+	// 
+	// 
 	LongDesc.Insert("MainServerModule", "");
 	
-	// The operation mode for deferred update handlers.
-	// By default, "Sequentially".
+	// 
+	// 
 	LongDesc.Insert("DeferredHandlersExecutionMode", "Sequentially");
 	LongDesc.Insert("ParallelDeferredUpdateFromVersion", "");
 	
-	// The operation mode for initial population handlers when migrating from another app.
+	// 
 	// 
 	LongDesc.Insert("FillDataNewSubsystemsWhenSwitchingFromAnotherProgram", False);
 	

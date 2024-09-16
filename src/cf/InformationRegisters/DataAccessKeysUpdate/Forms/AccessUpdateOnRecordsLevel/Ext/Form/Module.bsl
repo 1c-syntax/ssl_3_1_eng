@@ -1,18 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
 &AtClient
 Var ResultAddress, StoredDataAddress, ProgressUpdateJobID,
-		AccessUpdateErrorText;
+		AccessUpdateErrorText, ProgressHasBeenUpdatedAfterCommandsRunNow;
 
 #EndRegion
 
@@ -82,6 +80,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
+	ProgressHasBeenUpdatedAfterCommandsRunNow = True;
 	UpdateAccessUpdateThreadsCountGroupTitle();
 	
 	OnReopen();
@@ -91,7 +90,7 @@ EndProcedure
 &AtClient
 Procedure OnReopen()
 	
-	UpdateAccessUpdateJobState();
+	UpdateAccessUpdateJobState(, True);
 	UpdateAccessUpdateJobStateInThreeSeconds();
 	
 	StartProgressUpdate(True);
@@ -245,6 +244,7 @@ EndProcedure
 &AtClient
 Procedure StartAccessUpdateImmediately(Command)
 	
+	ProgressHasBeenUpdatedAfterCommandsRunNow = False;
 	AttachIdleHandler("StartAccessUpdateNowIdleHandler", 0.1, True);
 	Items.StartAccessUpdateImmediately.Enabled = False;
 	UpdateAccessUpdateJobStateInThreeSeconds();
@@ -402,7 +402,7 @@ Procedure UpdateAccessUpdateJobStateIdleHandler()
 EndProcedure
 
 &AtClient
-Procedure UpdateAccessUpdateJobState(State = Undefined)
+Procedure UpdateAccessUpdateJobState(State = Undefined, OnOpen = False)
 	
 	UpdateDisplaySettingsVisibility();
 	
@@ -484,8 +484,7 @@ Procedure UpdateAccessUpdateJobState(State = Undefined)
 	EndIf;
 	Items.LastAccessUpdateCompletion.Title = LastCompletion;
 	
-	JobExecutionCompleted = ValueIsFilled(LastAccessUpdateCompletion)
-		And ValueIsFilled(State.LastAccessUpdateCompletion)
+	JobExecutionCompleted = ValueIsFilled(State.LastAccessUpdateCompletion)
 		And LastAccessUpdateCompletion <> State.LastAccessUpdateCompletion;
 	
 	LastAccessUpdateCompletion = State.LastAccessUpdateCompletion;
@@ -502,8 +501,12 @@ Procedure UpdateAccessUpdateJobState(State = Undefined)
 	If Not State.AccessUpdateInProgress Then
 		Items.BackgroundJobRunTime1.Title = "";
 		Items.BackgroundJobRunTime2.Title = "";
-		If JobExecutionCompleted And Not ProgressAutoUpdate Then
+		If Not OnOpen
+		   And Not ProgressAutoUpdate
+		   And (JobExecutionCompleted
+		      Or ProgressHasBeenUpdatedAfterCommandsRunNow <> True) Then
 			StartProgressUpdate(True);
+			ProgressHasBeenUpdatedAfterCommandsRunNow = True;
 		EndIf;
 		Return;
 	EndIf;

@@ -1,27 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// For new objects, run the form initializer in "OnCreateAtServer".
-	// For existing objects, in "OnReadAtServer".
+	// 
+	// 
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;
 
 	CurrentUser = Users.CurrentUser();
 	
-	// StandardSubsystems.FilesOperations
+	// Standard subsystems.Remotefile
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		HyperlinkParameters = ModuleFilesOperations.FilesHyperlink();
@@ -38,7 +36,7 @@ Procedure OnOpen(Cancel)
 
 	BusinessProcessesAndTasksClient.UpdateAcceptForExecutionCommandsAvailability(ThisObject);
 	
-	// StandardSubsystems.FilesOperations
+	// Standard subsystems.Remotefile
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.OnOpen(ThisObject, Cancel);
@@ -67,7 +65,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		Return;
 	EndIf;
 	
-	// Pre-write the business process to ensure proper functioning of the route point handler.
+	// 
 	WriteBusinessProcessAttributes(CurrentObject);
 
 EndProcedure
@@ -77,7 +75,7 @@ Procedure OnReadAtServer(CurrentObject)
 
 	InitializeTheForm();
 	
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -98,7 +96,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		EndIf;
 	EndIf;
 	
-	// StandardSubsystems.FilesOperations
+	// Standard subsystems.Remotefile
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.NotificationProcessing(ThisObject, EventName);
@@ -110,7 +108,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// StandardSubsystems.AccessManagement
+	// 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -140,7 +138,7 @@ Procedure SubjectOfClick(Item, StandardProcessing)
 
 EndProcedure
 
-// StandardSubsystems.FilesOperations
+// Standard subsystems.Remotefile
 &AtClient
 Procedure Attachable_PreviewFieldClick(Item, StandardProcessing)
 
@@ -243,7 +241,7 @@ Procedure CancelAcceptForExecution(Command)
 
 EndProcedure
 
-// StandardSubsystems.FilesOperations
+// Standard subsystems.Remotefile
 &AtClient
 Procedure Attachable_AttachedFilesPanelCommand(Command)
 
@@ -317,7 +315,7 @@ Procedure WriteBusinessProcessAttributes(TaskObject)
 
 		JobObject.Completed2 = JobCompleted;
 		JobObject.Accepted = JobConfirmed;
-		JobObject.Write(); // CAC:1327 The lock is set in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
+		JobObject.Write(); // 
 
 		CommitTransaction();
 	Except

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -224,13 +222,13 @@ Procedure GoToSelectedVersion(CancelPosting = False)
 		Buttons.Add("GoTo", NStr("en = 'Yes';"));
 		Buttons.Add(DialogReturnCode.Cancel);
 		ShowQueryBox(NotifyDescription, QueryText, Buttons);
-	Else //Result = "RestoringComplete"
+	Else
 		NotifyChanged(Ref);
 		If FormOwner <> Undefined Then
 			Try
 				FormOwner.Read();
 			Except
-				// Do nothing if the form has no Read() method.
+				// 
 			EndTry;
 		EndIf;
 		ShowUserNotification(
@@ -476,17 +474,17 @@ Function AttributeChanged(CurrentVersion, PreviousVersion, Attribute)
 		EndIf;
 	EndIf;
 	
-	// Tabular section attribute change check.
+	// 
 	If TabularSectionName <> Undefined Then
 		CurrentTabularSection = CurrentVersion.TabularSections[TabularSectionName];
 		PreviousTabularSection = PreviousVersion.TabularSections[TabularSectionName];
 		
-		// Table is missing.
+		// 
 		If CurrentTabularSection = Undefined Or PreviousTabularSection = Undefined Then
 			Return Not CurrentTabularSection = Undefined And PreviousTabularSection = Undefined;
 		EndIf;
 		
-		// If the number of tabular section rows is changed.
+		// 
 		If CurrentTabularSection.Count() <> PreviousTabularSection.Count() Then
 			Return True;
 		EndIf;
@@ -495,7 +493,7 @@ Function AttributeChanged(CurrentVersion, PreviousVersion, Attribute)
 			Return Common.ValueToXMLString(CurrentTabularSection) <> Common.ValueToXMLString(PreviousTabularSection);
 		EndIf;
 		
-		// Attribute is missing.
+		// 
 		CurrentAttributeExists = CurrentTabularSection.Columns.Find(AttributeName) <> Undefined;
 		PreviousAttributeExists = PreviousTabularSection.Columns.Find(AttributeName) <> Undefined;
 		If CurrentAttributeExists <> PreviousAttributeExists Then
@@ -505,7 +503,7 @@ Function AttributeChanged(CurrentVersion, PreviousVersion, Attribute)
 			Return False;
 		EndIf;
 		
-		// Row-by-row comparison.
+		// 
 		For LineNumber = 0 To CurrentTabularSection.Count() - 1 Do
 			If CurrentTabularSection[LineNumber][AttributeName] <> PreviousTabularSection[LineNumber][AttributeName] Then
 				Return True;
@@ -515,7 +513,7 @@ Function AttributeChanged(CurrentVersion, PreviousVersion, Attribute)
 		Return False;
 	EndIf;
 	
-	// Check the header attribute.
+	// 
 	
 	If AttributeName = "*" Then
 		Return Common.ValueToXMLString(CurrentVersion) <> Common.ValueToXMLString(PreviousVersion);
@@ -559,7 +557,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// Missing version data.
+	// 
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
@@ -573,7 +571,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.VersionsTree.Name);
 	
 	
-	// Rejected versions.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -587,7 +585,7 @@ Procedure SetConditionalAppearance()
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField(Items.VersionsTree.Name);
 	
-	// Current version.
+	// 
 	
 	Item = ConditionalAppearance.Items.Add();
 	

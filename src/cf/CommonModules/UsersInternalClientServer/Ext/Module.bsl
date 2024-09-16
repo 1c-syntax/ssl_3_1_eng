@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Returns the string of the day, days kind.
+// Returns strings of the form "day", "days", "days".
 //
 // Parameters:
-//   Number                       - Number  - an integer to which to add numeration item.
-//   FormatString             - String - see the parameter of the same name of the NumberInWords method,
-//                                          for example, DE=True.
-//   NumerationItemOptions - String - see the parameter of the same name of the NumberInWords method,
-//                                          for example, NStr("en= day, day, days,,,,,,0'").
+//   Number                       - Number  -  an integer to which you want to add the object calculus.
+//   FormatString             - String - see the parameter of the method with the same name numerically,
+//                                          for example: "DP = Truth".
+//   NumerationItemOptions - String - see the method parameter of the same name in numerical writing,
+//                                          for example: NStr("ru = 'day,day,days,,,,,,0'").
 //
 //  Returns:
 //   String
@@ -79,7 +77,7 @@ EndFunction
 
 #Region Private
 
-// Generates the user name based on the  full name.
+// Calculates the initial login name based on the user's full name.
 Function GetIBUserShortName(Val FullName) Export
 	
 	Separators = New Array;
@@ -124,7 +122,7 @@ Function GetIBUserShortName(Val FullName) Export
 	
 EndFunction
 
-// For the Users and ExternalUsers catalogs item form.
+// For creating directory elements, Users and external Users.
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -176,7 +174,7 @@ Procedure UpdateLifetimeRestriction(Form) Export
 	
 EndProcedure
 
-// For the Users and ExternalUsers catalogs item form.
+// For creating directory elements, Users and external Users.
 //
 // Parameters:
 //  Form - See Catalog.Users.Form.ItemForm

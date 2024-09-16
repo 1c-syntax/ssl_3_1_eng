@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -487,16 +485,16 @@ Procedure AddSettingsToArchive(Archive, Settings, TempDirectoryName, SettingsTyp
 	
 EndProcedure
 
-// Adds an XML file of details of report option settings to a ZIP archive with the following specification:
-//  <SettingsDescription ReportName="Отчет.Файлы">
-//  	<Settings Key="50a4127a-7646-49b3-9d09-51681e6e16b9" Presentation="Версии файлов"/>
-//  	<UserSettings Key="a61e745b-ac46-46d3-92a6-5bba4969b7d2" Presentation="Files > 100 KB" isCurrent="true"/>
-//  	<UserSettings Key="6895ac09-f02d-4b17-82b6-79dd76c7b2a3" Presentation="Files > 10 MB" isCurrent="false"/>
-//  </SettingsDescription>
+// 
+//  
+//  	
+//  	
+//  	
+//  
 //
 // Parameters:
-//  Archive - ZipFileWriter - Archive to add report option settings and details to.
-//  TempDirectoryName - String - Name of the temporary directory containing XML files of report option settings and details.
+//  Archive - ZipFileWriter -  archive where the report variant settings and their description are Packed.
+//  TempDirectoryName - String -  name of the temporary folder containing xml files for the report variant settings and their description.
 //
 &AtServer
 Procedure AddSettingsDetailsToArchive(Archive, TempDirectoryName, ReportOptionDetails)

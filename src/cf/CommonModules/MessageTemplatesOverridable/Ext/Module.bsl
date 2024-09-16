@@ -1,34 +1,32 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Defines an assignment composition and common attributes in message templates 
+// Defines the composition of assignments and General details in message templates 
 //
 // Parameters:
 //  Settings - Structure:
-//    * TemplatesSubjects - ValueTable - contains subject options for templates. Columns:
-//         ** Name           - String - a unique assignment name.
-//         ** Presentation - String - an option presentation.
-//         ** Template         - String - a name of the DCS template if the composition of attributes is defined using DCS.
-//         ** DCSParametersValues - Structure - DCS parameter values for the current message template subject.
-//    * CommonAttributes - ValueTree - contains details of common attributes available in all templates. Columns:
-//         ** Name            - String - a unique name of a common attribute.
-//         ** Presentation  - String - a common attribute presentation.
-//         ** Type            - Type    - a common attribute type. It is a string by default.
-//    * UseArbitraryParameters  - Boolean - indicates whether it is possible to use arbitrary user
-//                                                    parameters in message templates.
-//    * DCSParametersValues - Structure - common values of DCS parameters for all templates, where the attribute composition
-//                                          is defined using DCS.
-//    * ExtendedRecipientsList - Boolean - If set to "True", the message recipients can specify a send option
-//                                              and the contact in "Business interactions" outbox.
+//    * TemplatesSubjects - ValueTable - :
+//         ** Name           - String -  unique name of the destination.
+//         ** Presentation - String -  representation of the option.
+//         ** Template         - String -  name of the SKD layout, if the details are defined using the SKD.
+//         ** DCSParametersValues - Structure -  values of SCD parameters for the current subject of the message template.
+//    * CommonAttributes - ValueTree - :
+//         ** Name            - String -  the unique name of the shared prop.
+//         ** Presentation  - String -  representation of general props.
+//         ** Type            - Type    -  the types of common props. By default, a string.
+//    * UseArbitraryParameters  - Boolean -  specifies whether custom
+//                                                    parameters can be used in message templates.
+//    * DCSParametersValues - Structure -  General values of the SCD parameters for all layouts where the composition of the details
+//                                          is determined by the SCD tools.
+//    * ExtendedRecipientsList - Boolean - 
+//                                              
 //
 Procedure OnDefineSettings(Settings) Export
 	
@@ -36,31 +34,31 @@ Procedure OnDefineSettings(Settings) Export
 	
 EndProcedure
 
-// Called when preparing message templates. Overrides the list of attributes and attachments.
+// Called when preparing message templates and allows you to redefine the list of details and attachments.
 //
 // Parameters:
-//  Attributes - ValueTreeRowCollection - a list of template attributes.:
-//    * Name            - String - a unique attribute name.
-//    * Presentation  - String - an attribute presentation.
-//    * FullPresentation - String - Attribute's extended presentation.
-//    * Type            - Type    - an attribute type.
-//    * ToolTip      - String - extended attribute information.
-//    * ArbitraryParameter - Boolean - Flag indicating that the attribute was added interactively.
-//    * Format         - String - Output format for numbers, dates, strings, and boolean values. 
-//                                For example, "DLF=D" for dates.
-//    * Parent - ValueTreeRow, Undefined - Row that contains the given row collection.
-//  Attachments - ValueTable - print forms and attachments, where:
-//    * Name            - String - a unique attachment name.
-//    * Id  - String - an attachment ID.
-//    * Presentation  - String - an option presentation.
-//    * ToolTip      - String - extended attachment information.
-//    * FileType       - String - an attachment type that matches the file extension: pdf, png, jpg, mxl, and so on.
-//    * ParameterName   - String - For internal use only.
-//    * Attribute       - String - For internal use only.
-//    * Status         - String - For internal use only.
-//    * PrintManager - String - For internal use only.
-//    * PrintParameters - Structure - For internal use only.
-//  TemplateAssignment  - String  - a message template assignment. For example, "CustomerNotificationChangeOrder".
+//  Attributes - ValueTreeRowCollection - :
+//    * Name            - String -  unique name of the prop.
+//    * Presentation  - String - 
+//    * FullPresentation - String - 
+//    * Type            - Type    - 
+//    * ToolTip      - String -  extended information about the bank details.
+//    * ArbitraryParameter - Boolean - 
+//    * Format         - String -  format for output values for numbers, dates, strings, and Boolean values. 
+//                                For example, "DLF=D" for a date.
+//    * Parent - ValueTreeRow, Undefined - 
+//  Attachments - ValueTable - :
+//    * Name            - String -  the unique name of the attachment.
+//    * Id  - String -  id of the attachment.
+//    * Presentation  - String -  representation of the option.
+//    * ToolTip      - String -  extended information about the attachment.
+//    * FileType       - String -  the attachment type that corresponds to the file extension: "pdf", "png", "jpg", mxl", etc.
+//    * ParameterName   - String -  the service parameter. Not intended for use.
+//    * Attribute       - String -  the service parameter. Not intended for use.
+//    * Status         - String -  the service parameter. Not intended for use.
+//    * PrintManager - String -  the service parameter. Not intended for use.
+//    * PrintParameters - Structure -  the service parameter. Not intended for use.
+//  TemplateAssignment  - String  -  the purpose of the message template, for example, "Notification of a client or order change".
 //  AdditionalParameters - See MessageTemplates.TemplateParametersDetails
 //
 Procedure OnPrepareMessageTemplate(Attributes, Attachments, TemplateAssignment, AdditionalParameters) Export
@@ -69,36 +67,36 @@ Procedure OnPrepareMessageTemplate(Attributes, Attachments, TemplateAssignment, 
 
 EndProcedure
 
-// Called when creating a message from a template. Populates values in attributes and attachments.
+// Called when creating messages based on a template to fill in the values of details and attachments.
 //
 // Parameters:
 //  Message - Structure:
-//    * AttributesValues - Map of KeyAndValue - List of template's attributes:
-//      ** Key     - String - Template's attribute name.
-//      ** Value - String - Template's filling value.
-//    * CommonAttributesValues - Map of KeyAndValue - List of template's common attributes:
-//      ** Key     - String - Template's attribute name.
-//      ** Value - String - Template's filling value.
+//    * AttributesValues - Map of KeyAndValue - :
+//      ** Key     - String -  name of the prop in the template;
+//      ** Value - String -  the fill value in the template.
+//    * CommonAttributesValues - Map of KeyAndValue - :
+//      ** Key     - String -  name of the prop in the template;
+//      ** Value - String -  the fill value in the template.
 //    * Attachments - Map of KeyAndValue:
-//      ** Key     - String - Template's attachment name.
+//      ** Key     - String -  name of the attachment in the template;
 //      ** Value - BinaryData
-//                  - String - binary data or an address in a temporary storage of the attachment.
+//                  - String - 
 //    * AdditionalParameters - Structure:
-//       ** MessageKind - String - The template type: "MailMessage", "SMS", or "Arbitrary".
-//       ** DCSParametersValues - Structure - The values of DCS parameters. (The list of parameters is determined by the DCS means).
-//       ** SendImmediately - Boolean - If set to "True", the message will be sent immediately after the user finished composing it.
-//       ** MessageParameters - Structure - Additional parameters passed in functions "GenerateMessage" or 
-//                               "GenerateMessageAndSend" (an API function of the "MessageTemplates" common module).
-//       ** Account - CatalogRef.EmailAccounts, Undefined - The account on whose behalf 
-//                         the email message will be sent. If empty, the system account is used.
-//       ** ArbitraryParameters - Map - Used-added parameters.
-//       ** PrintForms - Array - A list of message template print forms.
-//       ** ConvertHTMLForFormattedDocument - Boolean - Indicates whether to convert the HTML text of a message containing images. 
-//                                                    Intended to address the specifics of displaying images in formatted documents. 
+//       ** MessageKind - String - 
+//       ** DCSParametersValues - Structure - 
+//       ** SendImmediately - Boolean - 
+//       ** MessageParameters - Structure -  
+//                               
+//       ** Account - CatalogRef.EmailAccounts, Undefined -  
+//                         
+//       ** ArbitraryParameters - Map - 
+//       ** PrintForms - Array - 
+//       ** ConvertHTMLForFormattedDocument - Boolean -  
+//                                                     
 //                                                    
 //       ** SettingsForSaving - See PrintManagement.SettingsForSaving.
-//  TemplateAssignment - String -  a full name of a message template assignment.
-//  MessageSubject - AnyRef - a reference to an object that is a data source.
+//  TemplateAssignment - String -    full name of the destination message template.
+//  MessageSubject - AnyRef - 
 //  TemplateParameters - See MessageTemplates.TemplateParametersDetails
 //
 Procedure OnCreateMessage(Message, TemplateAssignment, MessageSubject, TemplateParameters) Export
@@ -107,46 +105,46 @@ Procedure OnCreateMessage(Message, TemplateAssignment, MessageSubject, TemplateP
 
 EndProcedure
 
-// Fills in a list of text message recipients when sending a message generated from template.
+// Fills in the list of SMS recipients when sending a message generated by a template.
 //
 // Parameters:
 //   SMSMessageRecipients - ValueTable:
-//     * PhoneNumber - String - a phone number to send a text message to.
-//     * Presentation - String - a text message recipient presentation.
-//     * Contact       - Arbitrary - a contact that owns the phone number.
-//  TemplateAssignment - String - a template assignment ID.
-//  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - Structure that describes template parameters:
-//    * SubjectOf               - AnyRef - a reference to an object that is a data source.
-//    * MessageKind - String - Message type: "Email", "SMSMessage".
-//    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
-//    * SendImmediately - Boolean - indicates whether to send a text message immediately.
-//    * MessageParameters - Structure - additional message parameters.
+//     * PhoneNumber - String -  phone number where the SMS message will be sent;
+//     * Presentation - String -  representation of the recipient of an SMS message;
+//     * Contact       - Arbitrary -  the contact that the phone number belongs to.
+//  TemplateAssignment - String -  ID of the template destination
+//  MessageSubject - AnyRef -  a reference to the object that is the data source.
+//                   - Structure  - :
+//    * SubjectOf               - AnyRef -  reference to the object that is the data source;
+//    * MessageKind - String -  type of generated message: "e-mail" or " SMS Message";
+//    * ArbitraryParameters - Map -  filled in list of custom parameters;
+//    * SendImmediately - Boolean -  flag for instant sending;
+//    * MessageParameters - Structure -  additional message parameters.
 //
 Procedure OnFillRecipientsPhonesInMessage(SMSMessageRecipients, TemplateAssignment, MessageSubject) Export
 	
 EndProcedure
 
-// Fills in a list of email recipients upon sending a message generated from a template.
+// Fills in the list of mail recipients when sending a message generated by a template.
 //
 // Parameters:
-//   EmailRecipients - ValueTable - a list of mail recipients.:
-//     * SendingOption - String - Messaging options: "Whom" (To), "Copy" (CC), "HiddenCopy" (BCC), and "ReplyTo".
-//     * Address           - String - a recipient email address.
-//     * Presentation   - String - an email recipient presentation.
-//     * Contact         - Arbitrary - a contact that owns the email address.
-//  TemplateAssignment - String - a template assignment ID.
-//  MessageSubject - AnyRef - a reference to an object that is a data source.
-//                   - Structure  - Structure that describes template parameters:
-//    * SubjectOf               - AnyRef - a reference to an object that is a data source.
-//    * MessageKind - String - Message type: "Email", "SMSMessage".
-//    * ArbitraryParameters - Map - a filled list of arbitrary parameters.
-//    * SendImmediately - Boolean - a kind of a message being generated: Email or SMSMessage.
-//    * MessageParameters - Structure - additional message parameters.
-//    * ConvertHTMLForFormattedDocument - Boolean - indicates whether to convert an HTML text
-//             of a message that contains pictures in an email text because of specifics of displaying pictures
-//             in a formatted document.
-//    * Account - CatalogRef.EmailAccounts - an account used to send an email.
+//   EmailRecipients - ValueTable - :
+//     * SendingOption - String - 
+//     * Address           - String -  e-mail address of the recipient;
+//     * Presentation   - String -  representation of the email recipient;
+//     * Contact         - Arbitrary -  the contact that the email address belongs to.
+//  TemplateAssignment - String -  ID of the template destination.
+//  MessageSubject - AnyRef -  a reference to the object that is the data source.
+//                   - Structure  - :
+//    * SubjectOf               - AnyRef -  reference to the object that is the data source;
+//    * MessageKind - String -  type of generated message: "e-mail" or " SMS Message";
+//    * ArbitraryParameters - Map -  filled in list of custom parameters;
+//    * SendImmediately - Boolean -  indicates whether the message was sent instantly;
+//    * MessageParameters - Structure -  additional message parameters;
+//    * ConvertHTMLForFormattedDocument - Boolean -  flag converting the HTML text
+//             of a message containing images in the message text due to the features of displaying images
+//             in a formatted document;
+//    * Account - CatalogRef.EmailAccounts -  account for sending the email.
 //
 Procedure OnFillRecipientsEmailsInMessage(EmailRecipients, TemplateAssignment, MessageSubject) Export
 	
@@ -154,9 +152,9 @@ Procedure OnFillRecipientsEmailsInMessage(EmailRecipients, TemplateAssignment, M
 	
 EndProcedure
 
-// Initial population of predefined message templates.
+// 
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
+// See also updating the information base undefined.customizingmachine infillingelements
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -165,7 +163,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemsFilling
+// See also updating the information base undefined.At firstfillingelements
 //
 // Parameters:
 //  LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -178,13 +176,13 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
+// See also updating the information base undefined.customizingmachine infillingelements
 //
 // Parameters:
-//  Object                  - CatalogObject.PerformerRoles - Object to populate.
-//  Data                  - ValueTableRow - Object fill data.
+//  Object                  - CatalogObject.PerformerRoles -  the object to fill in.
+//  Data                  - ValueTableRow -  data for filling in the object.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable -  the data filled in in the procedure for the initial filling of the elements.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	

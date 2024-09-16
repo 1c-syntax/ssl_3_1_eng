@@ -3,12 +3,7 @@
 	<CommonPicture uuid="397d9926-31a3-4c03-acb7-74478f9863e1">
 		<Properties>
 			<Name>AllowObjectAttributeEdit</Name>
-			<Synonym>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Allow edit object attributes</v8:content>
-				</v8:item>
-			</Synonym>
+			<Synonym/>
 			<Comment/>
 			<AvailabilityForChoice>false</AvailabilityForChoice>
 			<AvailabilityForAppearance>false</AvailabilityForAppearance>

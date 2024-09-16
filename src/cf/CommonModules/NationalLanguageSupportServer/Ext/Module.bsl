@@ -1,28 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Called from the "OnInitialItemsFilling" handler.
-// Fills in columns named "AttributeName_<LanguageCode>" with the text for the given language codes.
+// To call from the handler at firstfill Elements.
+// Fills in the columns with the names of Request_name<language Code> with text values for the specified language codes.
 //
 // Parameters:
-//  Item        - ValueTableRow - A row that takes the value.
-//  AttributeName   - String - An attribute name. For example, "Description".
-//  InitialString - String - An NStr string. For example, "en = 'An English message'; ru = 'Сообщение на русском'".
-//  LanguagesCodes     - Array - The codes of the target languages.
+//  Item        - ValueTableRow - 
+//  AttributeName   - String -   name of the prop. For Example, " Name"
+//  InitialString - String -  string in the format of NBC. For example, " ru = 'Message in Russian'; en = 'English message'".
+//  LanguagesCodes     - Array -  codes of the languages to fill in the lines in.
 // 
 // Example:
 //
-//  NationalLanguageSupportServer.FillMultilingualAttribute(Item, "Description", "en = 'An English message';
-//  ru = 'Сообщение на русском'", LanguageCodes);
+//  Multilanguage server.Fill in the multi-language request(Element, "Name", " ru = 'Message in Russian'; en =
+//  'English message'", language Codes);
 //
 Procedure FillMultilanguageAttribute(Item, AttributeName, InitialString, LanguagesCodes = Undefined) Export
 	
@@ -38,17 +36,17 @@ Procedure FillMultilanguageAttribute(Item, AttributeName, InitialString, Languag
 	
 EndProcedure
 
-// Called from the OnCreateAtServer handler of the object form. Adds the open button to the fields for entering
-// multilanguage attributes on this form. Clicking the button opens a window for entering the attribute value in all
-// configuration languages.
+// Called from the append handler on the object's form Server. Adds the open button to the input fields
+// for multilingual details on this form. Clicking the button opens a window for entering the value of the props in all
+// the languages available in the configuration.
 //
 // Parameters:
-//   Form  - ClientApplicationForm - object form.
+//   Form  - ClientApplicationForm -  object form.
 //   Object - FormDataStructure:
 //     * Ref - AnyRef
-//  ObjectName - String - for list forms, the dynamic list name on the form. The default value is "List".
-//                        For other forms, the main attribute name on the form. Use it
-//                        if the name differs from the default ones: "Object", "Record", or "List".
+//  ObjectName - String -  for list forms, the name of the dynamic list on the form. By default, the "List".
+//                        For other forms, the name of the main item on the form. It should be used
+//                        if the name differs from the standard ones: "Object", "Record", "List".
 //
 Procedure OnCreateAtServer(Form, Object = Undefined, ObjectName = Undefined) Export
 	
@@ -120,14 +118,14 @@ Procedure OnCreateAtServer(Form, Object = Undefined, ObjectName = Undefined) Exp
 	
 EndProcedure
 
-// It is called from the OnReadAtServer handler of the object form to fill in values of the multilanguage
-// form attributes in the current user language.
+// Called from the account handler in the object's form Server to fill in the values of multilingual
+// form details in the user's current language.
 //
 // Parameters:
-//  Form         - ClientApplicationForm - object form.
-//  CurrentObject - Arbitrary - an object received in the OnReadAtServer form handler.
-//  ObjectName - String - the main attribute name on the form. It is used
-//                        if the name differs from the default: "Object", "Record", "List".
+//  Form         - ClientApplicationForm -  object form.
+//  CurrentObject - Arbitrary -  the object that was received in the form handler for the account in the server.
+//  ObjectName - String -  name of the main item on the form. It should be used
+//                        if the name differs from the standard ones: "Object", "Record", "List".
 //
 Procedure OnReadAtServer(Form, CurrentObject, ObjectName = Undefined) Export
 	
@@ -148,8 +146,8 @@ Procedure OnReadAtServer(Form, CurrentObject, ObjectName = Undefined) Export
 	
 EndProcedure
 
-// It is called from the BeforeWriteAtServer handler of the object form or when programmatically recording an object
-// to record multilingual attribute values in accordance with the current user language.
+// Called from the handler before writing on the object form Server or when writing the object programmatically
+// to record the values of multilingual details in accordance with the user's current language.
 //
 // Parameters:
 //  CurrentObject - BusinessProcessObject
@@ -159,7 +157,7 @@ EndProcedure
 //                - ChartOfCharacteristicTypesObject
 //                - ExchangePlanObject
 //                - ChartOfAccountsObject
-//                - CatalogObject - Object being written.
+//                - CatalogObject -  the object being recorded.
 //
 Procedure BeforeWriteAtServer(CurrentObject) Export
 	
@@ -267,8 +265,8 @@ Procedure BeforeWriteAtServer(CurrentObject) Export
 	
 EndProcedure
 
-// It is called from the object module to fill in the multilingual
-// attribute values of the object in the current user language.
+// Called from the object module to fill in the values of multilingual
+// object details in the user's current language.
 //
 // Parameters:
 //  Object - BusinessProcessObject
@@ -278,7 +276,7 @@ EndProcedure
 //         - ChartOfCharacteristicTypesObject
 //         - ExchangePlanObject
 //         - ChartOfAccountsObject
-//         - CatalogObject - a data object.
+//         - CatalogObject -  data object.
 //
 Procedure OnReadPresentationsAtServer(Object) Export
 	
@@ -350,14 +348,14 @@ Procedure OnReadPresentationsAtServer(Object) Export
 	
 EndProcedure
 
-// It is called from the ProcessGettingChoiceData handler to form a list during line input,
-// automatic text selection and quick selection, as well as when the GetChoiceData method is executed.
-// The list contains options in all languages, considering the attributes specified in the LineInput property.
+// Called from the get data selection handler To generate a list when entering text by line,
+// auto-selecting text, and quick selection, as well as when executing the get data Selection method.
+// The list contains variants in all languages, taking into account the details defined in the input property.
 //
 // Parameters:
-//  ChoiceData         - ValueList - data for the choice.
-//  Parameters            - Structure - contains choice parameters.
-//  StandardProcessing - Boolean  - this parameter stores the flag of whether the standard (system) event processing is executed.
+//  ChoiceData         - ValueList -  data to select.
+//  Parameters            - Structure -  contains settings for the choice.
+//  StandardProcessing - Boolean  -  this parameter is passed to indicate that standard (system) event processing is performed.
 //  MetadataObject     - MetadataObjectBusinessProcess
 //                       - MetadataObjectDocument
 //                       - MetadataObjectTask
@@ -366,7 +364,7 @@ EndProcedure
 //                       - MetadataObjectExchangePlan
 //                       - MetadataObjectChartOfAccounts
 //                       - MetadataObjectCatalog
-//                       - MetadataObjectTable - a metadata object, for which the choice list is generated.
+//                       - MetadataObjectTable - 
 //
 Procedure ChoiceDataGetProcessing(ChoiceData, Val Parameters, StandardProcessing, MetadataObject) Export
 	
@@ -419,15 +417,15 @@ Procedure ChoiceDataGetProcessing(ChoiceData, Val Parameters, StandardProcessing
 	
 EndProcedure
 
-// Adds the current language code to a field in the query text.
-// Field conversion examples:
-//   - If FieldName value is "Properties.Title", the field is converted into "Properties.TitleLanguage1".
-//   - If FieldName value is "Properties.Title AS Title", the field is converted into "Properties.TitleLanguage1 AS Title". 
+// 
+// 
+//   
+//    
 //   
 // 
 // Parameters:
-//  QueryText - String - Text of the query whose field is renamed.
-//  FieldName - String - Name of the field to replace.
+//  QueryText - String - 
+//  FieldName - String - 
 //
 Procedure ChangeRequestFieldUnderCurrentLanguage(QueryText, FieldName) Export
 	
@@ -444,11 +442,11 @@ Procedure ChangeRequestFieldUnderCurrentLanguage(QueryText, FieldName) Export
 	
 EndProcedure
 
-// Returns the additional language postfix for the current UI language.
+// 
 // 
 // Returns:
-//  String - Postfix added to the name of the attribute that stores the attribute value in the given language.
-//           For example, "Lang1" for the attribute "DescriptionLang2".
+//  String - 
+//           
 //
 Function CurrentLanguageSuffix() Export
 
@@ -457,14 +455,14 @@ Function CurrentLanguageSuffix() Export
 EndFunction
 
 
-// Returns the additional language postfix by the passed language code.
+// 
 // 
 // Parameters:
-//  LanguageCode - String - Short language presentation. For example, "en" for English.
+//  LanguageCode - String - 
 // 
 // Returns:
-//  String - Postfix added to the name of the attribute that stores the attribute value in the given language.
-//           For example, "Lang1" for the attribute "DescriptionLang2".
+//  String - 
+//           
 //
 Function LanguageSuffix(LanguageCode) Export
 	
@@ -476,13 +474,13 @@ Function LanguageSuffix(LanguageCode) Export
 
 EndFunction
 
-// Determines whether the passed language is used in the app.
+// 
 // 
 // Parameters:
-//  LanguageSuffix - String - Additional language postfix. For example, "Lang1".
+//  LanguageSuffix - String - 
 // 
 // Returns:
-//  Boolean - If "True", the additional language is used in the app. 
+//  Boolean -  
 //
 Function IsAdditionalLangUsed(LanguageSuffix) Export
 
@@ -490,16 +488,16 @@ Function IsAdditionalLangUsed(LanguageSuffix) Export
 
 EndFunction
 
-// Returns attribute names considering the passed language code.
+// 
 // 
 // Parameters:
-//  AttributesNames - String - A comma-delimited list of attributes. For example, "Description,Comment".
-//  LanguageCode - String - Language code. If unspecified, the current app language is passed.
+//  AttributesNames - String - 
+//  LanguageCode - String - 
 // 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - String - An attribute name. For example, "Description". 
-//   * Value - String - Attribute name followed by the language code. For example, "DescriptionsLang2"
+//   * Key - String -  
+//   * Value - String - 
 //
 Function AttributesNamesConsideringLangCode(AttributesNames, LanguageCode = "") Export
 	
@@ -528,8 +526,20 @@ Function RegionalInfobaseSettingsRequired() Export
 	
 	SetPrivilegedMode(True);
 	
-	If DataToChangeMultilanguageAttributes() <> Undefined Then
-		Return True;
+	TheseChangesToMultilingualAttributes = DataToChangeMultilanguageAttributes();
+	If TheseChangesToMultilingualAttributes <> Undefined Then
+		If TheseChangesToMultilingualAttributes.MainLanguageChanged 
+		 Or Users.IsFullUser(,, False) Then
+			Return True;
+		EndIf;
+		
+		If (TheseChangesToMultilingualAttributes.FirstAdditionalLanguageChanged
+		   And CurrentLanguage().LanguageCode = FirstAdditionalInfobaseLanguageCode())
+		 Or (TheseChangesToMultilingualAttributes.SecondAdditionalLanguageChanged
+		   And CurrentLanguage().LanguageCode = SecondAdditionalInfobaseLanguageCode()) Then
+				Return True;
+		EndIf;
+		
 	EndIf;
 	
 	If ValueIsFilled(Constants.DefaultLanguage.Get()) Then
@@ -632,7 +642,7 @@ Function UpdateMultilanguageStringsOfPredefinedItems(ObjectsRefs, MetadataObject
 			Result.ObjectsProcessed = Result.ObjectsProcessed + 1;
 			
 		Except
-			// If an item cannot be processed, try again.
+			// 
 			Result.ObjectsWithIssuesCount = Result.ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -822,7 +832,7 @@ Function SecondAdditionalLanguageUsed() Export
 	
 EndFunction
 
-// Update data.
+// 
 
 Procedure ProcessGeneralDataToUpgradeToNewVersion() Export
 	
@@ -864,7 +874,7 @@ Procedure ProcessGeneralDataToUpgradeToNewVersion() Export
 	
 EndProcedure
 
-// Registers objects to process in the update handler
+// Registers an object to be processed in the update handler
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -944,7 +954,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			ObjectWithPredefinedElements.Value);
 		If Selection.Count() > 0 Then
 		
-			// @skip-check query-in-loop - Batch-wise data processing in an update handler
+			// 
 			FillInEmptyMultilingualDetailsWithTheValueOfTheMainLanguage(Selection, ObjectWithPredefinedElements.Key,
 				TotalProcessed);
 			
@@ -956,7 +966,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Initial data population.
+// 
 
 // Parameters:
 //  ObjectReference - CatalogRef
@@ -992,7 +1002,7 @@ Procedure UpdateMultilanguageStringsOfPredefinedItem(ObjectReference, SettingsOf
 		Block.Lock();
 		
 		Object = ObjectReference.GetObject();
-		If Object = Undefined Then // the object may have been deleted in other sessions
+		If Object = Undefined Then // 
 			RollbackTransaction();
 			Return;
 		EndIf;
@@ -1285,15 +1295,15 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 EndProcedure
 
-// Adds or changes the attribute values in the object.
+// Adds or changes the values of details in the object.
 //
 // Parameters:
 //  Object - CatalogObject
 //         - DocumentObject
 //         - ChartOfCharacteristicTypesObject
-//         - InformationRegisterRecord - Object to populate.
-//  Values - Structure - where the key is the attribute name, and the value contains the string to be placed in the attribute.
-//  LanguageCode - String - attribute language code. For example, "en".
+//         - InformationRegisterRecord -  the object to fill in.
+//  Values - Structure -  where the key is the name of the prop, and the value contains the string to be placed in the prop.
+//  LanguageCode - String -  the language code of the props. For example, "ru".
 //
 Procedure SetAttributesValues(Object, Values, Val LanguageCode = Undefined) Export
 	
@@ -1372,7 +1382,7 @@ Procedure SetAttributesValues(Object, Values, Val LanguageCode = Undefined) Expo
 						FoundRow[AttributeName] = Value;
 				EndIf;
 				
-			Else // If an attribute is not multilingual, set its value only in the default language.
+			Else // 
 				If LanguageCode = Common.DefaultLanguageCode() Then
 					Object[AttributeName] = AttributeValues[LanguageCode];
 				EndIf;
@@ -1384,7 +1394,7 @@ Procedure SetAttributesValues(Object, Values, Val LanguageCode = Undefined) Expo
 EndProcedure
 
 // Parameters:
-//  ParameterName - String
+//  Parameter Name-String
 //  SpecifiedParameters - Array of String
 //
 Procedure SessionParametersSetting(Val SessionParametersNames, SpecifiedParameters) Export
@@ -1447,8 +1457,8 @@ EndFunction
 // 
 // Returns:
 //  MetadataObjectCatalog
-//  MetadataObjectDocument
-//  MetadataObject
+//  Objectmanagement
+//  Metadata object
 //
 Function MetadataObject(Object) Export
 	
@@ -1474,10 +1484,10 @@ Function NameOfAttributeToLocalize(AttributeName, LanguageCode)
 	
 EndFunction
 
-// Code of the main infobase language
+// Code of the main language of the information base
 // 
 // Returns:
-//  String - a language code. For example, "en".
+//  String - 
 //
 Function InfobaseLanguageCode()
 	
@@ -1812,7 +1822,7 @@ Procedure FillInEmptyMultilingualDetailsWithTheValueOfTheMainLanguage(Selection,
 				
 				LockDataForEdit(Selection.Ref);
 				
-				// @skip-check query-in-loop - Batch processing of a large amount of data.
+				// 
 				NamesOfAttributesToLocalize = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
 				
 				For Each Attribute In NamesOfAttributesToLocalize Do
@@ -1842,7 +1852,7 @@ Procedure FillInEmptyMultilingualDetailsWithTheValueOfTheMainLanguage(Selection,
 		Except
 			
 			RollbackTransaction();
-			// If an object cannot be processed, try again.
+			// 
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -1917,18 +1927,18 @@ EndProcedure
 
 
 // Parameters:
-//  Attribute - MetadataObjectAttribute
-//           - StandardAttributeDescription
+//  Props - Objektmanagement
+//           - Descriptionstandardrequisit
 //
 Function IsAttributeToLocalize(AttributeName)
 	Return StrEndsWith(AttributeName, "Language1") Or StrEndsWith(AttributeName, "Language2");
 EndFunction
 
 // Parameters:
-//  DataVariant - String - Valid values are: "Overall", "Separated_Data", "All" 
+//  DataVariant - String -  
 // 
 // Returns:
-//  Array - ObjectsSCHRepresentations objects
+//  Array - 
 //
 Function ObjectsSCHRepresentations(DataVariant)
 	
@@ -2088,7 +2098,7 @@ EndProcedure
 //  ListOfObjects - Array
 // 
 // Returns:
-//  String - A comma-delimited list of object names
+//  String - 
 //
 Function ObjectsWithInitialStringFilling(ListOfObjects)
 	
@@ -2129,7 +2139,7 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 			MetadataObjectWithItems = ObjectWithPredefinedElements.Key;
 			FullMetadataObjectName  = ObjectWithPredefinedElements.Value;
 			
-			// @skip-check query-in-loop - Batch processing of a large amount of data.
+			// 
 			ObjectAttributesToLocalize = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObjectWithItems);
 			Filters = New Array;
 			
@@ -2185,7 +2195,7 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 		
 	EndIf;
 	
-	// A special batch of objects that should be registered with the "Presentations" table.
+	// 
 	ObjectsSCHRepresentations = ObjectsSCHRepresentations(DataVariant);
 	
 	If ObjectsSCHRepresentations.Count() > 0 Then
@@ -2278,7 +2288,7 @@ EndFunction
 
 #Region ChangeLanguage
 
-// Data for modifying multilanguage attributes.
+// 
 // 
 // Returns:
 //  Structure:
@@ -2349,7 +2359,7 @@ Procedure ChangeLanguageinMultilingualDetailsConfig(Parameters, Address) Export
 		 Or StrStartsWith(FullName, "ChartOfAccounts")
 		 Or StrStartsWith(FullName, "ChartOfCalculationTypes") Then
 			
-			// @skip-check query-in-loop - Batch processing of a large amount of data.
+			// 
 			HandleReferenceObjects(FullName, ObjectData.Value, DataToChangeMultilanguageAttributes,
 				Context);
 				
@@ -2357,13 +2367,13 @@ Procedure ChangeLanguageinMultilingualDetailsConfig(Parameters, Address) Export
 			MetadataObject = Common.MetadataObjectByFullName(FullName);
 			
 			If MetadataObject.WriteMode = Metadata.ObjectProperties.RegisterWriteMode.RecorderSubordinate Then
-				// @skip-check query-in-loop - Batch processing of a large amount of data.
+				// 
 				ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData.Value,
 					DataToChangeMultilanguageAttributes, Context);
 			Else
 				Periodic3 = MetadataObject.InformationRegisterPeriodicity
 					<> Metadata.ObjectProperties.InformationRegisterPeriodicity.Nonperiodical;
-				// @skip-check query-in-loop - Batch processing of a large amount of data.
+				// 
 				ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData.Value,
 					DataToChangeMultilanguageAttributes, Context, Periodic3);
 			EndIf;
@@ -2448,7 +2458,7 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 		Query.Text = QueryText;
 		Query.SetParameter("Ref", LastRef);
 		
-		// @skip-check query-in-loop - Batch-wise data processing
+		// 
 		QueryResult = Query.Execute();
 		
 		If Not QueryResult.IsEmpty() Then
@@ -2459,7 +2469,9 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 				InfobaseUpdateInternal.IsIncludesEditedPredefinedAttributes(FullName);
 			
 			While SelectionDetailRecords.Next() Do
-
+				
+				PresentationOfObjectBeingModified = String(SelectionDetailRecords.Ref);
+				
 				BeginTransaction();
 				Try
 
@@ -2469,7 +2481,7 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 					Block.Lock();
 
 					ObjectToChange = SelectionDetailRecords.Ref.GetObject();
-					If ObjectToChange = Undefined Then // the object may have been deleted in other sessions
+					If ObjectToChange = Undefined Then // 
 						RollbackTransaction();
 						Continue;
 					EndIf;
@@ -2485,7 +2497,7 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 					
 					For Each MultilingualProps In MultilingualAttributes Do
 						
-						// Save old values.
+						// 
 						AttributeValues = New Map;
 						AttributeValues[ValuesLanguageConstants.MainLanguageOldValue] =  ObjectToChange[MultilingualProps];
 						AttributeValues[ValuesLanguageConstants.AdditionalLanguage1OldValue] = ObjectToChange[MultilingualProps
@@ -2589,7 +2601,16 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 					
 				Except
 					RollbackTransaction();
-					Raise;
+					
+					LastRef = SelectionDetailRecords.Ref;
+					ObjectData.ReferenceToLastProcessedObjects = LastRef; 
+					
+					ErrorDescription     = ErrorInfo();
+					ObjectMetadata = Metadata.FindByFullName(FullName);
+					WriteLogEvent(EventLogEvent(), EventLogLevel.Error, 
+						ObjectMetadata, PresentationOfObjectBeingModified,
+						ErrorProcessing.DetailErrorDescription(ErrorDescription));
+					
 				EndTry;
 			
 			EndDo;
@@ -2776,7 +2797,7 @@ Procedure ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData, DataTo
 						
 						For Each MultilingualProps In MultilingualAttributes Do
 							
-							// Save old values.
+							// 
 							AttributeValues = New Map;
 							AttributeValues[ValuesLanguageConstants.MainLanguageOldValue] =  ModifiableRecord[MultilingualProps];
 							AttributeValues[ValuesLanguageConstants.AdditionalLanguage1OldValue] = ModifiableRecord[MultilingualProps + FirstLanguageSuffix()];
@@ -2818,14 +2839,24 @@ Procedure ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData, DataTo
 					
 				Except
 					RollbackTransaction();
-					Raise;
+					
+					Filter = New Structure();
+					Filter.Insert("Recorder", ResultString1.RecorderAttributeRef);
+					
+					ObjectData.ReferenceToLastProcessedObjects = Filter;
+					
+					ErrorDescription     = ErrorInfo();
+					ObjectMetadata = Metadata.FindByFullName(FullName);
+					WriteLogEvent(EventLogEvent(), EventLogLevel.Error,
+						ObjectMetadata,, ErrorProcessing.DetailErrorDescription(ErrorDescription));
+					
 				EndTry;
 			
 		EndDo;
 		
 		Query.SetParameter("Recorder", ResultString1.RecorderAttributeRef);
 		
-		// @skip-check query-in-loop - Batch-wise data processing
+		// 
 		Result = Query.Execute().Unload();
 		
 	EndDo;
@@ -2971,7 +3002,7 @@ Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData, Dat
 					
 					For Each MultilingualProps In MultilingualAttributes Do
 						
-						// Save old values.
+						// 
 						AttributeValues = New Map;
 						AttributeValues[ValuesLanguageConstants.MainLanguageOldValue] =  ModifiableRecord[MultilingualProps];
 						AttributeValues[ValuesLanguageConstants.AdditionalLanguage1OldValue] = ModifiableRecord[MultilingualProps + FirstLanguageSuffix()];
@@ -3017,7 +3048,23 @@ Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData, Dat
 					
 				Except
 					RollbackTransaction();
-					Raise;
+					
+					Filter = New Structure();
+					For Each Dimension In Dimensions Do
+						Filter.Insert(Dimension.Name, ResultString1[Dimension.Name + "DimensionRef"]);
+					EndDo;
+					
+					If Periodic3 Then
+						Filter.Insert("Period", ResultString1["Period"]);
+					EndIf;
+					
+					ObjectData.ReferenceToLastProcessedObjects = Filter;
+					
+					ErrorDescription     = ErrorInfo();
+					ObjectMetadata = Metadata.FindByFullName(FullName);
+					WriteLogEvent(EventLogEvent(), EventLogLevel.Error, 
+						ObjectMetadata,, ErrorProcessing.DetailErrorDescription(ErrorDescription));
+					
 				EndTry;
 			
 		EndDo;
@@ -3030,7 +3077,7 @@ Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData, Dat
 			Query.SetParameter(Dimension.Name, ResultString1[Dimension.Name + "DimensionRef"]);
 		EndDo;
 		
-		// @skip-check query-in-loop - Batch-wise data processing
+		// 
 		Result = Query.Execute().Unload();
 		
 	EndDo;
@@ -3075,6 +3122,17 @@ Function ObjectsWithInitialFilling(DataVariant)
 	
 	Return ObjectsWithPredefinedItemsForDataVariant;
 	
+EndFunction
+
+// 
+// 
+// Returns:
+//  String - 
+//
+Function EventLogEvent()
+
+	Return NStr("en = 'National language support';", Common.DefaultLanguageCode());
+
 EndFunction
 
 #EndRegion

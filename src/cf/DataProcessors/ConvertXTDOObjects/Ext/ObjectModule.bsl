@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -20,9 +18,9 @@ Var DataImportDataProcessorField;
 
 #Region ExportProperties1
 
-// Function for retrieving property: the result of data exchange.
+// Function property: the result of the data exchange.
 //  Returns:
-//      EnumRef.ExchangeExecutionResults - data exchange result.
+//      EnumRef.ExchangeExecutionResults -  the result of the data exchange.
 //
 Function ExchangeExecutionResult() Export
 	
@@ -39,10 +37,10 @@ Function ExchangeExecutionResult() Export
 	
 EndFunction
 
-// Function for retrieving property: the result of data exchange.
+// Function property: the result of the data exchange.
 //
 //  Returns: 
-//      String - data exchange result.
+//      String -  the result of the data exchange.
 //
 Function ExchangeExecutionResultString() Export
 	
@@ -51,10 +49,10 @@ Function ExchangeExecutionResultString() Export
 EndFunction
 
 
-// Function for retrieving property: the number of imported objects.
+// Property function: the number of objects that were loaded.
 //
 //  Returns:
-//      Number - number of imported objects.
+//      Number - 
 //
 Function ImportedObjectCounter() Export
 	
@@ -66,10 +64,10 @@ Function ImportedObjectCounter() Export
 	
 EndFunction
 
-// Function for retrieving property: the amount of exported objects.
+// Property function: the number of objects that were unloaded.
 //
 //  Returns:
-//      Number - number of exported objects.
+//      Number - 
 //
 Function ExportedObjectCounter() Export
 	
@@ -81,10 +79,10 @@ Function ExportedObjectCounter() Export
 	
 EndFunction
 
-// Function for retrieving properties: a data exchange error message string.
+// Property function: a string that contains an error message during data exchange.
 //
 //  Returns:
-//      String - a data exchange error message string.
+//      String - 
 //
 Function ErrorMessageString() Export
 	
@@ -96,10 +94,10 @@ Function ErrorMessageString() Export
 	
 EndFunction
 
-// Function for retrieving property: a flag that shows a data exchange execution error.
+// Function-property: flag for data exchange error.
 //
 //  Returns:
-//     Boolean - a flag that shows a data exchange execution error.
+//     Boolean - 
 //
 Function FlagErrors() Export
 	
@@ -107,10 +105,10 @@ Function FlagErrors() Export
 	
 EndFunction
 
-// Function for retrieving property: a number of data exchange message.
+// Function-property: number of the data exchange message.
 //
 //  Returns:
-//      Number - a number of the data exchange message.
+//      Number - 
 //
 Function MessageNo() Export
 	
@@ -118,10 +116,10 @@ Function MessageNo() Export
 	
 EndFunction
 
-// Function for retrieving properties: a value table with incoming exchange message statistics and extra information.
+// Property function: a table of values with statistical and additional information about the incoming exchange message.
 //
 //  Returns:
-//      ValueTable - contains statistics and extra information on the incoming exchange message.
+//      ValueTable - 
 //
 Function PackageHeaderDataTable() Export
 	
@@ -133,10 +131,10 @@ Function PackageHeaderDataTable() Export
 	
 EndFunction
 
-// Function for retrieving properties: map with data tables of the received data exchange message.
+// Property function: matches the data tables of the incoming exchange message.
 //
 //  Returns:
-//      Map - contains data tables of the received data exchange message.
+//      Map - 
 //
 Function DataTablesExchangeMessages() Export
 	
@@ -152,11 +150,11 @@ EndFunction
 
 #Region DataExport
 
-// Run data export
-// -- All objects are exported to one file.
+// Perform the data upload
+// -- All objects are uploaded to a single file.
 //
 // Parameters:
-//      DataProcessorForDataImport - DataProcessorObject.ConvertXTDOObjects - a data processor for import in COM connection.
+//      DataProcessorForDataImport - DataProcessorObject.ConvertXTDOObjects -  processing for uploading on a COM connection.
 //
 Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	
@@ -229,12 +227,12 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 		
 	EndIf;
 	
-	// Open an exchange file.
+	// 
 	DataExchangeXDTOServer.OpenExportFile(ExchangeComponents, ExchangeFileName);
 	
 	Try
 		AfterOpenExportFile(Cancel);
-		// DATA EXPORT
+		// 
 		If Not Cancel Then
 			DataExchangeXDTOServer.ExecuteDataExport(ExchangeComponents);
 		EndIf;
@@ -257,13 +255,15 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	EndIf;
 	
 	If ExchangeComponents.FlagErrors Then
-
-		Try
-			DeleteFiles(ExchangeFileName);
-		Except
-			WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));	
-		EndTry;
+		
+		If Not IsBlankString(ExchangeFileName) Then
+			Try
+				DeleteFiles(ExchangeFileName);
+			Except
+				WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
+					EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));	
+			EndTry;
+		EndIf;
 	
 	EndIf;
 	
@@ -325,12 +325,12 @@ EndProcedure
 
 #Region DataImport
 
-// Imports data from the exchange message file.
-// Data is imported to the infobase.
+// Loads data from the exchange message file.
+// Data is uploaded to the information database.
 //
 // Parameters:
 //  ImportParameters - Structure
-//                    - Undefined - For internal use only.
+//                    - Undefined -  the service parameter. Not intended for use.
 //
 Procedure RunDataImport(ImportParameters = Undefined) Export
 	
@@ -375,7 +375,7 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	
 	DataExchangeXDTOServer.OpenImportFile(ExchangeComponents, ExchangeFileName);
 	
-	// Format extension can be initialized following reading the format version from a message file.
+	// 
 	DataExchangeXDTOServer.FormatExtensionsToExchangeComponents(ExchangeComponents);
 	
 	Cancel = False;
@@ -429,10 +429,10 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	ExchangeComponents.ExchangeFile.Close();
 	
 	If Not ExchangeComponents.FlagErrors Then
-		// Checking data From / NewFrom.
+		// 
 		CheckNodesCodes(DataAnalysisResultToExport, ExchangeComponents.CorrespondentNode);
 		
-		// Writing information on the incoming message number.
+		// 
 		BeginTransaction();
 		Try
 			DataLock = New DataLock;
@@ -468,15 +468,15 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 	
 EndProcedure
 
-// Imports data from an exchange message file to an infobase of the specified object types only.
+// Loads data from the exchange message file to the Information Database of only the specified object types.
 //
 // Parameters:
-//  TablesToImport - Array of String - array of types to be imported from the exchange message.
-//                       For example, to import from the exchange message the "Counterparties" catalog items only:
-//                         TablesToImport = New Array;
-//                         TablesToImport.Add("CatalogRef.Counterparties");
-//                       You can receive the list of all types that are contained in the current exchange message
-//                       by calling the ExecuteExchangeMessageAnalysis() procedure.
+//  TablesToImport - Array of String - 
+//                       :
+//                         
+//                         
+//                       
+//                       
 // 
 Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	
@@ -503,7 +503,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 		Return;
 	EndIf;
 	
-	// Record in the event log.
+	// 
 	MessageString = NStr("en = 'Data exchange started. Node: %1.';", Common.DefaultLanguageCode());
 	MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(ExchangeNodeDataImport));
 	DataExchangeXDTOServer.WriteEventLogDataExchange1(MessageString, ExchangeComponents, EventLogLevel.Information);
@@ -530,7 +530,7 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 	EndTry;
 	DataExchangeInternal.DisableAccessKeysUpdate(False);
 	
-	// Record in the event log.
+	// 
 	MessageString = NStr("en = 'Action to execute: %1;
 		|Completion status: %2;
 		|Objects processed: %3.';",
@@ -546,14 +546,14 @@ Procedure ExecuteDataImportForInfobase(TablesToImport) Export
 EndProcedure
 
 // Performs sequential reading of the exchange message file while:
-//  - registration of changes by the number of the incoming receipt is deleted
-//  - exchange rules are imported
-//  - information on data types is imported
-//  - data mapping information is read and recorded to the infobase
-//  - information on objects types and their amount is collected.
+//  - deleting the registration of changes by the incoming receipt number
+//  - exchange rules are loaded
+//  - information about data types is loaded
+//  - data matching information is read and recorded and is
+//  -information about the types of objects and their number is collected.
 //
 // Parameters:
-//      AnalysisParameters - Structure - not used, left for the compatibility purposes.
+//      AnalysisParameters - Structure -  not used, left for compatibility purposes.
 // 
 Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 	
@@ -584,7 +584,7 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 	
 	DataExchangeXDTOServer.OpenImportFile(ExchangeComponents, ExchangeFileName);
 	
-	// Format extension can be initialized following reading the format version from a message file.
+	// 
 	DataExchangeXDTOServer.FormatExtensionsToExchangeComponents(ExchangeComponents);
 	
 	Cancel = False;
@@ -596,16 +596,16 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 	
 	Try
 		
-		// Reading data from the exchange message.
+		// 
 		DataExchangeXDTOServer.ReadDataInAnalysisMode(ExchangeComponents, AnalysisParameters);
 		
 		PackageHeaderDataTable = ExchangeComponents.PackageHeaderDataTable; // ValueTable
 		
-		// Generate a temporary data table.
+		// 
 		TemporaryPackageHeaderDataTable = PackageHeaderDataTable.Copy(, "SourceTypeString, DestinationTypeString, SearchFields, TableFields");
 		TemporaryPackageHeaderDataTable.GroupBy("SourceTypeString, DestinationTypeString, SearchFields, TableFields");
 		
-		// Collapsing a table of a data batch title.
+		// 
 		PackageHeaderDataTable.GroupBy(
 			"ObjectTypeString, SourceTypeString, DestinationTypeString, SynchronizeByID, IsClassifier, IsObjectDeletion, UsePreview",
 			"ObjectCountInSource");
@@ -639,15 +639,15 @@ Procedure ExecuteExchangeMessageAnalysis(AnalysisParameters = Undefined) Export
 		
 EndProcedure
 
-// Imports data from the exchange message file to values table of specified objects types.
+// Loads data from the exchange message file to a table of values for only the specified object types.
 //
 // Parameters:
-//  TablesToImport - Array of String - array of types to be imported from the exchange message.
-//                       For example, to import from the exchange message the "Counterparties" catalog items only:
-//                         TablesToImport = New Array;
-//                         TablesToImport.Add("CatalogRef.Counterparties");
-//                       You can receive the list of all types that are contained in the current exchange message
-//                       by calling the ExecuteExchangeMessageAnalysis() procedure.
+//  TablesToImport - Array of String - 
+//                       :
+//                         
+//                         
+//                       
+//                       
 // 
 Procedure ExecuteDataImportIntoValueTable(TablesToImport) Export
 	
@@ -674,7 +674,7 @@ Procedure ExecuteDataImportIntoValueTable(TablesToImport) Export
 	
 	DataExchangeXDTOServer.OpenImportFile(ExchangeComponents, ExchangeFileName);
 	
-	// Format extension can be initialized following reading the format version from a message file.
+	// 
 	DataExchangeXDTOServer.FormatExtensionsToExchangeComponents(ExchangeComponents);
 	
 	Cancel = False;
@@ -686,7 +686,7 @@ Procedure ExecuteDataImportIntoValueTable(TablesToImport) Export
 	
 	ExchangeComponents.DataImportToInfobaseMode = False;
 	
-	// Initialize data tables of the data exchange message.
+	// 
 	For Each DataTableKey In TablesToImport Do
 		
 		SubstringsArray = StrSplit(DataTableKey, "#");
@@ -711,8 +711,8 @@ EndProcedure
 
 #Region Internal
 
-// Stores an exchange file to a file storage service for subsequent mapping.
-// Data is not imported.
+// Places the exchange file in the file storage service for later matching.
+// Data is not being loaded.
 //
 Procedure PutMessageForDataMapping(XMLExportData) Export
 	
@@ -782,13 +782,13 @@ Function InitExchangeMessageDataTable(ObjectType)
 	
 	Columns = ExchangeMessageDataTable.Columns;
 	
-	// Required fields.
+	// 
 	Columns.Add("UUID", New TypeDescription("String",, New StringQualifiers(36)));
 	Columns.Add("TypeAsString",              New TypeDescription("String",, New StringQualifiers(255)));
 	
 	MetadataObject = Metadata.FindByType(ObjectType);
 	
-	// Get details of all metadata object fields from the configuration.
+	// 
 	ObjectPropertiesDescriptionTable = Common.ObjectPropertiesDetails(MetadataObject, "Name, Type");
 	
 	For Each PropertyDetails In ObjectPropertiesDescriptionTable Do
@@ -832,7 +832,7 @@ Procedure AfterOpenExportFile(Cancel = False)
 	EndIf;
 	
 	If ExchangeComponents.XDTOSettingsOnly Then
-		// XDTO settings are sent only for file communication channels.
+		// 
 		ExchangeComponents.ExchangeFile.WriteEndElement(); // Message
 		ExchangeComponents.ExchangeFile.Close();
 		Cancel = True;
@@ -867,7 +867,7 @@ Procedure AfterOpenExportFile(Cancel = False)
 EndProcedure
 
 // Parameters:
-//  DataAnalysisResultToExport - Structure - see details of the DataExchangeServer.DataAnalysisResultToExport
+//  DataAnalysisResultToExport - Structure -  see the description of the Server command function.Resultsanalyzed loading
 //  InfobaseNode - ExchangePlanRef
 // 
 Procedure CheckNodesCodes(DataAnalysisResultToExport, InfobaseNode)
@@ -930,7 +930,7 @@ Procedure CheckNodesCodes(DataAnalysisResultToExport, InfobaseNode)
 			PredefinedNodeAlias = DataExchangeServer.PredefinedNodeAlias(InfobaseNode);
 			If ValueIsFilled(PredefinedNodeAlias)
 				And DataAnalysisResultToExport.CorrespondentSupportsDataExchangeID Then
-				// Probably, it's time to delete the record. Check the "To" section.
+				// 
 				ExchangePlanName = DataExchangeCached.GetExchangePlanName(InfobaseNode);
 				PredefinedNodeCode = DataExchangeServer.PredefinedExchangePlanNodeCode(ExchangePlanName);
 				If TrimAll(PredefinedNodeCode) = DataAnalysisResultToExport.To Then

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 //
@@ -48,13 +46,13 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Opens the object form that is specified in the configuration for the exchange plan where the node belongs.
+// Selects a node and passes the selected values to the calling form.
 &AtClient
 Procedure SelectNode(Command)
 	PerformNodeChoice();
 EndProcedure
 
-// Opens node form that specified as an object form.
+// Opens the node form specified in the configuration.
 &AtClient
 Procedure ChangeNode(Command)
 	

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,10 +12,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.BatchEditObjects
+// 
 
-// Returns the object attributes that are not recommended to be edited
-// using a bulk attribute modification data processor.
+// Returns the details of an object that is not recommended to edit
+// by processing a batch update of account details.
 //
 // Returns:
 //  Array of String
@@ -32,7 +30,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// StandardSubsystems.ObjectAttributesLock
+// Standard subsystems.Forbidding editingrequisitobjects
 
 // Returns:
 //   See ObjectAttributesLockOverridable.OnDefineLockedAttributes.LockedAttributes.
@@ -51,7 +49,7 @@ EndFunction
 
 // End StandardSubsystems.ObjectAttributesLock
 
-// StandardSubsystems.DuplicateObjectsDetection
+// 
 
 // Parameters: 
 //   ReplacementPairs - See DuplicateObjectsDetectionOverridable.OnDefineItemsReplacementAvailability.ReplacementPairs
@@ -71,7 +69,7 @@ Function CanReplaceItems(Val ReplacementPairs, Val ReplacementParameters = Undef
 			Continue;
 		EndIf;
 		
-		// Replacing a contact information kind with another kind is only allowed if they both belong to the same group.
+		// 
 		ReplacementAllowed = CurrentRef.Parent = DestinationRef.Parent;
 		If Not ReplacementAllowed Then
 			Error = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Item ""%1"" belongs to ""%2,"" while ""%3"" belongs to ""%4.""';"),
@@ -95,7 +93,7 @@ Procedure DuplicatesSearchParameters(SearchParameters, AdditionalParameters = Un
 	Restriction.Insert("AdditionalFields", "Parent, Type, Used");
 	SearchParameters.ComparisonRestrictions.Add(Restriction);
 	
-	// Table size to be passed to the handler.
+	// 
 	SearchParameters.ItemsCountToCompare = 100;
 	
 EndProcedure
@@ -120,13 +118,13 @@ EndProcedure
 
 // End StandardSubsystems.DuplicateObjectsDetection
 
-// StandardSubsystems.ObjectsVersioning
+// 
 
 // 
-// Defines object settings for the ObjectsVersioning subsystem.
+// Defines object settings for the object Versioning subsystem.
 //
 // Parameters:
-//   Settings - Structure - Subsystem settings.
+//   Settings - Structure -  subsystem settings.
 //
 Procedure OnDefineObjectVersioningSettings(Settings) Export
 	
@@ -142,7 +140,7 @@ EndProcedure
 
 #Region EventHandlers
 
-// ACC:362-off Design-based decision.
+// 
 
 Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -158,7 +156,7 @@ Procedure PresentationGetProcessing(Data, Presentation, StandardProcessing)
 #EndIf
 EndProcedure
 
-// ACC:362-on
+// 
 
 #EndRegion
 
@@ -166,7 +164,7 @@ EndProcedure
 
 #Region Internal
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
+// See also updating the information base undefined.customizingmachine infillingelements
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateInternal.ItemsFillingSettings
@@ -180,7 +178,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnInitialItemsFilling
+// See also updating the information base undefined.At firstfillingelements
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -196,7 +194,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description", 
-			"en = '""Users"" catalog contact information';", LanguagesCodes); // @NStr-1
+			"en = '""Users"" catalog contact information';", LanguagesCodes); // 
 	Else
 		Item.Description = NStr("en = '""Users"" catalog contact information';", 
 			Common.DefaultLanguageCode());
@@ -216,7 +214,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description", 
-		"en = 'Email';", LanguagesCodes); // @NStr-1
+		"en = 'Email';", LanguagesCodes); // 
 	Else
 		Item.Description = NStr("en = 'Email';", Common.DefaultLanguageCode());
 	EndIf;
@@ -237,7 +235,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description", 
-		"en = 'Phone';", LanguagesCodes); // @NStr-1
+		"en = 'Phone';", LanguagesCodes); // 
 	Else
 		Item.Description = NStr("en = 'Phone';", Common.DefaultLanguageCode());
 	EndIf;
@@ -246,13 +244,13 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.
+// See also updating the information base undefined.customizingmachine infillingelements
 //
 // Parameters:
-//  Object                  - CatalogObject.ContactInformationKinds - Object to populate.
-//  Data                  - ValueTableRow - object filling data.
+//  Object                  - CatalogObject.ContactInformationKinds -  the object to fill in.
+//  Data                  - ValueTableRow -  data for filling in the object.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
+//   * PredefinedData - ValueTable -  the data filled in in the procedure for the initial filling of the elements.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	
@@ -285,14 +283,14 @@ EndProcedure
 
 #Region IDForFormulas
 
-// Checks the ID uniqueness within the metadata object for which contact
-// information type (parent) is intended and that the ID complies with the syntax.
+// Checks whether the ID is unique within the metadata object that the contact
+// information type (parent) is intended for, and whether the ID matches the spelling rules.
 // 
 // Parameters:
-//   IDForFormulas - String - ID for formulas.
-//   Ref - CatalogRef.ContactInformationKinds - a reference to the current object.
-//   Parent - CatalogRef.ContactInformationKinds - a reference to the current object parent.
-//   Cancel - Boolean - a cancellation flag if there is an error.
+//   IDForFormulas - String -  the identifier for the formulas.
+//   Ref - CatalogRef.ContactInformationKinds -  reference to the current object.
+//   Parent - CatalogRef.ContactInformationKinds -  reference to the parent of the current object.
+//   Cancel - Boolean -  flag for failure if there is an error.
 //
 Procedure CheckIDUniqueness(IDForFormulas, Ref, Parent, Cancel) Export
 	
@@ -374,20 +372,20 @@ Procedure CheckIDUniqueness(IDForFormulas, Ref, Parent, Cancel) Export
 	
 EndProcedure
 
-// Returns a UUID for formulas (after the uniqueness check)
+// Returns a unique identifier for formulas (after checking for uniqueness)
 // 
 // Parameters:
-//   ObjectPresentation - String - a presentation from which an ID for formulas will be generated.
-//   CurrentObjectRef - CatalogRef.ContactInformationKinds - a reference to the current item.
-//   Parent - CatalogRef.ContactInformationKinds - a reference to the current object parent.
+//   ObjectPresentation - String -  the view from which the ID for formulas will be generated.
+//   CurrentObjectRef - CatalogRef.ContactInformationKinds -  link to the current item.
+//   Parent - CatalogRef.ContactInformationKinds -  reference to the parent of the current object.
 // Returns:
-//   String - — a unique ID value for formulas.
+//   String - 
 //
 Function UUIDForFormulas(ObjectPresentation, CurrentObjectRef, Parent) Export
 
 	Id = IDForFormulas(ObjectPresentation);
 	If IsBlankString(Id) Then
-		// Presentation consists of special characters and digits.
+		// 
 		Prefix = NStr("en = 'ID';");
 		Id = IDForFormulas(Prefix + ObjectPresentation);
 	EndIf;
@@ -431,7 +429,7 @@ Function UUIDForFormulas(ObjectPresentation, CurrentObjectRef, Parent) Export
 	QueryResults = Query.ExecuteBatch();
 	UniquenessByExactMatch = QueryResults[0];
 	If Not UniquenessByExactMatch.IsEmpty() Then
-		// There are items with this ID.
+		// 
 		PreviousIDs = New Map;
 		SimilarItemsSelection = QueryResults[1].Select();
 		While SimilarItemsSelection.Next() Do
@@ -481,13 +479,13 @@ Function IDForFormulasUnique(IDToCheck, CurrentObjectRef, Parent)
 	Return QueryResult.IsEmpty();
 EndFunction
 
-// Calculates the value of an ID from the string according to the variable naming rules.
+// Calculates the ID value from a string according to the variable naming rules.
 // 
 // Parameters:
-//  PresentationRow - String - description, the string from which it is required to receive an ID. 
+//  PresentationRow - String -  name of the string to get the ID from. 
 //
 // Returns:
-//  String - — an ID matching the ID naming rules.
+//  String - 
 //
 Function IDForFormulas(PresentationRow) Export
 	
@@ -565,7 +563,7 @@ EndFunction
 
 #EndRegion
 
-// Registers contact information kinds for processing.
+// Registers types of contact information for processing.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -644,7 +642,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			ContactInformationKind = ContactInformationKindRef.Ref.GetObject(); // CatalogObject.ContactInformationKinds
 			
-			// Correcting descriptions in various languages
+			// 
 			If MoreThanOneLanguage Then
 				KindName = ?(ValueIsFilled(ContactInformationKind.PredefinedKindName),
 					ContactInformationKind.PredefinedKindName, ContactInformationKind.PredefinedDataName);
@@ -671,7 +669,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				And Not ValueIsFilled(ContactInformationKind.IDForFormulas) Then
 				DescriptionForID = DescriptionForIDGeneration(ContactInformationKind.Description,
 					ContactInformationKind.Presentations);
-				// @skip-check query-in-loop - Read up-to-date data from the infobase at each iteration.
+				// 
 				ContactInformationKind.IDForFormulas = UUIDForFormulas(DescriptionForID,
 					ContactInformationKind.Ref, ContactInformationKind.Parent);
 			EndIf;
@@ -692,7 +690,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		Except
 			RollbackTransaction();
 			
-			// If you cannot process any kind of contact information, try again.
+			// 
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			InfobaseUpdate.WriteErrorToEventLog(

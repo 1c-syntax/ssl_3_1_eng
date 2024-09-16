@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Namespace of the current (used by the calling code) message interface version.
+// Namespace of the current (used by the calling code) version of the message interface.
 //
 // Returns:
-//   String - a namespace.
+//   String -  name space.
 //
 Function Package() Export
 	
@@ -21,10 +19,10 @@ Function Package() Export
 	
 EndFunction
 
-// The current (used by the calling code) message interface version.
+// The current version of the message interface (used by the calling code).
 //
 // Returns:
-//   String - a message interface version.
+//   String - 
 //
 Function Version() Export
 	
@@ -32,10 +30,10 @@ Function Version() Export
 	
 EndFunction
 
-// The name of the application message interface.
+// Name of the message programming interface.
 //
 // Returns:
-//   String - the name of the application message interface.
+//   String - 
 //
 Function Public() Export
 	
@@ -43,10 +41,10 @@ Function Public() Export
 	
 EndFunction
 
-// Registers message handlers as message exchange channel handlers.
+// Registers message handlers as message channel handlers.
 //
 // Parameters:
-//   HandlersArray - Array of CommonModule - a collection of modules containing handlers.
+//   HandlersArray - Array of CommonModule -  a collection of modules containing handlers.
 //
 Procedure MessagesChannelsHandlers(Val HandlersArray) Export
 	
@@ -54,23 +52,23 @@ Procedure MessagesChannelsHandlers(Val HandlersArray) Export
 	
 EndProcedure
 
-// Registers message translation handlers.
+// Registers handlers for broadcast messages.
 //
 // Parameters:
-//   HandlersArray - Array of CommonModule - a collection of modules containing handlers.
+//   HandlersArray - Array of CommonModule -  a collection of modules containing handlers.
 //
 Procedure MessagesTranslationHandlers(Val HandlersArray) Export
 	
 EndProcedure
 
-// Returns message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}CorrespondentConnectionCompleted
+// Returns the message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}CorrespondentConnectionCompleted
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function CorrespondentConnectionCompletedMessage(Val PackageToUse = Undefined) Export
 	
@@ -78,14 +76,14 @@ Function CorrespondentConnectionCompletedMessage(Val PackageToUse = Undefined) E
 	
 EndFunction
 
-// Returns message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}CorrespondentConnectionFailed
+// Returns the message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}CorrespondentConnectionFailed
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function CorrespondentConnectionErrorMessage(Val PackageToUse = Undefined) Export
 	
@@ -93,14 +91,14 @@ Function CorrespondentConnectionErrorMessage(Val PackageToUse = Undefined) Expor
 	
 EndFunction
 
-// Returns message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}GettingSyncSettingsCompleted
+// Returns the message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}GettingSyncSettingsCompleted
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function DataSynchronizationSettingsReceivedMessage(Val PackageToUse = Undefined) Export
 	
@@ -108,14 +106,14 @@ Function DataSynchronizationSettingsReceivedMessage(Val PackageToUse = Undefined
 	
 EndFunction
 
-// Returns message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}GettingSyncSettingsFailed
+// Returns the message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}GettingSyncSettingsFailed
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function DataSynchronizationSettingsReceivingErrorMessage(Val PackageToUse = Undefined) Export
 	
@@ -123,14 +121,14 @@ Function DataSynchronizationSettingsReceivingErrorMessage(Val PackageToUse = Und
 	
 EndFunction
 
-// Returns message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}EnableSyncCompleted
+// Returns the message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}EnableSyncCompleted
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function SynchronizationEnabledSuccessfullyMessage(Val PackageToUse = Undefined) Export
 	
@@ -138,14 +136,14 @@ Function SynchronizationEnabledSuccessfullyMessage(Val PackageToUse = Undefined)
 	
 EndFunction
 
-// Returns {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}DisableSyncCompleted message type
+// Returns the message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}DisableSyncCompleted
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function SynchronizationDisabledMessage(Val PackageToUse = Undefined) Export
 	
@@ -153,14 +151,14 @@ Function SynchronizationDisabledMessage(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}EnableSyncFailed
+// Returns the message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}EnableSyncFailed
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function SynchronizationEnablingErrorMessage(Val PackageToUse = Undefined) Export
 	
@@ -168,14 +166,14 @@ Function SynchronizationEnablingErrorMessage(Val PackageToUse = Undefined) Expor
 	
 EndFunction
 
-// Returns {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}DisableSyncFailed message type
+// Returns the message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}DisableSyncFailed
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function SynchronizationDisablingErrorMessage(Val PackageToUse = Undefined) Export
 	
@@ -183,14 +181,14 @@ Function SynchronizationDisablingErrorMessage(Val PackageToUse = Undefined) Expo
 	
 EndFunction
 
-// Returns {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}SyncCompleted message type
+// Returns the message type {http://www.1c.ru/SaaS/ExchangeAdministration/Control/a.b.c.d}SyncCompleted
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function SynchronizationDoneMessage(Val PackageToUse = Undefined) Export
 	

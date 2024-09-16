@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Asks whether the user wants to continue the action that will discard the changes.
+// Asks whether the action that causes changes to be lost will continue.
 //
 Procedure ConfirmFormClosingNow() Export
 	
@@ -18,7 +16,7 @@ Procedure ConfirmFormClosingNow() Export
 	
 EndProcedure
 
-// Asks whether the user wants to continue the action that closes the form.
+// Asks whether the action that leads to closing the form should continue.
 //
 Procedure ConfirmArbitraryFormClosingNow() Export
 	

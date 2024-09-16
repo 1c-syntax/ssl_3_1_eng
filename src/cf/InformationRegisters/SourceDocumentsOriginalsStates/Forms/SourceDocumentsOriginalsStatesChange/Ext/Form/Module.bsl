@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -57,7 +55,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 
-	// StandardSubsystems.SourceDocumentsOriginalsRecording
+	// Standard subsystems.Accounting for originalsservicedocuments
 	If EventName = "AddDeleteSourceDocumentOriginalState" Then
 		Attachable_UpdateOriginalStateCommands();
 		RefreshDataRepresentation();
@@ -300,7 +298,7 @@ Procedure FillInitialPrintFormsList()
 	EndIf;
 	ModulePrintManager = Common.CommonModule("PrintManagement");
 	
-	// To disable configuration checks.
+	// 
 	RecordProperties = New Structure("Ref", Record.Owner);
 	
 	MetadataObject = RecordProperties.Ref.Metadata();

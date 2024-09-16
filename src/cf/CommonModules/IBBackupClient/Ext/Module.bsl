@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Opens backup form.
+// Opens the backup creation form.
 //
 // Parameters:
-//    Parameters - Structure - backup form parameters.
+//    Parameters - Structure -  parameters of the backup creation form.
 //
 Procedure OpenBackupForm(Parameters = Undefined) Export
 	
@@ -26,7 +24,7 @@ EndProcedure
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonClientOverridable.OnStart.
 Procedure OnStart(Parameters) Export
@@ -140,8 +138,8 @@ Procedure FillGlobalVariableValues(Settings) Export
 	
 EndProcedure
 
-// Checks whether it is necessary to start automatic backup
-// during user working, as well as repeat notification after ignoring the initial one.
+// Checks whether an automatic backup should be started
+// while the user is working, as well as whether the notification should be repeated after the initial one is ignored.
 //
 Procedure StartIdleHandler() Export
 	
@@ -170,10 +168,10 @@ Procedure StartIdleHandler() Export
 	
 EndProcedure
 
-// Checks whether the automatic backup is required.
+// Checks whether an automatic backup is required.
 //
 // Returns:
-//   Boolean - True if necessary, otherwise False.
+//   Boolean - 
 //
 Function NecessityOfAutomaticBackup()
 	
@@ -202,7 +200,7 @@ Function NecessityOfAutomaticBackup()
 	Return ScheduleValue1.ExecutionRequired(CheckDate, Settings.LatestBackupDate);
 EndFunction
 
-// Starts backup on schedule.
+// Starts a scheduled backup.
 // 
 Procedure PerformABackup()
 	
@@ -234,11 +232,11 @@ Procedure PerformABackupCompletion(QuestionResult, AdditionalParameters) Export
 	
 EndProcedure
 
-// Checks on application startup whether it is the first start after backup. 
-// If yes, it displays a handler form with backup results.
+// When starting the system, it checks whether this is the first start after the backup. 
+// If Yes, displays the handler form with the backup results.
 //
 // Parameters:
-//  Parameters - Structure - backup parameters.
+//  Parameters - Structure -  backup settings.
 //
 Procedure CheckIBBackup(Parameters)
 	
@@ -264,10 +262,10 @@ Procedure CheckIBBackup(Parameters)
 	
 EndProcedure
 
-// Shows a notification according to results of backup parameters analysis.
+// Based on the results of analyzing backup parameters, it issues a corresponding notification.
 //
 // Parameters: 
-//   NotificationOption - String - check result for notifications.
+//   NotificationOption - String -  result of checking for sending an alert.
 //
 Procedure NotifyUserOfBackup(NotificationOption)
 	
@@ -292,10 +290,10 @@ Procedure NotifyUserOfBackup(NotificationOption)
 	
 EndProcedure
 
-// Returns an event type of the event log for the current subsystem.
+// Returns the log event type for this subsystem.
 //
 // Returns:
-//   String - an event type of the event log.
+//   String - 
 //
 Function EventLogEvent() Export
 	
@@ -303,11 +301,11 @@ Function EventLogEvent() Export
 	
 EndFunction
 
-// Getting user authentication parameters for update.
-// Creates a virtual user if necessary.
+// Getting user authentication parameters for updating.
+// Creates a virtual user, if necessary.
 //
-// Returns:
-//  Structure - parameters of a virtual user.
+// Returned value
+//  Structure - parameters of the virtual user.
 //
 Function UpdateAdministratorAuthenticationParameters(AdministratorPassword) Export
 	
@@ -343,7 +341,7 @@ Function StringUnicode(String) Export
 	
 EndFunction
 
-// Checks whether an add-in can be attached to the infobase.
+// They will check the ability to connect to the information database.
 //
 Procedure CheckAccessToInfobase(AdministratorPassword, Val Notification) Export
 	
@@ -381,7 +379,7 @@ Procedure CheckAccessToInfobaseAfterCOMRegistration(IsRegistered, Context) Expor
 		
 		FillPropertyValues(ConnectionResult, Result);
 		
-		Result.Join = Undefined; // Disconnect.
+		Result.Join = Undefined; // 
 		
 	EndIf;
 	
@@ -399,7 +397,7 @@ Function ConnectionResult()
 	
 EndFunction
 
-// Attaching a global idle handler.
+// Enabling the global wait handler.
 //
 Procedure AttachIdleBackupHandler() Export
 	
@@ -407,7 +405,7 @@ Procedure AttachIdleBackupHandler() Export
 	
 EndProcedure
 
-// Disable global idle handler.
+// Disabling the global wait handler.
 //
 Procedure DisableBackupIdleHandler() Export
 	
@@ -442,7 +440,7 @@ Procedure DeleteConfigurationBackups() Export
 		Return;
 	EndIf;
 		
-	// CAC:566-off code will never be executed in browser.
+	// 
 	Try
 		File = New File(StorageDirectory);
 		If Not File.IsDirectory() Then
@@ -495,21 +493,21 @@ Procedure DeleteConfigurationBackups() Export
 			+ ErrorProcessing.DetailErrorDescription(ErrorInfo()),,True);
 	EndTry;
 	
-	// ACC:566-on
+	// 
 	
 EndProcedure
 
 Function IBBackupApplicationFilesEncoding() Export
 	
-	// wscript.exe can process only UTF-16 LE-encoded files.
+	// 
 	Return TextEncoding.UTF16;
 	
 EndFunction
 
-// Returns backup script parameters.
+// Returns the parameters of the backup script.
 //
 // Returns:
-//   Structure - structure of the backup script.
+//   Structure - 
 //
 Function ClientBackupParameters() Export
 	
@@ -517,7 +515,7 @@ Function ClientBackupParameters() Export
 	ParametersStructure.Insert("ApplicationFileName", StandardSubsystemsClient.ApplicationExecutableFileName());
 	ParametersStructure.Insert("EventLogEvent", NStr("en = 'Infobase backup';"));
 	
-	// Call "TempFilesDir" (instead of "GetTempFileName") as the directory shouldn't be deleted when the client app exits. 
+	//  
 	// 
 	TempFilesDirForUpdate = TempFilesDir() + "1Cv8Backup." + Format(CommonClient.SessionDate(), "DF=yyMMddHHmmss") + "\";
 	ParametersStructure.Insert("TempFilesDirForUpdate", TempFilesDirForUpdate);

@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Generates a list of handlers of messages that are processed by the current subsystem.
+// Gets a list of message handlers that this subsystem processes.
 // 
 // Parameters:
-//  Handlers - ValueTable - See the field list in MessageExchange.NewMessagesHandlersTable.
+//  Handlers - ValueTable -  for the composition of the fields, see the Exchange of messages.A new table of message processors.
 // 
 Procedure GetMessagesChannelsHandlers(Handlers) Export
 	
@@ -23,12 +21,12 @@ Procedure GetMessagesChannelsHandlers(Handlers) Export
 	
 EndProcedure
 
-// Processes a message body from the channel according to the algorithm of the current message channel.
+// Processes the message body from the channel according to the algorithm of the current message channel.
 //
 // Parameters:
-//  MessagesChannel - String - an ID of a message channel used to receive the message.
-//  Body  - Arbitrary - a Body of the message received from the channel to be processed.
-//  Sender    - ExchangePlanRef.MessagesExchange - an endpoint that is the sender of the message.
+//  MessagesChannel - String -  ID of the message channel from which the message was received.
+//  Body  - Arbitrary -  body of the message received from the channel to be processed.
+//  Sender    - ExchangePlanRef.MessagesExchange -  the endpoint that is the sender of the message.
 //
 Procedure ProcessMessage(MessagesChannel, Body, Sender) Export
 	
@@ -69,11 +67,11 @@ EndProcedure
 
 #Region Private
 
-// Required for compatibility in the scenario where the SSL version in the correspondent infobase is earlier than 2.1.2.
+// For compatibility, if the correspondent has a BSP version lower than BSP 2.1.2
 //
 Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, DefaultNodeValues, ThisNodeCode, NewNodeCode)
 	
-	// Creating a message exchange directory (if necessary)
+	// 
 	Directory = New File(Settings.FILEDataExchangeDirectory);
 	
 	If Not Directory.Exists() Then
@@ -82,7 +80,7 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 			CreateDirectory(Directory.FullName);
 		Except
 			
-			// Sending an error message in the managing application
+			// 
 			SendMessageExchangeCreationError(Number(ThisNodeCode), Number(NewNodeCode),
 				ErrorProcessing.DetailErrorDescription(ErrorInfo()), Sender);
 			
@@ -110,7 +108,7 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 				Settings.CorrespondentEndpoint);
 		EndIf;
 		
-		// Creating exchange settings in the current infobase
+		// 
 		ConnectionSettings = New Structure;
 		ConnectionSettings.Insert("ExchangePlanName",              ExchangePlanName);
 		ConnectionSettings.Insert("CorrespondentCode",           CorrespondentCode);
@@ -118,7 +116,7 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 		ConnectionSettings.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
 		ConnectionSettings.Insert("Settings",                   NodeFiltersSetting);
 		ConnectionSettings.Insert("Prefix",                     "");
-		ConnectionSettings.Insert("Peer"); // Output parameter.
+		ConnectionSettings.Insert("Peer"); // 
 		
 		DataExchangeSaaS.CreateExchangeSetting(
 			ConnectionSettings,
@@ -127,7 +125,7 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 			
 		Peer = ConnectionSettings.Peer;
 		
-		// Saving exchange message transfer settings for the current data area
+		// 
 		RecordStructure = New Structure;
 		RecordStructure.Insert("Peer", Peer);
 		RecordStructure.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
@@ -135,17 +133,17 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 		
 		InformationRegisters.DataAreaExchangeTransportSettings.UpdateRecord(RecordStructure);
 		
-		// Registering all infobase data for exporting
+		// 
 		DataExchangeServer.RegisterDataForInitialExport(Peer);
 		
-		// Sending an operation completion message in a managing application
+		// 
 		SendMessageOperationSuccessful(Number(ThisNodeCode), Number(NewNodeCode), Sender);
 		
 		CommitTransaction();
 	Except
 		RollbackTransaction();
 		
-		// Sending an error message in the managing application
+		// 
 		SendMessageExchangeCreationError(Number(ThisNodeCode), Number(NewNodeCode),
 			ErrorProcessing.DetailErrorDescription(ErrorInfo()), Sender);
 		
@@ -156,11 +154,11 @@ Procedure CreateDataExchangeInInfobase(Sender, Settings, NodeFiltersSetting, Def
 	
 EndProcedure
 
-// Required for compatibility in the scenario where the SSL version in the correspondent infobase is earlier than 2.1.2.
+// For compatibility, if the correspondent has a BSP version lower than BSP 2.1.2
 //
 Procedure DeleteDataExchangeFromInfobase(Sender, ExchangePlanName, NodeCode, DataArea)
 	
-	// Sending an operation completion message in a managing application
+	// 
 	SendMessageOperationSuccessful(DataArea, Number(NodeCode), Sender);
 	
 EndProcedure

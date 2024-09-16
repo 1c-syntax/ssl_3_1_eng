@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -16,7 +14,7 @@ Procedure ShowExchangeRatesImport(FormParameters = Undefined) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See CommonClientOverridable.AfterStart.
 Procedure AfterStart() Export
@@ -33,7 +31,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Update currency rates.
+// 
 
 Function SettingsOnClient()
 	
@@ -74,7 +72,7 @@ Procedure NotifyRatesObsolete(Val ShouldCheckValidity = False) Export
 	
 EndProcedure
 
-// Displays the update notification.
+// Displays the corresponding notification.
 //
 Procedure NotifyRatesAreUpdated() Export
 	
@@ -86,7 +84,7 @@ Procedure NotifyRatesAreUpdated() Export
 	
 EndProcedure
 
-// Displays the update notification.
+// Displays the corresponding notification.
 //
 Procedure NotifyRatesUpToDate() Export
 	
@@ -94,7 +92,7 @@ Procedure NotifyRatesUpToDate() Export
 	
 EndProcedure
 
-// Returns a notification URL.
+// Returns the navigation link for notifications.
 //
 Function DataProcessorURL()
 	Return "e1cib/app/DataProcessor.CurrenciesRatesImport";

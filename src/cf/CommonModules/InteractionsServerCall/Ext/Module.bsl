@@ -1,24 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-//  Main procedures and functions of contact search.
+//  
 
 // Parameters:
-//  Contact                 - DefinedType.InteractionContact - a contact, for which the information is being received.
-//  Presentation           - String - a contact, for which the information is being received.
-//  CIRow                - String - a contact, for which the information is being received.
-//  ContactInformationType - EnumRef.ContactInformationTypes - an optional filter by contact 
-//                                                                           information type.
+//  Contact                 - DefinedType.InteractionContact -  contact for which information is obtained.
+//  Presentation           - String -  the resulting view will be placed in this parameter.
+//  CIRow                - String -  this parameter will contain the received contact information.
+//  ContactInformationType - EnumRef.ContactInformationTypes -  the ability to set the selection by the type 
+//                                                                          of contact information received.
 //
 Procedure PresentationAndAllContactInformationOfContact(Contact, Presentation, CIRow,ContactInformationType = Undefined) Export
 	
@@ -72,10 +70,10 @@ Procedure PresentationAndAllContactInformationOfContact(Contact, Presentation, C
 EndProcedure
 
 // Parameters:
-//  Contact - AnyRef - a contact, for which the data is being received.
+//  Contact - AnyRef -  the contact for which data is being received.
 //
 // Returns:
-//  Structure - Contains the contact's name and email address list.
+//  Structure - 
 //
 Function ContactDescriptionAndEmailAddresses(Contact) Export
 	
@@ -144,10 +142,10 @@ Function ContactDescriptionAndEmailAddresses(Contact) Export
 EndFunction
 
 // Parameters:
-//  Contact - DefinedType.InteractionContact - a contact, for which the data is being received.
+//  Contact - DefinedType.InteractionContact -  the contact for which data is being received.
 //
 // Returns:
-//  Array of Structure - Array of structures that contain addresses with their kinds and presentations.
+//  Array of Structure - 
 //
 Function GetContactEmailAddresses(Contact, IncludeBlankKinds = False) Export
 	
@@ -233,7 +231,7 @@ Function GetContactEmailAddresses(Contact, IncludeBlankKinds = False) Export
 EndFunction
 
 // Parameters:
-//  UUID - UUID - a background job ID.
+//  UUID - UUID -  ID of the background task.
 //
 // Returns:
 //   See TimeConsumingOperations.ExecuteInBackground
@@ -257,14 +255,14 @@ Function SendReceiveUserEmailInBackground(UUID) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-//  Miscellaneous.
+//  Other
 
 // Parameters:
-//  InteractionsArray - Array - an array of interactions, for which a subject will be set
-//  SubjectOf  - AnyRef - a subject that will replace the previous one.
-//  CheckIfThereAreOtherChains - Boolean - True, a subject will be also replaced for those interactions
-//                                           that are included into interaction chains whose first interaction
-//                                           is an interaction included in the array.
+//  InteractionsArray - Array -  array of interactions for which the item will be set.
+//  SubjectOf  - AnyRef -  the item that will be replaced.
+//  CheckIfThereAreOtherChains - Boolean -  if True, the item will also be replaced for interactions
+//                                           that are part of the chain of interactions, the first interaction of which
+//                                           is the interaction included in the array.
 //
 Procedure SetSubjectForInteractionsArray(InteractionsArray, SubjectOf, CheckIfThereAreOtherChains = False) Export
 
@@ -324,12 +322,12 @@ Procedure SetSubjectForInteractionsArray(InteractionsArray, SubjectOf, CheckIfTh
 	EndTry;	
 EndProcedure
 
-// Convert an email message into binary data and prepares it for saving to the hard drive.
+// 
 //
 // Parameters:
 //  MailMessage                  - DocumentRef.IncomingEmail
-//                          - DocumentRef.OutgoingEmail - Email message that is being prepared for saving.
-//  UUID - UUID - UUID of the form where the save command was invoked.
+//                          - DocumentRef.OutgoingEmail - 
+//  UUID - UUID -  unique ID of the form that the save command was called from.
 //
 // Returns:
 //   See FileDataStructure

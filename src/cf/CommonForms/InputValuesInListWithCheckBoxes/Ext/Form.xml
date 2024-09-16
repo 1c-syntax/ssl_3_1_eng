@@ -38,7 +38,7 @@
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Paste the clipboard…</v8:content>
+								<v8:content>Paste from clipboard…</v8:content>
 							</v8:item>
 						</Title>
 						<ExtendedTooltip name="ListPasteFromClipboardExtendedTooltip" id="34"/>
@@ -198,7 +198,7 @@
 								<Title>
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Paste the clipboard…</v8:content>
+										<v8:content>Paste from clipboard…</v8:content>
 									</v8:item>
 								</Title>
 								<ExtendedTooltip name="ListPasteFromClipboardMenuExtendedTooltip" id="77"/>

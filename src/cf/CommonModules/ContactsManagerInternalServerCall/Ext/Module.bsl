@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Parses contact information presentation and returns a JSON string containing parsed field values.
+// 
 //
 //  Parameters:
-//      Text        - String - a contact information presentation
-//      ExpectedType - CatalogRef.ContactInformationKinds
-//                   - EnumRef.ContactInformationTypes - to
-//                     control types.
-//      Comment  - String - User's comment to the contact information.
+//      Text        - String -  submission of contact information
+//      Expected Type-Reference Link.Types of contactinformation
+//                   - EnumRef.ContactInformationTypes - 
+//                     
+//      Comment  - String - 
 //
 //  Returns:
 //      String - JSON
@@ -30,14 +28,14 @@ Function ContactsByPresentation(Val Text, Val ExpectedKind, Val Comment) Export
 		
 EndFunction
 
-// Returns a composition string from a contact information value.
+// Returns a string consisting of the values of contact information.
 //
 //  Parameters:
-//      XMLData - String - XML of contact information data.
+//      XMLData - String -  XML data for contact information.
 //
 //  Returns:
-//      String - content
-//      Undefined - if a composition value has a complex type.
+//      String - 
+//      
 //
 Function ContactInformationCompositionString(Val XMLData) Export;
 	
@@ -81,7 +79,7 @@ Function TransformContactInformationXML(Val Data) Export
 	
 EndFunction
 
-// Returns the found reference or creates a new world country record and returns a reference to it.
+// Returns a found link or creates a new country in the world and returns a link to it.
 // 
 // Parameters:
 //  CountryCode - String 
@@ -95,7 +93,7 @@ Function WorldCountryByClassifierData(Val CountryCode) Export
 	
 EndFunction
 
-// Fills in a collection with references to found or created world country records.
+// Populates the collection with links to countries found or created in the world.
 //
 Procedure WorldCountriesCollectionByClassifierData(Collection) Export
 	
@@ -105,7 +103,7 @@ Procedure WorldCountriesCollectionByClassifierData(Collection) Export
 	
 EndProcedure
 
-// Fills in the list of address options upon automatic completion by the text entered by the user.
+// Fills in the list of address options for auto-selection based on the text entered by the user.
 //
 Procedure AutoCompleteAddress(Val Text, ChoiceData) Export
 	

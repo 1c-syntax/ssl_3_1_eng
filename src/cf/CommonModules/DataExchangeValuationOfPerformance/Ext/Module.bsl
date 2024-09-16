@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -23,7 +21,7 @@ Procedure Initialize(ExchangeComponents, Analysis = False) Export
 	
 	DefaultLanguageCode = Common.DefaultLanguageCode();
 	
-	DescriptionTemplate = NStr("en = '%1 on %2 for %3 (%4)';", DefaultLanguageCode); // Send on 7/18/2022 3:09 PM for "Enterprise Accounting 3.0"
+	DescriptionTemplate = NStr("en = '%1 on %2 for %3 (%4)';", DefaultLanguageCode); // 
 	Description = StrTemplate(DescriptionTemplate,
 		ExchangeComponents.ExchangeDirection,
 		CurrentSessionDate(),
@@ -49,8 +47,15 @@ Procedure Initialize(ExchangeComponents, Analysis = False) Export
 		
 	ExchangeComponents.ExchangeSession = ExchangeSession;
 	
-	Directory = DataExchangeCached.TempFilesStorageDirectory();
-	NameOfTemporaryMeasurementFile = Directory + "log.txt"; //ACC:441 - The temporary file will be deleted upon summing up
+	NameOfTemporaryMeasurementDirectory = 
+		DataExchangeCached.TempFilesStorageDirectory() + String(New UUID);
+		
+	CreateDirectory(NameOfTemporaryMeasurementDirectory);
+		
+	NameOfTemporaryMeasurementFile = CommonClientServer.GetFullFileName(
+		NameOfTemporaryMeasurementDirectory, "log.txt");
+		
+	ExchangeComponents.NameOfTemporaryMeasurementDirectory = NameOfTemporaryMeasurementDirectory;
 	ExchangeComponents.NameOfTemporaryMeasurementFile = NameOfTemporaryMeasurementFile;
 	ExchangeComponents.RecordingMeasurements = New TextWriter(NameOfTemporaryMeasurementFile, TextEncoding.UTF8);
 	
@@ -127,18 +132,15 @@ Procedure ExitApp(ExchangeComponents) Export
 	BeginTime = ExchangeSession.Begin;
 	EndTime = CurrentSessionDate();
 	
-	Directory = DataExchangeCached.TempFilesStorageDirectory();
-	ArchiveName = Format(ExchangeSession.Begin, "DF=yyyy-MM-dd-HH-mm-ss") + "_" 
-		+ String(ExchangeSession.Ref.UUID()) + ".zip";
-	
-	NameOfTemporaryTotalsFile = Directory + "total.txt";
-	ArchiveTempFileName = Directory +  ArchiveName;
+	NameOfTemporaryMeasurementDirectory = ExchangeComponents.NameOfTemporaryMeasurementDirectory;
+	NameOfTemporaryTotalsFile = CommonClientServer.GetFullFileName(NameOfTemporaryMeasurementDirectory, "total.txt");
+	ArchiveTempFileName = CommonClientServer.GetFullFileName(NameOfTemporaryMeasurementDirectory, "archive.zip");
 	
 	RecordingResults = New TextWriter(NameOfTemporaryTotalsFile);
 	
 	DefaultLanguageCode = Common.DefaultLanguageCode();
 	
-	// The header
+	// Header
 	RecordingResults.WriteLine(NStr("en = '--- Exchange session ---';", DefaultLanguageCode));
 	RecordingResults.WriteLine(NStr("en = 'Exchange direction:';", DefaultLanguageCode) + ExchangeComponents.ExchangeDirection);
 	
@@ -152,7 +154,7 @@ Procedure ExitApp(ExchangeComponents) Export
 	RecordingResults.WriteLine(NStr("en = 'Runtime (sec):';", DefaultLanguageCode) + (EndTime - BeginTime));
 	RecordingResults.WriteLine("");
 	
-	// Event type summary
+	// 
 	RecordingResults.WriteLine(NStr("en = '--- Totals by event type ---';", DefaultLanguageCode));
 	RecordingResults.WriteLine(NStr("en = 'Event type; Runtime';", DefaultLanguageCode));
 	
@@ -172,7 +174,7 @@ Procedure ExitApp(ExchangeComponents) Export
 	
 	RecordingResults.WriteLine("");
 	
-	// Event summary
+	// 
 	RecordingResults.WriteLine(NStr("en = '--- Totals by event ---';", DefaultLanguageCode));
 	RecordingResults.WriteLine(NStr("en = 'Percentage; Average time; Time; Number of events; Event type; Event';", DefaultLanguageCode));
 	
@@ -200,7 +202,7 @@ Procedure ExitApp(ExchangeComponents) Export
 		RunTime = StringFunctionsClientServer.SupplementString(RunTime, 7, " ", "Left");
 		
 		Count = Format(TableRow.Count,"NG=;");
-		Count = StringFunctionsClientServer.SupplementString(TableRow.Count, 7, " ", "Left");
+		Count = StringFunctionsClientServer.SupplementString(Count, 7, " ", "Left");
 		EventType = StringFunctionsClientServer.SupplementString(TableRow.EventType, 11, " ", "Right");
 		
 		String = StrTemplate(Template,
@@ -229,11 +231,9 @@ Procedure ExitApp(ExchangeComponents) Export
 	ExchangeSession.PerformanceMeasurements = New ValueStorage(New BinaryData(ArchiveTempFileName));
 	ExchangeSession.Write();
 	
-	// Delete the temporary files
-	DeleteFiles(NameOfTemporaryTotalsFile);
-	DeleteFiles(ArchiveTempFileName);
-	DeleteFiles(NameOfTemporaryMeasurementFile);
-	 
+	// 
+	DeleteFiles(NameOfTemporaryMeasurementDirectory);
+	
 EndProcedure
 
 Function StartMeasurement() Export
@@ -255,7 +255,7 @@ Procedure FinishMeasurement(BeginTime, Event, Object, ExchangeComponents, EventT
 	
 	ObjectPresentation = ObjectPresentation(Object);
 	
-	// Log
+	// 
 	StringPattern = "%1; %2; %3; %4; %5";
 		
 	String = StrTemplate(StringPattern,
@@ -268,7 +268,7 @@ Procedure FinishMeasurement(BeginTime, Event, Object, ExchangeComponents, EventT
 	RecordingMeasurements = ExchangeComponents.RecordingMeasurements;
 	RecordingMeasurements.WriteLine(String);
 	
-	// Event summary data
+	// 
 	MeasurementsTable = ExchangeComponents.TableOfMeasurementsByEvents;
 	Measurement = MeasurementsTable.Find(Event, "Event");
 	

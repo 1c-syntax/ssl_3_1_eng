@@ -23,7 +23,7 @@
 						<v8:content>OK</v8:content>
 					</v8:item>
 				</Title>
-				<ExtendedTooltip name="FormOKCommandExtendedTooltip" id="17"/>
+				<ExtendedTooltip name="FormOkCommandExtendedTooltip" id="17"/>
 			</Button>
 			<Button name="FormHelp" id="4">
 				<Type>CommandBarButton</Type>

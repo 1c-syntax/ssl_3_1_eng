@@ -1,24 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Returns the list of all metadata object properties.
+// Returns a list of all properties for the metadata object.
 //
 // Parameters:
-//  ObjectsKind - String - a full name of a metadata object;
-//  PropertyKind  - String - "AdditionalAttributes", "AdditionalInfo", or "Labels".
+//  ObjectsKind - String -  full name of the metadata object;
+//  PropertyKind  - String - 
 //
 // Returns:
-//  ValueTable - Property, Description, ValueType, and FormatProperties.
-//  Undefined - The given object kind has no property set.
+//  ValueTable - 
+//  
 //
 Function PropertiesListForObjectsKind(ObjectsKind, Val PropertyKind) Export
 	
@@ -95,10 +93,10 @@ Function PropertiesListForObjectsKind(ObjectsKind, Val PropertyKind) Export
 	
 EndFunction
 
-// Adds columns of additional attributes and properties to the column list for loading data.
+// Adds columns of additional details and properties to the list of columns for loading data.
 //
 // Parameters:
-//  CatalogMetadata	 - MetadataObject - catalog metadata.
+//  CatalogMetadata	 - MetadataObject -  the metadata directory.
 //  ColumnsInformation	 - ValueTable:
 //     * Visible - Boolean
 //     * ColumnPresentation - String
@@ -251,7 +249,7 @@ Procedure ImportPropertiesValuesfromFile(ObjectReference, TableRow) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -326,7 +324,7 @@ Procedure OnDefineObjectsWithLockedAttributes(Objects) Export
 	Objects.Insert(Metadata.ChartsOfCharacteristicTypes.AdditionalAttributesAndInfo.FullName(), "");
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnDefineSettings
+// See also updating the information base undefined.When defining settings
 //
 // Parameters:
 //  Objects - Array of MetadataObject
@@ -475,20 +473,20 @@ Procedure OnDefineObjectsWithTablePresentation(Objects) Export
 	Objects.Add("ChartOfCharacteristicTypes.AdditionalAttributesAndInfo");
 EndProcedure
 
-// ACC:299-off a programmatically called procedure
+// APK:299-off programmatically called procedures
 //
-// Called upon replacing duplicates in the item attributes.
+// Called when the replacement takes in the details of the elements.
 //
 // Parameters:
-//  ReplacementPairs - Map - contains the value pairs original and duplicate.
+//  ReplacementPairs - Map -  contains the original and duplicate value pairs.
 //  UnprocessedOriginalsValues - Array of Structure:
-//    * ValueToReplace - AnyRef - The original value of a replaceable object.
+//    * ValueToReplace - AnyRef -  the original value of the object being replaced.
 //    * UsedLinks - See Common.SubordinateObjectsLinksByTypes.
-//    * KeyAttributesValue - Structure - Key is the attribute name. Value is the attribute value.
+//    * KeyAttributesValue - Structure -  Key - name of the item, value-value of the item.
 //
 Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginalsValues) Export
 
-	// If failed to fine the owner by the property value, change the owner.
+	// 
 	For Each UnprocessedDuplicate In UnprocessedOriginalsValues Do
 		
 		BeginTransaction();
@@ -518,13 +516,13 @@ Procedure OnSearchForReferenceReplacement(ReplacementPairs, UnprocessedOriginals
 	EndDo;		
 
 EndProcedure
-// ACC:299-on
+// 
 
 // See SSLSubsystemsIntegration.OnGetFullTextSearchResults
 Procedure OnGetFullTextSearchResults(ObjectMetadata, Value, Presentation) Export
 	
-	// For additional information records, the form of the object (that owns the value) opens
-	// instead of the form for writing to the information register.
+	// 
+	// 
 	
 	If ObjectMetadata = Metadata.InformationRegisters.AdditionalInfo Then 
 		
@@ -567,14 +565,14 @@ Procedure AdditionalAttributesFillCheckProcessing(Source, Cancel, CheckedAttribu
 		Return;
 	EndIf;
 	
-	// Additional attributes are attached to the object.
+	// 
 	Validation = New Structure;
 	Validation.Insert("AdditionalAttributes", Undefined);
 	Validation.Insert("IsFolder", False);
 	FillPropertyValues(Validation, Source);
 	
 	If Validation.AdditionalAttributes = Undefined Then
-		Return; // Run a quick check.
+		Return; // 
 	EndIf;
 	
 	TabularSection = Source.Metadata().TabularSections.Find("AdditionalAttributes");
@@ -593,7 +591,7 @@ Procedure AdditionalAttributesFillCheckProcessing(Source, Cancel, CheckedAttribu
 	EndIf;
 	
 	If Validation.IsFolder Then
-		Return; // Don't enable attributes for groups.
+		Return; // 
 	EndIf;
 	
 	FilledAttributes = Source.AdditionalAttributes.UnloadColumn("Property");
@@ -620,7 +618,7 @@ Procedure AdditionalAttributesFillCheckProcessing(Source, Cancel, CheckedAttribu
 	Result = Query.Execute().Unload();
 	
 	If Result.Count() = 0 Then
-		Return; // No required ones.
+		Return; // 
 	EndIf;
 	Attributes = Result.UnloadColumn("Property");
 	
@@ -637,7 +635,7 @@ Procedure AdditionalAttributesFillCheckProcessing(Source, Cancel, CheckedAttribu
 			Text = StringFunctionsClientServer.SubstituteParametersToString(Text, Item.Key);
 			Messages.Add(Text);
 		Else
-			// Getting all object attributes if a dependence is set up for them.
+			// 
 			AdditionalObjectAttributes = PropertyManager.ObjectProperties(Source, True, False);
 			AttributesValues = New Structure;
 			For Each AdditionalAttribute In AdditionalObjectAttributes Do
@@ -711,7 +709,7 @@ EndProcedure
 //
 Procedure BuildDependenciesConditions(DependentAttributeDetails, AttributePath1, TableRow) Export
 	
-	// Converting the old condition for backward compatibility.
+	// 
 	ConditionByParts = StrSplit(TableRow.Condition, " ");
 	NewCondition = "";
 	If ConditionByParts.Count() > 0 Then
@@ -862,7 +860,7 @@ Procedure TransferValuesFromFormAttributesToObject(Form, Object = Undefined, Bef
 			Continue;
 		EndIf;
 		
-		// Support of hyperlink strings.
+		// 
 		UseStringAsLink = UseStringAsLink(
 			LongDesc.ValueType, LongDesc.OutputAsHyperlink, LongDesc.MultilineInputField);
 		
@@ -875,7 +873,7 @@ Procedure TransferValuesFromFormAttributesToObject(Form, Object = Undefined, Bef
 			NewRow.Value = Value;
 		EndIf;
 		
-		// Support of strings with unlimited length.
+		// 
 		UseUnlimitedString = UseUnlimitedString(
 			LongDesc.ValueType, LongDesc.MultilineInputField);
 		
@@ -921,10 +919,10 @@ Procedure MoveSetLabelsIntoObject(Form, Object = Undefined) Export
 	
 EndProcedure
 
-// Returns a table of available owner property sets.
+// Returns a table of sets of available owner properties.
 //
 // Parameters:
-//  PropertiesOwner - AnyRef - a reference to a property owner.
+//  PropertiesOwner - AnyRef -  link to the property owner
 //                  - CatalogObjectCatalogName
 //                  - DocumentObjectDocumentName
 //                  - ChartOfCharacteristicTypesObjectChartOfCharacteristicTypesName
@@ -967,7 +965,7 @@ Function GetObjectPropertySets(Val PropertiesOwner, AssignmentKey = Undefined) E
 	PropertiesSets.Columns.Add("Picture");
 	PropertiesSets.Columns.Add("ShowTitle");
 	PropertiesSets.Columns.Add("SharedSet", New TypeDescription("Boolean"));
-	// Obsolete:
+	// 
 	PropertiesSets.Columns.Add("SlaveItemsWidth");
 	
 	PropertyManagerOverridable.FillObjectPropertiesSets(
@@ -987,7 +985,7 @@ Function GetObjectPropertySets(Val PropertiesOwner, AssignmentKey = Undefined) E
 	
 EndFunction
 
-// Returns a filled table of object property values.
+// Returns a table populated with the values of the object properties.
 // 
 // Parameters:
 //   AdditionalObjectProperties - ValueTable
@@ -997,7 +995,7 @@ EndFunction
 Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
 	
 	If AdditionalObjectProperties.Count() = 0 Then
-		// Preliminary quick check of additional properties usage.
+		// 
 		PropertiesNotFound = AdditionalAttributesAndInfoNotFound(Sets, PropertyKind);
 		
 		If PropertiesNotFound Then
@@ -1196,7 +1194,7 @@ Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
 	PropertiesDetails.Indexes.Add("Property");
 	PropertiesDetails.Columns.Add("Value");
 	
-	// Deleting property duplicates in subordinate property sets.
+	// 
 	If Sets.Count() > 1 Then
 		IndexOf = PropertiesDetails.Count()-1;
 		
@@ -1214,11 +1212,11 @@ Function PropertiesValues(AdditionalObjectProperties, Sets, PropertyKind) Export
 		EndDo;
 	EndIf;
 	
-	// Populate property values.
+	// 
 	For Each LongDesc In AdditionalObjectProperties Do
 		PropertyDetails = PropertiesDetails.Find(LongDesc.Property, "Property");
 		If PropertyDetails <> Undefined Then
-			// Support of strings with unlimited length.
+			// 
 			If PropertyKind = Enums.PropertiesKinds.AdditionalAttributes Then
 				UseStringAsLink = UseStringAsLink(
 					PropertyDetails.ValueType,
@@ -1310,8 +1308,8 @@ Function DisplayMoreTab(Ref, Sets) Export
 	
 EndFunction
 
-// Returns the metadata object that is the owner of property
-// values of additional attribute and info set.
+// Returns a metadata object that owns
+// the property values of a set of additional details and information.
 // 
 // Parameters:
 //  Ref - AnyRef
@@ -1380,7 +1378,7 @@ Function SetPropertiesValuesOwnerMetadata(Ref, ConsiderDeletionMark = True, RefT
 	
 EndFunction
 
-// Returns the usage of additional attributes and info by the set.
+// Returns the use of a set of additional details and information.
 Function SetPropertiesTypes(Ref, ConsiderDeletionMark = True) Export
 	
 	SetPropertiesTypes = PropertyManagerCached.SetPropertiesTypes(Ref, ConsiderDeletionMark);
@@ -1409,7 +1407,7 @@ Procedure FillSetsWithAdditionalAttributes(AllSets, SetsWithAttributes) Export
 			Return;
 		EndIf;
 		
-		// Checking additional attributes usage.
+		// 
 		If OwnerMetadata.TabularSections.Find("AdditionalAttributes") <> Undefined Then
 			String = AllSets.Find(ReferenceProperties.Key, "Set");
 			SetsWithAttributes.Add(String.Set, String.Title);
@@ -1429,7 +1427,7 @@ Procedure ExcludeBrokenPropertiesSets(References, Value)
 	
 EndProcedure
 
-// Defines that a value type contains a type of additional property values.
+// Specifies that the value type contains the type of additional property values.
 Function ValueTypeContainsPropertyValues(ValueType) Export
 	
 	Return ValueType.ContainsType(Type("CatalogRef.ObjectsPropertiesValues"))
@@ -1437,7 +1435,7 @@ Function ValueTypeContainsPropertyValues(ValueType) Export
 	
 EndFunction
 
-// Checks if it is possible to use string of unlimited length for the property.
+// Checks whether the unlimited length string property can be used.
 Function UseUnlimitedString(PropertyValueType1, MultilineInputField) Export
 	
 	If PropertyValueType1.ContainsType(Type("String"))
@@ -1491,8 +1489,8 @@ Function AddressAndPresentation(String) Export
 	
 EndFunction
 
-// PropertiesBeforeDeleteReferenceObject event handler.
-// Searches for references to deleted objects in the additional attribute dependence table.
+// Event handler for the property of the link object's pre-Deletion.
+// Searches for references to deleted objects in the table of dependencies of additional details.
 //
 Procedure BeforeRemoveReferenceObject(Object, Cancel) Export
 	If Object.DataExchange.Load = True
@@ -1501,7 +1499,7 @@ Procedure BeforeRemoveReferenceObject(Object, Cancel) Export
 	EndIf;
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
-		// Do not check in shared mode.
+		// 
 		Return;
 	EndIf;
 	
@@ -1535,13 +1533,13 @@ Procedure BeforeRemoveReferenceObject(Object, Cancel) Export
 	EndDo;
 EndProcedure
 
-// Checks for objects using the property.
+// Checks for objects that use the property.
 //
 // Parameters:
 //  Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo
 //
 // Returns:
-//  Boolean -  True if at least one object is found.
+//  Boolean -  
 //
 Function AdditionalPropertyUsed(Property) Export
 	
@@ -1592,7 +1590,7 @@ Function AdditionalPropertyUsed(Property) Export
 	
 	For Each Table In ObjectTables1 Do
 		Query.Text = StrReplace(QueryText, "TableName", Table + ".AdditionalAttributes");
-		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - A multi-table query.
+		If Not Query.Execute().IsEmpty() Then // 
 			Return True;
 		EndIf;
 	EndDo;
@@ -1601,9 +1599,9 @@ Function AdditionalPropertyUsed(Property) Export
 	
 EndFunction
 
-// Checks if the metadata object uses properties of a certain kind (except for additional information records).
-// The check is intended to control reference integrity,
-// that is why the embedding check is skipped.
+// 
+// 
+// 
 //
 Function IsMetadataObjectWithProperties(MetadataObject, PropertyKind) Export
 	
@@ -1634,12 +1632,12 @@ Function IsMetadataObjectWithProperties(MetadataObject, PropertyKind) Export
 	
 EndFunction
 
-// Returns description of the predefined set that is received
-// from the metadata object found by the predefined set description.
+// Returns the name of the predefined set obtained
+// from the metadata object found through the name of the predefined set.
 // 
 // Parameters:
 //  Set - CatalogRef.AdditionalAttributesAndInfoSets,
-//        - String - a full name of the predefined item.
+//        - String - 
 //
 Function PredefinedSetDescription(Set) Export
 	
@@ -1681,11 +1679,11 @@ Function PredefinedSetDescription(Set) Export
 	
 EndFunction
 
-// Updates content of the top group to use fields
-// of the dynamic list and its settings (filters, …) upon customization.
+// Updating the composition of the top group for use when configuring
+// the composition of dynamic list fields and its settings (selections,...).
 //
 // Parameters:
-//  Group - CatalogRef.AdditionalAttributesAndInfoSets - an item with flag IsFolder = True.
+//  Group - CatalogRef.AdditionalAttributesAndInfoSets -  element characteristic Atograph = True.
 //
 Procedure CheckRefreshGroupPropertiesContent(Group) Export
 	
@@ -1769,14 +1767,14 @@ Procedure CheckRefreshGroupPropertiesContent(Group) Export
 	
 EndProcedure
 
-// Returns enum values of the specified property.
+// Returns the enumerated values of the specified property.
 //
 // Parameters:
-//  Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - a property for
-//             which listed values are to be received.
+//  Property - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo -  property for
+//             which you want to retrieve enum values.
 // 
 // Returns:
-//  Array of CatalogRef - property values if any.
+//  Array of CatalogRef - 
 //
 Function AdditionalPropertyValues(Property) Export
 	
@@ -1791,11 +1789,11 @@ Function AdditionalPropertyValues(Property) Export
 	
 EndFunction
 
-// Returns a table with enumeration values of the given property.
+// 
 //
 // Parameters:
-//  Property - Array of ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - properties for
-//             which listed values are to be received.
+//  Property - Array of ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - 
+//             
 //           - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo
 // 
 // Returns:
@@ -1853,7 +1851,7 @@ Procedure CreatePredefinedPropertiesSets() Export
 		String = TempTable.Add();
 		FillPropertyValues(String, PredefinedSet.Value);
 		If ValueIsFilled(PredefinedSet.Value.Parent) Then
-			// If a subordinate set is changed, still select an upper level set for processing.
+			// 
 			String.Ref      = PredefinedSet.Value.Parent;
 			String.IsChildOne = True;
 		EndIf;
@@ -2319,12 +2317,12 @@ Function IDForFormulasAlreadyUsed(Val IDForFormulas, Val CurrentProperty) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary procedures and functions.
+// 
 
-// Returns the default owner property set.
+// Returns a base set of properties of the owner.
 //
 // Parameters:
-//  PropertiesOwner - a reference or property owner object.
+//  PropertiesOwner - 
 //
 // Returns:
 //  CatalogRef.AdditionalAttributesAndInfoSets
@@ -2352,7 +2350,7 @@ Function GetDefaultObjectPropertySet(PropertiesOwner)
 	
 EndFunction
 
-// Used upon infobase update.
+// Used when updating the information base.
 Function HasMetadataObjectWithPropertiesPresentationChanges()
 	
 	SetPrivilegedMode(True);
@@ -2397,8 +2395,8 @@ Function ValueWithoutRef(Value, Presentation)
 	
 EndFunction
 
-// Used in the list form of the AdditionalAttributesAndInfoSets catalog
-// and of the AdditionalAttributesAndInfo chart of characteristic types.
+// 
+// 
 //
 Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable = Undefined) Export
 	
@@ -2696,12 +2694,12 @@ Procedure UpdateCurrentSetPropertiesList(Form, Set, PropertyKind, CurrentEnable 
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// 
 
-// Fills in separated data handler that depends on shared data change.
+// Fills in the split data handler that depends on changes to the undivided data.
 //
 // Parameters:
-//   Parameters - Structure - parameters of the update handlers:
+//   Parameters - Structure - :
 //     * SeparatedHandlers - See InfobaseUpdate.NewUpdateHandlerTable
 // 
 Procedure FillSeparatedDataHandlers(Parameters = Undefined) Export
@@ -2716,7 +2714,7 @@ Procedure FillSeparatedDataHandlers(Parameters = Undefined) Export
 	
 EndProcedure
 
-// Sets the Used property value to True.
+// Sets the values of the property Used to True.
 //
 Procedure SetUsageFlagValue() Export
 	

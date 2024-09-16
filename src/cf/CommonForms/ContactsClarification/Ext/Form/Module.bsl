@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -344,10 +342,10 @@ Procedure SaveAndLoad(Result = Undefined, AdditionalParameters = Undefined) Expo
 	
 EndProcedure
 
-// Returns the string data of the Found contacts table.
+// Returns data from the Found contacts table row.
 // 
 // Parameters:
-//  SelectedRow  - FormDataCollectionItem - the string whose data is being received.
+//  SelectedRow  - FormDataCollectionItem -  the string whose data is received.
 //
 // Returns:
 //  Structure:
@@ -366,7 +364,7 @@ EndFunction
 &AtServer
 Procedure FillFoundContactsListsByEmail()
 	
-	// Getting an address list, for which emails are not specified.
+	// 
 	AddressesArray = New Array;
 	For Each TableRow In TableOfContacts Do
 		If Not IsBlankString(TableRow.Address) Then
@@ -374,12 +372,12 @@ Procedure FillFoundContactsListsByEmail()
 		EndIf;
 	EndDo;
 	
-	// If emails are specified for all addresses, do not search.
+	// 
 	If AddressesArray.Count() = 0 Then
 		Return;
 	EndIf;
 	
-	// Finding contacts by emails.
+	// 
 	FoundContacts = Interactions.GetAllContactsByEmailList(AddressesArray);
 	If FoundContacts.Rows.Count() = 0 Then
 		Return;
@@ -389,7 +387,7 @@ Procedure FillFoundContactsListsByEmail()
 		TableRow.Presentation = Upper(TableRow.Presentation);
 	EndDo;
 	
-	// Filling in each row with a found contact list.
+	// 
 	For Each TableRow In TableOfContacts Do
 		If Not IsBlankString(TableRow.Address)  Then
 			Var_Group = FoundContacts.Rows.Find(Upper(TableRow.Address), "Presentation");
@@ -761,7 +759,7 @@ Procedure ChangeContactInformationForSelectedContacts()
 			Query.SetParameter("Address", Selection.Address);
 			Query.SetParameter("MailMessage", MailMessage);
 			
-			// @skip-check query-in-loop - Batch processing of great number of email messages by contacts. 
+			//  
 			Result = Query.Execute();
 			OutgoingEmailsArray = New Array;
 			IncomingEmailsArray  = New Array;

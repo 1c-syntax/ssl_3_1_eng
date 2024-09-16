@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -31,8 +29,8 @@ Procedure BeforeExportData(Container) Export
 	
 EndProcedure
 
-// Called before an object export.
-// See "OnRegisterDataExportHandlers".
+// 
+// 
 //
 // Parameters:
 //  Container - DataProcessorObject.ExportImportDataContainerManager
@@ -105,12 +103,12 @@ EndProcedure
 
 #Region DataImportHandlers
 
-// Called before data import.
+// Called before loading data.
 //
 // Parameters:
-//  Container - DataProcessorObject.ExportImportDataContainerManager - Container manager used for data import.
-//    For details, see comments to the API of ExportImportDataContainerManager.
-//    
+//  Container - DataProcessorObject.ExportImportDataContainerManager -  
+//    the container manager used in the data loading process. For more information, see the comment
+//    on the software interface for processing the unloading of the data of the Manager container.
 //
 Procedure BeforeImportData(Container) Export
 	
@@ -197,14 +195,14 @@ Function MapRefs(Container, RefsMapManager, SourceRefsTable) Export
 	
 EndFunction
 
-// Executes handlers before importing a particular data type.
+// Executes handlers before loading a specific type of data.
 //
 // Parameters:
-//  Container - DataProcessorObject.ExportImportDataContainerManager - a container
-//		manager used for data export. For more information, see the comment
-//		to ExportImportDataContainerManager handler interface.
-//  MetadataObject - MetadataObject - Metadata object.
-//  Cancel - Boolean - indicates if the operation is completed.
+//  Container - DataProcessorObject.ExportImportDataContainerManager -  
+//		the container manager used in the data upload process. For more information, see the comment
+//		on the software interface for processing the unloading of the data of the Manager container.
+//  MetadataObject - MetadataObject - 
+//  Cancel - Boolean -  indicates whether this operation was performed.
 //
 Procedure BeforeImportType(Container, MetadataObject, Cancel) Export
 	
@@ -230,7 +228,7 @@ Procedure BeforeImportObject(Container, Object, Artifacts, Cancel) Export
 	
 	If TypeOf(Object) = Type("CatalogObject.Users") Then
 		
-		// "Users" catalog.
+		// 
 		IsSourceUnspecifiedUser = False;
 		UtilityUsersIDS = UtilityUsersIDS();
 		
@@ -266,7 +264,7 @@ Procedure BeforeImportObject(Container, Object, Artifacts, Cancel) Export
 		
 	ElsIf UsersInternalSaaSCached.RecordSetsWithRefsToUsersList().Get(Object.Metadata()) <> Undefined Then
 		
-		// Set of records containing a dimension with the CatalogRef.Users type
+		// 
 		CollapseRefsToUsersInSet(Object);
 		
 	Else
@@ -395,12 +393,12 @@ Procedure CollapseRefsToUsersInSet(RecordSet)
 	
 EndProcedure
 
-// Writes an object to file.
+// Writes an object to a file.
 //
 // Parameters:
-//  Object - UUID - Object being written.
-//  FileName - String - File path.
-//  Serializer - XDTOSerializer - Serializer.
+//  Object - UUID -  the object being recorded.
+//  FileName - String -  file path.
+//  Serializer - XDTOSerializer -  serializer.
 //
 Procedure WriteObjectToFile(Val Object, Val FileName, Serializer = Undefined)
 	
@@ -413,12 +411,12 @@ Procedure WriteObjectToFile(Val Object, Val FileName, Serializer = Undefined)
 	
 EndProcedure
 
-// Writes an object to write stream.
+// Writes an object to the write stream.
 //
 // Parameters:
-//  Object - UUID - Object being written.
-//  WriteStream - XMLWriter - a write stream.
-//  Serializer - XDTOSerializer - Serializer.
+//  Object - UUID -  the object being recorded.
+//  WriteStream - XMLWriter -  writer thread.
+//  Serializer - XDTOSerializer -  serializer.
 //
 Procedure WriteObjectToStream(Val Object, WriteStream, Serializer = Undefined)
 	
@@ -439,10 +437,10 @@ Procedure WriteObjectToStream(Val Object, WriteStream, Serializer = Undefined)
 	
 EndProcedure
 
-// Returns an object from file.
+// Returns an object from a file.
 //
 // Parameters:
-//  FileName - String - File path.
+//  FileName - String -  file path.
 //
 // Returns:
 //  CatalogObject.Users
@@ -462,10 +460,10 @@ Function ReadObjectFromFile(Val FileName)
 	
 EndFunction
 
-// Returns an object from file.
+// Returns an object from a file.
 //
 // Parameters:
-//  ReaderStream - XMLReader - a reader stream.
+//  ReaderStream - XMLReader -  the flow of reading.
 //
 // Returns:
 //  CatalogObject.Users
@@ -488,12 +486,12 @@ Function ReadObjectFromStream(ReaderStream)
 	
 EndFunction
 
-// Returns prefixes to frequently used namespaces.
+// Returns prefixes for commonly used namespaces.
 //
 // Returns:
 //  Map of KeyAndValue:
-//  Key - String - a namespace.
-//  Value - String - a prefix.
+//  Key-String - namespace.
+//  Value - string-prefix.
 //
 Function NamespacesPrefixes() Export
 	

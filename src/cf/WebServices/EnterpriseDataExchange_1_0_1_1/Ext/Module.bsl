@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 ////////////////////////////////////////////////////////////////////////////////
-// Web service operation handlers.
+// 
 
 Function Ping()
 	Return "";
@@ -20,7 +18,7 @@ Function ConnectionCheckUp(ExchangePlanName, ExchangePlanNodeCode, ErrorMessage)
 	
 	ErrorMessage = "";
 	
-	// Checking whether a user has rights to perform the data exchange.
+	// 
 	Try
 		DataExchangeInternal.CheckCanSynchronizeData();
 	Except
@@ -28,7 +26,7 @@ Function ConnectionCheckUp(ExchangePlanName, ExchangePlanNodeCode, ErrorMessage)
 		Return False;
 	EndTry;
 	
-	// Checking whether the infobase is locked for update.
+	// 
 	Try
 		DataExchangeInternal.CheckInfobaseLockForUpdate();
 	Except
@@ -38,7 +36,7 @@ Function ConnectionCheckUp(ExchangePlanName, ExchangePlanNodeCode, ErrorMessage)
 	
 	SetPrivilegedMode(True);
 	
-	// Checking whether the exchange plan node exists (it might be deleted).
+	// 
 	If ExchangePlans[ExchangePlanName].FindByCode(ExchangePlanNodeCode).IsEmpty() Then
 		
 		ErrorMessage = NStr("en = 'The specified exchange plan node is not found. Please contact the application administrator.';", Common.DefaultLanguageCode());
@@ -108,7 +106,7 @@ Function ImportDataToInfobase(ExchangePlanName, ExchangePlanNodeCode, FileID, Ba
 	ParametersStructure.TempStorageFileID = DataExchangeInternal.PrepareFileForImport(FileID, ErrorMessage);
 	ParametersStructure.NameOfTheWEBService                          = "EnterpriseDataExchange_1_0_1_1";
 	
-	// Importing data to the infobase.
+	// 
 	ProcedureParameters = New Structure;
 	ProcedureParameters.Insert("WebServiceParameters", ParametersStructure);
 	ProcedureParameters.Insert("ErrorMessage",   ErrorMessage);
@@ -143,7 +141,7 @@ Function PrepareDataToImport(ExchangePlanName, ExchangePlanNodeCode, FilePartSiz
 	ParametersStructure.TempStorageFileID = New UUID();
 	ParametersStructure.NameOfTheWEBService                          = "EnterpriseDataExchange_1_0_1_1";
 	
-	// Preparing data to export from the infobase.
+	// 
 	ProcedureParameters = New Structure;
 	ProcedureParameters.Insert("WebServiceParameters", ParametersStructure);
 	ProcedureParameters.Insert("ErrorMessage",   ErrorMessage);

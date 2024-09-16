@@ -1,18 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var PreviousSettings1; // Filled "BeforeWrite" to use "OnWrite".
+Var PreviousSettings1; // 
 
 #EndRegion
 
@@ -20,9 +18,9 @@ Var PreviousSettings1; // Filled "BeforeWrite" to use "OnWrite".
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
-	// ACC:75-off The DataExchange.Import check must follow the change records in the Event log.
+	// 
 	PrepareChangesForLogging(PreviousSettings1);
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;
@@ -32,9 +30,9 @@ EndProcedure
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// ACC:75-off The DataExchange.Import check must follow the change records in the Event log.
+	// 
 	DoLogChanges(PreviousSettings1);
-	// ACC:75-on
+	// 
 	
 	If DataExchange.Load Then
 		Return;

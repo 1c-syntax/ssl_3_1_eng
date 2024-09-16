@@ -1,20 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Fills in a value of an additional order attribute for the object.
+// Fills in the value of the object's additional ordering details.
 //
 // Parameters:
 //  Object - CatalogObject
-//         - ChartOfCharacteristicTypesObject - Object to assign an order attribute value to.
+//         - ChartOfCharacteristicTypesObject - 
 //                                          
 //
 Procedure SetOrderingAttributeValue(Object) Export
@@ -23,18 +21,18 @@ Procedure SetOrderingAttributeValue(Object) Export
 		Return;
 	EndIf;
 	
-	// Checking whether the object has an additional order attribute.
+	// 
 	Information = GetInformationForMoving(Object.Ref.Metadata());
 	If Not ObjectHasAdditionalOrderingAttribute(Object, Information) Then
 		Return;
 	EndIf;
 	
-	// The order is reassigned upon moving an item to another group.
+	// 
 	If Information.HasParent And Common.ObjectAttributeValue(Object.Ref, "Parent") <> Object.Parent Then
 		Object.AddlOrderingAttribute = 0;
 	EndIf;
 	
-	// Calculating a new item order value.
+	// 
 	If Object.AddlOrderingAttribute = 0 Then
 		Object.AddlOrderingAttribute =
 			ItemOrderSetupInternal.GetNewAdditionalOrderingAttributeValue(
@@ -45,13 +43,13 @@ Procedure SetOrderingAttributeValue(Object) Export
 	
 EndProcedure
 
-// Resets a value of an additional order attribute for the object.
+// Resets the value of the additional ordering attribute for the object.
 //
 // Parameters:
 //  Source          - CatalogObject
-//                    - ChartOfCharacteristicTypesObject - Object copy.
+//                    - ChartOfCharacteristicTypesObject - 
 //  CopiedObject - CatalogRef
-//                    - ChartOfCharacteristicTypesRef - Object that was copied.
+//                    - ChartOfCharacteristicTypesRef - 
 //
 Procedure ClearOrderAttributeValue(Source, CopiedObject) Export
 	
@@ -66,13 +64,13 @@ Procedure ClearOrderAttributeValue(Source, CopiedObject) Export
 	
 EndProcedure
 
-// Returns a structure with information on object metadata.
+// Returns a structure with information about the object's metadata.
 // 
 // Parameters:
-//  ObjectMetadata - MetadataObject - metadata of the object being moved.
+//  ObjectMetadata - MetadataObject -  metadata of the object being moved.
 //
 // Returns:
-//  Structure - Metadata object information.
+//  Structure - 
 //
 Function GetInformationForMoving(ObjectMetadata) Export
 	
@@ -115,11 +113,11 @@ EndFunction
 
 #Region Internal
 
-// Moves an item up or down in a list.
+// Moves an item up or down in the list.
 // 
 // Parameters:
 //  Ref - CatalogRef
-//         - ChartOfCharacteristicTypesRef - the item to be moved
+//         - ChartOfCharacteristicTypesRef - 
 //  ExecutionParameters - See AttachableCommandsClientServer.CommandExecuteParameters
 //
 Procedure Attachable_MoveItem(Ref, ExecutionParameters) Export
@@ -200,15 +198,15 @@ EndFunction
 Function ObjectHasAdditionalOrderingAttribute(Object, Information)
 	
 	If Not Information.HasParent Then
-		// The catalog is non-hierarchical, it means that the attribute exists.
+		// 
 		Return True;
 		
 	ElsIf Object.IsFolder And Not Information.ForGroups Then
-		// This is a group, but the order is not assigned to groups.
+		// 
 		Return False;
 		
 	ElsIf Not Object.IsFolder And Not Information.ForItems Then
-		// This is an item, the order is not assigned to items.
+		// 
 		Return False;
 		
 	Else
@@ -218,13 +216,13 @@ Function ObjectHasAdditionalOrderingAttribute(Object, Information)
 	
 EndFunction
 
-// FillOrderingAttributeValue event subscription handler.
-// Fills in a value of an additional order attribute for the object.
+// The event subscription handler fills in the reorder Requestionvalue.
+// Fills in the value of the object's additional ordering details.
 //
 // Parameters:
 //  Source - CatalogObject
-//           - ChartOfCharacteristicTypesObject - Object being written.
-//  Cancel    - Boolean - indicates whether the object record is canceled.
+//           - ChartOfCharacteristicTypesObject - 
+//  Cancel    - Boolean -  indicates that the object was not recorded.
 //
 Procedure FillOrderingAttributeValue(Source, Cancel) Export
 	
@@ -232,7 +230,7 @@ Procedure FillOrderingAttributeValue(Source, Cancel) Export
 		Return; 
 	EndIf;
 	
-	// Skipping the calculation of a new order if the cancellation flag is set in the handler.
+	// 
 	If Cancel Then
 		Return;
 	EndIf;

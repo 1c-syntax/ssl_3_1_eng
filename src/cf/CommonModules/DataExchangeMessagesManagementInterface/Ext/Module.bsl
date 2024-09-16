@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Namespace of the current (used by the calling code) message interface version.
+// Namespace of the current (used by the calling code) version of the message interface.
 //
 // Returns:
-//   String - a namespace.
+//   String -  name space.
 //
 Function Package() Export
 	
@@ -21,10 +19,10 @@ Function Package() Export
 	
 EndFunction
 
-// The current (used by the calling code) message interface version.
+// The current version of the message interface (used by the calling code).
 //
 // Returns:
-//   String - a message interface version.
+//   String - 
 //
 Function Version() Export
 	
@@ -32,10 +30,10 @@ Function Version() Export
 	
 EndFunction
 
-// The name of the application message interface.
+// Name of the message programming interface.
 //
 // Returns:
-//   String - the name of the application message interface.
+//   String - 
 //
 Function Public() Export
 	
@@ -43,10 +41,10 @@ Function Public() Export
 	
 EndFunction
 
-// Registers message handlers as message exchange channel handlers.
+// Registers message handlers as message channel handlers.
 //
 // Parameters:
-//   HandlersArray - Array of CommonModule - a collection of modules containing handlers.
+//   HandlersArray - Array of CommonModule -  a collection of modules containing handlers.
 //
 Procedure MessagesChannelsHandlers(Val HandlersArray) Export
 	
@@ -55,10 +53,10 @@ Procedure MessagesChannelsHandlers(Val HandlersArray) Export
 	
 EndProcedure
 
-// Registers message translation handlers.
+// Registers handlers for broadcast messages.
 //
 // Parameters:
-//   HandlersArray - Array of CommonModule - a collection of modules containing handlers.
+//   HandlersArray - Array of CommonModule -  a collection of modules containing handlers.
 //
 Procedure MessagesTranslationHandlers(Val HandlersArray) Export
 	
@@ -66,14 +64,14 @@ Procedure MessagesTranslationHandlers(Val HandlersArray) Export
 	
 EndProcedure
 
-// Returns message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}SetupExchangeStep1
+// Returns the message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}SetupExchangeStep1
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function SetUpExchangeStep1Message(Val PackageToUse = Undefined) Export
 	
@@ -81,14 +79,14 @@ Function SetUpExchangeStep1Message(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}SetupExchangeStep2
+// Returns the message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}SetupExchangeStep2
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function SetUpExchangeStep2Message(Val PackageToUse = Undefined) Export
 	
@@ -96,14 +94,14 @@ Function SetUpExchangeStep2Message(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}DownloadMessage
+// Returns the message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}DownloadMessage
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function ImportExchangeMessageMessage(Val PackageToUse = Undefined) Export
 	
@@ -111,14 +109,14 @@ Function ImportExchangeMessageMessage(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}GetData
+// Returns the message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}GetData
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function GetCorrespondentDataMessage(Val PackageToUse = Undefined) Export
 	
@@ -126,14 +124,14 @@ Function GetCorrespondentDataMessage(Val PackageToUse = Undefined) Export
 	
 EndFunction
 
-// Returns message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}GetCommonNodsData
+// Returns the message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}GetCommonNodsData
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function GetCommonDataOfCorrespondentNodeMessage(Val PackageToUse = Undefined) Export
 	
@@ -141,14 +139,14 @@ Function GetCommonDataOfCorrespondentNodeMessage(Val PackageToUse = Undefined) E
 	
 EndFunction
 
-// Returns message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}GetCorrespondentParams
+// Returns the message type {http://www.1c.ru/SaaS/Exchange/Manage/a.b.c.d}GetCorrespondentParams
 //
 // Parameters:
-//   PackageToUse - String - a namespace of the message interface version, for which
-//                                the message type is being received.
+//   PackageToUse - String -  namespace of the message interface version for which
+//                                the message type is obtained.
 //
 // Returns:
-//   XDTOObjectType - a message object type.
+//   XDTOObjectType - 
 //
 Function GetCorrespondentAccountingParametersMessage(Val PackageToUse = Undefined) Export
 	

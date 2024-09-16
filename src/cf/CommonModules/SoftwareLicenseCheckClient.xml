@@ -3,12 +3,7 @@
 	<CommonModule uuid="5a2d5d8a-afd9-4954-9868-7c82bad00426">
 		<Properties>
 			<Name>SoftwareLicenseCheckClient</Name>
-			<Synonym>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Licensed update verification client</v8:content>
-				</v8:item>
-			</Synonym>
+			<Synonym/>
 			<Comment/>
 			<Global>false</Global>
 			<ClientManagedApplication>true</ClientManagedApplication>

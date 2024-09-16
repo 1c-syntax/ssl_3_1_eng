@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -182,7 +180,7 @@ Procedure ShiftDay(Command)
 	
 	DateSelectionParameters.NoteText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Select a date that substitutes %1 (%2).';"), 
-		Format(ReplacementDate, "DF='d MMMM'"), // ACC:1367 Consider saving the order "date, month" appropriate in this case. So far, this is the optimal solution.
+		Format(ReplacementDate, "DF='d MMMM'"), // 
 		DayKind);
 	
 	OpenForm("CommonForm.SelectDate", DateSelectionParameters, ThisObject);
@@ -226,7 +224,7 @@ EndProcedure
 &AtServer
 Procedure FillWithCurrentYearData(CopyingValue = Undefined)
 	
-	// Fills in the form with data of the current year.
+	// 
 	
 	SetCalendarField();
 	
@@ -245,7 +243,7 @@ EndProcedure
 &AtServer
 Procedure ReadBusinessCalendarData(BusinessCalendar, YearNumber)
 	
-	// Import business calendar data for the given year.
+	// 
 	ConvertBusinessCalendarData(
 		Catalogs.BusinessCalendars.BusinessCalendarData(BusinessCalendar, YearNumber));
 	
@@ -254,8 +252,8 @@ EndProcedure
 &AtServer
 Procedure FillWithDefaultData()
 	
-	// Populates the form with the business calendar data 
-	// (considering holidays and substitutes).
+	//  
+	// 
 	
 	BasicCalendarCode = Undefined;
 	If ValueIsFilled(Object.BasicCalendar) Then
@@ -274,8 +272,8 @@ EndProcedure
 &AtServer
 Procedure ConvertBusinessCalendarData(BusinessCalendarData)
 	
-	// Business calendar data is used on the form in the maps "DaysKinds" and "ShiftedDays". 
-	// This procedure populates these maps.
+	//  
+	// 
 	// 
 	
 	DaysKindsMap = New Map;
@@ -298,7 +296,7 @@ EndProcedure
 &AtServer
 Procedure WriteBusinessCalendarData(Val YearNumber, Val CurrentObject = Undefined)
 	
-	// Write business calendar data for the specified year.
+	// 
 	
 	If CurrentObject = Undefined Then
 		CurrentObject = FormAttributeToValue("Object");
@@ -315,7 +313,7 @@ Procedure WriteBusinessCalendarData(Val YearNumber, Val CurrentObject = Undefine
 		TableRow.Date = KeyAndValue.Key;
 		TableRow.DayKind = KeyAndValue.Value;
 		
-		// If the day is shifted from another date, specify the replacement date.
+		// 
 		ReplacementDate = ShiftedDays.Get(TableRow.Date);
 		If ReplacementDate <> Undefined 
 			And ReplacementDate <> TableRow.Date Then
@@ -349,7 +347,7 @@ EndProcedure
 &AtClient
 Procedure ChangeDaysKinds(DaysDates, DayKind)
 	
-	// Sets a particular day kind for all array dates.
+	// 
 	
 	DaysKindsMap = New Map(DaysKinds);
 	
@@ -364,12 +362,12 @@ EndProcedure
 &AtClient
 Procedure ShiftDayKind(ReplacementDate, PurposeDate)
 	
-	// Substitute a date in the calendar:
-	// - Switch each other's day type
-	// - Remember the substitution date
-	//	Notes: 
-	//		* If the substitute day was already substituted, use the existing substitute date.
-	//	* If the dates match (a holiday is "unsubstituted"), delete the record.
+	// 
+	// 
+	// 
+	//	 
+	//		
+	//	
 	
 	DaysKindsMap = New Map(DaysKinds);
 	
@@ -391,7 +389,7 @@ EndProcedure
 &AtClient
 Procedure EnterReplacementDate(ShiftedDaysMap, ReplacementDate, PurposeDate)
 	
-	// Populates a correct replacement date according to days replacement dates.
+	// 
 	
 	PurposeDateDaySource = ShiftedDays.Get(PurposeDate);
 	If PurposeDateDaySource = Undefined Then
@@ -409,25 +407,25 @@ EndProcedure
 &AtClientAtServerNoContext
 Procedure FillReplacementsPresentation(Form)
 	
-	// Generates a holiday replacement presentation as a value list.
+	// 
 	
 	Form.ReplacementsList.Clear();
 	For Each KeyAndValue In Form.ShiftedDays Do
-		// A substitute holiday is originally a business day. 
-		// Therefore, from the two dates, select the ex-holiday (which became a business day after substitution).
+		//  
+		// 
 		SourceDate = KeyAndValue.Key;
 		DestinationDate = KeyAndValue.Value;
 		DayKind = Form.DaysKinds.Get(SourceDate);
 		If DayKind = PredefinedValue("Enum.BusinessCalendarDaysKinds.Saturday")
 			Or DayKind = PredefinedValue("Enum.BusinessCalendarDaysKinds.Sunday") Then
-			// Swap dates to show holiday replacement information as "A replaces B" instead of "B replaces A".
+			// 
 			ReplacementDate = DestinationDate;
 			DestinationDate = SourceDate;
 			SourceDate = ReplacementDate;
 		EndIf;
 		If Form.ReplacementsList.FindByValue(SourceDate) <> Undefined 
 			Or Form.ReplacementsList.FindByValue(DestinationDate) <> Undefined Then
-			// Holiday replacement is already added, skip it.
+			// 
 			Continue;
 		EndIf;
 		Form.ReplacementsList.Add(SourceDate, ReplacementPresentation(SourceDate, DestinationDate));
@@ -444,9 +442,9 @@ Function ReplacementPresentation(SourceDate, DestinationDate)
 	Return StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'from %1 %2 to %3 %4';"),
 		WeekDayMovingFromWording(SourceDate),
-		Format(SourceDate, "DF='d MMMM'"), // ACC:1367 Consider saving the order "date, month" appropriate in this case. So far, this is an optimal solution.
+		Format(SourceDate, "DF='d MMMM'"), // 
 		WeekDayMovingToWording(DestinationDate),
-		Format(DestinationDate, "DF='d MMMM'")); // ACC:1367 
+		Format(DestinationDate, "DF='d MMMM'")); //  
 	
 EndFunction
 
@@ -620,7 +618,7 @@ Function WeekDayMovingFromWording(Date)
 	
 	Presentation = Map[WeekDay(Date)];
 	If Presentation = Undefined Then
-		Return Format(Date, "DF='dddd'"); // ACC:1367 In this case, considering the localization, the displayed weekday is correct.
+		Return Format(Date, "DF='dddd'"); // 
 	EndIf;
 	
 	Return Presentation;
@@ -641,7 +639,7 @@ Function WeekDayMovingToWording(Date)
 	
 	Presentation = Map[WeekDay(Date)];
 	If Presentation = Undefined Then
-		Return Format(Date, "DF='dddd'"); // ACC:1367 In this case, considering the localization, the displayed weekday is correct.
+		Return Format(Date, "DF='dddd'"); // 
 	EndIf;
 	
 	Return Presentation;

@@ -3,12 +3,7 @@
 	<CommonForm uuid="123b8af3-8724-4f77-b1d6-6768832a43a7">
 		<Properties>
 			<Name>AttributeUnlocking</Name>
-			<Synonym>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Unlock attributes</v8:content>
-				</v8:item>
-			</Synonym>
+			<Synonym/>
 			<Comment/>
 			<FormType>Managed</FormType>
 			<IncludeHelpInContents>false</IncludeHelpInContents>

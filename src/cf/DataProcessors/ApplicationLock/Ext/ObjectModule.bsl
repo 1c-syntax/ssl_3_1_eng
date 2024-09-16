@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Locks or unlocks the infobase,
-// depending on the data processor attribute values.
+// Set or remove the information database lock
+// based on the values of the processing details.
 //
 Procedure PerformInstallation() Export
 	
@@ -21,7 +19,7 @@ Procedure PerformInstallation() Export
 	
 EndProcedure
 
-// Disables the previously enabled session lock.
+// Cancel a previously set session lock.
 //
 Procedure CancelLock() Export
 	
@@ -29,8 +27,8 @@ Procedure CancelLock() Export
 	
 EndProcedure
 
-// Reads the infobase lock parameters and passes them 
-// to the data processor attributes.
+// Read the parameters of blocking the information base 
+// in the processing details.
 //
 Procedure GetLockParameters() Export
 	
@@ -49,8 +47,8 @@ Procedure GetLockParameters() Export
 		LockEffectiveFrom    = CurrentMode.Begin;
 		LockEffectiveTo = CurrentMode.End;
 	Else
-		// If no lock is set, we assume that the user opened the lock form.
-		// Therefore, set the lock date to the current date.
+		// 
+		// 
 		// 
 		LockEffectiveFrom     = BegOfMinute(CurrentSessionDate() + 15 * 60);
 	EndIf;

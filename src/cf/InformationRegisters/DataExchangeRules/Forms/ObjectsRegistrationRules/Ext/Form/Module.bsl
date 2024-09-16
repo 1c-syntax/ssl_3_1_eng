@@ -1,17 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	
+	If Not ValueIsFilled(Parameters.Key) Then
+		
+		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
+		
+	EndIf;
 		
 	UpdateExchangePlanChoiceList();
 	
@@ -45,7 +49,7 @@ Procedure ExchangePlanNameOnChange(Item)
 	
 	Record.RulesTemplateName = "";
 	
-	// Server call.
+	// 
 	UpdateRuleTemplateChoiceList();
 	
 EndProcedure
@@ -82,7 +86,7 @@ Procedure ImportRules(Command)
 	
 	ClearMessages();
 	
-	// Importing from file on the client
+	// 
 	NameParts = CommonClientServer.ParseFullFileName(Record.RulesFileName);
 	
 	DialogParameters = New Structure;
@@ -322,7 +326,7 @@ Procedure ImportRulesAtServer(Cancel, TempStorageAddress, RulesFileName, IsArchi
 		
 		Modified = False;
 		
-		// Open session cache for the registration mechanism has become obsolete.
+		// 
 		DataExchangeInternal.ResetObjectsRegistrationMechanismCache();
 		RefreshReusableValues();
 	EndIf;
@@ -495,7 +499,7 @@ Procedure ImportRulesCompletion(Val PutFilesResult, Val AdditionalParameters) Ex
 	
 	RulesSource = PredefinedValue("Enum.DataExchangeRulesSources.File");
 	
-	// The file is successfully transferred, importing the file to the server.
+	// 
 	NameParts = CommonClientServer.ParseFullFileName(PutFilesResult.Name);
 	
 	PerformRuleImport(PutFileAddress, NameParts.Name, Lower(NameParts.Extension) = ".zip");
@@ -521,7 +525,7 @@ Procedure AllowExternalResourceCompletion(Result, WriteParameters) Export
 	If Result = DialogReturnCode.OK Then
 		
 		If RulesSource = PredefinedValue("Enum.DataExchangeRulesSources.ConfigurationTemplate") Then
-			// From configuration.
+			// 
 			PerformRuleImport(Undefined, "", False);
 		ElsIf RulesSource = PredefinedValue("Enum.DataExchangeRulesSources.StandardManager")
 			Or RulesSource = PredefinedValue("Enum.DataExchangeRulesSources.CustomManager") Then

@@ -1,35 +1,33 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// Add, change, and get contact information.
+// 
 
 // Returns a table containing contact information for multiple objects. 
 //
 // Parameters:
-//    Source         - Array - contact information owners.
+//    Source         - Array -  owners of contact information.
 //    Filter - See FilterContactInformation3.
 //
 // Returns:
 //  ValueTable:
-//   * Object           - AnyRef - a contact information owner.
-//   * Kind              - CatalogRef.ContactInformationKinds - a contact information kind.
-//   * Type              - EnumRef.ContactInformationTypes - contact information type.
-//   * Value         - String - contact information in the internal JSON format.
-//   * Presentation    - String - a contact information presentation.
-//   * Date             - Date   - a date, from which contact information record is valid.
-//   * TabularSectionRowID - Number - row ID of this tabular section
-//   * FieldValues    - String - an obsolete XML file matching the ContactInformation or Address XDTO packages. For
-//                                 backward compatibility.
+//   * Object           - AnyRef -  owner of the contact information.
+//   * Kind              - CatalogRef.ContactInformationKinds - 
+//   * Type              - EnumRef.ContactInformationTypes -  type of contact information.
+//   * Value         - String - 
+//   * Presentation    - String -  presentation of contact information.
+//   * Date             - Date   -  the date on which the contact information record is valid.
+//   * TabularSectionRowID - Number -  ID of the row in this table part
+//   * FieldValues    - String -  deprecated XML corresponding TO the xdto packets contact Information or Address. For backward compatibility.
+//                                 
 //
 Function ContactInformation(Source, Filter) Export
 	
@@ -185,18 +183,18 @@ Function ContactInformation(Source, Filter) Export
 	
 EndFunction
 
-// The constructor of the Filter parameter for the ContactInformation function.
+// Constructor of the Selection parameter for the Contact Information function.
 //
 // Returns:
 //  Structure:
-//   * ContactInformationTypes - Array of EnumRef.ContactInformationTypes - a filter by contact information type.
-//   * ContactInformationKinds - Array of CatalogRef.ContactInformationKinds - a filter by contact information kinds.
-//   * Date                     - Date - a date, from which contact information is recorded, it is used for storing
-//                                       contact information change history. If the owner stores the change history,
-//                                       an exception is thrown if the parameter does not match the date.
-//   * LanguageCode - String - the code of the language in which you need to get the contact information presentation.
-//                         Presentations of contact information of the Address type will be received upon transliteration. This parameter does not affect
-//                         other types of contact information.
+//   * ContactInformationTypes - Array of EnumRef.ContactInformationTypes - 
+//   * ContactInformationKinds - Array of CatalogRef.ContactInformationKinds - 
+//   * Date                     - Date -  the date from which the contact information record is valid is used when storing
+//                                       the history of changes to the contact information. If the owner keeps a history of changes,
+//                                       an exception will be thrown if the parameter does not match the date.
+//   * LanguageCode - String -  the code of the language in which the contact information should be presented.
+//                         The representation of contact information of the Address type will be obtained by transliteration, the other
+//                         types of contact information are not affected by this parameter.
 //
 Function FilterContactInformation3() Export
 	
@@ -213,29 +211,29 @@ EndFunction
 // Returns a table containing contact information for multiple objects. 
 //
 // Parameters:
-//    ReferencesOrObjects         - Array - contact information owners.
+//    ReferencesOrObjects         - Array -  owners of contact information.
 //    ContactInformationTypes - Array
-//                             - EnumRef.ContactInformationTypes - if types are specified,
-//        only contact information of these types is got.
+//                             - EnumRef.ContactInformationTypes - 
+//        
 //    ContactInformationKinds - Array
-//                             - CatalogRef.ContactInformationKinds - if kinds are specified,
-//                               only contact information of these kinds is returned.
-//    Date                     - Date   - a date, from which contact information is recorded,
-//                              it is used for storing contact information change history.
-//                              If the owner stores the change history, an exception is thrown if the parameter
-//                              does not match the date.
+//                             - CatalogRef.ContactInformationKinds - 
+//                               
+//    Date                     - Date   -  the date from which the contact information record is valid
+//                              is used when storing the history of changes to the contact information.
+//                              If the owner keeps a history of changes,
+//                              an exception will be thrown if the parameter does not match the date.
 //
 // Returns:
 //  ValueTable:
-//    * Object           - AnyRef - a contact information owner.
-//    * Kind              - CatalogRef.ContactInformationKinds - a contact information kind.
-//    * Type              - EnumRef.ContactInformationTypes - contact information type.
-//    * Value         - String - contact information in the internal JSON format.
-//    * Presentation    - String - a contact information presentation.
-//    * Date             - Date - a date, from which contact information record is valid.
-//    * TabularSectionRowID - Number - row ID of this tabular section
-//    * FieldValues    - String - an obsolete XML file matching the ContactInformation or Address XDTO packages. For
-//                                  backward compatibility.
+//    * Object           - AnyRef -  owner of the contact information.
+//    * Kind              - CatalogRef.ContactInformationKinds - 
+//    * Type              - EnumRef.ContactInformationTypes -  type of contact information.
+//    * Value         - String - 
+//    * Presentation    - String -  presentation of contact information.
+//    * Date             - Date -  the date on which the contact information record is valid.
+//    * TabularSectionRowID - Number -  ID of the row in this table part
+//    * FieldValues    - String -  deprecated XML corresponding TO the xdto packets contact Information or Address. For backward compatibility.
+//                                  
 //
 Function ObjectsContactInformation(ReferencesOrObjects, Val ContactInformationTypes = Undefined, Val ContactInformationKinds = Undefined, Date = Undefined) Export
 	
@@ -259,36 +257,36 @@ Function ObjectsContactInformation(ReferencesOrObjects, Val ContactInformationTy
 	
 EndFunction
 
-// Returns a table that contains an object contact information.
-// The behavior when a contact information presentation was returned is now considered obsolete
-// and is kept for backward compatibility. To get a contact information presentation,
-// use the ObjectContactInformationPresentation function instead.
+// Returns a table containing the object's contact information.
+// The behavior that returned the contact information view is now deprecated
+// and saved for backward compatibility. To get a view of contact information, we recommend
+// using the object's contact information View function.
 //
 // Parameters:
 //  ReferenceOrObject - DefinedType.ContactInformationOwner
 //                  - CatalogObject
-//                  - DocumentObject - reference or object - a contact information owner (company,
-//                                      counterparty, partner, and so on).
-//  TypeOrTypeOfContactInformation - CatalogRef.ContactInformationKinds - a filter by contact information kind.
-//                                - EnumRef.ContactInformationTypes - a filter by contact information type.
-//  Date                     - Date - a date, from which contact information is recorded,
-//                              it is used for storing contact information change history.
-//                              If the owner stores the change history, an exception is thrown if the parameter
-//                              does not match the date.
-//  OnlyPresentation      - Boolean - if True, it returns only a presentation, otherwise, a value table.
-//                                      To get a presentation, use the ObjectContactInformationPresentation function.
+//                  - DocumentObject - 
+//                                      
+//  TypeOrTypeOfContactInformation - CatalogRef.ContactInformationKinds -  selection by type of contact information.
+//                                - EnumRef.ContactInformationTypes - 
+//  Date                     - Date -  the date from which the contact information record is valid
+//                              is used when storing the history of changes to the contact information.
+//                              If the owner keeps a history of changes,
+//                              an exception will be thrown if the parameter does not match the date.
+//  OnlyPresentation      - Boolean -  if True, it returns only the view, otherwise a table of values.
+//                                      To get a view, we recommend using the contact information view function of the Object.
 // 
 // Returns:
 //  ValueTable:
-//    * Object           - AnyRef - a contact information owner.
-//    * Kind              - CatalogRef.ContactInformationKinds   - a contact information kind.
-//    * Type              - EnumRef.ContactInformationTypes - contact information type.
-//    * Value         - String - contact information in the internal JSON format.
-//    * Presentation    - String - a contact information presentation.
-//    * Date             - Date   - a date, from which contact information record is valid.
-//    * TabularSectionRowID - Number - row ID of this tabular section
-//    * FieldValues    - String - an obsolete XML file matching the ContactInformation or Address XDTO packages. For
-//                                  backward compatibility.
+//    * Object           - AnyRef -  owner of the contact information.
+//    * Kind              - CatalogRef.ContactInformationKinds   - 
+//    * Type              - EnumRef.ContactInformationTypes -  type of contact information.
+//    * Value         - String - 
+//    * Presentation    - String -  presentation of contact information.
+//    * Date             - Date   -  the date on which the contact information record is valid.
+//    * TabularSectionRowID - Number -  ID of the row in this table part
+//    * FieldValues    - String -  deprecated XML corresponding TO the xdto packets contact Information or Address. For backward compatibility.
+//                                  
 //
 Function ObjectContactInformation(ReferenceOrObject, TypeOrTypeOfContactInformation = Undefined, Date = Undefined, OnlyPresentation = True) Export
 	
@@ -334,7 +332,7 @@ Function ObjectContactInformation(ReferenceOrObject, TypeOrTypeOfContactInformat
 	EndIf;
 	
 	If OnlyPresentation Then
-		// Left for backward compatibility.
+		// 
 		ObjectsArray = New Array;
 		ObjectsArray.Add(ReferenceOrObject.Ref);
 		
@@ -372,21 +370,21 @@ Function ObjectContactInformation(ReferenceOrObject, TypeOrTypeOfContactInformat
 	
 EndFunction
 
-// Returns a presentation of object contact information.
+// Returns a view of the object's contact information.
 //
 // Parameters:
-//  ReferenceOrObject         - Arbitrary - a contact information owner.
-//  ContactInformationKind - CatalogRef.ContactInformationKinds - a contact information kind.
-//  Separator             - String - a separator that is added to a presentation between contact information records.
-//                                     By default, this is a comma followed by a space; to exclude
-//                                     a space, use the WithoutSpaces flag of the AdditionalParameters parameter.
-//  Date                    - Date - a date, from which contact information record is valid. If contact information
-//                                   stores change history, the date is to be passed.
-//  AdditionalParameters - Structure - optional parameters for generating a contact information presentation:
-//   * OnlyFirst         - Boolean - if True, only presentation of the main (first)
-//                                     contact information record returns. Default value is False;
-//   * WithoutSpaces          - Boolean - if True, a space is not added automatically after the separator.
-//                                     Default value is False;
+//  ReferenceOrObject         - Arbitrary -  owner of the contact information.
+//  ContactInformationKind - CatalogRef.ContactInformationKinds - 
+//  Separator             - String -  a separator that is added to the view between contact information records.
+//                                     By default, this is a comma followed by a space. to exclude
+//                                     a space, you must use the no Spaces flag for the additional Parameters parameter.
+//  Date                    - Date -  the date on which the contact information record is valid. If the contact information
+//                                   stores the history of changes, the date must be passed.
+//  AdditionalParameters - Structure - :
+//   * OnlyFirst         - Boolean -  if True, only the main(first)
+//                                     contact information record will be returned. By default, False;
+//   * WithoutSpaces          - Boolean -  if True, a space will not be automatically added after the separator.
+//                                     By default, False;
 // 
 // Returns:
 //  String
@@ -432,22 +430,22 @@ Function ObjectContactInformationPresentation(ReferenceOrObject, ContactInformat
 	
 EndFunction
 
-// Generates a new contact information table.
+// Creates a new contact information table.
 //
 // Parameters:
-//  ObjectColumn - Boolean - if True, the table will contain the Object column.
-//                           It is necessary if you need to store contact information for multiple objects.
+//  ObjectColumn - Boolean -  if True, the table will contain the "Object" column.
+//                           This is necessary if the table needs to store contact information for several objects.
 // 
 // Returns:
 //  ValueTable:
-//       * Object        - AnyRef - a contact information owner.
-//       * Kind           - CatalogRef.ContactInformationKinds - a contact information kind.
-//       * Type           - EnumRef.ContactInformationTypes - contact information type.
-//       * Value      - String - a JSON file matching a contact information structure.
-//       * FieldValues - String - an XML file matching XDTO package ContactInformation or Address.
-//       * Presentation - String - a contact information presentation.
-//       * Date          - Date   - a date, from which contact information record is valid.
-//       * TabularSectionRowID - Number - row ID of this tabular section
+//       * Object        - AnyRef -  owner of the contact information.
+//       * Kind           - CatalogRef.ContactInformationKinds - 
+//       * Type           - EnumRef.ContactInformationTypes -  type of contact information.
+//       * Value      - String -  JSON corresponding to the contact information structure.
+//       * FieldValues - String -  XML corresponding to THE xdto package contact Information or Address.
+//       * Presentation - String -  presentation of contact information.
+//       * Date          - Date   -  the date on which the contact information record is valid.
+//       * TabularSectionRowID - Number -  ID of the row in this table part
 //
 Function NewContactInformation(ObjectColumn = True) Export
 	
@@ -470,28 +468,28 @@ Function NewContactInformation(ObjectColumn = True) Export
 	
 EndFunction
 
-// Adds contact information to an object by presentation or JSON file.
+// Adds contact information to an object by view or JSON.
 //
 // Parameters:
 //  ReferenceOrObject - CatalogRef
 //                  - DocumentRef
 //                  - CatalogObject
-//                  - DocumentObject - a reference or an object of an owner
-//                                     containing contact information. For references, after adding contact
-//                                     information, the owner is recorded. If the object is passed, the contact
-//                                     information is added without being recorded. To save changes,
-//                                     it is necessary to record the object separately.
-//  ValueOrPresentation - String - a presentation, JSON, or XML file matching XDTO package ContactInformation
-//                                      or Address.
-//  ContactInformationKind  - CatalogRef.ContactInformationKinds - a kind of contact information being added.
-//  Date                     - Date    - a date, from which contact information will be recorded.
-//                                       Required for contact information, for which the change history is stored.
-//                                       If the value is not specified, the current session date is taken.
-//  Replace                 - Boolean - if True (by default), all contact information
-//                                      of the passed contact information kind will be replaced.
-//                                      If False, a record will be added. If the contact information kind does not allow
-//                                      entering multiple values and object contact information already contains a record,
-//                                      the record will not be added.
+//                  - DocumentObject - 
+//                                     
+//                                     
+//                                     
+//                                     
+//  ValueOrPresentation - String -  representation, JSON or XML corresponding to the Contact
+//                                      information or Address XDTO packet.
+//  ContactInformationKind  - CatalogRef.ContactInformationKinds -  type of contact information to add.
+//  Date                     - Date    -  the date from which the contact information record will be valid.
+//                                       Required for contact information that has a history of changes.
+//                                       If no value is specified, the current session date is assumed.
+//  Replace                 - Boolean -  if True(default), all contact information for
+//                                      the transmitted contact information type will be replaced.
+//                                      If False, the entry will be added. If the contact information view does not allow
+//                                      multiple values to be entered, and the object's contact information already contains an entry,
+//                                      the entry will not be added.
 //
 Procedure AddContactInformation(ReferenceOrObject, ValueOrPresentation, ContactInformationKind, Date = Undefined, Replace = True) Export
 	
@@ -506,18 +504,18 @@ Procedure AddContactInformation(ReferenceOrObject, ValueOrPresentation, ContactI
 	
 EndProcedure
 
-// Adds or changes contact information for several owners of contact information.
-// Important: if in the Object column the ContactInformation parameter has a reference, then after adding
-// contact information the owner will be recorded. If the Object column contains an object of
-// the contact information owner, then, to save changes, it is necessary to record the objects separately.
+// Adds or changes contact information for multiple contact information owners.
+// Important! If the contact Information parameter has a link in the Object column
+// , the owner will be recorded after adding the contact information. If the Object column contains the object
+// of the contact information owner, you will need to record the objects separately to save the changes.
 //
 // Parameters:
 //  ContactInformation - See ContactsManager.NewContactInformation
-//  Replace             - Boolean -  if True (by default),
-//                                   all contact information of the passed contact information kind will be replaced.
-//                                   If False, a record will be added. If the contact information kind does not allow
-//                                   entering multiple values and object contact information already contains a record,
-//                                   the record will not be added.
+//  Replace             - Boolean -    if True(by default),
+//                                   all contact information will be replaced by the transmitted contact information type.
+//                                   If False, the entry will be added. If the contact information view does not allow
+//                                   multiple values to be entered, and the object's contact information already contains an entry,
+//                                   the entry will not be added.
 //                                   
 //                                   
 //
@@ -568,28 +566,28 @@ Procedure SetObjectsContactInformation(ContactInformation, Replace = True) Expor
 	
 EndProcedure
 
-// Adds or changes contact information for the contact information owner.
+// Adds or changes contact information from the contact information owner.
 //
 // Parameters:
 //  ReferenceOrObject - CatalogRef
 //                  - DocumentRef
 //                  - CatalogObject
-//                  - DocumentObject - a reference or an object of
-//                                     a contact information owner. For references, after adding contact information,
-//                                     the owner is recorded. If the object is passed, the contact information is
-//                                     added without being recorded. To save changes, it is necessary to
-//                                     record the object separately.
+//                  - DocumentObject - 
+//                                     
+//                                     
+//                                     
+//                                     
 //                  - FormDataStructure:
-//                      *  Ref - CatalogRef - a reference to an object-owner of a contact information
-//  ContactInformation - ValueTable - a table containing contact information
-//                                           See column details in the NewContactInformation function.
-//                                           Warning! If a blank value table is passed and the replacement mode is set,
-//                                           all contact information of the contact information owner will be cleared.
-//  Replace             - Boolean          - if True (by default), all contact information of the passed contact information kind
-//                                           will be replaced.
-//                                           If False, a record will be added. If the contact information kind 
-//                                           does not allow entering multiple values and object contact information
-//                                           already contains a record, the record will not be added.
+//                      *  Ref - CatalogRef -  link to the object that owns the contact information
+//  ContactInformation - ValueTable -  a table containing contact information
+//                                           For a description of the columns, see the New Contact Information function.
+//                                           Important! If an empty table of values is passed and the replacement mode is specified
+//                                           , then all contact information of the contact information owner will be cleared.
+//  Replace             - Boolean          -  if True(default),
+//                                           all contact information for the transmitted contact information type will be replaced.
+//                                           If False, the entry will be added. If the contact information view 
+//                                           does not allow multiple values to be entered, and the object's contact information
+//                                           already contains an entry, the entry will not be added.
 //
 Procedure SetObjectContactInformation(ReferenceOrObject, Val ContactInformation, Replace = True) Export
 	
@@ -610,7 +608,7 @@ Procedure SetObjectContactInformation(ReferenceOrObject, Val ContactInformation,
 		Return;
 	EndIf;
 	
-	// Clearing contact information using a blank table.
+	// 
 	If ContactInformation.Count() = 0 Then
 		If Replace Then
 			ReferenceOrObject.ContactInformation.Clear();
@@ -623,24 +621,24 @@ Procedure SetObjectContactInformation(ReferenceOrObject, Val ContactInformation,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Phone numbers.
+// 
 
-// Returns information about a phone or a fax number.
+// Returns information about the phone or Fax.
 //
 // Parameters:
-//  ContactInformation - String - a phone in the internal JSON or XML format matching the XDTO package
-//                                  ContactInformation.
-//                       - Undefined - constructor, returns a list of blank phone fields.
+//  ContactInformation - String -  phone number in internal JSON or XML format corresponding to the contact
+//                                  information XDTO package.
+//                       - Undefined - 
 //
 // Returns:
 //  Structure:
-//    * Presentation - String - — a full presentation of a phone number with an extension and comment. For example, "+1 800
-//                               8222531 (+12) Call after 6 p.m.".
-//    * CountryCode     - String - a country code. For example, +7.
-//    * CityCode     - String - a city code. For example, 495.
-//    * PhoneNumber - String - a phone number. For example, 1234567.
-//    * PhoneExtension    - String - an extension. For example, +12.
-//    * Comment   - String - a comment to a phone number. For example, "Call after 6 p.m.".
+//    * Presentation - String -  full view of the phone number with an extension number and a comment, for example, " +7 495
+//                               1234567 (+12) Call after 18: 00".
+//    * CountryCode     - String -  country code. For example, +7.
+//    * CityCode     - String -  area code. For example, 495.
+//    * PhoneNumber - String -  phone number. For example, 1234567.
+//    * PhoneExtension    - String -  the extension number of the phone. For example, +12.
+//    * Comment   - String -  comment on the phone number. For example, Call after 18: 00.
 //
 Function InfoAboutPhone(ContactInformation = Undefined) Export
 	
@@ -663,13 +661,13 @@ Function InfoAboutPhone(ContactInformation = Undefined) Export
 	
 EndFunction
 
-// Returns a string containing a phone number without an area code and an extension.
+// Returns a string with a phone number without a code or additional number.
 //
 // Parameters:
-//    ContactInformation - String - a JSON or XML string of contact information matching XDTO package ContactInformation.
+//    ContactInformation - String -  a JSON or XML string of contact information corresponding to THE xdto package contact Information.
 //
 // Returns:
-//    String - phone number.
+//    String - 
 //
 Function ContactInformationPhoneNumber(Val ContactInformation) Export
 	
@@ -694,28 +692,28 @@ Function ContactInformationPhoneNumber(Val ContactInformation) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Convert contact information.
+// 
 
-// Converts incoming contact information formats into the internal JSON format.
+// Converts incoming contact information formats to internal JSON format.
 //
 // Parameters:
-//    ContactInformation - String - a string in the XML format. The structure of the XML document matches the ContactInformation
-//                                    or Address XDTO package (for addresses containing fields with specific national characteristics).
-//                                    If a string is passed in the JSON format, the return value will
-//                                    match the string.
+//    ContactInformation - String -  string in XML format. The structure of the XML document corresponds to the Contact
+//                                    information or Address XDTO package (for addresses containing fields with national specifics).
+//                                    If a string is passed in internal JSON format, the return value will
+//                                    be exactly the same as it.
 //                         - Structure - See ContactsManagerClientServer.ContactInformationStructureByType
-//                                       See AddressManager.AddressFields for addresses containing fields with specific national characteristics.
-//                                       See AddressManagerClientServer.ContactInformationStructureByType
-//                                       for other types of contact information containing local specific fields.
+//                                       
+//                                       
+//                                       
 //    ExpectedKind - CatalogRef.ContactInformationKinds
 //                 - EnumRef.ContactInformationTypes -
-//                   Intended for identifying contact information type in cases where
-//                   it cannot be done using the ContactInformation parameter.
+//                   
+//                   
 //
 // Returns:
-//     String - Contact information in the internal JSON format.
-//              For the fields and details, See ContactsManagerClientServer.NewContactInformationDetails.
-//              For additional fields used in localized configurations, see AddressManagerClientServer.NewContactInformationDetails
+//     String - 
+//               See ContactsManagerClientServer.NewContactInformationDetails.
+//              
 //
 Function ContactInformationInJSON(Val ContactInformation, Val ExpectedKind = Undefined) Export
 	
@@ -737,18 +735,18 @@ EndFunction
 //    FieldValues - String
 //                  - Structure
 //                  - Map
-//                  - ValueList - details of contact information fields.
-//                    XML must match XDTO package ContactInformation or Address.
-//                    Structure, Map, ValueList must contain fields in accordance with the structure
-//                    of XDTO packages ContactInformation or Address (for a configuration with support of local specifics).
-//    Presentation - String - The contact information presentation.
-//                    Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
+//                  - ValueList - 
+//                    
+//                    
+//                    
+//    Presentation - String -  presentation of contact information. Used if it is not possible to define
+//                    a view from the field Value parameter (for example, the View field is missing).
 //    ExpectedKind  - CatalogRef.ContactInformationKinds
 //                  - EnumRef.ContactInformationTypes -
-//                    Intended for identifying contact information type in cases where it cannot be done using the "FieldsValues" field.
+//                    
 //
 // Returns:
-//     String - contact information in the XML format matching the structure of the XDTO packages ContactInformation and Address.
+//     String - 
 //
 Function ContactInformationToXML(Val FieldValues, Val Presentation = "", Val ExpectedKind = Undefined) Export
 	
@@ -764,21 +762,21 @@ Function ContactInformationToXML(Val FieldValues, Val Presentation = "", Val Exp
 	
 EndFunction
 
-// Converts the contact information stored in the FieldValue field to JSON and saves it
-// in the filed of the Table value column ContactInformation.
-// If the FieldsValue and Value columns contain empty strings, JSON will be formed by presentation.
-// If the ReferenceOrObject parameter contains a contact information object,
-// then, to save changes, it is necessary to record the object separately.
-// If the reference is passed, after the conversion of at least one contact information string, the owner will be recorded.
+// Converts the contact information stored in the field Valuefields to JSON format and stores it
+// in the column Value field of the contact Information table.
+// If the field Value and Value columns contain empty strings, the JSON will be generated from the view.
+// If the link or Object parameter contains a contact information object,
+// you will need to write the object separately to save the conversion changes.
+// If a link is passed, then after converting at least one line of contact information, the owner will be recorded.
 //
 // Parameters:
-//  ReferenceOrObject - DefinedType.ContactInformationOwner - a reference to an object with contact information.
+//  ReferenceOrObject - DefinedType.ContactInformationOwner -  link to an object with contact information.
 //                  - CatalogObject
-//                  - DocumentObject - object - a contact information owner (company,
-//                                    counterparty, partner, and so on).
+//                  - DocumentObject - 
+//                                    
 // 
 // Returns:
-//  Boolean - — if True, contact information will be converted to JSON.
+//  Boolean - 
 //
 Function UpdateObjectContactInformation(ReferenceOrObject) Export
 	
@@ -797,16 +795,16 @@ Function UpdateObjectContactInformation(ReferenceOrObject) Export
 	
 EndFunction
 
-// Returns objects that store contact information in obsolete XML or key—value formats
-// and whose contact information must be converted to the modern JSON format.
+// Returns objects that store contact information in legacy XML or Key-Value
+// formats and require conversion of contact information to modern JSON format.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - an object with contact information whose item
-//                     containing blank fields in JSON is to be defined.
-//  PortionSize  - Number - a number of objects returned in one call. If not specified, all the objects will be selected.
+//  MetadataObject - MetadataObject -  an object with contact information that you want to define an element
+//                     containing empty fields in JSON.
+//  PortionSize  - Number -  the number of objects returned per call. If not specified, all objects will be selected.
 // 
 // Returns:
-//  Array - — object references.
+//  Array - 
 //
 Function ObjectsThatRequireContactInformationUpdate(MetadataObject, PortionSize = Undefined) Export
 	
@@ -844,16 +842,16 @@ Function ObjectsThatRequireContactInformationUpdate(MetadataObject, PortionSize 
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Contact information management from other subsystems.
+// 
 
-// Returns a contact information type.
+// Returns the type of contact information.
 //
 // Parameters:
-//    ContactInformation - String - contact information as an XML matching the structure of
-//                                    the ContactInformation and Address XDTO packages.
+//    ContactInformation - String -  contact information in XML format corresponding to the structure of XDTO packages
+//                                    Contact information and Address.
 //
 // Returns:
-//    EnumRef.ContactInformationTypes - the corresponding type.
+//    EnumRef.ContactInformationTypes -  appropriate type.
 //
 Function ContactInformationType(Val ContactInformation) Export
 	
@@ -877,18 +875,18 @@ Function ContactInformationType(Val ContactInformation) Export
 	
 EndFunction
 
-// Converts a presentation of contacts into the internal JSON format.
+// Converts the contact information representation to an internal JSON format.
 //
-// Correct conversion is not guaranteed for the addresses entered in free form.
+// For addresses entered in free form, correct conversion is not guaranteed.
 //
 //  Parameters:
-//      Presentation - String  - a string presentation of contact information displayed to a user.
+//      Presentation - String  -  string representation of contact information displayed to the user.
 //      ExpectedKind  - CatalogRef.ContactInformationKinds
 //                    - EnumRef.ContactInformationTypes
-//                    - Structure - a kind or a type of contact information.
+//                    - Structure - 
 //
 // Returns:
-//      String - contact information in the JSON format.
+//      String - 
 //
 Function ContactsByPresentation(Presentation, ExpectedKind) Export
 	
@@ -897,18 +895,18 @@ Function ContactsByPresentation(Presentation, ExpectedKind) Export
 	
 EndFunction
 
-// Returns a presentation of contact information (such as address, phone, or email).
+// Returns a view of contact information (address, phone number, email, etc.).
 //
 // Parameters:
-//    ContactInformation - String - a JSON or XML string of contact information
-//                                    matching XDTO packages ContactInformation or Address.
-//                         - XDTODataObject - the ContactInformation or Address XDTO object.
-//                         - Structure - see AddressManager.AddressInfo
+//    ContactInformation - String -  a string of JSON or XML contact information
+//                                    corresponding to the XDTO packets Contact information or Address.
+//                         - XDTODataObject - 
+//                         - Structure - see worksaddresses.Informationaddress
 //                         - Structure - See ContactsManager.InfoAboutPhone
-//    Transliterate - Boolean - If set to "True", the contact information presentation will be converted from Cyrillic into Latin.
+//    Transliterate - Boolean - 
 //
 // Returns:
-//    String - a contact information presentation.
+//    String -  presentation of contact information.
 //
 Function ContactInformationPresentation(Val ContactInformation, Val Transliterate = False) Export
 	
@@ -916,14 +914,14 @@ Function ContactInformationPresentation(Val ContactInformation, Val Transliterat
 	
 EndFunction
 
-// Evaluates that the address was entered in free form.
+// Calculates that the address was entered in free form.
 //
 //  Parameters:
-//      ContactInformation - String - a JSON or XML string of contact information matching XDTO packages
-//                                      ContactInformation or Address.
+//      ContactInformation - String -  a JSON or XML string of contact information corresponding to XDTO packets
+//                                      Contact information or Address.
 //
 //  Returns:
-//      Boolean - new value.
+//      Boolean - 
 //
 Function AddressEnteredInFreeFormat(Val ContactInformation) Export
 	
@@ -938,15 +936,15 @@ Function AddressEnteredInFreeFormat(Val ContactInformation) Export
 	
 EndFunction
 
-// Returns contact information comment.
+// Returns a comment for the contact information.
 //
 // Parameters:
-//  ContactInformation - String - a JSON or XML string or XDTO object matching XDTO packages
-//                                   ContactInformation or Address.
+//  ContactInformation - String -  a JSON or XML string or an XDTO object corresponding to XDTO packages
+//                                   Contact information or Address.
 //
 // Returns:
-//  String - a contact information comment or a blank string
-//           if the parameter value is not contact information.
+//  String - 
+//           
 //
 Function ContactInformationComment(ContactInformation) Export
 	
@@ -975,9 +973,9 @@ EndFunction
 //
 // Parameters:
 //   ContactInformation - String
-//                        - XDTODataObject - a JSON or XML string of contact information matching XDTO
-//                                       packages ContactInformation or Address.
-//   Comment          - String             - a new comment value.
+//                        - XDTODataObject - 
+//                                       
+//   Comment          - String             -  the new value of the comment.
 //
 Procedure SetContactInformationComment(ContactInformation, Val Comment) Export
 	
@@ -998,26 +996,26 @@ Procedure SetContactInformationComment(ContactInformation, Val Comment) Export
 	
 EndProcedure
 
-// Returns information on the address country.
-// If the passed string does not contain information on the address, an exception will be raised.
-// If an empty string is passed, a blank structure is returned.
-// If the country does not exist in the catalog but exists in the country classifier, the Ref field of the result will not be filled in.
-// If the country does not exist in the country classifier, only the Description field will be filled in.
+// Returns information about the country of the address.
+// If the passed string does not contain address information, an exception will be thrown.
+// If an empty string is passed, an empty structure is returned.
+// If the country does not exist in the directory, but is in the country classifier, the result Link field will not be filled in.
+// If the country does not exist in the country classifier, only the Name field will be filled in.
 //
 // Parameters:
 //    Address - Structure
-//          - String - an address in a JSON format or an XML string matching XDTO packages ContactInformation
-//                     or Address.
+//          - String - 
+//                     
 //
 // Returns:
-//    Structure - Country details containing the following fields:
+//    Structure - :
 //        * Ref             - CatalogRef.WorldCountries
-//                             - Undefined - a reference to the world country catalog item.
-//        * Description       - String - a country description.
-//        * Code                - String - country code.
-//        * DescriptionFull - String - a full description of the country.
-//        * CodeAlpha2          - String - a two-character alpha-2 country code.
-//        * CodeAlpha3          - String - a three-character alpha-3 country code.
+//                             - Undefined - 
+//        * Description       - String -  name of the country.
+//        * Code                - String -  country code.
+//        * DescriptionFull - String -  full name of the country.
+//        * CodeAlpha2          - String -  the two-digit Alpha-2 letter country code.
+//        * CodeAlpha3          - String -  the three-digit Alpha-3 country code.
 //
 Function ContactInformationAddressCountry(Val Address) Export
 	
@@ -1047,13 +1045,13 @@ Function ContactInformationAddressCountry(Val Address) Export
 	
 EndFunction
 
-// Returns a domain of the network address for a web link or an email address.
+// Returns the domain of the network address for the web link or email address.
 //
 // Parameters:
-//    ContactInformation - String - a JSON or XML string of contact information matching XDTO package ContactInformation.
+//    ContactInformation - String -  a JSON or XML string of contact information corresponding to THE xdto package contact Information.
 //
 // Returns:
-//    String - an address domain.
+//    String - 
 //
 Function ContactInformationAddressDomain(Val ContactInformation) Export
 	
@@ -1094,32 +1092,32 @@ EndFunction
 // Compares two instances of contact information.
 //
 // Parameters:
-//    Data1 - XDTODataObject - object with contact information.
-//            - String     - contact information in XML format.
-//            - Structure  - contact information details. The expected fields are:
+//    Data1 - XDTODataObject -  object with contact information.
+//            - String     - 
+//            - Structure  - :
 //                 * FieldValues - String
 //                                 - Structure
 //                                 - ValueList
-//                                 - Map - contact information fields.
-//                 * Presentation - String - A presentation.
-//                                            Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
-//                 * Comment - String - a comment. Used when a comment cannot be extracted
-//                                          from FieldValues.
+//                                 - Map - 
+//                 * Presentation - String -  performance. Used if the view could not be calculated
+//                                            from the values of the Fields (they do not have the View field).
+//                 * Comment - String -  comment. Used if the comment could not be calculated
+//                                          from the field Value.
 //                 * ContactInformationKind - CatalogRef.ContactInformationKinds
 //                                           - EnumRef.ContactInformationTypes
 //                                           - Structure -
-//                                             Used in cases where the type cannot be identified using "FieldsValues".
+//                                             
 //    Data2 - XDTODataObject
 //            - String
-//            - Structure - — see details of the Data1 parameter.
+//            - Structure - 
 //
 // Returns:
-//     ValueTable: - A table of diff fields with the following columns:
-//        * Path      - String - XPath identifying a different value. The "ContactInformationType" value
-//                               means that passed contact information sets have different types.
-//        * LongDesc  - String - details of a different attribute in terms of the subject field.
-//        * Value1 - String - a value matching the object passed in the Data1 parameter.
-//        * Value2 - String - a value matching the object passed in Data2 parameter.
+//     ValueTable: - :
+//        * Path      - String -  XPath that identifies the different value. The value "contact information Type"
+//                               means that the transmitted contact information instances differ in type.
+//        * LongDesc  - String -  description of different props in terms of the subject area.
+//        * Value1 - String -  the value corresponding to the object passed in the Data1 parameter.
+//        * Value2 - String -  the value corresponding to the object passed in the Data2 parameter.
 //
 Function ContactInformationDifferences(Val Data1, Val Data2) Export
 	
@@ -1138,24 +1136,24 @@ Function ContactInformationDifferences(Val Data1, Val Data2) Export
 	
 EndFunction
 
-// Generates a temporary table with contact information of multiple objects.
+// Creates a temporary table with contact information for several objects.
 //
 // Parameters:
-//    TempTablesManager  - TempTablesManager - a temporary table is created in the manager
-//     ContactInformationTemporaryTable with the following fields:
-//     * Object        - AnyRef - a contact information owner.
-//     * Kind           - CatalogRef.ContactInformationKinds - a reference to a contact information kind.
-//     * Type           - EnumRef.ContactInformationTypes - contact information type.
-//     * FieldValues - String - an XML file matching the ContactInformation or Address XDTO data package.
-//     * Presentation - String - a contact information presentation.
-//    ObjectsArray           - Array - contact information owners.
-//    ContactInformationTypes - Array - if specified, a temporary table will contain only contact
+//    TempTablesManager  - TempTablesManager - 
+//     :
+//     * Object        - AnyRef -  owner of the contact information.
+//     * Kind           - CatalogRef.ContactInformationKinds -  link to the contact information type.
+//     * Type           - EnumRef.ContactInformationTypes -  type of contact information.
+//     * FieldValues - String -  XML corresponding to THE xdto packet contact Information or Address.
+//     * Presentation - String -  presentation of contact information.
+//    ObjectsArray           - Array -  owners of contact information.
+//    ContactInformationTypes - Array - 
+//                                        
+//    ContactInformationKinds - Array -  if specified, the temporary table will contain only contact
 //                                        information of these types.
-//    ContactInformationKinds - Array - if specified, a temporary table will contain only contact
-//                                        information of these types.
-//    Date                     - Date   - the date, from which contact information record is valid. It is used for
-//                                        storing the history of contact information changes. If the owner stores the change history,
-//                                        an exception is thrown if the parameter does not match the date.
+//    Date                     - Date   -  the date from which the contact information record is valid is used when
+//                                        storing the history of changes to contact information. If the owner keeps a history
+//                                        of changes, an exception will be thrown if the parameter does not match the date.
 //
 Procedure CreateContactInformationTemporaryTable(TempTablesManager, ObjectsArray, ContactInformationTypes = Undefined, ContactInformationKinds = Undefined, Date = Undefined) Export
 	
@@ -1319,27 +1317,27 @@ Procedure CreateContactInformationTemporaryTable(TempTablesManager, ObjectsArray
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// World countries.
+// 
 
-// Returns country data from the country catalog or classifier.
+// Returns data about a country based on the world directory or classifier.
 //
 // Parameters:
 //    CountryCode    - String
-//                 - Number - — a country code by classifier. If not specified, search by code is not executed.
-//    Description - String - a country name including an international name. If not specified, search by description is not performed.
+//                 - Number - 
+//    Description - String -  name of the country, including international. If not specified, the search by name is not performed.
 //
 // Returns:
-//    Structure - Country details with the following fields:
+//    Structure - :
 //        * Ref             - CatalogRef.WorldCountries
-//                             - Undefined - a matching item of the world country catalog.
-//        * Description       - String - a country description.
-//        * Code                - String - country code.
-//        * DescriptionFull - String - a full description of the country.
-//        * CodeAlpha2          - String - a two-character alpha-2 country code.
-//        * CodeAlpha3          - String - a three-character alpha-3 country code.
-//        * EEUMember       - Boolean - a EAEU member country.
-//        * InternationalDescription - String - international description of the country
-//    Undefined — the country does not exist.
+//                             - Undefined - 
+//        * Description       - String -  name of the country.
+//        * Code                - String -  country code.
+//        * DescriptionFull - String -  full name of the country.
+//        * CodeAlpha2          - String -  two-digit alpha-2 country code.
+//        * CodeAlpha3          - String -  three-digit alpha-3 country code.
+//        * EEUMember       - Boolean -  the country is a member of the EAEU.
+//        * InternationalDescription - String -  international name of the world country
+//    Undefined - the country does not exist.
 //
 Function WorldCountryData(Val CountryCode = Undefined, Val Description = Undefined) Export
 	Result = Undefined;
@@ -1414,22 +1412,22 @@ Function WorldCountryData(Val CountryCode = Undefined, Val Description = Undefin
 	
 EndFunction
 
-// Returns a country data by code.
+// Returns the data of the country code.
 //
 // Parameters:
 //  Code     - String
-//          - Number - — a country code by classifier.
-//  CodeType - String - options: CountryCode (by default), Alpha2, and Alpha3.
+//          - Number - 
+//  CodeType - String -  options: codestr (default), ALPHA2, Alpha3.
 // 
 // Returns:
-//  Structure - Country details with the following fields:
-//     * Description       - String - a country description.
-//     * Code                - String - country code.
-//     * DescriptionFull - String - a full description of the country.
-//     * CodeAlpha2          - String - a two-character alpha-2 country code.
-//     * CodeAlpha3          - String - a three-character alpha-3 country code.
-//     * EEUMember       - Boolean - a EAEU member country.
-//  Undefined — the country does not exist.
+//  Structure - :
+//     * Description       - String -  name of the country.
+//     * Code                - String -  country code.
+//     * DescriptionFull - String -  full name of the country.
+//     * CodeAlpha2          - String -  two-digit alpha-2 country code.
+//     * CodeAlpha3          - String -  three-digit alpha-3 country code.
+//     * EEUMember       - Boolean -  the country is a member of the EAEU.
+//  Undefined - the country does not exist.
 //
 Function WorldCountryClassifierDataByCode(Val Code, Val CodeType = "CountryCode") Export
 	
@@ -1466,20 +1464,20 @@ Function WorldCountryClassifierDataByCode(Val Code, Val CodeType = "CountryCode"
 	
 EndFunction
 
-// Returns country data by country description.
+// Returns information about the country name of the country.
 //
 // Parameters:
-//    Description - String - a country description.
+//    Description - String -  name of the country.
 //
 // Returns:
-//    Structure - Country details with the following fields:
-//       * Description       - String - a country description.
-//       * Code                - String - country code.
-//       * DescriptionFull - String - a full description of the country.
-//       * CodeAlpha2          - String - a two-character alpha-2 country code.
-//       * CodeAlpha3          - String - a three-character alpha-3 country code.
-//       * EEUMember       - Boolean - a EAEU member country.
-//    Undefined — the country does not exist in the classifier.
+//    Structure - :
+//       * Description       - String -  name of the country.
+//       * Code                - String -  country code.
+//       * DescriptionFull - String -  full name of the country.
+//       * CodeAlpha2          - String -  two-digit alpha-2 country code.
+//       * CodeAlpha3          - String -  three-digit alpha-3 country code.
+//       * EEUMember       - Boolean -  the country is a member of the EAEU.
+//    Undefined - the country does not exist in the classifier.
 //
 Function WorldCountryClassifierDataByDescription(Val Description) Export
 	
@@ -1509,17 +1507,17 @@ Function WorldCountryClassifierDataByDescription(Val Description) Export
 	
 EndFunction
 
-// Returns a reference to an item of the world country catalog by code or description.
-// If the item of the WorldCountries catalog does not exist, it will be created based on filling data.
+// Returns a link to the world country reference list element by code or name.
+// If an element of the World country reference list does not exist, it will be created based on the data you fill in.
 //
 // Parameters:
-//  CodeOrDescription - String    - a country code, alpha2 code, alpha3 code, or country description, including an international one.
-//  FillingData   - Structure - data for filling when creating a new item.
-//                                   The structure keys match the attribute of the WorldCountries catalog.
+//  CodeOrDescription - String    -  country code, ALPHA2 code, Alpha3 code, or country name, including international.
+//  FillingData   - Structure -  data to fill in if a new element is created.
+//                                   The structure keys correspond to the details of the country directory of the world.
 // 
 // Returns:
-//  CatalogRef.WorldCountries - — if several values were found, the first one will be returned.
-//                                If it does not exist or filling data is not specified, an empty reference is returned.
+//  CatalogRef.WorldCountries - 
+//                                
 //
 Function WorldCountryByCodeOrDescription(CodeOrDescription, FillingData = Undefined) Export
 	
@@ -1609,19 +1607,19 @@ Function WorldCountryByCodeOrDescription(CodeOrDescription, FillingData = Undefi
 	
 EndFunction
 
-// Returns a list of member states of the Eurasian Economic Union (EAEU).
-// The function call may initiate an HTTP request to a web service for working with classifiers
-// to get a relevant list of all EAEU member states.
+// Returns a list of the countries of the Eurasian Economic Union (EAEU).
+// The function call can initiate an http request to a web service for working with classifiers
+// to obtain an up-to-date list of all EAEU member countries.
 //
 // Returns:
-//  - ValueTable - A list of member states of the Eurasian Economic Union (EEU):
-//     * Ref             - CatalogRef.WorldCountries - a reference to an item of the WorldCountries catalog.
-//     * Description       - String - a country description.
-//     * Code                - String - country code.
-//     * DescriptionFull - String - a full description of the country.
-//     * CodeAlpha2          - String - a two-character alpha-2 country code.
-//     * CodeAlpha3          - String - a three-character alpha-3 country code.
-//     * InternationalDescription - String - international description of the country
+//  - ValueTable - :
+//     * Ref             - CatalogRef.WorldCountries -  link to the country reference list element.
+//     * Description       - String -  name of the country.
+//     * Code                - String -  country code.
+//     * DescriptionFull - String -  full name of the country.
+//     * CodeAlpha2          - String -  two-digit alpha-2 country code.
+//     * CodeAlpha3          - String -  three-digit alpha-3 country code.
+//     * InternationalDescription - String -  international name of the world's country
 //
 Function EEUMemberCountries() Export
 	
@@ -1654,14 +1652,14 @@ Function EEUMemberCountries() Export
 
 EndFunction
 
-// Determines whether a country is the Eurasian Economic Union member (EAEU).
+// Determines whether a country is a member of the Eurasian economic Union (EAEU).
 //
 // Parameters:
 //  Country - String
-//         - CatalogRef.WorldCountries - a country code, code alpha2, code alpha3,
-//                  country description, or a reference to an item of the World countries catalog.
+//         - CatalogRef.WorldCountries - 
+//                  
 // Returns:
-//    Boolean - if True, a country is the EEU country member.
+//    Boolean - 
 //
 Function IsEEUMemberCountry(Country) Export
 	
@@ -1699,24 +1697,24 @@ Function IsEEUMemberCountry(Country) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Handlers of form events and object module called upon the subsystem integration.
+// 
 
-// OnCreateAtServer form event handler.
-// Called from the module of contact information owner object form upon the subsystem integration.
+// Handler for an event in the form of an append to the Server.
+// Called from the form module of the CI owner object when implementing the subsystem.
 //
 // Parameters:
-//    Form - ClientApplicationForm - an owner object form used for displaying contact information.
+//    Form - ClientApplicationForm -  the shape of the object-owner, designed to display contact information.
 //    Object - CatalogRef
 //           - DocumentRef
 //           - CatalogObject
-//           - DocumentObject - an owner object of contact information. 
-//                              If it is a reference, contact information
-//                              will be received from the object by reference, otherwise, from the ContactInformation table of the object.
+//           - DocumentObject -  
+//                              
+//                              
 //    AdditionalParameters - See ContactInformationParameters.
-//                            - String - Obsolete.
-//    DeleteCITitleLocation - FormItemTitleLocation - obsolete, use AdditionalParameters instead.
-//    DeleteExcludedKinds - Array  - obsolete, use AdditionalParameters instead.
-//    DeleteDeferredInitialization - Array - obsolete, use AdditionalParameters instead.
+//                            
+//    DeleteCITitleLocation - FormItemTitleLocation -  deprecated, additional Parameters should be used.
+//    DeleteExcludedKinds - Array  -  deprecated, you should use additional Parameters.
+//    DeleteDeferredInitialization - Array -  deprecated, you should use additional Parameters.
 //
 Procedure OnCreateAtServer(Form, Object, Val AdditionalParameters = Undefined, DeleteCITitleLocation = "",
 	Val DeleteExcludedKinds = Undefined, DeleteDeferredInitialization = False) Export
@@ -1773,7 +1771,7 @@ Procedure OnCreateAtServer(Form, Object, Val AdditionalParameters = Undefined, D
 	AttributesToBeAdded = New Array;
 	CheckContactInformationAttributesAvailability(Form, AttributesToBeAdded);
 	
-	// Caching of frequently used values
+	// 
 	ObjectReference             = Object.Ref;
 	ObjectMetadata          = ObjectReference.Metadata();
 	FullMetadataObjectName = ObjectMetadata.FullName();
@@ -1911,13 +1909,15 @@ Procedure OnCreateAtServer(Form, Object, Val AdditionalParameters = Undefined, D
 	ContactInformationParameters = ContactInformationOutputParameters(Form, ItemForPlacementName,
 		CITitleLocation, DeferredInitialization, AdditionalParameters);
 	ContactInformationParameters.Owner                     = ObjectReference;
-	ContactInformationParameters.AddressParameters.PremiseType = PremiseType;
+	If ValueIsFilled(PremiseType) Then
+		ContactInformationParameters.AddressParameters.PremiseType = PremiseType;
+	EndIf;
 	ContactInformationParameters.URLProcessing = URLProcessing;
 	
 	Filter = New Structure("Type", Enums.ContactInformationTypes.Address);
 	AddressesCount = ContactInformation.FindRows(Filter).Count();
 	
-	// Creating form items, filling in the attribute values.
+	// 
 	CreatedItems = Common.CopyRecursive(ItemsPlacedOnForm);
 	PreviousKind = Undefined;
 	
@@ -2040,16 +2040,16 @@ Procedure OnCreateAtServer(Form, Object, Val AdditionalParameters = Undefined, D
 	
 EndProcedure
 
-// OnReadAtServer form event handler.
-// Called from the module of contact information owner object form upon the subsystem integration.
+// Event handler for event forms Pristinematerial.
+// Called from the form module of the CI owner object when implementing the subsystem.
 //
 // Parameters:
-//    Form  - ClientApplicationForm - an owner object form used for displaying contact information.
+//    Form  - ClientApplicationForm -  the shape of the object-owner, designed to display contact information.
 //    Object - CatalogRef
 //           - DocumentRef
 //           - CatalogObject
-//           - DocumentObject - an owner object of contact information.
-//    ItemForPlacementName - String - the group, to which contact information items will be placed.
+//           - DocumentObject -  object-owner of contact information.
+//    ItemForPlacementName - String -  the group where the contact information elements will be placed.
 //
 Procedure OnReadAtServer(Form, Object, ItemForPlacementName = "ContactInformationGroup") Export
 	
@@ -2101,7 +2101,7 @@ Procedure OnReadAtServer(Form, Object, ItemForPlacementName = "ContactInformatio
 				If TabularSectionsNamesByCIKinds = Undefined Then
 					Filter = New Structure("IsTabularSectionAttribute", True);
 					TabularSectionCIKinds = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(Filter, "Kind");
-					// @skip-check query-in-loop - Runs only in one iteration when the table attribute first appears
+					// 
 					TabularSectionsNamesByCIKinds = TabularSectionsNamesByCIKinds(TabularSectionCIKinds, ObjectName);
 				EndIf;
 				
@@ -2117,7 +2117,7 @@ Procedure OnReadAtServer(Form, Object, ItemForPlacementName = "ContactInformatio
 					StaticAttribute = FormAttribute.Kind;
 				EndIf;
 				
-				If StaticAttribute = Undefined Then // Attribute is created dynamically.
+				If StaticAttribute = Undefined Then // 
 					If Not DeferredInitialization And ValueIsFilled(FormAttribute.AttributeName) Then
 						AttributesToDeleteArray.Add(FormAttribute.AttributeName);
 						If HasCommentFieldForContactInfoType(FormAttribute.Type, Parameters.URLProcessing) Then
@@ -2153,21 +2153,21 @@ Procedure OnReadAtServer(Form, Object, ItemForPlacementName = "ContactInformatio
 	
 EndProcedure
 
-// AfterWriteAtServer form event handler.
-// Called from the module of contact information owner object form upon the subsystem integration.
+// Handler for the event of the post-recording form in the Server.
+// Called from the form module of the CI owner object when implementing the subsystem.
 //
 // Parameters:
-//    Form  - ClientApplicationForm - an owner object form used for displaying contact information.
+//    Form  - ClientApplicationForm -  the shape of the object-owner, designed to display contact information.
 //    Object - CatalogRef
 //           - DocumentRef
 //           - CatalogObject
-//           - DocumentObject - an owner object of contact information.
+//           - DocumentObject -  object-owner of contact information.
 //
 Procedure AfterWriteAtServer(Form, Object) Export
 	
 	ObjectName = Object.Ref.Metadata().Name;
 	
-	// Only for contact information of the tabular section.
+	// 
 	Filter = New Structure("IsTabularSectionAttribute", True);
 	TabularSectionRows = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(Filter);
 	TabularSectionsNamesByCIKinds = TabularSectionsNamesByCIKinds(TabularSectionRows, ObjectName);
@@ -2196,16 +2196,16 @@ Procedure AfterWriteAtServer(Form, Object) Export
 	
 EndProcedure
 
-// FillCheckProcessingAtServer form event handler.
-// Called from the module of contact information owner object form upon the subsystem integration.
+// Handler for the event of the form processingcheckfillingserver.
+// Called from the form module of the CI owner object when implementing the subsystem.
 //
 // Parameters:
-//    Form  - ClientApplicationForm - an owner object form used for displaying contact information.
+//    Form  - ClientApplicationForm -  the shape of the object-owner, designed to display contact information.
 //    Object - CatalogRef
 //           - DocumentRef
 //           - CatalogObject
-//           - DocumentObject - an owner object of contact information.
-//    Cancel  - Boolean - if True, errors were detected during the check.
+//           - DocumentObject -  object-owner of contact information.
+//    Cancel  - Boolean -  if True, errors were detected during the check.
 //
 Procedure FillCheckProcessingAtServer(Form, Object, Cancel) Export
 	
@@ -2231,7 +2231,7 @@ Procedure FillCheckProcessingAtServer(Form, Object, Cancel) Export
 			If TabularSectionsNamesByCIKinds = Undefined Then
 				Filter = New Structure("IsTabularSectionAttribute", True);
 				TabularSectionCIKinds = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(Filter , "Kind");
-				// @skip-check query-in-loop - Runs only in one iteration when the table attribute first appears
+				// 
 				TabularSectionsNamesByCIKinds = TabularSectionsNamesByCIKinds(TabularSectionCIKinds, ObjectName);
 			EndIf;
 			
@@ -2269,7 +2269,7 @@ Procedure FillCheckProcessingAtServer(Form, Object, Cancel) Export
 			
 			FormItem = Form.Items.Find(AttributeName);
 			If FormItem = Undefined Or InformationKind.DeletionMark Then
-				Continue; // Item was not created. Deferred initialization wasn't called.
+				Continue; // 
 			EndIf;
 			
 			If (InformationKindProperty.EditingOption = "Dialog"
@@ -2282,7 +2282,7 @@ Procedure FillCheckProcessingAtServer(Form, Object, Cancel) Export
 			
 			If InformationKind <> PreviousKind And Mandatory And IsBlankString(Presentation)
 				And Not HasOtherRowsFilledWithThisContactInformationKind(Form, TableRow, InformationKind) Then
-				// And no other strings with data for contact information kinds with multiple values.
+				// 
 				
 				Common.MessageToUser(
 				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Field ""%1"" is required.';"), InformationKind.Description),,, AttributeName);
@@ -2309,17 +2309,17 @@ Procedure FillCheckProcessingAtServer(Form, Object, Cancel) Export
 	
 EndProcedure
 
-// BeforeWriteAtServer form event handler.
-// Called from the module of contact information owner object form upon the subsystem integration.
+// Handler for the form event before writing to the Server.
+// Called from the form module of the CI owner object when implementing the subsystem.
 //
 // Parameters:
-//    Form  - ClientApplicationForm - an owner object form used for displaying contact information.
+//    Form  - ClientApplicationForm -  the shape of the object-owner, designed to display contact information.
 //    Object - CatalogObject
-//           - DocumentRef - an owner object of contact information.
-//             FormStructureData - an object containing a tabular section with contact information. Supports
-//                              hidden kinds of contact information only for already existing objects
-//                              as it is impossible to set a reference for a new object.
-//    Cancel  - Boolean - if True, the object was not written as errors occurred while recording.
+//           - DocumentRef - 
+//             
+//                              
+//                              
+//    Cancel  - Boolean -  if True, the object was not recorded, because errors occurred during recording.
 //
 Procedure BeforeWriteAtServer(Form, Object, Cancel = False) Export
 	
@@ -2367,28 +2367,28 @@ Procedure BeforeWriteAtServer(Form, Object, Cancel = False) Export
 	
 EndProcedure
 
-// Adds (deletes) an input field or a comment to a form, updating data.
-// Called from the form module of the contact information owner object.
+// Adds (removes) an input field or comment to the form, updating the data.
+// Is called from the form module object that owns the contact information.
 //
 // Parameters:
-//    Form     - ClientApplicationForm - an owner object form used for displaying contact information.
-//    Object    - FormDataStructure - an owner object of contact information.
-//    Result - Undefined - an optional internal attribute received from the previous event handler.
-//              - Structure: - A dynamic property set:
-//      * ReorderItems - Boolean - if item values are swapped.
-//      * TheFirstControl - String - if item values are swapped.
-//      * TheSecondControl - String - if item values are swapped.
-//      * UpdateConextMenu - Boolean -  upon context menu update
-//      * AttributeName - String - if menu update is in progress
-//      * KindToAdd - Boolean - upon adding a new item
-//      * IsCommentAddition - Boolean - upon adding a comment
-//      * UpdateConextMenu - Boolean - upon context menu update
-//      * ItemForPlacementName - String -  if adds a new item, comment, or context menu is being updated
-//      * Comment - String - upon context menu update
-//       * Reread  - Boolean - Identifies whether the contact information should be updated within the element for placing.
+//    Form     - ClientApplicationForm -  the shape of the object-owner, designed to display contact information.
+//    Object    - FormDataStructure -  object-owner of contact information.
+//    Result - Undefined -  the service attribute obtained from the previous event handler.
+//              - Structure: - :
+//      * ReorderItems - Boolean -  if the values of the elements are reversed.
+//      * TheFirstControl - String -  if the values of the elements are reversed.
+//      * TheSecondControl - String -  if the values of the elements are reversed.
+//      * UpdateConextMenu - Boolean -   if the menu is being updated
+//      * AttributeName - String -  if the menu is being updated
+//      * KindToAdd - Boolean -  when adding a new item
+//      * IsCommentAddition - Boolean -  when adding a comment
+//      * UpdateConextMenu - Boolean -  when updating the context menu
+//      * ItemForPlacementName - String -    if a new item is added, a comment is added, or the context menu is updated
+//      * Comment - String -  when updating the context menu
+//       * Reread  - Boolean - 
 //
 // Returns:
-//    Undefined - a value is not used, backward compatibility.
+//    Undefined - 
 //
 Function UpdateContactInformation(Form, Object, Result = Undefined) Export
 	
@@ -2557,14 +2557,14 @@ Function UpdateContactInformation(Form, Object, Result = Undefined) Export
 	
 EndFunction
 
-// FillingProcessing event subscription handler.
+// Subscription handler for the "fill Handler" event.
 //
 // Parameters:
 //  Source             - CatalogObject
-//                       - DocumentObject - an object containing contact information.
-//  FillingData     - Structure - data with contact information to fill in the object.
-//  FillingText      - String - not used.
-//  StandardProcessing - Boolean - not used.
+//                       - DocumentObject -  an object containing contact information.
+//  FillingData     - Structure -  data with contact information for filling in the object.
+//  FillingText      - String -  not use.
+//  StandardProcessing - Boolean -  not use.
 //
 Procedure FillContactInformationProcessing(Source, FillingData, FillingText, StandardProcessing) Export
 	
@@ -2572,11 +2572,11 @@ Procedure FillContactInformationProcessing(Source, FillingData, FillingText, Sta
 	
 EndProcedure
 
-// The BeforeWrite event subscription handler for updating contact information for lists.
+// Subscription handler for the "pre-Record" event for updating contact information for lists.
 //
 // Parameters:
-//  Object - Arbitrary - an object containing contact information.
-//  Cancel  - Boolean       - not used, backward compatibility.
+//  Object - Arbitrary -  an object containing contact information.
+//  Cancel  - Boolean       -  not used, backward compatible.
 //
 Procedure ProcessingContactsUpdating(Object, Cancel) Export
 	
@@ -2588,14 +2588,14 @@ Procedure ProcessingContactsUpdating(Object, Cancel) Export
 	
 EndProcedure
 
-// FillingProcessing event subscription handler for documents.
+// Handler for subscription events, "Obrabatyvaniya" for documents.
 //
 // Parameters:
-//  Source             - Arbitrary         - an object containing contact information.
-//  FillingData     - Structure            - data with contact information to fill in the object.
+//  Source             - Arbitrary         -  an object containing contact information.
+//  FillingData     - Structure            -  data with contact information for filling in the object.
 //  FillingText      - String
-//                       - Undefined - filling data of the Description attribute.
-//  StandardProcessing - Boolean               - not used.
+//                       - Undefined - 
+//  StandardProcessing - Boolean               -  not use.
 //
 Procedure DocumentContactInformationFilling(Source, FillingData, FillingText, StandardProcessing) Export
 	
@@ -2603,17 +2603,17 @@ Procedure DocumentContactInformationFilling(Source, FillingData, FillingText, St
 	
 EndProcedure
 
-// Executes deferred initialization of attributes and contact information items.
+// Performs lazy initialization of the requisites and elements of the contact information.
 //
 // Parameters:
-//  Form                    - ClientApplicationForm - an owner object form used for displaying
+//  Form                    - ClientApplicationForm -  the shape of the object-owner, designed to display
 //                                                          contact information.
-//  Object                   - Arbitrary - an owner object of contact information.
-//  ItemForPlacementName - String - a group name where the contact information is placed.
+//  Object                   - Arbitrary -  object-owner of contact information.
+//  ItemForPlacementName - String -  name of the group where the contact information is located.
 //
 Procedure ExecuteDeferredInitialization(Form, Object, ItemForPlacementName = "ContactInformationGroup") Export
 	
-		ContactInformationStub = Form.Items.Find("ContactInformationStub"); // A temporary item
+		ContactInformationStub = Form.Items.Find("ContactInformationStub"); // 
 	If ContactInformationStub <> Undefined Then
 		Form.Items.Delete(ContactInformationStub);
 	EndIf;
@@ -2675,19 +2675,19 @@ Procedure ExecuteDeferredInitialization(Form, Object, ItemForPlacementName = "Co
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Auxiliary functions and constructors.
+// 
 
-// Returns the object contact information kinds being used.
+// Returns the types of contact information used for the object.
 //
 // Parameters:
 //  ContactInformationOwner - CatalogRef.ContactInformationKinds
 //                               - CatalogObject.ContactInformationKinds
 //                               - FormDataStructure:
-//                                 * Ref - CatalogRef.ContactInformationKinds - a reference to a CI kind.
-//  ContactInformationType - EnumRef.ContactInformationTypes - CI kind filter by type.
+//                                 * Ref - CatalogRef.ContactInformationKinds -  link to the type of CI.
+//  ContactInformationType - EnumRef.ContactInformationTypes -  selection of CI types by type.
 //
 // Returns:
-//  ValueTable - Contact information kinds, where:
+//  ValueTable - :
 //    * Ref  - CatalogRef.ContactInformationKinds
 //    * Type - EnumRef.ContactInformationTypes
 //    * Presentation - String
@@ -2759,18 +2759,18 @@ Function ObjectContactInformationKinds(ContactInformationOwner, ContactInformati
 	
 EndFunction
 
-// Returns the attribute indicating the object is attached to the "Contact information" subsystem
-// and contains tabular section ContactInformation.
+// Returns an indication that the object is connected to the "Contact information" subsystem
+// and contains the contact Information table part.
 //
 // Parameters:
 //  ObjectToCheck - CatalogObject
 //                    - CatalogRef
 //                    - DocumentObject
 //                    - DocumentRef
-//                    - Type - — the object being checked for integration with the Contact information subsystem.
+//                    - Type - 
 //
 // Returns:
-//  Boolean - — if True, the object contains contact information.
+//  Boolean - 
 //
 Function ContainsContactInformation(ObjectToCheck) Export
 	
@@ -2787,11 +2787,11 @@ Function ContainsContactInformation(ObjectToCheck) Export
 	
 EndFunction
 
-// Returns a reference to a contact information kind.
-// If a kind is not found by name, then the search is executed by names of predefined items.
+// Returns a link to the contact information type.
+// If the visible software was not found by name, the search is performed by the names of predefined elements.
 //
 // Parameters:
-//  Name - String - a unique name of a contact information kind.
+//  Name - String -  unique name of the contact information type.
 // 
 // Returns:
 //  CatalogRef.ContactInformationKinds
@@ -2817,31 +2817,31 @@ Function ContactInformationKindByName(Name) Export
 	
 EndFunction
 
-// Details of contact information parameters used in the OnCreateAtServer handler.
+// Parameters description contact information used in the handler for Precontamination.
 // 
 // Returns:
-//  Structure - Contact information parameters:
-//   * IndexOf                   - String - an address postal code.
-//   * Country                   - String - an address country.
-//   * PremiseType             - String - a description of premise type that will be set
-//                                         in the address input form. Apartment by default.
-//   * ItemForPlacementName - String - the group, to which contact information items will be placed.
-//   * HiddenKinds           - Array - contact information kinds that do not need to be displayed on the form.
-//   * DeferredInitialization  - Boolean - if True, generation of contact information fields on the form will be deferred.
-//   * CITitleLocation     - FormItemTitleLocation - can take the following values:
-//                                                             FormItemTitleLocation.Top or
-//                                                             FormItemTitleLocation.Left (by default).
-//   * AllowAddingFields - Boolean - If True, the contact information owner form has a button for adding additional contact information
+//  Structure - :
+//   * IndexOf                   - String -  the index address.
+//   * Country                   - String -  country of the address.
+//   * PremiseType             - String -  name of the room type that will be set
+//                                         in the new address entry form. By default, "Apartment".
+//   * ItemForPlacementName - String -  the group where the contact information elements will be placed.
+//   * HiddenKinds           - Array -  types of contact information that do not need to be displayed on the form.
+//   * DeferredInitialization  - Boolean -  if True, the creation of contact information fields on the form will be delayed.
+//   * CITitleLocation     - FormItemTitleLocation - :
+//                                                             
+//                                                             
+//   * AllowAddingFields - Boolean - 
 //                                         
-//   * ItemsPlacedOnForm         - Map of KeyAndValue - Contact information kinds that were added to the form interactively.
-//                                               In case of deferred initialization, they will appear on the form after the
-//                                               ContactsManager.ExecuteDeferredInitialization procedure is called.:
-//                                  ** Key - String - The name of a predefined contact information kind
+//   * ItemsPlacedOnForm         - Map of KeyAndValue - 
+//                                               
+//                                               :
+//                                  ** Key - String - 
 //                                          - CatalogRef.ContactInformationKinds
 //                                  ** Value - Boolean - True
-//   * URLProcessing - Boolean - If True, contact information of the WebPage type is displayed as a hyperlink 
+//   * URLProcessing - Boolean -  
 //   										   	
-//   * ExcludedKinds - Array - Obsolete. Instead, use "ItemsPlacedOnForm". 						                                                            
+//   * ExcludedKinds - Array -  						                                                            
 //
 Function ContactInformationParameters() Export
 
@@ -2863,26 +2863,26 @@ Function ContactInformationParameters() Export
 EndFunction 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Check and information about the address
+// 
 
 // Checks contact information.
 //
 // Parameters:
-//   Presentation  - String - The contact information presentation.
-//                           Used in cases when the "FieldValues" parameter is missing the "Presentation" field.
+//   Presentation  - String -  presentation of contact information. Used if it is not possible to define
+//                           a view from the field Value parameter (no View field).
 //   FieldValues  - String
 //                  - Structure
 //                  - Map
-//                  - ValueList - details of contact information fields.
-//   InformationKind  - CatalogRef.ContactInformationKinds - used to determine a type if it is impossible
-//                                                               to determine it by the FieldValues parameter.
-//   InformationType  - EnumRef.ContactInformationTypes - contact information type.
-//   AttributeName   - String - an attribute name on the form.
-//   Comment    - String - comment text.
-//   AttributePath1 - String - an attribute path.
+//                  - ValueList - 
+//   InformationKind  - CatalogRef.ContactInformationKinds -  used to determine the type if it cannot
+//                                                               be determined by the field Value parameter.
+//   InformationType  - EnumRef.ContactInformationTypes -  type of contact information.
+//   AttributeName   - String -  name of the prop on the form.
+//   Comment    - String -  text of the comment.
+//   AttributePath1 - String -  the path to the props.
 // 
 // Returns:
-//   Number - an error level, 0 - no errors.
+//   Number - 
 //
 Function ValidateContactInformation(Presentation, FieldValues, InformationKind, InformationType,
 	AttributeName, Comment = Undefined, AttributePath1 = "") Export
@@ -2895,7 +2895,7 @@ Function ValidateContactInformation(Presentation, FieldValues, InformationKind, 
 		CIObject = FieldValues;
 	EndIf;
 	
-	// Check.
+	// Validation
 	If InformationType = Enums.ContactInformationTypes.Email Then
 		ErrorsLevel = EmailFIllingErrors(CIObject, InformationKind, AttributeName, AttributePath1);
 	ElsIf InformationType = Enums.ContactInformationTypes.Address Then
@@ -2907,7 +2907,7 @@ Function ValidateContactInformation(Presentation, FieldValues, InformationKind, 
 	ElsIf InformationType = Enums.ContactInformationTypes.WebPage Then
 		ErrorsLevel = WebPageFillingErrors(CIObject, InformationKind, AttributeName);
 	Else
-		// No other checks are made.
+		// 
 		ErrorsLevel = 0;
 	EndIf;
 	
@@ -2916,19 +2916,19 @@ Function ValidateContactInformation(Presentation, FieldValues, InformationKind, 
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// 
 
-// Sets properties of a contact information group.
+// Sets the properties of the contact information group.
 //
 // Parameters:
 //    Parameters - Structure:
-//        * Code    - String   - a code of a contact information kind to identify the item.
-//        * Description - String - a description of a contact information kind.
-//        * Name - String - name of the predefined contact information type;
-//        * Used - Boolean - indicates whether a contact information kind is used. Default value is True.
+//        * Code    - String   -  code for the type of contact information used to identify the item.
+//        * Description - String -  name of the type of contact information.
+//        * Name - String -  name of the predefined contact information type;
+//        * Used - Boolean -  indicates whether the contact information type is used. The default value is True.
 //
 // Returns:
-//   CatalogRef.ContactInformationKinds - a reference to the group.
+//   CatalogRef.ContactInformationKinds - 
 //
 Function SetContactInformationKindGroupProperties(Parameters) Export
 	
@@ -2950,83 +2950,83 @@ Function SetContactInformationKindGroupProperties(Parameters) Export
 	
 EndFunction
 
-// Sets properties of a contact information kind.
-// Note. When using the Order parameter, make sure that the assigned values are unique.
-//  If any non-unique order values are identified in this same group after update,
-//  users cannot further edit order values.
-//  Generally, it is recommended that you do not use this parameter (the order will not change) or set it to
-//  0 (in this case, the order will be assigned automatically in the "Item order" subsystem upon the procedure execution).
-//  To reassign several contact information kinds in a given relative order without moving them to the beginning of
-//  the list, you only need to call the procedure in sequence for each required contact information kind (with order value set to 0).
-//  If a predefined contact information kind is added to the infobase, do not assign its order explicitly.
+// Sets the properties of the contact information type.
+// Note. When using the Order parameter, you should carefully monitor the uniqueness of the assigned value.
+//  If the order values are not unique within the group after the update
+//  , the user will not be able to configure the order.
+//  In General, we recommend that you do not use this parameter (the order will not change), or fill it with a value
+//  0 (the order will be assigned automatically in the "setting item order" subsystem when the procedure is executed).
+//  To place the types of CI in a certain sequence relative to each other without explicitly placing them at the beginning
+//  of the list, it is enough to call this procedure in the desired sequence for each type of CI with the order 0.
+//  If a predefined type of CI is added to existing ones in the is, it is not recommended to assign the order explicitly.
 //
 // Parameters:
-//   Parameters - Structure - properties of a contact information kind:
-//      * Name - String - name of the predefined contact information type;
-//      * Description - String - a description of a contact information kind;
+//   Parameters - Structure - :
+//      * Name - String -  name of the predefined contact information type;
+//      * Description - String -  name of the type of contact information;
 //      * Kind - CatalogRef.ContactInformationKinds
-//            - String - a reference to the contact information kind or
-//                       a predefined item ID.
-//      * Type - EnumRef.ContactInformationTypes - a type of contact information or its
+//            - String - 
+//                       
+//      * Type - EnumRef.ContactInformationTypes -  type of contact information or its
 //                                                                    ID.
 //      * Order - Number
-//                - Undefined - The contact information kind's relative position in the list:
-//                                 "Undefined" - Keep the current order:
-//                                 "0" - Order automatically
-//                                 "1", "2", ... - The specific position in the list.
+//                - Undefined - 
+//                                 :
 //                                 
-//      * CanChangeEditMethod - Boolean                - True if you can change the editing
-//                                                                      method only in the dialog box, otherwise, False.
-//    * EditingOption - String - a value editing method. Available options: InputFieldAndDialog, InputField, and Dialog.
-//                                    If Dialog, the form displays a hyperlink with a contact
-//                                    information presentation. Clicking it opens the form of the matching contact information type.
-//                                    The property is applicable only for the following contact information types: Address, Phone, and Fax.
-//                                    If InputField, an input field is displayed on the form.
-//                                    If InputFieldAndDialog, both the input field and the input form of the matching contact information type are available.
-//      * Mandatory                                    - Boolean - True if the field is
-//                                                                      mandatory, otherwise, False.
-//      * AllowMultipleValueInput - Boolean                  - indicates whether additional
-//                                                                      input fields are used for this kind.
-//      * DenyEditingByUser - Boolean             - indicates that editing
-//                                                                      of contact
-//                                                                      information kind properties by a user is unavailable.
-//      * StoreChangeHistory - Boolean -                          indicates whether the change history of
-//                                                                      a contact information kind is stored.
-//                                                                      Default value is False.
-//      * Used - Boolean -                                     indicates whether a contact information kind is used.
-//                                                                      Default value is True.
-//      * FieldKindOther - String -                                    The Other field layout on the form. Possible values:
-//                                                                      MultilineWide, SingleLineWide, SingleLineNarrow.
-//                                                                      The default value is SingleLineWide.
-//      * EditInDialogOnly - Boolean - obsolete. Use EditingOption instead.
-//                                                 If True, the form displays a hyperlink with a contact
-//                                                 information presentation. Click it to open the form of the matching
-//                                                 contact information type. The property is applicable only for contact information with the type:
-//                                                 Address, Phone, Fax, WebPage. Default value is False.
-//      * ValidationSettings - Undefined - for the Other, WebPage, and Skype types.
-//                          - Structure - The field set varies for different contact information types:
-//         ** OnlyNationalAddress - Boolean - for the Address type. If True, only national address input is enabled.
-//         ** CheckValidity - Boolean - For the EmailAddress type.
-//                                             If True, forbid users to save invalid email addresses.
-//         ** HideObsoleteAddresses - Boolean - for the Address type. True if showing
-//                                                  outdated addresses upon
-//                                                  input is not required (only if OnlyNationalAddress = True).
-//         ** IncludeCountryInPresentation - Boolean - for the Address type. True if including a country
-//                                                    description in the address presentation is required.
-//         ** CheckValidity - Boolean - For the EmailAddress type.
-//                                             If True, forbid users to save invalid email addresses.
-//         ** PhoneWithExtensionNumber  - Boolean - for the Phone or Fax types. If True, a phone/fax contains
-//                                                  an extension.
-//         ** EnterNumberByMask - Boolean - for the Phone or Fax types. True if entering a phone by mask is required.
-//         ** PhoneNumberMask  - String - for types Phone or Fax. Contains a character-by-character string of the mask
-//                                           of interactive entering a text in the field. The mask format matches
-//                                           the platform mask for the input field.
-//         ** ProhibitInvalidEntry - Boolean - obsolete. All passed values are ignored.
-//                                                  For the EmailAddress type. To prevent users from saving
-//                                                  incorrect addresses, use the CheckValidity parameter instead.
-//         ** ProhibitInvalidEntry - Boolean - obsolete. All passed values are ignored.
-//                                                  For the EmailAddress type. To prevent users from saving
-//                                                  incorrect addresses, use the CheckValidity parameter instead.
+//                                 
+//                                 
+//      * CanChangeEditMethod - Boolean                -  True if it is possible to change
+//                                                                      the editing method only in the dialog, False-otherwise.
+//    * EditingOption - String -  determine the type of value editing. Options: "Prevoditelj", "Paliwoda", "Dialogue".
+//                                    If "Dialog", then the form displays a hyperlink with contact
+//                                    information, clicking on which opens the form of the corresponding type of CI.
+//                                    This property is only applicable for contact information with the type: Address, Phone, Fax.
+//                                    If "field input", then the input field is displayed on the form.
+//                                    If "Prevoditelj", that are available for input in the form of the appropriate type KEY.
+//      * Mandatory                                    - Boolean -  True if the field must
+//                                                                      be filled in, False otherwise.
+//      * AllowMultipleValueInput - Boolean                  -  indicates whether additional
+//                                                                      input fields can be used for this type.
+//      * DenyEditingByUser - Boolean             -  indicates that the contact information type property cannot be edited by the user.
+//                                                                      
+//                                                                      
+//      * StoreChangeHistory - Boolean -                                                    indicates whether the history of changes
+//                                                                      to the contact information type is stored.
+//                                                                      The default value is False.
+//      * Used - Boolean -                                                                          indicates whether the contact information type is used.
+//                                                                      The default value is True.
+//      * FieldKindOther - String -                                    :
+//                                                                      
+//                                                                      
+//      * EditInDialogOnly - Boolean - 
+//                                                 
+//                                                 
+//                                                 :
+//                                                 
+//      * ValidationSettings - Undefined -  for types Other, Webpage, Skype.
+//                          - Structure - :
+//         ** OnlyNationalAddress - Boolean - 
+//         ** CheckValidity - Boolean - 
+//                                             
+//         ** HideObsoleteAddresses - Boolean -  for the Address type. If True, if it is not required to show
+//                                                  irrelevant addresses when
+//                                                  entering (only if only the national address = True).
+//         ** IncludeCountryInPresentation - Boolean -  for the Address type. If True, if it is required to include the name
+//                                                    of the country in the address representation.
+//         ** CheckValidity - Boolean -  for the type of electronic mail address .If True, if it is required to prohibit
+//                                             the user from writing an incorrect email address.
+//         ** PhoneWithExtensionNumber  - Boolean -  for the Phone or Fax type. If True, then the phone/fax contains
+//                                                  an extension number.
+//         ** EnterNumberByMask - Boolean -  for the Phone or Fax type. If True, if you need to enter the phone by mask.
+//         ** PhoneNumberMask  - String -  for the Phone or Fax type. Contains a character-by-character mask string
+//                                           for interactive text input in the field. The mask format corresponds
+//                                           to the platform mask for the input field.
+//         ** ProhibitInvalidEntry - Boolean - 
+//                                                  
+//                                                  
+//         ** ProhibitInvalidEntry - Boolean -  outdated. All passed values are ignored.
+//                                                  For the type of electronic mail address. To prohibit the user from writing
+//                                                  incorrect addresses, use the Check Correctness parameter.
 //
 Procedure SetContactInformationKindProperties(Parameters) Export
 	
@@ -3138,17 +3138,17 @@ Procedure SetContactInformationKindProperties(Parameters) Export
 	
 EndProcedure
 
-// Returns a structure of parameters of a contact information kind group.
+// Returns the structure of contact information type group parameters.
 //
 // Parameters:
-//    ContactInformationGroup1 - CatalogRef.ContactInformationKinds- a contact information group.
+//    ContactInformationGroup1 - CatalogRef.ContactInformationKinds-  contact information group.
 //
 // Returns:
 //    Structure:
-//        * Name          - String - a unique name of a contact information kind.
-//        * Description - String - a description of a contact information kind.
-//        * Group - CatalogRef.ContactInformationKinds - a reference to a group (parent) of a catalog item.
-//        * Used - Boolean - indicates whether a contact information kind is used. Default value is True.
+//        * Name          - String -  unique name of the contact information type.
+//        * Description - String -  name of the type of contact information.
+//        * Group - CatalogRef.ContactInformationKinds -  reference to the group (parent) of the directory element.
+//        * Used - Boolean -  indicates whether the contact information type is used. The default value is True.
 //
 Function ContactInformationKindGroupParameters(ContactInformationGroup1 = Undefined) Export
 	
@@ -3166,93 +3166,93 @@ Function ContactInformationKindGroupParameters(ContactInformationGroup1 = Undefi
 	
 EndFunction
 
-// Returns a structure of contact information kind parameters for a particular type.
+// Returns the structure of contact information type parameters for a specific type.
 // 
 // Parameters:
 //    ContactInformationKindOrType - EnumRef.ContactInformationTypes
-//                                  - String - contact information type,
-//                                  - CatalogRef.ContactInformationKinds- a contact information kind for
-//                                  filling the ValidationSettings property.
+//                                  - String - 
+//                                  - CatalogRef.ContactInformationKinds- 
+//                                  
 //
 // Returns:
 //  Structure:
-//   * Name          - String - a unique name of a contact information kind.
-//   * Description - String - a description of a contact information kind.
+//   * Name          - String -  unique name of the contact information type.
+//   * Description - String -  name of the type of contact information.
 //   * Kind - CatalogRef.ContactInformationKinds
-//         - String - a reference to the contact information kind or
-//                    a predefined item ID.
-//   * Group - CatalogRef.ContactInformationKinds - a reference to a group (parent) of a catalog item.
-//   * Type - EnumRef.ContactInformationTypes - a type of contact information or its ID.
+//         - String - 
+//                    
+//   * Group - CatalogRef.ContactInformationKinds -  reference to the group (parent) of the directory element.
+//   * Type - EnumRef.ContactInformationTypes -  type of contact information or its ID.
 //   * Order - Number
-//             - Undefined - contact information kind order, a relative position in the list.
-//                              Undefined - do not reassign;
-//                              0            - assign automatically;
-//                              Number > 0    - assign the specified order.
-//                              Note. When using the Order parameter, make sure
-//                              that the assigned values are unique. If any non-unique order values are identified in this same group after update,
-//                              users cannot further edit
-//                              order values. Generally, it is recommended that you do not
-//                              use this parameter (the order will not change) or set it to
-//                              0 (in this case, the order will be assigned automatically in the Item
-//                              ordering subsystem upon the procedure execution). To reassign several contact information kinds in
-//                              a given relative order without
-//                              moving them to the beginning of the list, you only need to call the procedure in
-//                              sequence for each required contact information kind (with order value set to 0). If
-//                              a predefined contact information kind is added to the infobase,
-//                              do not assign its order explicitly.
-//     * CanChangeEditMethod - Boolean -indicates whether a user can change properties of a contact information kind.
-//                                                    If False, properties of a contact information kind form
-//                                                    are view-only. The default value is False.
-//     * EditingOption - String - An editing option.
-//     * EditingOption - String - An editing option.
-//                                    
-//                                    
-//                                    
-//                                    
-//                                    
-//     * StoreChangeHistory     - Boolean - indicates whether the contact information change history can be stored.
-//                                              Storing the history is allowed if EditingOption = "Dialog"
-//                                              is True. The property is only applicable when the tabular section ContactInformation
-//                                              contains the ValidFrom attribute. Default value is False.
-//     * Mandatory       - Boolean - if True, a value in 
-//                                               the contact information field is mandatory. The default value is False.
-//     * AllowMultipleValueInput - Boolean       - indicates whether multiple value input is available for this kind.
+//             - Undefined - 
+//                              
+//                              
+//                              
+//                              
+//                              
+//                              
+//                              
+//                              
+//                              
+//                              
+//                              
+//                              
+//                              
+//                              
+//                              
+//     * CanChangeEditMethod - Boolean -indicates whether the user can change the properties of the contact information type.
+//                                                    If False, the properties
+//                                                    are viewable only in the contact information view form. The default value is False.
+//     * EditingOption - String - 
+//     * EditingOption - String -  determine the type of value editing. Options: "Prevoditelj", "Paliwoda", "Dialogue".
+//                                    If "Dialog", then the form displays a hyperlink with contact
+//                                    information, clicking on which opens the form of the corresponding type of CI.
+//                                    This property is only applicable for contact information with the type: Address, Phone, Fax.
+//                                    If "field input", then the input field is displayed on the form.
+//                                    If "Prevoditelj", that are available for input in the form of the appropriate type KEY.
+//     * StoreChangeHistory     - Boolean -  indicates whether the contact information history can be stored.
+//                                              History storage is allowed if the edit Type = "dialog" attribute
+//                                              is set to True. This property is applicable if the contact Information table part
+//                                              contains the Action details. The default value is False.
+//     * Mandatory       - Boolean -  if True, you must enter the value in 
+//                                               the contact information field. The default value is False.
+//     * AllowMultipleValueInput - Boolean       -  indicates whether multiple values can be entered for this type.
 //                                                        The default value is False.
-//     * DenyEditingByUser - Boolean - indicates that editing of a contact information kind 
-//                                                       by a user is unavailable. The default value is False.
-//     * Used - Boolean - if False, a contact information kind is not available for users.
-//                               Such a kind is not displayed in forms and lists of contact information kinds.
-//                               Default value is True.
-//     * InternationalAddressFormat          - Boolean - indicates that an address format is international. 
-//                                                     If True, all addresses can be entered in international format only.
+//     * DenyEditingByUser - Boolean -  
+//                                                       
+//     * Used - Boolean -  if False, the contact information type is not available for use by the user.
+//                               This type is not displayed in the forms and the list of contact information types.
+//                               The default value is True.
+//     * InternationalAddressFormat          - Boolean -  indicates the international address format. 
+//                                                     If True, then add all of the addresses in the first format.
 //                                                     The default value is False.
-//     * FieldKindOther                        - String - Defines the Other field layout on the form.
-//                                            Available options: MultilineWide, SingleLineWide, and SingleLineNarrow.
-//                                            The property is applicable only for contact information with the type: Other.
-//                                            The default value for a contact information kind with the Other type is SingleLineWide,
-//                                            otherwise, a blank string.
-//     * EditInDialogOnly - Boolean - obsolete. Use EditingOption instead.
-//                                               If True, the form displays a hyperlink with a contact
-//                                               information presentation. Click it to open the form of the matching
-//                                               contact information type. The property is applicable only for contact information with the type-
-//                                               Address, Phone, Fax, WebPage. Default value is False.
-//     * ValidationSettings  - Undefined - for the Other, WebPage, and Skype types.
-//                          - Structure - Validation settings for the given contact information kind: 
-//       ** OnlyNationalAddress - Boolean - for the Address type. If True, you can enter only national addresses.
-//                                               Changing the address country is not allowed.
-//       ** CheckValidity - Boolean - for the EmailAddress type. If True, a user cannot enter
-//                                           an incorrect email address. The default value is False.
+//     * FieldKindOther                        - String -  defines the appearance of a field with the Other type on the form.
+//                                            Options: Multi-Line Wide, Single-Line Wide, Single-Line Narrow.
+//                                            This property is only applicable for contact information with the type: Other.
+//                                            For a type of CI with a Different type, the default value is "single-line Wide",
+//                                            otherwise an empty string.
+//     * EditInDialogOnly - Boolean -  dated. You should use the edit View.
+//                                               If True, the form displays a hyperlink with contact
+//                                               information, which opens a form of the corresponding
+//                                               type of CI. This property is only applicable for contact information with the type-
+//                                               Address, Phone, Fax, web Page. The default value is False.
+//     * ValidationSettings  - Undefined -  for types Other, Webpage, Skype.
+//                          - Structure - : 
+//       ** OnlyNationalAddress - Boolean -  for the Address type. If True, then only national addresses are allowed to be entered.
+//                                               Changing the country of the address is not allowed.
+//       ** CheckValidity - Boolean - 
 //                                           
 //                                           
 //                                           
-//       ** IncludeCountryInPresentation - Boolean - for the Address type. if True, a country Description is always
-//                                                  added to an address presentation even when other address fields are blank.
+//                                           
+//       ** IncludeCountryInPresentation - Boolean -  for the Address type. if True, the country name is always
+//                                                  added to the address representation, even when the other address fields are empty.
 //                                                  The default value is False.
-//       ** SpecifyRNCMT - Boolean - for the Address type. indicates whether manual input of an RNCMT code is available in the address input form.
-//       ** CheckValidity - Boolean - for the EmailAddress type. If True, a user cannot enter 
+//       ** SpecifyRNCMT - Boolean -  for the Address type. a sign of the possibility of manually entering the OKMTO code in the address entry form.
+//       ** CheckValidity - Boolean -  for the type of electronic mail address. If True, the user is prohibited from entering 
 //                                          an incorrect email address. The default value is False.
-//       ** PhoneWithExtensionNumber - Boolean - for the Phone and Fax type. If true,
-//                                               you can enter an extension in the phone input form. The default value is True.
+//       ** PhoneWithExtensionNumber - Boolean -  for the Phone and Fax type. If True, then an
+//                                               extension number can be entered in the phone entry form. The default value is True.
 //
 Function ContactInformationKindParameters(ContactInformationKindOrType = Undefined) Export
 	
@@ -3275,16 +3275,16 @@ Function ContactInformationKindParameters(ContactInformationKindOrType = Undefin
 	
 EndFunction
 
-// Writes contact information from XML to the fields of the Object contact information tabular section.
+// Writes contact information from XML to the fields in the contact information table part of the object.
 //
 // Parameters:
-//    Object - CatalogObject - A configuration object containing the contact information table.
-//    Value - String - contact information in the internal JSON format.
-//    InformationKind - CatalogRef.ContactInformationKinds - a reference to a contact information kind.
-//    InformationType - EnumRef.ContactInformationTypes - contact information type.
-//    RowID - Number - tabular section row ID.
-//    Date - Date - the date, from which contact information record is valid.
-//                  It is used for storing the history of contact information changes.
+//    Object - CatalogObject - 
+//    Value - String -  contact information in internal JSON format.
+//    InformationKind - CatalogRef.ContactInformationKinds -  link to the contact information type.
+//    InformationType - EnumRef.ContactInformationTypes -  type of contact information.
+//    RowID - Number -  ID of the table part row.
+//    Date - Date -  the date from which the contact information record is valid
+//                  is used when storing the history of changes to contact information.
 //
 Procedure WriteContactInformation(Object, Val Value, InformationKind, InformationType, RowID = 0, Date = Undefined) Export
 	
@@ -3322,17 +3322,17 @@ Procedure WriteContactInformation(Object, Val Value, InformationKind, Informatio
 		NewRow.TabularSectionRowID = RowID;
 	EndIf;
 	
-	// Filling in additional attributes of the tabular section.
+	// 
 	ContactsManagerInternal.FillContactInformationTechnicalFields(NewRow, CIObject, InformationType);
 	
 EndProcedure
 
-// Updates a contact information presentation in internal field KindForList that
-// is used to display it in dynamic lists and reports.
+// Updates the view of contact information in the list View service field,
+// which is used for displaying it in dynamic lists and reports.
 //
 // Parameters:
-//  Object -DefinedType.ContactInformationOwner - a reference to the configuration object containing
-//  contact information tabular section.
+//  Object -DefinedType.ContactInformationOwner -  a reference to the configuration object containing the tabular part
+//  of the contact information.
 //
 Procedure UpdateContactInformationForLists(Object = Undefined) Export
 	
@@ -3346,11 +3346,11 @@ Procedure UpdateContactInformationForLists(Object = Undefined) Export
 	
 EndProcedure
 
-// Executes deferred update of contact information for lists.
+// Performs a deferred update of contact information for lists.
 //
 // Parameters:
-//  Parameters    - Structure - update handler parameters.
-//  PortionSize - Number - Size of a batch to be processed in a single run.
+//  Parameters    - Structure -  parameters of the update handler.
+//  PortionSize - Number -  the serving size of data to be processed in a single run.
 //
 Procedure UpdateContactsForListDeferred(Parameters, PortionSize = 1000) Export
 	
@@ -3358,7 +3358,7 @@ Procedure UpdateContactsForListDeferred(Parameters, PortionSize = 1000) Export
 	Parameters.Property("ObjectsWithKindForList", ObjectsWithKindForList);
 	
 	If Parameters.ExecutionProgress.TotalObjectCount = 0 Then
-		// Calculate the quantity.
+		// 
 		Query = New Query;
 		Query.Text = 
 		"SELECT
@@ -3493,9 +3493,9 @@ Procedure UpdateContactsForListDeferred(Parameters, PortionSize = 1000) Export
 	
 EndProcedure
 
-// Deletes information about the matching contact information kind catalog item and predefined value
-// that was marked as deleted. For a single call in update handlers of canceling predefined
-// items of the ContactInformationKinds catalog.
+// Deletes information about whether an item in the contact information directory corresponds to a predefined value
+// that is marked as deleted. For a single call in the update handlers to reject predefined
+// elements of the directory viewcontact information.
 //
 Procedure RemovePredefinedAttributeForContactInformationKinds() Export
 	
@@ -3556,21 +3556,21 @@ EndProcedure
 #Region ObsoleteProceduresAndFunctions
 
 ////////////////////////////////////////////////////////////////////////////////
-// Backward compatibility.
+// 
 
-// Deprecated. Obsolete. Use ContactsManager.ContactsByPresentation instead.
-// Converts a contact information presentation into an XML string matching the structure
-// of XDTO packages ContactInformation and Address.
-// Correct conversion is not guaranteed for the addresses entered in free form.
+// Deprecated.
+// 
+// 
+// 
 //
 //  Parameters:
-//      Presentation - String  - a string presentation of contact information displayed to a user.
+//      Presentation - String  -  string representation of contact information displayed to the user.
 //      ExpectedKind  - CatalogRef.ContactInformationKinds
 //                    - EnumRef.ContactInformationTypes
-//                    - Structure - a kind or a type of contact information.
+//                    - Structure - 
 //
 // Returns:
-//      String - contact information in the XML format matching the structure of the XDTO packages ContactInformation and Address.
+//      String - 
 //
 Function ContactsXMLByPresentation(Presentation, ExpectedKind) Export
 	
@@ -3588,8 +3588,8 @@ EndFunction
 
 #EndRegion
 
-// Returns command details grouped by the associated contact information type.
-// The resulting map is intended for ContactsManagerOverridable.OnDefineSettings. 
+// 
+//  
 //
 // Returns:
 //   Map of KeyAndValue:
@@ -3618,22 +3618,22 @@ Function DetailsOfCommands() Export
 	
 EndFunction
 
-// Returns the details of the commands associated with the passed contact information type.
-// Intended for ContactsManagerOverridable.OnDefineSettings. 
+// 
+//  
 //
 // Parameters:
 //   Type - EnumRef.ContactInformationTypes
 //
 // Returns:
-//   Structure - Field sets for different contact information types.
-//   Address: AddCommentToAddress, ShowOnYandexMaps, ShowOnGoogleMap, PlanMeeting, ShowChangeHistory. 
-//     Phone: Telephone, SendSMSMessage, ShowChangeHistory.
-//     Fax: SendFax, ShowChangeHistory.
-//     Email: WriteEmail.
-//     Skype: CallSkype, StartSkypeChat.
-//     WebPage: OpenWebPage.
-//     Other: OpenWindowOther.
-//     A list of fields:
+//   Structure - 
+//    
+//     
+//     
+//     
+//     
+//     
+//     
+//     :
 //     * AddCommentToAddress  - See CommandDetailsByName
 //     * ShowOnYandexMaps     - See CommandDetailsByName
 //     * ShowOnGoogleMap     - See CommandDetailsByName
@@ -3654,18 +3654,18 @@ Function CommandsOfContactInfoType(Type) Export
 
 EndFunction
 
-// Returns a structure describing a contact information command.
-// The resulting map is intended for ContactsManagerOverridable.OnDefineSettings. 
+// 
+//  
 //
 // Parameters:
-//   CommandName - String - The name of the command whose details should be obtained.
+//   CommandName - String - 
 //
 // Returns:
 //   See CommandProperties 
 //
 Function CommandDetailsByName(CommandName) Export
 	
-	// A command associated with the types "Address", "Phone", and "Fax"
+	// 
 	If CommandName = "ShowChangeHistory" Then
 		Return CommandProperties(
 				NStr("en = 'Change history…';"),
@@ -3675,7 +3675,7 @@ Function CommandDetailsByName(CommandName) Export
 				True);
 	EndIf;
 	
-	// Commands associated with the type "Address"
+	// 
 	If CommandName = "AddCommentToAddress" Then
 		Return CommandProperties(
 				NStr("en = 'Type comment';"),
@@ -3699,7 +3699,7 @@ Function CommandDetailsByName(CommandName) Export
 		Return CommandProperties("", "");
 	EndIf;
 	
-	// Commands associated with the type "Phone"
+	// 
 	If CommandName = "Telephone" Then
 		Return CommandProperties(
 				NStr("en = 'Make a call';"),
@@ -3714,12 +3714,12 @@ Function CommandDetailsByName(CommandName) Export
 				"ContactsManagerClient.BeforeCreateSMS");
 	EndIf;
 	
-	// Commands associated with the type "Fax"
+	// 
 	If CommandName = "SendFax" Then
 		Return CommandProperties("", "");
 	EndIf;
 	
-	// Commands for the type "Email"
+	// 
 	If CommandName = "WriteEmail2" Then
 		Return CommandProperties(
 				NStr("en = 'Create mail';"),
@@ -3728,7 +3728,7 @@ Function CommandDetailsByName(CommandName) Export
 				"ContactsManagerClient.BeforeCreateEmailMessage");
 	EndIf;
 	
-	// Commands associated with the type "Skype"
+	// 
 	If CommandName = "SkypeCall" Then
 		Return CommandProperties(
 				NStr("en = 'Make a call';"),
@@ -3743,7 +3743,7 @@ Function CommandDetailsByName(CommandName) Export
 				"ContactsManagerClient.BeforeStartSkypeChat");
 	EndIf;
 	
-	// Commands associated with the type "WebPage"
+	// 
 	If CommandName = "OpenWebPage" Then
 		Return CommandProperties(
 				NStr("en = 'Follow';"),
@@ -3752,22 +3752,22 @@ Function CommandDetailsByName(CommandName) Export
 				"ContactsManagerClient.BeforeNavigateWebLink");
 	EndIf;
 
-	// Commands associated with the type "Other"
+	// 
 	If CommandName = "OpenWindowOther" Then
 		Return CommandProperties("", "");
 	EndIf;
 		
 EndFunction
 
-// Returns a structure describing contact information commands.
-// The structure is intended for ContactsManagerOverridable.OnDefineSettings
+// 
+// 
 //
 // Parameters:
-//   Title - String   - Command title.
-//   ToolTip - String   - Command tooltip.
-//   Picture  - Picture - Command icon.
-//   Action  - String   - The full path to the procedure to be executed.
-//                            For example, "StandardSubsystemsClient.OpenMeetingDocForm".
+//   Title - String   - 
+//   ToolTip - String   - 
+//   Picture  - Picture -  picture of the team.
+//   Action  - String   - 
+//                            
 //   ModifiesStoredData - Boolean 
 //
 // Returns:
@@ -3795,14 +3795,14 @@ EndFunction
 
 #Region Internal
 
-// Sets the availability of contact information items on the form.
+// Sets the availability of contact information elements on the form.
 //
 // Parameters:
-//    Form - ClientApplicationForm - a form to be passed.
-//    Items - Map of KeyAndValue - a list of contact information kinds for which access is set:
-//        * Key     - MetadataObject - The subsystem where the report (report option) should be added to.
-//        * Value - Boolean           - if False, an item can only be viewed.
-//    ItemForPlacementName - String - a group name where the contact information is placed.
+//    Form - ClientApplicationForm -  transmitted form.
+//    Items - Map of KeyAndValue - :
+//        * Key     - MetadataObject - 
+//        * Value - Boolean           -  if FALSE, then the item is viewable only.
+//    ItemForPlacementName - String -  name of the group where the contact information is located.
 //
 Procedure SetContactInformationItemAvailability(Form, Items, ItemForPlacementName = "ContactInformationGroup") Export
 	For Each Item In Items Do
@@ -3814,7 +3814,7 @@ Procedure SetContactInformationItemAvailability(Form, Items, ItemForPlacementNam
 				CIItem = Form.Items[FoundRow.AttributeName];
 				CIItem.ReadOnly = Not Item.Value;
 			EndDo;
-			// If an item can only be viewed, remove the option to add this item to the form.
+			// 
 			ContactInformationParameters = FormContactInformationParameters(Form.ContactInformationParameters, ItemForPlacementName);
 			If Not Item.Value Then
 				For Position = -ContactInformationParameters.ItemsToAddList.Count() + 1 To 0 Do
@@ -3833,7 +3833,7 @@ Procedure SetContactInformationItemAvailability(Form, Items, ItemForPlacementNam
 	If Form.Items.Find("ContactInformationAddInputField") <> Undefined Then
 		ContactInformationParameters = FormContactInformationParameters(Form.ContactInformationParameters, ItemForPlacementName);
 		If ContactInformationParameters.ItemsToAddList.Count() = 0 Then
-			// Make the "Add" button inactive (as the context menu is empty). 
+			//  
 			ContactInformationAddInputField = Form.Items.ContactInformationAddInputField; // FormGroup
 			ContactInformationAddInputField.Enabled = False;
 		EndIf;
@@ -3841,11 +3841,11 @@ Procedure SetContactInformationItemAvailability(Form, Items, ItemForPlacementNam
 	
 EndProcedure
 
-// Adds contact information columns to the list of columns for data import.
+// Adds contact information columns to the list of columns for loading data.
 //
 // Parameters:
-//  CatalogMetadata  - MetadataObject - catalog metadata.
-//  ColumnsInformation   - ValueTable - template columns.
+//  CatalogMetadata  - MetadataObject -  the metadata directory.
+//  ColumnsInformation   - ValueTable -  the column layout.
 //
 Procedure ColumnsForDataImport(CatalogMetadata, ColumnsInformation) Export
 	
@@ -3875,13 +3875,13 @@ Procedure ColumnsForDataImport(CatalogMetadata, ColumnsInformation) Export
 	
 EndProcedure
 
-// Returns a contact information type.
+// Returns the type of contact information.
 //
 // Parameters:
-//    Description - String - a contact information type as a string.
+//    Description - String -  type of contact information as a string.
 //
 // Returns:
-//    EnumRef.ContactInformationTypes - the corresponding type.
+//    EnumRef.ContactInformationTypes -  appropriate type.
 //
 Function ContactInformationTypeByDescription(Val Description) Export
 	Return Enums.ContactInformationTypes[Description];
@@ -3946,16 +3946,16 @@ Function Email(Val ContactInformationValue) Export
 	
 EndFunction
 
-// Updates a password recovery address in the contact information owner.
-// For the "Users" catalog, in the user object (before writing the changes).
-// For the "ExternalUsers" catalog, in the authentication object.
+// 
+// 
+// 
 // 
 // Parameters:
-//  UserObject - CatalogObject.Users - Object before writing.
+//  UserObject - CatalogObject.Users - 
 //                     - CatalogObject.ExternalUsers
 //  NewAddress  - String
 //  OldAddress - String
-//              - Undefined - If an old infobase user does not exist
+//              - Undefined - 
 //
 Procedure ChangePasswordRecoveryEmail(UserObject, NewAddress, OldAddress) Export
 	
@@ -4072,7 +4072,7 @@ Function DefineAnItemWithMailForPasswordRecovery(Form, Email, EditingAvailable, 
 	
 EndFunction
 
-// Restore password.
+// 
 
 Function EmailDescriptionStringForPasswordRecoveryFromFormData(Form, TypeOrTypeOfUserSEmailAddress, Email = "") Export
 	
@@ -4110,7 +4110,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Initialize items on the form of a contact information owner object.
+// 
 
 Procedure DefineContactInformationParametersByOwner(Form, Object, ContactInformationParameters, IsMainObjectParameters, HiddenKinds)
 	
@@ -4139,10 +4139,10 @@ EndProcedure
 //     * Key - CatalogRef.ContactInformationKinds
 //     * Value - Boolean
 //   ContactInformation - ValueTreeRowCollection:
-//    * Kind              - CatalogRef.ContactInformationKinds   - a contact information kind.
+//    * Kind              - CatalogRef.ContactInformationKinds   - 
 //    * PredefinedKindName - String
 //    * PredefinedDataName - String
-//    * Type              - EnumRef.ContactInformationTypes - contact information type.
+//    * Type              - EnumRef.ContactInformationTypes -  type of contact information.
 //    * Mandatory - Boolean
 //    * FieldKindOther - String
 //    * AllowMultipleValueInput - Boolean
@@ -4154,9 +4154,9 @@ EndProcedure
 //    * InternationalAddressFormat - Boolean
 //    * EnterNumberByMask - Boolean
 //    * IsHistoricalContactInformation - Boolean
-//    * Presentation    - String - a contact information presentation.
-//    * FieldValues    - String - an obsolete XML file matching the ContactInformation or Address XDTO packages. For
-//                                  backward compatibility.
+//    * Presentation    - String -  presentation of contact information.
+//    * FieldValues    - String -  deprecated XML corresponding TO the xdto packets contact Information or Address. For backward compatibility.
+//                                  
 //    * Value    - String
 //    * ValidFrom    - Date
 //    * LineNumber    - Number
@@ -4274,7 +4274,7 @@ Procedure GenerateContactInformationAttributes(Val Form, Val AttributesToBeAdded
 		EndIf;
 	EndDo;
 	
-	// Add new attributes.
+	// 
 	If AttributesToBeAdded.Count() > 0 Then
 		Form.ChangeAttributes(AttributesToBeAdded);
 	EndIf;
@@ -4349,8 +4349,8 @@ Procedure AddAdditionalContactInformationFieldButton(Val Form, Val ItemForPlacem
 	ItemContactInformationParameters.AddedItems.Add(CommandName, 2, False);
 	
 	If Not Common.IsMobileClient() And ItemContactInformationParameters.PositionOfAddButton = "Auto" Then
-		// Determine the button display option (left side, indented, non-indented).
-		// Handle the scenario where the form contains both dynamic and static information.
+		// 
+		// 
 		ItemsOfPlacementGroup = Form.Items[ItemForPlacementName].ChildItems;
 		GroupCountInMain = ItemsOfPlacementGroup.Count();
 		ItemsOfContactInfoValGroup = Form.Items["GroupOfContactInfoValues"+ItemForPlacementName].ChildItems;
@@ -4388,8 +4388,8 @@ EndProcedure
 Procedure AddNoteOnFormSettingsReset(Val Form, Val ItemForPlacementName, Val DeferredInitialization)
 	
 	GroupForPlacement = Form.Items[ItemForPlacementName];
-	// In case of deferred initialization and the page has no elements, 1C:Enterprise hides the page.
-	// Therefore, create a temporary element that is deleted when the page opens.
+	// 
+	// 
 	If DeferredInitialization
 		And GroupForPlacement.Type = FormGroupType.Page 
 		And Form.Items.Find("ContactInformationStub") = Undefined Then
@@ -4493,12 +4493,22 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 			LastRow = FoundRows.Get(KindRowsCount - 1);
 			RowToAddIndex = ContactInformationTable1.IndexOf(LastRow) + 1;
 		Else
-			RowToAddIndex = ContactInformationTable1.Count();
+			SelectionByPlacement = New Structure("ItemForPlacementName", ItemForPlacementName);
+			FoundRows = ContactInformationTable1.FindRows(SelectionByPlacement);
+			NumberOfRowsInGroup = FoundRows.Count();
+			If NumberOfRowsInGroup > 0 Then
+				LastRow = FoundRows.Get(NumberOfRowsInGroup - 1);
+				RowToAddIndex = ContactInformationTable1.IndexOf(LastRow) + 1;
+			Else
+				RowToAddIndex = ContactInformationTable1.Count();
+			EndIf;
 		EndIf;
 		
-		IsLastRow = False;
-		If RowToAddIndex = ContactInformationTable1.Count() Then
+		If RowToAddIndex >= ContactInformationTable1.Count() Then
 			IsLastRow = True;
+		Else
+			NextRowOfTable = ContactInformationTable1.Get(RowToAddIndex);
+			IsLastRow = NextRowOfTable.ItemForPlacementName <> ItemForPlacementName;
 		EndIf;
 		
 		NewRow  = ContactInformationTable1.Insert(RowToAddIndex);
@@ -4545,7 +4555,7 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 	
 	KindToAddDescription = Common.ObjectAttributeValue(KindToAdd, "Description");
 	
-	// Draw items on the form.
+	// 
 	If Common.IsMobileClient() And ContactInformationParameters.ShouldShowIcons Then
 		GroupStringsTitle = Group("TitleGroup" + AttributeName, Form, KindToAddDescription, ItemForPlacementName, "GroupOfContactInfoValues" + ItemForPlacementName, 6);
 		GroupStringsTitle.Group = ChildFormItemsGroup.Vertical;
@@ -4603,7 +4613,7 @@ Procedure AddContactInformationRow(Form, Result, ItemForPlacementName, IsNewCIKi
 		NameOfNextGroupOfCurrentKind = "Group" + AttributeName;
 	EndIf;
 	
-	// Handling situations when multiple dynamic and static contact information is displayed on the form at the same time.
+	// 
 	If Form.Items.Find(NameOfNextGroupOfCurrentKind) <> Undefined Then
 		
 		Filter = New Structure("AttributeName", AttributeName);
@@ -4802,7 +4812,7 @@ Function GenerateInputField(Form, Parent, CIKindInformation, AttributeName, Item
 	ContactInformationParameters.AddedItems.Add(AttributeName, 2, False);
 	
 	If CIKindInformation.Type = Enums.ContactInformationTypes.Address And Not CIKindInformation.DeletionMark Then
-		// Populate.
+		// Fill
 		GroupAddressSubmenu = Form.Items.Add("ContextSubmenuCopyAddresses" + AttributeName, Type(
 			"FormGroup"), Item.ContextMenu);
 		GroupAddressSubmenu.Type = FormGroupType.Popup;
@@ -4814,7 +4824,7 @@ Function GenerateInputField(Form, Parent, CIKindInformation, AttributeName, Item
 		Item.AutoMarkIncomplete = True;
 	EndIf;
 	
-	// Edit in dialog.
+	// 
 	If CanEditContactInformationTypeInDialog(CIKindInformation.Type)
 		And Item.Type = FormFieldType.InputField And CIKindInformation.EditingOption <> "InputField" Then
 		
@@ -5048,7 +5058,7 @@ Procedure SetEntryFieldsProperties(CIKindInformation, Item, Form, AttributeName,
 			Item.Height = 1;
 			Item.Width = 72;
 			Item.MultiLine = False;
-		Else // SingleLineNarrow
+		Else // OneLineThin
 			Item.Height = 1;
 			Item.Width = 35;
 			Item.MultiLine = False;
@@ -5136,7 +5146,7 @@ Procedure CheckContactInformationAttributesAvailability(Form, AttributesToAddArr
 	
 	If CreateContactInformationTable Then
 		
-		// Create a value table.
+		// 
 		DetailsName = "ContactInformationAdditionalAttributesDetails";
 		AttributesToAddArray.Add(New FormAttribute(DetailsName, New TypeDescription("ValueTable")));
 		AttributesToAddArray.Add(New FormAttribute("AttributeName", String500, DetailsName));
@@ -5331,10 +5341,10 @@ Procedure DeleteFormItemsAndCommands(Form, ItemForPlacementName)
 	
 EndProcedure
 
-// Returns the flag indicating whether contact information type can be edited interactively.
+// 
 //
 // Parameters:
-//    Type - EnumRef.ContactInformationTypes - contact information type.
+//    Type - EnumRef.ContactInformationTypes -  type of contact information.
 //
 // Returns:
 //    Boolean
@@ -5347,15 +5357,15 @@ Function CanEditContactInformationTypeInDialog(Type)
 	
 EndFunction
 
-// Returns names of document tabular sections by contact information kind.
+// Returns the names of table parts of the document by type of contact information.
 //
 // Parameters:
-//    ContactInformationKindsTable - ValueTable - a list of contact information kinds:
-//     * Kind - CatalogRef.ContactInformationKinds - a contact information kind.
-//    ObjectName                       - String - a full name of a metadata object.
+//    ContactInformationKindsTable - ValueTable - :
+//     * Kind - CatalogRef.ContactInformationKinds - 
+//    ObjectName                       - String - 
 //
 // Returns:
-//    Map - tabular section names or a blank string if a tabular section is not available.
+//    Map - 
 //
 Function TabularSectionsNamesByCIKinds(ContactInformationKindsTable, ObjectName)
 	
@@ -5399,7 +5409,7 @@ Function TabularSectionsNamesByCIKinds(ContactInformationKindsTable, ObjectName)
 	
 EndFunction
 
-// Checks if the form contains filled CI rows of the same kind (except for the current one).
+// Checks for the presence of filled-in rows of the same type of CI in the form (except for the current ONE).
 //
 Function HasOtherRowsFilledWithThisContactInformationKind(Val Form, Val RowToValidate, Val ContactInformationKind)
 	
@@ -5428,7 +5438,7 @@ Procedure OutputUserMessage(MessageText, AttributeName, AttributeField = "")
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Filling additional attributes of Contact information tabular section.
+// 
 
 
 Procedure SetContactInformationKindDescription(Val Object, Val Description)
@@ -5518,7 +5528,7 @@ EndProcedure
 
 Procedure ContactInformationConvertionToJSON(ContactInformation)
 	
-	// Conversion.
+	// Conversion
 	For Each CIRow In ContactInformation Do
 		If IsBlankString(CIRow.Value) Then
 			If ValueIsFilled(CIRow.FieldValues) Then
@@ -5605,7 +5615,7 @@ Function ContactInfoBasicFields()
 EndFunction
 
 // Returns:
-//  Structure -  Contact information fields to be converted:
+//  Structure -  :
 //   * ContactInformationType - EnumRef.ContactInformationTypes
 //                           - Undefined
 //   * XMLData1 - String
@@ -5692,16 +5702,16 @@ Procedure CreateTabularSectionItems(Val Form, Val ObjectName, ItemForPlacementNa
 
 EndProcedure
 
-// Validates email contact information and reports any errors. 
+// Checks email contact information and reports errors. 
 //
 // Parameters:
 //     EMAddress      - Structure
-//                  - String - contact information.
-//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with validation settings.
-//     AttributeName  - String - an optional attribute name used to link an error message.
+//                  - String - 
+//     InformationKind - CatalogRef.ContactInformationKinds -  contact information view with verification settings.
+//     AttributeName  - String -  optional name of the attribute to link the error message to.
 //
 // Returns:
-//     Number - error level: 0 - no, 1 - non-critical, 2 - critical.
+//     Number - 
 //
 Function EmailFIllingErrors(EMAddress, InformationKind, Val AttributeName = "", AttributeField = "")
 	
@@ -5765,7 +5775,7 @@ Function CheckContactInformationFilling(Presentation, Value, InformationKind, In
 		
 	EndIf;
 	
-	// Check.
+	// Validation
 	If InformationType = Enums.ContactInformationTypes.Email Then
 		ErrorsLevel = EmailFIllingErrors(Value, InformationKind, AttributeName, AttributePath1);
 	ElsIf InformationType = Enums.ContactInformationTypes.Address Then
@@ -5776,14 +5786,14 @@ Function CheckContactInformationFilling(Presentation, Value, InformationKind, In
 	ElsIf InformationType = Enums.ContactInformationTypes.WebPage Then
 		ErrorsLevel = WebPageFillingErrors(Value, InformationKind, AttributeName);
 	Else
-		ErrorsLevel = 0; // Skip other checks.
+		ErrorsLevel = 0; // 
 	EndIf;
 	
 	Return ErrorsLevel;
 	
 EndFunction
 
-// Getting and adjusting contact information
+// Getting and correcting contact information
 Procedure AdjustContactInformation(Form, CIRow)
 	
 	ConversionResult = New Structure;
@@ -5807,15 +5817,15 @@ Procedure AdjustContactInformation(Form, CIRow)
 	
 EndProcedure
 
-// Validates address contact information and reports any errors. Returns the flag indicating that there are errors.
+// Checks the address's contact information and reports errors. Returns the flag for errors.
 //
 // Parameters:
-//     Source      - XDTODataObject - contact information.
-//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with validation settings.
-//     AttributeName  - String - an optional attribute name used to link an error message.
+//     Source      - XDTODataObject - 
+//     InformationKind - CatalogRef.ContactInformationKinds -  contact information view with verification settings.
+//     AttributeName  - String -  optional name of the attribute to link the error message to.
 //
 // Returns:
-//     Number - error level: 0 - no, 1 - non-critical, 2 - critical.
+//     Number - 
 //
 Function AddressFIllErrors(Source, InformationKind, AttributeName = "", AttributeField = "")
 	
@@ -5850,15 +5860,15 @@ Function AddressFIllErrors(Source, InformationKind, AttributeName = "", Attribut
 EndFunction
 
 
-// Validates phone contact information and reports any errors. Returns the flag indicating that there are errors.
+// Checks the phone's contact information and reports errors. Returns the flag for errors.
 //
 // Parameters:
-//     Source      - XDTODataObject - contact information.
-//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with validation settings.
-//     AttributeName  - String - To link an error message to a form attribute, the attribute name is not required.
+//     Source      - XDTODataObject - 
+//     InformationKind - CatalogRef.ContactInformationKinds -  contact information view with verification settings.
+//     AttributeName  - String - 
 //
 // Returns:
-//     Number - error level: 0 - no, 1 - non-critical, 2 - critical.
+//     Number - 
 //
 Function PhoneFillingErrors(Source, InformationKind, AttributeName = "")
 	
@@ -5898,15 +5908,15 @@ Function PhoneFillingErrors(Source, InformationKind, AttributeName = "")
 	
 EndFunction
 
-// Validates web page contact information and reports any errors. Returns the flag indicating that there are errors.
+// Checks the web page's contact information and reports errors. Returns the flag for errors.
 //
 // Parameters:
-//     Source      - XDTODataObject - contact information.
-//     InformationKind - CatalogRef.ContactInformationKinds - a contact information kind with validation settings.
-//     AttributeName  - String - an optional attribute name used to link an error message.
+//     Source      - XDTODataObject - 
+//     InformationKind - CatalogRef.ContactInformationKinds -  contact information view with verification settings.
+//     AttributeName  - String -  optional name of the attribute to link the error message to.
 //
 // Returns:
-//     Number - error level: 0 - no, 1 - non-critical, 2 - critical.
+//     Number - 
 //
 Function WebPageFillingErrors(Source, InformationKind, AttributeName = "")
 	Return 0;
@@ -5918,14 +5928,14 @@ Procedure ObjectContactInformationFillingProcessing(Object, Val FillingData)
 		Return;
 	EndIf;
 	
-	// Description, if available in the destination object.
+	// 
 	Description = Undefined;
 	If FillingData.Property("Description", Description)
 		And CommonClientServer.HasAttributeOrObjectProperty(Object, "Description") Then
 		Object.Description = Description;
 	EndIf;
 	
-	// Contact information table. It is filled in only if CI is not in another tabular section.
+	// 
 	ContactInformation = Undefined;
 	If FillingData.Property("ContactInformation", ContactInformation) 
 		And CommonClientServer.HasAttributeOrObjectProperty(Object, "ContactInformation") Then
@@ -5957,7 +5967,7 @@ Function Parent(Form, ItemForPlacementName)
 	
 EndFunction
 
-// Details of contact information output parameters
+// Description of contact information output parameters
 // 
 // Parameters:
 //   Form - ClientApplicationForm
@@ -5996,7 +6006,7 @@ EndFunction
 //                  - Undefined
 //   * AllowAddingFields - Boolean
 //   * CommentFieldWidth - Number
-//   * PositionOfAddButton - String - Valid values are: "Left", "Right", "Auto".
+//   * PositionOfAddButton - String - 
 //   * HasDestinationGroupWidthLimit - Boolean
 //
 Function ContactInformationOutputParameters(Form, ItemForPlacementName, CITitleLocation,
@@ -6042,8 +6052,8 @@ Function ContactInformationOutputParameters(Form, ItemForPlacementName, CITitleL
 	
 EndFunction
 
-// Checks the group (including its parents) for the width limitations.
-// Any width value less than 90 is a limitation.
+// 
+// 
 //
 Function HasDestinationGroupWidthLimit(Group)
 
@@ -6072,13 +6082,13 @@ Function ObjectContactInformationKindsGroup(Val FullMetadataObjectName)
 	
 EndFunction
 
-// Returns contact information kinds by a name.
-// If no name is specified, a full list of predefined kinds is returned by the application.
+// Returns types of contact information by name.
+// If no name is specified, the full list of programmatically predefined views is returned.
 //
 // Returns:
-//  ValueTable  - Contact information kinds, where:
-//    * Name - String - a name of a contact information kind.
-//    * Ref - CatalogRef.ContactInformationKinds - a reference to an item of the "Contact information kinds" catalog.
+//  ValueTable  - :
+//    * Name - String -  name of the contact information type.
+//    * Ref - CatalogRef.ContactInformationKinds -  link to the reference list item types of contact information.
 //
 Function PredefinedContactInformationKinds(Name = "") Export
 	
@@ -6103,13 +6113,13 @@ Function PredefinedContactInformationKinds(Name = "") Export
 	
 EndFunction
 
-// Defines the title location value. To support localized configurations.
+// Defines the value of the header position. To support localized configurations.
 //
 // Parameters:
-//  CITitleLocation - String - title location in text presentation in the localization language.
+//  CITitleLocation - String -  the position of the title in the text representation in the localization language.
 // 
 // Returns:
-//  String - title location.
+//  String - 
 //
 Function CITitleLocationValue(CITitleLocation)
 	
@@ -6181,7 +6191,7 @@ Procedure CreateAction(Form, ContactInformationKind, AttributeName, ActionGroup1
 
 EndProcedure
 
-// Returns parameters of the contact information available on the form
+// Returns the parameters of the contact information on the form
 // 
 // Parameters:
 //   ContactInformationParameters - See ContactInformationOutputParameters
@@ -6228,7 +6238,7 @@ Procedure RestoreEmptyValuePresentation(ContactInformationRow) Export
 			ContactInformationRow.Kind);
 	EndIf;
 	
-	// FieldValues may be absent in a contact information string.
+	// 
 	FieldsInfo = New Structure("FieldValues", Undefined);
 	FillPropertyValues(FieldsInfo, ContactInformationRow);
 	HasFieldsValues = (FieldsInfo.FieldValues <> Undefined);
@@ -6283,7 +6293,7 @@ Procedure RestoreEmptyValuePresentation(ContactInformationRow) Export
 	
 EndProcedure
 
-// Converts a country code to the standard format - a three-character string.
+// Returns the country code to a single form - a string of three characters long.
 //
 Function WorldCountryCode(Val CountryCode)
 	
@@ -6294,7 +6304,7 @@ Function WorldCountryCode(Val CountryCode)
 	Return Right("000" + CountryCode, 3);
 EndFunction
 
-// Returns a string enclosed in quotes.
+// Returns a string in quotation marks.
 //
 Function CheckQuotesInString(Val String)
 	Return """" + StrReplace(String, """", """""") + """";
@@ -6310,7 +6320,7 @@ Procedure UpdateConextMenu(Form, ItemForPlacementName)
 	TotalCommands = 0;
 	For Each CIRow In AllRows Do
 		
-		If TotalCommands > 50 Then // Restriction for a large number of addresses on the form
+		If TotalCommands > 50 Then // 
 			Break;
 		EndIf;
 		
@@ -6330,7 +6340,7 @@ Procedure UpdateConextMenu(Form, ItemForPlacementName)
 		
 		For Each Address In FoundRows Do
 			
-			If CommandsCountInSubmenu > 7 Then // Restriction for a large number of addresses on the form
+			If CommandsCountInSubmenu > 7 Then // 
 				Break;
 			EndIf;
 			
@@ -6442,7 +6452,7 @@ Function ContactInformationFromFormAttributes(Form, Object)
 			If TabularSectionsNamesByCIKinds = Undefined Then
 				Filter = New Structure("IsTabularSectionAttribute", True);
 				TabularSectionCIKinds = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(Filter, "Kind");
-				// @skip-check query-in-loop - Runs only in one iteration when the table attribute first appears
+				// 
 				TabularSectionsNamesByCIKinds = TabularSectionsNamesByCIKinds(TabularSectionCIKinds, MetadataObjectName);
 			EndIf;
 			
@@ -6522,7 +6532,7 @@ Procedure FillContactInformationTableRowFromPresentation(ContactInformationRow, 
 	ContactInformationRow.FieldValues = "";
 EndProcedure
 
-// Contact information kinds
+// 
 
 Function ParametersFromContactInformationKind(Val ContactInformationKind)
 	
@@ -6609,8 +6619,8 @@ Function SettingsForCheckingContactInformationParameters(Val ContactInformationT
 		ValidationSettings.Insert("CheckValidity",        False);
 		ValidationSettings.Insert("IncludeCountryInPresentation", False);
 		ValidationSettings.Insert("SpecifyRNCMT",               False);
-		ValidationSettings.Insert("HideObsoleteAddresses",   False); // Obsolete. Keep for backward compatibility.
-		ValidationSettings.Insert("CheckByFIAS",              True); // Obsolete. Keep for backward compatibility.
+		ValidationSettings.Insert("HideObsoleteAddresses",   False); // 
+		ValidationSettings.Insert("CheckByFIAS",              True); // 
 	ElsIf ContactInformationType = Enums.ContactInformationTypes.Email Then
 		ValidationSettings = New Structure;
 		ValidationSettings.Insert("CheckValidity",        False);
@@ -6669,74 +6679,74 @@ Function ContactInformationKindObject(Name, IsFolder = False)
 	
 EndFunction
 
-// Returns details of contact information properties for the passed contact information type.
-// The structure is used in update handlers when filling in contact information kinds 
-// or generating opening parameters of the address or phone input form for the method used in OpenContactInformationForm.
+// Returns a description of the contact information properties for the passed contact information type.
+// The resulting structure is used in update handlers when filling in contact information types 
+// or when forming parameters for opening the address or phone input form for the method used in openformcontact Information.
 // 
 // Parameters:
-//    ContactInformationType - EnumRef.ContactInformationTypes - contact information type.
+//    ContactInformationType - EnumRef.ContactInformationTypes -  type of contact information.
 //
 // Returns:
 //   Structure:
-//     * Name          - String - a unique name of a contact information kind.
-//     * Description - String - a description of a contact information kind.
-//     * Kind - CatalogRef.ContactInformationKinds - a reference to a contact information kind.
-//                                                         Default value - CatalogRef.ContactInformationKinds.EmptyRef.
-//     * Type - EnumRef.ContactInformationTypes - contact information type.
+//     * Name          - String -  unique name of the contact information type.
+//     * Description - String -  name of the type of contact information.
+//     * Kind - CatalogRef.ContactInformationKinds -  link to the type of contact information.
+//                                                         The default value is Reference link.Types of contact information.Empty link.
+//     * Type - EnumRef.ContactInformationTypes -  type of contact information.
 //     * Group - CatalogRef.ContactInformationKinds
-//              - Undefined - a reference to a group (parent) of a catalog item.
-//                               Default value is Undefined.
-//     * Used - Boolean - if False, a contact information kind is not available for users.
-//                               Such a kind is not displayed in forms and lists of contact information kinds.
-//                               Default value is True.
-//     * CanChangeEditMethod - Boolean - indicates whether a user can change properties of a contact information kind.
-//                                                    If False, properties of a contact information kind form
-//                                                    are view-only. The default value is False.
-//     * EditingOption - String - a value editing method. Available options: InputFieldAndDialog, InputField, and Dialog.
-//                                    If Dialog, the form displays a hyperlink with a contact
-//                                    information presentation. Clicking it opens the form of the matching contact information type.
-//                                    The property is applicable only for the following contact information types: Address, Phone, and Fax.
-//                                    If InputField, an input field is displayed on the form.
-//                                    If InputFieldAndDialog, both the input field and the input form of the matching contact information type are available.
-//     * StoreChangeHistory     - Boolean - indicates whether the contact information change history can be stored.
-//                                              Storing the history is allowed if EditingOption = "Dialog".
-//                                              The property is only applicable when the tabular section ContactInformation
-//                                              contains the ValidFrom attribute. Default value is False.
-//     * Mandatory       - Boolean - if True, a value in the contact
-//                                               information field is mandatory. The default value is False.
-//     * AllowMultipleValueInput - Boolean - indicates whether multiple value input is available for this kind.
+//              - Undefined - 
+//                               
+//     * Used - Boolean -  if False, the contact information type is not available for use by the user.
+//                               This type is not displayed in the forms and the list of contact information types.
+//                               The default value is True.
+//     * CanChangeEditMethod - Boolean - indicates whether the user can change the properties of the contact information type.
+//                                                    If False, the properties
+//                                                    are viewable only in the contact information view form. The default value is False.
+//     * EditingOption - String -  determine the type of value editing. Options: "Prevoditelj", "Paliwoda", "Dialogue".
+//                                    If "Dialog", then the form displays a hyperlink with contact
+//                                    information, clicking on which opens the form of the corresponding type of CI.
+//                                    This property is only applicable for contact information with the type: Address, Phone, Fax.
+//                                    If "field input", then the input field is displayed on the form.
+//                                    If "Prevoditelj", that are available for input in the form of the appropriate type KEY.
+//     * StoreChangeHistory     - Boolean -  indicates whether the contact information history can be stored.
+//                                              History storage is allowed if the type of editing attribute = "Dialog".
+//                                              The property is applicable if the tabular part of the contact
+//                                              information contains the details of the action. The default value is False.
+//     * Mandatory       - Boolean -  if True, you must enter a value in the contact
+//                                               information field. The default value is False.
+//     * AllowMultipleValueInput - Boolean -  indicates whether multiple values can be entered for this type.
 //                                                  The default value is False.
-//     * DenyEditingByUser - Boolean - indicates that editing of
-//                                                       a contact information kind by a user is unavailable. The default value is False.
-//     * InternationalAddressFormat - Boolean - indicates that an address format is international. 
-//                                   If True, all addresses can be entered in international format only.
+//     * DenyEditingByUser - Boolean -  indicates that the user cannot edit the contact information type.
+//                                                        The default value is False.
+//     * InternationalAddressFormat - Boolean -  indicates the international address format. 
+//                                   If True, then add all of the addresses in the first format.
 //                                   The default value is False.
-//     * FieldKindOther             - String - Defines the Other field layout on the form. Available options:
-//                                            MultilineWide, SingleLineWide, SingleLineNarrow. The property
-//                                            is applicable only for contact information with the type: Other. The default value for a contact information kind with
-//                                            the Other type is SingleLineWide, otherwise, a blank string.
-//     * EditInDialogOnly - Boolean - obsolete. Use EditingOption instead.
-//                                               If True, the form displays a hyperlink with a contact
-//                                               information presentation. Click it to open the form of the matching
-//                                               contact information type. The property is applicable only for contact information with the type:
-//                                               Address, Phone, Fax, WebPage. Default value is False.
-//     * ValidationSettings - Undefined - for the Other, WebPage, and Skype types 
-//                         - Structure - The field set varies for different contact information types: 
-//       ** OnlyNationalAddress- Boolean - for the Address type. If True, you can enter only national
-//                                                          addresses. Changing the address country is not allowed.
-//       ** CheckValidity - Boolean - For the EmailAddress type.
-//                                           If True, forbid users to save invalid email addresses. By default, False.
+//     * FieldKindOther             - String - :
+//                                            
+//                                            
+//                                            
+//     * EditInDialogOnly - Boolean - 
+//                                               
+//                                               
+//                                               :
+//                                               
+//     * ValidationSettings - Undefined -  for types Other, Webpage, Skype 
+//                         - Structure - : 
+//       ** OnlyNationalAddress- Boolean -  for the Address type. If True, then only national
+//                                                          addresses are allowed to be entered. Changing the country of the address is not allowed.
+//       ** CheckValidity - Boolean - 
 //                                           
 //                                           
 //                                           
-//       ** IncludeCountryInPresentation - Boolean - for the Address type. if True, a Country description is always
-//                                                 added to an address presentation even when other address fields are blank.
+//                                           
+//       ** IncludeCountryInPresentation - Boolean -  for the Address type. if True, the country name is always
+//                                                 added to the address representation, even when the other address fields are empty.
 //                                                 The default value is False.
-//       ** SpecifyRNCMT - Boolean - for the Address type. indicates whether manual input of an RNCMT code is available in the address input form.
-//       ** CheckValidity - Boolean - For the EmailAddress type. 
-//                                           If True, forbid users to save invalid email addresses. By default, False.
-//       ** PhoneWithExtensionNumber - Boolean - for the Phone or Fax type. If true,
-//                                               you can enter an extension in the phone input form. The default value is True.
+//       ** SpecifyRNCMT - Boolean -  for the Address type. a sign of the possibility of manually entering the OKMTO code in the address entry form.
+//       ** CheckValidity - Boolean -  for the type of electronic mail address. If True, the user is prohibited from entering 
+//                                           an incorrect email address. The default value is False.
+//       ** PhoneWithExtensionNumber - Boolean -  for the Phone or Fax type. If True, then an
+//                                               extension number can be entered in the phone entry form. The default value is True.
 //
 Function ContactInformationParametersDetails(Val ContactInformationType)
 	
@@ -6746,7 +6756,7 @@ Function ContactInformationParametersDetails(Val ContactInformationType)
 	KindParameters.Insert("Order", Undefined);
 	KindParameters.Insert("Type", ContactInformationType);
 	KindParameters.Insert("CanChangeEditMethod",    False);
-	KindParameters.Insert("EditInDialogOnly",         False);  // Obsolete. Keep for backward compatibility.
+	KindParameters.Insert("EditInDialogOnly",         False);  // 
 	KindParameters.Insert("Mandatory",               False);
 	KindParameters.Insert("AllowMultipleValueInput",      False);
 	KindParameters.Insert("DenyEditingByUser", False);
@@ -6790,20 +6800,20 @@ Function ContactInformationKindCommonParametersDetails()
 	
 EndFunction
 
-// Constructor of world country details. 
+// Constructor for describing a country in the world. 
 // 
 // Parameters:
-//   QueryResult - Structure - filling data.
+//   Resultsapril - Structure - data fill.
 // 	 
 // Returns:
 //   Structure:
-//    Code — String — numeric country code by classifier;
-//    CodeAlpha2 — String — two-letter country code by classifier;
-//    CodeAlpha3 — String — three-letter country code by classifier;
-//    Description — String — a short description of the country
-//    DescriptionFull — String — a full description of the country;
-//    EEUMember — Boolean — the country is a member of the Eurasian Economic Union;
-//    NonRelevant — Boolean — marked for deletion.
+//    Code-String - numeric country code for the classifier;
+//    Codalfa2-String - two-digit alpha-2 letter code of the country according to the classifier;
+//    Codalpha3-String - three-digit alpha-3 letter code of the country according to the classifier;
+//    Name-String - short name of the world country
+//    Naimenovaniya - String - the full name of the world;
+//    Member of the EAEU-Boolean-the country is a member of the Eurasian economic Union;
+//    Out-of-date - Boolean - marked for deletion.
 //
 Function WorldCountryDetails(FillingData)
 	
@@ -6822,7 +6832,7 @@ Function WorldCountryDetails(FillingData)
 	Return Result
 EndFunction
 
-// The EAEU countries added to the WorldCountries catalog by a user.
+// The EAEU countries added by the user to the directory of the world's countries.
 // 
 // Returns:
 //   See EEUMemberCountries
@@ -6957,15 +6967,15 @@ Function GenerateQueryText(Val HasColumnTabularSectionRowID, Val QueryTextHistor
 	
 EndFunction
 
-// Restore password.
+// 
 
-// The attribute name for password recovery
+// The name of the details for password recovery
 //
 // Parameters:
-//  ContactInformation - FormDataCollection
+//  Contact Information-Data formscollection
 // 
 // Returns:
-//  String - — an attribute name in the form with a password recovery email.
+//  String - 
 //
 Function TheNameOfTheDetailsForPasswordRecovery(Form, Email, TypeOrTypeOfUserSEmailAddress)
 	
@@ -6975,7 +6985,7 @@ Function TheNameOfTheDetailsForPasswordRecovery(Form, Email, TypeOrTypeOfUserSEm
 		Form, TypeOrTypeOfUserSEmailAddress, Email);
 	
 	If EmailDescription = Undefined Then
-		// The first email is a recovery email.
+		// 
 		EmailDescription = EmailDescriptionStringForPasswordRecoveryFromFormData(
 			Form, TypeOrTypeOfUserSEmailAddress);
 	EndIf;
@@ -7027,7 +7037,7 @@ Procedure SetActionsForStaticItems(Form, CIRow, ItemForPlacementName)
 
 	EndIf;
 	
-	// Edit in dialog.
+	// 
 	If CanEditContactInformationTypeInDialog(Type) And Item.Type = FormFieldType.InputField
 		And Not CIRow.EditingOption = "InputField" Then
 
@@ -7065,7 +7075,7 @@ Procedure SetActionsForStaticItems(Form, CIRow, ItemForPlacementName)
 
 EndProcedure
 
-// Describes additional output parameters of contact information.
+// 
 // 
 // Parameters:             
 //   DetailsOfCommands   - See DetailsOfCommands 
@@ -7127,12 +7137,12 @@ Function SubsystemSettings(ContactInformationOwner)
 	
 EndFunction
 
-// Looks up for a button in contact information groups.
+// 
 // 
 // Parameters:
 //   Group - FormGroup
 //          - FormItems
-//   IsStringGroup - Boolean - If True, search for a button in the group's child elements.
+//   IsStringGroup - Boolean - 
 // 
 // Returns:
 //   Boolean
@@ -7164,13 +7174,13 @@ Function HasContactInfoButton(Group, IsStringGroup)
 
 EndFunction
 
-// Returns an icon by the given contact information type
+// 
 //
 // Parameters:
 //  ContactInformationType	 - EnumRef.ContactInformationTypes
 // 
 // Returns:
-//  Picture - A contact information icon.
+//  Picture - 
 //
 Function PictureContactInfoType(ContactInformationType)
 	
@@ -7178,14 +7188,14 @@ Function PictureContactInfoType(ContactInformationType)
 		
 EndFunction
 
-// Checks if the contact information type has the "Comment" field
+// 
 //
 // Parameters:
 //  ContactInformationType	     - EnumRef.ContactInformationTypes
 //  URLProcessing - Boolean
 // 
 // Returns:
-//  Boolean - The comment presence flag.
+//  Boolean - 
 //
 Function HasCommentFieldForContactInfoType(ContactInformationType, URLProcessing)
 	
@@ -7199,7 +7209,7 @@ Function HasCommentFieldForContactInfoType(ContactInformationType, URLProcessing
 	
 EndFunction
 
-// Looks up for a hyperlink.
+// 
 // 
 // Parameters:
 //  Item - FormGroup

@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Web service operation handlers.
+// 
 
-// An analog of the "Upload" operation.
+// Corresponds to the Upload operation.
 Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage)
 	
 	CheckInfobaseLockForUpdate();
@@ -32,7 +30,7 @@ Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// An analog of the "Download" operation.
+// Corresponds to the Download operation.
 Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage)
 	
 	CheckInfobaseLockForUpdate();
@@ -47,7 +45,7 @@ Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// An analog of the "UploadData" operation.
+// Corresponds to the UploadData operation.
 Function RunDataExport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -67,7 +65,7 @@ Function RunDataExport(ExchangePlanName,
 	
 EndFunction
 
-// An analog of the "DownloadData" operation.
+// Corresponds to the DownloadData operation.
 Function RunDataImport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -86,14 +84,14 @@ Function RunDataImport(ExchangePlanName,
 	
 EndFunction
 
-// An analog of the "GetIBParameters" operation.
+// Corresponds to the GetIBParameters operation.
 Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage)
 	
 	Return DataExchangeServer.GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage);
 	
 EndFunction
 
-// An analog of the "GetIBData" operation.
+// Corresponds to the GetIBData operation.
 Function GetInfobaseData(FullTableName)
 	
 	Result = New Structure("MetadataObjectProperties, CorrespondentInfobaseTable");
@@ -105,7 +103,7 @@ Function GetInfobaseData(FullTableName)
 	
 EndFunction
 
-// An analog of the "GetCommonNodsData" operation.
+// Corresponds to the GetCommonNodsData operation.
 Function GetCommonNodesData(ExchangePlanName)
 	
 	SetPrivilegedMode(True);
@@ -114,20 +112,20 @@ Function GetCommonNodesData(ExchangePlanName)
 	
 EndFunction
 
-// An analog of the "CreateExchange" operation.
+// Corresponds to the CreateExchange operation.
 Function CreateDataExchange(ExchangePlanName, ParametersString1, FilterSettingAsString, DefaultValuesAsString)
 	
 	DataExchangeServer.CheckDataExchangeUsage();
 	
 	SetPrivilegedMode(True);
 	
-	// Creating an instance of exchange setup wizard data processor.
+	// 
 	DataExchangeCreationWizard = DataExchangeServer.ModuleDataExchangeCreationWizard().Create();
 	DataExchangeCreationWizard.ExchangePlanName = ExchangePlanName;
 	
 	Cancel = False;
 	
-	// Loading wizard parameters from a string to the wizard data processor.
+	// 
 	DataExchangeCreationWizard.ImportWizardParameters(Cancel, ParametersString1);
 	
 	If Cancel Then
@@ -147,7 +145,7 @@ Function CreateDataExchange(ExchangePlanName, ParametersString1, FilterSettingAs
 										ValueIsFilled(GetFunctionalOption("InfobasePrefix")),
 										ValueIsFilled(DataExchangeCreationWizard.SourceInfobaseID));
 	
-	// Creating an exchange setting.
+	// 
 	DataExchangeCreationWizard.SetUpNewDataExchangeWebService(
 											Cancel,
 											ValueFromStringInternal(FilterSettingAsString),
@@ -167,7 +165,7 @@ Function CreateDataExchange(ExchangePlanName, ParametersString1, FilterSettingAs
 	
 EndFunction
 
-// An analog of the "UpdateExchange" operation.
+// Corresponds to the UpdateExchange operation.
 Function UpdateDataExchangeSettings(ExchangePlanName, NodeCode, DefaultValuesAsString)
 	
 	DataExchangeServer.ExternalConnectionUpdateDataExchangeSettings(ExchangePlanName, NodeCode, DefaultValuesAsString);
@@ -176,7 +174,7 @@ Function UpdateDataExchangeSettings(ExchangePlanName, NodeCode, DefaultValuesAsS
 	
 EndFunction
 
-// An analog of the "RegisterOnlyCatalogData" operation.
+// Corresponds to the RegisterOnlyCatalogData operation.
 Function RecordOnlyCatalogChanges(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID)
 	
 	RegisterDataForInitialExport(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID, True);
@@ -185,7 +183,7 @@ Function RecordOnlyCatalogChanges(ExchangePlanName, NodeCode, TimeConsumingOpera
 	
 EndFunction
 
-// An analog of the "RegisterAllDataExceptCatalogs" operation.
+// Corresponds to the RegisterAllDataExceptCatalogs operation.
 Function RecordAllDataChangesButCatalogChanges(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID)
 	
 	RegisterDataForInitialExport(ExchangePlanName, NodeCode, TimeConsumingOperation, OperationID, False);
@@ -194,7 +192,7 @@ Function RecordAllDataChangesButCatalogChanges(ExchangePlanName, NodeCode, TimeC
 	
 EndFunction
 
-// An analog of the "GetContinuousOperationStatus" operation.
+// Corresponds to the GetContinuousOperationStatus operation.
 Function GetTimeConsumingOperationState(OperationID, ErrorMessageString)
 	
 	BackgroundJobStates = New Map;
@@ -224,14 +222,14 @@ Function GetTimeConsumingOperationState(OperationID, ErrorMessageString)
 	
 EndFunction
 
-// An analog of the "GetFunctionalOption" operation.
+// Corresponds to the GetFunctionalOption operation.
 Function GetFunctionalOptionValue(Name)
 	
 	Return GetFunctionalOption(Name);
 	
 EndFunction
 
-// An analog of the "PrepareGetFile" operation.
+// Corresponds to the PrepareGetFile operation.
 Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity)
 	
 	SetPrivilegedMode(True);
@@ -256,7 +254,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity)
 	Archiver.Write();
 	
 	If BlockSize <> 0 Then
-		// Splitting a file into parts
+		// 
 		FilesNames = SplitFile(SharedFileName, BlockSize * 1024);
 		PartQuantity = FilesNames.Count();
 	Else
@@ -268,7 +266,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity)
 	
 EndFunction
 
-// An analog of the "GetFilePart" operation.
+// Corresponds to the GetFilePart operation.
 Function GetFilePart(TransferId, PartNumber, PartData)
 	
 	FileName = "data.zip.[n]";
@@ -296,7 +294,7 @@ Function GetFilePart(TransferId, PartNumber, PartData)
 	
 EndFunction
 
-// An analog of the "ReleaseFile" operation.
+// Corresponds to the ReleaseFile operation.
 Function ReleaseFile(TransferId)
 	
 	Try
@@ -310,12 +308,12 @@ Function ReleaseFile(TransferId)
 	
 EndFunction
 
-// An analog of the "PutFilePart" operation.
+// Corresponds to the PutFilePart operation.
 //
 // Parameters:
-//   TransferId - UUID - data transfer session UUID.
-//   PartNumber - Number - the file part number.
-//   PartData - BinaryData - the file part details.
+//   TransferId - UUID -  unique ID of the data transfer session.
+//   PartNumber - Number -  part number of the file.
+//   PartData - BinaryData -  data part of the file.
 //
 Function PutFilePart(TransferId, PartNumber, PartData)
 	
@@ -335,7 +333,7 @@ Function PutFilePart(TransferId, PartNumber, PartData)
 	
 EndFunction
 
-// An analog of the "SaveFileFromParts" operation.
+// Corresponds to the SaveFileFromParts operation.
 Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 	
 	SetPrivilegedMode(True);
@@ -397,7 +395,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 	
 EndFunction
 
-// An analog of the "PutFileIntoStorage" operation.
+// Corresponds to the PutFileIntoStorage operation.
 Function PutFileIntoStorage(FileName, FileId)
 	
 	SetPrivilegedMode(True);
@@ -408,7 +406,7 @@ Function PutFileIntoStorage(FileName, FileId)
 	
 EndFunction
 
-// An analog of the "GetFileFromStorage" operation
+// Corresponds to the GetFileFromStorage operation.
 Function GetFileFromStorage(FileId)
 	
 	SetPrivilegedMode(True);
@@ -421,7 +419,7 @@ Function GetFileFromStorage(FileId)
 	
 EndFunction
 
-// An analog of the "FileExists" operation
+// Corresponds to the FileExists operation.
 Function FileExists(FileName)
 	
 	SetPrivilegedMode(True);
@@ -435,7 +433,7 @@ Function FileExists(FileName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+// 
 
 Procedure CheckInfobaseLockForUpdate()
 	

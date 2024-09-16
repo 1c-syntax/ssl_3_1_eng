@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,12 +12,12 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.Interactions
+// 
 
-// The procedure generates participant list rows.
+// The procedure generates rows in the list of participants.
 //
 // Parameters:
-//  Contacts  - Array - an array containing interaction participants.
+//  Contacts  - Array -  an array containing interaction participants.
 //
 Procedure FillContacts(Contacts) Export
 	
@@ -27,7 +25,7 @@ Procedure FillContacts(Contacts) Export
 		Return;
 	EndIf;
 	
-	// Moving the first contact to the phone call.
+	// 
 	Parameter = Contacts[0];
 	If TypeOf(Parameter) = Type("Structure") Then
 		SubscriberContact       = Parameter.Contact;
@@ -44,7 +42,7 @@ EndProcedure
 
 // End StandardSubsystems.Interactions
 
-// StandardSubsystems.AccessManagement
+// 
 
 // Parameters:
 //   Table - See AccessManagement.AccessValuesSetsTable

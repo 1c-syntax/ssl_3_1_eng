@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Adds "Number.WithPrefix" to the calculated field of the given data composition schema.
+// 
 //
 // Parameters:
 //    DataCompositionSchema - DataCompositionSchema
@@ -42,20 +40,20 @@ Procedure AddFieldExtensionNum(DataCompositionSchema) Export
 	
 EndProcedure
 
-// Changes an infobase prefix.
-// Additionally, allows to process data to continue numbering.
+// Performs actions to change the prefix of the information database
+// Additionally, it allows data processing to continue numbering.
 //
 // Parameters:
-//  Parameters - Structure - procedure parameters:
-//   * NewIBPrefix - String - a new infobase prefix.
-//   * ContinueNumbering - Boolean - shows whether it is required to continue numbering.
-//  ResultAddress - String - the address of the temporary storage where the procedure
-//                                puts its result.
+//  Parameters - Structure - :
+//   * NewIBPrefix - String -  new prefix of the information base.
+//   * ContinueNumbering - Boolean -  indicates whether the numbering should continue.
+//  ResultAddress - String -  address of the temporary storage where
+//                                the result of the procedure should be placed.
 //
 Procedure ChangeIBPrefix(Parameters, ResultAddress = "") Export
 	
-	// The constant that stores the prefix belongs to the "DataExchange" subsystem.
-	// Without it, the procedure cannot function properly.
+	// 
+	// 
 	If Not Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		Return;
 	EndIf;
@@ -71,7 +69,7 @@ Procedure ChangeIBPrefix(Parameters, ResultAddress = "") Export
 			ProcessDataToContinueNumbering(NewIBPrefix);
 		EndIf;
 		
-		// Set the constant last to have an access to its previous value.
+		// 
 		PrefixConstantName = "DistributedInfobaseNodePrefix";
 		Constants[PrefixConstantName].Set(NewIBPrefix);
 		
@@ -95,19 +93,19 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Internal export procedures and functions.
+// 
 
-// Returns the flag that shows whether the object's company or date is changed.
+// Returns whether the company or object date has changed.
 //
 // Parameters:
-//  Ref - a reference to an infobase object.
-//  DateAfterChange - an object date after change.
-//  CompanyAfterChange - an object company after change.
+//  Ref - 
+//  DateAfterChange - 
+//  CompanyAfterChange - 
 //
 //  Returns:
-//    Boolean - True - the object's company was changed, or a new object date
-//            was set in a different periodicity interval than the previous date.
-//   False - the company and the document date were not changed.
+//    Boolean - 
+//            
+//   
 //
 Function ObjectDateOrCompanyChanged(Ref, Val DateAfterChange, Val CompanyAfterChange) Export
 	
@@ -136,7 +134,7 @@ Function ObjectDateOrCompanyChanged(Ref, Val DateAfterChange, Val CompanyAfterCh
 	CompanyPrefixAfterChange = Undefined;
 	ObjectsPrefixesEvents.OnDetermineCompanyPrefix(CompanyAfterChange, CompanyPrefixAfterChange);
 	
-	// If an empty reference to a company is specified.
+	// 
 	CompanyPrefixAfterChange = ?(CompanyPrefixAfterChange = False, "", CompanyPrefixAfterChange);
 	
 	Return Selection.CompanyPrefixBeforeChange <> CompanyPrefixAfterChange
@@ -144,14 +142,14 @@ Function ObjectDateOrCompanyChanged(Ref, Val DateAfterChange, Val CompanyAfterCh
 	//
 EndFunction
 
-// Returns whether the object company is changed.
+// Returns whether the object's company has changed.
 //
 // Parameters:
-//  Ref - a reference to an infobase object.
-//  CompanyAfterChange - an object company after change.
+//  Ref - 
+//  CompanyAfterChange - 
 //
 //  Returns:
-//    Boolean - True - the object's company was changed. False - the company was not changed.
+//    Boolean - 
 //
 Function ObjectCompanyChanged(Ref, Val CompanyAfterChange) Export
 	
@@ -179,23 +177,23 @@ Function ObjectCompanyChanged(Ref, Val CompanyAfterChange) Export
 	CompanyPrefixAfterChange = Undefined;
 	ObjectsPrefixesEvents.OnDetermineCompanyPrefix(CompanyAfterChange, CompanyPrefixAfterChange);
 	
-	// If an empty reference to a company is specified.
+	// 
 	CompanyPrefixAfterChange = ?(CompanyPrefixAfterChange = False, "", CompanyPrefixAfterChange);
 	
 	Return Selection.CompanyPrefixBeforeChange <> CompanyPrefixAfterChange;
 	
 EndFunction
 
-// False - the company and the document date were not changed.
-// Dates are considered to be equal if they belong to the same period of time: Year, Month, Day, and etc.
+// Specifies whether two dates are equal for the metadata object.
+// Dates are considered equal if they belong to the same time period: Year, Month, Day, etc.
 //
 // Parameters:
-//   Date1 - the first date for comparison.
-//   Date2 - the second date for comparison.
-//   ObjectMetadata - metadata of an object for which a function value is to be got.
+//   Date1 - 
+//   Date2 - 
+//   
 //
 //  Returns:
-//    Boolean - True - the object dates belong to the same period; False - the object dates belong to different periods.
+//    Boolean - 
 //
 Function ObjectDatesOfSamePeriod(Val Date1, Val Date2, Ref) Export
 	
@@ -217,7 +215,7 @@ Function ObjectDatesOfSamePeriod(Val Date1, Val Date2, Ref) Export
 		
 		DateDiff = BegOfDay(Date1) - BegOfDay(Date2);
 		
-	Else // DocumentNumberPeriodicityUndefined
+	Else // 
 		
 		DateDiff = 0;
 		
@@ -237,7 +235,7 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	EndIf;
 
-	// Populate a metadata table.
+	// 
 	DataSeparationEnabled = Common.DataSeparationEnabled();
 	For Each Subscription In Metadata.EventSubscriptions Do
 		
@@ -251,7 +249,7 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 		ElsIf Upper(Subscription.Handler) = Upper("ObjectsPrefixesEvents.SetCompanyPrefix") Then
 			CompanyPrefixIsUsed = True;
 		Else
-			// Skipping subscriptions not related to prefixation.
+			// 
 			Continue;
 		EndIf;
 		
@@ -265,8 +263,8 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 				IsSeparatedMetadataObject = ModuleSaaSOperations.IsSeparatedMetadataObject(FullObjectName);
 			EndIf;
 			
-			// Skip objects that were added (in case multiple subscriptions had been attached by mistake).
-			// Also, for the separated mode, skip objects that relate to shared data.
+			// 
+			// 
 			If Not DiagnosticsMode Then
 				
 				If Result.Find(FullObjectName, "FullName") <> Undefined Then
@@ -287,7 +285,7 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 			ObjectDetails.IBPrefixUsed = IBPrefixUsed;
 			ObjectDetails.CompanyPrefixIsUsed = CompanyPrefixIsUsed;
 		
-			// Possible data types with a code or number.
+			// 
 			ObjectDetails.IsCatalog             = Common.IsCatalog(SourceMetadata);
 			ObjectDetails.IsChartOfCharacteristicTypes = Common.IsChartOfCharacteristicTypes(SourceMetadata);
 			ObjectDetails.IsDocument               = Common.IsDocument(SourceMetadata);
@@ -321,7 +319,7 @@ Function MetadataUsingPrefixesDetails(DiagnosticsMode = False) Export
 				
 			EndIf;
 			
-			// Defining a number periodicity for a document and business process.
+			// 
 			NumberPeriodicity = Metadata.ObjectProperties.DocumentNumberPeriodicity.Nonperiodical;
 			If ObjectDetails.IsDocument Then
 				NumberPeriodicity = SourceMetadata.NumberPeriodicity;
@@ -349,15 +347,15 @@ EndFunction
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Local internal procedures and functions.
+// 
 
-// Determines whether the AfterDataImport event handler is to be executed upon exchange in DIB.
+// Determines whether the "post-load Data" event handler must be executed when exchanging data to the rib.
 //
 // Parameters:
-//  NewIBPrefix - String - it is intended for computing new item codes (numbers) after the prefix is changed.
-//  DataAnalysisMode - Boolean - if True, data is not changed, the function defines
-//                                which data is changed and how. If False - object changes
-//                                are recorded to the infobase.
+//  NewIBPrefix - String -  required for calculating new element codes (numbers) after changing the prefix.
+//  DataAnalysisMode - Boolean -  if True, no data changes occur, the function only calculates
+//                                what data will be changed and how it will be changed. If False, changes to the object
+//                                are recorded in the information database.
 //
 // Returns:
 //   See ObjectsPrefixesInternal.MetadataUsingPrefixesDetails
@@ -385,7 +383,7 @@ Function ProcessDataToContinueNumbering(Val NewIBPrefix = "", DataAnalysisMode =
 			DataLock.Lock();
 		EndIf;
 		
-		// @skip-check query-in-loop - Batch processing of a large amount of data.
+		// 
 		ObjectDataForLastItemRenumbering = OneKindObjectDataForLastItemsRenumbering(
 			ObjectDetails, CurrentIBPrefix);
 		If ObjectDataForLastItemRenumbering.IsEmpty() Then
@@ -513,12 +511,12 @@ Function OneKindObjectDataForLastItemsRenumbering(Val ObjectDetails, Val Previou
 	Query.Text = StrConcat(BatchQueryText, Separator);
 	
 	If HasNumber Then
-		// Selecting data from the beginning of the current year.
+		// 
 		FromDate = BegOfDay(BegOfYear(CurrentSessionDate()));
 		Query.SetParameter("Date", BegOfDay(FromDate));
 	EndIf;
 	
-	// Processing objects created only in the current infobase.
+	// 
 	Query.SetParameter("Prefix", 
 		"%" + Common.GenerateSearchQueryString(PreviousPrefix) + "-%");
 	

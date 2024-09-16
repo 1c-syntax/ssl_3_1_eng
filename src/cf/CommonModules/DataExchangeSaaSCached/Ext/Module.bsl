@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Returns True if synchronization is supported in SaaS mode
+// Returns True if data synchronization is supported in the service model
 //
 Function DataSynchronizationSupported() Export
 	
@@ -18,13 +16,13 @@ Function DataSynchronizationSupported() Export
 	
 EndFunction
 
-// Returns a collection of exchange plans used for synchronization.
+// Returns a collection of exchange plans used for syncing.
 //
-// SaaS synchronization exchange plan must fulfill the following conditions:
-// - It must be included in the SSL data exchange subsystem.
-// - It must be separated.
-// - It cannot be included in a DIB.
-// - It must be used for exchange in SaaS (ExchangePlanUsedInSaaS = True).
+// The exchange plan for organizing data synchronization in the service model must:
+// - be connected to the BSP data exchange subsystem,
+// - be separated,
+// - be a Non-rib exchange plan,
+// - to be used for exchange in the service model (planobmain uses the service Model = True).
 //
 Function DataSynchronizationExchangePlans() Export
 	
@@ -49,7 +47,7 @@ EndFunction
 
 #Region Private
 
-// Returns a reference to the WSProxy object of exchange service 1.0.6.5.
+// Returns a reference to the Wsproxy object of the exchange service version 1.0.6.5.
 //
 // Returns:
 //   WSProxy
@@ -82,11 +80,11 @@ Function GetExchangeServiceWSProxy() Export
 	Return Result;
 EndFunction
 
-// Returns a reference to the WSProxy object of the correspondent identified by the exchange plan node.
+// Returns a reference to the Wsproxy object of the correspondent identified by the exchange plan node.
 //
 // Parameters:
 //   InfobaseNode - ExchangePlanRef
-//   ErrorMessageString - String - an error message text.
+//   ErrorMessageString - String -  text of the error message.
 //
 // Returns:
 //   WSProxy
@@ -102,11 +100,11 @@ Function GetWSProxyOfCorrespondent(InfobaseNode, ErrorMessageString = "") Export
 	
 EndFunction
 
-// Returns a reference to WSProxy object 2.0.1.6 of the correspondent identified by the exchange plan node.
+// Returns a reference to The wsproxy object of version 2.0.1.6 of the correspondent identified by the exchange plan node.
 //
 // Parameters:
 //   InfobaseNode - ExchangePlanRef
-//   ErrorMessageString - String - an error message text.
+//   ErrorMessageString - String -  text of the error message.
 //
 // Returns:
 //   WSProxy
@@ -121,7 +119,7 @@ Function GetWSProxyOfCorrespondent_2_0_1_6(InfobaseNode, ErrorMessageString = ""
 	Return DataExchangeServer.GetWSProxyByConnectionParameters(SettingsStructure_, ErrorMessageString);
 EndFunction
 
-// Returns a reference to WSProxy object 2.1.6.1 of the correspondent identified by the exchange plan node.
+// Returns a reference to The wsproxy object of version 2.1.6.1 of the correspondent identified by the exchange plan node.
 //
 Function GetWSProxyOfCorrespondent_2_1_6_1(InfobaseNode, ErrorMessageString = "") Export
 	
@@ -133,7 +131,7 @@ Function GetWSProxyOfCorrespondent_2_1_6_1(InfobaseNode, ErrorMessageString = ""
 	Return DataExchangeServer.GetWSProxyByConnectionParameters(SettingsStructure_, ErrorMessageString);
 EndFunction
 
-// Returns a reference to WSProxy object 2.4.5.1 of the correspondent identified by the exchange plan node.
+// Returns a reference to The wsproxy object of version 2.4.5.1 of the correspondent identified by the exchange plan node.
 //
 Function GetWSProxyOfCorrespondent_2_4_5_1(InfobaseNode, ErrorMessageString = "") Export
 	
@@ -145,7 +143,7 @@ Function GetWSProxyOfCorrespondent_2_4_5_1(InfobaseNode, ErrorMessageString = ""
 	Return DataExchangeServer.GetWSProxyByConnectionParameters(SettingsStructure_, ErrorMessageString);
 EndFunction
 
-// Returns True if this exchange plan is used to synchronize data in SaaS mode.
+// Returns True if this exchange plan is used for data synchronization in the service model.
 //
 Function IsDataSynchronizationExchangePlan(Val ExchangePlanName) Export
 	

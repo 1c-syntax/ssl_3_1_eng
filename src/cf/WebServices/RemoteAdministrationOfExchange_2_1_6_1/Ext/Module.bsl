@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Web service operation handlers.
+// 
 
-// Matches the GetExchangeFeatures web service operation
+// Corresponds to the GetExchangeFeatures operation
 Function GetConfigurationExchangePlans()
 	
 	Result = XDTOFactory.Create(XDTOFactory.Type("http://www.1c.ru/SaaS/ExchangeAdministration/Common", "ExchangeFeatures"));
@@ -41,7 +39,7 @@ Function GetConfigurationExchangePlans()
 	
 EndFunction
 
-// Matches the PrepareExchangeExecution web service operation
+// Corresponds to the PrepareExchangeExecution operation
 Function ScheduleDataExchangeExecution(DataExchangeAreasXDTO)
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
@@ -81,7 +79,7 @@ Function ScheduleDataExchangeExecution(DataExchangeAreasXDTO)
 	Return "";
 EndFunction
 
-// Matches the StartExchangeExecutionInFirstDataBase web service operation
+// Corresponds to the StartExchangeExecutionInFirstDatabase operation
 Function ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, DataExchangeScenarioXDTO)
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
@@ -149,7 +147,7 @@ Function ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Data
 	Return "";
 EndFunction
 
-// Matches the StartExchangeExecutionInSecondDataBase web service operation
+// Corresponds to the StartExchangeExecutionInSecondDatabase operation
 Function ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, DataExchangeScenarioXDTO)
 	
 	If Not Common.SubsystemExists("CloudTechnology") Then
@@ -217,12 +215,12 @@ Function ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Dat
 	Return "";
 EndFunction
 
-// Matches the TestConnection web service operation
+// Corresponds to the TestConnection operation
 Function TestConnection(SettingsStructureXTDO, TransportKindAsString, ErrorMessage)
 	
 	Cancel = False;
 	
-	// Testing exchange message transport data processor connection
+	// 
 	DataExchangeServer.CheckExchangeMessageTransportDataProcessorAttachment(Cancel,
 			XDTOSerializer.ReadXDTO(SettingsStructureXTDO),
 			Enums.ExchangeMessagesTransportTypes[TransportKindAsString],
@@ -235,7 +233,7 @@ Function TestConnection(SettingsStructureXTDO, TransportKindAsString, ErrorMessa
 	Return True;
 EndFunction
 
-// Matches the Ping web service operation
+// Corresponds to the Ping operation
 Function Ping()
 	
 	Return "";

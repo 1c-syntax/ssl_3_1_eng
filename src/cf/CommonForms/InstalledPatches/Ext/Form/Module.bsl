@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -21,12 +19,9 @@ Var CurrentContext;
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	DataSeparationEnabled = Common.DataSeparationEnabled();
-	IsSubordinateDIBNode = Common.IsSubordinateDIBNode();
 	
 	If DataSeparationEnabled Then
 		Items.InformationDetails.Title = NStr("en = 'Patches are configured by the application administrator.';");
-	ElsIf IsSubordinateDIBNode Then
-		Items.InformationDetails.Title = NStr("en = 'Patches are managed in the master node.';");
 	ElsIf Parameters.OnUpdate Then
 		Items.InformationDetails.Title = NStr("en = 'Installed patches will be applied after the application restart.';");
 	ElsIf Not Common.IsWindowsClient() Then
@@ -45,7 +40,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.InstalledPatchesClose.Visible = OnUpdate;
 	
 	If DataSeparationEnabled
-		Or IsSubordinateDIBNode
 		Or Not Common.IsWindowsClient()
 		Or Parameters.OnUpdate Then
 		Items.FormInstallPatch.Visible = False;
@@ -59,6 +53,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	RefreshPatchesList();
 	
 	Items.InstalledPatchesApplicableTo.Visible = False;
+	
+	IsWebClient = Common.IsWebClient() Or Common.ClientConnectedOverWebServer();
+	Items.FindAndInstallUpdates.Visible = Not IsWebClient;
 	
 EndProcedure
 
@@ -83,7 +80,7 @@ EndProcedure
 &AtClient
 Procedure InstalledPatchesBeforeDeleteRow(Item, Cancel)
 	Cancel = True;
-	If Not DataSeparationEnabled And Not IsSubordinateDIBNode Then
+	If Not DataSeparationEnabled Then
 		DeleteExtensions(Item.SelectedRows);
 	EndIf;
 EndProcedure
@@ -91,7 +88,7 @@ EndProcedure
 &AtClient
 Procedure InstalledPatchesBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
 	Cancel = True;
-	If Not DataSeparationEnabled And Not IsSubordinateDIBNode Then
+	If Not DataSeparationEnabled Then
 		Notification = New NotifyDescription("AfterInstallUpdates", ThisObject);
 		OpenForm("DataProcessor.InstallUpdates.Form",,,,,, Notification);
 	EndIf;
@@ -175,6 +172,17 @@ EndProcedure
 &AtClient
 Procedure ExportAttachedPatches(Command)
 	SavePatches(True);
+EndProcedure
+
+&AtClient
+Procedure FindAndInstallUpdates(Command)
+	
+	If CommonClient.SubsystemExists("OnlineUserSupport.GetApplicationUpdates") Then
+		Close();
+		ModuleGetApplicationUpdatesClient = CommonClient.CommonModule("GetApplicationUpdatesClient");
+		ModuleGetApplicationUpdatesClient.UpdateProgram();
+	EndIf;
+
 EndProcedure
 
 #EndRegion

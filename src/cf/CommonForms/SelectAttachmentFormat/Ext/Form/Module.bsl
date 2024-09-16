@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Import passed parameters.
+	// 
 	PassedFormatArray = New Array;
 	FormatSettingsParameters = Parameters.FormatSettings;
 	If FormatSettingsParameters <> Undefined Then
@@ -26,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ArrayOfSaveFormatsRestrictions = StrSplit(Parameters.RestrictionOfSaveFormats, ",", False);
 	
-	// Populate format list.
+	// 
 	For Each SaveFormat In StandardSubsystemsServer.SpreadsheetDocumentSaveFormatsSettings() Do
 		Check = False;
 		If FormatSettingsParameters <> Undefined Then 
@@ -134,7 +132,7 @@ Procedure SetFormatSelection()
 	EndDo;
 	
 	If Not HasSelectedFormat Then
-		SelectedSaveFormats[0].Check = True; // The default choice is the first in the list.
+		SelectedSaveFormats[0].Check = True; // 
 	EndIf;
 	
 EndProcedure

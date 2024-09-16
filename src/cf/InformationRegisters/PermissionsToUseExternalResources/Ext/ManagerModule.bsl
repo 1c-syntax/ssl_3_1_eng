@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Generates a permission key (to be used in registers, in which the granted
-// permission details are stored).
+// Generates a permission key (for use in registers that store information about
+// granted permissions).
 //
 // Parameters:
 //  Resolution - XDTODataObject
@@ -41,7 +39,7 @@ Function PermissionKey(Val Resolution) Export
 	
 EndFunction
 
-// Generates a permission addition.
+// Generates a permission extension.
 //
 // Parameters:
 //  Resolution - XDTODataObject
@@ -63,11 +61,11 @@ EndFunction
 //   ValueTable:
 //   * ProgramModuleType - CatalogRef.MetadataObjectIDs
 //   * ModuleID - UUID
-//   * Type - String - Name of the XDTO type that describes permissions.
+//   * Type - String -  name of the XDTO type that describes permissions.
 //   * Permissions - Map of KeyAndValue:
 //       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//       ** Value - XDTODataObject - XDTO permission details.
-//   * PermissionsAdditions - Map of KeyAndValue - Describes permission additions:
+//       ** Value - XDTODataObject -  XDTO - description of the permission.
+//   * PermissionsAdditions - Map of KeyAndValue - :
 //       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //       ** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
 //
@@ -91,11 +89,11 @@ EndFunction
 //   * ModuleID - UUID
 //   * OwnerType - CatalogRef.MetadataObjectIDs
 //   * OwnerID - UUID
-//   * Type - String - Name of the XDTO type that describes permissions.
+//   * Type - String -  name of the XDTO type that describes permissions.
 //   * Permissions - Map of KeyAndValue:
 //       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//       ** Value - XDTODataObject - Permission details in XDTO format.
-//   * PermissionsAdditions - Map of KeyAndValue - Describes permission additions:
+//       ** Value - XDTODataObject -  XDTO - description of the permission.
+//   * PermissionsAdditions - Map of KeyAndValue - :
 //       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //       ** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
 //
@@ -113,9 +111,9 @@ EndFunction
 // Returns the current slice of granted permissions.
 //
 // Parameters:
-//  ByOwners - Boolean - if True, the return table will contain information on permission owners.
-//    Otherwise, the current slice will be collapsed by owner.
-//  NoDetails1 - Boolean - If True, the slice is returned with its permissions having the Description field cleared.
+//  ByOwners - Boolean -  if True, the returned table will contain information
+//    about permission owners, otherwise the current slice will be collapsed by owner,
+//  NoDetails1 - Boolean -  if True, the slice will be returned with the cleared Description field for the permissions.
 //
 // Returns:
 //   ValueTable:
@@ -123,11 +121,11 @@ EndFunction
 //   * ModuleID - UUID
 //   * OwnerType - CatalogRef.MetadataObjectIDs
 //   * OwnerID - UUID
-//   * Type - String - an XDTO type name describing permissions.
+//   * Type - String -  name of the XDTO type that describes permissions.
 //   * Permissions - Map of KeyAndValue:
 //       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
-//       ** Value - XDTODataObject - XDTO permission details.
-//   * PermissionsAdditions - Map of KeyAndValue - permission addition details:
+//       ** Value - XDTODataObject -  XDTO - description of the permission.
+//   * PermissionsAdditions - Map of KeyAndValue - :
 //       ** Key - See InformationRegister.PermissionsToUseExternalResources.PermissionKey
 //       ** Value - See InformationRegister.PermissionsToUseExternalResources.PermissionAddition
 //
@@ -181,16 +179,16 @@ Function PermissionsSlice(Val ByOwners = True, Val NoDetails1 = False) Export
 	
 EndFunction
 
-// Writes a permission to the register.
+// Writes permission to the register.
 //
 // Parameters:
 //  ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //  ModuleID - UUID,
 //  OwnerType - CatalogRef.MetadataObjectIDs,
 //  OwnerID - UUID,
-//  PermissionKey - String - a permission key,
-//  Resolution - XDTODataObject - XDTO permission presentation,
-//  PermissionAddition - Arbitrary (serialized to XDTO).
+//  PermissionKey - String -  permission key,
+//  Resolution - XDTODataObject -  XDTO-resolution representation,
+//  PermissionAddition - 
 //
 Procedure AddPermission(Val ProgramModuleType, Val ModuleID, Val OwnerType, Val OwnerID, Val PermissionKey, Val Resolution, Val PermissionAddition = Undefined) Export
 	
@@ -233,15 +231,15 @@ Procedure AddPermission(Val ProgramModuleType, Val ModuleID, Val OwnerType, Val 
 	
 EndProcedure
 
-// Deletes the permission from the register.
+// Removes the permission from the register.
 //
 // Parameters:
 //  ProgramModuleType - CatalogRef.MetadataObjectIDs,
 //  ModuleID - UUID,
 //  OwnerType - CatalogRef.MetadataObjectIDs,
 //  OwnerID - UUID,
-//  PermissionKey - String - a permission key,
-//  Resolution - XDTODataObject - XDTO permission presentation.
+//  PermissionKey - String -  permission key,
+//  Resolution - XDTODataObject -  XDTO-representation of the resolution.
 //
 Procedure DeletePermission(Val ProgramModuleType, Val ModuleID, Val OwnerType, Val OwnerID, Val PermissionKey, Val Resolution) Export
 	

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
@@ -994,7 +992,7 @@ EndProcedure
 
 // Parameters:
 //  Action - DataCompositionSettings
-//  Actions - String
+//  Action-String
 //  Field - DataCompositionField
 //       - DataCompositionAvailableField
 //  TitleProperties - See ReportsOptionsInternal.StandardReportHeaderProperties
@@ -3019,15 +3017,15 @@ Function HeadingAreaContextMenu()
 	ContextMenu = New ValueList;
 	ContextMenu.Add(DataCompositionDetailsProcessingAction.OpenValue, NStr("en = 'Open';"));
 	
-	// Filter.
+	// FilterCommand
 	ContextMenu.Add("DisableFilter", NStr("en = 'Clear filter';"));
 	ContextMenu.Add("FilterCommand", NStr("en = 'Filter…';"),, PictureLib.DataCompositionFilter);
 	
-	// Sort.
+	// Sort
 	ContextMenu.Add(DataCompositionSortDirection.Asc, NStr("en = 'Sort ascending';"),, PictureLib.SortRowsAsc);
 	ContextMenu.Add(DataCompositionSortDirection.Desc, NStr("en = 'Sort descending';"),, PictureLib.SortRowsDesc);
 	
-	// Apply appearance.
+	// ApplyAppearance
 	DesignSubmenu = New ValueList;
 	DesignSubmenu.Add("SetRowHeight", NStr("en = 'Row height…';"),, PictureLib.RowHeight);
 	DesignSubmenu.Add("SetColumnWidth", NStr("en = 'Column width…';"),, PictureLib.ColumnWidth);
@@ -3053,15 +3051,15 @@ Function DataAreaContextMenu(TitleProperties, AvailableCompareTypes)
 	DesignImages.Insert("HighlightInYellow", PictureLib["AppearanceCircleYellow"]);
 	DesignImages.Insert("HighlightInGreen", PictureLib["AppearanceCircleGreen"]);
 	
-	// Filter.
+	// FilterCommand
 	SpecifyTheAvailableTypesOfComparison(AvailableCompareTypes);
 	ContextMenu.Add(AvailableCompareTypes, NStr("en = 'Filter';"),, PictureLib.DataCompositionFilter);
 	
-	// Sort.
+	// Sort
 	ContextMenu.Add(DataCompositionSortDirection.Asc, NStr("en = 'Sort ascending';"),, PictureLib.SortRowsAsc);
 	ContextMenu.Add(DataCompositionSortDirection.Desc, NStr("en = 'Sort descending';"),, PictureLib.SortRowsDesc);
 	
-	// Apply appearance.
+	// ApplyAppearance
 	DesignSubmenu = New ValueList;
 	
 	DesignSubmenu.Add("ClearAppearance", NStr("en = 'Clear appearance';"));
@@ -3076,7 +3074,7 @@ Function DataAreaContextMenu(TitleProperties, AvailableCompareTypes)
 	
 	ContextMenu.Add(DesignSubmenu, NStr("en = 'Format';"),, PictureLib.DataCompositionConditionalAppearance);
 	
-	// Drill down.
+	// Decrypt
 	ContextMenu.Add("DecodeByDetailedRecords", NStr("en = 'Drill down by detailed records';"));
 	
 	Return ContextMenu;

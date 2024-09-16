@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -39,7 +37,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	UsersGroupOnChangeAtServer();
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -101,7 +99,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 	ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
 	// End StandardSubsystems.AttachableCommands
@@ -130,7 +128,7 @@ Procedure AddFromFile(Command)
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then

@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -48,7 +46,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetPurposeUseKey();
 	SaveFormParameters();
 	
-	// Define report settings.
+	// 
 	ReportByStringType = ReportsOptions.ReportByStringType(Parameters.Report);
 	If ReportByStringType = Undefined Then
 		Information      = ReportsOptions.ReportInformation(ReportFullName, True);
@@ -73,7 +71,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.Preview.Visible = False;
 	EndIf;
 	
-	// Default parameters.
+	// 
 	If Not ReportSettings.OutputSelectedCellsTotal Or ReportSettings.DisableStandardContextMenu Then
 		Items.IndicatorGroup.Visible = False;
 		Items.IndicatorsArea.Visible = False;
@@ -83,7 +81,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetUserPermissions();
 	
-	// Register commands and form attributes that will not be deleted when overwriting quick settings.
+	// 
 	AttributesSet = GetAttributes();
 	For Each Attribute In AttributesSet Do
 		FullAttributeName = Attribute.Name + ?(IsBlankString(Attribute.Path), "", "." + Attribute.Path);
@@ -100,7 +98,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	CheckTheAvailabilityOfSharingOptionSettings(ReportMetadata);
 	
-	// Close integration with email and mailing.
+	// 
 	CanSendEmails = False;
 	If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
 		ModuleEmailOperations = Common.CommonModule("EmailOperations");
@@ -114,7 +112,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 			ModuleReportDistribution = Common.CommonModule("ReportMailing");
 			ModuleReportDistribution.ReportFormAddCommands(ThisObject, Cancel, StandardProcessing);
-		Else // If the submenu contains only one command, the dropdown list is not shown.
+		Else // 
 			Items.SendByEmail.Title = Items.SendGroup.Title + "...";
 			Items.Move(Items.SendByEmail, Items.SendGroup.Parent, Items.SendGroup);
 		EndIf;
@@ -122,7 +120,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.SendGroup.Visible = False;
 	EndIf;
 	
-	// Determine if the report contains invalid data.
+	// 
 	If Not Items.GenerateImmediately.Check Then
 		Try
 			TablesToUse = ReportsOptions.TablesToUse(ReportObject.DataCompositionSchema);
@@ -167,8 +165,8 @@ Procedure OnOpen(Cancel)
 #EndIf
 	RunMeasurements = False;
 	
-	// In the save mode, additional reports are generated directly as they cannot
-	// attach themselves and use native methods in background jobs.
+	// 
+	// 
 	Directly = ReportSettings.External Or ReportSettings.Safe;
 	GeneratingOnOpen = False;
 	IdleInterval = ?(GetClientConnectionSpeed() = ClientConnectionSpeed.Low, 1, 0.2);
@@ -287,7 +285,7 @@ EndProcedure
 
 &AtServer
 Procedure BeforeLoadVariantAtServer(NewDCSettings)
-	// If the report is not in DCS and settings are not imported, do nothing.
+	// 
 	If NewDCSettings = Undefined Or Not ReportsOptionsInternalClientServer.ReportOptionMode(
 		CurrentVariantKey) Then
 
@@ -322,7 +320,7 @@ Procedure BeforeLoadVariantAtServer(NewDCSettings)
 		ReportObject.BeforeLoadVariantAtServer(ThisObject, NewDCSettings);
 	EndIf;
 	
-	// Prepare for calling the reinitialization event.
+	// 
 	If ReportSettings.Events.BeforeImportSettingsToComposer Then
 		Try
 			NewXMLSettings = Common.ValueToXMLString(NewDCSettings);
@@ -335,12 +333,12 @@ EndProcedure
 
 &AtServer
 Procedure OnLoadVariantAtServer(NewDCSettings)
-	// If the report is not a DCS report and no settings were imported.
+	// 
 	If Not ReportsOptionsInternalClientServer.ReportOptionMode(CurrentVariantKey) And NewDCSettings = Undefined Then
 		Return;
 	EndIf;
 	
-	// Import fixed settings for the details mode.
+	// 
 	If DetailsMode Then
 		ReportCurrentOptionDescription = CommonClientServer.StructureProperty(
 			NewDCSettings.AdditionalProperties, "DescriptionOption");
@@ -356,15 +354,15 @@ Procedure OnLoadVariantAtServer(NewDCSettings)
 		EndIf;
 	EndIf;
 	
-	// Fixed filters are set using the composer because it has the widest range of settings.
-	// "BeforeImport" might be missing the parameters whose settings were not overridden.
+	// 
+	// 
 	If ReportsOptions.ItIsAcceptableToSetContext(ThisObject) And TypeOf(ParametersForm.Filter) = Type("Structure") Then
 
 		ReportsServer.SetFixedFilters(ParametersForm.Filter, Report.SettingsComposer.Settings,
 			ReportSettings);
 	EndIf;
 	
-	// Update the report option reference.
+	// 
 	If PanelOptionsCurrentOptionKey <> CurrentVariantKey Then
 		UpdateInfoOnReportOption();
 	EndIf;
@@ -538,7 +536,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// Attachable objects.
+// 
 
 &AtClient
 Procedure Attachable_SettingItem_OnChange(Item)
@@ -691,8 +689,8 @@ Procedure ReportSpreadsheetDocumentSelection(Item, Area, StandardProcessing)
 			DetailsValue = Area.Details;
 		Except
 			DetailsValue = Undefined;
-			// Some spreadsheet area types (the property "AreaType") don't support reading drill-downs.
-			// Therefore, a try–except clause is used.
+			// 
+			// 
 		EndTry;
 
 		If DetailsValue <> Undefined And GoToLink(DetailsValue) Then
@@ -915,7 +913,7 @@ Procedure EditResourcePlacement(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Handlers of DCS modification commands.
+// 
 
 &AtClient
 Procedure ImportSchema(Command)
@@ -969,7 +967,7 @@ Procedure RestoreDefaultSchema(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Handlers of (main and user) settings exchange commands.
+// 
 
 &AtClient
 Procedure SaveReportOptionToFile(Command)
@@ -1002,7 +1000,7 @@ Procedure ShareSettings(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Handlers of report result save commands.
+// 
 
 &AtClient
 Procedure SaveReport(Command)
@@ -1042,7 +1040,7 @@ Procedure ReportsSnapshots(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Handlers of context menu commands in the report resulting spreadsheet document.
+// 
 
 &AtClient
 Procedure GroupBySelectedField(Command)
@@ -1194,7 +1192,7 @@ Procedure ApplyAppearanceMore(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Handlers of indicator calculation commands.
+// 
 
 &AtClient
 Procedure SelectIndicatorClick(Item)
@@ -1241,7 +1239,7 @@ Procedure CollapseIndicators(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Attachable objects.
+// 
 
 // Parameters:
 //  Command - FormCommand
@@ -1334,7 +1332,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client.
+// Client
 
 &AtClient
 Procedure DefineTheBehaviorOnTheHomePage()
@@ -1751,9 +1749,9 @@ Procedure ImportReportGenerationResult()
 
 	ReportsClientServer.DisplayReportState(ThisObject);
 
-	FillPropertyValues(ReportSettings.Print, ReportSpreadsheetDocument); // Save print settings.
+	FillPropertyValues(ReportSettings.Print, ReportSpreadsheetDocument); // 
 	ReportSpreadsheetDocument = Result.SpreadsheetDocument;
-	FillPropertyValues(ReportSpreadsheetDocument, ReportSettings.Print); // Recovery.
+	FillPropertyValues(ReportSpreadsheetDocument, ReportSettings.Print); // 
 	ReportCreated = True;
 
 	If ValueIsFilled(ReportDetailsData) And IsTempStorageURL(ReportDetailsData) Then
@@ -2071,8 +2069,8 @@ Procedure AfterSelectingTheIndicator(TheSelectedIndicator, AdditionalParameters)
 
 EndProcedure
 
-// This procedure calculates functions for the selected cell range.
-// See the ReportSpreadsheetDocumentOnActivateArea event handler.
+// 
+// 
 //
 &AtClient
 Procedure CalculateIndicatorsDynamically()
@@ -2497,7 +2495,7 @@ Procedure FindSuitableValuesBooleanUniversalSearch(SuitableValues, SearchFieldsB
 
 	ValuesSuitableForBoolean = New ValueList;
 	
-	// Search by column name.
+	// 
 	For Each FieldForSearch In SearchFields Do
 		If StrStartsWith(Upper(FieldForSearch.Value), Upper(SearchParameters.SearchString)) Then
 			SearchProperties = UniversalSearchProperties(FieldForSearch.Key, True, SearchParameters.ControlCharacters);
@@ -2513,8 +2511,8 @@ Procedure FindSuitableValuesBooleanUniversalSearch(SuitableValues, SearchFieldsB
 		EndIf;
 	EndDo;
 	
-	// Search by Boolean values.
-	// ACC:1391-off - Validate user input.
+	// 
+	// 
 	If StrCompare(SearchParameters.SearchString, NStr("en = 'Yes';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'True';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Enabled';")) = 0 Then
@@ -2536,7 +2534,7 @@ Procedure FindSuitableValuesBooleanUniversalSearch(SuitableValues, SearchFieldsB
 				FieldForSearch.Value, SearchProperties.ComparisonType, SearchProperties.RightValue));
 		EndDo;
 	EndIf;
-	// ACC:1391-on
+	// 
 
 	ValuesSuitableForBoolean.SortByPresentation();
 	CommonClientServer.SupplementList(SuitableValues, ValuesSuitableForBoolean);
@@ -2551,7 +2549,7 @@ Procedure FindSuitableValuesStringUniversalSearch(SuitableValues, SearchFieldsBy
 		Return;
 	EndIf;
 	
-	// ACC:1391-off - Validate user input.
+	// 
 	If StrCompare(SearchParameters.SearchString, NStr("en = 'Yes';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'True';")) = 0 
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Enabled';")) = 0
@@ -2560,7 +2558,7 @@ Procedure FindSuitableValuesStringUniversalSearch(SuitableValues, SearchFieldsBy
 		Or StrCompare(SearchParameters.SearchString, NStr("en = 'Disabled';")) = 0 Then
 		Return;
 	EndIf;
-	// ACC:1391-on
+	// 
 
 	For Each FindType In SearchFieldsByType Do
 		For Each FieldForSearch In FindType.Value Do
@@ -2761,7 +2759,7 @@ Function TheConditionOfTheQueryTextForTheSearchObject(Object, SearchParameters)
 		FieldsNames.Add(Field.Name);
 	EndDo;
 	
-	// Extend the list of document fields.
+	// 
 	FullNameParts1 = StrSplit(Object.FullName(), ".");
 	If FullNameParts1[0] = "Document" Then
 		If Fields.Find("Date") = Undefined Then
@@ -3395,14 +3393,14 @@ Procedure FillInTheMenuOfGroupingLevels(IndexOfTheReportStructure)
 		Button.Title = Properties.RepresentationOfTheGroupingLevel;
 		Button.LocationInCommandBar = ButtonLocationInCommandBar.InCommandBar;
 		
-		// "More actions" submenu.
+		// 
 		Button = Items.Add(Properties.CommandName + "More", Type("FormButton"), Items.GroupsLevelsGroupMore);
 		Button.Type = FormButtonType.CommandBarButton;
 		Button.CommandName = Properties.CommandName;
 		Button.Title = Properties.RepresentationOfTheGroupingLevel;
 		Button.LocationInCommandBar = ButtonLocationInCommandBar.InAdditionalSubmenu;
 		
-		// Report context menu.
+		// 
 		ContextMenuButton = Items.Add(Properties.CommandName + "ContextMenu", Type("FormButton"),
 			Items.GroupsLevelsGroupContextMenu);
 		ContextMenuButton.Type = FormButtonType.CommandBarButton;
@@ -3920,7 +3918,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server call.
+// 
 
 &AtServer
 Procedure SetVisibilityAvailability()
@@ -3993,7 +3991,7 @@ Procedure SetVisibilityAvailability()
 	Items.QuickSettingsPanelCommands.Visible = (CountOfAvailableSettings.QuickAccessSettingsCount > 0);
 	Items.ChangeQuickSettingsCompositionMore.Visible = Items.QuickSettingsPanelCommands.Visible;
 	
-	// Options selection commands.
+	// 
 	If PanelOptionsCurrentOptionKey <> CurrentVariantKey Then
 		PanelOptionsCurrentOptionKey = CurrentVariantKey;
 
@@ -4077,7 +4075,7 @@ Procedure LoadVariant(VariantKey, ClearStackSettings = True)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server.
+// Server
 
 &AtServer
 Procedure DefineBehaviorInMobileClient()
@@ -4225,8 +4223,8 @@ Procedure SetCurrentOptionKey(ReportFullName, ReportObject)
 
 	EndIf;
 	
-	// Save the key of the contextual report option, which is usually hidden from the UI.
-	//  (That is, "Enabled" is set to '"False".)
+	// 
+	//  
 	If ValueIsFilled(OptionContext) Then
 		ContextOption = ?(ValueIsFilled(Parameters.VariantKey), Parameters.VariantKey, CurrentVariantKey);
 		ContextOptions.Add(ContextOption);
@@ -4433,7 +4431,7 @@ Procedure UpdateSettingsFormItemsAtServer(ParametersOfUpdate)
 		EndIf;
 	EndIf;
 	
-	// If a user is not allowed to change options of the report, the standard dialog box is not shown.
+	// 
 	If Not ReportSettings.EditOptionsAllowed Then
 		VariantModified = False;
 	EndIf;
@@ -4485,8 +4483,8 @@ Procedure ImportSettingsToComposer(ImportParameters)
 	SettingsImported = ReportsClientServer.LoadSettings(Report.SettingsComposer, AvailableSettings.Settings, 
 		AvailableSettings.UserSettings, AvailableSettings.FixedSettings);
 	
-	// Fixed filters are set using the composer because it has the widest range of settings.
-	// "BeforeImport" might be missing the parameters whose settings were not overridden.
+	// 
+	// 
 	If SettingsImported And ReportsOptions.ItIsAcceptableToSetContext(ThisObject) 
 		And TypeOf(ParametersForm.Filter) = Type("Structure") Then
 
@@ -4525,7 +4523,7 @@ Procedure ImportSettingsToComposer(ImportParameters)
 	AdditionalProperties.Insert("DescriptionOption", ReportCurrentOptionDescription);
 	AdditionalProperties.Insert("OptionContext", OptionContext);
 	
-	// Prepare for the composer preinitialization (used for details).
+	// 
 	If ReportSettings.SchemaModified Then
 		AdditionalProperties.Insert("SchemaURL", ReportSettings.SchemaURL);
 	EndIf;
@@ -4706,7 +4704,7 @@ Procedure UpdateOptionsSelectionCommands()
 		VariantsTable.Columns.OptionDescription.Name = "Description";
 	EndIf;
 
-	If ReportSettings.External Then // Add predefined options of the external report to the options table.
+	If ReportSettings.External Then // 
 		For Each ListItem In ReportSettings.PredefinedOptions Do
 			TableRow = VariantsTable.Add();
 			TableRow.Description = ListItem.Presentation;
@@ -4731,7 +4729,7 @@ Procedure UpdateOptionsSelectionCommands()
 			Button.Title = TableRow.Description;
 			Items.Move(Button, Items.ReportOptionsGroup);
 			
-			// "More actions" submenu (All actions).
+			// 
 			MoreButton = Items.Find(FormOption.CommandName + "More");
 			MoreButton.Visible = True;
 			MoreButton.Title = TableRow.Description;
@@ -4751,7 +4749,7 @@ Procedure UpdateOptionsSelectionCommands()
 			Button.CommandName = FormOption.CommandName;
 			Button.Title = TableRow.Description;
 			
-			// "More actions" submenu.
+			// 
 			MoreButton = Items.Add(FormOption.CommandName + "More", Type("FormButton"),
 				Items.MoreCommandBarReportOptionsGroup);
 			MoreButton.Type = FormButtonType.CommandBarButton;
@@ -4774,7 +4772,7 @@ Procedure UpdateOptionsSelectionCommands()
 		Button.Check = False;
 		Button.Visible = False;
 		
-		// "More actions" submenu (All actions).
+		// 
 		MoreButton = Items.Find(FormOption.CommandName + "More");
 		MoreButton.Check = False;
 		MoreButton.Visible = False;
@@ -4815,7 +4813,7 @@ Procedure UpdateInfoOnReportOption()
 		Selection = Query.Execute().Select();
 		If Not Selection.Next() Then
 		
-			// The report is not attached to the Report options subsystem. Its functionality is limited. 
+			//  
 			Return;
 
 		EndIf;
@@ -5227,7 +5225,7 @@ EndFunction
 Procedure RefineReportAutoGenerationSign(ParametersOfUpdate)
 
 	If Not ParametersOfUpdate.Regenerate Then
-		AllowableTimeForReportAutoGeneration = 5; // seconds
+		AllowableTimeForReportAutoGeneration = 5; // Seconds
 		ReportGenerationTime = ReportSettings.ResultProperties.FormationTime;
 		ParametersOfUpdate.Regenerate = (ReportGenerationTime <= AllowableTimeForReportAutoGeneration);
 	EndIf;

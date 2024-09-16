@@ -1,21 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Set the automatic deletion of marked objects.
+// 
 //
 // Parameters:
 //   Changes - Structure:
-//   * Use - Boolean - indicates whether a scheduled job is used
-//   * Schedule - JobSchedule - sets the scheduled job schedule.
+//   * Use - Boolean -  flag for using a scheduled task
+//   * Schedule - JobSchedule -  set schedule for a scheduled task.
 //
 // Returns:
 //   Boolean
@@ -35,7 +33,7 @@ Procedure SetDeleteOnScheduleMode(Changes) Export
 
 EndProcedure
 
-// Returns the scheduled job schedule.
+// Returns the schedule of a scheduled task.
 //
 // Returns:
 //   Structure:

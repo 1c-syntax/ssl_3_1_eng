@@ -1,23 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// On the form, creates a hierarchical list with specified fields and a search bar.
-// One or several collections of available data composition fields are used as a field source.
-// You can expand reference type fields to include an unlimited number of levels.
-// You can add and override a subfield list in any field of the list, including
-// simple type fields.
+// Creates a hierarchical list on the form with the specified composition of fields and the search string.
+// One or more collections of available data layout fields are used as a field source.
+// For fields of the reference type, it is possible to expand to an unlimited number of levels.
+// For any field in the list, including fields of simple types, it is possible to supplement and redefine
+// the list of child fields.
 // 
 // Parameters:
-//  Form - ClientApplicationForm - a form, in which the attribute is to be added.
+//  Form - ClientApplicationForm -  the form in which you want to add a list.
 //  Parameters - See ParametersForAddingAListOfFields
 //
 Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
@@ -26,7 +24,7 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 	
 EndProcedure
 
-// The constructor of parameter the AddFieldsListToForm procedure parameters.
+// The constructor of the parameter Parameters of the procedure add a list to the form field.
 // 
 // Returns:
 //  Structure:
@@ -45,20 +43,20 @@ EndProcedure
 //   * IncludeGroupsInTheDataPath - Boolean
 //   * IdentifierBrackets - Boolean
 //   * ViewBrackets - Boolean
-//   * SourcesOfAvailableFields - ValueTable - used when any field requires changing
-//                                                 subordinate fields:
-//     ** DataSource - String - field details of the field tree can be specified as a tree path
-//                                  or metadata object name.
-//                                  The source can be specified as a sample where the "*" character denotes multiple
-//                                   arbitrary characters.
+//   * SourcesOfAvailableFields - ValueTable - 
+//                                                 :
+//     ** DataSource - String -  description of the field in the field tree, can be in the form of a path in the tree, or in the form
+//                                  of the name of the metadata object.
+//                                  The source can be specified as a template in which the "*" symbol denotes several
+//                                  arbitrary characters.
 //                                  For example,
-//                                  "*.Description" - add a field subcollection to the "Description" fields,
-//                                  "Catalog.Companies" - add a field subcollection to all fields
-//                                  of the Companies type.
-//     ** FieldsCollection - DataCompositionAvailableFields - data source subfields.
-//     ** Replace       - Boolean - if True, the subordinate field list will be replaced. If False it will be supplemented.
+//                                  "*.Name" - add a collection of child fields to the fields "Name",
+//                                  "Directory.Companies" - add a collection of child fields to all fields
+//                                  of the Company type.
+//     ** FieldsCollection - DataCompositionAvailableFields -  child fields of the data source.
+//     ** Replace       - Boolean -  if True, the list of subordinate fields will be replaced, if False, it will be supplemented.
 //   * UseIdentifiersForFormulas - Boolean
-//   * PrimarySourceName - String - Name of the field source object name.
+//   * PrimarySourceName - String - 
 //
 Function ParametersForAddingAListOfFields() Export
 	
@@ -66,7 +64,7 @@ Function ParametersForAddingAListOfFields() Export
 	
 EndFunction
 
-// The constructor of field list for the AddFieldsListToForm procedure.
+// Constructor of the list of fields for the procedure Add a list of fields to the form.
 //
 // Returns:
 //  ValueTable:
@@ -82,7 +80,7 @@ Function FieldTable() Export
 	
 EndFunction
 
-// The constructor of field list for the AddFieldsListToForm procedure.
+// Constructor of the list of fields for the procedure Add a list of fields to the form.
 //
 // Returns:
 //  ValueTree:
@@ -98,19 +96,19 @@ Function FieldTree() Export
 	
 EndFunction
 
-// The constructor of field list for the AddFieldsListToForm procedure.
-// Converts a source field collection to the collection of available data composition fields.
+// Constructor of the list of fields for the procedure Add a list of fields to the form.
+// Converts the original collection of fields into a collection of available data layout fields.
 // 
 // Parameters:
 //   FieldSource   - See FieldTable
-//                   - ValueTree - See FieldTree
-//                   - DataCompositionSchema - A field list is taken from the "FilterAvailableFields" collection of the Settings Composer.
-//                                             The collection name can be overridden in the "DCSCollectionName" parameter.
-//                                             - String - The address of the value in the temporary storage.
+//                    See FieldTree
 //                   
-//   NameOfTheSKDCollection - String - a field collection name in the Settings Composer. Use the parameter if
-//                              a data composition schema is passed in the FieldSource parameter.
-//                              The default value is FilterAvailableFields. 
+//                                             
+//                                             
+//                   
+//   NameOfTheSKDCollection - String -  the name of the collection of fields in the settings builder. The parameter must be used if the
+//                              data layout scheme is passed in the Field Source parameter.
+//                              The default value is available selection fields. 
 //   
 //  Returns:
 //   DataCompositionAvailableFields
@@ -121,13 +119,13 @@ Function FieldsCollection(FieldSource, Val NameOfTheSKDCollection = Undefined) E
 	
 EndFunction
 
-// Used when changing fields displayed in the list being connected.
-// Refills the specified list from the passed field collection.
+// It is used in case of changing the composition of the fields displayed in the connected list.
+// Resets the specified list from the passed collection of fields.
 //
 // Parameters:
 //  Form - ClientApplicationForm
 //  FieldsCollections - Array of DataCompositionAvailableFields
-//  NameOfTheFieldList - String - on the form, a name of the list that requires field update.
+//  NameOfTheFieldList - String -  the name of the list on the form in which the fields need to be updated.
 //
 Procedure UpdateFieldCollections(Form, FieldsCollections, NameOfTheFieldList = "AvailableFields") Export
 	
@@ -135,7 +133,7 @@ Procedure UpdateFieldCollections(Form, FieldsCollections, NameOfTheFieldList = "
 	
 EndProcedure
 
-// Handler of the event expanding the list being connected on the form.
+// Handler for the event of expanding the connected list on the form.
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -147,7 +145,7 @@ Procedure FillInTheListOfAvailableFields(Form, FillParameters) Export
 	
 EndProcedure
 
-// The handler of the event for changing the edit text of the search field of the list being connected.
+// Event handler for changing the text of editing the search field of the connected list.
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -158,7 +156,7 @@ Procedure PerformASearchInTheListOfFields(Form) Export
 	
 EndProcedure
 
-// A universal handler in the client context.
+// 
 // 
 // Parameters:
 //  Form - ClientApplicationForm
@@ -169,14 +167,14 @@ Procedure FormulaEditorHandler(Form, Parameter, AdditionalParameters) Export
 	FormulasConstructorInternal.FormulaEditorHandler(Form, Parameter, AdditionalParameters);
 EndProcedure
 
-// Prepares a standard list of required kind operators.
+// Prepares a standard list of operators of the required types.
 // 
 // Parameters:
-//  GroupsOfOperators - String - enumeration of required operator kinds. Possible values:
-//                   Separators, Operators, LogicalOperatorsAndConstants,	
-//                   NumericFunctions, StringFunctions, OtherFunctions,
-//                   StringOperationsDCS, ComparisonOperationsDCS, LogicalOperationsDCS,
-//                   AggregateFunctionsDCS, AllDCSOperators.
+//  GroupsOfOperators - String - :
+//                   	
+//                   
+//                   
+//                   
 // 
 // Returns:
 //  ValueTree
@@ -187,8 +185,8 @@ Function ListOfOperators(GroupsOfOperators = Undefined) Export
 	
 EndFunction
 
-// Generates a formula presentation in the current user language.
-// Operands and operators in the formula text are replaced with their presentations.
+// Generates a representation of the formula in the user's current language.
+// Operands and operators in the formula text are replaced by their representations.
 //
 // Parameters:
 //  FormulaParameters - See FormulaEditingOptions
@@ -223,10 +221,9 @@ Function FormulaPresentation(FormulaParameters) Export
 	
 EndFunction
 
-// Generates the formula representation in the user's language.
-// Operators and operands are replaced with their presentations.
-// For usage in forms with default operand lists, (See AddAListOfFieldsToTheForm)
-// .
+// 
+// 
+//  (See AddAListOfFieldsToTheForm)
 //
 // Parameters:
 //  Form - ClientApplicationForm
@@ -241,33 +238,33 @@ Function ViewFormulaByFormData(Form, Formula) Export
 	
 EndFunction
 
-// The FormulaParameters parameter constructor for the FormulaPresentation function.
+// Constructor of the ParameterFormula parameter for the Formula representation function.
 // 
 // Returns:
 //  Structure:
 //   * Formula - String
-//   * Operands - String - The address of an operand collection in the temporary storage. Valid values are: 
-//                         ValueTable - See FieldTable
-//                         ValueTree - See FieldTree
-//                         DataCompositionSchema - The operand list is taken from the "FilterAvailableFields" collection of the Settings Composer.
-//                                                  You can override the collection name in the "DCSCollectionName" parameter.
+//   * Operands - String - : 
+//                          See FieldTable
+//                          See FieldTree
+//                         
 //                                                  
-//   * Operators - String - The address of an operator collection in the temporary storage. Valid values are: 
-//                         ValueTable - See FieldTable
-//                         ValueTree - See FieldTree
-//                         DataCompositionSchema - The operand list is taken from the "FilterAvailableFields" collection of the Settings Composer.
-//                                                  You can override the collection name in the "DCSCollectionName" parameter.
 //                                                  
-//   * OperandsDCSCollectionName  - String - a field collection name in the Settings Composer. Use the parameter
-//                                          if a data composition schema is passed in the Operands parameter.
-//                                          The default value is FilterAvailableFields.
-//   * OperatorsDCSCollectionName - String - a field collection name in the Settings Composer. Use the parameter
-//                                          if a data composition schema is passed in the Operators parameter.
-//                                          The default value is FilterAvailableFields.
-//   * Description - Undefined - the description is not used for the formula and the field is not available.
-//                  - String       - a formula description. If it is filled in or empty, the field is displayed
-//                                   on the constructor form.
-//   * BracketsOperands - Boolean - Display operands in square brackets.
+//   * Operators - String - : 
+//                          See FieldTable
+//                          See FieldTree
+//                         
+//                                                  
+//                                                  
+//   * OperandsDCSCollectionName  - String -  the name of the collection of fields in the settings builder. The parameter must
+//                                          be used if the data layout scheme is passed in the Operands parameter.
+//                                          The default value is available selection fields.
+//   * OperatorsDCSCollectionName - String -  the name of the collection of fields in the settings builder. The parameter must
+//                                          be used if the data layout scheme is passed in the Operators parameter.
+//                                          The default value is available selection fields.
+//   * Description - Undefined -  the name is not used for the formula, the corresponding field is not displayed.
+//                  - String       - 
+//                                   
+//   * BracketsOperands - Boolean - 
 //
 Function FormulaEditingOptions() Export
 	
@@ -275,11 +272,11 @@ Function FormulaEditingOptions() Export
 	
 EndFunction
 
-// Replaces operands' presentations with their IDs.
+// 
 // 
 // Parameters:
-//  Form - ClientApplicationForm - Form that contains operand lists and operator lists.
-//  FormulaPresentation - String - Formula.
+//  Form - ClientApplicationForm - 
+//  FormulaPresentation - String - 
 //  
 // Returns:
 //  String

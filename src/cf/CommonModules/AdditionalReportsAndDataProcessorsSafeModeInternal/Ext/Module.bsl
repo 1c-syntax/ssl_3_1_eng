@@ -1,44 +1,42 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Returns a template of a security profile name for an external module.
-// The function must return the same value every time it is called.
+// Returns the security profile name template for the external module.
+// The function must return the same value when called multiple times.
 //
 // Parameters:
-//  ExternalModule - AnyRef - a reference to an external module.
+//  ExternalModule - AnyRef -  a link to an external module.
 //
 // Returns:
-//   String - a template of a security profile name containing characters
-//  "%1". These characters are replaced with a unique ID later.
+//   String - 
+//  
 //
 Function SecurityProfileNameTemplate(Val ExternalModule) Export
 	
 	Kind = Common.ObjectAttributeValue(ExternalModule, "Kind");
 	If Kind = Enums.AdditionalReportsAndDataProcessorsKinds.Report Or Kind = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalReport Then
 		
-		Return "AdditionalReport_%1"; // Do not localize.
+		Return "AdditionalReport_%1"; // 
 		
 	Else
 		
-		Return "AdditionalDataProcessor_%1"; // Do not localize.
+		Return "AdditionalDataProcessor_%1"; // 
 		
 	EndIf;
 	
 EndFunction
 
-// Returns an external module icon.
+// Returns an icon displaying the external module.
 //
 // Parameters:
-//  ExternalModule - AnyRef - a reference to an external module
+//  ExternalModule - AnyRef -  link to the external module
 //
 // Returns:
 //   Picture
@@ -58,12 +56,12 @@ Function ExternalModuleIcon(Val ExternalModule) Export
 	
 EndFunction
 
-// Returns a dictionary of presentations for external container modules.
+// Returns a dictionary of views for the container's external modules.
 //
 // Returns:
 //   Structure:
-//   * Nominative - String - an external module type presentation in nominative case,
-//   * Genitive - String - an external module type presentation in genitive case.
+//   * Nominative - String -  representation of the external module type in the nominative case,
+//   * Genitive - String -  representation of the external module type in the genitive case.
 //
 Function ExternalModuleContainerDictionary() Export
 	
@@ -76,8 +74,8 @@ Function ExternalModuleContainerDictionary() Export
 	
 EndFunction
 
-// Returns an array of reference metadata objects that can be used
-//  as external module containers.
+// Returns an array of metadata reference objects that can be used
+//  as a container for external modules.
 //
 // Returns:
 //   Array of MetadataObject
@@ -91,7 +89,7 @@ Function ExternalModulesContainers() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See SSLSubsystemsIntegration.OnRegisterExternalModulesManagers
 Procedure OnRegisterExternalModulesManagers(Managers) Export

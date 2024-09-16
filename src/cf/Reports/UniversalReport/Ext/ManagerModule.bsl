@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,7 +12,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.ReportsOptions
+// 
 
 // Parameters:
 //   Settings - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
@@ -49,7 +47,7 @@ Function ImportSettingsOnChangeParameters() Export
 	Return Parameters;
 EndFunction
 
-// Returns values of special parameters of the Universal report.
+// Returns the values of specialized parameters of the universal report.
 //
 // Parameters:
 //  Settings - DataCompositionSettings
@@ -101,7 +99,7 @@ Function FixedParameters(Settings, UserSettings, AvailableValues, Context) Expor
 	FixedParameters.DataSource = DataSource(
 		FixedParameters.MetadataObjectType, FixedParameters.MetadataObjectName);
 	
-	IDs = StrSplit("MetadataObjectType, MetadataObjectName, TableName, MetadataObjectTypeName, MetadataObjectTableName", ", ", False);
+	IDs = StrSplit("MetadataObjectType, MetadataObjectName, TableName", ", ", False);
 	DataParameters = Settings.DataParameters.Items;
 	For Each Id In IDs Do 
 		SettingItem = DataParameters.Find(Id);
@@ -177,7 +175,7 @@ Procedure SetFixedParameter(Id, Parameters, Settings, UserSettings, AvailableVal
 	Parameters[Id] = FixedParameter;
 EndProcedure
 
-// Sets values of special parameters of the Universal report.
+// Sets the values of specialized parameters of the universal report.
 //
 // Parameters:
 //  Report
@@ -468,7 +466,7 @@ Procedure AddObjectTotals(Val ReportParameters, Val DataCompositionSchema)
 	ObjectPresentation = MetadataObject.Presentation();
 	
 	ReferenceDetails = MetadataObject.StandardAttributes["Ref"];
-	If ValueIsFilled(ReferenceDetails.Synonym) And ReferenceDetails.Synonym <> NStr("en = 'Reference';") Then // ACC:1391 - If the synonym of the "Ref" attribute differs from the standard "Ref", the column header displays the object presentation.
+	If ValueIsFilled(ReferenceDetails.Synonym) And ReferenceDetails.Synonym <> NStr("en = 'Reference';") Then // 
 		ObjectPresentation = ReferenceDetails.Synonym;
 	ElsIf ValueIsFilled(MetadataObject.ObjectPresentation) Then
 		ObjectPresentation = Common.ObjectPresentation(MetadataObject);
@@ -483,7 +481,7 @@ Procedure AddObjectTotals(Val ReportParameters, Val DataCompositionSchema)
 		EndIf;
 	EndIf;
 	
-	// Add totals by numeric attributes
+	// 
 	For Each Attribute In MetadataObject.Attributes Do
 		If Not Common.MetadataObjectAvailableByFunctionalOptions(Attribute) 
 		   Or Attribute.Type.ContainsType(Type("ValueStorage")) Then
@@ -502,7 +500,7 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 	
 	MetadataObject = Metadata[ReportParameters.MetadataObjectType][ReportParameters.MetadataObjectName]; 
 	
-	// Add dimensions.
+	// 
 	For Each Dimension In MetadataObject.Dimensions Do
 		If Common.MetadataObjectAvailableByFunctionalOptions(Dimension) Then 
 			SetField = AddDataSetField(DataCompositionSchema.DataSets[0], Dimension.Name, Dimension.Synonym);
@@ -510,7 +508,7 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 		EndIf;
 	EndDo;
 	
-	// Add attributes.
+	// 
 	If IsBlankString(ReportParameters.TableName) Then
 		For Each Attribute In MetadataObject.Attributes Do
 			If Common.MetadataObjectAvailableByFunctionalOptions(Attribute) Then 
@@ -539,14 +537,14 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 		ThereIsFieldLogger = True;
 	EndIf;
 	
-	// Add period fields.
+	// 
 	If ReportParameters.TableName = "BalanceAndTurnovers" 
 		Or ReportParameters.TableName = "Turnovers" 
 		Or ReportParameters.MetadataObjectType = "AccountingRegisters" And ReportParameters.TableName = "" Then
 		AddPeriodFieldsInDataSet(DataCompositionSchema.DataSets[0], ThereIsFieldLogger);
 	EndIf;
 		
-	// For accounting registers, setting up roles is important.
+	// 
 	If ReportParameters.MetadataObjectType = "AccountingRegisters" Then
 		
 		AccountField = AddDataSetField(DataCompositionSchema.DataSets[0], "Account", NStr("en = 'Account';"));
@@ -566,7 +564,7 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 		
 	EndIf;
 	
-	// Add resources.
+	// 
 	For Each Resource In MetadataObject.Resources Do
 		If Not Common.MetadataObjectAvailableByFunctionalOptions(Resource) Then 
 			Continue;
@@ -793,7 +791,7 @@ Procedure AddSubordinateRecordsCountTotals(DataCompositionSchema)
 	
 EndProcedure
 
-// Adds a period to data set fields.
+// Adds a period to the data set fields.
 // 
 // Parameters:
 //  DataSet - DataCompositionSchemaDataSetQuery
@@ -845,7 +843,7 @@ Function AddPeriodFieldsInDataSet(DataSet, ThereIsFieldLogger)
 	
 EndFunction
 
-// Add field to data set.
+// Add a field to the dataset.
 // 
 // Parameters:
 //  DataSet - DataCompositionSchemaDataSetQuery
@@ -871,7 +869,7 @@ Function AddDataSetField(DataSet, Field, Title = "", DataPath = Undefined)
 	
 EndFunction
 
-// Add total field to data composition schema. If the Expression parameter is not specified, Sum(PathToData) is used.
+// Add the total field to the data layout diagram. If the Expression parameter is omitted, the Sum(data path) is used.
 Function AddTotalField(DataCompositionSchema, DataPath, Expression = Undefined)
 	
 	If Expression = Undefined Then
@@ -886,7 +884,7 @@ Function AddTotalField(DataCompositionSchema, DataPath, Expression = Undefined)
 	
 EndFunction
 
-// Adds total fields.
+// Adds fields to the totals.
 // 
 // Parameters:
 //  ReportParameters - See FixedParameters
@@ -1036,12 +1034,12 @@ Procedure AddIndicators(ReportParameters, DCSettings)
 	
 EndProcedure
 
-// Generates the structure of data composition settings.
+// Forms the structure of data layout settings
 //
 // Parameters:
-//  ReportParameters - Structure - Description of a metadata object that is a data source
-//  Schema - DataCompositionSchema - Main schema of the report data composition.
-//  Settings - DataCompositionSettings - Settings whose structure is being generated.
+//  ReportParameters - Structure -  description of the data source metadata object
+//  Schema - DataCompositionSchema -  the basic structure layout of the report data
+//  Settings - DataCompositionSettings -  settings whose structure is being formed.
 //
 Procedure GenerateStructure(ReportParameters, Schema, Settings)
 	Settings.Structure.Clear();
@@ -1111,7 +1109,7 @@ Procedure GenerateStructure(ReportParameters, Schema, Settings)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Work with a standard schema set in user settings.
+// 
 
 Function DataCompositionSchema(FixedParameters) Export 
 	DataCompositionSchema = GetTemplate("MainDataCompositionSchema");
@@ -1180,9 +1178,9 @@ Procedure CustomizeStandardSettings(Report, FixedParameters, Settings, UserSetti
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Work with arbitrary schema from a file.
+// 
 
-// Returns the data composition schema being imported.
+// Returns the loaded data layout scheme.
 //
 // Parameters:
 //  ImportedSchema - BinaryData
@@ -1224,23 +1222,23 @@ Procedure SetStandardImportedSchemaSettings(Report, SchemaBinaryData, Settings, 
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Work with the data source of a report option.
+// 
 
-// Returns the report option settings with the set DataSource parameter.
+// Returns settings for a report variant with the data Source parameter set.
 //
 // Parameters:
-//  Variant - CatalogObject.ReportsOptions - Report option settings storage.
+//  Variant - CatalogObject.ReportsOptions -  storage of report variant settings.
 //
 // Returns:
-//   DataCompositionSettings, Undefined - Updated settings. If the update failed, Undefined.
+//   DataCompositionSettings, Undefined - 
 //                                            
 //
 Function OptionSettings(Variant) Export
 	Try
 		OptionSettings = Variant.Settings.Get(); // DataCompositionSettings
 	Except
-		// Couldn't deserialize the value storage:
-		//  Perhaps, a reference to a non-existent type is found.
+		// 
+		//  
 		Return Undefined;
 	EndTry;
 	
@@ -1259,7 +1257,7 @@ Function OptionSettings(Variant) Export
 		EndIf;
 	EndDo;
 	
-	// If option settings contain a parameter with a non-relevant name, the name will be updated.
+	// 
 	If ValueIsFilled(ParametersRequired.FullMetadataObjectName) Then 
 		ParametersRequired.MetadataObjectName = ParametersRequired.FullMetadataObjectName;
 	EndIf;
@@ -1296,16 +1294,16 @@ Function OptionSettings(Variant) Export
 	Return OptionSettings;
 EndFunction
 
-// Returns report data source
+// Returns the report data source
 //
 // Parameters:
-//  ManagerType - String - Metadata object manager presentation.
-//                 For example, "Catalogs" or "InformationRegisters".
-//  ObjectName  - String - Short name of the metadata object.
-//                For example, "Currencies" or "ExchangeRates".
+//  ManagerType - String -  representation of the metadata object Manager,
+//                 such as "Directories" or "data Registers", etc.
+//  ObjectName  - String -  short name of the metadata object,
+//                such as "Currencies" or "exchange rate", etc.
 //
 // Returns:
-//   - CatalogRef.MetadataObjectIDs - Reference to the found catalog item.
+//   - CatalogRef.MetadataObjectIDs - 
 //   - Undefined
 //
 Function DataSource(ManagerType, ObjectName)
@@ -1350,14 +1348,14 @@ Function DataSourceMetadata(DataSource, Context)
 	
 EndFunction
 
-// Returns the type of metadata object by the matching manager type
+// Returns the metadata object type for the corresponding Manager type
 //
 // Parameters:
-//  ManagerType - String - Metadata object manager presentation.
-//                 For example, "Catalogs" or "InformationRegisters".
+//  ManagerType - String -  representation of the metadata object Manager,
+//                 such as "Directories" or "data Registers", etc.
 //
 // Returns:
-//   String - Metadata object type. For example, "Catalog" or "InformationRegister".
+//   String - 
 //
 Function ObjectTypeByManagerType(ManagerType)
 	Types = New Map;
@@ -1383,7 +1381,7 @@ Function ObjectTypeByManagerType(ManagerType)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Default title.
+// 
 
 // Parameters:
 //  Context - ClientApplicationForm
@@ -1532,7 +1530,7 @@ Function ReportPeriodView(Period)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Subordinate item count in groupings.
+// 
 
 Procedure OutputSubordinateRecordsCount(Settings, Schema, StandardProcessing) Export 
 	
@@ -1722,8 +1720,8 @@ Procedure HideRecordsCountInDetailedRecords(DetailedRecords)
 EndProcedure
 
 // Returns:
-//   Array of String - Collection of element property IDs for the conditional appearance 
-//                      DataCompositionConditionalAppearanceUse.
+//   Array of String -  
+//                      
 //
 Function UseCasesForTheDesign()
 	

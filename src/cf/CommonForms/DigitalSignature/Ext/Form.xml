@@ -259,7 +259,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The algorithm used to sign strong data hash calculated using the hashing algorithm with the private part of the key.</v8:content>
+							<v8:content>An algorithm used to sign a secure data hash with the private part of the key. The hash is calculated using a hashing algorithm.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -283,7 +283,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The algorithm used to sign strong data hash calculated using the hashing algorithm with the private part of the key.</v8:content>
+							<v8:content>An algorithm used to sign a secure data hash with the private part of the key. The hash is calculated using a hashing algorithm.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -303,7 +303,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>The algorithm used to calculate strong data hash signed with the private part of the key using the signing algorithm.</v8:content>
+							<v8:content>An algorithm that calculates a secure data hash, which is then signed with the private part of the key using a signature algorithm.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<ToolTipRepresentation>Button</ToolTipRepresentation>

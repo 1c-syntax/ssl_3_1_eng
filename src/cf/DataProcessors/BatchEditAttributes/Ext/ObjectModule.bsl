@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,9 +12,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.AdditionalReportsAndDataProcessors
+// 
 
-// Returns data about an external data processor.
+// Returns information about external processing.
 //
 // Returns:
 //   See AdditionalReportsAndDataProcessors.ExternalDataProcessorInfo
@@ -328,11 +326,11 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 		PropertiesOfAdditionalDetails = ModuleCommon.ObjectsAttributesValues(AdditionalAttributes, "ValueType, MultilineInputField");
 	EndIf;
 	
-	// Run modification operations.
+	// 
 	For Each Operation In Parameters.AttributesToChange Do
 		
 		Value = EvalExpression(Operation.Value, ObjectToChange, Parameters.AvailableAttributes);
-		If Operation.OperationKind = 1 Then // Change an attribute.
+		If Operation.OperationKind = 1 Then // 
 			
 			If ObjectToChange[Operation.Name] = Null Then
 				Continue;
@@ -341,7 +339,7 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 			ObjectToChange[Operation.Name] = Value;
 			Result.ObjectAttributesToChange.Add(Operation.Name);
 			
-		ElsIf Operation.OperationKind = 2 Then // Change an additional attribute.
+		ElsIf Operation.OperationKind = 2 Then // 
 			
 			If Not PropertyMustChange(ObjectToChange.Ref, Operation.Property, Parameters) Then
 				Continue;
@@ -371,7 +369,7 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 			FormAttributeName = AddAttributeNamePrefix() + StrReplace(String(Operation.Property.UUID()), "-", "_");
 			Result.AdditionalObjectAttributesToChange.Insert(FormAttributeName, Value);
 			
-		ElsIf Operation.OperationKind = 3 Then // Change an additional information record.
+		ElsIf Operation.OperationKind = 3 Then // 
 			
 			If Not PropertyMustChange(ObjectToChange.Ref, Operation.Property, Parameters) Then
 				Continue;
@@ -386,7 +384,7 @@ Function MakeChanges(Val ObjectData, Val ObjectToChange, Val Parameters)
 			FormAttributeName = AddInfoNamePrefix() + StrReplace(String(Operation.Property.UUID()), "-", "_");
 			Result.AdditionalObjectInfoToChange.Insert(FormAttributeName, Value);
 		
-		ElsIf Operation.OperationKind = 4 Then // Update an external attribute.
+		ElsIf Operation.OperationKind = 4 Then // 
 			
 			If Value = Undefined
 			   And Operation.AllowedTypes.Types().Count() = 1 Then
@@ -416,7 +414,7 @@ Procedure RunAlgorithmCode(Val Object, Val AlgorithmCode, Val ExecuteInSafeMode)
 		|" + AlgorithmCode;
 		ExecuteInSafeMode(AlgorithmCode, Object);
 	Else
-		Execute AlgorithmCode; // ACC:487 In error correction scenarios, the code can be executed on behalf of an Administrator.
+		Execute AlgorithmCode; // 
 	EndIf;
 	
 EndProcedure
@@ -433,7 +431,7 @@ Function DataSeparationEnabled()
 	
 EndFunction
 
-// Returns a flag indicating if there are any common separators in the configuration.
+// Returns the sign of the presence in the General configuration details-separators.
 //
 // Returns:
 //   Boolean
@@ -663,13 +661,13 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 				ToEdit = ObjectManager.AttributesToEditInBatchProcessing();
 		EndIf;
 	Else
-		// For configurations without SSL or with an old SSL integrated,
-		// identify if the object has editable attributes.
+		// 
+		// 
 		ObjectManager = ObjectManagerByFullName(MetadataObject.FullName());
 		Try
 			ToEdit = ObjectManager.AttributesToEditInBatchProcessing();
 		Except
-			// Method not found.
+			// 
 			ToEdit = Undefined;
 		EndTry;
 	EndIf;
@@ -684,12 +682,12 @@ Function AttributesEditingSettings(MetadataObject, ObjectsManagers = Null) Expor
 		EndIf;
 		
 	Else
-		// For configurations without SSL or with an old SSL integrated,
-		// identify if the object has non-editable attributes.
+		// 
+		// 
 		Try
 			NotToEdit = ObjectManager.AttributesToSkipInBatchProcessing();
 		Except
-			// Method not found.
+			// 
 			NotToEdit = Undefined;
 		EndTry;
 	EndIf;
@@ -749,7 +747,7 @@ Function SSLVersionMatchesRequirements() Export
 	Try
 		ModuleStandardSubsystemsServer = CommonModule("StandardSubsystemsServer");
 	Except
-		// Module doesn't exist.
+		// 
 		ModuleStandardSubsystemsServer = Undefined;
 	EndTry;
 	If ModuleStandardSubsystemsServer = Undefined Then 
@@ -765,14 +763,14 @@ Function IsLongRunningOperationsAvailable() Export
 	Return SSLVersionMatchesRequirements() And SubsystemExists("StandardSubsystems.Core");
 EndFunction
 
-// Compares two versions in the String format.
+// Compare two version strings.
 //
 // Parameters:
-//  VersionString1  - String - the first version in the RR.{S|SS}.VV.BB format.
-//  VersionString2  - String - the second version.
+//  VersionString1  - String -  version number in the format PP. {P|PP}. ZZ. SS.
+//  VersionString2  - String -  the second version number to compare.
 //
 // Returns:
-//   Number   - if VersionString1 > VersionString2, it is a positive number. If they are equal, it is 0.
+//   Number   - 
 //
 Function CompareVersions(Val VersionString1, Val VersionString2) Export
 	
@@ -800,18 +798,18 @@ Function CompareVersions(Val VersionString1, Val VersionString2) Export
 	
 EndFunction
 
-// Returns an object manager by the passed full name of a metadata object.
-// Restriction: does not process business process route points.
+// Returns the object Manager by the full name of the metadata object.
+// Restriction: business process route points are not processed.
 //
 // Parameters:
-//  FullName - String - a full name of metadata object. Example: "Catalog.Company".
+//  FullName - String -  full name of the metadata object. Example: "Directory.Companies".
 //
 // Returns:
-//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - an object manager.
+//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - 
 // 
 // Example:
-//  CatalogManager = Common.ObjectManagerByFullName("Catalog.Companies");
-//  EmptyRef = CatalogManager.EmptyRef();
+//  Managerphone = Observatsionnoe.Of Managedobjectreference("Handbook.Companies");
+//  Portasilo = Mengersponge.Empty link();
 //
 Function ObjectManagerByFullName(FullName) Export
 	Var MOClass, MetadataObjectName1, Manager;
@@ -864,13 +862,13 @@ Function ObjectManagerByFullName(FullName) Export
 		
 	ElsIf Upper(MOClass) = "CALCULATIONREGISTER" Then
 		If NameParts.Count() = 2 Then
-			// Calculation register.
+			// 
 			Manager = CalculationRegisters;
 		Else
 			SubordinateMOClass = NameParts[2];
 			SubordinateMOName = NameParts[3];
 			If Upper(SubordinateMOClass) = "RECALCULATION" Then
-				// Recalculate.
+				// Recalculation
 				Try
 					Manager = CalculationRegisters[MetadataObjectName1].Recalculations;
 					MetadataObjectName1 = SubordinateMOName;
@@ -969,12 +967,12 @@ Procedure DisableAccessKeysUpdate(Disconnect, ScheduleUpdate1 = True)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Base-functionality procedures and functions for standalone mode support.
+// 
 
-// Returns the name of a kind
-// for a referenced metadata object.
+// The ViewObject function Returns the name of the type of metadata objects
+// by reference to the object.
 //
-// Does not regard business process route points.
+// Business process route points are not processed.
 //
 // Parameters:
 //  Ref - AnyRef
@@ -988,15 +986,15 @@ Function ObjectKindByRef(Ref) Export
 	
 EndFunction 
 
-// Returns the name of a kind for a metadata object of a specific type.
+// The function returns the name of the type of metadata objects by object type.
 //
-// Does not regard business process route points.
+// Business process route points are not processed.
 //
 // Parameters:
-//  Type       - an applied object type defined in the configuration.
+//  Type       - the type of application object defined in the configuration.
 //
 // Returns:
-//  String       - Metadata object kind name. For example, Catalog or Document.
+//  String       - 
 // 
 Function ObjectKindByType(Type) Export
 	
@@ -1034,10 +1032,10 @@ Function ObjectKindByType(Type) Export
 	
 EndFunction 
 
-// Checks whether the object is an item group.
+// 
 //
 // Parameters:
-//  Object       - Object, Reference, FormDataStructure for the Object type.
+//  Object       - 
 //
 // Returns:
 //  Boolean
@@ -1047,7 +1045,6 @@ Function ObjectIsFolder(Object) Export
 	If RefTypeValue(Object) Then
 		Ref = Object;
 	Else
-		//@skip-check reading-attribute-from-database - Data is being read from an object.
 		Ref = Object.Ref;
 	EndIf;
 	
@@ -1077,7 +1074,7 @@ Function ObjectIsFolder(Object) Export
 	
 EndFunction
 
-// Checks whether the value is a reference type value.
+// Check that the value has a reference data type.
 //
 // Parameters:
 //  Value - AnyRef
@@ -1135,31 +1132,31 @@ Function RefTypeValue(Value) Export
 	
 EndFunction
 
-// Returns a structure containing attribute values retrieved from the infobase
-// using the object reference.
+// Returns a structure containing the details values read from the information base
+// by reference to the object.
 // 
-//  If access to any of the attributes is denied, an exception is raised.
-//  To read attribute values regardless of current user rights,
-//  enable privileged mode.
+//  If you don't have access to one of the details, you will get an access exception.
+//  If you need to read the details regardless of the current user's rights,
+//  you should use the pre - transition to privileged mode.
 // 
 // Parameters:
 //  Ref    - AnyRef
 //
-//  Attributes - String - attribute names separated with commas, formatted
-//              according to structure requirements.
-//              Example: "Code, Description, Parent".
+//  Attributes - String -  names of details, separated by commas, in the format
+//              of requirements for structure properties.
+//              For Example, "Code, Name, Parent".
 //            - Structure
-//            - FixedStructure - keys are field aliases used for resulting structure
-//              keys, values (optional) are field names. If a value is empty,
-//              it is considered equal to the key.
-//              If a value is empty, it is considered equal to the key.
+//            - FixedStructure - 
+//              
+//              
+//              
 //            - Array
-//            - FixedArray - attribute names formatted according to
-//              structure property requirements.
+//            - FixedArray - 
+//              
 //
 // Returns:
-//  Structure - contains names (keys) and values of the requested attributes.
-//              If the string of the requested attributes is empty, an empty structure is returned.
+//  Structure - 
+//              
 //
 Function ObjectAttributesValues(Ref, Val Attributes) Export
 	
@@ -1218,18 +1215,18 @@ Function ObjectAttributesValues(Ref, Val Attributes) Export
 	
 EndFunction
 
-// Returns attribute values retrieved from the infobase using the object reference.
+// Returns the value of the props read from the information base by reference to the object.
 //
-//  If access to the attribute is denied, an exception is raised.
-//  To read attribute values regardless of current user rights,
-//  enable privileged mode.
+//  If you don't have access to the account details, an access rights exception will occur.
+//  If you need to read the details regardless of the current user's rights,
+//  you should use the pre - transition to privileged mode.
 //
 // Parameters:
 //  Ref    - AnyRef
-//  AttributeName - String - for example, "Code".
+//  AttributeName - String -  for example, "Code".
 //
 // Returns:
-//  Arbitrary    - Depends on the type of the read attribute.
+//  Arbitrary    - 
 //
 Function ObjectAttributeValue(Ref, AttributeName) Export
 	
@@ -1238,18 +1235,18 @@ Function ObjectAttributeValue(Ref, AttributeName) Export
 	
 EndFunction 
 
-// Returns True if a subsystem exists.
+// Returns True if the subsystem exists.
 //
 // Parameters:
-//  FullSubsystemName - String - the full name of the subsystem metadata object, excluding word "Subsystem.".
-//                        Example: "StandardSubsystems.Core".
+//  FullSubsystemName - String - 
+//                        
 //
-// Example of calling an optional subsystem:
+// :
 //
-//  If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-//  	ModuleAccessManagement = Common.CommonModule("AccessManagement");
-//  	ModuleAccessManagement.<Method name>();
-//  EndIf;
+//  
+//  	
+//  	
+//  
 //
 // Returns:
 //  Boolean
@@ -1261,7 +1258,7 @@ Function SubsystemExists(FullSubsystemName) Export
 	
 EndFunction
 
-// Returns a map between subsystem names and the True value;
+// Returns the matching of subsystem names and the value True;
 Function SubsystemsNames() Export
 	
 	Return New FixedMap(SubordinateSubsystemsNames(Metadata));
@@ -1286,12 +1283,12 @@ Function SubordinateSubsystemsNames(ParentSubsystem)
 	
 EndFunction
 
-// Returns a reference to the common module by the name.
+// Returns a reference to the shared module by name.
 //
 // Parameters:
-//  Name          - String - a common module name, for example:
-//                 "Common",
-//                 "CommonClient".
+//  Name          - String - :
+//                 
+//                 
 //
 // Returns:
 //  CommonModule
@@ -1299,7 +1296,7 @@ EndFunction
 Function CommonModule(Name) Export
 	
 	If Metadata.CommonModules.Find(Name) <> Undefined Then
-		Module = Eval(Name); // ACC:488 "Calculate" instead of "Common.CalculateInSafeMode" because it's a standalone data processor.
+		Module = Eval(Name); // 
 	Else
 		Module = Undefined;
 	EndIf;
@@ -1322,26 +1319,26 @@ Function SubstituteParametersToString(Val SubstitutionString,
 	Return SubstitutionString;
 EndFunction
 
-// ACC:487-off - A copy of "ExecuteInSafeMode" and "CalculateInSafeMode"
-// of the "Common" module as the data processor is rejected.
+// 
+// 
 
-// Executes an arbitrary algorithm in the 1C:Enterprise script, setting
-//  the safe mode of script execution and the safe mode of data separation
-//  for all separators of the configuration. As the result, when the algorithm is being executed:
-//   - attempts to set the privileged mode are ignored;
-//   - all external (relative to the 1C:Enterprise platform) actions (COM, =
-//       add-in loading, external application startup, operating system command execution,
-//       file system and Internet resource access) are prohibited;
-//   - session separators cannot be disabled;
-//   - session separator values cannot be changed (if data separation
-//       is not disabled conditionally);
-//   - objects that manage the conditional separation state cannot be changed.
+// Performs an arbitrary algorithm in the built-in 1C language:Enterprises by pre-setting
+//  safe code execution mode and safe data separation mode for all separators
+//  present in the configuration. As a result, when executing the algorithm:
+//   - attempts to set the privileged mode are ignored,
+//   - all external ones are forbidden (in relation to the 1C platform:Enterprise) action (COM,
+//       loading an external component, launch external applications and operating system commands,
+//       access to the file system and Internet resources),
+//   - do not disable the use of delimiters session
+//   - do not change the values of the delimiters of a session (if the separation by the separator does not
+//       is conditionally disabled)
+//   - do not modify objects that control the condition of the conditional split.
 //
 // Parameters:
-//  Algorithm - String - containing an arbitrary algorithm in the 1C:Enterprise language.
-//  Parameters - Arbitrary - any value as might be required
-//    for the algorithm. The algorithm code must refer to this value
-//    as the Parameters variable.
+//  Algorithm - String -  containing an arbitrary algorithm in the built-in 1C language:Companies.
+//  Parameters - Arbitrary -  the value of this parameter can be passed as the value
+//    that is required for executing the algorithm (in the algorithm text, this
+//    value must be referred to as the name of the Parameters variable).
 //
 Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined) Export
 	
@@ -1359,29 +1356,29 @@ Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined) Export
 	
 EndProcedure
 
-// Evaluates the passed expression, setting the safe mode of script execution
-// and the safe mode of data separation for all separators of the configuration.
+// Evaluates the passed expression by first setting safe code execution mode
+// and safe data separation mode for all delimiters present in the configuration.
 //
 // Parameters:
-//  Expression - String - an expression in the 1C:Enterprise language.
-//  Parameters - Arbitrary - the context required to calculate the expression.
-//    To address the context in the expression text, use "Parameters" name.
-//    For example, expression "Parameters.Value1 = Parameters.Value2" addresses values
-//    Value1 and Value2 that were passed to Parameters as properties.
+//  Expression - String -  the expression in the embedded language of 1C:Companies.
+//  Parameters - Arbitrary -  the context that is required for evaluating the expression.
+//    In the text of the expression, the context must be accessed by the name "Parameters".
+//    For example, the expression " Parameters.Value1 = Parameters.Value2 "refers to the values
+//    " Value1 "and" Value2 " passed to Parameters as properties.
 //
 // Returns:
-//   Arbitrary - the result of the expression calculation.
+//   Arbitrary - 
 //
 // Example:
 //
-//  // Example 1
-//  Parameters = New Structure;
-//  Parameters.Insert("Value1", 1);
-//  Parameters.Insert("Value2", 10);
-//  Result = Common.ExecuteInSafeMode("Parameters.Value1 = Parameters.Value2", Parameters);
+//  
+//  
+//  
+//  
+//  
 //
-//  // Example 2
-//  Result = Common.ExecuteInSafeMode("StandardSubsystemsServer.LibraryVersion()");
+//  
+//  
 //
 Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined) Export
 	
@@ -1404,13 +1401,13 @@ Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined) Export
 	
 EndFunction
 
-// ACC:487-on
+// 
 
-// Returns an array of the separators that are in the configuration.
+// Returns an array of existing delimiters in the configuration.
 //
 // Returns:
-//   FixedArray of String - an array of names of common attributes which
-//  serve as separators.
+//   FixedArray of String - 
+//  
 //
 Function ConfigurationSeparators() Export
 	
@@ -1428,7 +1425,7 @@ EndFunction
 
 #Region MultiThreadedObjectModification
 
-// ACC:581-off - An export function as it's called from a background job.
+// APK:581-Export is off, as it is called from a background task.
 Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSettings) Export
 
 	Ref         = Undefined;
@@ -1478,11 +1475,11 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 					Changes = MakeChanges(ObjectData, ObjectToChange, ModificationSettings);
 				EndIf;
 				
-				// Write mode.
+				// 
 				IsDocument = Metadata.Documents.Contains(ObjectToChange.Metadata());
 				WriteMode = DetermineWriteMode(ObjectToChange, IsDocument, ModificationSettings.DeveloperMode);
 				
-				// Validate value population.
+				// 
 				If Not ModificationSettings.DeveloperMode Then
 					If Not IsDocument Or WriteMode = DocumentWriteMode.Posting Then
 						If Not ObjectToChange.CheckFilling() Then
@@ -1491,7 +1488,7 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 					EndIf;
 				EndIf;
 				
-				// Write additional info.
+				// 
 				If Changes <> Undefined And Changes.AddInfoRecordsArray.Count() > 0 Then
 					For Each RecordManager In Changes.AddInfoRecordsArray Do
 						RecordManager.Write(True);
@@ -1512,7 +1509,7 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 				MustWriteObject = ModificationSettings.ObjectWriteOption <> "NotWrite"
 					And (ObjectToChange.Modified() Or Not ChangesAreConfigured);
 				
-				// Write the object.
+				// 
 				If MustWriteObject Then
 					If WriteMode <> Undefined Then
 						ObjectToChange.Write(WriteMode);
@@ -1570,7 +1567,7 @@ Function ObjectsBatchChangeResult(ObjectsToProcess, ChangeResult, ModificationSe
 	Return ChangeResult;
 	
 EndFunction
-// ACC:581-on
+// 
 
 Function RunObjectsChangeInMultipleThreads(Parameters, ObjectsToProcess, ChangeResult,
 		StopChangeOnError, RunAlgorithmCodeInSafeMode)

@@ -1,20 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
 Function Connected2() Export
 	
-	// A server call makes sure the correct state is obtained if the infobase registration data
-	// was modified by the method "CollaborationSystem.SetInfoBaseRegistrationData". 
-	// It runs faster and doesn't make calls to the Collaboration server.
+	// 
+	//  
+	// 
 	//
 	// 
 	CanUse = CollaborationSystem.CanUse();
@@ -147,15 +145,15 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 EndProcedure
 
-// Locks a collaboration system user. 
-// If errors occur when locking, ErrorInfo is returned.
-// If the user is locked, Undefined is returned.
+// Blocks the user from the interaction system. 
+// If there were errors during blocking, the error Information is returned.
+// If the user is blocked, it returns Undefined.
 //
 // Parameters:
 //    User - CatalogRef.Users
 //
 // Returns:
-//  ErrorInfo, Undefined
+//  Information About The Error, Undefined
 //
 Function BlockAnInteractionSystemUser(User) Export
 
@@ -170,7 +168,7 @@ Function BlockAnInteractionSystemUser(User) Export
 		UserIDCollaborationSystem = CollaborationSystem.GetUserID(
 			IBUserID);
 	Except
-		// ACC:280 - A thrown exception means the Collaboration System user was not found.
+		// 
 	EndTry;
 	
 	If UserIDCollaborationSystem = Undefined Then
@@ -193,7 +191,7 @@ Function BlockAnInteractionSystemUser(User) Export
 	Return Result;
 EndFunction
 
-// Returns an array of users who must be locked in the collaboration system.
+// Returns an array of users that should be blocked in the interaction system.
 //
 // Returns:
 //    Array of CatalogRef.Users
@@ -235,7 +233,7 @@ Procedure LockInvalidUsersInCollaborationSystem(ParametersOfUpdate) Export
 	TextOfTheLastError = "";
 	While Users_Selection.Next() Do
 		User = Users_Selection.Ref;
-		InfobaseUpdate.MarkProcessingCompletion(User); // If the processing fails, manual adjustment is available.
+		InfobaseUpdate.MarkProcessingCompletion(User); // 
  		Error = BlockAnInteractionSystemUser(User);
 		If Error <> Undefined Then
 			ObjectsWithErrors = ObjectsWithErrors + 1;

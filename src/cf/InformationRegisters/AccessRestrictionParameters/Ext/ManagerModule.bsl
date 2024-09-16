@@ -1,22 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// The procedure updates the register data during the full update of auxiliary data.
+// The procedure updates the register data when the auxiliary data is fully updated.
 //
 // Parameters:
-//  HasChanges - Boolean - (return value) - if recorded,
-//                  True is set, otherwise, it does not change.
+//  HasChanges - Boolean -  (return value) - if a record was made,
+//                  it is set to True, otherwise it is not changed.
 //
 Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	
@@ -141,13 +139,13 @@ Procedure HandlerForLongTermUpdateOperationInBackground(Parameters, ResultAddres
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Infobase update.
+// 
 
 // Updates the version of access restriction texts.
 //
 // Parameters:
-//  HasChanges - Boolean - (return value) - if changes are found
-//                  True is set, otherwise, it is not changed.
+//  HasChanges - Boolean -  (return value) - if changes are found,
+//                  it is set to True, otherwise it is not changed.
 //
 Procedure UpdateAccessRestrictionTextsVersion(HasChanges = Undefined) Export
 	
@@ -179,8 +177,8 @@ Procedure UpdateAccessRestrictionTextsVersion(HasChanges = Undefined) Export
 	
 EndProcedure
 
-// Updates auxiliary register data after changing
-// rights based on access values saved to access restriction parameters.
+// The procedure updates the auxiliary register data based on the result of changing
+// possible access rights based on the access values stored in the access restriction parameters.
 //
 Procedure ScheduleAccessUpdateByConfigurationChanges() Export
 	
@@ -270,7 +268,7 @@ Function VersionComposition(Version)
 	
 EndFunction
 
-// For the UpdateRegisterDataByConfigurationChanges procedure.
+// For the procedure update the data of the register of configuration Changes.
 Procedure ScheduleUpdate(Parameters, DataAccessKeys, AllowedAccessKeys, LongDesc)
 	
 	DataRestrictionsDetails = AccessManagementInternal.DataRestrictionsDetails();
@@ -302,7 +300,7 @@ Procedure ScheduleUpdate(Parameters, DataAccessKeys, AllowedAccessKeys, LongDesc
 	
 EndProcedure
 
-// Intended for procedure "UpdateRegisterDataByConfigurationChanges".
+// For the procedure update the data of the register of configuration Changes.
 Procedure ScheduleAccessGroupsSetsUpdate(Parameters, LongDesc)
 	
 	PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters(False);
@@ -316,7 +314,7 @@ Procedure ScheduleAccessGroupsSetsUpdate(Parameters, LongDesc)
 	
 EndProcedure
 
-// Intended for procedure "UpdateRegisterDataByConfigurationChanges".
+// For the procedure update the data of the register of configuration Changes.
 Procedure ScheduleUpdate1(Parameters, LongDesc)
 	
 	AdditionalContext = Parameters.AdditionalContext;
@@ -348,7 +346,7 @@ Procedure ScheduleUpdate1(Parameters, LongDesc)
 	
 EndProcedure
 
-// Intended for procedure "ShouldScheduleUpdate1".
+// 
 Procedure AddLists1(Lists, AdditionalContext)
 	
 	ListsWithKeysRecordForDependentListsWithoutKeys =
@@ -367,7 +365,7 @@ Procedure AddLists1(Lists, AdditionalContext)
 	
 EndProcedure
 
-// Intended for procedure "UpdateRegisterDataByConfigurationChanges".
+// For the procedure update the data of the register of configuration Changes.
 Procedure ScheduleUpdate2(Parameters, LongDesc)
 	
 	Lists = New Array;
@@ -396,7 +394,7 @@ Procedure ScheduleUpdate2(Parameters, LongDesc)
 	
 EndProcedure
 
-// Intended for procedure "ShouldScheduleUpdate2".
+// 
 Procedure AddLists2(Lists, ForExternalUsers)
 	
 	Query = New Query;
@@ -414,7 +412,7 @@ Procedure AddLists2(Lists, ForExternalUsers)
 	
 EndProcedure
 
-// Intended for procedure "UpdateRegisterDataByConfigurationChanges".
+// For the procedure update the data of the register of configuration Changes.
 Procedure ScheduleUpdate3(Parameters, LongDesc)
 	
 	AdditionalContext = Parameters.AdditionalContext;
@@ -446,7 +444,7 @@ Procedure ScheduleUpdate3(Parameters, LongDesc)
 	
 EndProcedure
 
-// Intended for procedure "ShouldScheduleUpdate3".
+// 
 Procedure AddLists3(Lists, AdditionalContext)
 	
 	For Each KeyAndValue In AdditionalContext.ListRestrictionsProperties Do
@@ -462,7 +460,7 @@ Procedure AddLists3(Lists, AdditionalContext)
 	
 EndProcedure
 
-// For the UpdateAccessRestrictionTextsVersion procedure.
+// For the procedure, update the version of the access restriction Text.
 Function AccessRestrictionTextsVersion(RestrictionsDetails = Undefined) Export
 	
 	If RestrictionsDetails = Undefined Then
@@ -492,7 +490,7 @@ Function AccessRestrictionTextsVersion(RestrictionsDetails = Undefined) Export
 	
 EndFunction
 
-// For the AccessRestrictionTextsVersion function.
+// For the versiontext function of access Restriction.
 Procedure AddProperty(Texts, Restriction, PropertyName)
 	
 	
@@ -502,11 +500,11 @@ Procedure AddProperty(Texts, Restriction, PropertyName)
 		Text = ?(Rows.Count() > 1, Chars.LF + "		", "")
 			+ StrConcat(Rows, Chars.LF + "		");
 	ElsIf Value = Undefined Then
-		Text = "Undefined"; // ACC:1297 - A value name (must not be wrapped in "NStr").
+		Text = "Undefined"; // 
 	ElsIf Value = True Then
-		Text = "True"; // ACC:1297 - A value name (must not be wrapped in "NStr").
+		Text = "True"; // 
 	ElsIf Value = False Then
-		Text = "False"; // ACC:1297 - A value name (must not be wrapped in "NStr").
+		Text = "False"; // 
 	Else
 		Text = XMLString(Value);
 	EndIf;
@@ -517,7 +515,7 @@ EndProcedure
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	// Data registration is not required.
+	// 
 	Return;
 	
 EndProcedure

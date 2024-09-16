@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -30,7 +28,7 @@ Procedure FixMailingStart(BulkEmail) Export
 		
 		RecordManager.BulkEmail = BulkEmail;
 		RecordManager.LastRunStart = CurrentSessionDate();
-		// In case the FixMailingExecutionResult will not be called due to an unprocessed exception.
+		// 
 		RecordManager.LastRunCompletion = RecordManager.LastRunStart + 30 * 60; 
 		RecordManager.SessionNumber = InfoBaseSessionNumber();
 		RecordManager.Executed = False;

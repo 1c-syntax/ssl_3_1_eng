@@ -1,18 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Creates a message exchange session and returns the session ID
+// Creates a new messaging session and returns its ID
 //
 Function NewSession() Export
 	
@@ -25,7 +23,7 @@ Function NewSession() Export
 	Return Session;
 EndFunction
 
-// Gets a session status: Running, Done, or Error.
+// Gets the session status: Running, Successful, Error.
 //
 Function SessionStatus(Val Session) Export
 	
@@ -48,7 +46,7 @@ Function SessionStatus(Val Session) Export
 	
 EndFunction
 
-// Sets the CompletedSuccessfully flag value to True for a session passed to the procedure
+// Marks the successful completion of the session
 //
 Procedure CommitSuccessfulSession(Val Session) Export
 	
@@ -61,7 +59,7 @@ Procedure CommitSuccessfulSession(Val Session) Export
 	
 EndProcedure
 
-// Sets the CompletedWithError flag value to False for a session passed to the procedure
+// Notes the failure of the session
 //
 Procedure CommitUnsuccessfulSession(Val Session, Val ErrorDescription = "") Export
 	
@@ -75,7 +73,7 @@ Procedure CommitUnsuccessfulSession(Val Session, Val ErrorDescription = "") Expo
 	
 EndProcedure
 
-// Saves session data and sets the CompletedSuccessfully flag value to True
+// Saves session data and marks the successful completion of the session
 //
 Procedure SaveSessionData(Val Session, Data) Export
 	
@@ -88,7 +86,7 @@ Procedure SaveSessionData(Val Session, Data) Export
 	
 EndProcedure
 
-// Reads session data and deletes the session from the infobase.
+// Retrieves session data and deletes the session from the database
 //
 Function GetSessionData(Val Session) Export
 	
@@ -123,7 +121,7 @@ Function GetSessionData(Val Session) Export
 	
 EndFunction
 
-// Gets details of session errors.
+// 
 //
 Function SessionErrorDetails(Val Session) Export
 	
@@ -141,7 +139,7 @@ Function SessionErrorDetails(Val Session) Export
 	
 EndFunction
 
-// Auxiliary procedures and functions
+// 
 
 Function RecordMessagesExchangeSession(QueryText, Session)
 	

@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Gets a structure with description of a task execution form.
+// Get a structure with a description of the task completion form.
 //
 // Parameters:
 //  TaskRef - TaskRef.PerformerTask
@@ -38,17 +36,17 @@ Function TaskExecutionForm(Val TaskRef) Export
 	
 EndFunction
 
-// Checks whether the report cell contains a reference to the task and returns details value in
-// the DetailsValue parameter.
+// Checks whether the report cell contains a link to the task and the parameter
+// The decryption value returns the decryption value.
 //
 // Parameters:
-//  Details             - String - a cell name.
-//  ReportDetailsData - String - address in temporary storage.
+//  Details             - String -  cell name.
+//  ReportDetailsData - String -  the address in the temporary storage.
 //  DetailsValue     - TaskRef.PerformerTask
-//                          - Arbitrary - details value from the cell.
+//                          - Arbitrary - 
 // 
 // Returns:
-//  Boolean - True if it is a task to an assignee.
+//  Boolean - 
 //
 Function IsPerformerTask(Val Details, Val ReportDetailsData, DetailsValue) Export
 	
@@ -58,14 +56,14 @@ Function IsPerformerTask(Val Details, Val ReportDetailsData, DetailsValue) Expor
 	
 EndFunction
 
-// Completes the TaskRef task. If necessary executes
-// DefaultCompletionHandler in the manager module
-// of the business process where the TaskRef task belongs.
+// To complete Segacasino, if necessary, by executing the handler.
+// Processing the default execution of the business process Manager module
+// that the link Task belongs to.
 //
 // Parameters:
 //  TaskRef        - TaskRef
-//  DefaultAction - Boolean       - shows whether it is required to call procedure 
-//                                       DefaultCompletionHandler for the task business process.
+//  DefaultAction - Boolean       -  indicates whether the procedure needs to be called 
+//                                       Processing the execution of the task's default business process.
 //
 Procedure ExecuteTask(TaskRef, DefaultAction = False) Export
 	
@@ -97,20 +95,20 @@ Procedure ExecuteTask(TaskRef, DefaultAction = False) Export
 	
 EndProcedure
 
-// Forwards the TaskArray tasks to a new assignee specified in the ForwardingInfo structure.
+// Redirect the tasks of the task array to the new executor specified in the Infooperdirection structure.
 //
 // Parameters:
 //  RedirectedTasks_SSLs - Array of TaskRef.PerformerTask
-//  ForwardingInfo   - Structure - new values of task addressing attributes.
-//  IsCheckOnly         - Boolean    - If True, the function does not actually forward
-//                                       tasks, it only checks 
-//                                       whether they can be forwarded.
-//  RedirectedTasks - Array of TaskRef.PerformerTask - forwarded tasks.
-//                                       The array elements might not exactly match 
-//                                       the TasksToRedirect elements if some tasks cannot be forwarded.
+//  ForwardingInfo   - Structure -  the new values of the details of addressing the problem.
+//  IsCheckOnly         - Boolean    -  if True, the function will not perform
+//                                       physical task redirection, but will only 
+//                                       check whether redirection is possible.
+//  RedirectedTasks - Array of TaskRef.PerformerTask -  redirected tasks.
+//                                       It may differ in the composition of the elements from the array 
+//                                       Perenapravlyayutsya, if not all goals were you able to redirect.
 //
 // Returns:
-//   Boolean   - True if the tasks are forwarded successfully.
+//   Boolean   - 
 //
 Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckOnly = False,
 	RedirectedTasks = Undefined) Export
@@ -154,7 +152,7 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckO
 				RedirectedTasks = New Array();
 			EndIf;
 			
-			// Don't set a deadlock on "Task" to allow forwarding the task from its form. 
+			//  
 			// 
 			TaskObject = Task.Key.GetObject();
 			
@@ -232,7 +230,7 @@ Procedure ActivateBusinessProcesses(Var_BusinessProcesses) Export
 	
 EndProcedure
 
-// Marks the specified business processes as active.
+// Marks the specified business process as active.
 //
 // Parameters:
 //  BusinessProcess - DefinedType.BusinessProcess
@@ -263,7 +261,7 @@ Procedure ActivateBusinessProcess(BusinessProcess) Export
 			
 		Object.Lock();
 		Object.State = Enums.BusinessProcessStates.Running;
-		Object.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
+		Object.Write(); // 
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -272,7 +270,7 @@ Procedure ActivateBusinessProcess(BusinessProcess) Export
 	
 EndProcedure
 
-// Marks the specified business processes as suspended.
+// Marks the specified business processes as stopped.
 //
 // Parameters:
 //  Var_BusinessProcesses - Array of DefinedType.BusinessProcess
@@ -296,7 +294,7 @@ Procedure StopBusinessProcesses(Var_BusinessProcesses) Export
 	
 EndProcedure
 
-// Marks the specified business process as suspended.
+// Marks the specified business process as stopped.
 //
 // Parameters:
 //  BusinessProcess - DefinedType.BusinessProcess
@@ -327,7 +325,7 @@ Procedure StopBusinessProcess(BusinessProcess) Export
 		
 		Object.Lock();
 		Object.State = Enums.BusinessProcessStates.Suspended;
-		Object.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
+		Object.Write(); // 
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -336,7 +334,7 @@ Procedure StopBusinessProcess(BusinessProcess) Export
 	
 EndProcedure
 
-// Marks the specified task as accepted for execution.
+// Marks the specified tasks as accepted for execution.
 //
 // Parameters:
 //   Var_Tasks - Array of TaskRef.PerformerTask
@@ -366,7 +364,7 @@ Procedure AcceptTasksForExecution(Var_Tasks) Export
 			If Not ValueIsFilled(TaskObject.Performer) Then
 				TaskObject.Performer = Users.AuthorizedUser();
 			EndIf;
-			TaskObject.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockTasks.
+			TaskObject.Write(); // 
 			
 			NewTaskArray.Add(Task);
 			
@@ -411,7 +409,7 @@ Procedure CancelAcceptTasksForExecution(Var_Tasks) Export
 			If Not TaskObject.PerformerRole.IsEmpty() Then
 				TaskObject.Performer = Undefined;
 			EndIf;
-			TaskObject.Write(); // CAC:1327 The lock is set earlier in the BusinessProcessesAndTasksServer.LockTasks.
+			TaskObject.Write(); // 
 			
 			NewTaskArray.Add(Task);
 			
@@ -426,7 +424,7 @@ Procedure CancelAcceptTasksForExecution(Var_Tasks) Export
 	
 EndProcedure
 
-// Checks whether the specified task is the head one.
+// Checks whether the specified task is the leading one.
 //
 // Parameters:
 //  TaskRef  - TaskRef.PerformerTask
@@ -442,13 +440,13 @@ Function IsHeadTask(TaskRef) Export
 	
 EndFunction
 
-// Generates a choice list for picking assignees in input fields of flexible type ("User" and "Role").
+// 
 //
 // Parameters:
-//  Text - String - a text fragment to search for possible assignees.
+//  Text - String -  the text fragment to search for the possible perpetrators.
 // 
 // Returns:
-//  ValueList - a selection list containing possible assignees.
+//  ValueList - 
 //
 Function GeneratePerformerChoiceData(Text) Export
 	

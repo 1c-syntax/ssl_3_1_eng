@@ -1,19 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Determines a prefix of object codes and numbers of default infobase.
+// Defines the default prefix for codes and numbers of database objects.
 //
 // Parameters:
-//  Prefix - String, 2 - a prefix of object codes and numbers of default infobase.
+//  Prefix - String, 2 -  prefix of codes and numbers of information database objects by default.
 //
 Procedure OnDetermineDefaultInfobasePrefix(Prefix) Export
 	
@@ -21,17 +19,17 @@ Procedure OnDetermineDefaultInfobasePrefix(Prefix) Export
 	
 EndProcedure
 
-// Determines the list of exchange plans that use data exchange subsystem functionality.
+// Defines a list of exchange plans that use the functionality of the data exchange subsystem.
 //
 // Parameters:
-//  SubsystemExchangePlans - Array of MetadataObjectExchangePlan - an array of configuration exchange plans
-//                          that use data exchange subsystem functionality.
-//                          Array elements are exchange plan metadata objects.
+//  SubsystemExchangePlans - Array of MetadataObjectExchangePlan -  array of configuration exchange plans
+//                          that use the functionality of the data exchange subsystem.
+//                          The elements of the array are objects metadata exchange plans.
 //
 // Example:
-//   SubsystemExchangePlans.Add(Metadata.ExchangePlans.ExchangeWithoutConversionRules);
-//   SubsystemExchangePlans.Add(Metadata.ExchangePlans.ExchangeWithStandardSubsystemsLibrary);
-//   SubsystemExchangePlans.Add(Metadata.ExchangePlans.DistributedInfobase);
+//   Playonlinepokerup.Add (Metadata.Exchange plans.Exchange of usesreferencesexternal links);
+//   Playonlinepokerup.Add (Metadata.Exchange plans.Exchange of standardsystem libraries);
+//   Playonlinepokerup.Add (Metadata.Exchange plans.Distributed information database);
 //
 Procedure GetExchangePlans(SubsystemExchangePlans) Export
 	
@@ -39,46 +37,46 @@ Procedure GetExchangePlans(SubsystemExchangePlans) Export
 	
 EndProcedure
 
-// This procedure is called on data export.
-// It is used for overriding the standard data export handler.
-// This handler must implement the data export logic:
-// selecting data to be exported, serializing the data to a message file or to a stream.
-// After the running the handler, the data exchange subsystem sends exported data to recipient.
-// Messages to be exported can be of arbitrary format.
-// If errors occur on sending the data, handler execution must be stopped using the Raise
-// method with an error description.
+// Handler for uploading data.
+// Used to override the default processing of discharge data.
+// This handler must implement data upload logic:
+// fetching data for uploading, serializing data to a message file, or serializing data to a stream.
+// After executing the handler, the uploaded data will be sent to the recipient by the data exchange subsystem.
+// The message format for uploading can be arbitrary.
+// In case of errors when sending data, you must interrupt the execution of the handler
+// use the call Exception method with the error description.
 //
 // Parameters:
 //
-//  StandardProcessing - Boolean - a flag indicating whether the standard (system) event processing is executed is passed to this
-//                                 parameter.
-//   If this parameter is set to False in the processing procedure, standard
-//   processing is skipped. Canceling standard processing does not mean canceling the operation.
-//   Default value is True.
+//  StandardProcessing - Boolean -  this parameter is passed to indicate that standard (system)
+//                                 event processing is performed.
+//   If this parameter is set to False in the body of the handler procedure, standard
+//   event processing will not be performed. Rejecting standard processing does not cancel the action.
+//   The default value is True.
 //
-//  Recipient - ExchangePlanRef - an exchange plan node, for which data is being exported.
+//  Recipient - ExchangePlanRef -  the exchange plan node for which data is being uploaded.
 //
-//  MessageFileName - String - a name of the file to export data to.
-//   If this parameter is filled, the platform expects
-//   data to be exported to file. After exporting, the platform sends data from this file.
-//   If this parameter is empty, the system expects data to be exported to the MessageData parameter.
+//  MessageFileName - String -  name of the file to upload data to.
+//   If this parameter is filled in, the system expects
+//   the data to be uploaded to a file. After uploading, the system will send data from this file.
+//   If the parameter is empty, the system expects data to be uploaded to the message Data parameter.
 //
-//  MessageData - Arbitrary - if the MessageFileName parameter is empty,
-//   the system expects data to be exported to this parameter.
+//  MessageData - Arbitrary -  if the message File_name parameter is empty,
+//   the system expects data to be uploaded to this parameter.
 //
-//  TransactionItemsCount - Number - defines the maximum number of data items
-//   that can be placed in the message within a single database transaction.
-//   You can implement the algorithms
-//   of transaction locks for the data being exported in this handler.
-//   The value of this parameter is set in the data exchange subsystem settings.
+//  TransactionItemsCount - Number -  specifies the maximum number of data items
+//   that can be placed in a message within a single database transaction.
+//   If necessary, the handler should implement the logic
+//   of setting transactional locks on the uploaded data.
+//   The parameter value is set in the settings of the data exchange subsystem.
 //
-//  EventLogEventName - String - a name of an event log entry for the current data exchange session.
-//   This parameter is used to determine the event name (errors, warnings, information) when writing error details to the event log.
-//   It matches the EventName parameter of the WriteLogEvent method of the global context.
+//  EventLogEventName - String -  name of the log event for the current data exchange session.
+//   Used for logging data (errors, warnings, and information) with the specified event name.
+//   Corresponds to the EventName parameter of the global context method of log Recordingregistration.
 //
-//  SentObjectsCount - Number - a counter of sent objects.
-//   It is used to count the number of sent objects.
-//   The number is then written to the exchange protocol.
+//  SentObjectsCount - Number -  counter of sent objects.
+//   Used to determine the number of objects sent
+//   for subsequent fixation in the exchange Protocol.
 //
 Procedure OnDataExport(StandardProcessing,
 								Recipient,
@@ -90,45 +88,45 @@ Procedure OnDataExport(StandardProcessing,
 	
 EndProcedure
 
-// This procedure is called on data import.
-// It is used for overriding the standard data import handler.
-// This handler is to implement the following data export logic:
-// required validations before importing data, serialization of data from message file or from
-// stream.
-// Messages to be imported can be of arbitrary format.
-// If errors occur on receiving data, the handler execution must be stopped using the Raise
-// method with an error description.
+// Handler for when data is loaded.
+// Used to override the default processing of the load data.
+// This handler must implement data loading logic:
+// necessary checks before loading data, serialization of data from a message file, or serialization of data from
+// a stream.
+// The format of the message to upload can be arbitrary.
+// In case of errors when receiving data, the handler should be aborted
+// use the call Exception method with an error description.
 //
 // Parameters:
 //
-//  StandardProcessing - Boolean - a flag indicating whether
-//   the standard (system) event processing is executed is passed to this parameter.
-//   If this parameter is set to False in the processing procedure,
-//   standard processing is skipped.
-//   Canceling standard processing does not mean canceling the operation.
-//   The default value is True.
+//  StandardProcessing - Boolean -  this parameter is passed to indicate
+//   that standard (system) event processing is performed.
+//   If this parameter is set to False in the body of the handler procedure,
+//   standard event processing will not be performed.
+//   Rejecting standard processing does not cancel the action.
+//   The default value is: True.
 //
-//  Sender - ExchangePlanRef - an exchange plan node, for which data is imported.
+//  Sender - ExchangePlanRef - 
 //
-//  MessageFileName - String - a name of the file to export data from.
-//   If this parameter is empty, data to be imported is passed using the MessageData parameter.
+//  MessageFileName - String -  the name of the file from which to load data.
+//   If the parameter is not filled in, the data to upload is passed through the message Data parameter.
 //
-//  MessageData - Arbitrary - this parameter contains the data to be imported.
-//   If the MessageFileName parameter is empty,
-//   the data is to be imported using this parameter.
+//  MessageData - Arbitrary -  this parameter contains the data to load.
+//   If the message File_name parameter is empty,
+//   data for uploading is passed through this parameter.
 //
-//  TransactionItemsCount - Number - defines the maximum number of data items
-//   that can be read from a message and recorded to the infobase within a single transaction.
-//   If it is necessary, you can implement algorithms of data recording in transaction.
-//   The value of this parameter is set in the data exchange subsystem settings.
+//  TransactionItemsCount - Number -  specifies the maximum number of data elements
+//   that can be read from a message and written to the database in a single transaction.
+//   If necessary, the handler should implement the logic for writing data in a transaction.
+//   The parameter value is set in the settings of the data exchange subsystem.
 //
-//  EventLogEventName - String - a name of an event log entry for the current data exchange session.
-//   This parameter is used to determine the event name (errors, warnings, information) when writing error details to the event log.
-//   It matches the EventName parameter of the WriteLogEvent method of the global context.
+//  EventLogEventName - String -  name of the log event for the current data exchange session.
+//   Used for logging data (errors, warnings, and information) with the specified event name.
+//   Corresponds to the EventName parameter of the global context method of log Recordingregistration.
 //
-//  ReceivedObjectsCount - Number -a counter of received objects.
-//   It is used to store the number of imported objects
-//   in the exchange protocol.
+//  ReceivedObjectsCount - Number -counter of received objects.
+//   Used to determine the number of uploaded objects
+//   for subsequent commit in the exchange Protocol.
 //
 Procedure OnDataImport(StandardProcessing,
 								Sender,
@@ -140,32 +138,32 @@ Procedure OnDataImport(StandardProcessing,
 	
 EndProcedure
 
-// Changes registration handler for initial data export.
-// It is used for overriding the standard change registration handler.
-// Standard processing implies recording all data from the exchange plan composition.
-// This handler can improve initial data export performance
-// using exchange plan filters for restricting data migration.
-// Registering changes with data migration restriction filters must be implemented in this handler.
-// You can use the
-// DataExchangeServer.RegisterDataByExportStartDateAndCompany
-// universal procedure.
-// The handler cannot be used for performing exchange
-// in a distributed infobase.
-// Using this handler, you can improve
-// initial data export performance up to 2-4 times.
+// Handler for registering changes for the initial data upload.
+// Used to override the standard change registration processing.
+// During standard processing, changes to all data from the exchange plan will be registered.
+// If the exchange plan has data migration restriction filters,
+// using this handler will improve the performance of the initial data upload.
+// In the handler, you should implement change registration based on data migration restriction filters.
+// If the exchange plan uses migration restrictions by date or by date and company,
+// you can use the universal procedure
+// Abendanimation.Register your data to be sent to the shipping companies.
+// The handler is only used for universal data exchange using exchange rules
+// and for universal data exchange without exchange rules, and is not used for exchanges in the rib.
+// Using the handler allows you to increase the performance
+// of the initial data upload by an average of 2-4 times.
 //
 // Parameters:
 //
-//   Recipient - ExchangePlanRef - an exchange plan node to which data is to be exported.
-//   StandardProcessing - Boolean - a flag indicating whether the standard
-//                          (system) event processing is executed is passed to this parameter.
-//                          If this parameter is set to False
-//                          in the processing procedure, standard processing is skipped.
-//                          Canceling standard processing does not mean canceling the operation.
-//                          Default value is True.
+//   Recipient - ExchangePlanRef -  the site plan of exchange to which you want to upload data.
+//   StandardProcessing - Boolean -  this parameter is passed to indicate that standard
+//                          (system) event processing is performed.
+//                          If this parameter is set to False in the body of the handler procedure,
+//                          standard event processing will not be performed.
+//                          Rejecting standard processing does not cancel the action.
+//                          The default value is True.
 //   Filter - Array of MetadataObject
-//         - MetadataObject - determines a filter for the metadata objects
-//           whose changes are to be registered.
+//         - MetadataObject - 
+//           
 //
 Procedure InitialDataExportChangesRegistration(Val Recipient, StandardProcessing, Filter) Export
 	
@@ -173,41 +171,41 @@ Procedure InitialDataExportChangesRegistration(Val Recipient, StandardProcessing
 	
 EndProcedure
 
-// This procedure is called when a data change conflict is detected.
-// The event occurs if an object is modified both in the current infobase and in the correspondent infobase,
-// and the modifications are different.
-// It overrides the standard data change conflict processing.
-// The standard processing of conflicts implies receiving changes from the master node
-// and ignoring changes from a subordinate node.
-// To change the standard processing,
-// redefine the ItemReceive parameter.
-// In this handler, you can specify the algorithms of resolving conflicts for individual infobase objects,
-// or infobase object properties, or source nodes, or the entire infobase, or
-// all data items.
-// This handler is called on data exchange execution of any type
-// (on data exchange in a distributed infobase and on data exchange based on exchange rules).
+// Handler when the conflicting changes to the data.
+// The event occurs when data is received if the same object
+// that was received from the exchange message is changed in the current information database and these objects are different.
+// Used to override the standard handling of data change collisions.
+// Standard collision handling involves receiving changes from the master node
+// and ignoring changes received from the slave node.
+// This handler must override the get Element parameter
+// if you want to change the default behavior.
+// In this handler, you can set the behavior of the system when there is a collision of data changes in the data section,
+// in the section of data properties, in the section of senders, or for the entire information database as a whole, or for all data as a
+// whole.
+// The handler is called both in the exchange in the distributed information database (rib),
+// and in all other exchanges, including exchanges according to the exchange rules.
 //
 // Parameters:
-//  DataElement - Arbitrary - a data item that is read from the data exchange message.
-//                  Data items can be ConstantValueManager.<Constant name>,
-//                  infobase objects (except for Object deletion), register record sets,
+//  DataElement - Arbitrary -  a data element read from a data exchange message.
+//                  Data elements can be Contentmanagernet.< Constant name>,
+//                  database objects (other than the "Delete object" object), sets of register entries,
 //                  sequences, or recalculations.
 //
-//  ItemReceive - DataItemReceive - defines whether a read data item is to be recorded to the infobase
-//                                               if a conflict occurs.
-//   On calling the handler, the default parameter value is Auto,
-//   and this implies receiving data from the master node and ignoring data from the subordinate node.
-//   You can redefine the parameter value in the handler.
+//  ItemReceive - DataItemReceive -  determines whether the read data item will be written to the database
+//                                               or not in the event of a collision.
+//   When calling the handler, the parameter is set to Auto, which means default actions
+//   (accept from the master, ignore from the slave).
+//   The value of this parameter can be overridden in the handler.
 //
-//  Sender - ExchangePlanRef - an exchange plan node on behalf of which data is received.
+//  Sender - ExchangePlanRef -  the exchange plan node that receives data on behalf of.
 //
-//  GetDataFromMasterNode - Boolean -  in a distributed infobase, this flag shows whether data is received from the master
+//  GetDataFromMasterNode - Boolean -    in a distributed information database, it indicates whether data is received from the main
 //                                node.
-//   True - data is received from the master node. False - data is received from a subordinate node.
-//   In exchanges based on exchange rules, its value is True if the object priority
-//   specified in the exchange rules and used for resolving conflicts is set to Higher (the default value) or not specified;
-//   This parameter value is False if the object priority is set to Lower or Equal.
-//   In other cases, the parameter value is True.
+//   True - data is received from the master node, False - from the subordinate node.
+//   In exchanges based on exchange rules, it is set to True if the object's priority
+//   in case of collision is set to "Higher" (the default value) or not specified in the exchange rules;
+//   False - if the object's priority in the exchange rules is set to "Lower" or "the Same" in case of a collision.
+//   In all other types of data exchange, this parameter is set to True.
 //
 Procedure OnDataChangeConflict(Val DataElement, ItemReceive, Val Sender, Val GetDataFromMasterNode) Export
 	
@@ -215,21 +213,21 @@ Procedure OnDataChangeConflict(Val DataElement, ItemReceive, Val Sender, Val Get
 	
 EndProcedure
 
-// The handler of infobase initial setup after creating a DIB node.
-// It is called on the first start of the subordinate DIB node (including SWP).
+// Handler for the initial configuration of the IB after creating the rib node.
+// Called when the subordinate rib node is first started (including the APM).
 //
 Procedure OnSetUpSubordinateDIBNode() Export
 	
 EndProcedure
 
-// Receives the available versions of universal format EnterpriseData.
+// Retrieves available versions of the universal EnterpriseData format.
 //
 // Parameters:
-//   FormatVersions - Map - map of format version number
-//                   to the common module where the export or import handlers for this version are located.
+//   FormatVersions - Map -  matches the format version number
+//                   to the General module that contains the upload/download handlers for this version.
 //
 // Example:
-//   FormatVersions.Insert("1.2", <NameOfCommonModuleWithConversionRules>);
+//   Version of the format.Insert ("1.2", <General Modulespravilamiconversion Name>);
 //
 Procedure OnGetAvailableFormatVersions(FormatVersions) Export
 	
@@ -237,12 +235,12 @@ Procedure OnGetAvailableFormatVersions(FormatVersions) Export
 	
 EndProcedure
 
-// Receives the available extensions of universal format EnterpriseData.
+// Retrieves available extensions for the universal EnterpriseData format.
 //
 // Parameters:
 //   FormatExtensions - Map of KeyAndValue:
-//     * Key - String - URL of the format extension schema namespace.
-//     * Value - String - the number of the extended format version.
+//     * Key - String -  URI of the format extension schema namespace.
+//     * Value - String -  number of the extensible version of the format.
 //
 Procedure OnGetAvailableFormatExtensions(FormatExtensions) Export
 	
@@ -250,14 +248,14 @@ Procedure OnGetAvailableFormatExtensions(FormatExtensions) Export
 	
 EndProcedure
 
-// Intended for being called by "OnWrite" event of the "IsStandaloneWorkplace" constant.
-// It allows to override the standard data processor when the constant value is modified.
+// 
+// 
 //
 // Parameters:
-//   PreviousValue - Boolean - Value of constant IsStandaloneWorkplace before change.
-//   NewCurrent - Boolean - New value of constant IsStandaloneWorkplace.
-//   StandardProcessing - Boolean - Disable standard logic upon constant write. 
-//                                   By default, True.
+//   PreviousValue - Boolean - 
+//   NewCurrent - Boolean - 
+//   StandardProcessing - Boolean -  
+//                                   
 //
 Procedure WhenChangingOfflineModeOption(PreviousValue, NewCurrent, StandardProcessing) Export
 	
@@ -265,9 +263,8 @@ Procedure WhenChangingOfflineModeOption(PreviousValue, NewCurrent, StandardProce
 	
 EndProcedure
 
-// Populates an array of types that must be excluded from the scope of the troubleshooting check 
+//  
 // (See InformationRegisters.DataExchangeResults.RecordIssueResolved)
-// .
 //
 // Parameters:
 //  Types - Array of MetadataObject 
@@ -278,19 +275,59 @@ Procedure WhenFillingInTypesExcludedFromCheckProblemIsFixed(Types) Export
 	
 EndProcedure
 
+// 
+//  
+// 
+//
+// Parameters:
+//   ExchangePlanName - String -  
+//                    
+//   SettingID- String - 
+//   FoundNameOfExchangePlan - String - 
+//       
+//       
+//       
+//
+Procedure WhenSearchingForNameOfExchangePlanThroughUniversalFormat(
+	ExchangePlanName, SettingID, FoundNameOfExchangePlan) Export
+	
+	
+
+EndProcedure
+
+// 
+// 
+//
+// Parameters:
+//   ExchangePlanNodeObject - ExchangePlanObject - 
+//   Result - ValueTable - :
+//      * Order - Number
+//      * ObjectName - String - 
+//      * ObjectTypeString - String
+//      * ExchangePlanName - String
+//      * TabularSectionName - String - 
+//      * RegistrationAttributes - String - 
+//      * RegistrationAttributesStructure - Structure:
+//         * Key - String - 
+//         * Value - AnyRef - 
+//
+Procedure WhenRedefiningAttributesOfReferenceTypeOfExchangePlanSSUBAsset(ExchangePlanNodeObject, Result) Export 
+
+EndProcedure
+
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Instead, use the "Global" parameter to search for an exchange plan. 
-// See the "OnGetSettings" in the universal exchange plan manager.
-// It is called when an IFDE exchange plan's name is being checked.
-// It allows the setup of synchronization between "EnterpriseData" exchange plans with unmatched names.
+// Deprecated. 
+// 
+// 
+// 
 // 
 // Parameters:
-//   ExchangePlanName - String - The name of the IFDE exchange plan whose 
-//                             counterpart is being searched for in the configuration metadata.
-//   SettingsMode - String - A setting option id. Intended for search refining. It is optional.
-//                               (For example, you can skip it in case of checking the format of an exchange message).
-//   ExchangePlanIsRecognized - Boolean - Flag indicating whether the passed exchange plan's name is recognized and you can proceed further.
+//   ExchangePlanName - String -  
+//                             
+//   SettingsMode - String - 
+//                               
+//   ExchangePlanIsRecognized - Boolean - 
 //
 Procedure WhenCheckingCorrectnessOfNameOfEnterpriseDataExchangePlan(ExchangePlanName, SettingsMode, ExchangePlanIsRecognized) Export
 	

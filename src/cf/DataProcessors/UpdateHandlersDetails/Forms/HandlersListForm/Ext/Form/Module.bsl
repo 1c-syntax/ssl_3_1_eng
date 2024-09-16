@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -132,7 +130,7 @@ Procedure FormClosingCompletion(Result, AdditionalParameters) Export
 		WriteDataToDisk();
 		Close();
 	ElsIf Result = DialogReturnCode.Cancel Then
-		// No action required.
+		// 
 	Else
 		Modified = False;
 		Close();
@@ -878,7 +876,7 @@ Function AddModuleProcedure(Code)
 	|%1";
 	ProcedureText = StringFunctionsClientServer.SubstituteParametersToString(ProcedureComment, Code.ProcedureText);
 	
-	// If the module is empty, populate it from an empty module template (applicable for manager modules).
+	// 
 	If IsManagerModule And ModuleStrings.Count() = 0 Then
 		EmptyModuleManager = 
 		"#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -914,7 +912,7 @@ Function AddModuleProcedure(Code)
 				ThereIsALibraryDescriptionProcedure = True;
 				Break;
 			EndIf;
-			// "The OnAddUpdateHandlers%1(Handlers) Export"
+			// 
 			TitleTemplate1 = StrReplace(SimpleDescriptionProcedureTitle, "(", "%1(");
 			FoundTheProcedureTitle = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, LibraryName);
 			If ModuleStrings.Find(FoundTheProcedureTitle) <> Undefined Then
@@ -927,15 +925,15 @@ Function AddModuleProcedure(Code)
 	ThereIsAPassedProcedure = ModuleStrings.Find(Code.ProcedureTitle) <> Undefined;
 	PassedASimpleProcedure = Code.ProcedureTitle = SimpleDescriptionProcedureTitle;
 	
-	// If the procedure is found, exit.
+	// 
 	If ThereIsAPassedProcedure
 		Or HasDetailsProcedure
 		Or ThereIsALibraryDescriptionProcedure And PassedASimpleProcedure Then
 		Return ProcedureAdded;
 	EndIf;
 	
-	// If either "#Region NewInfobaseVersionsUpdate" or "#Region InfobaseUpdate" is present,
-	// then insert this code right at the top of the region.
+	// 
+	// 
 	IndexOf = ModuleStrings.Find("#Area InfobaseUpdate");
 	If IndexOf <> Undefined Then
 		IndexOf = IndexOf + 1;
@@ -948,7 +946,7 @@ Function AddModuleProcedure(Code)
 		ProcedureAdded = True;
 	EndIf;
 	
-	// If a procedure handler is present, insert before it.
+	// 
 	If Not ProcedureAdded And Not IsBlankString(Code.ProcessingProcedure) Then
 		Names = StrSplit(Code.ProcessingProcedure, ".");
 		UpdateProcedureName = Names[Names.UBound()];
@@ -972,7 +970,7 @@ Function AddModuleProcedure(Code)
 	|
 	|#EndRegion";
 	
-	// If no update area and handler procedure are found, search for Private and insert in it as the first area.
+	// 
 	If Not ProcedureAdded And Not IsBlankString(Code.ProcessingProcedure) Then
 		IndexOf = ModuleStrings.Find("#Area Private");
 		If IndexOf <> Undefined Then
@@ -988,7 +986,7 @@ Function AddModuleProcedure(Code)
 		EndIf;
 	EndIf;
 	
-	// If no update area, handler procedure, and the Private area are found, insert to the module's end.
+	// 
 	If Not ProcedureAdded And Not IsBlankString(Code.ProcessingProcedure) Then
 		
 		AreaText = StringFunctionsClientServer.SubstituteParametersToString(AreaText, ProcedureText);
@@ -1086,7 +1084,7 @@ Procedure ReplaceModuleProcedure(Code)
 		#EndRegion
 		
 		#Region ReplaceComment
-		// ACC:1297-off Comment in configuration code.
+		// 
 		If Code.IsDetailsProcedure 
 			And StrFind(ModuleString, "--// Adds In list procedures-handlers updates data_ IB") > 0 Then
 			ModuleString = SkipLinesUpTo(Module, "Handlers - see. InfobaseUpdate.NewUpdateHandlerTable");
@@ -1095,7 +1093,7 @@ Procedure ReplaceModuleProcedure(Code)
 				ModuleString = "// see. InfobaseUpdateSSL.OnAddUpdateHandlers";
 			EndIf;
 		EndIf;
-		// ACC:1297-on
+		// 
 		#EndRegion
 		
 		#Region OnAddUpdateHandlers
@@ -2192,7 +2190,7 @@ Procedure AddModuleVersion(ModulesVersions, ModuleHandlers)
 		LongDesc.Version = Maximum.Version;
 	EndIf;
 	
-	// Check module's handlers for the maximum build number.
+	// 
 	If ValueIsFilled(Maximum.Version) Then
 		NumbersMax = StrSplit(Maximum.Version, ".");
 	Else
@@ -2212,7 +2210,7 @@ Procedure AddModuleVersion(ModulesVersions, ModuleHandlers)
 		NewConfigurationVersion = FirstConfigurationDigit + "." + StrConcat(NumbersMax, ".");
 	EndIf;
 	
-	// Check the build number the user provided.
+	// 
 	ConfigurationNumbers = StrSplit(NewConfigurationVersion, ".");
 	If IsLibraryToDevelop
 		And NewConfigurationBuildNumber > Number(ConfigurationNumbers[3]) Then
@@ -2893,7 +2891,7 @@ Function FillObjectsTags(ObjectNameAttribute, HandlerObjects, CodeLayout, Extern
 				ExternalTags = UsedObject.Tags1 + ?(IsBlankString(UsedObject.Tags1),"",",") + UsedObject.UpdateModuleTags;
 				UsedObject.UpdateModuleTags = ExternalTags;
 			EndIf;
-		EndIf;// Object's tags are found.
+		EndIf;// 
 	EndDo;
 	SortFields = ObjectNameAttribute;
 	If SortByTags Then
@@ -2926,7 +2924,7 @@ Function FillModulesTagsBySubsystems(ManagersModules, CodeLayout)
 				EndIf;
 			EndDo;
 			ObjectModule.ExternalTags = StrConcat(ModuleTags, ",");
-		EndIf;// Object's tags are found.
+		EndIf;// 
 	EndDo;
 	ManagersModules.Sort(ObjectNameAttribute);
 	
@@ -2952,7 +2950,7 @@ Function UnnecessaryTagsInArea(ExternalTags, CodeLayout)
 		EndDo;
 	EndDo;
 	CommonClientServer.SupplementArray(UnnecessaryTags, NestedTags, True);
-	// Don't add pivot library tags to the module.
+	// 
 	NestedLibrariesTags = CodeLayout.Tags1.NestedLibraries[CodeLayout.ConfigurationName];
 	If NestedLibrariesTags <> Undefined And Not CodeLayout.IsManagerModule Then
 		CommonClientServer.SupplementArray(UnnecessaryTags, NestedLibrariesTags, True);
@@ -3271,8 +3269,8 @@ EndProcedure
 // Parameters:
 //   Settings - Arbitrary
 // Returns:
-//   KeyAndValue - Details:
-//   * Key - String - tag description
+//   KeyAndValue - LongDesc:
+//   * Key - String -  tag name
 //   * Value - See TagDetails
 //
 &AtServer
@@ -3639,7 +3637,7 @@ Procedure AddSubsystemObjects(ConfigurationObjects, Subsystem, RussianClassesNam
 EndProcedure
 
 &AtClient
-// Returns the mapping of Russian and English names of metadata object classes being processed.
+// 
 Function RussianClassesNames()
 	
 	Result = New Map;
@@ -3653,13 +3651,13 @@ Function RussianClassesNames()
 	Result.Insert("ChartOfCalculationTypes", "ChartOfCalculationTypes");
 	Result.Insert("ChartOfCharacteristicTypes", "ChartOfCharacteristicTypes");
 	Result.Insert("Constant", "Constant");
-	Result.Insert("CommonModule", "CommonModule");// Specified in other handlers' priority lists.
+	Result.Insert("CommonModule", "CommonModule");// 
 	Result.Insert("Document", "Document");
 	Result.Insert("ExchangePlan", "ExchangePlan");
 	Result.Insert("InformationRegister", "InformationRegister");
 	Result.Insert("Task", "Task");
 	Result.Insert("Sequence", "Sequence");
-	Result.Insert("Report", "Report");// Specified in locked objects.
+	Result.Insert("Report", "Report");// 
 	
 	Return Result;
 	
@@ -3880,7 +3878,7 @@ Function CreateErrorDescription()
 	Error.Insert("PlaybackOrder", "");
 	Error.Insert("ExpectedBehavior", "");
 	Error.Insert("EmployeeResponsible", "");
-	Error.Insert("DetectionCredibility", "Low"); // High or Low.
+	Error.Insert("DetectionCredibility", "Low"); // 
 	Error.Insert("RepositoryAddress", "");
 	
 	#If Client Or ThickClientManagedApplication Or ThinClient Or WebClient  Then
@@ -3897,8 +3895,8 @@ Function CreateErrorDescription()
 	#EndIf
 	
 	Error.Insert("DetectionDate",   Date(1,1,1));
-	Error.Insert("MetadataObjects", New Array); // To allow adding an array of metadata objects.
-	// Register for a metadata object.
+	Error.Insert("MetadataObjects", New Array); // 
+	// 
 	Error.Insert("MetadataObject", "");
 	Error.Insert("LocationClarification", "");
 	Error.Insert("ScenarioCode", "");
@@ -4137,10 +4135,10 @@ Function GetParametersFromString(Val ParametersString1)
 		
 		FirstEqualSignPosition = StrFind(ParameterString, "=");
 		
-		// Get parameter name.
+		// 
 		ParameterName = TrimAll(Left(ParameterString, FirstEqualSignPosition - 1));
 		
-		// Get parameter value.
+		// 
 		ParameterValue = TrimAll(Mid(ParameterString, FirstEqualSignPosition + 1));
 		
 		If  Left(ParameterValue, 1) = DoubleQuotationMarksChar
@@ -4635,7 +4633,7 @@ EndFunction
 &AtServer
 Procedure CalculateQueueAtServer()
 	
-	UpdateIterations = Undefined; // InfobaseUpdateInternal.UpdateIteration();
+	UpdateIterations = Undefined; // 
 	If UpdateIterations <> Undefined Then
 		DataProcessor = DataProcessorObject2();
 		DataProcessor.FillQueueNumber(UpdateIterations);

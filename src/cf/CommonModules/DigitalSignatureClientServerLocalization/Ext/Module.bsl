@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
@@ -40,17 +38,17 @@ Procedure OnGetDefaultEnvelopeVariant(XMLEnvelope) Export
 	
 EndProcedure
 
-// Address of the revocation list located on a different resource.
+// 
 // 
 // Parameters:
-//  CertificateAuthorityName - String - Issuer's name (lower case, Latin letters)
+//  CertificateAuthorityName - String - 
 //  Certificate  - BinaryData
 //              - String
 // 
 // Returns:
 //  Structure:
-//   * InternalAddress - String - ID for searching within the infobase
-//   * ExternalAddress - String - Resource address (for downloading)
+//   * InternalAddress - String - 
+//   * ExternalAddress - String - 
 //
 Function RevocationListInternalAddress(CertificateAuthorityName, Certificate) Export
 	
@@ -80,14 +78,14 @@ Function RevocationListInternalAddress(CertificateAuthorityName, Certificate) Ex
 EndFunction
 
 // Returns:
-//  Undefined, Structure - Certificate authority data:
+//  Undefined, Structure - :
 //   * IsState - Boolean
 //   * AllowedUncredited - Boolean
-//   * ActionPeriods - Undefined, Array of Structure
+//   * ActionPeriods - 
 //     **DateFrom - Date
-//     **DateBy - Date, Undefined
-//   * ValidityEndDate - Undefined, Date
-//   * UpdateDate  - Undefined, Date
+//     **DateBy - 
+//   * ValidityEndDate - 
+//   * UpdateDate  - 
 //   * FurtherSettings - Map
 //
 Function CertificationAuthorityData(SearchValues, AccreditedCertificationCenters) Export

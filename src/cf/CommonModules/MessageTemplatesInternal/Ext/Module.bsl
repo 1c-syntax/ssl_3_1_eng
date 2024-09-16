@@ -1,16 +1,14 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Internal
 
-// Creating a message from template
+// Creating a message using a template
 // Parameters:
 //  SendOptions - Structure:
 //    * AdditionalParameters - Structure
@@ -84,14 +82,14 @@ Function GenerateMessage(SendOptions) Export
 		Return GenerateMesageByExternalDataProcessor(TemplateParameters, TemplateInfo, SendOptions);
 	EndIf;
 	
-	// Extracting parameters from the template
+	// 
 	MessageTextParameters = ParametersFromMessageText(TemplateParameters);
 	
-	// Populate parameters.
+	// 
 	Message = FillMessageParameters(TemplateParameters, MessageTextParameters, SendOptions);
 	Message.AdditionalParameters = SendOptions.AdditionalParameters;
 	
-	// Attachments.
+	// Attachments
 	If TemplateParameters.TemplateType = "MailMessage" And TemplateInfo <> Undefined Then
 		AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Message.Attachments, TemplateParameters);
 	EndIf;
@@ -102,7 +100,7 @@ Function GenerateMessage(SendOptions) Export
 		ObjectManager.OnCreateMessage(Message, SendOptions.SubjectOf, TemplateParameters);
 	EndIf;
 	
-	// Filling in parameter values
+	// 
 	MessageResult = SetAttributesValuesToMessageText(TemplateParameters, MessageTextParameters, SendOptions.SubjectOf);
 	
 	GeneratedMessage.Subject  = MessageResult.Subject;
@@ -328,10 +326,10 @@ Function HasAvailableTemplates(TemplateType, SubjectOf = Undefined) Export
 EndFunction
 
 
-// Returns a list of metadata objects the "Message templates" subsystem is attached to.
+// Returns a list of metadata objects that the message Templates subsystem is connected to.
 //
 // Returns:
-//  Array - a list of items of the MetadataObject type.
+//  Array - 
 //
 Function MessageTemplatesSources() Export
 	
@@ -351,7 +349,7 @@ Function MessageTemplatesUsed() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Configuration subsystems event handlers.
+// 
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -436,7 +434,7 @@ Procedure OnFillMetadataObjectsAccessRestrictionKinds(LongDesc) Export
 	
 EndProcedure
 
-// See also InfobaseUpdateOverridable.OnDefineSettings
+// See also updating the information base undefined.When defining settings
 //
 // Parameters:
 //  Objects - Array of MetadataObject
@@ -492,12 +490,12 @@ EndProcedure
 
 #Region Private
 
-// Returns information records about the available message sending options.
+// 
 // 
 // Returns:
 //  FixedStructure:
-//   * SMS - Boolean - If set to "True", users can create text messages from templates.
-//   * Mail - Boolean - If set to "True", users can create email messages from templates.
+//   * SMS - Boolean - 
+//   * Mail - Boolean - 
 //
 Function MessageTemplatesAvailableSendOutOptions() Export
 	
@@ -506,14 +504,14 @@ Function MessageTemplatesAvailableSendOutOptions() Export
 EndFunction 
 
 
-// Returns information on the created outgoing email. 
+// Returns information about the generated outgoing message. 
 //
 // Returns:
 //  Structure:
-//   * Sent - Boolean - indicates whether the email message is sent.
-//   * ErrorDescription - String - contains the error details when failed to send an email message.
-//   * LinkToTheEmail - Undefined - an outgoing email was not created.
-//                    - DocumentRef.OutgoingEmail - Reference to the created outgoing email.
+//   * Sent - Boolean -  indicates that the message has been sent.
+//   * ErrorDescription - String -  contains a description of the error if the message could not be sent.
+//   * LinkToTheEmail - Undefined -  the outgoing email was not created.
+//                    - DocumentRef.OutgoingEmail - 
 //
 Function EmailSendingResult() Export
 	
@@ -550,7 +548,7 @@ Function TemplateByOwner(TemplateOwner) Export
 	
 EndFunction
 
-// A function creating message parameters.
+// Function-constructor of message parameters
 // 
 // Parameters:
 //  TemplateParameters - Structure
@@ -635,7 +633,7 @@ Function TemplateInfo(TemplateParameters) Export
 	
 EndFunction
 
-// A function creating template information.
+// Constructor function for template information.
 // 
 // Returns:
 //  Structure:
@@ -702,7 +700,7 @@ Procedure DefineAttributesAndAttachmentsList(TemplateInfo, TemplateParameters)
 	
 	If ValueIsFilled(TemplateParameters.FullAssignmentTypeName) Then
 		
-		// Attributes.
+		// Attributes
 		MetadataObject3 = Common.MetadataObjectByFullName(TemplateParameters.FullAssignmentTypeName);
 		RelatedObjectAttributes = RelatedObjectAttributes(TemplateInfo.Attributes, 
 			TemplateParameters.FullAssignmentTypeName, TemplateParameters.Purpose);
@@ -1016,7 +1014,7 @@ Function CommentByTemplateDescription(TemplateDescription)
 
 EndFunction
 
-// Settings.
+// Settings
 
 Function DefineTemplatesSubjects() Export
 	DefaultTemplateName = "MessagesTemplateData";
@@ -1044,7 +1042,7 @@ Function DefineTemplatesSubjects() Export
 			If MetadataObject3.Templates.Find(DefaultTemplateName) <> Undefined Then
 				Purpose.Template = DefaultTemplateName;
 				
-				// DCS parameters.
+				// 
 				ObjectManager = Common.ObjectManagerByFullName(Purpose.Name);
 				DCSTemplate = ObjectManager.GetTemplate(DefaultTemplateName);
 				SchemaURL = PutToTempStorage(DCSTemplate);
@@ -1150,7 +1148,7 @@ Function PrepareQueryToGetTemplatesList(TemplateType, SubjectOf = Undefined, Tem
 	
 EndFunction
 
-// Base object attributes.
+// Details of the Foundation object.
 //
 // Parameters:
 //  Attributes - ValueTree:
@@ -1206,7 +1204,7 @@ Procedure AddUniqueValueToArray(Array, Value)
 	EndIf;
 EndProcedure
 
-// Print forms and attachments
+// 
 
 Procedure DefinePrintFormsList(MetadataObject3, Val TemplateParameters, ParameterName = "")
 	
@@ -1244,7 +1242,7 @@ Procedure DefinePrintFormsList(MetadataObject3, Val TemplateParameters, Paramete
 
 EndProcedure
 
-// Writes an email attachment located in a temporary storage to a file.
+// Writes an email attachment located in temporary storage to a file.
 //
 // Parameters:
 //   Owner - CatalogRef.MessageTemplates
@@ -1284,13 +1282,13 @@ Function WriteEmailAttachmentFromTempStorage(Owner, InformationRecords, FileName
 	
 EndFunction
 
-// Procedure - add a print form attachment
+// Procedure-Add an attachment to a printed form
 //
 // Parameters:
 //  SendOptions
 //  TemplateInfo
 //  Attachments
-//  TemplatesParameters
+//  Parametrisable
 //
 Procedure AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Attachments, TemplateParameters)
 	
@@ -1316,8 +1314,8 @@ Procedure AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Attachme
 			PrintParameters    = AttachmentPrintForm.PrintParameters;
 			ObjectsArray     = New Array;
 			
-			// If the message template has a defined additional (arbitrary) parameter that has its own print forms,
-			// then define the object using the name of the parameter that will be used for print form generation.
+			// 
+			// 
 			SubjectOf = SendOptions.AdditionalParameters.ArbitraryParameters[NameOfParameterWithPrintFormInTemplate];
 			If SubjectOf = Undefined Then
 				ObjectsArray.Add(SendOptions.SubjectOf);
@@ -1345,7 +1343,7 @@ Procedure AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Attachme
 					PrintFormsCollection = ModulePrintManager.PrintToFile(PrintCommand, ObjectsArray, SettingsForSaving);
 					
 				Except
-					// Error creating the external print form. Skip it and create an email message.
+					// 
 					ErrorInfo = ErrorInfo();
 					
 					WriteLogEvent(
@@ -1353,7 +1351,7 @@ Procedure AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Attachme
 						EventLogLevel.Error,,, NStr("en = 'Error creating external print form due to:';") + Chars.LF
 							+ ErrorProcessing.DetailErrorDescription(ErrorInfo));
 						
-					Common.MessageToUser(ErrorInfo.Description); // messages are processed in GenerateMessage
+					Common.MessageToUser(ErrorInfo.Description); // 
 					Continue;
 				EndTry;
 				
@@ -1369,7 +1367,7 @@ Procedure AddSelectedPrintFormsToAttachments(SendOptions, TemplateInfo, Attachme
 	
 EndProcedure
 
-// A function creating the attachment table.
+// Function-constructor of the attachment table
 // 
 // Returns:
 //  ValueTable:
@@ -1401,13 +1399,13 @@ Function AttachmentsTable()
 	
 EndFunction
 
-// Receives an extension for the passed file name.
+// Gets the extension for the passed file name.
 //
 // Parameters:
-//  FileName  - String - a name of the file to get the extension for.
+//  FileName  - String -  name of the file to get the extension for.
 //
 // Returns:
-//   String   - an extension received from the passed file.
+//   String   - 
 //
 Function GetFileExtension(Val FileName)
 	
@@ -1421,7 +1419,7 @@ Function GetFileExtension(Val FileName)
 	
 EndFunction
 
-// Defining and filling in parameters (attributes) in the message text
+// Defining and filling in parameters (details) in the message text
 // 
 // Parameters:
 //  Template - FormDataStructure:
@@ -1552,7 +1550,7 @@ Function TemplateParameters(Template) Export
 	
 	If ValueIsFilled(Result.FullAssignmentTypeName) 
 		And Not ObjectIsTemplateSubject(Result.FullAssignmentTypeName) Then
-		// The object does not belong to the list of template objects, that is why the template can be common only.
+		// 
 		Result.FullAssignmentTypeName = "";
 		Result.Purpose              = "";
 	EndIf;
@@ -1659,13 +1657,13 @@ Function TemplateType(Template)
 	
 EndFunction
 
-// Returns mapping of template message text parameters.
+// Returns whether the template message text parameters match.
 //
 // Parameters:
-//  TemplateParameters - Structure - template information.
+//  TemplateParameters - Structure -  information about the template.
 //
 // Returns:
-//  Map - mapping of message text parameters.
+//  Map - 
 //
 Function ParametersFromMessageText(TemplateParameters) Export
 	
@@ -2099,7 +2097,7 @@ Function ValueTableRowToMap(ValueTableRow)
 	
 EndFunction
 
-// Inserts message parameter values into a template and generates a message text.
+// Inserts the values of message parameters into the template and generates the message text.
 //
 // Parameters:
 //  StringPattern        - String
@@ -2124,7 +2122,7 @@ Function InsertParametersInRowAccordingToParametersTable(Val StringPattern, Valu
 	
 EndFunction
 
-// Processes HTML text for storing to a formatted document.
+// Processes HTML text to be placed in a formatted document.
 //
 Procedure ProcessHTMLForFormattedDocument(TemplateParameters, GeneratedMessage, ConvertHTMLForFormattedDocument, ListOfFiles = Undefined) Export
 
@@ -2208,13 +2206,13 @@ Procedure ProcessPictureInHTMLTextForFormattedDocument(Picture, AttachedFile, Ge
 
 EndProcedure
 
-// Receives an HTML text from the HTMLDocument object.
+// Retrieves HTML text from the Dochtml object.
 //
 // Parameters:
-//  HTMLDocument  - HTMLDocument - a document, from which the text will be extracted.
+//  HTMLDocument  - HTMLDocument -  the document from which the text will be extracted.
 //
 // Returns:
-//   String   - HTML text.
+//   String   - 
 //
 Function GetHTMLTextFromHTMLDocumentObject(HTMLDocument) Export
 	
@@ -2226,14 +2224,14 @@ Function GetHTMLTextFromHTMLDocumentObject(HTMLDocument) Export
 	
 EndFunction
 
-// Receives the HTMLDocument object from an HTML text.
+// Retrieves the Dochtml object from the HTML text.
 //
 // Parameters:
-//  HTMLText  - String -  an HTML text.
-//  Encoding - String - text encoding
+//  HTMLText  - String -    HTML text.
+//  Encoding - String -  text encoding
 //
 // Returns:
-//   HTMLDocument   - Created HTML document.
+//   HTMLDocument   - 
 //
 Function GetHTMLDocumentObjectFromHTMLText(HTMLText, Encoding = Undefined) Export
 	
@@ -2263,7 +2261,7 @@ Function GetHTMLDocumentObjectFromHTMLText(HTMLText, Encoding = Undefined) Expor
 	
 EndFunction
 
-// Attribute management.
+// 
 
 Procedure AttributesByDCS(Attributes, Template, Val Prefix = "") Export
 	
@@ -2291,7 +2289,7 @@ Procedure AttributesByDCS(Attributes, Template, Val Prefix = "") Export
 	
 EndProcedure
 
-// Details
+// LongDesc
 // 
 // Parameters:
 //  Attributes - ValueTreeRowCollection
@@ -2373,7 +2371,7 @@ Procedure AddPropertiesAttributes(MetadataObject3, Prefix, Attributes, Attribute
 	
 EndProcedure
 
-// Details
+// LongDesc
 // 
 // Parameters:
 //  Attributes - See RelatedObjectAttributes
@@ -2629,7 +2627,7 @@ Function CommonAttributesTitle() Export
 	Return NStr("en = 'Common attributes';");
 EndFunction
 
-// Operations with auxiliary methods attributes 
+// Work with the details of the helper methods 
 // 
 // Returns:
 //  ValueTree:
@@ -2784,7 +2782,7 @@ Procedure AddAttachedFilesToAttachments(Val SendOptions, Val Message)
 
 EndProcedure
 
-// Gets an application title. If it is not specified, gets a configuration metadata synonym.
+// Gets the system header, and if it is not specified, it is a synonym for configuration metadata.
 Function ThisInfobaseName()
 	
 	SetPrivilegedMode(True);
@@ -2936,7 +2934,7 @@ Function GenerateRecipientsByDefault(SubjectOf, TemplateType);
 				
 		EndIf;
 	
-		// If the contact list is blank and the object has contact information.
+		// 
 		If Recipients.Count() = 0 And TypeOf(SubjectOf) <> Type("String") Then
 			ObjectsWithContactInformation = CommonClientServer.ValueInArray(SubjectOf);
 			
@@ -3040,9 +3038,9 @@ Function ConvertEmailParameters(Message)
 	
 EndFunction
 
-// Update.
+// RefreshEnabled
 
-// Adds the AddEditPersonalMessageTemplates role to all profiles that contain the BasicAccessSSL role.
+// Adds the role of adding or changing personal message Templates to all profiles that include the role of the basic right.
 Procedure AddAddEditPersonalTemplatesRoleToBasicRightsProfiles() Export
 	
 	If Not Common.SubsystemExists("StandardSubsystems.AccessManagement") Then

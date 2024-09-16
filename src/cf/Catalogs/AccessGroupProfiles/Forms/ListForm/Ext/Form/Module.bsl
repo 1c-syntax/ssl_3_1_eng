@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -20,7 +18,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Parameters.ChoiceMode Then
 		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
 		
-		// Hide the Administrator profile.
+		// 
 		CommonClientServer.SetDynamicListFilterItem(
 			List, "Ref", AccessManagement.ProfileAdministrator(),
 			DataCompositionComparisonType.NotEqual, , True);
@@ -29,7 +27,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		AutoTitle = False;
 		If Parameters.CloseOnChoice = False Then
-			// Pick mode.
+			// 
 			Items.List.MultipleChoice = True;
 			Items.List.SelectionMode = TableSelectionMode.MultiRow;
 			
@@ -57,7 +55,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ReadOnly = True;
 	EndIf;
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		PlacementParameters = ModuleAttachableCommands.PlacementParameters();
@@ -104,7 +102,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// StandardSubsystems.AttachableCommands
+	// Standard subsystems.Pluggable commands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -197,7 +195,7 @@ Procedure ListOnChangeAtServer()
 	
 EndProcedure
 
-// StandardSubsystems.AttachableCommands
+// Standard subsystems.Pluggable commands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

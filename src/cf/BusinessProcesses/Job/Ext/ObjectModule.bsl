@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,7 +12,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// StandardSubsystems.AccessManagement
+// 
 
 // Parameters:
 //   Table - See AccessManagement.AccessValuesSetsTable
@@ -40,7 +38,7 @@ EndProcedure
 #Region EventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// Business process event handlers.
+// 
 
 Procedure BeforeWrite(Cancel)
 
@@ -84,7 +82,7 @@ Procedure Filling(FillingData, FillingText, StandardProcessing)
 		If TypeOf(FillingData) = Type("CatalogRef.Users") Then
 			Performer = FillingData;
 		Else
-			// For auto completion in a blank Assignee field.
+			// 
 			Performer = Catalogs.Users.EmptyRef();
 		EndIf;
 	EndIf;
@@ -124,7 +122,7 @@ Procedure OnCopy(CopiedObject)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Flowchart items event handlers.
+// 
 
 // Parameters:
 //   BusinessProcessRoutePoint - BusinessProcessRoutePointRef.Job
@@ -136,7 +134,7 @@ Procedure ExecuteWhenCreatingTasks(BusinessProcessRoutePoint, TasksBeingFormed, 
 	IterationNumber = IterationNumber + 1;
 	Write();
 	
-	// Setting the addressing attributes and additional attributes for each task.
+	// 
 	For Each Task In TasksBeingFormed Do
 
 		Task.Author = Author;
@@ -184,7 +182,7 @@ Procedure CheckWhenCreatingTasks(BusinessProcessRoutePoint, TasksBeingFormed, Ca
 		Return;
 	EndIf;
 	
-	// Setting the addressing attributes and additional attributes for each task.
+	// 
 	For Each Task In TasksBeingFormed Do
 
 		Task.Author = Author;
@@ -235,9 +233,9 @@ EndProcedure
 
 #Region Private
 
-// Updates attribute values of uncompleted tasks 
-// according to the Job business process attributes:
-//   Importance, TaskDueDate, Description, and Author.
+// Updates the details of outstanding tasks 
+// according to the details of the business process Task:
+//   Importance, Deadline, Name and Author.
 //
 Procedure ChangeUncompletedTasksAttributes() Export
 
@@ -268,8 +266,8 @@ Procedure ChangeUncompletedTasksAttributes() Export
 			TaskObject.Description = ?(TaskObject.RoutePoint = BusinessProcesses.Job.RoutePoints.Execute,
 				TaskDescriptionForExecution(), TaskDescriptionForCheck());
 			TaskObject.Author = Author;
-			// Don't check for the preliminary data edit lock:
-			// this change has a higher priority than the opened task forms.
+			// 
+			// 
 			TaskObject.Write();
 		EndDo;
 
@@ -305,8 +303,8 @@ Procedure ChangeTaskSubject()
 		While SelectionDetailRecords.Next() Do
 			TaskObject = SelectionDetailRecords.Ref.GetObject(); // TaskObject
 			TaskObject.SubjectOf = SubjectOf;
-			// Don't check for the preliminary data edit lock:
-			// this change has a higher priority than the opened task forms.
+			// 
+			// 
 			TaskObject.Write();
 		EndDo;
 		CommitTransaction();
@@ -388,26 +386,26 @@ EndFunction
 
 Procedure FillDefaultAccessValuesSets(Table)
 	
-	// The default access rights
-	// - Read: Author OR Performer (addressing-wise) OR Supervisor (addressing-wise).
-	// - Update: Author.
+	// 
+	// 
+	// 
 	
-	// If the subject is not specified (the business process is not based on another subject), then the subject is not involved in the restriction logic.
+	// 
 	
-	// Read, Update: Set #1.
+	// 
 	String = Table.Add();
 	String.SetNumber     = 1;
 	String.Read          = True;
 	String.Update       = True;
 	String.AccessValue = Author;
 	
-	// Read: Set #2.
+	// 
 	String = Table.Add();
 	String.SetNumber     = 2;
 	String.Read          = True;
 	String.AccessValue = TaskPerformersGroup;
 	
-	// Read: Set #3.
+	// 
 	String = Table.Add();
 	String.SetNumber     = 3;
 	String.Read          = True;

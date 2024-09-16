@@ -1,27 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// File management commands.
+// 
 
-// Opens a file for viewing or editing.
-// If the file is opened for viewing,
-// the procedure searches for the file in the user working directory and suggest to open it or to get the file from the server.
-// When the file is opened for editing, the procedure opens it in the working directory (if it exist) or
-// retrieves the file from the server.
+// Opens the file for viewing or editing.
+// If the file is opened for viewing, it gets the file to the user's working directory
+// , searches for the file in the working directory, and offers to open an existing one or get the file from the server.
+// If the file is opened for editing, it opens the file in the working directory (if available) or
+// retrieves it from the server.
 //
 // Parameters:
 //  FileData       - See FilesOperations.FileData.
-//  ForEditing - Boolean - True to open the file for editing, False otherwise.
+//  ForEditing - Boolean -  True if the file is opened for editing, otherwise False.
 //
 Procedure OpenFile(Val FileData, Val ForEditing = False) Export
 	
@@ -33,8 +31,8 @@ Procedure OpenFile(Val FileData, Val ForEditing = False) Export
 	
 EndProcedure
 
-// Opens the directory on the computer
-// where the specified file is located in the standard viewer (explorer).
+// Opens the folder on the computer where the specified file is located in the standard viewer (file Explorer)
+// .
 //
 // Parameters:
 //  FileData - See FilesOperations.FileData.
@@ -45,25 +43,25 @@ Procedure OpenFileDirectory(FileData) Export
 	
 EndProcedure
 
-// Opens a file selection dialog box for storing one or more files to the application.
-// This checks the necessary conditions:
-// - file does not exceed the maximum allowed size,
-// - file has a valid extension,
-// - volume has enough space (when storing files in volumes),
+// Opens the file selection dialog for placing one or more files in the program.
+// This is done by checking the necessary conditions:
+// - the file size does not exceed the maximum allowed,
+// - the file has a valid extension,
+// - there is free space in the volume (when storing files in volumes),
 // - other conditions.
 //
 // Parameters:
-//  FileOwner      - DefinedType.AttachedFilesOwner - a file folder or an object, to which
-//                       you need to attach the file.
-//  FormIdentifier - UUID - a form UUID,
-//                       whose temporary storage the file will be placed to.
-//  Filter             - String - filter of a file being selected, for example, pictures for products.
-//  FilesGroup       - DefinedType.AttachedFile - a catalog group with files, to which 
-//                       a new file will be added.
-//  ResultHandler - NotifyDescription - Details of the procedure that will be called
-//                         after adding files with the following parameters::
-//        Result - Array - References to the added files. If no files added, a blank array.
-//        AdditionalParameters - Arbitrary - Value specified when creating notification details.
+//  FileOwner      - DefinedType.AttachedFilesOwner -  the file folder or object
+//                       to attach the file to.
+//  FormIdentifier - UUID -  unique ID of the form
+//                       that the file will be placed in temporary storage.
+//  Filter             - String -  filter the selected file, for example, images for the item.
+//  FilesGroup       - DefinedType.AttachedFile -  the directory group with files to 
+//                       add the new file to.
+//  ResultHandler - NotifyDescription - 
+//                         :
+//        
+//        
 //
 Procedure AddFiles(Val FileOwner, Val FormIdentifier, Val Filter = "", FilesGroup = Undefined,
 	ResultHandler = Undefined) Export
@@ -86,37 +84,37 @@ Procedure AddFiles(Val FileOwner, Val FormIdentifier, Val Filter = "", FilesGrou
 	
 EndProcedure
 
-// Opens a file selection dialog box for storing a single file to the application.
+// Opens the file selection dialog for placing a single selected file in the program.
 //
 // Parameters:
-//   ResultHandler - NotifyDescription - contains description of the procedure that will be called
-//                        after adding files with the following parameters:
+//   ResultHandler - NotifyDescription - 
+//                        :
 //                    * Result - Structure:
-//                       ** FileRef - DefinedType.AttachedFile - a reference to the catalog item with the file
-//                                     if it was added, Undefined otherwise.
-//                       ** FileAdded - Boolean - True if file is added.
-//                       ** ErrorText  - String - an error text if the file was not added.
-//                    * AdditionalParameters - Arbitrary - a value specified when creating a notification object.
+//                       ** FileRef - DefinedType.AttachedFile -  link to the directory element with the file,
+//                                     if it was added, otherwise Undefined.
+//                       ** FileAdded - Boolean -  True if the file was added.
+//                       ** ErrorText  - String -  error text if the file was not added.
+//                    * AdditionalParameters - Arbitrary -  the value specified when creating the notification object.
 //
-//   FileOwner - DefinedType.AttachedFilesOwner - a file folder or an object, to which
-//                 you need to attach the file.
-//   OwnerForm - ClientApplicationForm - a form from which the file creation was called.
+//   FileOwner - DefinedType.AttachedFilesOwner -  the file folder or object
+//                 to attach the file to.
+//   OwnerForm - ClientApplicationForm -  the form that the file creation was called from.
 //   CreateMode - Undefined
-//                 - Number - file creation mode:
-//                 - Undefined - show a dialog box to select a file creation mode.
-//                 - Number - Create a file using the given method::
-//                           1 - From a template (by copying another file)
-//                           2 - From a computer (from the file system)
-//                           3 - From a scanner.
+//                 - Number - :
+//                 - Undefined - 
+//                 - Number - :
+//                           
+//                           
+//                           
 //
-//   AddingOptions - Structure - additional parameters of adding files:
-//     * MaximumSize  - Number - a restriction on the size of the file (in megabytes) imported from the file system.
-//                           If the value is 0, size is not checked. The property is ignored
-//                           if its value is bigger than it is specified in the MaxFileSize constant.
-//     * SelectionDialogFilter - String - a filter set in the selection dialog when adding a file.
-//                           See the format description in the Filter property of the FileSelectionDialog object in Syntax Assistant.
-//     * NotOpenCard - Boolean - an action after file creation. If it is True, a file card
-//                           will not open after creation, otherwise, it will open.
+//   AddingOptions - Structure - :
+//     * MaximumSize  - Number -  limit on the size of the file (in megabytes) that can be downloaded from the file system.
+//                           If it takes the value 0, the size check is not performed. This property is ignored
+//                           if it takes a value greater than specified in the maximum file Size constant.
+//     * SelectionDialogFilter - String -  the filter that is set in the selection dialog when adding a file.
+//                           For the format, see the Filter property of the Dialog File Selection object in the Syntax Assistant.
+//     * NotOpenCard - Boolean -  action after creation. If the value is True, the file card
+//                           will not be opened after creation, otherwise the file card will be opened.
 //
 Procedure AppendFile(ResultHandler, FileOwner, OwnerForm, CreateMode = Undefined, 
 	AddingOptions = Undefined) Export
@@ -154,9 +152,9 @@ Procedure AppendFile(ResultHandler, FileOwner, OwnerForm, CreateMode = Undefined
 	
 EndProcedure
 
-// Opens the form for setting the parameters of the working directory from the application user personal settings.
-// A working directory is a folder on the user personal computer where files
-// received from a viewer or editor are temporarily stored.
+// Opens a form to configure settings for the working directory of your personal user settings of the program.
+// Working directory - a folder on the user's personal computer that temporarily stores files
+// received from the program for viewing or editing.
 //
 Procedure OpenWorkingDirectorySettingsForm() Export
 	
@@ -166,26 +164,26 @@ EndProcedure
 
 // Show a warning before closing the object form
 // if the user still has captured files attached to this object.
-// Called from the BeforeClose event of forms with files.
+// Called from the event Before closing forms with files.
 //
-// If the captured files remain, then the Cancel parameter is set to True,
-// and the user is asked a question. If the user answers yes, the form closes.
+// If the captured files remain, the Refuse parameter is set to True,
+// and the user is asked a question. If the user answered Yes, the form is closed.
 //
 // Parameters:
-//   Form            - ClientApplicationForm - a form, where the file is edited.
-//   Cancel            - Boolean - BeforeClose event parameter.
-//   Exit - Boolean - indicates whether the form closes when a user exits the application.
-//   FilesOwner   - DefinedType.AttachedFilesOwner - a file folder or an object, to which
-//                      files are attached.
-//   AttributeName     - String - name of the Boolean type attribute, which stores the flag showing that
-//                      the question has already been output.
+//   Form            - ClientApplicationForm -  the form in which the file is edited.
+//   Cancel            - Boolean -  parameter of the pre-Closing event.
+//   Exit - Boolean -  indicates that the form is being closed while the application is shutting down.
+//   FilesOwner   - DefinedType.AttachedFilesOwner -  the file folder or object that
+//                      the files are attached to.
+//   AttributeName     - String -  name of the Boolean attribute that stores
+//                      the indication that the question has already been output.
 //
 // Example:
 //
-//	&AtClient
-//	Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
-//		FilesOperationsClient.ShowConfirmationOfCloseFormWithFiles(ThisObject, Cancel, WorkCompletion, Object.Ref);
-//	EndProcedure
+//	&Naciente
+//	Procedure Prezcription(Denial, Superseniority, Textpageprivate, Standartnaya)
+//		Remotevalidation.Show Confirmation Of Closing Formsfiles(This Is An Object, Failure, Completion Of Work, Object.Link);
+//	End of procedure
 //
 Procedure ShowConfirmationForClosingFormWithFiles(Form, Cancel, Exit, FilesOwner,
 	AttributeName = "CanCloseFormWithFiles") Export
@@ -221,15 +219,15 @@ EndProcedure
 // Opens a new file form with a copy of the specified file.
 //
 // Parameters:
-//  FileOwner - DefinedType.AttachedFilesOwner - a file folder or an object, to which a file is attached.
-//  BasisFile - DefinedType.AttachedFile - a file being copied.
-//  AdditionalParameters - Structure - form opening parameters:
-//    * FilesStorageCatalogName - String - defines a catalog to store a file copy.
-//  OnCloseNotifyDescription - NotifyDescription - Description of the procedure to be called once the form
-//                                containing the following parameters is closed::
-//                                <ClosingResult> - Value passed when calling Close() of the form.
-//                                <AdditionalParameters> - Value specified when creating OnCloseNotifyDescription.
-//                                If the parameter is not specified, no procedure is called on close.
+//  FileOwner - DefinedType.AttachedFilesOwner -  the file folder or object that the file is attached to.
+//  BasisFile - DefinedType.AttachedFile -  copy files.
+//  AdditionalParameters - Structure - :
+//    * FilesStorageCatalogName - String -  defines a directory for storing a copy of the file.
+//  OnCloseNotifyDescription - NotifyDescription - 
+//                                :
+//                                
+//                                
+//                                
 //                                
 //
 Procedure CopyAttachedFile(FileOwner, BasisFile, AdditionalParameters = Undefined,
@@ -263,15 +261,15 @@ Procedure CopyAttachedFile(FileOwner, BasisFile, AdditionalParameters = Undefine
 	
 EndProcedure
 
-// Opens a list of file digital signatures and prompts to choose signatures
-// to save with the file by the user-selected path.
-// The file signature name is generated from the file name and the signature author with the "p7s" extension.
+// 
+// 
+// 
 //
-// If there is no "Digital signature" subsystem in the configuration, the file will not be saved.
+// 
 //
 // Parameters:
-//  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
-//  FormIdentifier - UUID  - a form UUIDthat is used to lock the file.
+//  AttachedFile - DefinedType.AttachedFile -  link to the directory element with the file.
+//  FormIdentifier - UUID  -  unique form ID that is used to block the file.
 //
 Procedure SaveWithDigitalSignature(Val AttachedFile, Val FormIdentifier) Export
 	
@@ -300,15 +298,15 @@ Procedure SaveWithDigitalSignature(Val AttachedFile, Val FormIdentifier) Export
 	
 EndProcedure
 
-// Opens a save file dialog box where the user can define a path and a name to save the file.
+// Opens the save file dialog, where the user can specify the path and name to save the file.
 //
 // Parameters:
 //   FileData           - See FilesOperations.FileData.
 //   CompletionHandler  - NotifyDescription
-//                         - Undefined - Description of the procedure to be called once this procedure
-//                           is competed. Has the following parameters::
-//      PathToFile - String - Full path to the saved file.
-//      AdditionalParameters - Arbitrary - Value that was specified when creating the NotifyDescription object.
+//                         - Undefined - 
+//                           :
+//      
+//      
 //
 Procedure SaveFileAs(Val FileData, CompletionHandler = Undefined) Export
 	
@@ -320,21 +318,21 @@ Procedure SaveFileAs(Val FileData, CompletionHandler = Undefined) Export
 EndProcedure
 
 // Opens the file selection form.
-// Used in selection handler for overriding the default behavior.
+// Used in the selection handler to override the standard behavior.
 //
 // Parameters:
-//  FilesOwner - DefinedType.AttachedFilesOwner - a file folder or an object,
-//                   to which files to select are attached.
+//  FilesOwner - DefinedType.AttachedFilesOwner -  the file folder or object
+//                   that the selected files are attached to.
 //  FormItem   - FormTable
-//                 - FormField - the form item that will receive
-//                   a selection notification.
-//  StandardProcessing - Boolean - a return value. Always set to False.
-//  ChoiceNotificationDetails - NotifyDescription - Description of the procedure to be called once the form 
-//                                                   containing the following parameters is closed::
-//    ChoiceValue - TypeToDefine.AttachedFile
-//                   - Undefined - if a value has been selected, 
-//                     the selected value is returned. Otherwise, Undefined is returned.
-//    AdditionalParameters - Arbitrary - a value specified when creating OnCloseNotifyDescription.
+//                 - FormField - 
+//                   
+//  StandardProcessing - Boolean -  the return value. Always set to False.
+//  ChoiceNotificationDetails - NotifyDescription -  
+//                                                   :
+//    
+//                   - Undefined -  
+//                     
+//    
 //
 Procedure OpenFileChoiceForm(Val FilesOwner, Val FormItem, StandardProcessing = False,
 	ChoiceNotificationDetails = Undefined) Export
@@ -357,19 +355,19 @@ Procedure OpenFileChoiceForm(Val FilesOwner, Val FormItem, StandardProcessing = 
 	
 EndProcedure
 
-// Opens the file list form.
+// 
 //
 // Parameters:
-//  FilesOwner - DefinedType.AttachedFilesOwner - a file folder or an object,
-//                   to which files to select are attached.
+//  FilesOwner - DefinedType.AttachedFilesOwner -  the file folder or object
+//                   that the selected files are attached to.
 //
 Procedure OpenFileListForm(Val FilesOwner) Export
 	
 	If FilesOperationsInternalClient.Is1CDocumentManagementUsedForFileStorage(FilesOwner) Then
 		
-		// IntegrationWith1CDocumentManagement
+		// IntegrationWith1CDocumentManagementSubsystem
 		FilesOperationsInternalClient.OpenFormAttachedFiles1CDocumentManagement(FilesOwner);
-		// End IntegrationWith1CDocumentManagement
+		// End IntegrationWith1CDocumentManagementSubsystem
 		
 	Else
 		
@@ -383,17 +381,17 @@ Procedure OpenFileListForm(Val FilesOwner) Export
 EndProcedure
 
 // Opens the file form.
-// Can be used as a file opening handler.
+// It can be used as a handler for opening a file.
 //
 // Parameters:
-//  AttachedFile      - DefinedType.AttachedFile - a reference to the catalog item with file.
-//  StandardProcessing    - Boolean - a return value. Always set to False.
-//  AdditionalParameters - Structure - form opening parameters.
-//  OnCloseNotifyDescription - NotifyDescription - Description of the procedure to be called once the form
-//                                containing the following parameters is closed::
-//                                <ClosingResult> - Value passed when calling Close() of the form.
-//                                <AdditionalParameters> - Value specified when creating OnCloseNotifyDescription. 
-//                                If the parameter is not specified, no procedure is called on close. 
+//  AttachedFile      - DefinedType.AttachedFile -  link to the directory element with the file.
+//  StandardProcessing    - Boolean -  the return value. Always set to False.
+//  AdditionalParameters - Structure -  parameters for opening the form.
+//  OnCloseNotifyDescription - NotifyDescription - 
+//                                :
+//                                
+//                                 
+//                                 
 //                                
 //
 Procedure OpenFileForm(Val AttachedFile, StandardProcessing = False, AdditionalParameters = Undefined, 
@@ -419,13 +417,13 @@ Procedure OpenFileForm(Val AttachedFile, StandardProcessing = False, AdditionalP
 	
 EndProcedure
 
-// Prints files.
+// Prints files to the printer.
 //
 // Parameters:
 //  Files              - DefinedType.AttachedFile
 //                     - Array of DefinedType.AttachedFile
-//  FormIdentifier - UUID - a form UUID,
-//                       whose temporary storage the file will be placed to.
+//  FormIdentifier - UUID -  unique ID of the form
+//                       that the file will be placed in temporary storage.
 //
 Procedure PrintFiles(Val Files, FormIdentifier = Undefined) Export
 	
@@ -442,22 +440,22 @@ Procedure PrintFiles(Val Files, FormIdentifier = Undefined) Export
 	
 EndProcedure
 
-// Signs a file with a digital signature.
-// If the "Digital signature" subsystem isn't integrated, warns users that signing is unavailable.
+// 
+// 
 // 
 //
 // Parameters:
-//  AttachedFile      - DefinedType.AttachedFile - a reference to the catalog item with file.
+//  AttachedFile      - DefinedType.AttachedFile -  link to the directory element with the file.
 //                          - Array of DefinedType.AttachedFile
-//  FormIdentifier      - UUID - a form UUID
-//                            that is used to lock the file.
-//  AdditionalParameters - Undefined - Standard behavior (see below).
+//  FormIdentifier      - UUID -  unique ID of the form
+//                            that is used to block the file.
+//  AdditionalParameters - Undefined - 
 //                          - Structure:
 //       * FileData            - See FilesOperations.FileData
 //                                - Array of See FilesOperations.FileData
-//       * ResultProcessing - NotifyDescription - a value of the Boolean type is passed upon calling.
-//                                  If True, the file is signed. Otherwise, it is not signed.
-//                                  If the property is absent, the notification is not called.
+//       
+//                                  
+//                                  
 //  SignatureParameters         - See DigitalSignatureClient.NewSignatureType
 //
 Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefined,
@@ -498,16 +496,16 @@ Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefine
 	
 EndProcedure
 
-// Returns the structured file information. It is used in variety of file operation commands
-// and as FileData parameter value in other procedures and functions.
+// Returns structured information about the file. It is used in various file management commands
+// and as the value of the Data file parameter of other procedures and functions.
 //
 // Parameters:
-//   FileRef - DefinedType.AttachedFile - a reference to the catalog item with file.
-//   FormIdentifier             - UUID - a form UUID. The method puts the file to the temporary storage
-//                                     of this form and returns the address in the RefToBinaryFileData property.
-//   GetBinaryDataRef - Boolean - if False, reference to the binary data in the RefToBinaryFileData
-//                                     is not received thus significantly speeding up execution for large binary data.
-//   ForEditing              - Boolean - if you specify True, a file will be locked for editing.
+//   FileRef - DefinedType.AttachedFile -  link to the directory element with the file.
+//   FormIdentifier             - UUID -  unique ID of the form
+//                                     to put the file in temporary storage and return the address in the link property of the Binary data file.
+//   GetBinaryDataRef - Boolean -  if False, the binary data reference in the binary data file
+//                                     reference will not be received, which will significantly speed up execution for large binary data.
+//   ForEditing              - Boolean -  if set to True, the file will be captured for editing.
 //
 // Returns:
 //   See FilesOperations.FileData
@@ -525,29 +523,29 @@ Function FileData(Val FileRef,
 
 EndFunction
 
-// Receives a file from the file storage to the user working directory.
-// This is an alternative to the "View" or "Edit" interactive actions without opening the received file.
-// The ReadOnly property of the received file will be set depending on
-// whether the file is locked for editing or not. If it is not locked, the read only mode is set.
-// If there is an existing file in the working directory, it will be deleted and replaced by the file,
-// received from the file storage.
+// Retrieves a file from the file store to the user's working directory.
+// Analogous to the interactive action View or Edit without opening the received file.
+// The only View property of the received file will be set depending on whether
+// the file is captured for editing or not. If not captured, only view is set.
+// If a file already exists in the working directory, then it will be deleted and replaced with a file
+// obtained from the file storage.
 //
 // Parameters:
-//  Notification - NotifyDescription - Notification that is triggered after the user's working directory
-//   receives the file. The return value is a structure with the following properties::
-//     FullFileName - String - Full file name (with the path).
-//     ErrorDescription - String - Error text if the file was not received.
+//  Notification - NotifyDescription - 
+//   :
+//     
+//     
 //
-//  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
-//  FormIdentifier - UUID - a form UUID,
-//                       whose temporary storage the file will be placed to.
+//  AttachedFile - DefinedType.AttachedFile -  link to the directory element with the file.
+//  FormIdentifier - UUID -  unique ID of the form
+//                       that the file will be placed in temporary storage.
 //
-//  AdditionalParameters - Undefined - use the default values.
-//                          - Structure - with optional properties:
-//         * ForEditing - Boolean    - initial value is False. If True,
-//                                           the file will be locked for editing.
-//         * FileData       - Structure - file properties that can be passed for acceleration
-//                                           if they were previously received by the client from the server.
+//  AdditionalParameters - Undefined -  to use the default values.
+//                          - Structure - :
+//         * ForEditing - Boolean    -  the initial value is False. If True,
+//                                           then the file will be captured for editing.
+//         * FileData       - Structure -  file properties that can be passed for acceleration
+//                                           if they were previously received to the client from the server.
 //
 Procedure GetAttachedFile(Notification, AttachedFile, FormIdentifier, AdditionalParameters = Undefined) Export
 	
@@ -555,24 +553,24 @@ Procedure GetAttachedFile(Notification, AttachedFile, FormIdentifier, Additional
 	
 EndProcedure
 
-// Places the file from the user working directory into the file storage.
-// It is an alternative to the "Finish Editing" interactive action.
+// Places a file from the user's working directory in the file storage.
+// Analogous to the interactive action Finish editing.
 //
 // Parameters:
-//  Notification - NotifyDescription - Notification that is triggered after the file storage receives a file.
-//   The return value is a structure with the following property::
-//     ErrorDescription - String - Error text if the file was not received.
+//  Notification - NotifyDescription - 
+//   :
+//     
 //
-//  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
-//  FormIdentifier - UUID - a form UUID.
-//          The method puts data to the temporary storage of this form and returns the new address.
+//  AttachedFile - DefinedType.AttachedFile -  link to the directory element with the file.
+//  FormIdentifier - UUID -  unique ID of the form
+//          to put data in temporary storage and return a new address to.
 //
-//  AdditionalParameters - Undefined - use the default values.
-//                          - Structure - with optional properties:
-//         * FullFileName - String - if filled, the specified file will be placed in the
-//                                     user working directory, and then in the file storage.
-//         * FileData    - Structure - file properties that can be passed for acceleration
-//                                        if they were previously received by the client from the server.
+//  AdditionalParameters - Undefined -  to use the default values.
+//                          - Structure - :
+//         * FullFileName - String -  if filled in, the specified file will be placed in
+//                                     the user's working directory, and then in the file storage.
+//         * FileData    - Structure -  file properties that can be passed for acceleration
+//                                        if they were previously received to the client from the server.
 //
 Procedure PutAttachedFile(Notification, AttachedFile, FormIdentifier, AdditionalParameters = Undefined) Export
 	
@@ -581,9 +579,9 @@ Procedure PutAttachedFile(Notification, AttachedFile, FormIdentifier, Additional
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Scanner management.
+// 
 
-// Opens the scan settings form from user settings.
+// Opens the scan settings form from the user settings.
 //
 Procedure OpenScanSettingForm() Export
 	
@@ -599,15 +597,15 @@ Procedure OpenScanSettingForm() Export
 		
 EndProcedure
 
-// Constructor of parameters to convert graphic documents to PDF.
+// 
 // 
 // Returns:
 //  Structure:
 //   * ResultType - See ConversionResultTypeFileName
 //                   - See ConversionResultTypeBinaryData
 //                   - See ConversionResultTypeAttachedFile
-//   * ResultFormat - String - the format of the resulting file is PDF or TIF
-//   * ResultFormat - String - the format of the resulting file is PDF or TIF See ConversionResultTypeFileName
+//   
+//    See ConversionResultTypeFileName
 //   
 //
 Function GraphicDocumentConversionParameters() Export
@@ -626,7 +624,7 @@ Function GraphicDocumentConversionParameters() Export
 	
 EndFunction
 
-// Returns the result type of conversion to a file on the client.
+// 
 // 
 // Returns:
 //  String
@@ -637,7 +635,7 @@ Function ConversionResultTypeFileName() Export
 	
 EndFunction
 
-// Returns the result type of conversion to binary data.
+// 
 // 
 // Returns:
 //  String
@@ -648,7 +646,7 @@ Function ConversionResultTypeBinaryData() Export
 	
 EndFunction
 
-// Indicates the result type of conversion to an attachment.
+// 
 // 
 // Returns:
 //  String
@@ -660,13 +658,13 @@ Function ConversionResultTypeAttachedFile() Export
 EndFunction
 
 
-// Merge an array of transferred documents into one with the possibility of conversion.
+// 
 // 
 // Parameters:
-//  NotificationOfReturn - NotifyDescription - procedure that will be executed after merging the files.
+//  NotificationOfReturn - NotifyDescription - 
 //  ObjectsForMerging - Array of BinaryData, DefinedType.AttachedFile, String - 
-//                          Objects can be input as binary data, a reference to an attachment, or as a path to files
-//                          on the client.
+//                          
+//                          
 //  GraphicDocumentConversionParameters - See FilesOperationsClient.GraphicDocumentConversionParameters.
 // 
 Procedure CombineToMultipageFile(NotificationOfReturn, ObjectsForMerging, GraphicDocumentConversionParameters) Export
@@ -711,46 +709,45 @@ Procedure CombineToMultipageFile(NotificationOfReturn, ObjectsForMerging, Graphi
 #EndIf
 EndProcedure
 
-// Constructor of scanning parameters.
+// 
 // 
 // Parameters:
-//  Fill - Boolean - fill with current values saved for the user.
+//  Fill - Boolean - 
 // 
 // Returns:
 //  Structure:
-//   * ShowDialogBox - Boolean - indicates whether the scanning dialog box (provided by the scanner driver) with available resolution and other settings
-//                                  is opened.
-//   * SelectedDevice - String - scanner name.
-//   * PictureFormat - String - picture format requested from the driver.
-//   * Resolution - Number - DPI resolution.
-//   * Chromaticity - Number - possible values: 0 (black and white), 1 (grayscale), 2 (colored).
-//   * Rotation - Number - Rotation angle. Valid values: 0, 90, 180, 270. Some scanners do not support rotation. 
+//   * ShowDialogBox - Boolean - 
+//                                 
+//   * SelectedDevice - String -  name of the scanner.
+//   * PictureFormat - String - 
+//   * Resolution - Number - 
+//   * Chromaticity - Number - 
+//   * Rotation - Number -  
 //                       
-//   * PaperSize - Number - Valid values:
-//     0 - Not specified
-//     11 - A3
-//     1 - A4
-//     5 - A5
-//     6 - B4
-//     2 - B5
-//     7 - B6
-//     14 - C4
-//     15 - C5
-//     16 - C6
-//     3 - USLetter
-//     4 - USLegal
-//     10 - USExecutive
-//                            Some scanners do not support paper size.
-//   * JPGQuality - Number - quality for JPG format (from 1 to 100 where 100 is the maximum quality
-//                           and maximum size).
-//   * TIFFDeflation - Number - Compression. Valid values::
-//     2 - LZW
-//     3 - CCITT3
-//     4 - CCITT4
-//     5 - RLE
-//     6 - No compression
-//   * DuplexScanning - Boolean - Scan both sides.
-//   * DocumentAutoFeeder - Boolean - Use the auto feeder.
+//   * PaperSize - Number - 
+//     
+//     
+//     
+//     
+//     
+//     
+//     
+//     
+//     
+//     
+//     
+//     
+//     
+//   * JPGQuality - Number - 
+//                           
+//   * TIFFDeflation - Number - :
+//     
+//     
+//     
+//     
+//     
+//   * DuplexScanning - Boolean - 
+//   * DocumentAutoFeeder - Boolean - 
 //   * ShouldSaveAsPDF - Boolean
 //   * UseImageMagickToConvertToPDF - Boolean
 //
@@ -764,20 +761,20 @@ Function ScanningParameters(Fill = False) Export
 	Return ScanningParameters;
 EndFunction
 
-// Constructor of addition parameters from a scanner.
+// 
 // 
 // Returns:
 //  Structure:
-//    * ResultHandler - Undefined, NotifyDescription - notification that will be called after getting the images.
-//    * FileOwner - Undefined, DefinedType.FilesOwner - owner of the file to get images
-//                                                                     to attachments.
-//    * OwnerForm - Undefined, Form - form from which the file is added.
-//    * NotOpenCardAfterCreateFromFile - Boolean - for the attachment creation mode.
+//    * ResultHandler - Undefined, NotifyDescription - 
+//    * FileOwner - Undefined, DefinedType.FilesOwner - 
+//                                                                     
+//    * OwnerForm - Undefined, Form - 
+//    * NotOpenCardAfterCreateFromFile - Boolean - 
 //    * IsFile - Boolean
 //    * ResultType - See ConversionResultTypeFileName 
 //                    - See ConversionResultTypeBinaryData
 //                    - See ConversionResultTypeAttachedFile
-//    * OneFileOnly - Boolean - scan one image only.
+//    
 //
 Function AddingFromScannerParameters() Export
 	AddingOptions = New Structure;
@@ -791,8 +788,8 @@ Function AddingFromScannerParameters() Export
 	Return AddingOptions;
 EndFunction
 
-// Add from a scanner. If the scanner management is not set up beforehand, 
-// the scanner settings form is called.
+//  
+// 
 // 
 // Parameters:
 //  AddingOptions - See AddingFromScannerParameters
@@ -804,7 +801,7 @@ Procedure AddFromScanner(AddingOptions, ScanningParameters = Undefined) Export
 	
 EndProcedure
 
-// Checks if the client has scanner management restrictions.
+// 
 // 
 // Returns:
 //   See FilesOperationsInternalClient.ScanAvailable
@@ -813,13 +810,13 @@ Function ScanAvailable() Export
 	Return FilesOperationsInternalClient.ScanAvailable();
 EndFunction
 
-// Checks if the client has scanner management restrictions, if a scan add-in is installed, 
-// and if there is a plugged scanner.
+//  
+// 
 // 
 // Parameters:
-//  NotificationOfResult - NotifyDescription - procedure to which the check result will be passed:
-//   * Result - Boolean - scanner availability flag.
-//   * AdditionalParameters - Arbitrary - value specified when creating notification details.
+//  NotificationOfResult - NotifyDescription - :
+//   * Result - Boolean - 
+//   * AdditionalParameters - Arbitrary - 
 //
 Procedure ScanCommandAvailable(NotificationOfResult) Export
 	
@@ -832,10 +829,10 @@ Procedure ScanCommandAvailable(NotificationOfResult) Export
 	
 EndProcedure
 
-// Gets user scanning settings.
+// 
 // 
 // Parameters:
-//  ClientID - UUID - client iD
+//  ClientID - UUID - 
 // 
 // Returns:
 //   See FilesOperationsClientServer.UserScanSettings
@@ -850,11 +847,11 @@ Function GetUserScanSettings(ClientID = Undefined) Export
 	
 EndFunction
 
-// Saves user scanning settings.
+// 
 // 
 // Parameters:
 //  UserScanSettings - See FilesOperationsClientServer.UserScanSettings
-//  ClientID - UUID - client iD
+//  ClientID - UUID - 
 //
 Procedure SaveUserScanSettings(UserScanSettings, ClientID = Undefined) Export
 	
@@ -868,11 +865,11 @@ EndProcedure
 
 #Region AttachedFilesManagement
 
-// OnOpen event handler of the file owner managed form.
+// Event handler for opening the managed form of the file owner.
 //
 // Parameters:
-//  Form - ClientApplicationForm - a file owner form.
-//  Cancel - Boolean - standard parameter of OnOpen managed form event.
+//  Form - ClientApplicationForm -  form of the file owner.
+//  Cancel - Boolean -  standard parameter for the managed form's Open event.
 //
 Procedure OnOpen(Form, Cancel) Export
 	ScannerExistence = FilesOperationsInternalClient.ScanAvailable();
@@ -881,11 +878,11 @@ Procedure OnOpen(Form, Cancel) Export
 	EndIf;
 EndProcedure
 
-// NotificationProcessing event handler of the file owner managed form.
+// Event handler for handling the Announcement of the managed form of the file owner.
 //
 // Parameters:
-//  Form      - ClientApplicationForm - a file owner form.
-//  EventName - String - a standard parameter of the NotificationProcessing managed form event.
+//  Form      - ClientApplicationForm -  form of the file owner.
+//  EventName - String -  standard parameter for the managed form's message Processing event.
 //
 Procedure NotificationProcessing(Form, EventName) Export
 	
@@ -924,11 +921,11 @@ Procedure NotificationProcessing(Form, EventName) Export
 	
 EndProcedure
 
-// A handler for executing additional commands for managing the attachments.
+// Handler for executing additional commands for managing attached files.
 //
 // Parameters:
-//  Form   - ClientApplicationForm - a file owner form.
-//  Command - FormCommand - a running command.
+//  Form   - ClientApplicationForm -  form of the file owner.
+//  Command - FormCommand -  executed command.
 //
 Procedure AttachmentsControlCommand(Form, Command) Export
 	
@@ -957,15 +954,15 @@ Procedure AttachmentsControlCommand(Form, Command) Export
 	
 EndProcedure
 
-// Handler of clicking the preview field.
+// Handler for clicking on the preview field.
 //
 // Parameters:
-//  Form                - ClientApplicationForm - a file owner form.
-//  Item              - FormField - a preview field.
-//  StandardProcessing - Boolean - standard parameter of the Click form field event.
-//  View             - Boolean - if the parameter value is True, a file
-//                        is opened for view. Otherwise, a file from the computer is loaded.
-//                       The default value is False.
+//  Form                - ClientApplicationForm -  form of the file owner.
+//  Item              - FormField -  preview field.
+//  StandardProcessing - Boolean -  standard event parameter for form fields.
+//  View             - Boolean - 
+//                       
+//                       
 //
 Procedure PreviewFieldClick(Form, Item, StandardProcessing, View = False) Export
 	
@@ -997,14 +994,14 @@ Procedure PreviewFieldClick(Form, Item, StandardProcessing, View = False) Export
 	
 EndProcedure
 
-// Preview field drag-and-drop handler.
+// Drag handler for the preview field.
 //
 // Parameters:
-//  Form                   - ClientApplicationForm - a file owner form.
-//  Item                 - FormField - a preview field.
-//  DragParameters - DragParameters - Standard parameter of the Drag event. 
-//                          
-//  StandardProcessing    - Boolean - Standard parameter of the Drag event.
+//  Form                   - ClientApplicationForm -  form of the file owner.
+//  Item                 - FormField -  preview field.
+//  DragParameters - DragParameters -  the standard parameter for the Drag 
+//                          form field event.
+//  StandardProcessing    - Boolean -  the standard parameter for the Drag form field event.
 //
 Procedure PreviewFieldDrag(Form, Item, DragParameters, StandardProcessing) Export
 	
@@ -1035,14 +1032,14 @@ Procedure PreviewFieldDrag(Form, Item, DragParameters, StandardProcessing) Expor
 	
 EndProcedure
 
-// Preview field drag-and-drop check handler.
+// Handler for checking drag and drop on the preview field.
 //
 // Parameters:
-//  Form                   - ClientApplicationForm - a file owner form.
-//  Item                 - FormField - a preview field.
-//  DragParameters - DragParameters - Standard parameter of the Drag check event.
-//                          
-//  StandardProcessing    - Boolean - Standard parameter of the Drag check event.
+//  Form                   - ClientApplicationForm -  form of the file owner.
+//  Item                 - FormField -  preview field.
+//  DragParameters - DragParameters -  standard event parameter Check
+//                          drag-and-drop form fields.
+//  StandardProcessing    - Boolean -  the standard parameter of the event Checking form field dragging.
 //
 Procedure PreviewFieldCheckDragging(Form, Item, DragParameters, StandardProcessing) Export
 	
@@ -1054,11 +1051,11 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Instead, use FilesOperationsClient.OpenFileForm.
-// Opens the file form from the file catalog item form. Closes the item form.
+// Deprecated.
+// 
 // 
 // Parameters:
-//  Form     - ClientApplicationForm - a form of the attached file catalog.
+//  Form     - ClientApplicationForm -  form for the directory of attached files.
 //
 Procedure GoToFileForm(Val Form) Export
 	
@@ -1094,7 +1091,7 @@ EndProcedure
 
 #Region Private
 
-// The procedure is designed to print the file by the appropriate application.
+// The procedure is designed to print the file by the appropriate application
 //
 // Parameters:
 //  FileData          - See FilesOperations.FileData.
@@ -1140,12 +1137,12 @@ Procedure PrintFileByApplication(FileData, FileToOpenName)
 
 EndProcedure
 
-// File printing procedure
+// The procedure to print the File
 //
 // Parameters:
 //  ResultHandler - NotifyDescription
 //  ExecutionParameters  - Structure:
-//        * FileNumber               - Number - a current file number.
+//        * FileNumber               - Number -  the number of the current file.
 //        * FileData              - Structure
 //        * UUID  - UUID
 //
@@ -1170,7 +1167,7 @@ Procedure PrintFilesExecution(ResultHandler, ExecutionParameters) Export
 	
 	If ExecutionParameters.FileData.Property("SpreadsheetDocument") Then
 		ExecutionParameters.FileData.SpreadsheetDocument.Print();
-		// proceeding to print the next file.
+		// 
 		ExecutionParameters.FileNumber = ExecutionParameters.FileNumber + 1;
 		Handler = New NotifyDescription("PrintFilesExecution", ThisObject, ExecutionParameters);
 		ExecuteNotifyProcessing(Handler);
@@ -1189,14 +1186,14 @@ Procedure PrintFilesExecution(ResultHandler, ExecutionParameters) Export
 	EndIf;
 EndProcedure
 
-// The procedure of printing the File after receiving it to the computer.
+// 
 //
 // Parameters:
 //  Result - Structure:
 //    * FileReceived - Boolean
 //    * FullFileName - String
 //  ExecutionParameters  - Structure:
-//    * FileNumber               - Number - a current file number.
+//    * FileNumber               - Number -  the number of the current file.
 //    * FileData              - Structure
 //    * UUID  - UUID
 //
@@ -1212,14 +1209,14 @@ Procedure PrintFileAfterReceiveVersionInWorkingDirectory(Result, ExecutionParame
 		
 	EndIf;
 
-	// proceeding to print the next file.
+	// 
 	ExecutionParameters.FileNumber = ExecutionParameters.FileNumber + 1;
 	Handler = New NotifyDescription("PrintFilesExecution", ThisObject, ExecutionParameters);
 	ExecuteNotifyProcessing(Handler);
 	
 EndProcedure
 
-// Prints file by an external application.
+// Prints the file by an external application.
 //
 // Parameters:
 //  FileToOpenName - String
@@ -1275,9 +1272,9 @@ Function ImagesForMerging(ObjectsForMerging, UseImageMagick = False)
 		For Each ObjectForMerging In ObjectsForMerging Do
 			FileName = Undefined;
 			#If Not WebClient And Not MobileClient Then
-				// ACC:441-off the file is a method result
+				// 
 				TempFileName = GetTempFileName();
-				// ACC:441-on
+				// 
 			#Else
 				TempFileName = Undefined;			
 			#EndIf
@@ -1442,9 +1439,9 @@ Procedure MergeIntoMultipageFileFollowUp(Context)
 	ResultFileName = GraphicDocumentConversionParameters.ResultFileName;
 	
 	If Not ValueIsFilled(ResultFileName) Then
-		// ACC:441-off the file is not deleted if it is a method result
+		// 
 		ResultFileName = GetTempFileName(GraphicDocumentConversionParameters.ResultFormat);
-		// ACC:441-on
+		// 
 	EndIf;
 	
 	If Not UseImageMagick Then
@@ -1639,11 +1636,11 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 		
 		If UseEDIToStoreObjectFiles Then
 			
-			// IntegrationWith1CDocumentManagement
+			// IntegrationWith1CDocumentManagementSubsystem
 			FilesOperationsInternalClient.OpenFormAttachedFiles1CDocumentManagement(
 				AttachedFilesOwner,
 				Form);
-			// End IntegrationWith1CDocumentManagement
+			// End IntegrationWith1CDocumentManagementSubsystem
 			
 		Else
 			
@@ -1659,11 +1656,11 @@ Procedure AttachmentsControlCommandCompletion(Form, Command, AttachedFilesOwner)
 		
 		If UseEDIToStoreObjectFiles Then
 			
-			// IntegrationWith1CDocumentManagement
+			// IntegrationWith1CDocumentManagementSubsystem
 			ModuleIntegrationWith1CDocumentManagementBasicFunctionalityClient.AddFileFromDiskoISObject(
 				AttachedFilesOwner,
 				Form.UUID);
-			// End IntegrationWith1CDocumentManagement
+			// End IntegrationWith1CDocumentManagementSubsystem
 			
 		Else
 			
@@ -2017,7 +2014,7 @@ Procedure ChangeAdditionalCommandsVisibility(Form)
 	Try
 		HasFileManagementParameters = TypeOf(Form["FilesOperationsParameters"]) = Type("FixedStructure");
 	Except
-		// The FilesOperationsParameters attribute is either absent from the form or not initialized.
+		// 
 		HasFileManagementParameters = False;
 	EndTry;
 	

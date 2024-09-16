@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -331,7 +329,7 @@ Function CheckAttributesFilling()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Idle handler procedures.
+// 
 
 &AtClient
 Procedure Timeout2()
@@ -411,7 +409,7 @@ Procedure AfterStartScript(Result, Context) Export
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Procedures and functions of data recovery preparation.
+// 
 
 #If Not WebClient And Not MobileClient Then
 
@@ -431,14 +429,14 @@ Function GenerateScriptFiles()
 	
 	Scripts = GenerateScriptsText(ScriptParameters, ApplicationParameters["StandardSubsystems.MessagesForEventLog"]);
 	
-	// Auxiliary file: helpers.js.
+	// 
 	ScriptFile = New TextDocument;
 	ScriptFile.Output = UseOutput.Enable;
 	ScriptFile.SetText(Scripts.Script);
 	ScriptFileName = CopyingParameters.TempFilesDirForUpdate + "main.js";
 	ScriptFile.Write(ScriptFileName, IBBackupClient.IBBackupApplicationFilesEncoding());
 	
-	// Auxiliary file: helpers.js.
+	// 
 	ScriptFile = New TextDocument;
 	ScriptFile.Output = UseOutput.Enable;
 	ScriptFile.SetText(Scripts.AddlBackupFile);
@@ -448,7 +446,7 @@ Function GenerateScriptFiles()
 	PictureLib.ExternalOperationSplashIcon.Write(CopyingParameters.TempFilesDirForUpdate + "splash.ico");
 	PictureLib.TimeConsumingOperation48.Write(CopyingParameters.TempFilesDirForUpdate + "progress.gif");
 	
-	// Main splash file: splash.hta.
+	// 
 	MainScriptFileName = CopyingParameters.TempFilesDirForUpdate + "splash.hta";
 	ScriptFile = New TextDocument;
 	ScriptFile.Output = UseOutput.Enable;
@@ -482,7 +480,7 @@ EndFunction
 &AtServer
 Function GenerateScriptText(ScriptParameters)
 	
-	// Configuration update file: main.js.
+	// 
 	ScriptTemplate = DataProcessors.IBBackup.GetTemplate("LoadIBFileTemplate");
 	
 	Script = ScriptTemplate.GetArea("ParametersArea");
@@ -506,9 +504,9 @@ Function InsertScriptParameters(Val Text, Val ScriptParameters)
 	
 	TextParameters = IBBackupServer.PrepareCommonScriptParameters(ScriptParameters);
 	TextParameters["[BackupFile]"] = IBBackupServer.PrepareText(Object.BackupImportFile);
-	// CAC:495-disable TempFilesDir is used as automatic deletion of a temporary directory is not allowed.
+	// 
 	TextParameters["[TempFilesDir]"] = IBBackupServer.PrepareText(TempFilesDir()); 
-	// ACC:495-on
+	// 
 	Return IBBackupServer.SubstituteParametersToText(Text, TextParameters);
 	
 EndFunction

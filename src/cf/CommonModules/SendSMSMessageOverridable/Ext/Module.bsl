@@ -1,31 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Sends a text message via a configured SMS provider.
+// Sends an SMS via the configured service provider.
 //
 // Parameters:
 //  SendOptions - Structure:
-//   * Provider          - EnumRef.SMSProviders - SMS provider.
-//   * RecipientsNumbers  - Array - Array of recipient numbers in the format +XXXXXXXXXX.
-//   * Text              - String - Message text. The max length varies depending on the SMS provider.
-//   * SenderName     - String - Sender's name that recipients will see instead of the phone number.
-//   * Login              - String - Username to authenticate to an SMS service.
-//   * Password             - String - Password to authenticate to an SMS service.
+//   * Provider          - EnumRef.SMSProviders -  service provider for sending SMS.
+//   * RecipientsNumbers  - Array -  array of recipient number strings in the format +7XXXXXXXXXX;
+//   * Text              - String -  message text, the maximum length of operators can be different;
+//   * SenderName     - String -  the sender's name that will be displayed instead of the recipient's number;
+//   * Login              - String -  login to access the SMS sending service;
+//   * Password             - String -  password for accessing the SMS sending service.
 //   
-//  Result - Structure - return value. A sending result:
+//  Result - Structure - :
 //    * SentMessages - Array of Structure:
-//     ** RecipientNumber - String - a recipient number from the RecipientsNumbers array.
-//     ** MessageID - String - a text message ID by which delivery status can be requested.
-//    ErrorDetails - String - a user presentation of an error. If the string is empty, there is no error.
+//     ** RecipientNumber - String -  recipient number from the array of recipient Numbers;
+//     ** MessageID - String -  ID of the SMS that can be used to request the sending status.
+//    Error descriptionstrand - a custom representation of the error. if the string is empty, there is no error.
 //
 Procedure SendSMS(SendOptions, Result) Export
 	
@@ -33,13 +31,13 @@ Procedure SendSMS(SendOptions, Result) Export
 	
 EndProcedure
 
-// This procedure requests for text message delivery status from service provider.
+// Requests the SMS delivery status from the service provider.
 //
 // Parameters:
-//  MessageID - String - ID assigned to a text message upon sending.
-//  Provider - EnumRef.SMSProviders - SMS provider.
-//  Login              - String - Username to authenticate to an SMS service.
-//  Password             - String - Password to authenticate to an SMS service.
+//  MessageID - String -  ID assigned to the SMS when it was sent.
+//  Provider - EnumRef.SMSProviders -  provider of SMS sending services.
+//  Login              - String -  login to access the SMS sending service.
+//  Password             - String -  password for accessing the SMS sending service.
 //  Result          - See SendSMSMessage.DeliveryStatus.
 //
 Procedure DeliveryStatus(MessageID, Provider, Login, Password, Result) Export 
@@ -48,24 +46,24 @@ Procedure DeliveryStatus(MessageID, Provider, Login, Password, Result) Export
 	
 EndProcedure
 
-// This function checks whether saved text message sending settings are correct.
+// Checks whether the saved SMS sending settings are correct.
 //
 // Parameters:
-//  SMSMessageSendingSettings - Structure - Details of the current send settings:
+//  SMSMessageSendingSettings - Structure - :
 //   * Provider - EnumRef.SMSProviders
 //   * Login - String
 //   * Password - String
 //   * SenderName - String
-//  Cancel - Boolean - set this parameter to True if the settings are not filled in or filled in incorrectly.
+//  Cancel - Boolean -  set this parameter to True if the settings are not filled in or filled in incorrectly.
 //
 Procedure OnCheckSMSMessageSendingSettings(SMSMessageSendingSettings, Cancel) Export
 
 EndProcedure
 
-// This procedure supplements the list of permissions required for sending text messages.
+// Completes the list of permissions for sending SMS.
 //
 // Parameters:
-//  Permissions - Array - Array of objects returned by one of the functions that match the mask SafeModeManager.Permission*().
+//  Permissions - Array -  array of objects returned by one of the functions running in the safe Mode.Permission*().
 //
 Procedure OnGetPermissions(Permissions) Export
 	

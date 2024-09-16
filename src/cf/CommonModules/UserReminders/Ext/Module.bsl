@@ -1,25 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Generates a reminder with arbitrary time or execution schedule.
+// Creates a reminder with a custom time or schedule.
 //
 // Parameters:
-//  Text - String - Reminder text;
-//  EventTime - Date - Date and time of the event, which needs a reminder.
-//               - JobSchedule - Repeated event schedule.
-//               - String - Name of the subject's attribute that contains the event time.
-//  IntervalTillEvent - Number - time in seconds, prior to which it is necessary to remind of the event time;
-//  SubjectOf - AnyRef - Reminder's subject.
-//  Id - String - Describes the reminder's subject. For example, "Birthday".
+//  Text - String -  the reminder text;
+//  EventTime - Date -  date and time of the event to remind you of.
+//               - JobSchedule - 
+//               - String - 
+//  IntervalTillEvent - Number -  time in seconds to be reminded of the event time;
+//  SubjectOf - AnyRef -  the subject of the reminder;
+//  Id - String -  specifies the subject of the reminder, for example, "Birthday".
 //
 Procedure SetReminder(Text, EventTime, IntervalTillEvent = 0, SubjectOf = Undefined, Id = Undefined) Export
 	UserRemindersInternal.AttachArbitraryReminder(
@@ -30,11 +28,11 @@ EndProcedure
 //
 // Parameters:
 //  SubjectOf - AnyRef
-//          - Array - Reminder subject(s).
-//  Id - String - Describes the reminder's subject. For example, "Birthday".
+//          - Array - 
+//  Id - String -  specifies the subject of the reminder, for example, "Birthday".
 //
 // Returns:
-//    Array - Reminder collection as structures with fields repeating the fields of the UserReminders  information register.
+//    Array - 
 //
 Function FindReminders(Val SubjectOf = Undefined, Id = Undefined) Export
 	
@@ -73,20 +71,20 @@ Function FindReminders(Val SubjectOf = Undefined, Id = Undefined) Export
 	
 EndFunction
 
-// Deletes a user reminder.
+// Deletes the user's reminder.
 //
 // Parameters:
-//  Reminder - Structure - Collection element returned by FindReminders().
+//  Reminder - Structure -  the element collection returned by the function Noitenomuseu().
 //
 Procedure DeleteReminder(Reminder) Export
 	UserRemindersInternal.DisableReminder(Reminder, False);
 EndProcedure
 
-// Checks attribute changes for the subjects the user subscribed to.
-// If necessary, changes the reminder time.
+// Checks changes to the details of items that have a user subscription,
+// and changes the reminder period if necessary.
 //
 // Parameters:
-//  Subjects - Array - Subjects whose reminder dates must be updated.
+//  Subjects - Array -  items for which you need to update the reminder dates.
 // 
 Procedure UpdateRemindersForSubjects(Subjects) Export
 	
@@ -94,10 +92,10 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 	
 EndProcedure
 
-// Checks if user reminders are enabled.
+// 
 // 
 // Returns:
-//  Boolean - User reminders enablement flag.
+//  Boolean - 
 //
 Function UsedUserReminders() Export
 	
@@ -106,10 +104,10 @@ Function UsedUserReminders() Export
 	
 EndFunction
 
-// A handler of the form's same-name event. Places reminder settings elements on the form.
+// 
 //
 // Parameters:
-//  Form - ClientApplicationForm - The form the reminder settings elements should be placed in.
+//  Form - ClientApplicationForm - 
 //  PlacementParameters - See PlacementParameters
 //
 Procedure OnCreateAtServer(Form, PlacementParameters) Export
@@ -118,16 +116,16 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 	
 EndProcedure
 
-// Determines the location parameters of placing reminder settings on form.
+// 
 // 
 // Returns:
 //  Structure:
-//   * Group - FormGroup - The location of the reminder settings items.
-//   * NameOfAttributeWithEventDate - String - The attribute associated with the event reminder.
-//   * ReminderInterval - Number - The default reminder interval. By default, "0".
-//   * ShouldAddFlag - Boolean - If set to True, a checkbox for toggling the reminder is displayed next to the interval field. 
-//                                If set to False, users can toggle the reminder in the interval choice list.
-//                                By default, False.
+//   * Group - FormGroup - 
+//   * NameOfAttributeWithEventDate - String - 
+//   * ReminderInterval - Number - 
+//   * ShouldAddFlag - Boolean -  
+//                                
+//                                
 //                                
 //
 Function PlacementParameters() Export
@@ -136,10 +134,10 @@ Function PlacementParameters() Export
 	
 EndFunction
 
-// A handler of the form's same-name event. Updates the form elements associated with the reminder setting.
+// 
 //
 // Parameters:
-//  Form - ClientApplicationForm - The form the reminder settings elements should be placed in.
+//  Form - ClientApplicationForm - 
 //  CurrentObject       - CatalogObject
 //                      - DocumentObject
 //                      - ChartOfCharacteristicTypesObject
@@ -147,7 +145,7 @@ EndFunction
 //                      - ChartOfCalculationTypesObject
 //                      - BusinessProcessObject
 //                      - TaskObject
-//                      - ExchangePlanObject - Reminder's subject.
+//                      - ExchangePlanObject -  the subject of the reminder.
 //
 Procedure OnReadAtServer(Form, CurrentObject) Export
 	
@@ -155,11 +153,11 @@ Procedure OnReadAtServer(Form, CurrentObject) Export
 	
 EndProcedure
 
-// A handler of the form's same-name even. Sets a topic reminder when the object is written on the form.
+// 
 //
 // Parameters:
-//   Form - ClientApplicationForm - The form containing the reminder settings elements.
-//   Cancel - Boolean - shows whether writing is canceled.
+//   Form - ClientApplicationForm - 
+//   Cancel - Boolean -  indicates that the recording was rejected.
 //   CurrentObject  - CatalogObject
 //                  - DocumentObject
 //                  - ChartOfCharacteristicTypesObject
@@ -167,9 +165,9 @@ EndProcedure
 //                  - ChartOfCalculationTypesObject
 //                  - BusinessProcessObject
 //                  - TaskObject
-//                  - ExchangePlanObject - Reminder's subject.
+//                  - ExchangePlanObject -  the subject of the reminder.
 //   WriteParameters - Structure
-//   ReminderText - String - The reminder text. If empty, the reminder's topic is displayed.
+//   ReminderText - String - 
 //                               
 //  
 Procedure OnWriteAtServer(Form, Cancel, CurrentObject, WriteParameters, ReminderText = "") Export

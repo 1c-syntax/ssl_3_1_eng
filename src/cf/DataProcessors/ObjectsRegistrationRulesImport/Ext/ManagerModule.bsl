@@ -1,18 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Initializes columns of object registration rule table.
+// Initializes columns in the object registration rules table.
 //
 // Parameters:
 //  No.
@@ -35,13 +33,13 @@ Function ORRTableInitialization() Export
 	
 	Columns.Add("ObjectPropertiesAsString", New TypeDescription("String"));
 	
-	// Flag that shows whether rules are empty.
+	// 
 	Columns.Add("RuleByObjectPropertiesEmpty",     New TypeDescription("Boolean"));
 	
 	Columns.Add("FilterByExchangePlanProperties", New TypeDescription("ValueTree"));
 	Columns.Add("FilterByObjectProperties",     New TypeDescription("ValueTree"));
 	
-	// Event handlers.
+	// 
 	Columns.Add("BeforeProcess",            New TypeDescription("String"));
 	Columns.Add("OnProcess",               New TypeDescription("String"));
 	Columns.Add("OnProcessAdditional", New TypeDescription("String"));
@@ -56,7 +54,7 @@ Function ORRTableInitialization() Export
 	
 EndFunction
 
-// Initializes columns of object registration rule table by properties.
+// Initializes columns in the registration rules table by properties.
 //
 // Parameters:
 //  No.
@@ -78,13 +76,13 @@ Function FilterByExchangePlanPropertiesTableInitialization() Export
 	Columns.Add("NodeParameter",                New TypeDescription("String"));
 	Columns.Add("NodeParameterTabularSection", New TypeDescription("String"));
 	
-	Columns.Add("ConstantValue"); // Arbitrary type.
+	Columns.Add("ConstantValue"); // 
 	
 	Return TreePattern;
 	
 EndFunction
 
-// Initializes columns of object registration rule table by properties.
+// Initializes columns in the registration rules table by properties.
 //
 // Parameters:
 //  No.
@@ -104,8 +102,8 @@ Function FilterByObjectPropertiesTableInitialization() Export
 	Columns.Add("ObjectPropertyType",  New TypeDescription("String"));
 	Columns.Add("FilterItemKind",   New TypeDescription("String"));
 	
-	Columns.Add("ConstantValue"); // Arbitrary type.
-	Columns.Add("PropertyValue");  // Arbitrary type.
+	Columns.Add("ConstantValue"); // 
+	Columns.Add("PropertyValue");  // 
 	
 	Return TreePattern;
 	

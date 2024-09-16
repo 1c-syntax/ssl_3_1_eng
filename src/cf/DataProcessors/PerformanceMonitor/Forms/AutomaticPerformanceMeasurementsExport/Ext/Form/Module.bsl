@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Variables
 
@@ -148,7 +146,7 @@ Procedure FTPExportDirectoryOnChange(Item)
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////
-// COMMAND HANDLERS
+// 
 
 &AtClient
 Procedure SetExportSchedule(Command)
@@ -188,10 +186,10 @@ Procedure SelectExportDirectorySuggested(FileSystemExtensionAttached1, Additiona
 	
 EndProcedure
 
-// Changes the directory for exporting data.
+// Changes the data export directory.
 //
 // Parameters:
-//  ExportDirectory - String - new export directory.
+//  Export catalog-String - new export catalog.
 //
 &AtServerNoContext
 Procedure SetExportDirectory(ExecuteLocalExportDirectory, ExecuteFTPExportDirectory)
@@ -209,13 +207,13 @@ Procedure SetExportDirectory(ExecuteLocalExportDirectory, ExecuteFTPExportDirect
 	
 EndProcedure
 
-// Enables or disables a scheduled job.
+// Changes whether a scheduled task is used.
 //
 // Parameters:
-//  NewValue - Boolean - new value.
+//  NewValue - Boolean -  new usage value.
 //
 // Returns:
-//  Boolean - old value (before the change).
+//  Boolean - 
 //
 &AtServerNoContext
 Function SetScheduledJobUsage(NewValue)
@@ -231,10 +229,10 @@ Function SetScheduledJobUsage(NewValue)
 	
 EndFunction
 
-// Returns the current schedule for a scheduled job.
+// Returns the current schedule for a scheduled task.
 //
 // Returns:
-//  JobSchedule - the current schedule.
+//  JobSchedule - 
 //
 &AtServerNoContext
 Function PerformanceMonitorDataExportSchedule()
@@ -244,10 +242,10 @@ Function PerformanceMonitorDataExportSchedule()
 	
 EndFunction
 
-// Sets a new schedule for a scheduled job.
+// Sets a new schedule for a scheduled task.
 //
 // Parameters:
-//  NewSchedule - JobSchedule - which is to be set.
+//  NewSchedule - JobSchedule -  which should be installed.
 //
 &AtServerNoContext
 Procedure SetSchedule(Val NewSchedule)
@@ -258,7 +256,7 @@ Procedure SetSchedule(Val NewSchedule)
 	
 EndProcedure
 
-// Saves scheduled job settings.
+// Saves the settings for the scheduled task.
 //
 // Parameters:
 //  Job - MetadataObjectScheduledJob

@@ -1,26 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Private
 
-// Deletes the last characters from the string if they are equal to the deletion substring
-// as long as the last characters are not equal to the deletion substring.   
+// Removes the last characters from the string if they are equal to the delete substring,
+// until the last characters are not equal to the delete substring.   
 //
 // Parameters:
-//  IncomingString    - String - a string to be processed.
-//  DeletionSubstring - String - a substring to be deleted from the string end.
-//  Separator       - String - if the separator is specified, deletion is performed only 
+//  IncomingString    - String -  the string to be processed.
+//  DeletionSubstring - String -  the substring that will be removed from the end of the string.
+//  Separator       - String -  if set, the deletion occurs only 
 //                        if the deletion substring is located entirely after the separator.
 //
 // Returns:
-//   String  - a string resulted from processing.
+//   String  - 
 //
 Function DeleteLastCharsFromString(IncomingString, DeletionSubstring, Separator = Undefined) Export
 
@@ -41,7 +39,7 @@ Function DeleteLastCharsFromString(IncomingString, DeletionSubstring, Separator 
 EndFunction
 
 // Parameters:
-//  Var_Key  - UUID - a key, based on which a question name is generated.
+//  Var_Key  - UUID -  the key that will be used to generate the question name.
 //
 // Returns:
 //  String
@@ -131,7 +129,7 @@ Function FindStringInFormDataTree(WhereToFind, Value, Column, SearchSubordinateI
 EndFunction
 
 // Parameters:
-//  IsSection  - Boolean - a section flag.
+//  IsSection  - Boolean -  indicates the section.
 //  QuestionType - EnumRef.QuestionnaireTemplateQuestionTypes
 //
 // Returns:

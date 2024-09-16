@@ -1,12 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region FormEventHandlers
 
@@ -584,7 +582,7 @@ Procedure ThePreviousFormOfSynchronizationWarnings()
 	
 EndProcedure
 
-// Start method of form commands
+// The starting method for executing form commands
 //
 &AtClient
 Procedure RunACommandWithAPreliminaryCheck(CommandByLine)
@@ -855,7 +853,7 @@ Procedure OnStartMonitorDataUpdate()
 	
 EndProcedure
 
-// Start procedure for a manual list refresh.
+// The starting procedure for updating the list interactively
 //
 &AtClient
 Procedure UpdateMonitorDataInteractively()
@@ -877,7 +875,7 @@ Procedure UpdateMonitorDataInteractively()
 	
 EndProcedure
 
-// Start procedure for a manual list refresh.
+// The starting procedure for updating the list interactively
 //
 &AtClient
 Procedure UpdateMonitorDataInBackground()
@@ -925,7 +923,7 @@ Procedure DataSynchronization(DescriptionOfTheApplicationString)
 	
 EndProcedure
 
-// Start procedure of the interactive synchronization 
+// The starting procedure of interactive synchronization 
 //
 &AtClient
 Procedure OpenInteractiveSynchronizationWizard(AdditionalParameters)
@@ -947,7 +945,7 @@ Procedure OpenInteractiveSynchronizationWizard(AdditionalParameters)
 	
 EndProcedure
 
-// Start procedure of the automatic synchronization 
+// The starting procedure of automatic synchronization 
 //
 &AtClient
 Procedure OpenAutomaticSynchronizationWizard(AdditionalParameters)
@@ -995,10 +993,10 @@ EndProcedure
 &AtClient
 Function GetCurrentRowIndex()
 	
-	// Function return value.
+	// 
 	RowIndex = Undefined;
 	
-	// Placing a mouse pointer upon updating the monitor.
+	// 
 	CurrentData = Items.ApplicationsList.CurrentData;
 	
 	If CurrentData <> Undefined Then
@@ -1021,7 +1019,7 @@ Function CurrentApplicationsListData()
 		
 	EndIf;
 	
-	If Not ExchangeNodeExists(CurrentData.InfobaseNode) Then // If the row has expired.
+	If Not ExchangeNodeExists(CurrentData.InfobaseNode) Then // 
 		
 		Return Undefined;
 		
@@ -1036,7 +1034,7 @@ Procedure ExecuteCursorPositioning(RowIndex)
 	
 	If RowIndex <> Undefined Then
 		
-		// Check the cursor position after new data is received.
+		// 
 		If ApplicationsList.Count() <> 0 Then
 			
 			If RowIndex > ApplicationsList.Count() - 1 Then
@@ -1045,14 +1043,14 @@ Procedure ExecuteCursorPositioning(RowIndex)
 				
 			EndIf;
 			
-			// Place the mouse pointer.
+			// 
 			Items.ApplicationsList.CurrentRow = ApplicationsList[RowIndex].GetID();
 			
 		EndIf;
 		
 	EndIf;
 	
-	// If the row positioning failed, by default, set the cursor to the first row.
+	// 
 	If Items.ApplicationsList.CurrentRow = Undefined
 		And ApplicationsList.Count() <> 0 Then
 		
@@ -1222,7 +1220,7 @@ Procedure AfterConversionRulesCheckForCompatibility(Result, AdditionalParameters
 		
 		DataExchangeClient.ImportDataSyncRules(AdditionalParameters.ExchangePlanName);
 		
-	EndIf; // No action is required if the value is "Cancel".
+	EndIf; // 
 	
 EndProcedure
 
@@ -1380,14 +1378,14 @@ EndFunction
 Function ExecutionResultPicture(ExecutionResult)
 	
 	If ExecutionResult = 2 Then
-		Return 3; // Completed with warnings.
+		Return 3; // 
 	ElsIf ExecutionResult = 1 Then
 		Return 2; // Error
 	ElsIf ExecutionResult = 0 Then
 		Return 0; // Success
 	EndIf;
 	
-	// Without status.
+	// 
 	Return 0;
 	
 EndFunction
@@ -1532,7 +1530,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// If a sync was configured but never run, apply faded font color.
+	// 
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1541,7 +1539,7 @@ Procedure SetConditionalAppearance()
 	CommonClientServer.AddCompositionItem(Item.Filter, "ApplicationsList.StatePresentation", DataCompositionComparisonType.Equal, NStr("en = 'Not started yet';"));
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
-	// Special font color of the synchronization with incomplete setup.
+	// 
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1550,7 +1548,7 @@ Procedure SetConditionalAppearance()
 	CommonClientServer.AddCompositionItem(Item.Filter, "ApplicationsList.StatePresentation", DataCompositionComparisonType.Equal, NStr("en = 'Setup pending';"));
 	Item.Appearance.SetParameterValue("TextColor", WebColors.DarkRed);
 	
-	// If a peer app prefix is missing, output "N/a" with faded font color.
+	// 
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1562,7 +1560,7 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	Item.Appearance.SetParameterValue("Text", NStr("en = 'n/a';"));
 	
-	// Hiding a blank picture of data synchronization state.
+	// 
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1575,7 +1573,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Show", False);
 	
-	// Hiding a blank picture of data export state.
+	// 
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1588,7 +1586,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Show", False);
 	
-	// Hiding a blank picture of data import state.
+	// 
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1601,7 +1599,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Show", False);
 	
-	// Synchronization is unavailable
+	// 
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1645,19 +1643,19 @@ EndProcedure
 &AtServer
 Procedure SetFormItemsView()
 	
-	// Command bar.
+	// 
 	Items.ApplicationsListDataExchangeExecutionGroup.Enabled    = HasConfiguredExchanges;
 	Items.ApplicationsListControlGroup.Enabled                 = HasRightsToAdministerExchanges And HasConfiguredExchanges;
 	Items.ApplicationsListExchangeScheduleGroup.Enabled = HasRightsToAdministerExchanges And HasConfiguredExchanges;
 	Items.ApplicationsListCreateSyncSetting.Enabled    = HasRightsToAdministerExchanges;
 	Items.ApplicationsListEventsGroup.Enabled                    = HasViewEventLogRights And HasConfiguredExchanges;
 	
-	// Context menu.
+	// 
 	Items.ApplicationsListContextMenuDataExchangeExecutionGroup.Enabled = HasConfiguredExchanges;
 	Items.ApplicationsListContextMenuControlGroup.Enabled  = HasRightsToAdministerExchanges And HasConfiguredExchanges;
 	Items.ApplicationsListContextMenuEventsGroup.Enabled     = HasViewEventLogRights And HasConfiguredExchanges;
 	
-	// Item visibility in the form header.
+	// 
 	Items.InfoPanelUpdateRequired.Visible = UpdateRequired;
 	
 	If HasConfigurationUpdateRights Then
@@ -1673,7 +1671,7 @@ Procedure SetFormItemsView()
 		
 	Items.ApplicationsListCanMigrateToWS.Visible = CanMigrateToWS;
 	
-	// Force disabling of visibility of commands of schedule setup and importing rules in SaaS.
+	// 
 	If SaaSModel Then
 		
 		Items.ApplicationsListExchangeScheduleGroup.Visible = False;
@@ -1701,8 +1699,8 @@ Procedure SetFormItemsView()
 		
 	ElsIf DisabledScenarios.Count() > 1 Then
 				
-		WarningText = 
-			NStr("en = '<a href = ""ScenariosList"">Some scenarios</a> have been disabled due to runtime errors. Enable scenarios after you fix the issues.';");
+		Template = NStr("en = 'Some scenarios have been disabled due to runtime errors. Enable the scenario after you fix the issues.';");
+		WarningText = StrTemplate(Template, "ScenariosList");
 		
 		Items.DisabledScenariosWarningDetails.Title = StringFunctions.FormattedString(WarningText);
 				
@@ -1783,7 +1781,7 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 				
 			If Not ValueIsFilled(TransportKind)
 				Or (TransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode) Then
-				// Exchange with this infobase is set up via WS.
+				// 
 				ApplicationRow.StartDataExchangeFromCorrespondent = True;
 			EndIf;
 			
@@ -1819,7 +1817,7 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 			EndIf;
 		Else
 			
-			// To free up the UI, hide "Never" if syncing has never been performed.
+			// 
 			// 
 			ApplicationRow.LastSuccessfulExportDatePresentation = "";
 			ApplicationRow.LastSuccessfulImportDatePresentation = "";
@@ -1827,7 +1825,7 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 		EndIf;
 		
 		If ApplicationRow.MessageReceivedForDataMapping Then
-			// If data for mapping is received, display the message receiving date.
+			// 
 			ApplicationRow.LastSuccessfulImportDatePresentation = ApplicationRow.MessageDatePresentationForDataMapping;
 			ApplicationRow.ImportStatePicture = 5;
 		EndIf;

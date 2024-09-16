@@ -1,25 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
-// All rights reserved. This software and the related materials 
-// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
-// To view the license terms, follow the link:
-// https://creativecommons.org/licenses/by/4.0/legalcode
+// 
+//  
+// 
+// 
+// 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//
 
 #Region Public
 
-// Opens a form of the specified report. 
+// Opens the specified report form. 
 //
 // Parameters:
 //  OwnerForm - ClientApplicationForm
-//                - Undefined - Form that opens the report.
+//                - Undefined - 
 //  Variant - CatalogRef.ReportsOptions
-//          - CatalogRef.AdditionalReportsAndDataProcessors - Report option whose form to open. 
-//            If the CatalogRef.AdditionalReportsAndDataProcessors type is passed, 
-//            opens the additional report attached to the application. 
-//  AdditionalParameters - Structure - For internal use only.
+//          - CatalogRef.AdditionalReportsAndDataProcessors -  
+//             
+//             
+//  AdditionalParameters - Structure -  a service parameter that is not intended for use.
 //
 Procedure OpenReportForm(Val OwnerForm, Val Variant, Val AdditionalParameters = Undefined) Export
 	Type = TypeOf(Variant);
@@ -103,13 +101,13 @@ Procedure OpenReportForm(Val OwnerForm, Val Variant, Val AdditionalParameters = 
 	EndIf;
 EndProcedure
 
-// Opens the report panel. Intended for being used from common command modules.
+// Opens the report panel. For use from shared command modules.
 //
 // Parameters:
-//  SubsystemPath - String - Section name or a path to the subsystem for which the report panel is opened.
-//                    Conforms to the following format: "[.NestedSubsystemName1][.NestedSubsystemName2][...]".
-//                    Section must be described in ReportsOptionsOverridable.DefineSectionsWithReportsOptions.
-//  CommandExecuteParameters - CommandExecuteParameters - Parameters of the common command handler.
+//  SubsystemPath - String -  name of the section or path to the subsystem for which the report panel opens.
+//                    Set in the format: "Section name[.Name_loadsystem 1][.System_name 2] [...]".
+//                    the Section should be described in the report Variationdefinable.Define the division of variantsreferences.
+//  CommandExecuteParameters - CommandExecuteParameters -  parameters of the General command handler.
 //
 Procedure ShowReportBar(SubsystemPath, CommandExecuteParameters) Export
 	ParametersForm = New Structure("SubsystemPath, SearchInAllSections", SubsystemPath, True);
@@ -135,10 +133,10 @@ Procedure ShowReportBar(SubsystemPath, CommandExecuteParameters) Export
 	EndIf;
 EndProcedure
 
-// Notifies opened report panels, list forms, and item forms about report option changes.
+// 
 //
 // Parameters:
-//  VariantKey - String - If the report form is open, set in it the given report option.
+//  VariantKey - String - 
 //  Source - CatalogRef.ReportsOptions
 //
 Procedure UpdateOpenForms(Val VariantKey = "", Val Source = Undefined) Export
@@ -176,10 +174,10 @@ Procedure OnStart(Parameters) Export
 	
 EndProcedure
 
-// Opens a report option card that contains placement settings.
+// 
 //
 // Parameters:
-//  Variant - CatalogRef.ReportsOptions - Report option reference.
+//  Variant - CatalogRef.ReportsOptions -  link to the report option.
 //
 Procedure ShowReportSettings(Variant) Export
 	FormParameters = New Structure;
@@ -187,11 +185,11 @@ Procedure ShowReportSettings(Variant) Export
 	OpenForm("Catalog.ReportsOptions.Form.ItemForm", FormParameters);
 EndProcedure
 
-// Opens a dialog where you can set up the location of multiple report options in sections.
+// Opens the settings dialog for placing multiple options in sections.
 //
 // Parameters:
-//   Variants - Array - Report options to move (CatalogRef.ReportsOptions).
-//   Owner - ClientApplicationForm - For locking the owner's window.
+//   Variants - Array -  roaming options report (Spravochnike.Variants of reports).
+//   Owner - ClientApplicationForm -  to block the owner's window.
 //
 Procedure OpenOptionArrangeInSectionsDialog(Variants, Owner = Undefined) Export
 	
@@ -229,12 +227,12 @@ Procedure ProcessMessageActions(Message, Action, AdditionalParameters) Export
 	
 EndProcedure
 
-// The procedure handles an event of the SubsystemsTree attribute in editing forms.
+// The procedure serves the event of the tree Subsystem props in the editing forms.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Subsystem tree edit form, where::
-//       * Items - FormAllItems - See Syntax Assistant
-//   Item - FormField - Field that indicates usage.
+//   Form - ClientApplicationForm - :
+//       * Items - FormAllItems - 
+//   Item - FormField -  the characteristic field of use.
 //
 Procedure SubsystemsTreeUseOnChange(Form, Item) Export
 	TreeRow = Form.Items.SubsystemsTree.CurrentData;
@@ -242,7 +240,7 @@ Procedure SubsystemsTreeUseOnChange(Form, Item) Export
 		Return;
 	EndIf;
 	
-	// Skip the root row
+	// 
 	If TreeRow.Priority = "" Then
 		TreeRow.Use = 0;
 		Return;
@@ -255,17 +253,17 @@ Procedure SubsystemsTreeUseOnChange(Form, Item) Export
 	TreeRow.Modified = True;
 EndProcedure
 
-// The procedure handles an event of the SubsystemsTree attribute in editing forms.
+// The procedure serves the event of the tree Subsystem props in the editing forms.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Subsystem tree edit form, where::
-//     * Items - FormAllItems - Collection of form items, where::
-//         ** SubsystemsTree - FormTable - Hierarchical collection of subsystems where the report is displayed, where::
-//              *** CurrentData - FormDataTreeItem - Data in the current subsystem tree row, where::
-//                    **** Importance - String - The importance level. Valid values are: "", "Important", "See also".
-//                    **** Priority - String - Code counter.
-//                    **** Use - Number - Flag indicating whether the subsystem contains the report.
-//   Item - FormField - Field to edit the importance flag.
+//   Form - ClientApplicationForm - :
+//     * Items - FormAllItems - :
+//         ** SubsystemsTree - FormTable - :
+//              *** CurrentData - FormDataTreeItem - :
+//                    **** Importance - String - 
+//                    **** Priority - String -  code counter.
+//                    **** Use - Number -  indicates whether the report is placed in this subsystem.
+//   Item - FormField -  field for editing the importance attribute.
 //
 Procedure SubsystemsTreeImportanceOnChange(Form, Item) Export
 	
@@ -276,7 +274,7 @@ Procedure SubsystemsTreeImportanceOnChange(Form, Item) Export
 		Return;
 	EndIf;
 	
-	// Skip the root row
+	// 
 	If TreeRow.Priority = "" Then
 		TreeRow.Importance = "";
 		Return;
@@ -315,16 +313,16 @@ Function AdditionalReportRefType()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Handlers of the report option user list
+// 
 
 #Region ReportOptionUsersPickingParameters
 
-// Opens a form to select users or (external) user groups.
+// Opens the form for selecting users or groups of (external) users.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Subsystem tree edit form, where::
-//       * Items - FormAllItems - Collection of form items.
-//   ExternalUsersGroupsPickup - Boolean - Flag indicating whether external user groups are picked.
+//   Form - ClientApplicationForm - :
+//       * Items - FormAllItems -  collection of form elements.
+//   ExternalUsersGroupsPickup - Boolean -  indicates whether groups of external users are selected.
 //
 Procedure PickReportOptionUsers(Form, PickUsersGroups = False, ExternalUsersGroupsPickup = False) Export 
 	
@@ -345,25 +343,25 @@ Procedure PickReportOptionUsers(Form, PickUsersGroups = False, ExternalUsersGrou
 	
 EndProcedure
 
-// The constructor of parameters to pick report option users.
+// Constructor of parameters for selecting users for the report variant.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Subsystem tree edit form, where::
-//       * Items - FormAllItems - Collection of form items.
-//   ExternalUsersGroupsPickup - Boolean - Flag indicating whether external user groups are picked.
+//   Form - ClientApplicationForm - :
+//       * Items - FormAllItems -  collection of form elements.
+//   ExternalUsersGroupsPickup - Boolean -  indicates whether groups of external users are selected.
 //
 // Returns:
-//   Structure - Choice form open parameters, where::
-//       * ChoiceMode - Boolean - Choice mode flag. See "Catalog extension" in Syntax Assistant. 
+//   Structure - :
+//       * ChoiceMode - Boolean -  
 //       * CurrentRow - CatalogRef.Users
 //                       - CatalogRef.UserGroups
 //                       - CatalogRef.ExternalUsersGroups
-//                       - Undefined - Current user or a group of internal or external users.
-//       * CloseOnChoice - Boolean - Flag indicating whether the selection form must be closed. See "Catalog extension" in Syntax Assistant.
-//       * MultipleChoice - Boolean - Flag indicating whether two or more rows are selected.
-//       * AdvancedPick - Boolean - Flag indicating whether extended picking parameters are used.
-//       * PickFormHeader - String - Title of the user selection form, considering the context.
-//       * SelectedUsers - ValueList - Collection of selected users or (external) user groups.
+//                       - Undefined - 
+//       * CloseOnChoice - Boolean - 
+//       * MultipleChoice - Boolean -  indicates whether two or more rows are selected.
+//       * AdvancedPick - Boolean -  indicates whether advanced selection parameters are used.
+//       * PickFormHeader - String -  the title of the selection form that corresponds to the context.
+//       * SelectedUsers - ValueList -  collection of selected users or groups of (external) users.
 //
 Function ReportOptionUsersPickingParameters(Form, PickUsersGroups, ExternalUsersGroupsPickup = False)
 	
@@ -580,13 +578,13 @@ Procedure CheckTheUsersOfTheReportOption(Form) Export
 	
 EndProcedure
 
-// The procedure handles an event of the SubsystemsTree attribute in editing forms.
+// The procedure serves the event of the tree Subsystem props in the editing forms.
 //
 // Parameters:
-//   Form - ClientApplicationForm - Subsystem tree edit form, where::
-//       * Items - FormAllItems - Collection of form items, where::
-//             ** OptionUsers - FormTable - List of report option users.
-//   ResetUsageFlag - Boolean - Flag indicating that usage must be disabled.
+//   Form - ClientApplicationForm - :
+//       * Items - FormAllItems - :
+//             ** OptionUsers - FormTable -  list of users for the report option.
+//   ResetUsageFlag - Boolean -  indicates whether use should be disabled.
 //
 Procedure RegisterReportOptionUsers(Form, ResetUsageFlag = True) Export 
 	
@@ -758,16 +756,16 @@ EndFunction
 
 #Region UserSettingsExchange
 
-// Opens a form to select users or user groups.
+// Opens the form for selecting users (groups) of users.
 //
 // Parameters:
-//  SettingsDescription - Structure - Opening parameters of the choice form for selecting users or user groups, where::
-//      * Settings - DataCompositionUserSettings - Settings that are exchanged.
-//      * ReportVariant - CatalogRef.ReportsOptions - Reference to a report option property storage.
-//      * ObjectKey - String - Settings storage dimension.
-//      * SettingsKey - String - Dimension - User settings ID.
-//      * Presentation - String - User settings description.
-//      * VariantModified - Boolean - Flag indicating whether a report option was modified.
+//  SettingsDescription - Structure - :
+//      * Settings - DataCompositionUserSettings -  settings that are exchanged.
+//      * ReportVariant - CatalogRef.ReportsOptions -  the reference to the property store version of the report.
+//      * ObjectKey - String -  measurement of settings storage.
+//      * SettingsKey - String -  dimension-ID of user settings.
+//      * Presentation - String -  name of the user settings.
+//      * VariantModified - Boolean -  indicates that the report version has been changed.
 //
 Procedure ShareUserSettings(SettingsDescription) Export 
 	
