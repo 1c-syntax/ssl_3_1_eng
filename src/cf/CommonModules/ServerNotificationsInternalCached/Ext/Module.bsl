@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
@@ -28,7 +30,7 @@ Function IsSessionSendServerNotificationsToClients() Export
 	
 EndFunction
 
-// 
+// Returns details on the last Collaboration System check.
 //
 // Returns:
 //  Structure:
@@ -42,6 +44,15 @@ Function LastCheckOfInteractionSystemConnection() Export
 	Result.Insert("Connected", False);
 	
 	Return Result;
+	
+EndFunction
+
+// Returns:
+//  Boolean
+//
+Function ClientNotificationsAreAvailable() Export
+	
+	Return ServerNotificationsInternalClientServer.ClientNotificationsAreAvailable();
 	
 EndFunction
 

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -68,12 +70,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1, %2';"), 
 		Parameters.Level, Date);
 	
-	// 
+	// Enabling the open button for the metadata list.
 	If TypeOf(MetadataPresentation) = Type("ValueList") Then
 		Items.MetadataPresentation.OpenButton = True;
 	EndIf;
 	
-	// 
+	// Processing special event data.
 	Items.TableHeading.Visible = False;
 	Items.DataTree.Visible = False;
 	Items.IBUserData.Visible = False;
@@ -277,7 +279,7 @@ Procedure CreateFormTable(Val FormTableFieldName, Val AttributeNameFormDataColle
 		Items.DataTableCommands.Visible = True;
 	EndIf;
 	
-	// 
+	// Adding form table attributes.
 	AttributesToBeAdded = New Array;
 	For Each Column In ValueTable.Columns Do
 		AttributesToBeAdded.Add(New FormAttribute(Column.Name,
@@ -285,7 +287,7 @@ Procedure CreateFormTable(Val FormTableFieldName, Val AttributeNameFormDataColle
 	EndDo;
 	ChangeAttributes(AttributesToBeAdded);
 	
-	// 
+	// Add items to the form.
 	For Each Column In ValueTable.Columns Do
 		AttributeItem = Items.Add(FormTableFieldName + Column.Name, Type("FormField"), Items[FormTableFieldName]);
 		AttributeItem.DataPath = AttributeNameFormDataCollection + "." + Column.Name;
@@ -301,7 +303,7 @@ Procedure CreateFormTable(Val FormTableFieldName, Val AttributeNameFormDataColle
 				Try
 					NewRow[Column.Name] = String[Column.Name];
 				Except
-					NewRow[Column.Name] = String(String[Column.Name]); // 
+					NewRow[Column.Name] = String(String[Column.Name]); // Type UnknownObject
 				EndTry;
 			EndDo;
 		EndTry;

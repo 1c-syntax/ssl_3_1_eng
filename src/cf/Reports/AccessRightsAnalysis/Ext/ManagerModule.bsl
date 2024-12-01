@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -126,8 +128,8 @@ EndProcedure
 #Region Private
 
 // Parameters:
-//  DetailsDataAddress - String -  address of the temporary data storage for the report decryption.
-//  Details - DataCompositionDetailsID -  decryption element.
+//  DetailsDataAddress - String - the address of the temporary report details data storage.
+//  Details - DataCompositionDetailsID - details item.
 //
 // Returns:
 //  Structure:
@@ -156,7 +158,7 @@ Function DetailsParameters(DetailsDataAddress, Details) Export
 	
 	ParameterFormatName = New DataCompositionParameter("NameFormat");
 	If DetailsData.Settings.DataParameters.Items.Find(ParameterFormatName) <> Undefined Then
-		// 
+		// Report.RolesRights
 		Return Result;
 	EndIf;
 	
@@ -234,29 +236,29 @@ Procedure FillFieldsList(FieldList, DetailsItem)
 	
 EndProcedure
 
-// 
-// 
+// Returns a table containing access restriction kind by metadata object right.
+// If no record is returned, that means this right has no restrictions.
 //  
 //
 // Parameters:
-//  ForExternalUsers - Boolean - 
-//                              
+//  ForExternalUsers - Boolean - If True, return external user restrictions.
+//                              Applicable only to universal restrictions.
 //
-//  AccessTypeForTablesWithDisabledUse - Boolean - 
-//    
-//    
+//  AccessTypeForTablesWithDisabledUse - Boolean - If True, add access kind Enumeration.AdditionalAccessValues.AccessAllowed
+//    to the inactive tables (only a universal restriction).
+//    Applicable only to universal restrictions.
 //    
 //
 // Returns:
 //  ValueTable:
-//   * ForExternalUsers - Boolean - 
-//                                 
-//                                 
+//   * ForExternalUsers - Boolean - If False, restrict the access for internal users.
+//                                 If True, restrict the access for external users.
+//                                 This column is applicable only to universal restrictions.
 //   * Table       - CatalogRef.MetadataObjectIDs
-//                   - CatalogRef.ExtensionObjectIDs - 
-//   * AccessKind    - AnyRef - 
-//   * Presentation - String - 
-//   * Right         - String - 
+//                   - CatalogRef.ExtensionObjectIDs - Table ID.
+//   * AccessKind    - AnyRef - Empty reference of the main access kind value type.
+//   * Presentation - String - Access kind presentation.
+//   * Right         - String - Read, Update.
 //
 Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 			AccessTypeForTablesWithDisabledUse = False) Export
@@ -386,8 +388,8 @@ Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 		Query.SetParameter("AccessKindsValuesTypes", AccessKindsValuesTypes);
 		Query.SetParameter("UsedAccessKinds",
 			AccessTypesWithView(AccessKindsValuesTypes, True));
-		// 
-		// 
+		// ACC:96-off - No.434. Using JOIN is acceptable as the rows should be unique and
+		// the result will be cached.
 		Query.Text =
 		"SELECT
 		|	PermanentRestrictionKinds.Table AS Table,
@@ -486,7 +488,7 @@ Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 		|	AllRightsRestrictionsKinds AS AllRightsRestrictionsKinds
 		|		INNER JOIN UsedAccessKinds AS UsedAccessKinds
 		|		ON AllRightsRestrictionsKinds.AccessKind = UsedAccessKinds.AccessKind";
-		// 
+		// ACC:96-on
 	EndIf;
 	
 	Upload0 = Query.Execute().Unload();
@@ -500,7 +502,7 @@ Function AccessRestrictionKinds(ForExternalUsers = Undefined,
 	
 EndFunction
 
-// 
+// For function AccessRestrictionKinds.
 Function AccessTypesWithView(AccessKindsValuesTypes, UsedOnly)
 	
 	AccessKinds = AccessKindsValuesTypes.Copy(, "AccessKind");
@@ -539,14 +541,14 @@ Function AccessTypesWithView(AccessKindsValuesTypes, UsedOnly)
 	
 EndFunction
 
-// 
+// Intended for functions "AccessRestrictionKinds", "AccessKindsWithPresentation".
 Function RepresentationUnknownAccessType()
 	
 	Return NStr("en = 'Unknown access kind';");
 	
 EndFunction
 
-// 
+// For function AccessRestrictionKinds.
 Function TablesWithRestrictionDisabled(ForExternalUsers, FillIn)
 	
 	IDsTypes = New Array;
@@ -584,7 +586,7 @@ Function TablesWithRestrictionDisabled(ForExternalUsers, FillIn)
 	
 EndFunction
 
-// 
+// Intended for function "UnrestrictedTables".
 Procedure AddTablesWithRestrictionDisabled(TablesWithRestrictionDisabled,
 			ActiveParameters, ForExternalUsers)
 	

@@ -1,38 +1,40 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Called before opening the SMS sending form.
+// Called before opening a text messaging form.
 //
 // Parameters:
 //  RecipientsNumbers - Array of Structure:
-//   * Phone - String -  recipient's number in the format +<country Code><Codedef><number>;
-//   * Presentation - String -  phone number representation;
-//   * ContactInformationSource - CatalogRef -  owner of the phone number.
+//   * Phone - String - Recipient's number in the format: +<CountryCode><LocalCode><Number>.
+//   * Presentation - String - Phone number presentation.
+//   * ContactInformationSource - CatalogRef - Phone number owner.
 //  
-//  Text - String -  text of the message, no more than 1000 characters long.
+//  Text - String - Message text with the max length of 1,000 characters.
 //  
-//  AdditionalParameters - Structure - :
-//   * SenderName - String -  the sender's name that will be displayed instead of the recipient's number;
-//   * Transliterate - Boolean -  True if you want to translate the message text into translit before sending it.
+//  AdditionalParameters - Structure - Additional text message send parameters:
+//   * SenderName - String - Sender's name that recipients will see instead of the phone number.
+//   * Transliterate - Boolean - If True, transliterate the outgoing message.
 //
-//  StandardProcessing - Boolean -    the flag need to perform the standard processing of sending SMS.
+//  StandardProcessing - Boolean -  a flag showing whether the standard processing of text message sending is to be executed.
 //
 Procedure OnSendSMSMessage(RecipientsNumbers, Text, AdditionalParameters, StandardProcessing) Export
 	
 EndProcedure
 
-// Determines the address of the provider's page on the Internet.
+// This procedure defines the provider's page URL.
 //
 // Parameters:
-//  Provider - EnumRef.SMSProviders -  service provider for sending SMS.
-//  InternetAddress - String -  address of the provider's web page.
+//  Provider - EnumRef.SMSProviders - SMS provider.
+//  InternetAddress - String - Provider's page URL.
 //
 Procedure OnGetProviderInternetAddress(Provider, InternetAddress) Export
 	

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
@@ -203,7 +205,8 @@ Function FormulaElements(Val Formula) Export
 	
 	Separators = "()/*-+%=<>, " + Chars.Tab + Chars.LF;
 	OpeningParentheses = 0;
-	IsQuotedString = False;
+	ThisIsStringInDoubleQuotes = False;
+	ThisIsStringInSingleQuotes = False;
 	
 	Operand = "";
 	
@@ -212,14 +215,20 @@ Function FormulaElements(Val Formula) Export
 		Char = Mid(Formula, IndexOf, 1);
 		IsSeparator = StrFind(Separators, Char) > 0;
 		
-		If OpeningParentheses = 0 And Char = """" Then
-			IsQuotedString = Not IsQuotedString;
+		If OpeningParentheses = 0 And Char = """" And Not ThisIsStringInSingleQuotes Then
+			ThisIsStringInDoubleQuotes = Not ThisIsStringInDoubleQuotes;
+			AllItems.Add(Char);
+			Continue;
+		EndIf;
+
+		If OpeningParentheses = 0 And Char = "'" And Not ThisIsStringInDoubleQuotes Then
+			ThisIsStringInSingleQuotes = Not ThisIsStringInSingleQuotes;
 			AllItems.Add(Char);
 			Continue;
 		EndIf;
 		
-		If IsQuotedString Then
-			AllItems.Add(Char);
+		If ThisIsStringInDoubleQuotes Or ThisIsStringInSingleQuotes Then
+			AllItems[AllItems.UBound()] = AllItems[AllItems.UBound()] + Char;
 			Continue;
 		EndIf;
 
@@ -340,14 +349,14 @@ Procedure FormulaEditorHandler(Form, Parameter, AdditionalParameters) Export
 	EndIf;
 EndProcedure
 
-// 
+// Run a search in the field list.
 // 
 // Parameters:
 //  ShapeStructure - Structure:
 //    * 
 // 
 // Returns:
-//  Undefined, Structure - :
+//  Undefined, Structure - Run a search in the field list.:
 //   * ItemsTree 
 //   * FoundItems1 - Array
 //
@@ -2480,10 +2489,10 @@ Function ExpressionToCheck(Form, FormulaPresentation, NameOfTheListOfOperands) E
 						Operand = """" + Operand + """";
 					EndIf;
 					If TypeOf(Operand) = Type("Boolean") Then
-						Operand = Format(Operand, "BF=False; BT=True"); // 
+						Operand = Format(Operand, "BF=False; BT=True"); // Must be in the configuration language.
 					EndIf;
 					If TypeOf(Operand) = Type("Date") Then
-						Operand = "'" + Format(CurrentSessionDate(), "DF=yyyyMMddHHmm") +  "'"; // 
+						Operand = "'" + Format(CurrentSessionDate(), "DF=yyyyMMddHHmm") +  "'"; // Used in the Calculate() expression.
 					EndIf;
 					If Common.IsReference(TypeOf(Operand)) Then
 						Operand = "1";
@@ -2790,7 +2799,7 @@ Procedure AddAGroupOfOperatorsStringFunctions(ListOfOperators)
 	
 	Type = New TypeDescription("String");
 	
-	// 
+	// NStr has localizable IDs.
 	
 	AddAnOperatorToAGroup(Group, "String", NStr("en = 'Convert into a string';"), Type, True);
 	AddAnOperatorToAGroup(Group, "Upper", NStr("en = 'Uppercase';"), Type, True);

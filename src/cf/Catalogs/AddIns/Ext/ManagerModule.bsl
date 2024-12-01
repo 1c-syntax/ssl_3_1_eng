@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -35,14 +37,14 @@ EndFunction
 
 #Region Private
 
-// Returns a reference to the external component reference by ID and version.
+// Returns a reference to the add-in catalog by ID and version.
 //
 // Parameters:
-//  Id - String -  ID of the external component object.
-//  Version        - String -  version of the component.
+//  Id - String - Add-in object ID.
+//  Version        - String - Add-in version.
 //
 // Returns:
-//  CatalogRef.AddIns - 
+//  CatalogRef.AddIns - a reference to an add-in container in the infobase.
 //
 Function FindByID(Id, Version = Undefined) Export
 	
@@ -104,8 +106,8 @@ EndFunction
 
 #Region UpdateHandlers
 
-// Registers objects
-// that need to be updated to the new version on the exchange plan for updating the information Database.
+// Registers the objects to be updated in the InfobaseUpdate exchange plan.
+// 
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -140,9 +142,9 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Update handler of the "Add-ins" catalog:
+// - Populates the TargetPlatforms attribute.
+// - To ensure auto-update, adds the ExtraCryptoAPI and barcode scan and print add-ins.
 //
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Parameters.ProcessingCompleted = True;
@@ -329,7 +331,7 @@ Procedure ProcessExternalComponents(Selection, SubsystemVersionAtStartUpdates)
 		Except
 
 			RollbackTransaction();
-			// 
+			// If add-in procession failed, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(

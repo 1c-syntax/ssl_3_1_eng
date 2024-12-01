@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -56,7 +58,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.Author.ReadOnly = Not FullRightsToOptions;
 	Items.TechnicalInformation.Visible = FullRightsToOptions;
 	
-	// 
+	// Populate the report name for the View command.
 	If Object.ReportType = Enums.ReportsTypes.BuiltIn
 		Or Object.ReportType = Enums.ReportsTypes.Extension Then
 		ReportName = Common.ObjectAttributeValue(Object.Report, "Name");
@@ -109,7 +111,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// 
+	// Write properties associated with the predefined report option.
 	DetailsChanged = False;
 	If IsPredefined Then
 
@@ -130,7 +132,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Write the subsystem tree.
 	DestinationTree = FormAttributeToValue("SubsystemsTree", Type("ValueTree"));
 	If CurrentObject.IsNew() Then
 		ChangedSections = DestinationTree.Rows.FindRows(New Structure("Use", 1), True);
@@ -156,7 +158,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -184,7 +186,7 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);

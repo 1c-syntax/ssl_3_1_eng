@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #Region FormEventHandlers
 
@@ -108,7 +109,7 @@ Procedure EnableEdit(Command)
 	EndDo;
 	
 	If Not ValueIsFilled(Result) Then
-		ShowMessageBox(, NStr("en = 'Выберите хотя бы один реквизит';"));
+		ShowMessageBox(, NStr("en = 'Please select at least one attribute.';"));
 		Return;
 	EndIf;
 	
@@ -194,8 +195,8 @@ Procedure AddBankingDetailsToForm(ItemsToAdd1)
 				LabelTitle = AttributeToLock.GroupPresentation;
 			Else
 				LabelTitle =
-					NStr("en = 'Перед изменением реквизитов рекомендуется проверить использование объекта.
-					           |Если объект используется, то необходимо оценить последствия изменений.';");
+					NStr("en = 'Before you change the attributes, we recommend that you check whether the object is used.
+					           |If the object is used, evaluate the consequences of the changes.';");
 			EndIf;
 			ItemProperties = FormElementNewProperties();
 			ItemProperties.IsLabel = True;
@@ -318,9 +319,9 @@ Function AreObjectsUsed()
 	RefsCount = References.Count();
 	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Разблокирование реквизитов: Проверка использования ссылок на объекты';");
-	// 
-	// 
+	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Unlock attributes: Check the object reference usage';");
+	// In file mode, the job queue always runs in the background. The result is of low priority, the operation runs rarely.
+	// Therefore, locking the UI is excessive as the search for object references takes a long time.
 	ExecutionParameters.RunInBackground = True;
 	ExecutionParameters.WaitCompletion = 0;
 	
@@ -349,30 +350,30 @@ Procedure ValidateCompletion(Result, AdditionalParameters) Export
 	
 	AreObjectsUsed = GetFromTempStorage(Result.ResultAddress);
 	If TypeOf(AreObjectsUsed) <> Type("Boolean") Then
-		ShowMessageBox(, NStr("en = 'Не удалось получить результат проверки, попробуйте еще раз';"));
+		ShowMessageBox(, NStr("en = 'Cannot receive the check result. Please try again';"));
 		Return;
 	EndIf;
 	
 	If AreObjectsUsed Then
 		If RefsCount = 1 Then
 			MessageText =
-				NStr("en = 'Объект уже используется в других местах в приложении.
-				           |Не рекомендуется разрешать редактирование из-за риска рассогласования данных.';");
+				NStr("en = 'The object is used elsewhere in the app.
+				           |Editing this object might lead to data inconsistency.';");
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Выбранные объекты (%1) уже используются в других местах в приложении.
-				           |Не рекомендуется разрешать редактирование из-за риска рассогласования данных.';"),
+				NStr("en = '%1 selected objects are used elsewhere in the app.
+				           |Editing these objects might lead to data inconsistency.';"),
 				RefsCount);
 		EndIf;
 	Else
 		If RefsCount = 1 Then
 			MessageText =
-				NStr("en = 'Объект еще не используется в других местах в приложении.
-				           |Можно разрешать редактирование без риска рассогласования данных.';");
+				NStr("en = 'The object is not used in other places in the app.
+				           |You can allow editing it without the risk of data inconsistency.';");
 		Else
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Выбранные объекты (%1) уже используются в других местах в приложении.
-				           |Можно разрешать редактирование без риска рассогласования данных.';"),
+				NStr("en = 'The selected objects (%1) are used in other places in the app.
+				           |You can allow editing them without the risk of data inconsistency.';"),
 				RefsCount);
 		EndIf;
 	EndIf;

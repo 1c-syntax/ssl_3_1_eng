@@ -1,34 +1,36 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Handler for the report form command.
+// Report form command handler.
 //
 // Parameters:
-//   Form     - ClientApplicationForm -  report form.
-//   Command   - FormCommand     - 
+//   Form     - ClientApplicationForm - a report form.
+//   Command   - FormCommand     - Command that was called.
 //
-// :
-//   
+// Usage locations::
+//   CommonForm.ReportForm.Attachable_Command().
 //
 Procedure CreateNewBulkEmailFromReport(Form, Command) Export
 	OpenReportMailingFromReportForm(Form);
 EndProcedure
 
-// Handler for the report form command.
+// Report form command handler.
 //
 // Parameters:
-//   Form     - ClientApplicationForm -  report form.
-//   Command   - FormCommand     - 
+//   Form     - ClientApplicationForm - a report form.
+//   Command   - FormCommand     - Command that was called.
 //
-// :
-//   
+// Usage locations::
+//   CommonForm.ReportForm.Attachable_Command().
 //
 Procedure AttachReportToExistingBulkEmail(Form, Command) Export
 	FormParameters = New Structure;
@@ -39,14 +41,14 @@ Procedure AttachReportToExistingBulkEmail(Form, Command) Export
 	OpenForm("Catalog.ReportMailings.ChoiceForm", FormParameters, Form);
 EndProcedure
 
-// Handler for the report form command.
+// Report form command handler.
 //
 // Parameters:
-//   Form     - ClientApplicationForm -  report form.
-//   Command   - FormCommand     - 
+//   Form     - ClientApplicationForm - a report form.
+//   Command   - FormCommand     - Command that was called.
 //
-// :
-//   
+// Usage locations::
+//   CommonForm.ReportForm.Attachable_Command().
 //
 Procedure OpenBulkEmailsWithReport(Form, Command) Export
 	
@@ -56,16 +58,16 @@ Procedure OpenBulkEmailsWithReport(Form, Command) Export
 	
 EndProcedure
 
-// Handler for selecting the report form.
+// Report form selection handler.
 //
 // Parameters:
-//   Form             - ClientApplicationForm -  report form.
-//   ValueSelected - Arbitrary     -  the result of the selection in the subordinate form.
-//   ChoiceSource    - ClientApplicationForm -  the form where the selection was made.
-//   Result         - Boolean           - 
+//   Form             - ClientApplicationForm - a report form.
+//   ValueSelected - Arbitrary     - a selection result in a subordinate form.
+//   ChoiceSource    - ClientApplicationForm - a form where the choice is made.
+//   Result         - Boolean           - True if the selection result is processed.
 //
-// :
-//   
+// Usage locations::
+//   CommonForm.ReportForm.ChoiceProcessing().
 //
 Procedure ChoiceProcessingReportForm(Form, ValueSelected, ChoiceSource, Result) Export
 	
@@ -104,10 +106,10 @@ EndProcedure
 
 #Region Private
 
-// Generates a list of mailing list recipients, prompts the user to select
-//   a specific recipient or all mailing list recipients, and returns
-//   the result of the user's selection.
-// Called from the element form.
+// Generates a mailing recipients list, suggests the user to select a
+//   specific recipient or all recipients of the mailing and returns the
+//   result of the user selection.
+// Called from the items form.
 //
 Procedure SelectRecipient(ResultHandler, Object, MultipleChoice, ReturnsMap) Export
 	
@@ -160,7 +162,7 @@ Procedure SelectRecipient(ResultHandler, Object, MultipleChoice, ReturnsMap) Exp
 	
 EndProcedure
 
-// Handler for the result of the select Recipient procedure.
+// SelectRecipient procedure execution result handler.
 // 
 // Parameters:
 //   SelectedElement - ValueListItem
@@ -190,7 +192,7 @@ Procedure SelectRecipientCompletion(SelectedElement, AdditionalParameters) Expor
 	ExecuteNotifyProcessing(AdditionalParameters.ResultHandler, Result);
 EndProcedure
 
-// Performs mailings in the background.
+// Executes mailing in the background.
 Procedure ExecuteNow(Parameters) Export
 	Handler = New NotifyDescription("ExecuteNowInBackground", ThisObject, Parameters);
 	If Parameters.IsItemForm Then
@@ -207,7 +209,7 @@ Procedure ExecuteNow(Parameters) Export
 	ExecuteNotifyProcessing(Handler, Undefined);
 EndProcedure
 
-// Starts a background task, called when all parameters are ready.
+// Runs background job, it is called when all parameters are ready.
 Procedure ExecuteNowInBackground(Recipients, Parameters) Export
 	PreliminarySettings = Undefined;
 	If Parameters.IsItemForm Then
@@ -238,7 +240,7 @@ Procedure ExecuteNowInBackground(Recipients, Parameters) Export
 	
 EndProcedure
 
-// Accepts the result of a background task.
+// Accepts the background job result.
 //
 // Parameters:
 //  Job - See TimeConsumingOperationsClient.NewResultLongOperation
@@ -247,7 +249,7 @@ EndProcedure
 Procedure ExecuteNowInBackgroundCompletion(Job, Parameters) Export
 	
 	If Job = Undefined Then
-		Return; // 
+		Return; // Canceled.
 	EndIf;
 	
 	If Job.Status = "Completed2" Then
@@ -259,17 +261,31 @@ Procedure ExecuteNowInBackgroundCompletion(Job, Parameters) Export
 		ShowUserNotification(,, Result.Text, PictureLib.ReportMailing, UserNotificationStatus.Information);
 		
 	Else
-		StandardSubsystemsClient.OutputErrorInfo(
-			Job.ErrorInfo);
+		Result = GetFromTempStorage(Job.ResultAddress);
+		If Result <> Undefined And Result.ThereAreErrorsInEncryption
+		   And CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+			AdditionalData = New Structure;
+			AdditionalData.Insert("Certificate", Result.CertificateToEncrypt);
+			FormParameters = New Structure;
+			FormParameters.Insert("WarningTitle", NStr("en = 'Report distribution failed';"));
+			FormParameters.Insert("ErrorTextServer", ErrorProcessing.BriefErrorDescription(Job.ErrorInfo));
+			FormParameters.Insert("AdditionalData", AdditionalData);
+			FormParameters.Insert("ShowNeedHelp", True);
+			FormParameters.Insert("ShowInstruction", True);
+			ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+			ModuleDigitalSignatureClient.OpenExtendedErrorPresentationForm(FormParameters);
+		Else
+			StandardSubsystemsClient.OutputErrorInfo(Job.ErrorInfo);
+		EndIf;
 	EndIf;
 	
 EndProcedure
 
-// Opens the distribution of reports from the report form.
+// Opens report mailing from the report form.
 //
 // Parameters:
-//   Form  - ClientApplicationForm -  report form.
-//   Ref - CatalogRef.ReportMailings -  the report distribution link.
+//   Form  - ClientApplicationForm - a report form.
+//   Ref - CatalogRef.ReportMailings - report mailing reference.
 //
 Procedure OpenReportMailingFromReportForm(Form, Ref = Undefined)
 	ReportSettings = Form.ReportSettings;
@@ -296,7 +312,7 @@ Procedure OpenReportMailingFromReportForm(Form, Ref = Undefined)
 	
 EndProcedure
 
-// Returns a set of templates for filling in scheduled tasks.
+// Returns set of scheduled job schedules filling templates.
 Function ScheduleFillingOptionsList() Export
 	
 	VariantList = New ValueList;
@@ -318,21 +334,21 @@ Function ScheduleFillingOptionsList() Export
 	Return VariantList;
 EndFunction
 
-// Parses the FTP address string into Login, Password, Server, Port and Directory.
-//   For more information, see RFC 1738 (http://tools.ietf.org/html/rfc1738#section-3.1 ). 
-//   Template: "ftp://<user>:<password>@<host>:<port>/<url-path>".
-//   Fragments "<user>:<password>@", ":<password>", ":<port>" and "/<url-path>" may be missing.
+// Parses the FTP address string into the Username, Password, Port and Directory.
+//   Detailed - see RFC 1738 (http://tools.ietf.org/html/rfc1738#section-3.1). 
+//   Template: ftp://<user>:<password>@<host>:<port>/<url-path>.
+//   Fragments <user>:<password>@,:<password>,:<port> and /<url-path> can be absent.
 //
 // Parameters:
-//   Ftpaddress String - the full path to the ftp resource.
+//   FTPAddress - String - a full path to the ftp resource.
 //
 // Returns:
-//   Structure - :
-//       * Login - String -  the name of the ftp user.
-//       * Password - String -  the password of the ftp user.
-//       * Server - String -  server name.
-//       * Port - Number -  server port. By default, 21.
-//       * Directory - String -  path to the folder on the server. The first character is always "/".
+//   Structure - Result - Structure - Result of parsing the full path:
+//       * Login - String - ftp user name.
+//       * Password - String - ftp user password.
+//       * Server - String - Server name.
+//       * Port - Number - a server port. 21 by default.
+//       * Directory - String - a path to the directory at the FTP server. The first character is always /.
 //
 Function ParseFTPAddress(FullFTPAddress) Export
 	
@@ -345,20 +361,20 @@ Function ParseFTPAddress(FullFTPAddress) Export
 	
 	FTPAddress = FullFTPAddress;
 	
-	// 
+	// Trim "ftp://".
 	Pos = StrFind(FTPAddress, "://");
 	If Pos > 0 Then
 		FTPAddress = Mid(FTPAddress, Pos + 3);
 	EndIf;
 	
-	// 
+	// Directory.
 	Pos = StrFind(FTPAddress, "/");
 	If Pos > 0 Then
 		Result.Directory = Mid(FTPAddress, Pos);
 		FTPAddress = Left(FTPAddress, Pos - 1);
 	EndIf;
 	
-	// 
+	// Username and password.
 	Pos = StrFind(FTPAddress, "@");
 	If Pos > 0 Then
 		UsernamePassword = Left(FTPAddress, Pos - 1);
@@ -373,7 +389,7 @@ Function ParseFTPAddress(FullFTPAddress) Export
 		EndIf;
 	EndIf;
 	
-	// 
+	// Server and port.
 	Pos = StrFind(FTPAddress, ":");
 	If Pos > 0 Then
 		
@@ -393,13 +409,13 @@ Function ParseFTPAddress(FullFTPAddress) Export
 	
 EndFunction
 
-// 
+// Sends out text messages with archive passwords in the background.
 Procedure SendBulkSMSMessages(Parameters) Export
 	Handler = New NotifyDescription("SendBulkSMSMessagesInBackground", ThisObject, Parameters);
 	ExecuteNotifyProcessing(Handler, Undefined);
 EndProcedure
 
-// Starts a background task, called when all parameters are ready.
+// Runs background job, it is called when all parameters are ready.
 Procedure SendBulkSMSMessagesInBackground(Recipients, Parameters) Export
 
 	MethodParameters = New Structure;
@@ -418,14 +434,14 @@ Procedure SendBulkSMSMessagesInBackground(Recipients, Parameters) Export
 
 EndProcedure
 
-// Accepts the result of a background task.
+// Accepts the background job result.
 //
 // Parameters:
 //   Job - See TimeConsumingOperationsClient.NewResultLongOperation
 //   Parameters - Structure:
 //     * UnsentCount - Number
 //     * PreparedSMSMessages - Array of Structure:
-//         ** PhoneNumbers - Array of String - 
+//         ** PhoneNumbers - Array of String - Report recipient's phone numbers.
 //         ** SMSMessageText - String
 //         ** Recipient - DefinedType.BulkEmailRecipient	
 //     * Form - ClientApplicationForm:
@@ -436,7 +452,7 @@ EndProcedure
 Procedure SendBulkSMSMessagesInBackgroundCompletion(Job, Parameters) Export
 	
 	If Job = Undefined Then
-		Return; // 
+		Return; // Canceled.
 	EndIf;
 		
 	Form = Parameters.Form;     
@@ -476,7 +492,7 @@ Procedure ResponseClearUpReportDistributionHistory(Result, Parameters) Export
 	
 EndProcedure
 
-// Starts a background task, called when all parameters are ready.
+// Runs background job, it is called when all parameters are ready.
 Procedure ClearUpReportDistributionHistoryInBackground(Parameters, AdditionalParameters) Export
 
 	MethodParameters = New Structure;
@@ -500,7 +516,7 @@ EndProcedure
 Procedure ClearUpReportDistributionHistoryCompletion(Job, Parameters) Export
 	
 	If Job = Undefined Then
-		Return; // 
+		Return; // Canceled.
 	EndIf;
 	
 	If Job.Status = "Completed2" Then

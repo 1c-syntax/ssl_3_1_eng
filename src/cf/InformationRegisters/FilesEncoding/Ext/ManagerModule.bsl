@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Returns the encoding of the file version.
+// Returns the file version encoding.
 //
 // Parameters:
-//   VersionRef - DefinedType.AttachedFile -  file version.
+//   VersionRef - DefinedType.AttachedFile - file version.
 //
 // Returns:
 //   String
@@ -30,11 +32,11 @@ Function FileVersionEncoding(VersionRef) Export
 	
 EndFunction
 
-// Records the encoding of the file version.
+// Writes the file version encoding.
 //
 // Parameters:
-//   VersionRef - DefinedType.AttachedFile -  link to the file version.
-//   Encoding - String -  new encoding of the file version.
+//   VersionRef - DefinedType.AttachedFile - a reference to file version.
+//   Encoding - String - new encoding of the file version.
 //
 Procedure WriteFileVersionEncoding(VersionRef, Encoding) Export
 	
@@ -55,11 +57,11 @@ Procedure WriteFileVersionEncoding(VersionRef, Encoding) Export
 	
 EndProcedure
 
-// Automatically detects and returns the encoding of a text file.
+// Automatically determines and returns the text file encoding.
 //
 // Parameters:
 //  AttachedFile - DefinedType.AttachedFile
-//  Extension         - String -  file extension.
+//  Extension         - String - file extension.
 //
 // Returns:
 //  String

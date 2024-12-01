@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.ReportsOptions
 
 // Parameters:
 //   Settings - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
@@ -43,7 +45,7 @@ EndProcedure
 
 #Region Private
 
-// 
+// Prepares a table for checking if the files exist in the volume.
 // 
 // Parameters:
 //  Volume - CatalogRef.FileStorageVolumes - Volume
@@ -76,7 +78,7 @@ Function FilesOnHardDrive(Volume) Export
 	Return FilesTableOnHardDrive;
 EndFunction
 
-// 
+// Restores file links in the given volume.
 // 
 // Parameters:
 //  Volume - CatalogRef.FileStorageVolumes

@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// The procedure updates the register data based on the result of changing role rights
-// that was saved when updating the role information register.
+// Updates the register data based on the result of changing the role rights
+// saved when updating the RolesRights information register.
 //
 Procedure UpdateRegisterDataByConfigurationChanges() Export
 	
@@ -46,20 +48,20 @@ EndProcedure
 
 #Region Private
 
-// The procedure updates the register data when the profile role composition changes
-// and access group profiles change.
+// Updates the register data when changing the profile role content or
+// access group profiles.
 //
 // Parameters:
 //  AccessGroups - CatalogRef.AccessGroups
-//                - Array - 
-//                - Undefined - 
+//                - Array - values of the type specified above.
+//                - Undefined - without filter.
 //
 //  Tables       - CatalogRef.MetadataObjectIDs
 //                - CatalogRef.ExtensionObjectIDs
-//                - Array - 
+//                - Array - values of the type specified above.
 //
-//  HasChanges - Boolean -  (return value) - if a record was made,
-//                  it is set to True, otherwise it is not changed.
+//  HasChanges - Boolean - (return value) - if recorded,
+//                  True is set, otherwise, it does not change.
 //
 Procedure UpdateRegisterData(AccessGroups = Undefined,
                                  Tables       = Undefined,
@@ -247,7 +249,7 @@ Procedure UpdateRegisterData(AccessGroups = Undefined,
 	|FROM
 	|	NewData AS NewData";
 	
-	// 
+	// Preparing the selected fields with optional filter.
 	Fields = New Array; 
 	Fields.Add(New Structure("Table",       "&TableFilterCriterion2"));
 	Fields.Add(New Structure("AccessGroup", "&AccessGroupFilterCriterion2"));
@@ -327,7 +329,7 @@ Procedure UpdateRegisterData(AccessGroups = Undefined,
 		If HasCurrentChanges
 		   And AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 			
-			// 
+			// Schedule an access update.
 			AccessManagementInternal.ScheduleAccessUpdateOnChangeAccessGroupsTables(ChangesContent);
 		EndIf;
 		

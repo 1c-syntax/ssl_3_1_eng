@@ -1,22 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Deletes either one or all entries from the register.
+// Deletes one record or all records from the register.
 //
 // Parameters:
 //  SubjectOf  - DocumentRef
 //           - CatalogRef
-//           - Undefined - 
-//                            
+//           - Undefined - Topic whose record is being deleted.
+//                            If Undefined, the entire register will be cleared.
 //                            
 //
 Procedure DeleteRecordFromRegister(SubjectOf = Undefined) Export
@@ -32,14 +34,14 @@ Procedure DeleteRecordFromRegister(SubjectOf = Undefined) Export
 	
 EndProcedure
 
-// Writes information to the register for the specified item.
+// Writes to the information register for the specified subject.
 //
 // Parameters:
 //  SubjectOf                       - DocumentRef
-//                                - CatalogRef - 
-//  NotReviewedInteractionsCount       - Number -  the number of interactions not considered for the item.
-//  LastInteractionDate  - Date -  date of the last interaction on the subject.
-//  Running                       - Boolean -  indicates that the item is active.
+//                                - CatalogRef - Topic being recorded.
+//  NotReviewedInteractionsCount       - Number - a number of unreviewed interactions for the subject.
+//  LastInteractionDate  - Date - date of last interaction on subject.
+//  Running                       - Boolean - indicates that the subject is active.
 //
 Procedure ExecuteRecordToRegister(SubjectOf,
 	                              NotReviewedInteractionsCount = Undefined,
@@ -101,12 +103,12 @@ Procedure ExecuteRecordToRegister(SubjectOf,
 
 EndProcedure
 
-// Blocks the RS state of objects and Interactions.
+// Locks the InteractionsSubjectsStates information register.
 // 
 // Parameters:
-//  Block       - DataLock -  lock to be set.
-//  DataSource   - ValueTable -  the data source for the lock.
-//  NameSourceField - String -  name of the source field that will be used to set the item lock.
+//  Block       - DataLock - a set lock.
+//  DataSource   - ValueTable - a data source to be locked.
+//  NameSourceField - String - the source field name that will be used to set the lock by subject.
 //
 Procedure BlockInteractionObjectsStatus(Block, DataSource, NameSourceField) Export
 	

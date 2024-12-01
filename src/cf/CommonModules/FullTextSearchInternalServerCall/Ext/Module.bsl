@@ -1,21 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
-// Sets the full-text search mode
-// Performs:
-//   - changes the mode of the platform full-text search engine
-//   - setting the value to a constant use full-text Search
-//   - changes the value of the use full text Search function option
-//   - changes the mode of routine task Updatingindexappd
-//   - changes the mode of routine task Mergingindexappd
-//   - changes the mode of routine task of extracting The text of the subsystem for working with Files
+// Sets the full text search mode
+// Executes:
+//   - Changes mode of the platform full text search mechanism
+//   - Sets value to the UseFullTextSearch constant
+//   - Changes value of the UseFullTextSearch functional option
+//   - Changes mode of the FullTextSearchIndexUpdate scheduled job
+//   - Changes mode of the FullTextSearchMergeIndex scheduled job
+//   - Changes mode of the TextExtraction scheduled job of the StoredFiles subsystem
 //
 Function SetFullTextSearchMode(UseFullTextSearch) Export
 	

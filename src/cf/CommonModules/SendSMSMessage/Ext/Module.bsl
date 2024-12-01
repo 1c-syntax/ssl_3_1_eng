@@ -1,27 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Sends an SMS via the configured service provider and returns the message ID.
+// It sends a text message via a configured service provider and returns message ID.
 //
 // Parameters:
-//  RecipientsNumbers  - Array of String -  recipient numbers in the format +7XXXXXXXXXX;
-//  Text              - String -  message text, the maximum length of operators can be different;
-//  SenderName     - String -  the sender's name that will be displayed instead of the recipient's number;
-//  Transliterate - Boolean -  True if you want to translate the message text into translit before sending it.
+//  RecipientsNumbers  - Array of String - Recipient numbers in the format +XXXXXXXXXX.
+//  Text              - String - Message text. The max length varies depending on the SMS provider.
+//  SenderName     - String - Sender's name that recipients will see instead of the phone number.
+//  Transliterate - Boolean - If True, transliterate the outgoing message.
 //
 // Returns:
 //  Structure:
 //    * SentMessages - Array of Structure:
-//      ** RecipientNumber - String -  number of the SMS recipient.
-//      ** MessageID - String -  SMS ID assigned by the provider for tracking delivery.
-//    * ErrorDescription - String -  custom view error, if the string is empty, then there is no error.
+//      ** RecipientNumber - String - Recipient phone number.
+//      ** MessageID - String - Text message ID assigned by the SMS provider.
+//    * ErrorDescription - String - a user presentation of an error. If the string is empty, there is no error.
 //
 Function SendSMS(RecipientsNumbers, Val Text, SenderName = Undefined, Transliterate = False) Export
 	
@@ -109,21 +111,21 @@ Function SendSMS(RecipientsNumbers, Val Text, SenderName = Undefined, Transliter
 	
 EndFunction
 
-// Requests the message delivery status from the service provider.
+// The function requests the delivery status from the SMS provider.
 //
 // Parameters:
-//  MessageID - String -  ID assigned to the SMS when it was sent;
+//  MessageID - String - ID assigned to the outgoing text message.
 //
 // Returns:
-//  String - :
-//           
-//           
-//           
-//           
-//           
-//           
-//                              
-//           
+//  String - The delivery status returned by the service provider:
+//           Pending - Message is not yet processed.
+//           BeingSent - Message is pending in the send-out queue.
+//           Sent - Message is sent, a delivery confirmation is awaited.
+//           NotSent - Message is not sent due to insufficient account balance or operator network congestion.
+//           Delivered - Message is delivered to the addressee.
+//           NotDelivered - Message cannot be delivered as the subscriber is not available or
+//                              delivery confirmation from the subscriber is timed out.
+//           Error - Failed to get a status from the service provider or the status is unknown.
 //
 Function DeliveryStatus(Val MessageID) Export
 	
@@ -137,10 +139,10 @@ Function DeliveryStatus(Val MessageID) Export
 	
 EndFunction
 
-// Checks whether the saved SMS sending settings are correct.
+// This function checks whether saved text message sending settings are correct.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if text message sending is set up.
 //
 Function SMSMessageSendingSetupCompleted() Export
 	
@@ -173,10 +175,10 @@ Function SMSMessageSendingSetupCompleted() Export
 	
 EndFunction
 
-// Checks whether SMS can be sent to the current user.
+// This function checks whether the current user can send text messages.
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - True if text message sending is set up and the current user has sufficient rights to send text messages.
 //
 Function CanSendSMSMessage() Export
 	
@@ -189,7 +191,7 @@ EndFunction
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See CommonOverridable.OnAddClientParameters.
 Procedure OnAddClientParameters(Parameters) Export
@@ -251,23 +253,23 @@ Procedure OnCollectConfigurationStatisticsParameters() Export
 	
 EndProcedure
 
-// Requests the message delivery status from the service provider.
+// The function requests the delivery status from the SMS provider.
 //
 // Parameters:
-//  MessagesIDs - Array of String - 
+//  MessagesIDs - Array of String - IDs assigned to the outgoing text message.
 //
 // Returns:
 //  Map:
-//   * Key - String - 
-//   * Value - String - :
-//           
-//           
-//           
-//           
-//           
-//           
-//                              
-//           
+//   * Key - String - Text message ID.
+//   * Value - String - The delivery status returned by the service provider:
+//           Pending - Message is not yet processed.
+//           BeingSent - Message is pending in the send-out queue.
+//           Sent - Message is sent, a delivery confirmation is awaited.
+//           NotSent - Message is not sent due to insufficient account balance or operator network congestion.
+//           Delivered - Message is delivered to the addressee.
+//           NotDelivered - Message cannot be delivered as the subscriber is not available or
+//                              delivery confirmation from the subscriber is timed out.
+//           Error - Failed to get a status from the service provider or the status is unknown.
 //
 Function DeliveryStatuses(Val MessagesIDs) Export
 	
@@ -381,7 +383,7 @@ Function DefaultAuthorizationMethods()
 EndFunction
 
 
-// SMS sending settings.
+// SMS settings.
 // 
 // Returns:
 //  Structure:
@@ -389,7 +391,7 @@ EndFunction
 //   * Password - String 
 //   * Provider  - String
 //   * SenderName - String 
-//   * AuthorizationMethod - String -  for example, "Pologinuiparolu".
+//   * AuthorizationMethod - String - for example, "ByUsernameAndPassword".
 // 
 Function SMSMessageSendingSettings() Export
 	
@@ -416,7 +418,7 @@ Function DefaultProviderSettings()
 	Result.Insert("OnDefineAuthorizationMethods", False);
 	Result.Insert("WhenDefiningAuthorizationFields", False);
 	Result.Insert("OnFillToDoList", False);
-	Result.Insert("SingleRequestDeliveryStatuses", False);
+	Result.Insert("DeliveryStatusesInOneRequest", False);
 	
 	Return Result;
 	

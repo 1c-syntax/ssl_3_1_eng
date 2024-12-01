@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Web service operation handlers.
 
-// Corresponds to the Upload operation.
+// Matches the Upload web service operation.
 Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage)
 	
 	CheckInfobaseLockForUpdate();
@@ -30,7 +32,7 @@ Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// Corresponds to the Download operation.
+// Matches the Download web service operation.
 Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage)
 	
 	CheckInfobaseLockForUpdate();
@@ -45,7 +47,7 @@ Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// Corresponds to the UploadData operation.
+// Matches the UploadData web service operation.
 Function RunDataExport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -65,7 +67,7 @@ Function RunDataExport(ExchangePlanName,
 	
 EndFunction
 
-// Corresponds to the DownloadData operation.
+// Matches the DownloadData web service operation.
 Function RunDataImport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -84,7 +86,7 @@ Function RunDataImport(ExchangePlanName,
 	
 EndFunction
 
-// Corresponds to the GetIBParameters operation.
+// Matches the GetIBParameters web service operation.
 Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage)
 	
 	Result = DataExchangeServer.InfoBaseAdmParams(ExchangePlanName, NodeCode, ErrorMessage);
@@ -92,7 +94,7 @@ Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage)
 	
 EndFunction
 
-// Corresponds to the CreateExchangeNode operation.
+// Matches the CreateExchangeNode web service operation.
 Function CreateDataExchangeNode(XDTOParameters)
 	
 	DataExchangeServer.CheckDataExchangeUsage(True);
@@ -123,7 +125,7 @@ Function CreateDataExchangeNode(XDTOParameters)
 	
 EndFunction
 
-// Corresponds to the RemoveExchangeNode operation.
+// Matches the RemoveExchangeNode web service operation.
 Function DeleteDataExchangeNode(ExchangePlanName, NodeID)
 	
 	ExchangeNode = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeID);
@@ -143,7 +145,7 @@ Function DeleteDataExchangeNode(ExchangePlanName, NodeID)
 	
 EndFunction
 
-// Corresponds to the GetContinuousOperationStatus operation.
+// Matches the GetContinuousOperationStatus web service operation.
 Function GetTimeConsumingOperationState(OperationID, ErrorMessageString)
 	
 	BackgroundJobStates = New Map;
@@ -172,7 +174,7 @@ Function GetTimeConsumingOperationState(OperationID, ErrorMessageString)
 	Return BackgroundJobStates.Get(BackgroundJob.State);
 EndFunction
 
-// Corresponds to the PrepareGetFile operation.
+// Matches the PrepareGetFile web service operation.
 Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity)
 	
 	SetPrivilegedMode(True);
@@ -190,7 +192,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity)
 	MoveFile(SourceFileName1, SourceFileNameInTemporaryDirectory);
 	
 	If BlockSize <> 0 Then
-		// 
+		// Splitting a file into parts
 		FilesNames = SplitFile(SourceFileNameInTemporaryDirectory, BlockSize * 1024);
 		PartQuantity = FilesNames.Count();
 		
@@ -204,7 +206,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity)
 	
 EndFunction
 
-// Corresponds to the GetFilePart operation.
+// Matches the GetFilePart web service operation.
 Function GetFilePart(TransferId, PartNumber, PartData)
 	
 	FilesNames = FindPartFile(TemporaryExportDirectory(TransferId), PartNumber);
@@ -230,7 +232,7 @@ Function GetFilePart(TransferId, PartNumber, PartData)
 	
 EndFunction
 
-// Corresponds to the ReleaseFile operation.
+// Matches the ReleaseFile web service operation.
 Function ReleaseFile(TransferId)
 	
 	Try
@@ -244,12 +246,12 @@ Function ReleaseFile(TransferId)
 	
 EndFunction
 
-// Corresponds to the PutFilePart operation.
+// Matches the PutFilePart web service operation.
 //
 // Parameters:
-//   TransferId - UUID -  unique ID of the data transfer session.
-//   PartNumber - Number -  part number of the file.
-//   PartData - BinaryData -  data part of the file.
+//   TransferId - UUID - data transfer session UUID.
+//   PartNumber - Number - the file part number.
+//   PartData - BinaryData - the file part details.
 //
 Function PutFilePart(TransferId, PartNumber, PartData)
 	
@@ -269,7 +271,7 @@ Function PutFilePart(TransferId, PartNumber, PartData)
 	
 EndFunction
 
-// Corresponds to the SaveFileFromParts operation.
+// Matches the SaveFileFromParts web service operation.
 Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 	
 	SetPrivilegedMode(True);
@@ -331,7 +333,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId)
 	
 EndFunction
 
-// Corresponds to the PutMessageForDataMatching operation.
+// Matches the PutMessageForDataMatching web service operation.
 Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID)
 	
 	ExchangeNode = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeID);
@@ -351,9 +353,9 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID)
 	
 	DataExchangeInternal.PutMessageForDataMapping(ExchangeNode, FileID);
 	
-	//  
-	// 
-	// 
+	// The web client and the thin client have dedicated temporary directories. 
+	// Configuring syncing from the thin client will result in an error due to the missing file
+	// in the temporary directory.
 	// 
 	MoveTheMessageFileForTheFileIB(FileID);
 	
@@ -361,16 +363,16 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID)
 	
 EndFunction
 
-// Corresponds to the Ping operation.
+// Matches the Ping web service operation.
 Function Ping()
-	// 
+	// Test connection.
 	Return "";
 EndFunction
 
-// Corresponds to the TestConnection operation.
+// Matches the TestConnection web service operation.
 Function TestConnection(ExchangePlanName, NodeCode, Result)
 	
-	// 
+	// Checking whether a user has rights to perform the data exchange.
 	Try
 		DataExchangeServer.CheckCanSynchronizeData(True);
 	Except
@@ -378,7 +380,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result)
 		Return False;
 	EndTry;
 	
-	// 
+	// Checking whether the infobase is locked for update.
 	Try
 		CheckInfobaseLockForUpdate();
 	Except
@@ -388,7 +390,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result)
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Checking whether the exchange plan node exists (it might be deleted).
 	NodeRef1 = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeCode);
 	If NodeRef1 = Undefined
 		Or Common.ObjectAttributeValue(NodeRef1, "DeletionMark") Then
@@ -408,7 +410,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Local internal procedures and functions.
 
 Procedure CheckInfobaseLockForUpdate()
 	

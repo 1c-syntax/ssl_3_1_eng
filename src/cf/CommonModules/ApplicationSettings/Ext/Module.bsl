@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region ForCallsFromOtherSubsystems
 
-// 
-// 
+// Called from the "OnCreateAtServer" handler of the SSL administration panel.
+// Sets up the visibility of the SSL library management elements.
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -140,11 +142,11 @@ Procedure OnlineSupportAndServicesOnCreateAtServer(Form, Cancel, StandardProcess
 	
 EndProcedure
 
-// 
+// Saves constant values of the SSL/OSL "Online support and services" administration panel.
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
-//  ConstantName - String - 
+//  ConstantName - String - The name of the modified value.
 //  NewValue - Arbitrary
 //
 Procedure OnlineSupportAndServicesOnConstantChange(Form, ConstantName, NewValue) Export
@@ -163,11 +165,11 @@ Procedure OnlineSupportAndServicesOnConstantChange(Form, ConstantName, NewValue)
 	
 EndProcedure
 
-//  
-// 
+// Saves the addresses web service constant value on the 
+// SSL/OSL "Online support and services" administration panel.
 //
 // Parameters:
-//  UseAddressesWebService - Boolean -  
+//  UseAddressesWebService - Boolean - If set to False, the procedure uses only the local data. 
 //
 Procedure InternetSupportAndServicesWebServiceUsage(UseAddressesWebService) Export
 	
@@ -181,15 +183,15 @@ Procedure InternetSupportAndServicesWebServiceUsage(UseAddressesWebService) Expo
 	
 EndProcedure
 
-// 
-// 
+// Handles the "OnChange" event on the following forms of the SSL/OSL "Online support and services" administration panel:
+// "MonitoringCenterAllowSendingData", "MonitoringCenterAllowSendingDataToThirdParty", "MonitoringCenterProhibitSendingData".
 // 
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
 //  Item - FormField
-//  OperationParametersList - Structure of KeyAndValue - 
-//  
+//  OperationParametersList - Structure of KeyAndValue - Filled with parameters that will be passed for the execution
+//  in the client environment.
 //
 Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationParametersList) Export
 	Var RunResult;
@@ -231,8 +233,8 @@ Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationPar
 	
 EndProcedure
 
-// 
-// 
+// Handles the "OnChange" event on the "MonitoringCenterServiceAddress" form in
+// the SSL/OSL "Online support and services" administration panel.
 //
 // Parameters:
 //  Form - See DataProcessor.SSLAdministrationPanel.Form.InternetSupportAndServices
@@ -247,7 +249,7 @@ Procedure OnlineSupportAndServicesMonitoringCenterOnChange(Form, Item) Export
 			AddressStructure1.Port = ?(AddressStructure1.Schema = "https", 443, 80);
 		EndIf;
 	Except
-		//  
+		// The address format must comply with RFC 3986. See the function "CommonClientServer.URIStructure".
 		ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Service address %1 is not a valid web service address for sending usage reports.';"),
 			Form.MonitoringCenterServiceAddress);
@@ -293,7 +295,7 @@ Function GetDataSendingRadioButtons(EnableMonitoringCenter, ApplicationInformati
 	ElsIf State = "10" Then
 		Result = 0;
 	ElsIf State = "11" Then
-		// 
+		// But this cannot happen...
 	EndIf;
 	
 	Return Result;

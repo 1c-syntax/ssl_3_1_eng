@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Called to write the States of the original printed forms to the register after printing the form.
+// Called to record original states of print forms to the register after printing the form.
 //
 //	Parameters:
-//  PrintObjects - ValueList -  list of links to print objects.
-//  PrintList - ValueList -  a list with the names of the models and views printed forms.
-//   Written1 - Boolean -  indicates that the status of the document is recorded in the register.
+//  PrintObjects - ValueList - a list of references to print objects.
+//  PrintList - ValueList - a list with template names and print form presentations.
+//   Written1 - Boolean - indicates that the document state is written to the register.
 //
 Procedure WriteOriginalsStatesAfterPrint(PrintObjects, PrintList, Written1 = False) Export
 
@@ -31,23 +33,23 @@ EndProcedure
 
 #Region Private
 
-// Records the new state of the original document.
+// Saves the new state of a source document.
 //	
 // Parameters:
-//  RecordData - Array of Structure - :
-//                 * OverallState 						- Boolean -  True if the current state is shared;
-//                 * Ref 								- DocumentRef -  link to the document for which you want to change the state of the original;
+//  RecordData - Array of Structure - Information on the current document state:
+//                 * OverallState 						- Boolean - True if the current state is overall;
+//                 * Ref 								- DocumentRef - A reference to the document whose source document's state should be changed.
 //                 * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -
-//                                                           current status of the original primary document;
-//                 * SourceDocument 					- String -  id of the primary document. Set if this state is not shared;
-//                 * FromOutside 								- Boolean -  True if the primary document was added manually by the user. Set if this state is not shared. 
-//               - DocumentRef -  a link to the document for which you want to change the state of the original.
-//  StateName - String -  set state.
+//                                                           a current state of the source document original.
+//                 * SourceDocument 					- String - a source document ID. It is specified if this state is not overall;
+//                 * FromOutside 								- Boolean - True if the source document was added by the user manually. Specified if this state is not overall. 
+//               - DocumentRef - A reference to the document whose source document's state should be changed.
+//  StateName - String - The state to be applied.
 // 
 // Returns:
-//  String - 
-//            
-//            
+//  String - "IsChanged" is the source document state is not repeated and was saved.
+//           "NotIsChanged" 
+//           "NotCarriedOut" 
 //
 Function SetNewOriginalState(Val RecordData, Val StateName) Export
 
@@ -55,10 +57,10 @@ Function SetNewOriginalState(Val RecordData, Val StateName) Export
 
 EndFunction
 
-// Returns a reference to the document by the barcode of the tabular document
+// Returns a reference to the document by the spreadsheet document barcode
 //
 // Parameters:
-//  Barcode - String -  scanned barcode of the document.
+//  Barcode - String - the scanned document barcode.
 //
 Procedure ProcessBarcode(Barcode) Export
 	
@@ -66,16 +68,16 @@ Procedure ProcessBarcode(Barcode) Export
 
 EndProcedure
 
-// Returns a structure with data about the current General state of the original document by reference.
+// Returns a structure with data on the current overall state of the document original by reference.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef -  a link to the document for which you want to get information about the general state. 
+//  DocumentRef - DocumentRef - a reference to the document whose overall state details must be received. 
 //
 //  Returns:
-//    Structure - :
-//    * Ref - DocumentRef -  link to the document;
-//    * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates -  the current
-//        state of the original document.
+//    Structure - General information about the source document state:
+//    * Ref - DocumentRef - document reference;
+//    * SourceDocumentOriginalState - CatalogRef.SourceDocumentsOriginalsStates - the current
+//        state of a document original.
 //
 Function OriginalStateInfoByRef(DocumentRef) Export
 
@@ -83,11 +85,11 @@ Function OriginalStateInfoByRef(DocumentRef) Export
 	
 EndFunction
 
-// Fills in the drop-down list for selecting States on the form.
+// Fills in the drop-down choice list of states on the form.
 // 
 //	Parameters:
-//  OriginalStatesChoiceList - ValueList -  the states of the original, allowed to users, and used when
-//                                                    changing the state of the original.
+//  OriginalStatesChoiceList - ValueList - original states available to users and used when
+//                                                    changing the original state.
 //
 Procedure FillOriginalStatesChoiceList(OriginalStatesChoiceList) Export
 	
@@ -107,13 +109,13 @@ Procedure FillOriginalStatesChoiceList(OriginalStatesChoiceList) Export
 	EndDo;
 EndProcedure
 
-// Checks and returns whether the referenced document is an original document.
+// Checks and returns a flag indicating whether the document by reference is a document with originals recording.
 //
 //	Parameters:
-//  ObjectRef - DocumentRef -  link to the document that you want to check.
+//  ObjectRef - DocumentRef - a reference to the document to be checked.
 //
 //	Returns:
-//  Boolean - 
+//  Boolean - True if the document is an object with originals recording.
 //
 Function IsAccountingObject(ObjectRef) Export
 	
@@ -121,13 +123,13 @@ Function IsAccountingObject(ObjectRef) Export
 
 EndFunction
 
-// Returns the key for recording the General state register of the original document by reference.
+// Returns a record key of the register of overall document original state by reference.
 //
 //	Parameters:
-//  DocumentRef - DocumentRef -  link to the document for which you need to get the shared state record key.
+//  DocumentRef - DocumentRef - a reference to the document for which a record key of overall state must be received.
 //
 //	Returns:
-//  InformationRegisterRecordKey.SourceDocumentsOriginalsStates - 
+//  InformationRegisterRecordKey.SourceDocumentsOriginalsStates - a record key of the register of overall document original state.
 //
 Function OverallStateRecordKey(DocumentRef) Export
 

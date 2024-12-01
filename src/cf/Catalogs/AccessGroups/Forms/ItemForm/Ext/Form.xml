@@ -510,16 +510,16 @@
 									<AutoCommandBar name="AccessValuesCommandBar" id="68">
 										<Autofill>false</Autofill>
 										<ChildItems>
-											<Button name="AccessValuesSelectAccessValues_" id="457">
+											<Button name="AccessValuesPickAccessValues" id="457">
 												<Type>CommandBarButton</Type>
-												<CommandName>Form.Command.SelectAccessValues_</CommandName>
+												<CommandName>Form.Command.PickAccessValues</CommandName>
 												<Title>
 													<v8:item>
 														<v8:lang>en</v8:lang>
 														<v8:content>Pick</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="AccessValuesSelectAccessValues_ExtendedTooltip" id="458"/>
+												<ExtendedTooltip name="AccessValuesPickAccessValuesExtendedTooltip" id="458"/>
 											</Button>
 											<Button name="AccessValuesAdd" id="461">
 												<Type>CommandBarButton</Type>
@@ -1024,7 +1024,7 @@
 			<Action>WriteAndClose</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="SelectAccessValues_" id="4">
+		<Command name="PickAccessValues" id="4">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1037,7 +1037,7 @@
 					<v8:content>Pick</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>SelectAccessValues_</Action>
+			<Action>PickAccessValues</Action>
 		</Command>
 	</Commands>
 </Form>

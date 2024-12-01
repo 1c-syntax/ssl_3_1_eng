@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Deletes either one or all entries from the register.
+// Deletes one record or all records from the register.
 //
 // Parameters:
-//  Folder  - CatalogRef.EmailMessageFolders  -  the folder for which the record is being deleted.
-//         - Undefined - 
+//  Folder  - CatalogRef.EmailMessageFolders  - a folder, for which the record is being deleted.
+//         - Undefined - Entire register will be cleared.
 //
 Procedure DeleteRecordFromRegister(Folder = Undefined) Export
 	
@@ -29,11 +31,11 @@ Procedure DeleteRecordFromRegister(Folder = Undefined) Export
 	
 EndProcedure
 
-// Writes information to the register for the specified folder.
+// Writes to the information register for the specified folder.
 //
 // Parameters:
-//  Folder  - CatalogRef.EmailMessageFolders -  the folder that you are recording is in progress.
-//  Count  - Number -  the number of interactions not considered for this folder.
+//  Folder  - CatalogRef.EmailMessageFolders - a folder to be recorded.
+//  Count  - Number - a number of unreviewed interactions for this folder.
 //
 Procedure ExecuteRecordToRegister(Folder, Count) Export
 
@@ -46,12 +48,12 @@ Procedure ExecuteRecordToRegister(Folder, Count) Export
 
 EndProcedure
 
-// Blocks the PC state of the folder List.
+// Locks the EmailFolderStates information register.
 // 
 // Parameters:
-//  Block       - DataLock -  lock to be set.
-//  DataSource   - ValueTable -  the data source for the lock.
-//  NameSourceField - String -  name of the source field that will be used to set the folder lock.
+//  Block       - DataLock - a set lock.
+//  DataSource   - ValueTable - a data source to be locked.
+//  NameSourceField - String - the source field name that will be used to set the lock by folder.
 //
 Procedure BlockEmailsFoldersStatus(Block, DataSource, NameSourceField) Export
 	

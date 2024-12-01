@@ -1,24 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Defines the purpose of the profile.
+// Determines the profile assignment.
 //
 // Parameters:
-//  Profile - CatalogObject.AccessGroupProfiles -  profile with the Destination table part.
-//          - FormDataStructure   - 
-//          - Structure              -  description of the supplied profile.
-//          - FixedStructure -  description of the supplied profile.
+//  Profile - CatalogObject.AccessGroupProfiles - a profile with the Assignment tabular section.
+//          - FormDataStructure   - a profile object structure in the form.
+//          - Structure              - a built-in profile details.
+//          - FixedStructure - a built-in profile details.
 //
 // Returns:
-//  String -  "For Admins", "For Users", "For External Users",
-//           "For Joint Usersexternal Users".
+//  String - ForAdministrators, ForUsers, ForExternalUsers,
+//            BothForUsersAndExternalUsers.
 //
 Function ProfileAssignment(Profile) Export
 	
@@ -51,12 +53,12 @@ Function ProfileAssignment(Profile) Export
 	
 EndFunction
 
-// Checks whether the access type matches the profile purpose.
+// Checks whether the access kind matches the profile assignment.
 //
 // Parameters:
-//  AccessKind        - String -  name of the access type.
-//                    - DefinedType.AccessValue - 
-//  ProfileAssignment - String -  returned by the profile Assignment function.
+//  AccessKind        - String - Access kind name.
+//                    - DefinedType.AccessValue - Access kind value type.
+//  ProfileAssignment - String - returned by the ProfileAssignment function.
 //  
 // Returns:
 //  Boolean
@@ -80,7 +82,7 @@ Function AccessKindMatchesProfileAssignment(Val AccessKind, ProfileAssignment) E
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Management of AccessKinds and AccessValues tables in edit forms.
 
 // For internal use only.
 Procedure FillAllAllowedPresentation(Form, AccessKindDetails, AddValuesCount = True) Export
@@ -213,7 +215,7 @@ Procedure OnChangeCurrentAccessKind(Form, ProcessingAtClient = True) Export
 				Items.AccessKindsTypes.CurrentPage = Items.PresetAccessKind;
 			EndIf;
 			
-			// 
+			// Set a value filter.
 			RefreshRowsFilter = False;
 			RowFilter = Items.AccessValues.RowFilter;
 			Filter = FilterInAllowedValuesEditFormTables(Form, CurrentData.AccessKind);
@@ -253,7 +255,7 @@ Procedure OnChangeCurrentAccessKind(Form, ProcessingAtClient = True) Export
 				NStr("en = 'Allowed values (%1)';") );
 		EndIf;
 		
-		// 
+		// Refresh the field AccessKindLabel.
 		Form.AccessKindLabel = StringFunctionsClientServer.SubstituteParametersToString(LabelPattern,
 			String(CurrentData.AccessKindPresentation));
 		
@@ -326,8 +328,8 @@ EndProcedure
 //     * Purpose                          - See PurposeFromForm
 //     * AccessKinds                         - See AccessKindsFromForm
 //     * AccessValues                     - See AccessValuesFromForm
-//     * UseExternalUsers    - Boolean -  details will be created if not in the form
-//     * AccessKindLabel                   - String -  representation of the current access type in the form
+//     * UseExternalUsers    - Boolean - an attribute will be created if it is not in the form
+//     * AccessKindLabel                   - String - a presentation of the current access kind in the form
 //     * IsAccessGroupProfile              - Boolean
 //     * CurrentAccessKind                   - DefinedType.AccessValue
 //     * CurrentTypesOfValuesToSelect       - ValueList
@@ -376,7 +378,7 @@ EndFunction
 // Returns:
 //  Filter - Structure:
 //   * AccessGroup - CatalogRef.AccessGroups
-//   * AccessKind - DefinedType.AccessValue -  empty link of the main type of access type.
+//   * AccessKind - DefinedType.AccessValue - a blank reference of the main access kind value type.
 //
 Function FilterInAllowedValuesEditFormTables(Form, AccessKind = "NoFilterByAccessKind") Export
 	
@@ -456,12 +458,12 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 	AccessKinds = Parameters.AccessKinds.FindRows(AccessKindsFilter);
 	AccessKindIndex = AccessKinds.Count();
 	
-	// 
+	// Checking for unfilled or duplicate access kinds.
 	While AccessKindIndex > 0 Do
 		AccessKindIndex = AccessKindIndex - 1;
 		AccessKindRow = AccessKinds[AccessKindIndex];
 		
-		// 
+		// Checking whether the access kind is filled.
 		If AccessKindRow.AccessKind = Undefined Then
 			CommonClientServer.AddUserError(Errors,
 				Parameters.PathToTables + "AccessKinds[%1].AccessKind",
@@ -474,7 +476,7 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 			Continue;
 		EndIf;
 		
-		// 
+		// Checking whether the access kind matches the profile assignment.
 		If Parameters.Purpose <> Undefined
 		  And Not AccessKindMatchesProfileAssignment(AccessKindRow.AccessKind, ProfileAssignment) Then
 			
@@ -491,7 +493,7 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 			Continue;
 		EndIf;
 		
-		// 
+		// Checking for duplicate access kinds.
 		AccessKindsFilter.Insert("AccessKind", AccessKindRow.AccessKind);
 		FoundAccessKinds = Parameters.AccessKinds.FindRows(AccessKindsFilter);
 		
@@ -519,7 +521,7 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 			AccessValueIndex = AccessValueIndex - 1;
 			AccessValueRow = AccessValues[AccessValueIndex];
 			
-			// 
+			// Checking whether the access value is filled.
 			If AccessValueRow.AccessValue = Undefined Then
 				Items.AccessKinds.CurrentRow = AccessKindRow.GetID();
 				Items.AccessValues.CurrentRow = AccessValueRow.GetID();
@@ -535,7 +537,7 @@ Procedure ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 				Continue;
 			EndIf;
 			
-			// 
+			// Checking for duplicate values.
 			AccessValuesFilter.Insert("AccessValue", AccessValueRow.AccessValue);
 			FoundValues = Parameters.AccessValues.FindRows(AccessValuesFilter);
 			
@@ -582,7 +584,7 @@ EndFunction
 //
 // Returns:
 //   FormDataCollection of FormDataCollectionItem:
-//     * UserType - DefinedType.User -  type of destination.
+//     * UserType - DefinedType.User - assignment type.
 //
 Function PurposeFromForm(Form)
 	
@@ -599,10 +601,10 @@ EndFunction
 //   FormDataCollection of FormDataCollectionItem:
 //    * AccessGroup              - CatalogRef.AccessGroups
 //    * AccessKind                 - DefinedType.AccessValue
-//    * Predefined          - Boolean -  (profile only)
+//    * Predefined          - Boolean - (profile only)
 //    * AllAllowed               - Boolean
-//    * AccessKindPresentation    - String -  settings view,
-//    * AllAllowedPresentation  - String -  settings view,
+//    * AccessKindPresentation    - String - setting presentation,
+//    * AllAllowedPresentation  - String - setting presentation,
 //    * Used               - Boolean
 //
 Function AccessKindsFromForm(Form)

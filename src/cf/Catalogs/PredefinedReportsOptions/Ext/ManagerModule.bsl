@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,12 +14,12 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Names of directory details whose values can be changed EN masse.
+// Names of catalog attributes whose values are available for bulk modification.
 //
 // Returns:
-//   Array of String - 
+//   Array of String - Names of catalog attributes.
 //
 Function AttributesToEditInBatchProcessing() Export
 	
@@ -29,12 +31,12 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// SaaSTechnology.ExportImportData
 
-// Names of reference list details that are used to control the uniqueness of elements.
+// Names of catalog attributes used to ensure item uniqueness.
 //
 // Returns:
-//   Array of String - 
+//   Array of String - Names of catalog attributes.
 //
 Function NaturalKeyFields() Export
 	
@@ -47,7 +49,7 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End CloudTechnology.ExportImportData
+// End SaaSTechnology.ExportImportData
 
 #EndRegion
 

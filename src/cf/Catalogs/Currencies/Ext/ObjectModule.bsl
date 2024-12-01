@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -115,6 +117,17 @@ Procedure BeforeWrite(Cancel)
 	If RateSource <> Enums.RateSources.CalculationByFormula Then
 		RateCalculationFormula = "";
 	EndIf;
+	
+	If ValueIsFilled(RateCalculationFormula) Then
+		Try
+			CheckFormula(RateCalculationFormula);
+		Except
+			ErrorInfo = ErrorInfo();
+			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo,
+				NStr("en = 'Failed to calculate the exchange rate using the formula:';"));
+			Raise(Refinement.Text, Refinement.Category, , , ErrorInfo);
+		EndTry;
+	EndIf;
 
 EndProcedure
 
@@ -124,14 +137,19 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 
-	If AdditionalProperties.Property("UpdateRates") And IsBackgroundCurrencyExchangeRatesRecalculationRunning() Then
+	UpdateRates = AdditionalProperties.Property("UpdateRates");
+	IsNew = AdditionalProperties.Property("IsNew");
+	RecordingOfCoursesIsRequired = UpdateRates Or IsNew;
+	IsBackgroundCurrencyExchangeRatesRecalculationRunning = IsBackgroundCurrencyExchangeRatesRecalculationRunning();
+	
+	If RecordingOfCoursesIsRequired And IsBackgroundCurrencyExchangeRatesRecalculationRunning Then
 		Raise NStr("en = 'Couldn''t save the currency because the background calculation of exchange rates is running.
 							   |Try to save the currency later.';");
 	EndIf;
 
-	If AdditionalProperties.Property("UpdateRates") Then
+	If UpdateRates Then
 		StartBackgroundCurrencyExchangeRatesUpdate();
-	Else
+	ElsIf Not IsBackgroundCurrencyExchangeRatesRecalculationRunning Then
 		CurrencyRateOperations.CheckCurrencyRateAvailabilityFor01011980(Ref);
 	EndIf;
 
@@ -232,6 +250,19 @@ Function CurrenciesUsedInCalculatingTheExchangeRate()
 	Return QueryResult.Unload().UnloadColumn("Ref");
 
 EndFunction
+
+Procedure CheckFormula(Formula) Export
+	
+	CurrencyCodes = Catalogs.Currencies.CurrencyCodes();
+	Expression = Catalogs.Currencies.FormatNumbers(Formula);
+	
+	For Each Currency In CurrencyCodes Do
+		Expression = StrReplace(Expression, Currency.AlphabeticCode, "1");
+	EndDo;
+	
+	Common.CalculateInSafeMode(Expression);
+	
+EndProcedure
 
 #EndRegion
 

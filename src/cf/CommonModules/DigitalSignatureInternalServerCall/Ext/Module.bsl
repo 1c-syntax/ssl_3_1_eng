@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
@@ -251,6 +253,84 @@ Function CertificateRef(Thumbprint, CertificateAddress) Export
 	
 EndFunction
 
+Function AddedCertificates(NewCertificate) Export
+	
+	Result = New Array;
+	
+	If TypeOf(NewCertificate) = Type("CatalogRef.DigitalSignatureAndEncryptionKeysCertificates") Then
+		Certificates = CommonClientServer.ValueInArray(NewCertificate);
+	Else
+		Certificates = NewCertificate;
+	EndIf;
+	
+	Query = New Query;
+	Query.SetParameter("Certificates", Certificates);
+	Query.Text =
+	"SELECT ALLOWED
+	|	DigitalSignatureAndEncryptionKeysCertificates.CertificateData AS OldCertificateData,
+	|	ElectronicSignatureAndEncryptionKeyCertificatesNew.CertificateData AS NewCertificateData,
+	|	DigitalSignatureAndEncryptionKeysCertificates.Ref AS OldCertificateLink,
+	|	ElectronicSignatureAndEncryptionKeyCertificatesNew.Ref AS NewCertificateLink
+	|FROM
+	|	Catalog.DigitalSignatureAndEncryptionKeysCertificates AS ElectronicSignatureAndEncryptionKeyCertificatesNew
+	|		LEFT JOIN Catalog.DigitalSignatureAndEncryptionKeysCertificates AS DigitalSignatureAndEncryptionKeysCertificates
+	|		ON (ElectronicSignatureAndEncryptionKeyCertificatesNew.IssuedTo <> """"
+	|				OR ElectronicSignatureAndEncryptionKeyCertificatesNew.Firm <> """")
+	|			AND ElectronicSignatureAndEncryptionKeyCertificatesNew.Ref <> DigitalSignatureAndEncryptionKeysCertificates.Ref
+	|			AND ElectronicSignatureAndEncryptionKeyCertificatesNew.IssuedTo = DigitalSignatureAndEncryptionKeysCertificates.IssuedTo
+	|			AND ElectronicSignatureAndEncryptionKeyCertificatesNew.Firm = DigitalSignatureAndEncryptionKeysCertificates.Firm
+	|			AND ElectronicSignatureAndEncryptionKeyCertificatesNew.ValidBefore > DigitalSignatureAndEncryptionKeysCertificates.ValidBefore
+	|			AND (DigitalSignatureAndEncryptionKeysCertificates.ValidBefore <> DATETIME(1, 1, 1))
+	|WHERE
+	|	ElectronicSignatureAndEncryptionKeyCertificatesNew.Ref IN(&Certificates)
+	|
+	|ORDER BY
+	|	DigitalSignatureAndEncryptionKeysCertificates.ValidBefore DESC
+	|TOTALS BY
+	|	NewCertificateLink";
+	
+	QueryResult = Query.Execute();
+	
+	SelectionIsNew = QueryResult.Select(QueryResultIteration.ByGroups);
+	While SelectionIsNew.Next() Do
+		
+		Structure = New Structure("NewCertificate, OldCertificate", SelectionIsNew.NewCertificateLink);
+		PropertiesOfNewSubject = Undefined;
+		Selection = SelectionIsNew.Select();
+		While Selection.Next() Do
+			If Selection.OldCertificateData = Null Then
+				Break;
+			EndIf;
+			
+			If PropertiesOfNewSubject = Undefined Then
+				CertificateData = Selection.NewCertificateData.Get();
+				If TypeOf(CertificateData) <> Type("BinaryData") Then
+					Break;
+				EndIf;
+				CryptoCertificate = New CryptoCertificate(CertificateData);
+				PropertiesOfNewSubject = DigitalSignature.CertificateSubjectProperties(CryptoCertificate);
+			EndIf;
+
+			CertificateData = Selection.OldCertificateData.Get();
+			CryptoCertificate = New CryptoCertificate(CertificateData);
+			PropertiesOfOldSubject = DigitalSignature.CertificateSubjectProperties(CryptoCertificate);
+
+			If DigitalSignatureInternalClientServer.ThisIsCertificateReplacement(PropertiesOfNewSubject,
+				PropertiesOfOldSubject) Then
+				
+				Structure.OldCertificate = Selection.OldCertificateLink;
+				Break;
+			EndIf;
+		EndDo;
+		
+		Result.Add(Structure);
+		
+	EndDo;
+
+	Return Result;
+	
+EndFunction
+
 // For internal use only.
 Function SubjectPresentation(CertificateAddress) Export
 	
@@ -294,6 +374,10 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 	CreationParameters.Application = Parameters.CertificateApp;
 	CreationParameters.ErrorDescription = New Structure;
 	
+	If Parameters.Operation = "Encryption" Then
+		CreationParameters.EncryptAlgorithm = Parameters.EncryptAlgorithm;
+	EndIf;
+	
 	CryptoManager = DigitalSignatureInternal.CryptoManager(Parameters.Operation, CreationParameters);
 	
 	ErrorAtServer = CreationParameters.ErrorDescription;
@@ -301,7 +385,7 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 		Return False;
 	EndIf;
 	
-	// 
+	// If a personal crypto certificate is not used, it does not need to be searched for.
 	If Parameters.Operation <> "Encryption"
 	 Or ValueIsFilled(Parameters.ThumbprintOfCertificate) Then
 		
@@ -422,7 +506,7 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 			Except
 				ErrorInfo = ErrorInfo();
 			EndTry;
-		Else // 
+		Else // Decryption.
 			CryptoManager.PrivateKeyAccessPassword = Parameters.PasswordValue;
 			Try
 				ResultBinaryData = CryptoManager.Decrypt(Data);
@@ -646,7 +730,7 @@ Function UpdateAdvancedSignature(SignatureProperties) Export
 	
 EndFunction
 
-// For the function Runnastoroneserver.
+// For the ExecuteAtServerSide function.
 Function CryptoCertificates(Val CertificatesProperties)
 	
 	If TypeOf(CertificatesProperties) = Type("String") Then
@@ -700,7 +784,7 @@ Function FindInstalledPrograms(ApplicationsDetails, CheckAtServer1) Export
 	
 EndFunction
 
-// For the procedure, find the installed Programs.
+// Intended for: FindInstalledApplications procedure.
 Function FillApplicationsListForSearch(ApplicationsDetails)
 	
 	SettingsToSupply = Catalogs.DigitalSignatureAndEncryptionApplications.ApplicationsSettingsToSupply();
@@ -756,7 +840,7 @@ Function FillApplicationsListForSearch(ApplicationsDetails)
 	
 EndFunction
 
-// For the procedure, find the installed Programs.
+// Intended for: FindInstalledApplications procedure.
 Function ExtendedApplicationDetails()
 	
 	ApplicationDetails = DigitalSignature.NewApplicationDetails();
@@ -823,7 +907,7 @@ Function AbbreviatedFileName(FileName, RequiredLength) Export
 	
 EndFunction
 
-// 
+// Looks up for individuals by description.
 // 
 // Parameters:
 //   IssuedTo - Array of String
@@ -985,6 +1069,8 @@ Procedure AddADescriptionOfTheCertificate(Certificate, FilesDetails, Information
 		Extension = "cer";
 		SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
 			CertificateData, True);
+		CertificateData = GetBinaryDataFromString("-----BEGIN CERTIFICATE-----" + Chars.LF + Base64String(
+			CertificateData) + Chars.LF + "-----END CERTIFICATE-----");
 	Else
 		Extension = "txt";
 		XMLCertificateData = XMLString(New ValueStorage(CertificateData));
@@ -1040,6 +1126,8 @@ Procedure AddASignatureDescription(Signature, FilesDetails, InformationRecords, 
 			SignatureData, True);
 		HashAlgorithm = DigitalSignatureInternalClientServer.HashAlgorithm(
 			SignatureData, True);
+		SignatureData = GetBinaryDataFromString("-----BEGIN CMS-----" + Chars.LF + Base64String(SignatureData)
+			+ Chars.LF + "-----END CMS-----");
 	Else
 		Extension = ".txt";
 		XMLSignatureData = XMLString(New ValueStorage(SignatureData));
@@ -1107,12 +1195,12 @@ Function TechnicalInformationArchiveAddress(
 			VerifiedPathsToProgramModulesOnTheClient);
 		StateText = New TextDocument;
 		StateText.SetText(AccompanyingText);
-		FileName = GetTempFileName("txt"); // 
+		FileName = GetTempFileName("txt"); // ACC:441 - Temporary files are deleted downstream.
 		StateText.Write(FileName);
 		TemporaryFiles.Add(FileName);
 		InformationArchive.Add(TemporaryFiles[0]);
 	EndIf;
-		
+	
 	TempDirectory = FileSystem.CreateTemporaryDirectory();
 	
 	If AdditionalFiles <> Undefined Then
@@ -1142,8 +1230,33 @@ Function TechnicalInformationArchiveAddress(
 	
 EndFunction
 
-Function TechnicalInfoFileAddress(Val AccompanyingText,
+Function TechnicalSupportLog()
+	
+	SelectionForMagazine = New Structure;
+	SelectionForMagazine.Insert("Users", Users.CurrentUser());
+	SelectionForMagazine.Insert("StartDate", CurrentSessionDate() - 10*60);
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	TechnicalSupportLog = EventLog.TechnicalSupportLog(SelectionForMagazine, 100);
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
+	
+	Return TechnicalSupportLog;
+	
+EndFunction
+
+// Addresses of files containing technical information.
+// 
+// Returns:
+//  Structure - Addresses of files containing technical information:
+// * TechnicalInformation - String
+// * EventLog - String
+//
+Function AddressesOfTechnicalInformationFiles(Val AccompanyingText,
 			Val VerifiedPathsToProgramModulesOnTheClient) Export
+	
+	Addresses = New Structure("TechnicalInformation, EventLog");
 	
 	DigitalSignatureInternal.SupplementWithTechnicalInformationAboutServer(AccompanyingText,
 		VerifiedPathsToProgramModulesOnTheClient);
@@ -1158,8 +1271,10 @@ Function TechnicalInfoFileAddress(Val AccompanyingText,
 		New UUID);
 	
 	FileSystem.DeleteTempFile(FileName);
+	Addresses.TechnicalInformation = FileAddress;
+	Addresses.EventLog = TechnicalSupportLog();
 	
-	Return FileAddress;
+	Return Addresses;
 	
 EndFunction
 

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -17,7 +19,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Raise ErrorText;
 	EndIf;
 	
-	If Not UsersInternalClientServer.TypesOfSafetyWarnings().Property(Parameters.Key) Then
+	If Not UsersInternalClientServer.SecurityWarningKinds().Property(Parameters.Key) Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid security warning specified: %1.';"),
 			Parameters.Key);
@@ -171,8 +173,8 @@ Procedure ManageRoleAtServer()
 	
 	IAgreeAtServer();
 	
-	// 
-	// 
+	// In SaaS mode, the right to open external reports and date processors
+	// is not supported for data area users.
 	If Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;

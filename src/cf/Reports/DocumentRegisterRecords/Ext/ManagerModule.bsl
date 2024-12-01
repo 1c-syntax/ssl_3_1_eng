@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.ReportsOptions
 
 // Parameters:
 //   Settings - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
@@ -39,46 +41,46 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 EndProcedure
 
-// To call from the procedure, the report variantdefinable.Before adding team reports.
+// To be called from ReportsOptionsOverridable.BeforeAddReportCommands.
 // 
 // Parameters:
-//  ReportsCommands - ValueTable - :
-//       * Id - String -  command ID.
-//       * Presentation - String   -  representation of the team in the form.
-//       * Importance      - String   -  the suffix of the group in the submenu where this command should be output.
-//       * Order       - Number    -  the order in which the team is placed in the group. Used for setting up for a specific
-//                                    workplace.
-//       * Picture      - Picture -  picture of the team.
-//       * Shortcut - Shortcut -  keyboard shortcut to quickly call a command.
-//       * ParameterType - TypeDescription -  types of objects that this command is intended for.
-//       * VisibilityInForms    - String -  comma-separated form names that the command should be displayed in.
-//       * FunctionalOptions - String -  comma-separated names of functional options that define the visibility of the command.
-//       * VisibilityConditions    - Array -  determines the visibility of the command depending on the context.
-//       * ChangesSelectedObjects - Boolean -  determines whether the command is available.
+//  ReportsCommands - ValueTable - Table of commands to add to a submenu:
+//       * Id - String - Command ID.
+//       * Presentation - String   - Command presentation in a form.
+//       * Importance      - String   - a suffix of a submenu group in which the command is to be output.
+//       * Order       - Number    - Command position in the group. Can be customized workspace-wise.
+//                                    
+//       * Picture      - Picture - Command icon.
+//       * Shortcut - Shortcut - a shortcut for fast command call.
+//       * ParameterType - TypeDescription - types of objects that the command is intended for.
+//       * VisibilityInForms    - String - comma-separated names of forms on which the command is to be displayed.
+//       * FunctionalOptions - String - Comma-delimited names of functional options that affect the command visibility.
+//       * VisibilityConditions    - Array - defines the command visibility depending on the context.
+//       * ChangesSelectedObjects - Boolean - defines whether the command is available.
 //       * MultipleChoice - Boolean
-//                            - Undefined - 
-//             
-//             
-//       * WriteMode - String -  actions related to writing an object that are performed before the command handler.
-//       * FilesOperationsRequired - Boolean -  if True, the web client offers
-//             to install an extension to work with 1C:Company.
-//       * Manager - String -  full name of the metadata object responsible for executing the command.
-//       * FormName - String -  name of the form that you want to open or get to run the command.
-//       * VariantKey - String -  name of the report variant to open when running the command.
-//       * FormParameterName - String -  name of the form parameter to pass the link or array of links to.
+//                            - Undefined -  Optional. If True, the command supports multiple option choices.
+//             In this case, the parameter passes a list of references.
+//             By default, True.
+//       * WriteMode - String - actions associated with object writing that are executed before the command handler.
+//       * FilesOperationsRequired - Boolean - If True, in the web client, users are prompted
+//             to install 1C:Enterprise Extension.
+//       * Manager - String - a full name of the metadata object responsible for executing the command.
+//       * FormName - String - a name of the form to be open or retrieved for the command execution.
+//       * VariantKey - String - Name of the report option the command will open.
+//       * FormParameterName - String - Name of the form parameter to pass a reference or a reference array to.
 //       * FormParameters - Undefined
-//                        - Structure - 
-//       * Handler - String -  description of the procedure that processes the main action of the command.
-//       * AdditionalParameters - Structure -  parameters of the handler specified in the Handler.
-//  Parameters                   - Structure -  a structure containing parameters for connecting the command.
+//                        - Structure - Parameters of the form specified in FormName.
+//       * Handler - String - details of the procedure that handles the main action of the command.
+//       * AdditionalParameters - Structure - Handler parameters specified in Handler.
+//  Parameters                   - Structure - a structure containing command connection parameters.
 //  DocumentsWithRecordsReport - Array
-//                              - Undefined - 
-//                                
-//                                
-//                                
+//                              - Undefined - an array of documents in which the
+//                                command of reports opening will be displayed. Undefined if the report is displayed
+//                                for all documents with the Posting property set in Allow
+//                                and filled register records collection.
 //
 // Returns:
-//  ValueTableRow, Undefined - 
+//  ValueTableRow, Undefined - an added command or Undefined if there are no rights to view the report.
 //
 Function AddDocumentRecordsReportCommand(ReportsCommands, Parameters, DocumentsWithRecordsReport = Undefined) Export
 	

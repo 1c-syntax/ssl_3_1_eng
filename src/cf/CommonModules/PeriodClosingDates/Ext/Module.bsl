@@ -1,15 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Checks whether data modification is prohibited when the user interactively edits 
-// or when programmatically loading data from the exchange plan node of the nodelproverkisapretasload Node.
+// Checks whether changing data is denied when a user edits it interactively or when data is imported from 
+// the ImportRestrictionCheckNode exchange plan node programmatically.
 //
 // Parameters:
 //  DataOrFullName  - CatalogObject
@@ -23,10 +25,10 @@
 //                      - InformationRegisterRecordSet
 //                      - AccumulationRegisterRecordSet
 //                      - AccountingRegisterRecordSet
-//                      - CalculationRegisterRecordSet - 
-//                      - String - 
-//                                 
-//                                 
+//                      - CalculationRegisterRecordSet - Data item or record set to be checked.
+//                      - String - Full name of a metadata object whose data is to be checked in the database.
+//                                 Example: "Document.PurchaseInvoice".
+//                                 To specify the data to read and check, use the DataID parameter.
 //                                 
 //
 //  DataID - CatalogRef
@@ -37,30 +39,30 @@
 //                      - BusinessProcessRef
 //                      - TaskRef
 //                      - ExchangePlanRef
-//                      - Filter - 
-//                                
-//                      - Undefined -   
-//                                       
+//                      - Filter - Reference to a data item or a record set filter to be checked.
+//                                The value to be checked will be received from the database.
+//                      - Undefined - do not get data from the database  
+//                                       and check object data in DataOrFullName instead.
 //
-//  ErrorDescription    - Null      -  the default value. Information about prohibitions is not required.
-//                    - String    - 
-//                    - Structure - 
-//                                  
+//  ErrorDescription    - Null      - the default value. Period-end closing data is not required.
+//                    - String    - a return value. Return a text description of available period-end closing dates.
+//                    - Structure - a return value. return a structural description of available period-end closing dates.
+//                                  See the PeriodClosingDates.PeriodEndClosingFound function.
 //
 //  ImportRestrictionCheckNode - Undefined
-//                              - ExchangePlanRef -  
-//                                
+//                              - ExchangePlanRef - if Undefined, check period-end closing; 
+//                                otherwise check data import from the exchange plan node.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if changing data is denied.
 //
 // Call options:
-//   Changesnot allowed (reference Object...) - check the data in the passed object (set of records).
-//   Changesnot allowed(String, reference Link...) - check the data received from the database 
-//      by the full name of the metadata object and the link (selection of a set of records).
-//   Changesnot allowed(reference Object..., reference link...) - check both 
-//      the data in the passed object and the data in the database (i.e. "before" and "after" writing to the database, if the check is performed
-//      before writing the object).
+//   DataChangesDenied(CatalogObject…)        - checks data in a passed object or record set.
+//   DataChangesDenied(String, CatalogRef…) - checks data retrieved from the database by the full 
+//      metadata object name and reference or by a record set filter.
+//   DataChangesDenied(CatalogObject…, CatalogRef…) - simultaneously checks 
+//      data in a passed object and data in the database (in other words, before and after writing to the infobase if the check is performed before
+//      writing the object).
 //
 Function DataChangesDenied(DataOrFullName, DataID = Undefined,
 	ErrorDescription = Null, ImportRestrictionCheckNode = Undefined) Export
@@ -73,7 +75,7 @@ Function DataChangesDenied(DataOrFullName, DataID = Undefined,
 	
 	DataSources = PeriodClosingDatesInternal.DataSourcesForPeriodClosingCheck();
 	If DataSources.Get(MetadataObject.FullName()) = Undefined Then
-		Return False; // 
+		Return False; // Restrictions by dates are not defined for this object type.
 	EndIf;
 	
 	PeriodClosingCheck = ImportRestrictionCheckNode = Undefined;
@@ -122,8 +124,8 @@ Function DataChangesDenied(DataOrFullName, DataID = Undefined,
 	
 EndFunction
 
-// Checks whether the object or set of Data records is not allowed to load.
-// This checks the old and new versions of the data. 
+// Checks the import restriction for an object or the Data record set.
+// It check both old and new data versions. 
 //
 // Parameters:
 //  Data              - CatalogObject
@@ -138,16 +140,16 @@ EndFunction
 //                      - InformationRegisterRecordSet
 //                      - AccumulationRegisterRecordSet
 //                      - AccountingRegisterRecordSet
-//                      - CalculationRegisterRecordSet - 
+//                      - CalculationRegisterRecordSet - a data item or a record set.
 //
-//  ImportRestrictionCheckNode  - ExchangePlanRef -  the node for which you want to check.
+//  ImportRestrictionCheckNode  - ExchangePlanRef - a node to be checked.
 //
-//  Cancel               - Boolean -  returned parameter: True if loading is prohibited.
+//  Cancel               - Boolean - the return value. True if import is restricted.
 //
-//  ErrorDescription      - Null      -  the default value. Information about prohibitions is not required.
-//                      - String    - 
-//                      - Structure - 
-//                                    
+//  ErrorDescription      - Null      - the default value. Period-end closing data is not required.
+//                      - String    - a return value. Return a text description of available period-end closing dates.
+//                      - Structure - a return value. Return a structural description of available period-end closing dates.
+//                                    See the PeriodClosingDates.PeriodEndClosingFound function.
 //
 Procedure CheckDataImportRestrictionDates(Data, ImportRestrictionCheckNode, Cancel, ErrorDescription = Null) Export
 	
@@ -159,7 +161,7 @@ Procedure CheckDataImportRestrictionDates(Data, ImportRestrictionCheckNode, Canc
 	
 	DataSources = PeriodClosingDatesInternal.DataSourcesForPeriodClosingCheck();
 	If DataSources.Get(MetadataObject.FullName()) = Undefined Then
-		Return; // 
+		Return; // Restrictions by dates are not defined for this object type.
 	EndIf;
 	
 	AdditionalParameters = PeriodClosingDatesInternal.PeriodEndClosingDatesCheckParameters();
@@ -177,11 +179,11 @@ Procedure CheckDataImportRestrictionDates(Data, ImportRestrictionCheckNode, Canc
 		
 EndProcedure
 
-// Event handler for the account form in the Server, which is embedded in the forms of reference items,
-// documents, register entries, etc.to block the form if the change is prohibited.
+// The OnReadAtServer form event handler, which is embedded into item forms of catalogs, documents, register records,
+// and other objects to lock the form if data changes are denied.
 //
 // Parameters:
-//  Form               - ClientApplicationForm -  form of an object element or register entry.
+//  Form               - ClientApplicationForm - an item form of an object or a register record form.
 //
 //  CurrentObject       - CatalogObject
 //                      - DocumentObject
@@ -191,10 +193,10 @@ EndProcedure
 //                      - BusinessProcessObject
 //                      - TaskObject
 //                      - ExchangePlanObject
-//                      - InformationRegisterRecordManager - 
+//                      - InformationRegisterRecordManager - a record manager.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if programmatic period-end closing check was skipped.
 //
 Function ObjectOnReadAtServer(Form, CurrentObject) Export
 	
@@ -208,7 +210,7 @@ Function ObjectOnReadAtServer(Form, CurrentObject) Export
 	EndIf;
 	
 	If Common.IsRegister(MetadataObject) Then
-		// 
+		// Converting a record manager to a record set with a single record.
 		DataManager = Common.ObjectManagerByFullName(FullName);
 		Source = DataManager.CreateRecordSet();
 		For Each FilterElement In Source.Filter Do
@@ -232,16 +234,16 @@ Function ObjectOnReadAtServer(Form, CurrentObject) Export
 	
 EndFunction
 
-// Adds a data source description string to check whether changes are not allowed.
-// Used in the procedure to
-// fill in the data source for checking the change Order of the General module of the change order Datesdeterminable.
+// Adds a string of data source details required for the period-end closing check.
+// This procedure is used in the FillDataSourcesForPeriodClosingCheck procedure
+// of the PeriodClosingDatesOverridable common module.
 // 
 // Parameters:
-//  Data      - ValueTable -  passed to the procedure to fill in the data source for checking the change Request.
-//  Table     - String -  the full name of the metadata object, such as " Document.Prikhodnayanakladnaya".
-//  DateField    - String -  name of the object's or table part's details, for example: "Date", " Products.Upload date".
-//  Section      - String -  the name of a predefined item Provideopportunities.Rostelecomgarantiya.
-//  ObjectField - String -  name of the item's or table part's details, for example: "Company", " Products.Warehouse".
+//  Data      - ValueTable - this parameter is passed to the FillDataSourcesForPeriodClosingCheck procedure.
+//  Table     - String - a full metadata object name, for example, "Document.PurchaseInvoice".
+//  DateField    - String - an attribute name of an object or a tabular section, for example: "Date", "Goods.ShipmentDate".
+//  Section      - String - a name of a predefined item of ChartOfCharacteristicTypesRef.PeriodClosingDatesSections.
+//  ObjectField - String - an attribute name of an object or a tabular section, for example: "Company", "Goods.Warehouse".
 //
 Procedure AddRow(Data, Table, DateField, Section = "", ObjectField = "") Export
 	
@@ -253,42 +255,42 @@ Procedure AddRow(Data, Table, DateField, Section = "", ObjectField = "") Export
 	
 EndProcedure
 
-// Find the ban dates based on the data being checked for the specified user or exchange plan node.
+// Finds period-end closing dates by data to be checked for a specified user or exchange plan node.
 //
 // Parameters:
 //  DataToCheck - See PeriodClosingDates.DataToCheckTemplate
 //
 //  PeriodEndMessageParameters - See PeriodClosingDates.PeriodEndMessageParameters
-//                             - Undefined - you don't need to generate the text of the ban message.
+//                             - Undefined - generating a period-end closing message text is not required.
 //
-//  ErrorDescription    - Null      -  the default value. Information about prohibitions is not required.
-//                    - String    - 
-//                    - Structure - :
-//                        * DataPresentation - String -  the data representation used in the error header.
-//                        * ErrorTitle     - String - :
-//                                                
-//                        * PeriodEnds - ValueTable - :
-//                          ** Date            - Date         -  the date to check.
-//                          ** Section          - String       -  name of the section that was searched for bans. if
-//                                                 the string is empty, it means that the date that is valid for all sections was searched.
-//                          ** Object          - AnyRef  -  link to the object that was used to search for the ban date.
-//                                             - Undefined - 
-//                          ** PeriodEndClosingDate     - Date         -  found the date of the ban.
-//                          ** SingleDate       - Boolean       -  if True, it means that the ban date found is valid for
-//                                                 all sections, not just for the section that was searched.
-//                          ** ForAllObjects - Boolean       -  if True, it means that the ban date found is valid for
-//                                                 all objects, not just for the object that was searched for.
-//                          ** Addressee         - DefinedType.PeriodClosingTarget -  the user or node
-//                                                 of the exchange plan that the found ban date is set for.
-//                          ** LongDesc        - String - :
-//                            
-//                            
+//  ErrorDescription    - Null      - the default value. Period-end closing data is not required.
+//                    - String    - a return value. Return a text description of available period-end closing dates.
+//                    - Structure - Return value. Return structural details of the detected period-end closing:
+//                        * DataPresentation - String - a data presentation used in the error title.
+//                        * ErrorTitle     - String - a string similar to the following one:
+//                                                "Order 10 dated 01/01/2017 cannot be changed in the closed period."
+//                        * PeriodEnds - ValueTable - detected period-end closing as a table with columns:
+//                          ** Date            - Date         - a checked date.
+//                          ** Section          - String       - a name of the section where period-end closing is searched,
+//                                                 if a string is blank, a date valid for all sections is searched.
+//                          ** Object          - AnyRef  - a reference to the object, in which period-end closing date was searched.
+//                                             - Undefined - searching for a date valid for all objects.
+//                          ** PeriodEndClosingDate     - Date         - a detected period-end closing date.
+//                          ** SingleDate       - Boolean       - if True, the detected period-end closing date is valid for all
+//                                                 sections, not only for the searched section.
+//                          ** ForAllObjects - Boolean       - if True, the detected period-end closing date is valid for all
+//                                                 objects, not only for the searched object.
+//                          ** Addressee         - DefinedType.PeriodClosingTarget - a user or an exchange
+//                                                 plan node, for which the detected period-end closing date is specified.
+//                          ** LongDesc        - String - a string similar to the following one:
+//                            "Date 01/01/2017 of the "Application warehouse" object of the "Warehouse accounting" section
+//                            is within the range of period-end closing for all users (common period-end closing date is set)".
 //
-//  ImportRestrictionCheckNode - Undefined -  perform a data change check.
-//                              - ExchangePlanRef - 
+//  ImportRestrictionCheckNode - Undefined - check data change.
+//                              - ExchangePlanRef - check data import for the specified node.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, at least one period-end closing is detected.
 //
 Function PeriodEndClosingFound(Val DataToCheck,
                                     PeriodEndMessageParameters = Undefined,
@@ -305,30 +307,30 @@ Function PeriodEndClosingFound(Val DataToCheck,
 	
 EndFunction
 
-// Returns the parameters for creating a message on the prohibition of recording or uploading data. 
-// For use in the date-change function.Nagasubramanian.
+// Returns parameters for generating a period-end closing message that restricts data saving or import. 
+// Used in the PeriodClosingDates.PeriodEndClosingFound function.
 //
 // Returns:
 //   Structure:
-//    * NewVersion - Boolean -  if True, the ban message must
-//                    be generated for the new version, otherwise for the old version.
+//    * NewVersion - Boolean - if True, generate a period-end closing message
+//                     for a new version, otherwise generate it for an old version.
 //    * Data - AnyRef
 //             - CatalogObject
 //             - DocumentObject
 //             - InformationRegisterRecordSet
 //             - AccumulationRegisterRecordSet
 //             - AccountingRegisterRecordSet 
-//             - CalculationRegisterRecordSet - 
-//                  
+//             - CalculationRegisterRecordSet - a reference, a data object
+//                  or a register record set whose presentation will be displayed in the period-end closing message.
 //             - Structure:
-//                 ** Register - String -  full name of the register.
+//                 ** Register - String - a full register name.
 //                            - InformationRegisterRecordSet
 //                            - AccumulationRegisterRecordSet
 //                            - AccountingRegisterRecordSet 
-//                            - CalculationRegisterRecordSet - 
-//                 ** Filter   - Filter -  selecting a set of records.
-//             - String - 
-//                        
+//                            - CalculationRegisterRecordSet - register record set.
+//                 ** Filter   - Filter - a record set filter.
+//             - String - a prepared data presentation,
+//                        which will be used in a period-end closing message.
 //				 
 Function PeriodEndMessageParameters() Export
 	
@@ -339,16 +341,16 @@ Function PeriodEndMessageParameters() Export
 	
 EndFunction	
 
-// Returns a new table of values with the date, Section, and Object columns
-// to fill in and then pass to the Datesreference function.Nagasubramanian.
+// Returns a new value table with the Date, Section, and Object columns
+// to populate and pass to the PeriodClosingDates.PeriodEndClosingFound function.
 //
 // Returns:
 //  ValueTable:
-//   * Date   - Date   -  a date without a time to check if it belongs to the established prohibitions.
-//   * Section - String -  one of the section names specified in the procedure
-//                       Datesrecognizationdeterminable.When fillingdelegationsreferencesexternal links
-//   * Object - AnyRef -  one of the object types specified for the section in the procedure 
-//                       Datesrecognizationdeterminable.When filling in the dividesdatesreferences.
+//   * Date   - Date   - a date without time to be checked for subordination to the specified period-end closing.
+//   * Section - String - one of the section names specified in the
+//                       PeriodClosingDatesOverridable.OnFillPeriodClosingDatesSections procedure
+//   * Object - AnyRef - one of the object types specified for the section in the 
+//                       PeriodClosingDatesOverridable.OnFillPeriodClosingDatesSections procedure.
 //
 Function DataToCheckTemplate() Export
 	
@@ -367,57 +369,57 @@ Function DataToCheckTemplate() Export
 	
 EndFunction
 
-// In the current session, disables and enables checking the dates when data changes and uploads are not allowed.
-// It is required to implement special logic and speed up batch data processing
-// when writing an object or a set of records when the flag is Broken.Download is not installed.
+// In the current session, disables and enables the check of period-end closing and data import restriction dates.
+// It is required for implementing special logic and accelerating data batch processing
+// upon recording an object or a record set when the DataExchange.Load flag is not set.
 // 
-// Full rights or privileged mode are required for use.
+// You need full rights or the privileged mode to use it.
 //
 // Recommended:
-// - bulk loading of data from a file (if the data does not fall within the prohibited period);
-// - mass loading of data during data exchange (if the data does not fall within the prohibited period);
-// - if you want to disable checking the ban dates for more than one object,
-//   by inserting the skip check of the ban Changes property in the Additional properties of the object,
-//   but for all objects that will be recorded within the record of this object.
+// - During bulk import of data from file (if data does not appear after the period-end closing date).
+// -During bulk import of data when exchanging data (if data does not appear after the period-end closing date).
+// - when disabling the period-end closing date check is required not for one object
+//   by inserting the SkipPeriodClosingCheck property in the object's AdditionalProperties
+//    but for several objects that will be saved under this object record.
 //
 // Parameters:
-//  Disconnect - Boolean -  True-disables checking the dates when data changes and uploads are not allowed.
-//                       False-enables checking the dates when data changes and uploads are not allowed.
+//  Disconnect - Boolean - If True, disables the check of period-end closing and data import restriction dates.
+//                       If False, enables the check of period-end closing and data import restriction dates.
 //
 // Example:
 //
-//  
+//  Option 1. Recording an object set out of a transaction (TransactionActive() = False).
 //
-//	
-//	
-//	
-//		
-//		
-//	
-//		
-//		
-//		
-//	
-//	
+//	PeriodEndClosingDatesCheckDisabled = PeriodClosingDates.PeriodEndClosingDatesCheckDisabled();
+//	PeriodClosingDates.DisablePeriodEndClosingDatesCheck(True);
+//	Try
+//		// Recording a set of objects.
+//		// …
+//	Except
+//		PeriodClosingDates.DisablePeriodEndClosingDatesCheck(PeriodEndClosingDatesCheckDisabled);
+//		//…
+//		Raise;
+//	EndTry;
+//	PeriodClosingDates.DisablePeriodEndClosingDatesCheck(PeriodEndClosingDatesCheckDisabled);
 //
-//  
+//  Option 2. Recording an object set in the transaction (TransactionActive() = True).
 //
-//	
-//	
-//	
-//	
-//		
-//		
-//		
-//		
-//		
-//	
-//		
-//		
-//		
-//		
-//	
-//	
+//	PeriodEndClosingDatesCheckDisabled = PeriodClosingDates.PeriodEndClosingDatesCheckDisabled();
+//	PeriodClosingDates.DisablePeriodEndClosingDatesCheck(True);
+//	BeginTransaction();
+//	Try
+//		DataLock.Lock();
+//		// …
+//		// Recording a set of objects.
+//		// …
+//		CommitTransaction();
+//	Except
+//		RollbackTransaction();
+//		PeriodClosingDates.DisablePeriodEndClosingDatesCheck(PeriodEndClosingDatesCheckDisabled);
+//		//…
+//		Raise;
+//	EndTry;
+//	PeriodClosingDates.DisablePeriodEndClosingDatesCheck(PeriodEndClosingDatesCheckDisabled);
 //
 Procedure DisablePeriodEndClosingDatesCheck(Disconnect) Export
 	
@@ -425,8 +427,8 @@ Procedure DisablePeriodEndClosingDatesCheck(Disconnect) Export
 	
 EndProcedure
 
-// Returns the status of disabling ban dates performed
-// by the disable checkdate of a Secret procedure.
+// Returns the state of the period-end closing date disabling
+// which is executed by the DisablePeriodEndClosingDatesCheck procedure.
 //
 // Returns:
 //  Boolean
@@ -442,9 +444,9 @@ Function PeriodEndClosingDatesCheckDisabled() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event subscription handlers.
 
-// Handler for subscribing to the pre-Recording event to check whether changes are forbidden.
+// BeforeWrite event subscription handler for checking period-end closing.
 //
 // Parameters:
 //  Source   - CatalogObject
@@ -453,9 +455,9 @@ EndFunction
 //             - ChartOfCalculationTypesObject
 //             - BusinessProcessObject
 //             - TaskObject
-//             - ExchangePlanObject -  a data object that is passed to the pre-Recording event subscription.
+//             - ExchangePlanObject - a data object passed to the BeforeWrite event subscription.
 //
-//  Cancel      - Boolean -  parameter passed to the event subscription before Recording.
+//  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure CheckPeriodEndClosingDateBeforeWrite(Source, Cancel) Export
 	
@@ -467,13 +469,13 @@ Procedure CheckPeriodEndClosingDateBeforeWrite(Source, Cancel) Export
 	
 EndProcedure
 
-// Handler for subscribing to the pre-Recording event to check whether changes are forbidden.
+// BeforeWrite event subscription handler for checking period-end closing.
 //
 // Parameters:
-//  Source        - DocumentObject -  a data object that is passed to the pre-Recording event subscription.
-//  Cancel           - Boolean -  parameter passed to the event subscription before Recording.
-//  WriteMode     - Boolean -  parameter passed to the event subscription before Recording.
-//  PostingMode - Boolean -  parameter passed to the event subscription before Recording.
+//  Source        - DocumentObject - a data object passed to the BeforeWrite event subscription.
+//  Cancel           - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  WriteMode     - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  PostingMode - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure CheckPeriodEndClosingDateBeforeWriteDocument(Source, Cancel, WriteMode, PostingMode) Export
 	
@@ -487,13 +489,13 @@ Procedure CheckPeriodEndClosingDateBeforeWriteDocument(Source, Cancel, WriteMode
 	
 EndProcedure
 
-// Handler for subscribing to the pre-Recording event to check whether changes are forbidden.
+// BeforeWrite event subscription handler for checking period-end closing.
 //
 // Parameters:
 //  Source   - InformationRegisterRecordSet
-//             - AccumulationRegisterRecordSet - 
-//  Cancel      - Boolean -  parameter passed to the event subscription before Recording.
-//  Replacing  - Boolean -  parameter passed to the event subscription before Recording.
+//             - AccumulationRegisterRecordSet - a record set passed to the BeforeWrite event subscription.
+//  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  Replacing  - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure CheckPeriodEndClosingDateBeforeWriteRecordSet(Source, Cancel, Replacing) Export
 	
@@ -505,13 +507,13 @@ Procedure CheckPeriodEndClosingDateBeforeWriteRecordSet(Source, Cancel, Replacin
 	
 EndProcedure
 
-// Handler for subscribing to the pre-Recording event to check whether changes are forbidden.
+// BeforeWrite event subscription handler for checking period-end closing.
 //
 // Parameters:
-//  Source    - AccountingRegisterRecordSet -  a set of records that is passed
-//                to the pre-Recording event subscription.
-//  Cancel       - Boolean -  parameter passed to the event subscription before Recording.
-//  WriteMode - Boolean -  parameter passed to the event subscription before Recording.
+//  Source    - AccountingRegisterRecordSet - a record set passed to
+//                the BeforeWrite event subscription.
+//  Cancel       - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  WriteMode - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure CheckPeriodEndClosingDateBeforeWriteAccountingRegisterRecordSet(
 		Source, Cancel, WriteMode) Export
@@ -524,16 +526,16 @@ Procedure CheckPeriodEndClosingDateBeforeWriteAccountingRegisterRecordSet(
 	
 EndProcedure
 
-// Handler for subscribing to the pre-Recording event to check whether changes are forbidden.
+// BeforeWrite event subscription handler for checking period-end closing.
 //
 // Parameters:
-//  Source     - CalculationRegisterRecordSet -  a set of records that is passed
-//                 to the pre-Recording event subscription.
-//  Cancel        - Boolean -  parameter passed to the event subscription before Recording.
-//  Replacing    - Boolean -  parameter passed to the event subscription before Recording.
-//  WriteOnly - Boolean -  parameter passed to the event subscription before Recording.
-//  WriteActualActionPeriod - Boolean -  parameter passed to the event subscription before Recording.
-//  WriteRecalculations - Boolean -  parameter passed to the event subscription before Recording.
+//  Source     - CalculationRegisterRecordSet - a record set passed to
+//                 the BeforeWrite event subscription.
+//  Cancel        - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  Replacing    - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  WriteOnly - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  WriteActualActionPeriod - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  WriteRecalculations - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure CheckPeriodEndClosingDateBeforeWriteCalculationRegisterRecordSet(
 		Source,
@@ -551,7 +553,7 @@ Procedure CheckPeriodEndClosingDateBeforeWriteCalculationRegisterRecordSet(
 	
 EndProcedure
 
-// Handler for subscribing to the pre-Delete event to check whether changes are not allowed.
+// BeforeDelete event subscription handler for checking period-end closing.
 //
 // Parameters:
 //  Source   - CatalogObject
@@ -561,9 +563,9 @@ EndProcedure
 //             - ChartOfCalculationTypesObject
 //             - BusinessProcessObject
 //             - TaskObject
-//             - ExchangePlanObject -  a data object that is passed to the pre-Recording event subscription.
+//             - ExchangePlanObject - a data object passed to the BeforeWrite event subscription.
 //
-//  Cancel      - Boolean -  parameter passed to the event subscription before Recording.
+//  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure CheckPeriodEndClosingDateBeforeDelete(Source, Cancel) Export
 	
@@ -581,7 +583,7 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// You do not need to call it, because the update is performed automatically.
+// Calling is not required as it is updated automatically.
 Procedure UpdatePeriodClosingDatesSections() Export
 	
 	PeriodClosingDatesInternal.UpdatePeriodClosingDatesSections();
@@ -594,7 +596,7 @@ EndProcedure
 
 #Region Private
 
-// For procedures, check the date of the change*.
+// For procedures CheckPeriodEndClosingDate*.
 Procedure CheckPeriodClosingDates(
 		Source, Cancel, SourceRegister = False, Replacing = True, Delete = False)
 	

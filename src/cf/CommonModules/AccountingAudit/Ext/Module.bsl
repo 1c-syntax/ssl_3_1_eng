@@ -1,24 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions to perform data integrity checks and get their results.
 
-// Performs the specified accounting check with the specified parameters.
+// Executes the indicated data integrity check with the specified parameters.
 //
 // Parameters:
 //   Validation                    - CatalogRef.AccountingCheckRules
-//                               - String - 
+//                               - String - - Check rule to run, or its string ID.
 //                                 
 //   CheckExecutionParameters - Structure
-//                               - Array - 
+//                               - Array - Custom additional check parameters that define the check procedure and object.
 //                                  
 //                                 See AccountingAudit.CheckExecutionParameters.
 //                               - Structure:
@@ -26,34 +28,34 @@
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
+//                   - Date - Parameter's first value.
 //       * Property2 - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
+//                   - Date - Parameter's second value.
 //       * Property3 - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
-//                                                     
-//     - Array -  
-//   ObjectsToCheck - AnyRef -  if passed, the check will be performed only for this object.
-//                                     The check must support selective checking and it must have
-//                                     the property Supports Selective checking set to True.
+//                   - Date - Parameter's third value.
+//       …                                              
+//     - Array - Check parameters (Structure elements as described above). 
+//   ObjectsToCheck - AnyRef - if passed, only this object will be checked.
+//                                     The check must support random check and have
+//                                     the SupportsRandomCheck property set to True.
 //                                     See AccountingAuditOverridable.OnDefineChecks.
-//                      - Array - 
+//                      - Array - References to the objects to be checked.
 //
 // Example:
-//   1. Verification = Control of accounting.Checking the identifier ("Check the link integrity");
-//      Accounting control.Perform a check (Check);
-//   2. Check Completion Parameter = New Array;
-//      Parameter1 = Accounting control.Check completion Parameter1("Closing the month", Company1, closing the month);
-//      The parameter of the verification execution.Add(Parameter1);
-//      Parameter2 = Accounting control.The parameter of the completion of the check ("Closing the month", Company2, closing the month);
-//      The parameter of the verification execution.Add(Parameter2);
-//      Perform a check ("Check the document execution", the check execution parameter);
+//   1. Check = AccountingAudit.CheckByID("CheckRefIntegrity");
+//      AccountingAudit.RunCheck(Check);
+//   2. CheckExecutionParameters = New Array;
+//      Parameter1 = AccountingAudit.CheckExecutionParameters("MonthEndClosing", Company1, MonthToClose);
+//      CheckExecutionParameters(Parameter1);
+//      Parameter2 = AccountingAudit.CheckExecutionParameters("MonthEndClosing", Company2, MonthToClose);
+//      CheckExecutionParameters.Add(Parameter2);
+//      RunCheck("CheckDocumentsPosting", CheckExecutionParameters);
 //
 Procedure ExecuteCheck(Val Validation, Val CheckExecutionParameters = Undefined, ObjectsToCheck = Undefined) Export
 	
@@ -79,16 +81,16 @@ Procedure ExecuteCheck(Val Validation, Val CheckExecutionParameters = Undefined,
 	
 EndProcedure
 
-// Performs checks according to a given context - a common feature that binds together a package of checks.
-// If the specified attribute is set for a group of checks, then all checks of this group are performed. 
-// In this case, the presence (or absence) of the specified attribute in the check itself does not matter.
-// Checks with the Use flag set to False are skipped.
+// Executes checks by a given context - a common flag that links a package of checks.
+// If the specified flag is set for a group of checks, all checks of this group are executed. 
+// In this case, the presence (or absence) of the specified flag in the check itself does not matter.
+// Checks with the Usage check box set to False are ignored.
 //
 // Parameters:
-//    AccountingChecksContext - DefinedType.AccountingChecksContext -  the context of the checks being performed.
+//    AccountingChecksContext - DefinedType.AccountingChecksContext - Checks' context.
 //
 // Example:
-//    Accounting control.Perform a check in the context(Enumerations.Economic operations.Closing of the month);
+//    AccountingAudit.PerformChecksInContext(Enumerations.BusinessTransactions.MonthEndClosing);
 //
 Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 	
@@ -159,33 +161,33 @@ Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 	
 EndProcedure
 
-// Returns a summary of the number of detected problems of the specified type of check.
+// Sums up the detected issue amount for the specified check kind.
 //
 // Parameters:
-//   ChecksKind                - CatalogRef.ChecksKinds -  link to the type of check.
-//                              - String - 
-//                              - Array of String - 
-//   SearchByExactMap - Boolean -  adjusts accuracy capabilities. If True, then the search is
-//                                based on the passed properties for equality, the remaining properties must be equal
-//                                Undefined (the tabular part of the additional properties should be empty).
-//                                If False, then the values of the other properties can be arbitrary, the main
-//                                thing is that the corresponding properties are equal to the properties of the structure. By default, True.
-//   ConsiderPersonResponsible    - Boolean -  if True, then only the problems with the unfilled responsible
-//                                and those for which the current user is responsible are taken into account.
-//                                By default, it is False.
+//   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
+//                              - String - The string id of the check kind.
+//                              - Array of String - The string ids of the check kind.
+//   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
+//                                by the passed properties for equality, other properties must be equal
+//                                Undefined (tabular section of additional properties has to be blank).
+//                                If False, other property values can be arbitrary, the main thing is
+//                                that the corresponding properties need to be equal to the structure properties. Default value is True.
+//   ConsiderPersonResponsible    - Boolean - if True, consider only issues with unfilled person responsible
+//                                and those who have the current user as a person responsible.
+//                                Default value is False.
 //
 // Returns:
 //  Structure:
-//    * Count - Number -  the total number of problems found.
-//    * HasErrors - Boolean -  a sign of whether there are errors among the problems found (with the importance "Error").
+//    * Count - Number - a total number of the issues found.
+//    * HasErrors - Boolean - indicates whether the detected issues include issues with the Error severity.
 //
 // Example:
-//   1) Result = Summary of informationspecifications ("System checks");
-//   2) Type Check = New Array;
-//      View check.Add("Closing the month");
-//      View check.Add(Company);
-//      View check.Add(months of closure);
-//      Result = Summary Informationview Check(View Check);
+//   1) Result = SummaryInformationOnChecksKinds("SystemChecks");
+//   2) ChecksKind = New Array;
+//      ChecksKind.Add("MonthEndClosing");
+//      ChecksKind.Add(Company);
+//      ChecksKind.Add(ClosingMonth);
+//      Result = SummaryInformationOnChecksKinds(ChecksKind);
 //
 Function SummaryInformationOnChecksKinds(ChecksKind = Undefined, SearchByExactMap = True, ConsiderPersonResponsible = False) Export
 	
@@ -199,43 +201,43 @@ Function SummaryInformationOnChecksKinds(ChecksKind = Undefined, SearchByExactMa
 	
 EndFunction
 
-// Returns detailed information about identified problems of one or more types of verification of interest.
+// Returns detailed information about detected issues of one or several check kinds of interest.
 //
 // Parameters:
-//   ChecksKind                - CatalogRef.ChecksKinds -  link to the type of check.
-//                              - String - 
-//                              - Array of String - 
-//   SearchByExactMap - Boolean - 
-//                                
-//                                
-//                                
+//   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
+//                              - String - The string id of the check kind.
+//                              - Array of String - The string ids of the check kind.
+//   SearchByExactMap - Boolean - If True, the check kind is determined by the exact match of
+//                                all property values in the ChecksKind parameter (see example 2).
+//                                If False, the check kind is determined by the specified property values
+//                                and by any values of the unspecified properties in the ViewCheck parameter (see example 3).
 //
 // Returns:
 //   ValueTable:
-//     * ObjectWithIssue         - AnyRef -  a reference to the object that the problem is related to.
-//     * IssueSeverity         - EnumRef.AccountingIssueSeverity -  The importance of the accounting problem
-//                                  is "Information", "Warning", "Error", "Useful advice" and "Important information".
-//     * CheckRule          - CatalogRef.AccountingCheckRules -  a completed check with a description of the problem.
-//     * ChecksKind              - CatalogRef.ChecksKinds -  type of check.
-//     * IssueSummary        - String -  text clarification of the found problem.
-//     * EmployeeResponsible            - CatalogRef.Users -  filled in if
-//                                  the verification algorithm has identified a specific person responsible for the identified problem.
-//     * Detected                 - Date -  date and time when the problem was detected.
-//     * AdditionalInformation - ValueStorage -  arbitrary additional information related 
-//                                  to the identified problem.
+//     * ObjectWithIssue         - AnyRef - a reference to object, which the issue is connected to.
+//     * IssueSeverity         - EnumRef.AccountingIssueSeverity - Issue severity:
+//                                  Information, Warning, Error, UsefulTip, or ImportantInformation.
+//     * CheckRule          - CatalogRef.AccountingCheckRules - an executed check with issue details.
+//     * ChecksKind              - CatalogRef.ChecksKinds - check kind.
+//     * IssueSummary        - String - a text summary of the found issue.
+//     * EmployeeResponsible            - CatalogRef.Users - it is filled in if the checking algorithm
+//                                  identified a specific person responsible for the detected issue.
+//     * Detected                 - Date - date and time when the issue is detected.
+//     * AdditionalInformation - ValueStorage - arbitrary additional information related 
+//                                  to the found issue. 
 //
 // Example:
-//   1) Result = Detailed informationspecifications ("System Checks");
-//   2) Type Check = New Array;
-//      View check.Add("Closing the month");
-//      View check.Add(Company);
-//      View check.Add(months of closure);
-//      Result = Detailed Informationview Check(View Check);
-//   3) Select all the problems of closing the month for all periods for the specified company:
-//      Type of Check = New Array;
-//      View check.Add("Closing the month");
-//      View check.Add(Company);
-//      Result = Detailed information about the type of verification (type of verification, False); 
+//   1) Result = DetailedInformationOnChecksKinds("SystemChecks");
+//   2) ChecksKind = New Array;
+//      ChecksKind.Add("MonthEndClosing");
+//      ChecksKind.Add(Company);
+//      ChecksKind.Add(ClosingMonth);
+//      Result = DetailedInformationOnChecksKinds(ChecksKind);
+//   3) Select all month-end closing issues by all periods for the specified company:
+//      ChecksKind = New Array;
+//      ChecksKind.Add("MonthEndClosing");
+//      ChecksKind.Add(Company);
+//      Result = DetailedInformationOnChecksKinds(ChecksKind, False); 
 //
 Function DetailedInformationOnChecksKinds(ChecksKind, SearchByExactMap = True) Export
 	
@@ -247,14 +249,14 @@ Function DetailedInformationOnChecksKinds(ChecksKind, SearchByExactMap = True) E
 	
 EndFunction
 
-// Returns verification by the passed ID.
+// Returns a check to the passed ID.
 //
 // Parameters:
-//   Id - String -  the string ID of the check. For example, "Check the link integrity".
+//   Id - String - a check string ID. For example, "CheckRefIntegrity".
 //
 // Returns: 
-//   CatalogRef.AccountingCheckRules -  
-//      
+//   CatalogRef.AccountingCheckRules - a reference to a check or a blank reference 
+//      if a check with such ID does not exist.
 //
 Function CheckByID(Id) Export
 	
@@ -263,10 +265,10 @@ Function CheckByID(Id) Export
 	
 EndFunction
 
-// Returns the number of problems identified with the passed object.
+// Returns the number of issues detected at the passed object.
 //
 // Parameters:
-//   ObjectWithIssue - AnyRef -  the object to calculate the number of problems for.
+//   ObjectWithIssue - AnyRef - an object, for which you need to calculate the number of issues.
 //
 // Returns:
 //   Number
@@ -292,11 +294,11 @@ Function IssuesCountByObject(ObjectWithIssue) Export
 	
 EndFunction
 
-// Calculates the number of problems identified by the passed validation rule.
+// Calculates the number of issues detected by the passed check rule.
 //
 // Parameters:
-//   CheckRule - CatalogRef.AccountingCheckRules -  the rule for which
-//                     you need to calculate the number of problems.
+//   CheckRule - CatalogRef.AccountingCheckRules - a rule, for which
+//                     you need to calculate the number of issues.
 //
 // Returns:
 //   Number
@@ -328,68 +330,68 @@ Function IssuesCountByCheckRule(CheckRule) Export
 	
 EndFunction
 
-// Generates the parameters of the verification execution to be passed to the procedures and functions to perform the verification, the description of the problem,
-// View checks and others.
-// The parameters contain a clarification of what exactly needs to be checked,
-// for example, to check the closing of the month for a specific company for a specific period.
-// The order of the parameters is taken into account.
+// Generates check execution parameters for passing to the procedures and functions RunCheck, IssueDetails,
+// CheckKind, and so on.
+// The parameters contain a clarification for what exactly the check is required,
+// for example, check the month-end closing for a particular company during a specific period.
+// The order of parameters is taken into consideration.
 //
 // Parameters:
 //     Parameter1     - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
+//                   - Date - Check's first parameter.
 //     Parameter2     - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
+//                   - Date - Check's second parameter.
 //     Parameter3     - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
+//                   - Date - Check's third parameter.
 //     Parameter4     - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
+//                   - Date - Check's fourth parameter.
 //     Parameter5     - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
-//     AnotherParameters - Array -  other validation parameters (elements of the types Any link, Boolean, Number, String, Date).
+//                   - Date - Check's fifth parameter.
+//     AnotherParameters - Array - other check parameters (items of the AnyRef, Boolean, Number, String, and Date types).
 //
 // Returns:
 //    Structure:
-//       * Description - String -  representation of the type of verification. 
+//       * Description - String - a check kind presentation. 
 //       * Property1 - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
+//                   - Date - Check's first parameter.
 //       * Property2 - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
+//                   - Date - Check's second parameter.
 //       * Property3 - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
-//                                                     
+//                   - Date - Check's third parameter.
+//       ...                                              
 //       *  - AnyRef
 //                   - Boolean
 //                   - Number
 //                   - String
-//                   - Date - 
+//                   - Date - Check kind's last parameter.
 //
 // Example:
-//     1. Parameters = Parameters of the verification execution ("System checks");
-//     2. Parameters = The parameter of the completion of the check ("Closing the month", company link, closing the month);
+//     1. Parameters = CheckExecutionParameters("SystemChecks");
+//     2. Parameters = CheckExecutionParameters("MonthEndClosing", CompanyRef, MonthToClose);
 //
 Function CheckExecutionParameters(Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined,
 	Val Parameter4 = Undefined, Val Parameter5 = Undefined, Val AnotherParameters = Undefined) Export
@@ -398,18 +400,18 @@ Function CheckExecutionParameters(Val Parameter1, Val Parameter2 = Undefined, Va
 	
 EndFunction
 
-// Clears the results of previous checks, leaving only those problems that were ignored earlier
-// (the Ignore Problem flag = True).
-// For nonparametric checks, the previous results are cleared automatically, and then the verification algorithm is executed.
-// For checks with parameters, pre-cleaning of previous results should be performed explicitly using
-// this procedure in the verification algorithm itself. Otherwise, the same problem will be registered 
-// repeatedly with several consecutive runs of the check.
+// Clears previous check results, leaving only those issues that were ignored earlier
+// (the IgnoreIssue flag = True).
+// The previous results are cleared automatically for non-parameter checks, and then the check algorithm is executed.
+// For checks with parameters, preliminary clearing of the previous results need to be performed explicitly using
+// this procedure in the check algorithm itself. Otherwise, the same issue will be registered 
+// multiple times with several consecutive check startups.
 //
 // Parameters:
-//     Validation                    - CatalogRef.AccountingCheckRules -  a check whose
-//                                   results need to be cleared.
+//     Validation                    - CatalogRef.AccountingCheckRules - a check,
+//                                   whose results need to be cleared.
 //     CheckExecutionParameters - See AccountingAudit.CheckExecutionParameters
-//                                 - Array - several validation parameters (array elements of the Structure type,
+//                                 - Array    - several check parameters (array elements of the Structure type,
 //                                               as described above).
 //
 Procedure ClearPreviousCheckResults(Val Validation, Val CheckExecutionParameters) Export
@@ -423,55 +425,55 @@ Procedure ClearPreviousCheckResults(Val Validation, Val CheckExecutionParameters
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions to register data integrity issues.
 
-// Generates a description of the problem for subsequent registration
-// using the Accounting control procedure.Write the problem in the validation handler procedure.
+// Generates an issue description for the subsequent registration
+// using the AccountingAudit.WriteIssue procedure in the check handler procedure.
 //
 // Parameters:
-//   ObjectWithIssue  - AnyRef -  the object that the identified problem is associated with.
-//   CheckParameters - Structure -  
-//                                   :
-//     * Validation         - CatalogRef.AccountingCheckRules -  completed verification.
-//     * CheckKind      - CatalogRef.ChecksKinds - 
-//     * IssueSeverity   - EnumRef.AccountingIssueSeverity - 
-//                            :
+//   ObjectWithIssue  - AnyRef - Object the issue relates to.
+//   CheckParameters - Structure - parameters of the check being performed, whose value needs to be taken from the similarly named 
+//                                   parameter of the check handler procedure:
+//     * Validation         - CatalogRef.AccountingCheckRules - Completed check.
+//     * CheckKind      - CatalogRef.ChecksKinds - The type of the executed check.
+//     * IssueSeverity   - EnumRef.AccountingIssueSeverity - Severity level that you need to assign to
+//                            the found data integrity issue:
+//                            Information, Warning, Error, UsefulTip, or ImportantInformation.
+//     * Id      - String - Check string ID.
+//     * CheckStartDate - Date - a threshold date that indicates the boundary of the checked
+//                            objects (only for objects with a date). Do not check objects whose date is less than 
+//                            the specified one. Not filled in by default (check all).
+//     * IssuesLimit       - Number - Number of objects to check.
+//                            By default, 1,000. To check all the objects, set it to 0.
+//     * CheckKind        - CatalogRef.ChecksKinds - The type of the executed check.
 //                            
-//     * Id      - String -  the string ID of the check.
-//     * CheckStartDate - Date -  threshold date indicating the boundary of the objects to be checked
-//                            (only for objects with a date). Objects whose date is less than 
-//                            however, it should not be checked. By default, it is not filled in (i.e. check everything).
-//     * IssuesLimit       - Number -  the number of objects to be checked.
-//                            By default, 1000. If 0 is specified, then all objects should be checked.
-//     * CheckKind        - CatalogRef.ChecksKinds -  a reference to the type of check
-//                            that the performed check belongs to.
 //
 // Returns:
 //   Structure:
-//     * ObjectWithIssue         - AnyRef - 
-//     * Validation                 - CatalogRef.AccountingCheckRules -  a link to the completed check.
-//                                  Taken from the passed structure of the verification parameters.
-//     * CheckKind              - CatalogRef.ChecksKinds -  a reference to the type of check that
-//                                  the performed check belongs to. Taken from the passed structure of the verification parameterreferences
-//     * IssueSeverity         - CatalogRef.ChecksKinds -  a reference to the type of check that
-//                                  the performed check belongs to. Taken from the passed structure of the verification parameters.
-//     * IssueSummary        - String -  the problem clarification string. By default, it is not filled in.
-//     * UniqueKey         - UUID -  the key to the uniqueness of the problem.
-//     * Detected                 - Date -  the moment the problem was detected.
+//     * ObjectWithIssue         - AnyRef - A reference to the erroneous object.
+//     * Validation                 - CatalogRef.AccountingCheckRules - a reference to the executed check.
+//                                  Taken from the CheckParameters structure.
+//     * CheckKind              - CatalogRef.ChecksKinds - Reference to the completed check's kind.
+//                                  Defined by the CheckParameters structure.
+//     * IssueSeverity         - CatalogRef.ChecksKinds - Reference to the completed check's kind.
+//                                  Defined by the CheckParameters structure.
+//     * IssueSummary        - String - an issue summary string. Not filled in by default.
+//     * UniqueKey         - UUID - Issue uniqueness key.
+//     * Detected                 - Date - Time when the issue was detected.
 //     * AdditionalInformation - ValueStorage
-//                                - Undefined - 
-//                                  
+//                                - Undefined - Arbitrary issue details.
+//                                  By default, Undefined.
 //     * EmployeeResponsible            - CatalogRef.Users
-//                                - Undefined -  
-//                                  
+//                                - Undefined - it is filled in if the problematic object 
+//                                  has its own responsible person. Default value is Undefined.
 //
 // Example:
-//  Problem = Accounting control.Description of the problem(problem document, verification parameters);
-//  Problem.View Checks = View Checks;
-//  Problem.Clarification of the problem = stringfunctionclientserver.Substitute the parameter string(
-//    NStr("ru = 'For the counterparty ""%1"" there is an unverified document ""%2""'"), The result.Counterparty, 
-//      Problematic Document);
-//  Accounting control.Write down the problem(Problem, Check parameters);
+//  Issue = AccountingAudit.IssueDetails(DocumentWithIssue, CheckParameters);
+//  Issue.CheckKind = CheckKind;
+//  Issue.IssueSummary = StringFunctionsClientServer.SubstituteParametersToString(
+//    NStr("en = 'There is an unpassed ""%2""'" document by the ""%1"" counterparty), Result.Counterparty, 
+//      DocumentWithIssue);
+//  AccountingAudit.WriteIssue(Issue, CheckParameters);
 //
 Function IssueDetails(ObjectWithIssue, CheckParameters) Export
 	
@@ -485,7 +487,7 @@ Function IssueDetails(ObjectWithIssue, CheckParameters) Export
 	
 EndFunction
 
-// Records the result of the check.
+// Saves the check result.
 //
 // Parameters:
 //   Issue1          - See AccountingAudit.IssueDetails.
@@ -505,20 +507,20 @@ Procedure WriteIssue(Issue1, CheckParameters = Undefined) Export
 	
 EndProcedure
 
-// Sets or removes the sign of ignoring the accounting problem. 
-// When the Ignore parameter is set to True, the problem ceases to be displayed to users in the object forms 
-// and the report on the results of checks. For example, this is useful if the user has decided that 
-// the detected problem is not significant or it is not planned to deal with it.
-// When reset to False, the problem becomes relevant again.
+// Sets or clears the flag of ignoring a data integrity issue. 
+// When setting the Ignore parameter to True, an issue is no longer displayed to users in object forms 
+// and report on the check results. For example, this is useful if a user has decided that 
+// the detected issue is not significant or a user does not plan to tackle it.
+// When reset to False, the issue becomes relevant again.
 //
 // Parameters:
 //   IssueDetails             - Structure:
-//     * ObjectWithIssue         - AnyRef -  a reference to the object that the problem is related to.
-//     * CheckRule          - CatalogRef.AccountingCheckRules -  a completed check with a description of the problem.
-//     * ChecksKind              - CatalogRef.ChecksKinds -  type of check.
-//     * IssueSummary        - String -  text clarification of the found problem.
-//     * AdditionalInformation - ValueStorage -  additional information about the ignored problem.
-//   Ignore - Boolean -  the set value for the specified problem.
+//     * ObjectWithIssue         - AnyRef - a reference to object, which the issue is connected to.
+//     * CheckRule          - CatalogRef.AccountingCheckRules - an executed check with issue details.
+//     * ChecksKind              - CatalogRef.ChecksKinds - check kind.
+//     * IssueSummary        - String - a text summary of the found issue.
+//     * AdditionalInformation - ValueStorage - additional information on the ignored issue.
+//   Ignore - Boolean - a value set to the specified issue.
 //
 Procedure IgnoreIssue(Val IssueDetails, Val Ignore) Export
 	
@@ -532,20 +534,20 @@ Procedure IgnoreIssue(Val IssueDetails, Val Ignore) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for embedding a subsystem in forms of configuration objects.
 
-// In the form of a list, it displays a column with a picture signaling the presence of problems with objects in the rows. 
-// It is called from the event of the list form server connection.
-// Dynamic lists must have a primary table defined. 
+// In the list form, it displays a column with a picture informing that there are issues with objects in the rows. 
+// Called form the OnCreateAtServer event of the list form.
+// The dynamic lists needs to have the main table determined. 
 //
 // Parameters:
-//   Form                  - ClientApplicationForm -  list form.
-//   ListsNames           - String -  names of dynamic lists separated by commas.
+//   Form                  - ClientApplicationForm - list form.
+//   ListsNames           - String - dynamic list names, separated with commas.
 //   AdditionalProperties - Structure
-//                          - Undefined - :
-//      * ProblemIndicatorFieldID - String -  the name of the dynamic list field that
-//                            will be used to display an indicator
-//                            of the presence of problems with the object.
+//                          - Undefined - Additional properties:
+//      * ProblemIndicatorFieldID - String - a dynamic list field name that
+//                            will be used to show an object problem
+//                            indicator.
 //
 Procedure OnCreateListFormAtServer(Form, ListsNames, AdditionalProperties = Undefined) Export
 	
@@ -666,17 +668,17 @@ Procedure OnCreateListFormAtServer(Form, ListsNames, AdditionalProperties = Unde
 	
 EndProcedure
 
-// In the form of a list, it displays a column with a picture signaling the presence of problems with objects in the rows. 
-// Called from the event of receiving the specified list form server.
+// In the list form, it displays a column with a picture informing that there are issues with objects in the rows. 
+// Called from the OnGetDataAtServer event of the list form.
 //
 // Parameters:
-//   Settings              - DataCompositionSettings -  contains a copy of the full dynamic list settings.
-//   Rows                 - DynamicListRows -  the collection contains the data and formatting of all the rows
-//                            received in the list, except for the grouping rows.
-//   KeyFieldName       - String -  "Link" or the specified name of the column containing the object reference.
+//   Settings              - DataCompositionSettings - contains a copy of dynamic list full settings.
+//   Rows                 - DynamicListRows - a collection contains data and design of all the rows
+//                            got in the list, except for the grouping rows.
+//   KeyFieldName       - String - "Ref" or the specified column name that contains an object reference.
 //   AdditionalProperties - Structure
-//                          - Undefined - 
-//                            
+//                          - Undefined - contains additional properties in case
+//                            you need to use them.
 //
 Procedure OnGetDataAtServer(Settings, Rows, KeyFieldName = "Ref", AdditionalProperties = Undefined) Export
 	
@@ -729,12 +731,12 @@ Procedure OnGetDataAtServer(Settings, Rows, KeyFieldName = "Ref", AdditionalProp
 	
 EndProcedure
 
-// In the form of an object, it displays a group with a picture and an inscription signaling the presence of problems with this object. 
-// Called from the event belonging to the server of the object form.
+// Displays a group with a picture and a label in the form of an object, informing about issues with this object. 
+// Called from the OnReadAtServer event of the object form.
 //
 // Parameters:
-//   Form         - ClientApplicationForm -  object form.
-//   CurrentObject - DocumentObject -  the object to be read.
+//   Form         - ClientApplicationForm - object form.
+//   CurrentObject - DocumentObject - an object that will be read.
 //                 - CatalogObject
 //                 - ExchangePlanObject
 //                 - ChartOfCharacteristicTypesObject
@@ -806,11 +808,11 @@ Procedure OnReadAtServer(Form, CurrentObject) Export
 EndProcedure
 
 // Starts a background check of the passed object.
-// Only those checks are performed for which errors were previously found and for which
-// the property Supports Selective verification is set to True.
+// Only those checks are executed by which errors were detected and
+// whose SupportsRandomCheck property is True.
 // 
 // Parameters:
-//   CurrentObject - DocumentObject -  <Data Object View>An object.<Metadata objectName>.
+//   CurrentObject - DocumentObject - <MetadataObjectKind>Object.<MetadataObjectName>.
 //                 - CatalogObject
 //                 - ExchangePlanObject
 //                 - ChartOfCharacteristicTypesObject
@@ -842,9 +844,9 @@ Procedure AfterWriteAtServer(CurrentObject) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Other procedures and functions.
 
-// Returns True if there are rights to view accounting issues.
+// Returns True if you have the rights to view data integrity issues.
 //
 // Returns:
 //   Boolean
@@ -855,22 +857,22 @@ Function SubsystemAvailable() Export
 	
 EndFunction
 
-// Returns the types of validation based on the passed parameters.
+// Returns check kinds by passed parameters.
 //
 // Parameters:
 //   ChecksKind                - String
 //                              - Array of String 
-//                              - CatalogRef.ChecksKinds - 
-//                                
-//   SearchByExactMap - Boolean -  adjusts accuracy capabilities. If True, then the search is
-//                                based on the passed properties for equality, the remaining properties must be equal
-//                                Undefined (the tabular part of the additional properties should be empty).
-//                                If False, then the values of the other properties can be arbitrary, the main
-//                                thing is that the corresponding properties are equal to the properties of the structure. By default, True.
+//                              - CatalogRef.ChecksKinds - Either a check kind id, or an array of kind ids,
+//                                or a check kind reference.
+//   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
+//                                by the passed properties for equality, other properties must be equal
+//                                Undefined (tabular section of additional properties has to be blank).
+//                                If False, other property values can be arbitrary, the main thing is
+//                                that the corresponding properties need to be equal to the structure properties. Default value is True.
 //
 // Returns:
-//   Array -  
-//            
+//   Array - Items of the CatalogRef.ChecksKinds catalog, or an empty array if there are no search results. 
+//            For an exact match search, the array contains one element.
 //
 Function ChecksKinds(ChecksKind, SearchByExactMap = True) Export
 	
@@ -882,22 +884,22 @@ Function ChecksKinds(ChecksKind, SearchByExactMap = True) Export
 	
 EndFunction
 
-// Returns an existing or creates a new element of the reference list of types of checks 
-// for registration or selection of accounting results.
+// Returns an existing ChecksKinds catalog item or creates a new one 
+// to register or filter records of data check results.
 //
 // Parameters:
-//     CheckExecutionParameters - String -  string identifier of the type of check (Property 1)
-//                                 - Structure - 
-//     SearchOnly - Boolean -  if True and the type of check with the specified parameters does not exist, 
-//                   an empty link is returned; if False, an element is created and a link to it is returned.
+//     CheckExecutionParameters - String - a string ID of a check kind (Property1)
+//                                 - Structure - Information records that identify the check kind.
+//     SearchOnly - Boolean - If True and the specified check kind does not exist, returns an empty reference. 
+//                   If False, creates an item is and returns its reference.
 //
 // Returns:
-//   CatalogRef.ChecksKinds - 
-//       
+//   CatalogRef.ChecksKinds - Existing or a created catalog item.
+//      If SearchOnly = True and the item was not found, returns an empty reference to the CatalogRef.ChecksKinds catalog. 
 //      
 //
 // Example:
-//   Type of verification = Control of accounting.Type of checks ("System checks");
+//   CheckKind = AccountingAudit.CheckKind("SystemChecks");
 //
 Function CheckKind(Val CheckExecutionParameters, Val SearchOnly = False) Export
 	
@@ -915,8 +917,8 @@ Function CheckKind(Val CheckExecutionParameters, Val SearchOnly = False) Export
 	
 EndFunction
 
-// Forcibly updates the composition of accounting checks when metadata
-// or other settings are changed.
+// Forcibly updates the list of data integrity checks when changing metadata
+// or other settings.
 //
 Procedure UpdateAccountingChecksParameters() Export
 	
@@ -932,39 +934,39 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
+// Deprecated. Obsolete. Use DetailedInformationOnChecksKinds instead.
+// Returns detailed information about detected issues of the specified check kind.
 //
 // Parameters:
-//   ChecksKind                - CatalogRef.ChecksKinds -  link to the type of check.
-//                              - String - 
-//                              - Array of String - 
-//   SearchByExactMap - Boolean -  adjusts accuracy capabilities. If True, then the search is
-//                                based on the passed properties for equality, the remaining properties must be equal
-//                                Undefined (the tabular part of the additional properties should be empty).
-//                                If False, then the values of the other properties can be arbitrary, the main
-//                                thing is that the corresponding properties are equal to the properties of the structure. By default, True.
+//   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
+//                              - String - The string id of the check kind.
+//                              - Array of String - The string ids of the check kind.
+//   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
+//                                by the passed properties for equality, other properties must be equal
+//                                Undefined (tabular section of additional properties has to be blank).
+//                                If False, other property values can be arbitrary, the main thing is
+//                                that the corresponding properties need to be equal to the structure properties. Default value is True.
 //
 // Returns:
 //   ValueTable:
-//     * ObjectWithIssue         - AnyRef -  a reference to the "Source" object of the problems.
-//     * CheckRule          - CatalogRef.AccountingCheckRules -  a link to the completed check.
-//     * IssueSummary        - String -  string-clarification of the found problem.
-//     * IssueSeverity         - EnumRef.AccountingIssueSeverity -  The importance of the accounting problem
-//                                  is "Information", "Warning", "Error" and "Useful Advice".
-//     * EmployeeResponsible            - CatalogRef.Users -  filled in if it is possible
-//                                  to identify the responsible person in the problem object.
-//     * AdditionalInformation - ValueStorage -  a service property with additional
-//                                  information related to the identified problem.
-//     * Detected                 - Date -  server identification time of the problem.
+//     * ObjectWithIssue         - AnyRef - a reference to the object that is the Source of issues.
+//     * CheckRule          - CatalogRef.AccountingCheckRules - a reference to the executed check.
+//     * IssueSummary        - String - a string summary of the found issue.
+//     * IssueSeverity         - EnumRef.AccountingIssueSeverity - Issue severity:
+//                                  Information, Warning, Error, or UsefulTip.
+//     * EmployeeResponsible            - CatalogRef.Users - it is filled in if it is possible
+//                                  to identify a person responsible for the problematic object.
+//     * AdditionalInformation - ValueStorage - Internal property with additional issue info.
+//                                  
+//     * Detected                 - Date - Server time when the issue was identified.
 //
 // Example:
-//   1) Result = Detailed informationspecifications ("System Checks");
-//   2) Type Check = New Array;
-//      View check.Add("Closing the month");
-//      View check.Add(Company);
-//      View check.Add(months of closure);
-//      Result = Detailed Informationview Check(View Check);
+//   1) Result = DetailedInformationOnChecksKinds("SystemChecks");
+//   2) ChecksKind = New Array;
+//      ChecksKind.Add("MonthEndClosing");
+//      ChecksKind.Add(Company);
+//      ChecksKind.Add(ClosingMonth);
+//      Result = DetailedInformationOnChecksKinds(ChecksKind);
 //
 Function DetailedInformationOnCheckKinds(ChecksKind, SearchByExactMap = True) Export
 	
@@ -1008,31 +1010,31 @@ Function DetailedInformationOnCheckKinds(ChecksKind, SearchByExactMap = True) Ex
 	
 EndFunction
 
-// Deprecated.
-// 
+// Deprecated. Obsolete. Use SummaryInformationOnChecksKinds instead.
+// Sums up the detected issue amount for the specified check kind.
 //
 // Parameters:
-//   ChecksKind                - CatalogRef.ChecksKinds -  link to the type of check.
-//                              - String - 
-//                              - Array of String - 
-//   SearchByExactMap - Boolean -  adjusts accuracy capabilities. If True, then the search is
-//                                based on the passed properties for equality, the remaining properties must be equal
-//                                Undefined (the tabular part of the additional properties should be empty).
-//                                If False, then the values of the other properties can be arbitrary, the main
-//                                thing is that the corresponding properties are equal to the properties of the structure. By default, True.
+//   ChecksKind                - CatalogRef.ChecksKinds - a reference to a check kind.
+//                              - String - The string id of the check kind.
+//                              - Array of String - The string ids of the check kind.
+//   SearchByExactMap - Boolean - regulates accuracy capabilities. If True, the search is conducted
+//                                by the passed properties for equality, other properties must be equal
+//                                Undefined (tabular section of additional properties has to be blank).
+//                                If False, other property values can be arbitrary, the main thing is
+//                                that the corresponding properties need to be equal to the structure properties. Default value is True.
 //
 // Returns:
 //  Structure:
-//    * Count - Number -  the total number of problems found.
-//    * HasErrors - Boolean -  a sign of whether there are errors among the problems found (with the importance "Error").
+//    * Count - Number - a total number of the issues found.
+//    * HasErrors - Boolean - indicates whether the detected issues include issues with the Error severity.
 //
 // Example:
-//   1) Result = Summary of informationspecifications ("System checks");
-//   2) Type Check = New Array;
-//      View check.Add("Closing the month");
-//      View check.Add(Company);
-//      View check.Add(months of closure);
-//      Result = Summary Informationview Check(View Check);
+//   1) Result = SummaryInformationOnChecksKinds("SystemChecks");
+//   2) ChecksKind = New Array;
+//      ChecksKind.Add("MonthEndClosing");
+//      ChecksKind.Add(Company);
+//      ChecksKind.Add(ClosingMonth);
+//      Result = SummaryInformationOnChecksKinds(ChecksKind);
 //
 Function SummaryInformationOnCheckKinds(ChecksKind, SearchByExactMap = True) Export
 	

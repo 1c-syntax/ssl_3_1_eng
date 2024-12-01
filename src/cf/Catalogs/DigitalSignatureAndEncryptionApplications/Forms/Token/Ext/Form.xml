@@ -72,7 +72,7 @@
 				</CheckBoxField>
 			</ChildItems>
 		</UsualGroup>
-		<UsualGroup name="CertificateRenewalGroup" id="45">
+		<UsualGroup name="GroupRefreshCertificates" id="45">
 			<Visible>false</Visible>
 			<Title>
 				<v8:item>
@@ -81,25 +81,25 @@
 				</v8:item>
 			</Title>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="CertificateRenewalGroupExtendedTooltip" id="46"/>
+			<ExtendedTooltip name="GroupRefreshCertificatesExtendedTooltip" id="46"/>
 			<ChildItems>
-				<PictureDecoration name="ImageCertificateUpdate" id="47">
+				<PictureDecoration name="PictureRefreshCertificates" id="47">
 					<Picture>
 						<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
 						<xr:LoadTransparent>false</xr:LoadTransparent>
 					</Picture>
-					<ContextMenu name="ImageCertificateUpdateContextMenu" id="48"/>
-					<ExtendedTooltip name="ImageCertificateUpdateExtendedTooltip" id="49"/>
+					<ContextMenu name="PictureRefreshCertificatesContextMenu" id="48"/>
+					<ExtendedTooltip name="PictureRefreshCertificatesExtendedTooltip" id="49"/>
 				</PictureDecoration>
-				<LabelDecoration name="DecorationCertificateRenewal" id="50">
+				<LabelDecoration name="DecorationRefreshCertificates" id="50">
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Searching for cerficates on token…</v8:content>
 						</v8:item>
 					</Title>
-					<ContextMenu name="DecorationCertificateRenewalContextMenu" id="51"/>
-					<ExtendedTooltip name="DecorationCertificateRenewalExtendedTooltip" id="52"/>
+					<ContextMenu name="DecorationRefreshCertificatesContextMenu" id="51"/>
+					<ExtendedTooltip name="DecorationRefreshCertificatesExtendedTooltip" id="52"/>
 				</LabelDecoration>
 			</ChildItems>
 		</UsualGroup>
@@ -217,6 +217,7 @@
 		</Table>
 		<InputField name="SerialNumber" id="4">
 			<DataPath>SerialNumber</DataPath>
+			<Visible>false</Visible>
 			<ReadOnly>true</ReadOnly>
 			<Title>
 				<v8:item>

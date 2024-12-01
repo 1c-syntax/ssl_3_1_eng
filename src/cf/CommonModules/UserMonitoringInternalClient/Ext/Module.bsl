@@ -1,15 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client events of the report form.
 
 // See ReportsClientOverridable.DetailProcessing
 Procedure OnProcessDetails(ReportForm, Item, Details, StandardProcessing) Export
@@ -109,7 +111,7 @@ Procedure ResultDetailProcessingCompletion(SelectedOption, HandlerParameters) Ex
 		For Each GanttChartPoint In PointsList Do
 			
 			DetailsPoint = GanttChartPoint.Details;
-			If GanttChartPoint.Value = NStr("en = 'Background jobs';") Then // 
+			If GanttChartPoint.Value = NStr("en = 'Background jobs';") Then // ACC:1391 Localizable chart point value.
 				Continue;
 			EndIf;
 			
@@ -139,7 +141,7 @@ Procedure ShowScheduledJobInfo(Details)
 	OpenForm("Report.EventLogAnalysis.Form.ScheduledJobInfo", FormParameters);
 EndProcedure
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure OnStartSelectValuesInProfilesRolesChangesReport(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing)
 	
 	If SelectionConditions.FieldName <> "Role" Then
@@ -165,7 +167,7 @@ Procedure OnStartSelectValuesInProfilesRolesChangesReport(ReportForm, SelectionC
 	
 EndProcedure
 
-// 
+// Intended for the "OnStartSelectValuesInProfilesRolesChangesReport" procedure.
 Procedure DeleteEmptyValues(MarkedValues)
 	
 	IndexOf = MarkedValues.Count() - 1;

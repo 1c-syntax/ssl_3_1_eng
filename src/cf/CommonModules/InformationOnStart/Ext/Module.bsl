@@ -1,23 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Updates the subsystem data based on the program's operating mode.
-//   Usage example: after clearing the settings storage.
+// The function updates subsystem data considering the application mode.
+//   Usage example: after clearing settings storage.
 //
 // Parameters:
 //   Settings - Structure:
-//       * SharedData       - Boolean -  optional. To update the undivided data.
-//       * SeparatedData - Boolean -  optional. To update the split data.
-//       * Nonexclusive - Boolean -  optional. Prompt data updates.
-//       * Deferred2  - Boolean -  optional. Delayed data update.
-//       * Full      - Boolean -  optional. Don't count hash amounts when updating data on hold.
+//       * SharedData       - Boolean - Optional. Update shared data.
+//       * SeparatedData - Boolean - Optional. Update separated data.
+//       * Nonexclusive - Boolean - Optional. Real-time data update.
+//       * Deferred2  - Boolean - Optional. Deferred data update.
+//       * Full      - Boolean - Optional. Ignore hash during the deferred data update.
 //
 Function Refresh(Settings = Undefined) Export
 	
@@ -31,15 +33,15 @@ Function Refresh(Settings = Undefined) Export
 			If Common.SeparatedDataUsageAvailable() Then
 				Default.SharedData       = False;
 				Default.SeparatedData = True;
-			Else // 
+			Else // Shared session.
 				Default.SharedData       = True;
 				Default.SeparatedData = False;
 			EndIf;
 		Else
-			If Common.IsStandaloneWorkplace() Then // 
+			If Common.IsStandaloneWorkplace() Then // SWP.
 				Default.SharedData       = False;
 				Default.SeparatedData = True;
-			Else // 
+			Else // On-prem.
 				Default.SharedData       = True;
 				Default.SeparatedData = True;
 			EndIf;
@@ -72,7 +74,7 @@ Function Refresh(Settings = Undefined) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -111,9 +113,9 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Infobase update.
 
-// Updates data for the first impression.
+// Updates data of the first show.
 Procedure CommonDataNonexclusiveUpdate() Export
 	
 	UpdateFirstShowCache(DataProcessors.InformationOnStart.Create());
@@ -121,15 +123,15 @@ Procedure CommonDataNonexclusiveUpdate() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal procedures and functions.
 
-// Updates data for the first impression.
+// Updates data of the first show.
 Procedure UpdateFirstShowCache(TemplatesMedia)
 	
-	// 
+	// Generate the general information about pages packages.
 	PagesPackages = PagesPackages(TemplatesMedia);
 	
-	// 
+	// Extract packages data and recording them to the register.
 	SetPrivilegedMode(True);
 	RecordSet = InformationRegisters.InformationPackagesOnStart.CreateRecordSet();
 	For Each Package In PagesPackages Do
@@ -140,7 +142,7 @@ Procedure UpdateFirstShowCache(TemplatesMedia)
 		Record.Content = New ValueStorage(PackageKit);
 	EndDo;
 	
-	// 
+	// Metadata is recorded to the register under number 0.
 	Record = RecordSet.Add();
 	Record.Number  = 0;
 	Record.Content = New ValueStorage(PagesPackages);
@@ -155,12 +157,12 @@ Function GlobalSettings()
 	Settings = New Structure;
 	Settings.Insert("Show", True);
 	
-	// 
+	// Disable information in the PROF version if the user cleared the check box.
 	Settings.Show = (Metadata.DataProcessors.InformationOnStart.Templates.Count() > 0)
 		And (StandardSubsystemsServer.IsBaseConfigurationVersion() Or ShowAtStartup());
 	
 	If Settings.Show Then
-		// 
+		// Disable information if changes details are displayed.
 		If Common.SubsystemExists("StandardSubsystems.IBVersionUpdate") Then
 			ModuleUpdatingInfobaseInternal = Common.CommonModule("InfobaseUpdateInternal");
 			If ModuleUpdatingInfobaseInternal.ShowChangeHistory1() Then
@@ -170,7 +172,7 @@ Function GlobalSettings()
 	EndIf;
 	
 	If Settings.Show Then
-		// 
+		// Disable information if the assistant of setting completion of the subordinate DIB node is displayed.
 		If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 			If ModuleDataExchangeServer.OpenDataExchangeCreationWizardForSubordinateNodeSetup() Then
@@ -200,7 +202,7 @@ Function GlobalSettings()
 	Return Settings;
 EndFunction
 
-// Reading the saved value of the "Show at start" checkbox.
+// Read the stored value of the "Show on startup" check box.
 Function ShowAtStartup() Export
 	Show = Common.CommonSettingsStorageLoad("InformationOnStart", "Show", True);
 	If Not Show Then
@@ -247,7 +249,7 @@ Function PagesPackages(TemplatesMedia) Export
 	
 	NumberInRegister = 0;
 	
-	// 
+	// Read the Specifier template.
 	If TemplatesMedia.Metadata().Templates.Find("Specifier") = Undefined Then
 		Return Result;
 	EndIf;
@@ -257,7 +259,7 @@ Function PagesPackages(TemplatesMedia) Export
 	For LineNumber = 3 To SpreadsheetDocument.TableHeight Do
 		RowPrefix = "R"+ LineNumber +"C";
 		
-		// 
+		// Read the first column data.
 		TemplateName = CellData(SpreadsheetDocument, RowPrefix, 1, , "TableEnd");
 		If Upper(TemplateName) = Upper("TableEnd") Then
 			Break;
@@ -270,7 +272,7 @@ Function PagesPackages(TemplatesMedia) Export
 		
 		NumberInRegister = NumberInRegister + 1;
 		
-		// 
+		// Registering command information.
 		TableRow = Result.Add();
 		TableRow.NumberInRegister                = NumberInRegister;
 		TableRow.TemplateName                     = TemplateName;
@@ -281,7 +283,7 @@ Function PagesPackages(TemplatesMedia) Export
 		TableRow.ShowFrom              = CellData(SpreadsheetDocument, RowPrefix, 5, "Date", '00010101');
 		TableRow.ShowTill           = CellData(SpreadsheetDocument, RowPrefix, 6, "Date", '29990101');
 		
-		If Lower(TableRow.Section) = Lower(NStr("en = 'Ads';")) Then // 
+		If Lower(TableRow.Section) = Lower(NStr("en = 'Ads';")) Then // ACC:1391 Localizable section.
 			TableRow.Priority = 0;
 		Else
 			TableRow.Priority = CellData(SpreadsheetDocument, RowPrefix, 7, "Number", 0);
@@ -299,7 +301,7 @@ Function PagesPackages(TemplatesMedia) Export
 	Return Result;
 EndFunction
 
-// Reads the contents of a cell from a table document and converts it to the specified type.
+// Reads the contents of a cell from a spreadsheet document and converts to the specified type.
 Function CellData(SpreadsheetDocument, RowPrefix, ColumnNumber, Type = "String", DefaultValue = "")
 	Result = TrimAll(SpreadsheetDocument.Area(RowPrefix + String(ColumnNumber)).Text);
 	If IsBlankString(Result) Then
@@ -354,11 +356,11 @@ Function PreparePagesPackageForOutput(PagesPackages, CurrentDate) Export
 	Return Result;
 EndFunction
 
-// Retrieves a batch of files from the startup information processing layout.
+// Extracts files package from the InformationOnStart data processor template.
 Function ExtractPackageFiles(TemplatesMedia, TemplateName) Export
 	TempFilesDir = FileSystem.CreateTemporaryDirectory("extras");
 	
-	// 
+	// Extract a page.
 	ArchiveFullName = TempFilesDir + "tmp.zip";
 	Try
 		TemplatesCollection = TemplatesMedia.Metadata().Templates;
@@ -407,15 +409,15 @@ Function ExtractPackageFiles(TemplatesMedia, TemplateName) Export
 	WebPages.Columns.Add("RelativeDirectory", New TypeDescription("String"));
 	WebPages.Columns.Add("Data");
 	
-	// 
+	// Register page references and generating a list of pictures.
 	FilesDirectories = New ValueList;
 	FilesDirectories.Add(TempFilesDir, "");
 	Left = 1;
 	While Left > 0 Do
 		Left = Left - 1;
 		Directory = FilesDirectories[0];
-		DirectoryFullPath        = Directory.Value; // 
-		DirectoryRelativePath = Directory.Presentation; // 
+		DirectoryFullPath        = Directory.Value; // A full path in the file system format.
+		DirectoryRelativePath = Directory.Presentation; // A full path in the file system format.
 		FilesDirectories.Delete(0);
 		
 		FoundItems = FindFiles(DirectoryFullPath, "*", False);
@@ -429,7 +431,7 @@ Function ExtractPackageFiles(TemplatesMedia, TemplateName) Export
 				Continue;
 			EndIf;
 			
-			// 
+			// Clear the ReadOnly flag to avoid mistakes during the deletion.
 			File.SetReadOnly(False);
 			
 			Extension = StrReplace(Lower(File.Extension), ".", "");
@@ -450,7 +452,7 @@ Function ExtractPackageFiles(TemplatesMedia, TemplateName) Export
 		EndDo;
 	EndDo;
 	
-	// 
+	// Delete temporary files (all files were moved to the temporary storage).
 	FileSystem.DeleteTemporaryDirectory(TempFilesDir);
 	
 	Result = New Structure;

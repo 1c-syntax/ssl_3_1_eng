@@ -1,77 +1,79 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Receives a routine task by name.
+// Gets a scheduled job by name.
 //
 // Parameters:
-//  ScheduledJobName - String -  the name of the routine task.
-//    CreateNew2 - Boolean -  in case of absence, a new one is created.
+//  ScheduledJobName - String - a name of scheduled job.
+//    CreateNew2 - Boolean - if missing, a new one is created.
 //
 Function GetScheduledJobExternalCall(ScheduledJobName, CreateNew2 = True) Export
 	Return GetScheduledJob(ScheduledJobName, CreateNew2);
 EndFunction
 
-// Sets the schedule of the scheduled task by default.
+// Sets the default schedule of a scheduled job.
 //
 // Parameters:
-//  The name of the Regulatory task is the regulatory task.
+//  ScheduledJobName - ScheduledJob.
 //
 Procedure SetDefaultScheduleExternalCall(Job) Export
 	SetDefaultSchedule(Job);
 EndProcedure
 
-// Deletes a scheduled task by name.
+// Deletes a scheduled job by name.
 //
 // Parameters:
-//  ScheduledJobName - String -  the name of the routine task.
+//  ScheduledJobName - String - a name of scheduled job.
 //
 Procedure DeleteScheduledJobExternalCall(ScheduledJobName) Export
 	DeleteScheduledJob(ScheduledJobName);
 EndProcedure
 
-// Sets the value of the monitoring center parameter.
+// Sets a value of the Monitoring center parameter.
 //
 // Parameters:
-//  Parameter - String - 
-//                      
-//  Value - Arbitrary -  the value of the monitoring center parameter.
+//  Parameter - String - Monitoring center parameter key.
+//                      See possible key values in the GetDefaultParameters procedure of the MonitoringCenterInternal module.
+//  Value - Arbitrary - a monitoring center parameter value.
 //
 Function SetMonitoringCenterParameterExternalCall(Parameter, Value) Export
 	SetMonitoringCenterParameter(Parameter, Value);
 	Return "Success";
 EndFunction
 
-// 
+// Gets the default Monitoring center parameters.
 //
 // Returns:
-//    Structure - 
+//    Structure - The value of the "MonitoringCenterParameters" constant.
 //
 Function GetDefaultParametersExternalCall() Export
 	Return GetDefaultParameters();
 EndFunction
 
-// Gets the parameters of the monitoring center.
+// This function gets Monitoring center parameters.
 //
 // Parameters:
-//    Parameters - Structure - 
+//    Parameters - Structure - Where the keys are the parameters whose values should be obtained.
 //
 // Returns:
-//    Structure - 
+//    Structure - The value of the "MonitoringCenterParameters" constant.
 //
 Function GetMonitoringCenterParametersExternalCall(Parameters = Undefined) Export
 	Return GetMonitoringCenterParameters(Parameters);
 EndFunction
 
-// Sets the parameters of the monitoring center.
+// This function sets Monitoring center parameters.
 // Parameters:
-//    Parameters - Structure - necessary parameters, the values of which must be obtained.
+//    Parameters - Structure - parameters whose values are to be got.
 //
 Function SetMonitoringCenterParametersExternalCall(NewParameters) Export
 	SetMonitoringCenterParameters(NewParameters);
@@ -87,7 +89,7 @@ Function StartDiscoveryPackageSending() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See ScheduledJobsOverridable.OnDefineScheduledJobSettings
 Procedure OnDefineScheduledJobSettings(Settings) Export
@@ -152,7 +154,7 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	IsFullUser = Users.IsFullUser(, True);
 	
 	MonitoringCenterSettings = New Structure;
-	// 
+	// Notifications are always enabled as notifications of dumps are important for Administrator.
 	MonitoringCenterSettings.Insert("EnableNotifications", True);
 	MonitoringCenterOverridable.OnDefineSettings(MonitoringCenterSettings);
 	
@@ -169,7 +171,7 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 		
 	Parameters.Insert("MonitoringCenter", New FixedStructure(ClientRunParameters));
 	
-	// 
+	// Write a user activity in business statistics when starting the procedure.
 	If RegisterBusinessStatistics Then
 		WriteUserActivity(UserHash);
 	EndIf;
@@ -233,7 +235,7 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	MonitoringCenterParameters = GetMonitoringCenterParameters(MonitoringCenterParameters);
 	
 	If Not MonitoringCenterParameters.TestPackageSent And Not SeparationByDataAreasEnabled() Then
-		// 
+		// No need to send a test package as the data is already being sent.
 		If MonitoringCenterParameters.EnableMonitoringCenter Or MonitoringCenterParameters.ApplicationInformationProcessingCenter Then
 			SetPrivilegedMode(True);
 			SetMonitoringCenterParameter("TestPackageSent", True);
@@ -308,7 +310,7 @@ EndProcedure
 //
 Procedure OnFillToDoList(ToDoList) Export
 	
-	// 
+	// Only system administrator is authorized to change a constant.
 	If Not Users.IsFullUser(, True) Then
 		Return;
 	EndIf;
@@ -319,7 +321,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	Sections = ModuleToDoListServer.SectionsForObject("DataProcessor.MonitoringCenterSettings");
 	If Sections.Count() = 0 Then
-		// 
+		// Not included to the command interface.
 		AdministrationSection = Metadata.Subsystems.Find("Administration");
 		If AdministrationSection = Undefined Then
 			Return;
@@ -327,7 +329,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		Sections.Add(AdministrationSection);
 	EndIf;
 	
-	// 
+	// 1. Process dump import request.
 	RequestForGettingDumps = MonitoringCenterParameters.SendDumpsFiles = 2 And MonitoringCenterParameters.BasicChecksPassed;
 	For Each Section In Sections Do
 		ToDoItem = ToDoList.Add();
@@ -343,7 +345,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.Form          = "DataProcessor.MonitoringCenterSettings.Form.RequestForErrorReportsCollectionAndSending";
 	EndDo;
 
-	// 
+	// 2. Process dump export request.
 	HasDumps1 = MonitoringCenterParameters.Property("DumpInstances") And MonitoringCenterParameters.DumpInstances.Count();
 	SendingRequest = MonitoringCenterParameters.SendDumpsFiles = 1
 						And Not IsBlankString(MonitoringCenterParameters.DumpOption)
@@ -365,7 +367,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.Form          = "DataProcessor.MonitoringCenterSettings.Form.RequestForSendingErrorReports";
 	EndDo;
 	
-	// 
+	// 3. Request contact information.
 	HasContactInformationRequest = MonitoringCenterParameters.ContactInformationRequest = 3;
 	For Each Section In Sections Do
 		ToDoItem = ToDoList.Add();
@@ -537,7 +539,7 @@ Procedure MonitoringCenterScheduledJob() Export
 			Try
 				HTTPResponse = SendMonitoringData();
 				If HTTPResponse.StatusCode = 200 Then
-					// 
+					// Everything is OK.
 				EndIf;
 			Except
 				Comment = ErrorProcessing.DetailErrorDescription(ErrorInfo());
@@ -561,12 +563,12 @@ Procedure MonitoringCenterScheduledJob() Export
 			
 			PerformanceMonitorRecordRequired = True;
 			
-			// 
+			// Set additional error processing parameters.
 			InstallAdditionalErrorHandlingInformation();
 		EndIf;
 		
-		// 
-		// 
+		// Delete the parameters that were set when handling
+		// the service response to avoid writing them.
 		MonitoringCenterParameters.Delete("RegisterDumps");
 		MonitoringCenterParameters.Delete("RegisterBusinessStatistics");
 		MonitoringCenterParameters.Delete("RegisterConfigurationStatistics");
@@ -578,7 +580,7 @@ Procedure MonitoringCenterScheduledJob() Export
 		DeleteScheduledJob("StatisticsDataCollectionAndSending");
 	EndIf;
 	
-	// 
+	// Make sure that sending is not prohibited, a dump option is specified and collection time is not expired.
 	MonitoringCenterParameters.Insert("SendDumpsFiles");
 	MonitoringCenterParameters.Insert("DumpOption");
 	MonitoringCenterParameters.Insert("DumpCollectingEnd");
@@ -592,19 +594,19 @@ Procedure MonitoringCenterScheduledJob() Export
 	If StartErrorReportsCollectionAndSending Then
 		
 		If Not ValueIsFilled(MonitoringCenterParameters.NotificationDate2) Then
-			// 
+			// Set a notification date.
 			SetMonitoringCenterParameter("NotificationDate2", StartDate2);
 		ElsIf StartDate2 > MonitoringCenterParameters.NotificationDate2 + MonitoringCenterParameters.UserResponseTimeout * 86400
 			And MonitoringCenterParameters.ForceSendMinidumps = 2 Then
-			// 
+			// Timeout is expired, enable a forced sending.
 			SetMonitoringCenterParameter("ForceSendMinidumps", 1);	
 			MonitoringCenter.WriteBusinessStatisticsOperation("MonitoringCenter.DumpsRegistration.ForcedMinidumpSendingEnabled", 1);
 		EndIf;
 		
 		If Common.FileInfobase() Then
-			// 
+			// For file infobases, data is collected and sent in "OnReceiptRecurringClientDataOnServer".
 		Else    			
-			// 			
+			// Check if the background job exists.			
 			SchedJob = GetScheduledJob("ErrorReportCollectionAndSending", False);
 			If SchedJob = Undefined Then
 				SchedJob = GetScheduledJob("ErrorReportCollectionAndSending", True);
@@ -804,11 +806,11 @@ Function GenerateJSONStructureQueryResult(SectionName1, Data, StartDate, EndDate
 			
 	Rows = New Array;
 	Selection = Data.Select();
-	// 
+	// Used to store data structure.
 	CollectionsStructures = New Structure;
-	// 
+	// Used to store collection data as a key field - attributes with values.
 	CollectionsMaps = New Map; 
-	// 
+	// List of columns to exclude from the dataset. Send the columns' data to CollectionsMaps.
 	ColumnsToExclude = New Map;
 	If IndexColumns <> Undefined Then
 		ValuesIndexes = New Map;
@@ -895,11 +897,11 @@ Function GenerateJSONStructureValueTable(SectionName1, Data, StartDate, EndDate,
 	EndIf;
 			
 	Rows = New Array;
-	// 
+	// Used to store data structure.
 	CollectionsStructures = New Structure;
-	// 
+	// Used to store collection data as a key field - attributes with values.
 	CollectionsMaps = New Map; 
-	// 
+	// List of columns to exclude from the dataset. Send the columns' data to CollectionsMaps.
 	ColumnsToExclude = New Map;
 	If IndexColumns <> Undefined Then
 		ValuesIndexes = New Map;
@@ -1076,7 +1078,7 @@ Function GenerateJSONStructureForSending(Parameters)
 	
 	SeparationByDataAreasEnabled = SeparationByDataAreasEnabled();
 	
-	#Region StatisticsConfigurationSection
+#Region StatisticsConfigurationSection
 	If MonitoringCenterParameters.RegisterConfigurationStatistics And ShouldSendConfigurationStatistics Then
 		If SeparationByDataAreasEnabled Then
 			QueryResultNames = InformationRegisters.ConfigurationStatistics.GetStatisticsNames(0);
@@ -1135,9 +1137,9 @@ Function GenerateJSONStructureForSending(Parameters)
 			ConfigurationStatisticsSection = GenerateJSONStructure("StatisticsConfiguration", QueryResult, AdditionalParameters);
 		EndIf;
 	EndIf;
-	#EndRegion
+#EndRegion
 	
-	#Region OptionsSection
+#Region OptionsSection
 	If MonitoringCenterParameters.RegisterConfigurationSettings And ShouldSendConfigurationStatistics Then
 		If SeparationByDataAreasEnabled Then
 			QueryResultNames = InformationRegisters.ConfigurationStatistics.GetStatisticsNames(1);
@@ -1188,7 +1190,7 @@ Function GenerateJSONStructureForSending(Parameters)
 			ConfigurationSettingSection = GenerateJSONStructure("Options", QueryResult, AdditionalParameters);
 		EndIf;
 	EndIf;
-	#EndRegion
+#EndRegion
 		
 	PerformanceMonitorExists = Common.SubsystemExists("StandardSubsystems.PerformanceMonitor");
 	If PerformanceMonitorExists Then
@@ -1441,7 +1443,7 @@ Procedure DumpsRegistration()
 	DumpsDirectory = GetDumpsDirectory(DumpType);
 	
 	If DumpsDirectory.Path <> Undefined Then
-		// 
+		// Check if it is necessary to notify Administrator of process failure.
 		CheckIfNotificationOfDumpsIsRequired(DumpsDirectory.Path);
 		If DumpsDirectory.DeleteDumps Then
 			DumpsToDelete = InformationRegisters.PlatformDumps.GetDumpsToDelete();
@@ -1506,11 +1508,11 @@ Procedure CollectConfigurationStatistics1(MonitoringCenterParameters = Undefined
 		MonitoringCenterParameters = GetMonitoringCenterParameters(MonitoringCenterParameters);
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// Gathers the basic configuration statistics.
+	// Also, measures the execution time if the
+	// Performance monitor subsystem is integrated.
 	//
-	#Region BaseConfigurationStatistics
+#Region BaseConfigurationStatistics
 	
 	If MonitoringCenterParameters.RegisterConfigurationStatistics Or  MonitoringCenterParameters.RegisterConfigurationSettings Then
 		
@@ -1540,13 +1542,13 @@ Procedure CollectConfigurationStatistics1(MonitoringCenterParameters = Undefined
 		EndIf;
 	EndIf;
 	
-	#EndRegion
+#EndRegion
 	
-	// 
-	// 
-	// 
+	// Gathers the configuration statistics.
+	// Also, measures the execution time if the
+	// Performance monitor subsystem is integrated.
 	//
-	#Region ConfigurationStatisticsStandardSubsystems
+#Region ConfigurationStatisticsStandardSubsystems
 	
 	If MonitoringCenterParameters.RegisterConfigurationStatistics Then
 		If PerformanceMonitorExists Then
@@ -1586,7 +1588,7 @@ Procedure CollectConfigurationStatistics1(MonitoringCenterParameters = Undefined
 		EndIf;
 	EndIf;
 	
-	#EndRegion
+#EndRegion
 	
 EndProcedure
 
@@ -1616,7 +1618,7 @@ Procedure CreatePackageToSend()
 	Parameters.Insert("SendingResult", MonitoringCenterParameters.SendingResult);
 	Parameters.Insert("SendDumpsFiles", MonitoringCenterParameters.SendDumpsFiles);
 	Parameters.Insert("RequestConfirmationBeforeSending", MonitoringCenterParameters.RequestConfirmationBeforeSending);
-	// 
+	// Contact information.
 	Parameters.Insert("ContactInformationRequest", MonitoringCenterParameters.ContactInformationRequest);
 	Parameters.Insert("ContactInformation", MonitoringCenterParameters.ContactInformation);
 	Parameters.Insert("ContactInformationComment1", MonitoringCenterParameters.ContactInformationComment1);
@@ -1729,36 +1731,36 @@ EndFunction
 Function GetDefaultParameters()
 	ConstantParameters = New Structure;
 	
-	// 
+	// Parameters of collecting information on the system.
 	//
 	ConstantParameters.Insert("EnableMonitoringCenter", False);
 	
-	// 
+	// Processing center flag. If set to "True", then a third-party developer.
 	// 
 	//
 	ConstantParameters.Insert("ApplicationInformationProcessingCenter", False);
 	
-	// 
+	// Infobase ID.
 	//
 	InfoBaseID = New UUID();
 	ConstantParameters.Insert("InfoBaseID", InfoBaseID);
 	ConstantParameters.Insert("InfobaseIDPermanent", InfoBaseID);
 	
-	// 
+	// Parameters of collecting information on the system.
 	//
 	ConstantParameters.Insert("RegisterSystemInformation", False);
 	
-	// 
+	// Parameters of collecting information on subsystem versions.
 	//
 	ConstantParameters.Insert("RegisterSubsystemVersions", False);
 	
-	// 
+	// Dumps collection parameters.
 	//
 	ConstantParameters.Insert("DumpRegistrationNextCreation", Date(1,1,1));
 	ConstantParameters.Insert("DumpRegistrationCreationPeriod", 600);
 	ConstantParameters.Insert("RegisterDumps", False);
 	
-	// 
+	// Business statistics collection parameters.
 	//
 	ConstantParameters.Insert("AggregationPeriodMinor", 60);
 	ConstantParameters.Insert("AggregationPeriod", 600);
@@ -1768,18 +1770,18 @@ Function GetDefaultParameters()
 	ConstantParameters.Insert("BusinessStatisticsSnapshotPeriod", 600);
 	ConstantParameters.Insert("RegisterBusinessStatistics", False);
 	
-	// 
+	// Configuration statistics collection parameters.
 	//
 	ConstantParameters.Insert("ConfigurationStatisticsNextGeneration", Date(1,1,1));
 	ConstantParameters.Insert("ConfigurationStatisticsGenerationPeriod", 86400);
 	ConstantParameters.Insert("RegisterConfigurationStatistics", False);
 	ConstantParameters.Insert("RegisterConfigurationSettings", False);
 	
-	// 
-	// 	
-	// 	
-	// 	
-	// 	
+	// Parameters for gathering performance statistics. PerformanceMonitorEnabled:
+	// 	0 - Disabled.
+	// 	1 - Enabled by Monitoring Center.
+	// 	2 - Enabled by Performance Monitor.
+	// 	3 - Disabled by Performance Monitor.
 	//
 	ConstantParameters.Insert("PerformanceMonitorEnabled", 0);
 	
@@ -1789,7 +1791,7 @@ Function GetDefaultParameters()
 	ConstantParameters.Insert("TopApdexTech", 10);
 	ConstantParameters.Insert("RunPerformanceMeasurements", RunPerformanceMeasurements());
 	
-	// 
+	// Data export parameters.
 	//
 	ConstantParameters.Insert("SendDataNextGeneration", Date(1,1,1));
 	ConstantParameters.Insert("SendDataGenerationPeriod", 607800);
@@ -1804,66 +1806,66 @@ Function GetDefaultParameters()
 	ConstantParameters.Insert("Port", 443);
 	ConstantParameters.Insert("SecureConnection", True);
 	
-	// 
+	// Parameters for gathering and sending dump reports.
 	//
-	// 
-	//	
-	//  
-	//  
+	// SendDumpsFiles
+	//	0 - Do not send.
+	//  1 - Send.
+	//  2 - User is not prompted yet.
 	ConstantParameters.Insert("SendDumpsFiles", 2);
 	ConstantParameters.Insert("DumpOption", "");
-	// 
-	// 
+	// Indication of passing the basic checks (free disk space, log edit right).
+	// Intended for generating notifications.
 	ConstantParameters.Insert("BasicChecksPassed", False); 
 	ConstantParameters.Insert("RequestConfirmationBeforeSending", True);
 	ConstantParameters.Insert("SendingResult", "");
-	ConstantParameters.Insert("DumpsInformation", ""); // 
+	ConstantParameters.Insert("DumpsInformation", ""); // Information that will be displayed to a user upon sending approval.
 	ConstantParameters.Insert("SpaceReserveDisabled", 40);
 	ConstantParameters.Insert("SpaceReserveEnabled", 20);
 	ConstantParameters.Insert("DumpCollectingEnd", Date(2017,1,1));
-	// 
+	// It stores the list of computers where collection of full and sometimes mini dumps is enabled.
 	ConstantParameters.Insert("FullDumpsCollectionEnabled", New Map);
 	ConstantParameters.Insert("DumpInstances", New Map);
 	ConstantParameters.Insert("DumpInstancesApproved", New Map);
-	// 
+	// Parameters of checking dumps failure frequency.
 	ConstantParameters.Insert("DumpsCheckDepth", 604800);
 	ConstantParameters.Insert("MinDumpsCount", 10000);
 	ConstantParameters.Insert("DumpCheckNext", Date(1,1,1));
 	ConstantParameters.Insert("DumpsCheckFrequency", 14400);
-	// 
-	ConstantParameters.Insert("DumpType", "0"); // 
+	// Determines the collected dump type. By default, minidumps.
+	ConstantParameters.Insert("DumpType", "0"); // "0" - mini dump, "3" - full dump.
 	
-	// 
-	ConstantParameters.Insert("UserResponseTimeout", 14); // 
-	ConstantParameters.Insert("ForceSendMinidumps", 0); // 
-	ConstantParameters.Insert("NotificationDate2", Date(1,1,1)); // 
+	// Forced sending of mini dumps.
+	ConstantParameters.Insert("UserResponseTimeout", 14); // How many days to wait for an answer from the Administrator, in days.
+	ConstantParameters.Insert("ForceSendMinidumps", 0); // How many days to wait for an answer from the Administrator, in days.
+	ConstantParameters.Insert("NotificationDate2", Date(1,1,1)); // Date of dumps request registration or notification of dumps.
 	
 	
-	// 
+	// Test package sending parameters.
 	//
 	ConstantParameters.Insert("TestPackageSent", False);
 	ConstantParameters.Insert("TestPackageSendingAttemptCount", 0);
 	
-	// 
+	// Discovery package sending parameters (for getting ID).
 	//
 	ConstantParameters.Insert("DiscoveryPackageSent", False);
 	
-	// 
+	// Error processing settings.
 	//
-	ConstantParameters.Insert("SetErrorHandlingSettingsForcibly", False); // 
+	ConstantParameters.Insert("SetErrorHandlingSettingsForcibly", False); // SpecifyErrorsProcessingSettingsForcibly.
 	ConstantParameters.Insert("ErrorMessageDisplayVariant", "Auto"); // ErrorMessageDisplayVariant
-	ConstantParameters.Insert("ErrorRegistrationServiceURL", ""); // 
-	ConstantParameters.Insert("SendReport", "Auto"); // 
-	ConstantParameters.Insert("IncludeDetailErrorDescriptionInReport", "Auto"); // 
-	ConstantParameters.Insert("IncludeInfobaseInformationInReport", "Auto"); // 
+	ConstantParameters.Insert("ErrorRegistrationServiceURL", ""); // ErrorsLoggingServiceAddress.
+	ConstantParameters.Insert("SendReport", "Auto"); // SendReport.
+	ConstantParameters.Insert("IncludeDetailErrorDescriptionInReport", "Auto"); // IncludeDetailedErrorTextInReport.
+	ConstantParameters.Insert("IncludeInfobaseInformationInReport", "Auto"); // IncludeInfobaseInformationInReport.
 	
-	// 
+	// Contact information acquisition parameters.
 	//
-	// 
-	//	
-	//  
-	//  
-	//  
+	// ContactInformationRequest
+	//	0 - User refused.
+	//  1 - User agreed.
+	//  2 - User is not yet prompted.
+	//  3 - User has been prompted.
 	ConstantParameters.Insert("ContactInformationRequest", 2);
 	ConstantParameters.Insert("ContactInformation", "");
 	ConstantParameters.Insert("ContactInformationComment1", "");
@@ -1923,9 +1925,9 @@ Function SetSendingParameters(Parameters)
 	SendOptions.Insert("RegisterConfigurationSettings", False);
 	SendOptions.Insert("RegisterPerformance", False);
 	SendOptions.Insert("RegisterTechnologicalPerformance", False);
-	SendOptions.Insert("SendingResult", ""); // 
-	SendOptions.Insert("DiscoveryPackageSent", True); // 
-	SendOptions.Insert("ContactInformationChanged", False);  // 
+	SendOptions.Insert("SendingResult", ""); // Reset a dump sending result to zero upon successful sending.
+	SendOptions.Insert("DiscoveryPackageSent", True); // If a response from the service is received, always True.
+	SendOptions.Insert("ContactInformationChanged", False);  // Always clear the contacts change flag upon successful sending.
 	
 	ParametersMap = New Structure;
 	ParametersMap.Insert("info", "RegisterSystemInformation");
@@ -1991,54 +1993,54 @@ Function SetSendingParameters(Parameters)
 	EndIf;
 	
 	If SendOptions["RegisterPerformance"] Or SendOptions["RegisterTechnologicalPerformance"] Then
-		// 
+		// There is no Performance monitor subsystem.
 		If SendOptions.RunPerformanceMeasurements = Undefined Then
 			SendOptions.PerformanceMonitorEnabled = 0;
-		// 
+		// Disabled.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 0 And Not SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 1;
-		// 
+		// Enabled by Performance monitor.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 0 And SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 2;
-		// 
+		// If it was enabled by Monitoring center, and disabled after that, then stop collecting.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 1 And Not SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 3;
-		// 
+		// Enabled by Monitoring center.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 1 And SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 1;
-		// 
+		// It was enabled by Performance monitor and then disabled.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 2 And Not SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 3;
-		// 
+		// Enabled by Performance monitor.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 2 And SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 2;
-		// 
+		// Initially, was disabled. Then, was enabled by Performance monitor.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 3 And SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 2;
 		EndIf;
 	Else
-		// 
+		// There is no Performance monitor subsystem.
 		If SendOptions.RunPerformanceMeasurements = Undefined Then
 			SendOptions.PerformanceMonitorEnabled = 0;
-		// 
+		// Disabled.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 0 And Not SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 0;
-		// 
+		// Enabled by Performance monitor.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 0 And SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 2;
-		// 
+		// Enabled by Monitoring center.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 1 And Not SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 0;
-		// 
+		// Enabled by Monitoring center.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 1 And SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 0;
-		// 
+		// It was enabled by Performance monitor and then disabled.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 2 And Not SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 0;
-		// 
+		// Enabled by Performance monitor.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 2 And SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 2;
-		// 
+		// Initially, was disabled. Then, was enabled by Performance monitor.
 		ElsIf SendOptions.PerformanceMonitorEnabled = 3 And SendOptions.RunPerformanceMeasurements Then
 			SendOptions.PerformanceMonitorEnabled = 2;
 		EndIf;
@@ -2049,7 +2051,7 @@ Function SetSendingParameters(Parameters)
 		SendOptions.Insert("DiscoveryPackageSent", False);
 	EndIf;
 	
-	// 
+	// Error processing settings.
 	// 	
 	SavedSendingParameters = New Structure;
 	SavedSendingParameters.Insert("SetErrorHandlingSettingsForcibly");
@@ -2225,15 +2227,15 @@ EndFunction
 
 #Region WorkWithSettingsFile
 
-//  
+// Obtains the directory for dump collection on the server side. 
 //
 // Returns:
 //   Structure:
-//     * Path - String -  
-//     * DeleteDumps - Boolean - 
-//     * ErrorDescription - String - 
+//     * Path - String -  The path to the dump directory.
+//     * DeleteDumps - Boolean - Flag indicating whether dumps should be deleted.
+//     * ErrorDescription - String - Contains the path to the dump directory.
 //
-Function GetDumpsDirectory(DumpType = "0", StopCollectingFull = False) Export // 
+Function GetDumpsDirectory(DumpType = "0", StopCollectingFull = False) Export // ACC:581 - An export procedure for testing using a data processor.
 	SettingsDirectory = GetTechnologicalLogSettingsDirectory();
 	DumpsDirectory = FindDumpsDirectory(SettingsDirectory, DumpType, StopCollectingFull);
 	
@@ -2391,11 +2393,11 @@ Procedure CreateDumpsCollectionSection(File, XMLReader, DumpsDirectory, DumpType
 	EndIf;
 EndProcedure
 
-// Generates the path to the dump directory.
-// The dump directory is cleared automatically by the Dump registration method. 
+// This function generates a path to a dumps directory.
+// The dumps directory is cleared automatically using the DumpsRegistration method. 
 // 
 // Parameters:
-//    DirectoryPath - String -  the path to the directory where the process log settings file is stored.
+//    DirectoryPath - String - a path to a directory where a setting file of technological log is stored.
 // 
 // Returns:
 //    String
@@ -2432,7 +2434,7 @@ EndFunction
 Function GetTechnologicalLogSettingsDirectory()
 	SettingsDirectory = New Structure("Path, Exists, ErrorDescription", "", False, "");
 	
-	// 
+	// Directories where it was searched are required as a protection from looping.
 	SettingsDirectories = New Array;
 	
 	SettingsFileName = "logcfg.xml";
@@ -2444,7 +2446,7 @@ Function GetTechnologicalLogSettingsDirectory()
 	Counter = 0;
 	DirectoryPath = GeneratePathWithSeparator(BinDir + "conf");
 	While SearchForDirectory = True Do
-		// 
+		// Check if it was searched in the current directory (protection from looping).
 		If SettingsDirectories.Find(DirectoryPath) <> Undefined Then
 			SettingsDirectory.Path = "";
 			SettingsDirectory.Exists = False;
@@ -2645,7 +2647,7 @@ EndFunction
 
 Procedure AddExtensionsInformation(ObjectClass, ObjectArchitecture, ExtensionsMetadata)
 	For Each MetadataObject In Metadata[ObjectClass] Do
-		// 
+		// First, iterate the subordinate items.
 		For Each StructureItem In ObjectArchitecture Do
 			If StructureItem.Value = "Recursively" Then
 				AddExtensionsInformationRecursively(MetadataObject, StructureItem.Key, ObjectArchitecture, ExtensionsMetadata);
@@ -2747,13 +2749,13 @@ EndFunction
 Function DataOnRolesUsage()
 	DataOnRolesUsage = New Structure;
 	
-	// 	
+	// Get data on role usage.	
 	Query = New Query(AccessManagementInternal.RolesUsageQueryText());
 	Query.SetParameter("EmptyUID", CommonClientServer.BlankUUID());
 	Query.SetParameter("CurrentDate", BegOfDay(CurrentSessionDate()));
 	ResultPackage = Query.ExecuteBatch();
 	
-	// 
+	// Generating structure: roles by access group profiles.
 	IndexColumns = New Map;
 	IndexColumns.Insert("ProfileUID", New Map);
 	IndexColumns.Insert("RoleName", New Map);	
@@ -2770,7 +2772,7 @@ Function DataOnRolesUsage()
 	ProfilesRolesStructure = GenerateJSONStructure("RolesOfProfiles", ProfilesRoles, AdditionalParameters);
 	DataOnRolesUsage.Insert("RolesOfProfiles", ProfilesRolesStructure["RolesOfProfiles"]);
 	
-	// 
+	// Generating structure: statistics on profiles usage.
 	IndexColumns = New Map;
 	IndexColumns.Insert("ProfileUID", New Map);	
 	IndexColumns.Insert("Description", New Map);
@@ -2988,7 +2990,7 @@ EndProcedure
 Procedure EnableSendingInfo(Parameters) Export
 	
 	MonitoringCenterParameters = GetMonitoringCenterParameters(New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter"));
-	// 
+	// If it is already enabled, do nothing.
 	If MonitoringCenterParameters.EnableMonitoringCenter Or MonitoringCenterParameters.ApplicationInformationProcessingCenter Then
 		Parameters.ProcessingCompleted = True;
 		Return;
@@ -3008,7 +3010,7 @@ EndProcedure
 Procedure DisableEventLoggingOnUpdate() Export
 	MonitoringCenterParameters = GetMonitoringCenterParameters(New Structure("EnableMonitoringCenter, ApplicationInformationProcessingCenter"));	
 	If Not MonitoringCenterParameters.EnableMonitoringCenter And Not MonitoringCenterParameters.ApplicationInformationProcessingCenter Then
-		// 
+		// Disable parameters to prevent collecting excessive data.
 		DisableEventLogging();
 	EndIf;
 EndProcedure
@@ -3090,10 +3092,10 @@ EndFunction
 
 #Region DumpsCollectionAndSending
 
-// 
-// 
-// 
-// 
+// In client/server mode, it is called by the "DumpsCollectionAndSending" scheduled job.
+// It starts two background jobs: "DumpsCollection" and "DumpSending".
+// In file mode, the background job runs occasionally (on Windows only).
+// The check runs when calculating the variable "StartErrorReportsCollectionAndSending".
 //
 Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 	
@@ -3104,7 +3106,7 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 	ComputerName = ComputerName();
 	DumpTypeChanged = False;
 	
-	// 
+	// Check if dump collection is allowed.
 	If DumpsCollectionAndSendingParameters.SendDumpsFiles = 0 Then
 		SetPrivilegedMode(True);
 		SetMonitoringCenterParameter("SendingResult", NStr("en = 'User refused to submit dumps.';"));
@@ -3113,12 +3115,12 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		Return;
 	EndIf;
 	
-	// 
+	// Check if collection of full dumps was requested.
 	If IsBlankString(DumpOption) Then
 		Return;
 	EndIf;
 	
-	// 
+	// Check if it is a time to disconnect.
 	If CurrentSessionDate() >= DumpsCollectionAndSendingParameters.DumpCollectingEnd Then
 		SetPrivilegedMode(True);
 		SetMonitoringCenterParameter("SendingResult", NStr("en = 'Dump collection timed out.';"));	
@@ -3127,19 +3129,19 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		Return;
 	EndIf;
 	
-	// 
+	// Collect full dumps only in the master node.
 	If Not IsMasterNode1() Then 
 		Return;
 	EndIf;
 	
 	DumpRequirement = DumpIsRequired(DumpOption, DumpOption);
-	// 
+	// If the dump is not required, disable dumps collection.
 	If Not DumpRequirement.Required2 Then
 		StopFullDumpsCollection();
 		Return;
 	Else  		
-		// 
-		// 
+		// Change the dump type if it mismatches the required type.
+		// Collect either the minidump or (if the user confirmed) the full dump.
 		If DumpRequirement.DumpType <> DumpsCollectionAndSendingParameters.DumpType 
 			And (DumpRequirement.DumpType = "0" 
 				Or DumpsCollectionAndSendingParameters.SendDumpsFiles = 1 
@@ -3152,8 +3154,8 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		EndIf;   		
 	EndIf;
 	
-	// 
-	// 
+	// Check if the user can edit logcfg and get the dump directory.
+	// Also, check if dump collection is enabled.
 	DumpType = DumpsCollectionAndSendingParameters.DumpType;
 	DumpsDirectory = GetDumpsDirectory(DumpType);
 	DumpsCollectionAndSendingParameters.Insert("DumpsDirectory", DumpsDirectory.Path);
@@ -3171,7 +3173,7 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		EndIf;
 	EndIf;                                  
 	
-	// 
+	// Get data about free space on the hard drive where dumps are collected.
 	SeparatorPosition = StrFind(DumpsDirectory.Path, GetServerPathSeparator());
 	If SeparatorPosition = 0 Then
 		SetPrivilegedMode(True);
@@ -3182,22 +3184,22 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 	EndIf;
 	DriveLetter = Left(DumpsDirectory.Path, SeparatorPosition-1);
 		                                    	
-	// 
+	// If dump collection is enabled.
 	If DumpsCollectionAndSendingParameters.FullDumpsCollectionEnabled[ComputerName] = True Then
 		
 		If IsBlankString(JobID) Then
 			JobID = "ExecutionAtServer";
 		EndIf;
 		
-		// 
+		// If the dump type is changed, it is necessary to clear a dumps directory.
 		If DumpTypeChanged Then
 			FilesDeleted(DumpsDirectory.Path);
 		Else
-			// 
+			// Import dumps.
 			CollectDumps(DumpsCollectionAndSendingParameters);
 		EndIf;
 		
-		// 
+		// Export dumps.
 		SendDumps(DumpsCollectionAndSendingParameters);
 		
 		MeasurementResult = FreeSpaceOnHardDrive(DriveLetter, FromClientAtServer);
@@ -3209,8 +3211,8 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 			Return;
 		EndIf;
 		
-		// 
-		// 
+		// Check if there's enough free space to collect full dumps.
+		// The check runs after the dump is sent as during the collection, the space is cleared for saving dumps.
 		If MeasurementResult.Value/1024 < DumpsCollectionAndSendingParameters.SpaceReserveEnabled
 			And DumpType = "3" Then
 			SetPrivilegedMode(True);
@@ -3227,7 +3229,7 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		SetPrivilegedMode(False);
 		
 	Else
-		// 
+		// If dump collection is disabled.
 		MeasurementResult = FreeSpaceOnHardDrive(DriveLetter, FromClientAtServer);
 		If Not MeasurementResult.Success Then
 			SetPrivilegedMode(True);
@@ -3237,7 +3239,7 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 			Return;
 		EndIf;
 		
-		// 
+		// Check if there is enough free space for collecting full dumps.
 		If MeasurementResult.Value/1024 < DumpsCollectionAndSendingParameters.SpaceReserveDisabled
 			And DumpType = "3" Then
 			SetPrivilegedMode(True);
@@ -3251,18 +3253,18 @@ Procedure CollectAndSendDumps(FromClientAtServer = False, JobID = "") Export
 		SetMonitoringCenterParameters(New Structure("BasicChecksPassed, SendingResult", True, ""));
 		SetPrivilegedMode(False);
 				
-		// 
+		// Automatically generates the current user task in OnFillToDoList.
 		
 	EndIf;
 	
-	// 
+	// Deletes obsolete dumps files, except for requested ones.
 	DeleteObsoleteFiles(DumpOption, DumpsDirectory.Path);
 			
 EndProcedure
 
 Procedure CollectDumps(Parameters)
 	
-	// 
+	// Get a dumps storage directory.
 	DumpsDirectory = Parameters.DumpsDirectory;
 	
 	PropertyName = ?(Parameters.RequestConfirmationBeforeSending And Parameters.DumpType = "3", "DumpInstances", "DumpInstancesApproved");
@@ -3273,13 +3275,13 @@ Procedure CollectDumps(Parameters)
 	
 	ComputerName = ComputerName();
 		
-	// 
+	// Search for dumps in the directory.
 	DumpsFiles = FindFiles(DumpsDirectory, "*.mdmp");
 	HasChanges = False;
-	// 
+	// Iterate through the found dumps.
 	For Each DumpFile In DumpsFiles Do	    
 		
-		// 
+		// If the dumps have a zero offset, delete them immediately.
 		If StrFind(DumpFile.BaseName, "00000000") > 0 Then
 			FilesDeleted(DumpFile.FullName);
 			Continue;
@@ -3289,20 +3291,20 @@ Procedure CollectDumps(Parameters)
 	 	
 		DumpOption = DumpStructure.Process_ + "_" + DumpStructure.PlatformVersion + "_" + DumpStructure.Offset;
 						
-		// 
+		// If a dump has a non-zero offset, check if this dump is to be sent and if it matches the requested one.
 		DumpRequirement = DumpIsRequired(DumpOption, Parameters.DumpOption, Parameters.DumpType);
 		If DumpRequirement.Required2 Then
 			
 			ArchiveName = DumpsDirectory + DumpOption + ".zip"; 
 			
-			// 
+			// Archive the dump and write information on it (name + size).
 			ZipFileWriter = New ZipFileWriter();
 			ZipFileWriter.Open(ArchiveName,,,ZIPCompressionMethod.Deflate);
 			ZipFileWriter.Add(DumpFile.FullName);
 			ZipFileWriter.Write();
 			
 			ArchiveFile1 = New File(ArchiveName);
-			Size = Round(ArchiveFile1.Size()/1024/1024,3); // 
+			Size = Round(ArchiveFile1.Size()/1024/1024,3); // File size, MB.
 			
 			DumpData = New Structure;
 			DumpData.Insert("FullName", ArchiveName);
@@ -3315,7 +3317,7 @@ Procedure CollectDumps(Parameters)
 			
 		EndIf;
 		
-		// 
+		// Delete the original dump.
 		FilesDeleted(DumpFile.FullName);
 		
 	EndDo;
@@ -3352,7 +3354,7 @@ Procedure SendDumps(Parameters)
 				DumpOption = Record.Key;
 				DumpData = Record.Value; // Structure
 				
-				// 
+				// Ask the Monitoring center service if this dump is required.
 				DumpRequirement = DumpIsRequired(DumpOption, Parameters.DumpOption, Parameters.DumpType);
 				If DumpRequirement.Required2 Then
 					TotalPieces = TotalPieces + 1;
@@ -3363,7 +3365,7 @@ Procedure SendDumps(Parameters)
 				
 			EndDo;
 			
-			// 
+			// Ask the user if they want to send dumps.
 			RequestForSending = StringFunctionsClientServer.SubstituteParametersToString(TemplateRequestForSending, TotalPieces, Format(TotalSpace,"NFD=; NZ=0"));
 			SetPrivilegedMode(True);
 			SetMonitoringCenterParameter("DumpsInformation", RequestForSending);
@@ -3385,10 +3387,10 @@ Procedure SendDumps(Parameters)
 	ComputerName = ComputerName();
 	RequiredDump = Parameters.DumpOption;
 	
-	// 
+	// Send dumps.
 	ArrayOfSent = New Array;
 	For Each Record In Parameters.DumpInstancesApproved Do
-		// 
+		// It is reasonable to check if we are using the required machine.
 		If ComputerName <> Record.Value.ComputerName Then
 			Continue;
 		EndIf;
@@ -3397,7 +3399,7 @@ Procedure SendDumps(Parameters)
 		EndIf;
 	EndDo;
 	
-	// 
+	// Remove sent dumps from the constant.
 	HasChanges = False;
 	Parameters.Insert("DumpInstancesApproved", GetMonitoringCenterParameters("DumpInstancesApproved"));
 	For Each Item In ArrayOfSent Do
@@ -3416,7 +3418,7 @@ Procedure StopFullDumpsCollection()
 	
 	Stopped2 = True;
 	
-	// 
+	// Clear dumps collection parameters.
 	NewParameters = New Structure;
 	NewParameters.Insert("DumpOption", "");
 	NewParameters.Insert("DumpInstances", New Map);
@@ -3431,20 +3433,20 @@ Procedure StopFullDumpsCollection()
 		SetMonitoringCenterParameters(NewParameters);
 		SetPrivilegedMode(False);
 	Except
-		// 
+		// Cannot disable collection of full dumps.
 		Stopped2 = False;
 	EndTry;
 	
-	// 
+	// Change logcfg.
 	DumpsDirectory = GetDumpsDirectory("0", True);
 	If DumpsDirectory.Path = Undefined Then
-		// 
+		// Cannot change logcfg
 		Stopped2 = False;
 	EndIf;
-	// 
+	// Delete dump files.
 	If DumpsDirectory.Path <> Undefined Then
 		If Not FilesDeleted(DumpsDirectory.Path) Then
-			// 
+			// Cannot delete dumps files.
 			Stopped2 = False;	
 		EndIf;
 	EndIf;	 
@@ -3470,7 +3472,7 @@ Procedure DeleteObsoleteFiles(RequiredDump, PathToDirectory)
 			Continue;
 		EndIf;
 		
-		// 
+		// Delete a file that is older than three days.
 		If File.Exists() And CurrentSessionDate() - File.GetModificationTime() > 3*86400 Then
 			FilesDeleted(File.FullName);
 		EndIf;
@@ -3529,17 +3531,17 @@ Function FreeSpaceOnHardDrive(DriveLetter, FromClientAtServer)
 	
 EndFunction
 
-// Returns the need to collect a dump.
-// If the dump type is specified, it returns only the need.
-// If the dump type is not specified, returns the need and type.
-// In case of unavailability of the service, we collect the full.
+// This function returns whether the dump is to be collected.
+// If the dump type is specified, the function returns only whether the dump is to be collected.
+// If the dump type is not specified, the function returns the dump type and whether the dump is to be collected.
+// If the service is not available, collect full dumps.
 //
 Function DumpIsRequired(DumpOption, RequestedDump, DumpType = "")
 	
 	Result = New Structure("Required2, DumpType", False, DumpType);
 	RequiredDumps = RequiredDumps(DumpOption);
 	
-	// 
+	// If the query fails, assume that the damp is required if it matches the required dump.
 	// 
 	If Not RequiredDumps.RequestSuccessful Then
 		If DumpOption = RequestedDump Then
@@ -3547,7 +3549,7 @@ Function DumpIsRequired(DumpOption, RequestedDump, DumpType = "")
 			Result.DumpType = "3";
 		EndIf;
 	Else
-		// 
+		// Check upon collecting and sending the dump.
 		If Not IsBlankString(DumpType) Then
 			If DumpType = "0" And RequiredDumps.MiniDump Then
 				Result.Required2 = True;
@@ -3555,7 +3557,7 @@ Function DumpIsRequired(DumpOption, RequestedDump, DumpType = "")
 				Result.Required2 = True;
 			EndIf;
 		Else
-			// 
+			// In case when the type of the dump being collected is to be determined.
 			If RequiredDumps.MiniDump Then
 				Result.Required2 = True;
 				Result.DumpType = "0";
@@ -3570,15 +3572,15 @@ Function DumpIsRequired(DumpOption, RequestedDump, DumpType = "")
 	
 EndFunction
 
-// Returns the required dump types according to the dump variant.
+// Returns required dump types by a dump option.
 //
 Function RequiredDumps(DumpOption)
 	Result = New Structure("RequestSuccessful, MiniDump, FullDump", False, False, False);
 	
-	// 
+	// Access the HTTP service.
 	Parameters = GetSendServiceParameters(); 
 		
-	//  	
+	// Define whether the dump is up-to-date. 	
 	ResourceAddress = Parameters.DumpsResourceAddress;
 	If Right(ResourceAddress, 1) <> "/" Then
 		ResourceAddress = ResourceAddress + "/";
@@ -3613,10 +3615,10 @@ Function CanLoadDump(DumpOption, DumpType)
 	
 	Result = False;
 	
-	// 
+	// Access the HTTP service.
 	Parameters = GetSendServiceParameters(); 
 		
-	//  	
+	// Define whether the dump is relevant. 	
 	ResourceAddress = Parameters.DumpsResourceAddress;
 	If Right(ResourceAddress, 1) <> "/" Then
 		ResourceAddress = ResourceAddress + "/";
@@ -3649,22 +3651,22 @@ Function DumpSending(DumpOption, Data, RequiredDump, DumpType)
 	
 	SendingResult = False;
 	
-	// 
-	// 
-	// 
+	// Check whether the file exists.
+	// Intended for cases where the dump is approved, but the file is deleted.
+	// In this case the file is considered sent.
 	File = New File(Data.FullName);
 	If Not File.Exists() Then
 		Return True;
 	EndIf;
 	
-	// 
+	// Check if the dump is still relevant. If not, delete it.
 	DumpRequirement = DumpIsRequired(DumpOption, RequiredDump, DumpType);
 	If Not DumpRequirement.Required2 Then
 		FilesDeleted(Data.FullName);
 		Return True;
 	EndIf;
 	
-	// 
+	// Check whether the server allows us to load the dump, it might take some time.
 	If Not CanLoadDump(DumpOption, DumpType) Then
 		Return False;
 	EndIf;
@@ -3677,7 +3679,7 @@ Function DumpSending(DumpOption, Data, RequiredDump, DumpType)
 		BeginTime = ModulePerformanceMonitor.StartTimeMeasurement();
 	EndIf;
 	
-	// 
+	// Send the dump via the HTTP service.
 	GUID = String(Parameters.InfoBaseID);
 	Hash = New DataHashing(HashFunction.CRC32);
 	Hash.AppendFile(Data.FullName);
@@ -3700,7 +3702,7 @@ Function DumpSending(DumpOption, Data, RequiredDump, DumpType)
 	HTTPParameters.Insert("DataType", "BinaryData");
 	HTTPParameters.Insert("Timeout", 0);
 	
-	// 
+	// Archive is deleted upon successful sending.
 	HTTPResponse = HTTPServiceSendDataInternal(HTTPParameters);
 	
 	If HTTPResponse.StatusCode = 200 Then
@@ -3738,20 +3740,20 @@ Procedure CheckIfNotificationOfDumpsIsRequired(DumpsDirectoryPath)
 	MonitoringCenterParameters.Insert("SpaceReserveDisabled");
 	MonitoringCenterParameters = GetMonitoringCenterParameters(MonitoringCenterParameters);
 	
-	// 
+	// Administrator refused to collect and send dumps.
 	If MonitoringCenterParameters.SendDumpsFiles = 0 Then
 		Return;
 	EndIf;
 	
 	CurrentDate = CurrentUniversalDate();
-	// 
+	// Dumps collection is already enabled, checks are not required.
 	If Not MonitoringCenterParameters.SendDumpsFiles = 0
 		And Not IsBlankString(MonitoringCenterParameters.DumpOption)
 		And CurrentDate < MonitoringCenterParameters.DumpCollectingEnd Then
 		Return;
 	EndIf;  
 	
-	// 
+	// If the time for the next check did not come.
 	If MonitoringCenterParameters.DumpCheckNext > CurrentDate Then
 		Return;
 	EndIf;
@@ -3764,13 +3766,13 @@ Procedure CheckIfNotificationOfDumpsIsRequired(DumpsDirectoryPath)
 	
 	TopDumps = InformationRegisters.PlatformDumps.GetTopOptions(StartDate, CurrentDate, 10, SysInfo.AppVersion);
 	For Each TableRow In TopDumps Do
-		// 
+		// If the number of dumps exceeds the minimum one, check whether the dump is required.
 		If TableRow.OptionsCount >=	MonitoringCenterParameters.MinDumpsCount Then
-			// 
+			// If the dump is required, initiate its collection.
 			DumpRequirement = DumpIsRequired(TableRow.DumpOption, "");
 			If DumpRequirement.Required2 Then
 				If DumpRequirement.DumpType = "3" Then
-					// 
+					// For a full dump, check if there is enough space.
 					SeparatorPosition = StrFind(DumpsDirectoryPath, GetServerPathSeparator());
 					If SeparatorPosition = 0 Then
 						Continue;	
@@ -3785,11 +3787,11 @@ Procedure CheckIfNotificationOfDumpsIsRequired(DumpsDirectoryPath)
 					EndIf;
 				EndIf;
 				
-			    // 
+			    // Set dumps collection parameters.
 				NewParameters = New Structure;
 				NewParameters.Insert("DumpOption", TableRow.DumpOption);
 				NewParameters.Insert("DumpCollectingEnd", BegOfDay(CurrentDate)+30*86400);
-				// 
+				// Until the user agrees, cannot enable collection of full dumps.
 				If MonitoringCenterParameters.SendDumpsFiles = 1 Then
 					NewParameters.Insert("DumpType", DumpRequirement.DumpType);
 				Else
@@ -3798,12 +3800,12 @@ Procedure CheckIfNotificationOfDumpsIsRequired(DumpsDirectoryPath)
 				SetMonitoringCenterParameters(NewParameters);
 				MonitoringCenter.WriteBusinessStatisticsOperation("MonitoringCenter.DumpsRegistration.NotifyAdministrator", 1);
 								
-				// 
+				// Abort collection traversal as collecting of dumps is requested from Administrator.
 				Break;
 				
 			EndIf;
 		Else
-			// 
+			// Abort collection traversal if the number of dumps is less than the minimum one.
 			Break;
 		EndIf;
 	EndDo;
@@ -3814,10 +3816,10 @@ EndProcedure
 
 #Region TestPackageSending
 
-// Sends the test package to the monitoring center.
+// This procedure sends a test package to Monitoring center.
 // Parameters:
 //  ExecutionParameters        - Structure:
-//   * Iterator_SSLy          	   - Number -  when called from the outside, it must be equal to 0.
+//   * Iterator_SSLy          	   - Number - upon an external call, it must be equal to zero.
 //   * TestPackageSending - Boolean
 //   * GetID - Boolean
 //
@@ -3833,7 +3835,7 @@ Procedure SendTestPackage(ExecutionParameters, ResultAddress) Export
 		BeginTime = ModulePerformanceMonitor.StartTimeMeasurement();
 	EndIf;
 	
-	// 
+	// Disable parameters to prevent excessive data from being sent.
 	DisableEventLogging();
 	
 	StartDate2 = CurrentUniversalDate();
@@ -3890,12 +3892,12 @@ Procedure SendTestPackage(ExecutionParameters, ResultAddress) Export
 		DiscoveryPackageSent = GetMonitoringCenterParameters("DiscoveryPackageSent");
 		
 		If ExecutionResult.Success And Not DiscoveryPackageSent And ExecutionParameters.Iterator_SSLy < 2 Then
-			// 
+			// ID is changed, send the package again.
 			SendTestPackage(ExecutionParameters, ResultAddress);
 		ElsIf ExecutionResult.Success And DiscoveryPackageSent Then	
 		
 			If ExecutionParameters.GetID Then
-				// 
+				// Send the package with data in one hour.
 				SetMonitoringCenterParameter("SendDataNextGeneration", CurrentUniversalDate() + 3600); 
 				PutToTempStorage(ExecutionResult, ResultAddress);
 				If PerformanceMonitorExists Then
@@ -3943,7 +3945,7 @@ EndFunction
 
 Procedure InstallAdditionalErrorHandlingInformation() Export
 	InfoBaseID = MonitoringCenter.InfoBaseID();
-	// 
+	// If no ID is specified, don't perform actions.
 	If Not ValueIsFilled(InfoBaseID) Then
 		Return;
 	EndIf;
@@ -3956,12 +3958,12 @@ Procedure InstallAdditionalErrorHandlingInformation() Export
 	Parameters = New Structure("TheCodeIsExecuted,ErrorProcessing", False, Undefined);
 	CodeToExecute = "Parameters.ErrorProcessing = ErrorProcessing;					   
 						|Parameters.TheCodeIsExecuted = True;";	
-	// 
-	// 
+	// Initialize the error handling manager.
+	// ACC:280-off - No need to handle errors.
 	Try
 		Common.ExecuteInSafeMode(CodeToExecute, Parameters);
 	Except
-		// 
+		// Don't throw an exception.
 	EndTry;
 	If Parameters.TheCodeIsExecuted Then		
 		Try
@@ -3974,7 +3976,7 @@ Procedure InstallAdditionalErrorHandlingInformation() Export
 
 			AdditionalInformation = New Structure;
 			If ValueIsFilled(CommonSettings.AdditionalReportInformation) Then
-				// 
+				// By default, it is assumed that it has the JSON structure. Otherwise, someone changed it manually. In this case, don't change it.
 				AdditionalInformation = Common.JSONValue(CommonSettings.AdditionalReportInformation, , False);
 			EndIf;
 			If AdditionalInformation.Property("guid") 
@@ -3992,10 +3994,10 @@ Procedure InstallAdditionalErrorHandlingInformation() Export
 			Parameters.ErrorProcessing.SetCommonSettings(CommonSettings);
 			SetPrivilegedMode(False);			
 		Except
-			// 
+			// Don't throw an exception.
 		EndTry;		
 	EndIf;
-	// 
+	// ACC:280-on
 EndProcedure
 
 Function SettingErrorHandlingSettings(SavedParameters1, ReceivedParameters)
@@ -4010,7 +4012,7 @@ Function SettingErrorHandlingSettings(SavedParameters1, ReceivedParameters)
 	EnumErrorReportingMode = ErrorReportingMode;
 	EnumErrorMessageDisplayVariant = ErrorMessageDisplayVariant;
 	SetPrivilegedMode(False);
-// 	
+// 	Compare with the saved parameters to make sure that the user didn't make manual changes.
 	If ReceivedParameters.Property("ErrorRegistrationServiceURL") 
 		And (CommonSettings.ErrorProcessingServiceAddress  = SavedParameters1.ErrorRegistrationServiceURL
 		Or ReceivedParameters.SetErrorHandlingSettingsForcibly) Then
@@ -4027,7 +4029,7 @@ Function SettingErrorHandlingSettings(SavedParameters1, ReceivedParameters)
 		And (CommonSettings.MessageDisplayVariant = EnumErrorMessageDisplayVariant[SavedParameters1.ErrorMessageDisplayVariant]
 		Or ReceivedParameters.SetErrorHandlingSettingsForcibly) Then
 		CommonSettings.MessageDisplayVariant = EnumErrorMessageDisplayVariant[ReceivedParameters.ErrorMessageDisplayVariant];
-		// 
+		// Message text.
 		ParametersForTheMessageText = New Structure("CommonSettings", CommonSettings);
 		MessageString = StringFunctions.FormattedString(
 			StringFunctionsClientServer.SubstituteParametersToString(	

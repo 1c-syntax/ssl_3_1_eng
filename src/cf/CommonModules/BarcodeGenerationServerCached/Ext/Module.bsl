@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// The function connects the external component and sets it up for the first time.
-// Connects an external component.
-// The function returns Undefined if the component failed to load.
+// The function attaches the add-in and its initial setup.
+// Attaches the add-in.
+// The function returns Undefined if failed to import the add-in.
 //
 // Parameters:
-//   PlatformTypeComponents - String -  platform type
+//   PlatformTypeComponents - String - platform type
 //
 // Returns:
 //   AddInObject:

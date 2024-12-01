@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// To set up a report form.
+// Set report form settings.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -68,7 +70,7 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 EndProcedure
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary
@@ -217,9 +219,9 @@ Procedure FinishOutput(ResultDocument, DetailsData, RightsSettings)
 		AccessGroupTitle = NStr("en = 'User profile';");
 	EndIf;
 	
-	// 
+	// ACC:163-off - #598.1. The use is permissible, as it affects the meaning.
 	TextIsRestriction  = NStr("en = 'Not everything is available';");
-	// 
+	// ACC:163-on
 	TextRightNotAssigned = NStr("en = '●';");
 	TextRightAllowed   = NStr("en = '✔';");
 	TextRightForbidden   = NStr("en = '✘';");
@@ -315,6 +317,7 @@ Procedure FinishOutput(ResultDocument, DetailsData, RightsSettings)
 				StringExplanations.Insert(LineNumber, FieldValues);
 				If FontRightNotAssigned = Undefined Then
 					FontRightNotAssigned = Area.Font;
+					//@skip-check new-font - Standard fond enlarged to 120% with an italic style.
 					FontRightAllowed   = New Font(FontRightNotAssigned,,, True,,,, 120);
 					FontRightForbidden   = FontRightAllowed;
 				EndIf;

@@ -3,7 +3,12 @@
 	<CommonModule uuid="4e309f26-35e8-49d9-bbd1-c7884e666dca">
 		<Properties>
 			<Name>ObjectAttributesLockOverridable</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Object attribute lock overridable</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<Global>false</Global>
 			<ClientManagedApplication>false</ClientManagedApplication>

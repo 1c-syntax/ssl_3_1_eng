@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -35,13 +37,13 @@ Procedure LoadKeyOperationsProfile(Command)
 		FileDialogMode.Open, 
 		NStr("en = 'Select file of key operation profile';"),
 		New NotifyDescription("FileDialogCompletion", ThisObject, Undefined));  
-		#If WebClient Then
+#If WebClient Then
 			Notification = New NotifyDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
 			New NotifyDescription("DialogueFileSelectionShow", ThisObject, AdditionalParameters));
 			BeginAttachingFileSystemExtension(Notification);
-		#Else
+#Else
 			DialogueFileSelectionShow(True, AdditionalParameters);
-		#EndIf  		
+#EndIf  		
 	EndIf;
 	
 EndProcedure
@@ -62,13 +64,13 @@ Procedure SaveKeyOperationsProfile(Command)
 			FileDialogMode.Save, 
 			NStr("en = 'Save key operation profile to file';"),
 			New NotifyDescription("SaveFileDialogCompletion", ThisObject, Undefined));  
-		#If WebClient Then
+#If WebClient Then
 		Notification = New NotifyDescription("BeginAttachingFileSystemExtensionCompletion", ThisObject,
 			New NotifyDescription("DialogueFileSelectionShow", ThisObject, AdditionalParameters));
 		BeginAttachingFileSystemExtension(Notification);
-		#Else
+#Else
 			DialogueFileSelectionShow(True, AdditionalParameters);
-		#EndIf     		
+#EndIf     		
 	EndIf;
 	
 EndProcedure

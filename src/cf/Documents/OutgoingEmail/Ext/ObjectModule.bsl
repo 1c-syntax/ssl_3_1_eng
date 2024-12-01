@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,12 +14,12 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.Interactions
 
-// Called when filling out a document based on.
+// It is called when filling a document on the basis.
 //
 // Parameters:
-//  Contacts  - Array -  an array containing interaction participants.
+//  Contacts  - Array - an array containing interaction participants.
 //
 Procedure FillContacts(Contacts) Export
 	
@@ -30,13 +32,13 @@ Procedure FillContacts(Contacts) Export
 		Address = Undefined;
 		
 		If TypeOf(TableRow) = Type("Structure") Then
-			// 
+			// Only those contacts which have their email addresses specified will get to the document.
 			AddressesArray = StrSplit(TableRow.Address, ",");
 			For Each AddressesArrayElement In AddressesArray Do
 				Try
 					Result = CommonClientServer.ParseStringWithEmailAddresses(AddressesArrayElement);
 				Except
-					// 
+					// The row with email addresses is entered incorrectly.
 					Continue;
 				EndTry;
 				If Result.Count() > 0 And Not IsBlankString(Result[0]) Then
@@ -81,7 +83,7 @@ EndProcedure
 
 // End StandardSubsystems.Interactions
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Table - See AccessManagement.AccessValuesSetsTable
@@ -323,18 +325,18 @@ Procedure AddRecipientsFromTable(Table)
 	
 EndProcedure
 
-// Fills in the parameters of a new message from the base message.
+// Fills in the new email parameters from the base email.
 // 
 // Parameters:
 //   MailMessage                                      - DocumentRef.IncomingEmail
-//                                               - DocumentRef.OutgoingEmail - 
-//  MoveSenderToRecipients           - Boolean -  indicates whether the sender of the base message should be transferred
-//                                                        to the message being created.
-//  MoveAllEmailRecipientsToRecipients - Boolean -  indicates whether the recipients of the base message should be transferred
-//                                                        to the message being created.
-//  AddToSubject                             - String -  the prefix that is added to the subject of the base email.
-//  MoveAttachments                         - Boolean -  indicates whether you need to transfer attachments.
-//  ReplyType                                  - String -  option for creating a Foundation letter.
+//                                               - DocumentRef.OutgoingEmail - Parent email message.
+//  MoveSenderToRecipients           - Boolean - indicates whether it is necessary to move the base email sender to
+//                                                        an email message being created.
+//  MoveAllEmailRecipientsToRecipients - Boolean - indicates whether it is necessary to move the base email recipients to
+//                                                        an email message being created.
+//  AddToSubject                             - String - the prefix to be added to the base email subject.
+//  MoveAttachments                         - Boolean - indicates whether it is necessary to transfer attachments.
+//  ReplyType                                  - String - a base email option.
 //
 Procedure FillParametersFromEmail(MailMessage, MoveSenderToRecipients,
 	MoveAllEmailRecipientsToRecipients, AddToSubject, MoveAttachments, ReplyType)

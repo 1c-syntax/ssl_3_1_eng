@@ -1,18 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
-// Opens an additional report form with the specified option.
+// Opens an additional report form with the specified report option.
 //
 // Parameters:
-//  Link-Reference Link.Additional reportsprocessing-link to the additional report.
-//  Option key-String-name of the additional report option.
+//  Ref - CatalogRef.AdditionalReportsAndDataProcessors - an additional report reference.
+//  OptionKey - String - Name of the additional report option.
 //
 Procedure OnAttachReport(OpeningParameters) Export
 	
@@ -20,15 +22,15 @@ Procedure OnAttachReport(OpeningParameters) Export
 	
 EndProcedure
 
-// Gets the sub-account type by its number.
+// Gets an account extra dimension type by its number.
 //
 // Parameters:
-//  Account - ChartOfAccountsRef -  invoice link.
-//  ExtDimensionNumber - Number -  sub-contact number.
+//  Account - ChartOfAccountsRef - Account reference.
+//  ExtDimensionNumber - Number - Extra dimension number.
 //
 // Returns:
-//   TypeDescription - 
-//   
+//   TypeDescription - Extra dimension type.
+//   Undefined if failed to obtain the type (the extra dimension is non-existent or the user has insufficient rights).
 //
 Function ExtDimensionType(Account, ExtDimensionNumber) Export
 	
@@ -87,7 +89,7 @@ EndFunction
 //   ReportOptionBase - CatalogRef.ReportsOptions 
 //
 // Returns:
-//   
+//   See "ReportOptionDetails"
 //
 Function UpdateReportOptionFromFile(FileDetails, ReportOptionBase) Export
 	

@@ -1,16 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// 
+// Delete the objects marked for deletion.
 // 
 // Parameters:
 //  DeletionParameters - See DeletionParameters
@@ -26,7 +28,7 @@ Function ToDeleteMarkedObjects(DeletionParameters, JobID = Undefined) Export
 	EndIf;
 	
 	Measurement = CurrentUniversalDateInMilliseconds();	
-	MarkedObjectsDeletionOverridable.BeforeSearchForItemsMarkedForDeletion(DeletionParameters); // 
+	MarkedObjectsDeletionOverridable.BeforeSearchForItemsMarkedForDeletion(DeletionParameters); // ACC:222 For backward compatibility.
 	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
@@ -37,7 +39,7 @@ Function ToDeleteMarkedObjects(DeletionParameters, JobID = Undefined) Export
 		ObjectsToDelete = DeletionParameters.UserObjects;
 		DeletionResult = DeletionResult(ObjectsToDelete, DeletionParameters);
 		
-		// 
+		// To cancel the job on the client side.
 		If ValueIsFilled(JobID)Then
 			DeletionResult.JobID = JobID;
 		EndIf;
@@ -100,7 +102,7 @@ Procedure ReflectNotDeletedItems(DeletionParameters, NotTrash)
 		NotTrash.UnloadColumn("ItemToDeleteRef"), "DataVersion");
 	For Each Item In NotTrash Do
 
-		// 
+		// An object can be deleted if its parent object is marked for deletion.
 		If ObjectDeleted(Item.ItemToDeleteRef, DataVersions) Then
 			Continue;
 		EndIf;
@@ -146,7 +148,7 @@ Procedure ReflectUsageInstances(DeletionParameters, UsageInstances)
 		ColumnsThatPreventDeletion.Add(Column.Name);
 	EndDo;
 	
-	// 
+	// Group the table to exclude duplicates (since the packages are not searched for repetitions.
 	ObjectsPreventingDeletion.GroupBy(StrConcat(ColumnsThatPreventDeletion, ","));
 EndProcedure
 
@@ -170,7 +172,7 @@ Function ProcessObjectsToDelete(DeletionParameters, ObjectsToDelete, MetadataInf
 	
 	For Each QueueItem In ObjectsToDelete Do
 		If Not Package.Find(QueueItem.ItemToDeleteRef, "ItemToDeleteRef") <> Undefined Then
-			// 
+			// @skip-check query-in-loop - Batch processing of a large amount of data.
 			QueueItemInPackage = QueueItemToPackage(QueueItem, MetadataInfo, Package); 
 			
 			If ItemProcessingProhibited(QueueItemInPackage) Then
@@ -193,7 +195,7 @@ Function ProcessObjectsToDelete(DeletionParameters, ObjectsToDelete, MetadataInf
 		DeletionResults, 
 		ResultOfDeletionFromUnprocessedPackage(DeletionParameters, ObjectsWithDeleteProhibition));	
 	
-	// 
+	// Attempt to delete objects that form circular references within a transaction.
 	NumberOfUndeletedItems = 0;
 	While DeletionResults.NotDeletedObjects.Count() <> NumberOfUndeletedItems Do
 		NumberOfUndeletedItems = DeletionResults.NotDeletedObjects.Count();
@@ -233,7 +235,7 @@ Function QueueItemToPackage(QueueItem, MetadataInfo, Exceptions)
 	Package = ObjectsToDeletePackage();
 	DeletionResult = Undefined;
 	
-	// 	
+	// Skip if an object is deleted of added to the package as a subordinate object.	
 	If Not ObjectDeleted(QueueItem.ItemToDeleteRef) 
 		And Exceptions.Find(QueueItem.ItemToDeleteRef, "ItemToDeleteRef") = Undefined Then
 			
@@ -314,8 +316,8 @@ Function ProcessPackage(DeletionParameters, Package)
 				ReflectPackageItemDeletionResult(DeletionParameters, PackageProcessingResult, DeletionResult);
 					
 				If Not ItemToRemove.IsMainObject And DeletionResult.Code = DeletionResultCodes().ErrorOnDelete Then
-					// 
-					// 
+					// If a child item is deleted with an error, other items cannot be deleted.
+					// Return the parent item with the only undeleted item.
 					YouCanTDeleteTheMainObject = True;
 					UndeletedItems.Add(DeletionResult.ItemToDeleteRef);
 					
@@ -337,8 +339,8 @@ Function ProcessPackage(DeletionParameters, Package)
 				
 			EndDo;
 			
-			// 
-			// 
+			// ACC:330-off - No.783.1.3. It is acceptable to specify the code after "CommitTransaction".
+			// This method, "RollbackTransaction", will throw an exception.
 			If Not IsTransactionCanceled Then
 				If Not YouCanTDeleteTheMainObject Then
 					CommitTransaction();
@@ -346,7 +348,7 @@ Function ProcessPackage(DeletionParameters, Package)
 					RollbackTransaction();
 				EndIf;
 			EndIf;
-			// 
+			// ACC:330-on
 		Except
 			If Not IsTransactionCanceled Then
 				RollbackTransaction();
@@ -519,7 +521,7 @@ EndFunction
 #Region ChildSubordinateItemsGeneration
 
 // Parameters:
-//   Elementaire -  See ObjectsToDelete
+//   QueueItem - See ObjectsToDelete
 //   MetadataInformation - See MetadataInfo
 //
 // Returns:
@@ -565,7 +567,7 @@ Function ChildSubordinateItems(ItemToDeleteRef, MetadataInformation)
 	
 EndFunction
 
-// Recursively generates a table of child elements.
+// Recursively generates a child item table.
 //
 //  Parameters:
 //   PackageResult - ValueTree
@@ -738,7 +740,7 @@ EndFunction
 // Parameters:
 //   DeletionParameters - See DeletionResult
 //   PackageProcessingResult - See ProcessingResult
-//   Element -  See ObjectsToDeletePackage
+//   Item - See ObjectsToDeletePackage
 //   DeletionResult - See DeletePackageItem
 //
 Procedure ReflectPackageItemDeletionResult(DeletionParameters, PackageProcessingResult, DeletionResult)
@@ -781,7 +783,7 @@ Function UserMessagesAsString(Messages)
 	Return Result;
 EndFunction
 
-// Process a batch in a single transaction.
+// Process the package in one transaction.
 // 
 // Parameters:
 //  DeletionParameters - See DeletionResult
@@ -847,7 +849,7 @@ EndFunction
 Function DeletePackageItem(DeletionParameters, Item, UsageInstances, UndeletedItems)
 
 	Result = ResultOfDeletingAnElement(Item);
-	If ObjectDeleted(Item.ItemToDeleteRef) Then // 
+	If ObjectDeleted(Item.ItemToDeleteRef) Then // The object has already been deleted.
 		Return Result;
 	EndIf;
 	
@@ -856,7 +858,7 @@ Function DeletePackageItem(DeletionParameters, Item, UsageInstances, UndeletedIt
 			Item.ChildSubordinateObjects.UnloadColumn("Item"), "DataVersion");
 	EndIf;
 
-	// 
+	// The item has child or subordinate objects pending deletion.
 	For Each ChildSubordinateItem In Item.ChildSubordinateObjects Do
 		If Not ObjectDeleted(ChildSubordinateItem.Item, DataVersions) 
 				Or UndeletedItems.Find(ChildSubordinateItem.Item) <> Undefined Then
@@ -973,7 +975,7 @@ Procedure SupplementPackageWithChildAndSubordinateItems(Package, MainItem, Child
 EndProcedure
 
 // Parameters:
-//   Parametrically -  See DeletionResult
+//   DeletionParameters - See DeletionResult
 //
 Procedure NotifyOfProgress(ExecutionParameters)
 	CurrentTime = CurrentUniversalDateInMilliseconds();
@@ -1036,7 +1038,7 @@ Function RemainingUsageInstancesOfObjectToDelete(DeletionParameters, UsageInstan
 		EndIf;
 		
 		If Common.IsSequence(UsageInstanceInfo1.Metadata) Then
-			// 
+			// Delete data if the reference is found only in the table.
 			Continue;
 		EndIf;
 		
@@ -1149,9 +1151,9 @@ Function DeletionParameters() Export
 	
 EndFunction
 
-// 
-//   
-//    See DeletionParameters
+// DeletionParameters:
+//   ObjectsToDelete - Array of AnyRef
+//   DeletionParameters - See DeletionParameters
 //
 // Returns:
 //   Structure:
@@ -1172,8 +1174,8 @@ EndFunction
 //   * PackageSize - Number
 //   * RefSearchExclusions - Array of MetadataObject
 //   * JobID - UUID
-//   * TheNotificationTime - Number -  time of the last alert in milliseconds
-//   * NotificationPeriod - Number -  number of milliseconds between notifications
+//   * TheNotificationTime - Number - the time of the last notification in milliseconds
+//   * NotificationPeriod - Number - the number of milliseconds between notifications
 //
 Function DeletionResult(ObjectsToDelete, DeletionParameters)
 	RefSearchExclusions = RefSearchExceptionsOnDelete();
@@ -1213,9 +1215,9 @@ Function DeletionResult(ObjectsToDelete, DeletionParameters)
 	ProcessingParameters.Insert("Number",  0);
 	ProcessingParameters.Insert("JobID", "");
 	
-	// 
+	// Reduce the rmngr memory allocated for messages.
 	ProcessingParameters.Insert("TheNotificationTime", 0);
-	ProcessingParameters.Insert("NotificationPeriod", 60000); // Milliseconds
+	ProcessingParameters.Insert("NotificationPeriod", 60000); // Milliseconds.
 	ProcessingParameters.Insert("IsScheduledJob", DeletionParameters.IsScheduledJob);
 	
 	Return ProcessingParameters;
@@ -1558,7 +1560,7 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 	EndDo;
 	
 	If Not ExecutionParameters.Property("ExcludingRules") Then
-		ExecutionParameters.Insert("ExcludingRules", New Map); // 
+		ExecutionParameters.Insert("ExcludingRules", New Map); // Cache of search exceptions rules.
 	EndIf;
 	
 	MetadataInfo = MetadataInfo(ExecutionParameters, ObjectsToDelete);
@@ -1587,9 +1589,9 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 		EndIf;
 		
 		MetadataInformation = MetadataInfo.Find(TypeOf(RemovableObject), "Type");
-		MetadataInformation.Hierarchical = False; // 
+		MetadataInformation.Hierarchical = False; // Search only for subordinate items.
 		
-		// 
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		ChildSubordinateObjects = ChildSubordinateItems(RemovableObject, MetadataInformation);
 		For Each SubordinateObject In ChildSubordinateObjects Do
 			If SubordinateObject.DeletionMark Or SubordinateObject.ElementType = "Subordinated" Then
@@ -1607,7 +1609,7 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 		
 		ObjectsPreventingDeletion = New ValueTable;
 		
-		// 
+		// Attempt to delete objects with reference integrity control.
 		SetPrivilegedMode(True);
 		Try
 			DeleteObjects(ObjectsToDelete, True, ObjectsPreventingDeletion);
@@ -1633,7 +1635,7 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 		
 		InternalDataLinks = Common.InternalDataLinks(ObjectsPreventingDeletion, ExecutionParameters.RefSearchExclusions);
 
-		// 
+		// Assign column names to the table of conflicts occurred upon deletion.
 		ObjectsPreventingDeletion.Columns[0].Name = "ItemToDeleteRef";
 		ObjectsPreventingDeletion.Columns[1].Name = "UsageInstance1";
 		ObjectsPreventingDeletion.Columns[2].Name = "Metadata";
@@ -1645,25 +1647,25 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 		TypesInformation = MarkedObjectsDeletionInternal.TypesInformation(
 			ObjectsPreventingDeletion.UnloadColumn("ItemToDeleteRef"), TypesInformation); 
 
-		// 
+		// Analyze occurrences of the objects marked for deletion.
 		For Each TableRow In ObjectsPreventingDeletion Do
-			// 
+			// Check excluding rights.
 			If InternalDataLinks[TableRow] <> Undefined
 					Or LinkOnlyToLeadingRegistersDimensions(TableRow) 
 					Or Common.IsSequence(TableRow.Metadata) Then 
-				Continue; // 
+				Continue; // The link does not prevent deletion.
 			EndIf;
 			
-			// 
+			// Check for a detected reference among objects being deleted.
 			IndexOf = ObjectsToDelete.Find(TableRow.UsageInstance1);
 			If IndexOf <> Undefined Then
-				Continue; // 
+				Continue; // The link does not prevent deletion.
 			EndIf;
 			
-			// 
+			// Cannot delete the object (a detected reference or register record prevents deletion).
 			AllLinksInExceptions = False;
 			
-			// 
+			// Narrow down the objects to be deleted.
 			IndexOf = ObjectsToDelete.Find(TableRow.ItemToDeleteRef);
 			If IndexOf <> Undefined Then
 				ObjectsToDelete.Delete(IndexOf);
@@ -1672,7 +1674,7 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 			WriteReasonToResult(ExecutionParameters, TableRow, TypesInformation);
 		EndDo;
 		
-		// 
+		// Delete objects without control if all the links are in reference search exceptions.
 		If AllLinksInExceptions Then
 			SetPrivilegedMode(True);
 			DeleteObjects(ObjectsToDelete, False);
@@ -1704,7 +1706,7 @@ Procedure WriteReasonToResult(ExecutionParameters, TableRow, TypesInformation)
 		Return;
 	EndIf;
 	
-	// 
+	// Add non-deleted objects.
 	If ExecutionParameters.NotTrash.Find(TableRow.ItemToDeleteRef) = Undefined Then
 		ExecutionParameters.NotTrash.Add(TableRow.ItemToDeleteRef);
 	EndIf;
@@ -1752,7 +1754,7 @@ Function LinkOnlyToLeadingRegistersDimensions(DataLinkDetails)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Transfer information to the client.
 
 // Parameters:
 //   ExecutionParameters - See DeletionResult 
@@ -1765,7 +1767,7 @@ Procedure MarkCollectionTraversalProgress(ExecutionParameters, CollectionName)
 		/ ExecutionParameters.CountOfItemsToDelete);
 	AdditionalParameters = Undefined;
 	
-	// 
+	// Prepare parameters to be passed.
 	If CollectionName = "BeforeSearchForItemsMarkedForDeletion" Then
 		
 		Text = NStr("en = 'Preparing to search for objects marked for deletion.';");

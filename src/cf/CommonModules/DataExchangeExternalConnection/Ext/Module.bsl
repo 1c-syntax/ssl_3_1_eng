@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Returns data from the list of objects of the specified metadata object as a system view.
+// Returns data from a list of objects of the specified metadata object as a system presentation.
 // 
 // Parameters:
-//  FullTableName - String -  name of the table corresponding to the metadata object.
+//  FullTableName - String - a name of the table that corresponds to the metadata object.
 // 
 // Returns:
-//  String - 
+//  String - system presentation of a value table containing data of the specified metadata object.
 //
 Function GetTableObjects(FullTableName) Export
 	
@@ -22,13 +24,13 @@ Function GetTableObjects(FullTableName) Export
 	
 EndFunction
 
-// Returns data from the list of objects of the specified metadata object as an XML string.
+// Returns data from a list of objects of the specified metadata object as an XML string.
 // 
 // Parameters:
-//  FullTableName - String -  name of the table corresponding to the metadata object.
+//  FullTableName - String - a name of the table that corresponds to the metadata object.
 // 
 // Returns:
-//  String - 
+//  String - an XML string of serialized presentation of the value table containing specified metadata object data.
 //
 Function GetTableObjects_2_0_1_6(FullTableName) Export
 	
@@ -36,15 +38,15 @@ Function GetTableObjects_2_0_1_6(FullTableName) Export
 	
 EndFunction
 
-// Returns the specified properties (Synonym, Hierarchical) of the metadata object.
+// Returns specified properties (Synonym, Hierarchical) of a metadata object.
 // 
 // Parameters:
-//  FullTableName - String -  name of the table corresponding to the metadata object.
+//  FullTableName - String - a name of the table that corresponds to the metadata object.
 // 
 // Returns:
-//  СтруктураНастроек - :
-//    * Synonym - String -  synonym.
-//    * Hierarchical - String -  the attribute is Hierarchical.
+//  СтруктураНастроек - Structure - Metadata object properties:
+//    * Synonym - String - synonym.
+//    * Hierarchical - String - the Hierarchical flag.
 //
 Function MetadataObjectProperties(FullTableName) Export
 	
@@ -56,7 +58,7 @@ EndFunction
 
 #Region Internal
 
-// Uploads data for the information database node to a temporary file.
+// Exports data for the infobase node to a temporary file.
 // (For internal use only).
 //
 Procedure ExportForInfobaseNode(Cancel,
@@ -98,7 +100,7 @@ Procedure ExportForInfobaseNode(Cancel,
 	
 EndProcedure
 
-// Puts an entry in the log about the beginning of data exchange.
+// Records data exchange start in the event log.
 // (For internal use only).
 //
 Procedure WriteLogEventDataExchangeStart(ExchangeSettingsStructure) Export
@@ -107,7 +109,7 @@ Procedure WriteLogEventDataExchangeStart(ExchangeSettingsStructure) Export
 	
 EndProcedure
 
-// Records the end of data exchange over an external connection.
+// Records completion of data exchange via external connection.
 // (For internal use only).
 //
 Procedure WriteExchangeFinish(ExchangeSettingsStructureExternalConnection) Export
@@ -118,11 +120,11 @@ Procedure WriteExchangeFinish(ExchangeSettingsStructureExternalConnection) Expor
 	
 EndProcedure
 
-// Gets the read-out rules for converting objects by the name of the exchange plan.
+// Gets read object conversion rules by the exchange plan name.
 // (For internal use only).
 //
 //  Returns:
-//    Read the rules for converting objects.
+//    Read object conversion rules.
 //
 Function GetObjectConversionRules(ExchangePlanName, GetCorrespondentRules = False) Export
 	
@@ -130,7 +132,7 @@ Function GetObjectConversionRules(ExchangePlanName, GetCorrespondentRules = Fals
 	
 EndFunction
 
-// Gets the structure of the exchange settings.
+// Receives the structure of exchange settings.
 // (For internal use only).
 //
 Function ExchangeSettingsStructure(Structure) Export
@@ -139,7 +141,7 @@ Function ExchangeSettingsStructure(Structure) Export
 	
 EndFunction
 
-// Checks the existence of an exchange plan with the specified name.
+// Checks if the exchange plan with the specified name exists.
 // (For internal use only).
 //
 Function ExchangePlanExists(ExchangePlanName) Export
@@ -148,8 +150,8 @@ Function ExchangePlanExists(ExchangePlanName) Export
 	
 EndFunction
 
-// Gets the default database prefix via an external connection.
-// Wrapper for the function of the same name in the module being redefined.
+// Gets the prefix of default infobase via external connection.
+// Wrapper of a function with the same name in the overridable module.
 // (For internal use only).
 //
 Function DefaultInfobasePrefix() Export
@@ -161,7 +163,7 @@ Function DefaultInfobasePrefix() Export
 	
 EndFunction
 
-// Checks whether version discrepancies should be checked in the conversion rules.
+// Checks whether it is necessary to check conversion rules for version differences.
 //
 Function WarnAboutExchangeRuleVersionMismatch(ExchangePlanName) Export
 	
@@ -170,7 +172,7 @@ Function WarnAboutExchangeRuleVersionMismatch(ExchangePlanName) Export
 	
 EndFunction
 
-// Returns whether the full Right role is available.
+// Receives the flag of the FullAccess role availability.
 // (For internal use only).
 //
 Function RoleAvailableFullAccess() Export
@@ -179,7 +181,7 @@ Function RoleAvailableFullAccess() Export
 	
 EndFunction
 
-// Returns the name of the predefined exchange plan node.
+// Returns a name of a predefined exchange plan node.
 // (For internal use only).
 //
 Function PredefinedExchangePlanNodeDescription(ExchangePlanName) Export
@@ -188,7 +190,7 @@ Function PredefinedExchangePlanNodeDescription(ExchangePlanName) Export
 	
 EndFunction
 
-// Returns the code of the predefined exchange plan node.
+// Returns a code of a predefined exchange plan node.
 // (For internal use only).
 //
 Function PredefinedExchangePlanNodeCode(ExchangePlanName) Export

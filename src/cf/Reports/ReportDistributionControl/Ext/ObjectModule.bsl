@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,9 +14,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.ReportsOptions
 
-// To set up a report form.
+// Set report form settings.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -77,7 +79,7 @@ Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 	
 EndProcedure
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary
@@ -101,7 +103,7 @@ Procedure BeforeImportSettingsToComposer(Context, SchemaKey, VariantKey, NewDCSe
 		Return;
 	EndIf;
 	
-	// 
+	// Disable all filters.
 	For Each Item In NewDCSettings.Filter.Items Do
 		Item.Use = False;
 		If Not ValueIsFilled(Item.UserSettingID) Then

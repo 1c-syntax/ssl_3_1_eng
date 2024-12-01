@@ -108,7 +108,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>"Enable extensions" submenu</v8:content>
+							<v8:content>Toggle the extensions</v8:content>
 						</v8:item>
 					</Title>
 					<ToolTip>
@@ -152,7 +152,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>"Transfer to subordinate nodes" submenu</v8:content>
+							<v8:content>Send to subordinate nodes of the distributed infobase</v8:content>
 						</v8:item>
 					</Title>
 					<ToolTip>

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Not MobileStandaloneServer Then
 
@@ -14,10 +16,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -35,7 +37,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -70,7 +72,7 @@ EndProcedure
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
-	// 
+	// Override for Favorites: It will open the main report form (instead of the card with report location settings).
 	// 
 	If FormType = "ObjectForm" Then
 		OptionRef1 = CommonClientServer.StructureProperty(Parameters, "Key");
@@ -155,10 +157,10 @@ EndProcedure
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Update handlers.
 
-// 
-//  
+// This procedure registers data to be updated in the InfobaseUpdate exchange plan.
+//  See "Parallel mode of deferred update" in the application development standards.
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters
@@ -190,8 +192,8 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	InfobaseUpdate.MarkForProcessing(Parameters, References);
 EndProcedure
 
-// 
-//  
+// This procedure processes data registered in the InfobaseUpdate exchange plan.
+//  See "Parallel mode of deferred update" in the application development standards.
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters
@@ -252,7 +254,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 
 			RollbackTransaction();
 			
-			// 
+			// If a report option procession failed, try again.
 			Declined = Declined + 1;
 
 			If OptionDataSourceSetup Then

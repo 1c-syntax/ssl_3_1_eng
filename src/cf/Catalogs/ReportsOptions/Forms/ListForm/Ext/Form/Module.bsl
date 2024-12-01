@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -394,7 +396,7 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-// Returns drag and drop parameters.
+// Returns drag-and-drop parameters.
 // 
 // Parameters:
 //  DragParameters - DragParameters
@@ -475,7 +477,7 @@ Function PlacementParameters(DragParameters, String)
 
 EndFunction
 
-// Constructor properties of the string data.
+// Row data property constructor.
 // 
 // Returns:
 //  Structure:
@@ -497,7 +499,7 @@ Function RowDataProperties()
 
 EndFunction
 
-// Handler for dragging completion.
+// Drop handler.
 //
 // Parameters:
 //  Response - DialogReturnCode
@@ -680,7 +682,7 @@ Procedure SubsystemsTreeWritePropertyToArray(TreeRowsArray, PropertyName, Refere
 	EndDo;
 EndProcedure
 
-// Records data about the placement of a report variant.
+// Writes data about the report option location.
 //
 // Parameters:
 //  PlacementParameters - See PlacementParameters
@@ -732,9 +734,9 @@ Function AssignOptionsToSubsystem(PlacementParameters)
 				DestinationRow.Subsystem = Receiver.Ref;
 			EndIf;
 			
-			// 
-			// 
-			// 
+			// Delete the row from the source subsystem.
+			// NOTE: To exclude a predefined report option from a subsystem,
+			// clear the subsystem flag in the report option.
 			If PlacementParameters.Action = "Move" Then
 				For Each SubsystemToExclude In SubsystemsToExclude Do
 					SourceRow = OptionObject.Location.Find(SubsystemToExclude, "Subsystem");
@@ -756,7 +758,7 @@ Function AssignOptionsToSubsystem(PlacementParameters)
 				EndDo;
 			EndIf;
 			
-			// 
+			// Register a row in the destination subsystem.
 			If Not DestinationRow.Use Then
 				HasChanges = True;
 				DestinationRow.Use = True;

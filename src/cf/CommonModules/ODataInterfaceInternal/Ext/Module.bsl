@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Returns a metadata object by reference type
+// Returns a metadata object by reference type.
 //
 // Parameters:
 //  RefType - Type,
@@ -30,13 +32,13 @@ Function MetadataObjectByRefType(Val RefType) Export
 	
 EndFunction
 
-// Returns: whether it is a reference type or not.
+// Returns the flag indicating whether this is a reference object.
 //
 // Parameters:
-//  TypeToCheck - Type -  the type being checked.
+//  TypeToCheck - Type - Data type being checked.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True - if the type is primitive.
 //
 Function IsReferenceType(Val TypeToCheck) Export
 	
@@ -98,7 +100,7 @@ EndFunction
 // Checks whether the passed metadata object is a sequence.
 //
 // Parameters:
-//  MetadataObject - the metadata object to check.
+//  MetadataObject - Metadata object being checked.
 //
 // Returns:
 //   Boolean
@@ -109,10 +111,10 @@ Function IsSequenceRecordSet(Val MetadataObject) Export
 	
 EndFunction
 
-// Checks whether the passed metadata object is recalculated.
+// Checks whether the passed metadata object is a recalculation.
 //
 // Parameters:
-//  MetadataObject - the metadata object to check.
+//  MetadataObject - Metadata object being checked.
 //
 // Returns:
 //   Boolean
@@ -123,10 +125,10 @@ Function IsRecalculationRecordSet(Val MetadataObject) Export
 	
 EndFunction
 
-// Checks whether the passed metadata object is a set of records.
+// Checks whether the passed metadata object is a record set.
 //
 // Parameters:
-//  MetadataObject - the metadata object to check.
+//  MetadataObject - Metadata object being checked.
 //
 // Returns:
 //   Boolean
@@ -144,7 +146,7 @@ Function IsRecordSet(Val MetadataObject) Export
 EndFunction
 
 // Returns:
-//  MetadataObject -  role.
+//  MetadataObject - A role.
 //
 Function ODataInterfaceRole() Export
 	
@@ -227,7 +229,7 @@ EndProcedure
 
 #Region Private
 
-// Returns a type description containing all reference types of metadata objects that exist
+// Returns type details that contain all reference types of metadata objects
 // in the configuration.
 //
 // Returns:
@@ -244,12 +246,12 @@ Function RefTypesDetails()
 	
 EndFunction
 
-// Returns links to business process route points.
+// Returns references of business processes route points.
 //
 // Returns:
 //   FixedMap of KeyAndValue:
-//                        * Key - Type -  point type routabusinessprocess Link,
-//                        * Value - String - 
+//                        * Key - Type - BusinessProcessRoutePointRef type
+//                        * Value - String - a business process name.
 //
 Function BusinessProcessesRoutePointsRefs()
 	
@@ -312,7 +314,7 @@ EndFunction
 
 Function DataTypeForStandardODataInterfaceComposition()
 	
-	Return "StandardODataInterfaceContent"; // 
+	Return "StandardODataInterfaceContent"; // Not localizable.
 	
 EndFunction
 

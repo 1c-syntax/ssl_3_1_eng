@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -156,7 +158,7 @@ Procedure ExtensionsListAttachOnChange(Item)
 		
 		Notification = New NotifyDescription("DetachExtensionAfterConfirmation", ThisObject, Context);
 		UsersInternalClient.ShowSecurityWarning(Notification,
-			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeDisableExtensionWithData);
+			UsersInternalClientServer.SecurityWarningKinds().BeforeDisableExtensionWithData);
 	Else
 		ExtensionsListAttachOnChangeFollowUp(Context);
 	EndIf;
@@ -479,7 +481,7 @@ Procedure UpdateList(AfterAdd = False)
 	Items.WarningGroup.Visible = ExtensionsStateChanged;
 	SetPrivilegedMode(False);
 	
-	// 
+	// Updating the form attribute for conditional formatting.
 	IsSharedUserInArea = IsSharedUserInArea();
 	
 	Items.WarningDetails.Visible = Not IsSharedUserInArea;
@@ -616,12 +618,12 @@ Procedure DeleteExtensions(SelectedRows)
 	Context.Insert("ExtensionsIDs", ExtensionsIDs);
 	
 	Notification = New NotifyDescription("DeleteExtensionAfterConfirmation", ThisObject, Context);
-	TypeOfWarning = ?(HasExtensionWithData(ExtensionsIDs),
-		UsersInternalClientServer.TypesOfSafetyWarnings().BeforeDeleteExtensionWithData,
-		UsersInternalClientServer.TypesOfSafetyWarnings().BeforeDeleteExtensionWithoutData);
+	WarningKind = ?(HasExtensionWithData(ExtensionsIDs),
+		UsersInternalClientServer.SecurityWarningKinds().BeforeDeleteExtensionWithData,
+		UsersInternalClientServer.SecurityWarningKinds().BeforeDeleteExtensionWithoutData);
 	
 	UsersInternalClient.ShowSecurityWarning(Notification,
-		TypeOfWarning, ExtensionsIDs.Count() > 1);
+		WarningKind, ExtensionsIDs.Count() > 1);
 	
 EndProcedure
 
@@ -781,7 +783,7 @@ Procedure LoadExtension(Val ExtensionID, MultipleChoice = False)
 	
 	Notification = New NotifyDescription("LoadExtensionAfterConfirmation", ThisObject, Context);
 	UsersInternalClient.ShowSecurityWarning(Notification,
-		UsersInternalClientServer.TypesOfSafetyWarnings().BeforeAddExtensions);
+		UsersInternalClientServer.SecurityWarningKinds().BeforeAddExtensions);
 	
 EndProcedure
 
@@ -1546,7 +1548,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// 
+	// Setting ViewOnly appearance parameter for common extensions and extensions passed from the master node to the subordinate DIB node.
 	
 	Item = ConditionalAppearance.Items.Add();
 	
@@ -1830,7 +1832,7 @@ Procedure DisableAttachExtensions()
 	
 		Notification = New NotifyDescription("DetachExtensionAfterConfirmation", ThisObject, Context);
 		UsersInternalClient.ShowSecurityWarning(Notification,
-			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeDisableExtensionWithData);
+			UsersInternalClientServer.SecurityWarningKinds().BeforeDisableExtensionWithData);
 
 	ElsIf ExtensionsSynonyms.WithData.Count() > 0 Then
 		
@@ -2102,7 +2104,7 @@ EndProcedure
 
 &AtClient
 Procedure AfterSettingTheExclusiveMode(Result, AdditionalParameters) Export
-	If Result = False Then // 
+	If Result = False Then // The exclusive mode is set.
 		ShowTimeConsumingOperation();
 		AttachIdleHandler("ReAddExtensionWithData", 0.1, True);
 	EndIf;

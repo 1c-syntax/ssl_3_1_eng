@@ -1,16 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var OldRecords; // 
+Var OldRecords; // Filled "BeforeWrite" to use "OnWrite".
 
 #EndRegion
 
@@ -18,11 +20,11 @@ Var OldRecords; //
 
 Procedure BeforeWrite(Cancel, Replacing)
 	
-	// 
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
 	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
 		PrepareChangesForLogging(ThisObject, Replacing, OldRecords);
 	EndIf;
-	// 
+	// ACC:75-on
 	
 	If DataExchange.Load Then
 		Return;
@@ -32,11 +34,11 @@ EndProcedure
 
 Procedure OnWrite(Cancel, Replacing)
 	
-	// 
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
 	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
 		DoLogChanges(ThisObject, Replacing, OldRecords);
 	EndIf;
-	// 
+	// ACC:75-on
 	
 	If DataExchange.Load Then
 		Return;

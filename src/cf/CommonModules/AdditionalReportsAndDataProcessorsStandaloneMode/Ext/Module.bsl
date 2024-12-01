@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
@@ -14,11 +16,11 @@
 
 #Region Core
 
-// The procedure is a handler for an event of the same name that occurs when data is exchanged in a distributed information
-// database.
+// The procedure is a handler for the event of the same name that occurs during data exchange in a distributed
+// infobase.
 //
 // Parameters:
-//   see the description of the event handler sent to the main() in the syntax helper.
+//   see the OnSendDataToMaster() event handler details in Syntax Assistant.
 // 
 Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
@@ -38,11 +40,11 @@ Procedure OnSendDataToMaster(DataElement, ItemSend, Recipient) Export
 	
 EndProcedure
 
-// The procedure is a handler for an event of the same name that occurs when data is exchanged in a distributed information
-// database.
+// The procedure is a handler for the event of the same name that occurs during data exchange in a distributed
+// infobase.
 //
 // Parameters:
-//   see the description of the event handler sent to the subordinate() in the syntax helper.
+//   see the OnSendDataToSubordinate() event handler details in the Syntax Assistant.
 // 
 Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipient) Export
 	
@@ -70,17 +72,17 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipie
 	
 EndProcedure
 
-// The procedure is a handler for an event of the same name that occurs when data is exchanged in a distributed information
-// database.
+// The procedure is a handler for the event of the same name that occurs during data exchange in a distributed
+// infobase.
 //
 // Parameters:
-//   see the description of the event handler for the receipt of the given Main() in the syntax helper.
+//   see the OnReceiveDataFromMaster() event handler details in Syntax Assistant.
 // 
 Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Export
 	
 	If ItemReceive = DataItemReceive.Ignore Then
 		
-		// 
+		// No overriding for standard processing
 		
 	ElsIf Common.IsStandaloneWorkplace() Then
 		
@@ -100,11 +102,11 @@ Procedure OnReceiveDataFromMaster(DataElement, ItemReceive, SendBack, Sender) Ex
 	
 EndProcedure
 
-// The procedure is a handler for an event of the same name that occurs when data is exchanged in a distributed information
-// database.
+// The procedure is a handler for the event of the same name that occurs during data exchange in a distributed
+// infobase.
 //
 // Parameters:
-//   see the description of the handler for the event of receiving the sent() in the syntax helper.
+//   see the OnReceiveDataFromSlave() event handler details in the Syntax Assistant.
 // 
 Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Export
 	
@@ -114,7 +116,7 @@ Procedure OnReceiveDataFromSlave(DataElement, ItemReceive, SendBack, Sender) Exp
 	
 	If ItemReceive = DataItemReceive.Ignore Then
 		
-		// 
+		// No overriding for standard processing
 		
 	Else
 		
@@ -144,15 +146,15 @@ EndProcedure
 
 #Region AdditionalReportsAndDataProcessors
 
-// Called when determining whether the current user has the right to add an additional
-// report or processing to the data area.
+// Call to determine whether the current user has right to add an additional
+// report or data processor to a data area.
 //
 // Parameters:
-//  AdditionalDataProcessor - 
-//    
-//  Result - Boolean -  this parameter is set to the permission flag in this procedure,
-//  StandardProcessing - Boolean -  this parameter in this procedure sets the flag for performing
-//    standard permission check processing.
+//  AdditionalDataProcessor - CatalogObject.AdditionalReportsAndDataProcessors, catalog item
+//    written by user.
+//  Result - Boolean - indicates whether the required rights are granted.
+//  StandardProcessing - Boolean - flag specifying whether
+//    standard processing is used to validate rights.
 //
 Procedure OnCheckInsertRight(Val AdditionalDataProcessor, Result, StandardProcessing) Export
 	
@@ -166,14 +168,14 @@ Procedure OnCheckInsertRight(Val AdditionalDataProcessor, Result, StandardProces
 	
 EndProcedure
 
-// Called when checking whether an additional report can be loaded or processed from a file.
+// Called to check whether an additional report or data processor can be imported from file.
 //
 // Parameters:
 //  AdditionalDataProcessor - CatalogRef.AdditionalReportsAndDataProcessors,
-//  Result - Boolean -  this parameter in this procedure sets the flag for whether
-//    an additional report can be loaded or processed from a file,
-//  StandardProcessing - Boolean -  this parameter in this procedure sets the flag for performing
-//    standard processing to check whether an additional report can be loaded or processed from a file.
+//  Result - Boolean - indicates whether additional reports or data processors can be
+//    imported from files.
+//  StandardProcessing - Boolean - indicates whether
+//    standard processing checks if additional reports or data processors can be imported from files.
 //
 Procedure OnCheckCanImportDataProcessorFromFile(Val AdditionalDataProcessor, Result, StandardProcessing) Export
 	
@@ -188,14 +190,14 @@ Procedure OnCheckCanImportDataProcessorFromFile(Val AdditionalDataProcessor, Res
 	
 EndProcedure
 
-// Called when checking whether an additional report can be uploaded or processed to a file.
+// Called to check whether an additional report or data processor can be exported to a file.
 //
 // Parameters:
 //  AdditionalDataProcessor - CatalogRef.AdditionalReportsAndDataProcessors,
-//  Result - Boolean -  this parameter in this procedure sets the flag for whether
-//    an additional report can be uploaded or processed to a file,
-//  StandardProcessing - Boolean -  this parameter in this procedure sets the flag for performing
-//    standard processing to check whether an additional report can be uploaded or processed to a file.
+//  Result - Boolean - indicates whether additional reports or data processors can be
+//    exported to files.
+//  StandardProcessing - Boolean - indicates whether
+//    standard processing checks if additional reports or data processors can be exported to files.
 //
 Procedure OnCheckCanExportDataProcessorToFile(Val AdditionalDataProcessor, Result, StandardProcessing) Export
 	
@@ -210,8 +212,8 @@ Procedure OnCheckCanExportDataProcessorToFile(Val AdditionalDataProcessor, Resul
 	
 EndProcedure
 
-// Fills in the types of publishing additional reports and processing that are not available for use
-// in the current database model.
+// Fills additional report or data processor publication kinds that cannot be used
+// in the current infobase model.
 //
 // Parameters:
 //  NotAvailablePublicationKinds - Array of String
@@ -224,14 +226,14 @@ Procedure OnFillUnavailablePublicationKinds(Val NotAvailablePublicationKinds) Ex
 	
 EndProcedure
 
-// The procedure must be called from the event before the directory is Written
-//  Additional processing reports, checks the validity of changing the details
-//  of elements in this directory for additional treatments received from
-//  the catalog of additional treatments of the service Manager.
+// The procedure is called from the BeforeWrite event of catalog
+//  AdditionalReportsAndDataProcessors. Validates changes to the catalog item
+//  attributes for additional data processors retrieved from the
+//  additional data processor directory from the service manager.
 //
 // Parameters:
 //  Source - CatalogObject.AdditionalReportsAndDataProcessors,
-//  Cancel - Boolean -  flag for refusing to write a directory element.
+//  Cancel - Boolean - indicates whether writing a catalog item must be canceled.
 //
 Procedure BeforeWriteAdditionalDataProcessor(Source, Cancel) Export
 	
@@ -265,8 +267,8 @@ EndProcedure
 
 #Region Private
 
-// Registers an additional report for processing as processing received
-// to the offline workplace from the service.
+// It registers an additional report or a data processor as a data processor received
+// to a standalone workstation from the service.
 //
 // Parameters:
 //  Ref - CatalogRef.AdditionalReportsAndDataProcessors
@@ -282,7 +284,7 @@ Procedure RegisterServiceProcessing(Val Ref)
 	
 EndProcedure
 
-// The function checks whether additional processing was received in the offline workplace from the service.
+// The function checks whether an additional data processor was received to a standalone workstation from the service.
 //
 // Parameters:
 //   Ref - CatalogRef.AdditionalReportsAndDataProcessors

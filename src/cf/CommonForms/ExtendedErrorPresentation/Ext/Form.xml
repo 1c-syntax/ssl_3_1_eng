@@ -83,7 +83,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Possible methods to fix the error</v8:content>
+									<v8:content>Recommendations</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
@@ -141,7 +141,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Error text client</v8:content>
+							<v8:content>Technical details</v8:content>
 						</v8:item>
 					</Title>
 					<TitleTextColor>style:AccentColor</TitleTextColor>
@@ -247,7 +247,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Possible methods to fix the error</v8:content>
+									<v8:content>Recommendations</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
@@ -305,7 +305,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Error text server</v8:content>
+							<v8:content>Technical details</v8:content>
 						</v8:item>
 					</Title>
 					<TitleTextColor>style:AccentColor</TitleTextColor>
@@ -362,7 +362,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Possible methods to fix the error</v8:content>
+									<v8:content>Recommendations</v8:content>
 								</v8:item>
 							</Title>
 							<Behavior>Usual</Behavior>
@@ -424,6 +424,7 @@
 							<v8:content>Technical details</v8:content>
 						</v8:item>
 					</Title>
+					<TitleTextColor>style:AccentColor</TitleTextColor>
 					<TitleLocation>Top</TitleLocation>
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<MultiLine>true</MultiLine>
@@ -453,6 +454,19 @@
 			<Font ref="style:NormalTextFont" kind="StyleItem" scale="10"/>
 			<ContextMenu name="SeparatorDecoration2ContextMenu" id="79"/>
 			<ExtendedTooltip name="SeparatorDecoration2ExtendedTooltip" id="80"/>
+		</LabelDecoration>
+		<LabelDecoration name="AdditionalLink" id="116">
+			<Title formatted="false">
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Additional reference</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="AdditionalLinkContextMenu" id="117"/>
+			<ExtendedTooltip name="AdditionalLinkExtendedTooltip" id="118"/>
+			<Events>
+				<Event name="URLProcessing">AdditionalLinkURLProcessing</Event>
+			</Events>
 		</LabelDecoration>
 		<UsualGroup name="FooterGroup" id="60">
 			<Title>
@@ -493,6 +507,72 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 								<Event name="URLProcessing">SupportInformationURLProcessing</Event>
 							</Events>
 						</LabelDecoration>
+						<UsualGroup name="GroupDownloadTechnicalInformation" id="114">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Download technical information</v8:content>
+								</v8:item>
+							</Title>
+							<Group>AlwaysHorizontal</Group>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupDownloadTechnicalInformationExtendedTooltip" id="115"/>
+							<ChildItems>
+								<Button name="DownloadTechnicalInformation" id="104">
+									<Type>UsualButton</Type>
+									<Representation>Picture</Representation>
+									<CommandName>Form.Command.DownloadTechnicalInformation</CommandName>
+									<Picture>
+										<xr:Ref>CommonPicture.Download</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Download technical information</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="DownloadTechnicalInformationExtendedTooltip" id="105"/>
+								</Button>
+								<UsualGroup name="GroupGeneratesTechnicalInformation" id="106">
+									<Visible>false</Visible>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Gathering technical information</v8:content>
+										</v8:item>
+									</Title>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="GroupGeneratesTechnicalInformationExtendedTooltip" id="107"/>
+									<ChildItems>
+										<PictureDecoration name="SceneryPictureTechnicalInformationIsBeingGenerated" id="108">
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Decoration picture Gathering technical information</v8:content>
+												</v8:item>
+											</Title>
+											<Picture>
+												<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</Picture>
+											<ContextMenu name="SceneryPictureTechnicalInformationIsBeingGeneratedContextMenu" id="109"/>
+											<ExtendedTooltip name="SceneryPictureTechnicalInformationIsBeingGeneratedExtendedTooltip" id="110"/>
+										</PictureDecoration>
+										<LabelDecoration name="DecorationInscriptionTechnicalInformationIsBeingFormed" id="111">
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Gathering technical information…</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="DecorationInscriptionTechnicalInformationIsBeingFormedContextMenu" id="112"/>
+											<ExtendedTooltip name="DecorationInscriptionTechnicalInformationIsBeingFormedExtendedTooltip" id="113"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 				<CommandBar name="CommandBar" id="70">
@@ -682,6 +762,21 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 			<Action>InstallExtension</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
+		<Command name="DownloadTechnicalInformation" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Download technical information</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Download technical information</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>DownloadTechnicalInformation</Action>
+		</Command>
 	</Commands>
 	<Parameters>
 		<Parameter name="WarningTitle">
@@ -756,6 +851,29 @@ If you didn't find a solution, contact the 1C support team and provide &lt;link 
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+		</Parameter>
+		<Parameter name="TextOfAdditionalLink">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="AdditionalLinkHandler">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+			<KeyParameter>true</KeyParameter>
+		</Parameter>
+		<Parameter name="ParameterOfAdditionalLinkHandler">
+			<Type/>
+			<KeyParameter>true</KeyParameter>
 		</Parameter>
 	</Parameters>
 </Form>

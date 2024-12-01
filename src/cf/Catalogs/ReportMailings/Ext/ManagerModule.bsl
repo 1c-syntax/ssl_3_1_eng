@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns the details of an object that is not recommended to edit
-// by processing a batch update of account details.
+// Returns the object attributes that are not recommended to be edited
+// using a bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String
@@ -33,7 +35,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -51,15 +53,15 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// 
+// StandardSubsystems.ReportsOptions
 
-// Defines a list of report commands.
+// Defines the list of report commands.
 //
 // Parameters:
-//   ReportsCommands - ValueTable - 
-//       
-//   Parameters - Structure - 
-//       
+//   ReportsCommands - ValueTable - a table with report commands. For changing.
+//       See details of parameter 1 of the ReportsOptionsOverridable.BeforeAddReportsCommands() procedure.
+//   Parameters - Structure - auxiliary parameters. For reading.
+//       See details of parameter 2 of the ReportsOptionsOverridable.BeforeAddReportsCommands() procedure.
 //
 Procedure AddReportCommands(ReportsCommands, Parameters) Export
 	
@@ -78,9 +80,9 @@ EndProcedure
 
 // End StandardSubsystems.ReportsOptions
 
-// 
+// StandardSubsystems.Print
 
-// Generates a printable form.
+// Generates print forms.
 //
 // Parameters:
 //  ObjectsArray - See PrintManagementOverridable.OnPrint.ObjectsArray
@@ -106,12 +108,12 @@ EndProcedure
 
 // End StandardSubsystems.Print
 
-// 
+// StandardSubsystems.ObjectsVersioning
 
-// Defines object settings for the object Versioning subsystem.
+// Defines object settings for the ObjectsVersioning subsystem.
 //
 // Parameters:
-//   Settings - Structure -  subsystem settings.
+//   Settings - Structure - Subsystem settings.
 //
 Procedure OnDefineObjectVersioningSettings(Settings) Export
 EndProcedure
@@ -124,7 +126,7 @@ EndProcedure
 
 #Region Private
 
-// 
+// Registers report distributions for processing.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -170,8 +172,8 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			ReportDistributionObject = ReportsDistributionRef.Ref.GetObject(); // CatalogObject.ReportMailings
 			
-			// 
-			// 
+			// During a configuration update, predefined items might be registered in the exchange plan even if auto-registration is disabled.
+			// Therefore, explicitly skip groups (including the predefined group "PersonalMailings").
 			If ReportDistributionObject.IsFolder Then
 				InfobaseUpdate.MarkProcessingCompletion(ReportsDistributionRef.Ref);
 				ObjectsProcessed = ObjectsProcessed + 1;
@@ -220,7 +222,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		Except
 			RollbackTransaction();
 			
-			// 
+			// If failed to process a report distribution, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			InfobaseUpdate.WriteErrorToEventLog(
@@ -264,7 +266,7 @@ Function SetReportsDescriptionTemplates()
 	
 EndFunction
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -275,7 +277,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -432,14 +434,14 @@ Function RecipientsCountIncludingGroups(Val RecipientsParameters) Export
 		|	NumberOfRecipients AS NumberOfRecipients";
 
 		If Not RecipientsMetadata.Hierarchical Then
-			// 
+			// Not hierarchical item.
 			QueryText = StrReplace(QueryText, "IN HIERARCHY", "In");
 			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "");
 		ElsIf RecipientsMetadata.HierarchyType = Metadata.ObjectProperties.HierarchyType.HierarchyOfItems Then
-			// 
+			// Hierarchy of items.
 			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "");
 		Else
-			// 
+			// Hierarchy of groups.
 			QueryText = StrReplace(QueryText, "AND &ThisIsNotGroup", "AND NOT Recipients.IsFolder");
 		EndIf;
 

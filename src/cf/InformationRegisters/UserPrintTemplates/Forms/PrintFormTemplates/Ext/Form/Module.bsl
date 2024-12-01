@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -70,7 +72,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	URL = "e1cib/list/InformationRegister.UserPrintTemplates";
 	
 	If ValueIsFilled(Parameters.TemplatePath) Then
-		PositionInTree = PositionOfTemplateInTree(Parameters.TemplatePath);
+		PositionInTree = TemplatePositionInTree(Parameters.TemplatePath);
 		If ValueIsFilled(PositionInTree) Then
 			NavigateToItem(PositionInTree);
 		EndIf;
@@ -283,7 +285,7 @@ EndProcedure
 &AtClient
 Procedure TemplatesOnActivateRow(Item)
 	
-	PositionInTree = PathToElementInTree(Items.Templates.CurrentData);
+	PositionInTree = PathToItemInTree(Items.Templates.CurrentData);
 	DetachIdleHandler("SetCommandBarButtonsEnabled");
 	AttachIdleHandler("SetCommandBarButtonsEnabled", 0.1, True);
 	
@@ -471,7 +473,7 @@ EndProcedure
 
 #EndRegion
 
-// 
+// Template opening
 
 &AtClient
 Procedure OpenPrintFormTemplate()
@@ -581,7 +583,7 @@ Procedure OpenPrintFormTemplateForEditingFollowUp(SwitchUsages, CurrentData) Exp
 	
 EndProcedure
 
-// 
+// Template actions
 
 &AtServerNoContext
 Function TemplateVersion(Id, TemplateType)
@@ -645,7 +647,7 @@ Procedure DeleteModifiedTemplates(TemplatesToDelete)
 	
 EndProcedure
 
-// Overall
+// Common
 
 &AtClient
 Procedure SetPictureUsage(TemplateDetails)
@@ -890,7 +892,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.FunctionsPanelSectionColor);
 	
-	// 
+	// Color of disabled items
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -904,7 +906,7 @@ Procedure SetConditionalAppearance()
 	
 	AppearanceItem.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
-	// 
+	// Hide the usage flag for groups
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -918,7 +920,7 @@ Procedure SetConditionalAppearance()
 	
 	AppearanceItem.Appearance.SetParameterValue("Show", False);
 	
-	// 
+	// Hide the usage flag for 1C-supplied templates.
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -952,7 +954,7 @@ Procedure SetConditionalAppearance()
 	AppearanceItem.Appearance.SetParameterValue("Show", False);
 	AppearanceItem.Appearance.SetParameterValue("Visible", False);
 	
-	//  
+	// Mismatches 
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -1254,7 +1256,7 @@ Function FindTemplates(Val Id, Val Branch1)
 EndFunction
 
 &AtServer
-Function FindElementInTemplateTree(Val Id, Val Branch1 = Undefined)
+Function FindItemInTemplateTree(Val Id, Val Branch1 = Undefined)
 	
 	If Branch1 = Undefined Then
 		Branch1 = Templates;
@@ -1264,7 +1266,7 @@ Function FindElementInTemplateTree(Val Id, Val Branch1 = Undefined)
 		If Item.Id = Id Then
 			FoundItem = Item;
 		Else
-			FoundItem = FindElementInTemplateTree(Id, Item);
+			FoundItem = FindItemInTemplateTree(Id, Item);
 		EndIf;
 
 		If FoundItem <> Undefined Then
@@ -1293,7 +1295,7 @@ Procedure ApplySelection()
 
 	If Items.Templates.CurrentData <> Undefined Then
 		If MatchesFilter(Items.Templates.CurrentData) Then
-			// 
+			// Move to the next row if it's not visible after the list of visible rows is modified.
 			CurrentRow = Items.Templates.CurrentRow;
 			Items.Templates.CurrentRow = 0;
 			Items.Templates.CurrentRow = CurrentRow;
@@ -1453,13 +1455,13 @@ Procedure NavigateToItem(Val PathToItem, Val Branch1 = Undefined)
 EndProcedure
 
 &AtClientAtServerNoContext
-Function PathToElementInTree(Item)
+Function PathToItemInTree(Item)
 	
 	If Item = Undefined Then
 		Return "";
 	EndIf;
 	
-	Return PathToElementInTree(Item.GetParent()) + "/" + Item.Id;
+	Return PathToItemInTree(Item.GetParent()) + "/" + Item.Id;
 	
 EndFunction
 
@@ -1623,7 +1625,7 @@ Function TheStringMatchesTheTemplate(Val String, Val Template)
 EndFunction
 
 &AtServerNoContext
-Function IdOfTemplateOwner(TemplatePath)
+Function TemplateOwnerID(TemplatePath)
 	
 	TemplateDataSource = PrintManagement.TemplateDataSource(TemplatePath);
 	
@@ -1632,29 +1634,31 @@ Function IdOfTemplateOwner(TemplatePath)
 	EndIf;
 	
 	MetadataObjects = Common.MetadataObjectsByIDs(TemplateDataSource, False);
-	IdOfTemplateOwner = Undefined;
 	
 	For Each DataSource In TemplateDataSource Do
 		If MetadataObjects[DataSource] <> Undefined Then
-			IdOfTemplateOwner = MetadataObjects[DataSource].FullName();
-			Break;
+			If DataSource = Catalogs.MetadataObjectIDs.EmptyRef() Then
+				Return "CommonTemplates";
+			ElsIf MetadataObjects[DataSource] <> Null Then
+				Return MetadataObjects[DataSource].FullName();
+			EndIf;
 		EndIf;
 	EndDo;
 	
-	Return IdOfTemplateOwner;
+	Return Undefined;
 	
 EndFunction
 
 &AtServer
-Function PositionOfTemplateInTree(Val TemplatePath)
+Function TemplatePositionInTree(Val TemplatePath)
 	
 	Result = "";
 	
-	IdOfTemplateOwner = IdOfTemplateOwner(TemplatePath);
-	LayoutOwner = FindElementInTemplateTree(IdOfTemplateOwner);
+	TemplateOwnerID = TemplateOwnerID(TemplatePath);
+	LayoutOwner = FindItemInTemplateTree(TemplateOwnerID);
 	
 	If LayoutOwner <> Undefined Then
-		Result = PathToElementInTree(LayoutOwner) + "/" + TemplatePath;
+		Result = PathToItemInTree(LayoutOwner) + "/" + TemplatePath;
 	EndIf;
 	
 	Return Result;

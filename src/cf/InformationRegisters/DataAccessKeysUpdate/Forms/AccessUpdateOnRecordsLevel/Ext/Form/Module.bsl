@@ -1,16 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
 &AtClient
 Var ResultAddress, StoredDataAddress, ProgressUpdateJobID,
-		AccessUpdateErrorText, ProgressHasBeenUpdatedAfterCommandsRunNow;
+		AccessUpdateErrorText, IsProgressUpdatedAfterStartImmediatelyCommand;
 
 #EndRegion
 
@@ -80,7 +82,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	ProgressHasBeenUpdatedAfterCommandsRunNow = True;
+	IsProgressUpdatedAfterStartImmediatelyCommand = True;
 	UpdateAccessUpdateThreadsCountGroupTitle();
 	
 	OnReopen();
@@ -244,7 +246,7 @@ EndProcedure
 &AtClient
 Procedure StartAccessUpdateImmediately(Command)
 	
-	ProgressHasBeenUpdatedAfterCommandsRunNow = False;
+	IsProgressUpdatedAfterStartImmediatelyCommand = False;
 	AttachIdleHandler("StartAccessUpdateNowIdleHandler", 0.1, True);
 	Items.StartAccessUpdateImmediately.Enabled = False;
 	UpdateAccessUpdateJobStateInThreeSeconds();
@@ -504,9 +506,9 @@ Procedure UpdateAccessUpdateJobState(State = Undefined, OnOpen = False)
 		If Not OnOpen
 		   And Not ProgressAutoUpdate
 		   And (JobExecutionCompleted
-		      Or ProgressHasBeenUpdatedAfterCommandsRunNow <> True) Then
+		      Or IsProgressUpdatedAfterStartImmediatelyCommand <> True) Then
 			StartProgressUpdate(True);
-			ProgressHasBeenUpdatedAfterCommandsRunNow = True;
+			IsProgressUpdatedAfterStartImmediatelyCommand = True;
 		EndIf;
 		Return;
 	EndIf;

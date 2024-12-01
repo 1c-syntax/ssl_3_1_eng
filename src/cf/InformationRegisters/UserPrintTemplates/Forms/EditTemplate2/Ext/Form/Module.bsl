@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -57,14 +59,14 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	#If Not WebClient And Not MobileClient Then
+#If Not WebClient And Not MobileClient Then
 		If Parameters.OpenOnly Then
 			Cancel = True;
 		EndIf;
 		If Parameters.OpenOnly Or TemplateType = "MXL" Then
 			OpenTemplate();
 		EndIf;
-	#EndIf
+#EndIf
 EndProcedure
 
 &AtClient
@@ -115,12 +117,12 @@ EndProcedure
 &AtClient
 Procedure ExitAppUpdate(Command)
 	
-	#If WebClient Or MobileClient Then
+#If WebClient Or MobileClient Then
 		NotifyDescription = New NotifyDescription("OnImportFile", ThisObject);
 		ImportParameters = FileSystemClient.FileImportParameters();
 		ImportParameters.FormIdentifier = UUID;
 		FileSystemClient.ImportFile_(NotifyDescription, ImportParameters);
-	#Else
+#Else
 		If Lower(TemplateType) = "mxl" Then
 			TemplateToChange.Hide();
 			TemplateFileAddressInTemporaryStorage = PutToTempStorage(TemplateToChange);
@@ -134,7 +136,7 @@ Procedure ExitAppUpdate(Command)
 			EndIf;
 		EndIf;
 		WriteTemplateAndClose();
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -246,11 +248,11 @@ EndFunction
 
 &AtClient
 Procedure OpenTemplate()
-	#If WebClient Or MobileClient Then
+#If WebClient Or MobileClient Then
 		OpenWebClientTemplate();
-	#Else
+#Else
 		OpenThinClientTemplate();
-	#EndIf
+#EndIf
 EndProcedure
 
 &AtClient

@@ -1,26 +1,28 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Connects and returns the name under which the external report or processing is enabled.
-// Once enabled, the report or processing is registered in the program under a specific name,
-// which you can use to create an object or open report or processing forms.
+// Attaches an external report or data processor and returns the name of the attached report or data processor.
+// Then registers the report or data processor in the application with a unique name.
+// You can use this name to create a report or data processor object or open its forms.
 //
-// Important: the function option "use additional processing Reports"
-// must be checked by the calling code.
+// Important: Checking functional option UseAdditionalReportsAndDataProcessors
+// must be executed by the calling code.
 //
 // Parameters:
-//   Ref - CatalogRef.AdditionalReportsAndDataProcessors -  plug-in processing.
+//   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a data processor to attach.
 //
 // Returns: 
-//   String       - 
-//   
+//   String       - a name of the attached report or data processor.
+//   Undefined - if an invalid reference is passed.
 //
 Function AttachExternalDataProcessor(Ref) Export
 	
@@ -32,13 +34,13 @@ Function AttachExternalDataProcessor(Ref) Export
 		Return Result;
 	EndIf;
 		
-	// 
+	// Validating the passed parameters.
 	If TypeOf(Ref) <> Type("CatalogRef.AdditionalReportsAndDataProcessors") 
 		Or Ref = Catalogs.AdditionalReportsAndDataProcessors.EmptyRef() Then
 		Return Undefined;
 	EndIf;
 	
-	// Connection
+	// Attaching.
 #If ThickClientOrdinaryApplication Then
 	DataProcessorName = GetTempFileName();
 	DataProcessorStorage = Common.ObjectAttributeValue(Ref, "DataProcessorStorage");
@@ -56,7 +58,8 @@ Function AttachExternalDataProcessor(Ref) Export
 	EndIf;
 	
 	StartupParameters = Common.ObjectAttributesValues(Ref, "SafeMode, DataProcessorStorage");
-	AddressInTempStorage = PutToTempStorage(StartupParameters.DataProcessorStorage.Get());
+	BinaryData = StartupParameters.DataProcessorStorage.Get();
+	AddressInTempStorage = PutToTempStorage(BinaryData);
 	
 	If Common.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
@@ -65,6 +68,7 @@ Function AttachExternalDataProcessor(Ref) Export
 		UseSecurityProfiles = False;
 	EndIf;
 	
+	HasPermissions1 = False;
 	If UseSecurityProfiles Then
 		
 		ModuleSafeModeManagerInternal = Common.CommonModule("SafeModeManagerInternal");
@@ -79,6 +83,8 @@ Function AttachExternalDataProcessor(Ref) Export
 		SafeMode = GetFunctionalOption("StandardSubsystemsSaaS") Or StartupParameters.SafeMode;
 		
 		If SafeMode Then
+			CompatibilityMode = Common.ObjectAttributeValue(Ref, "PermissionsCompatibilityMode");
+			
 			PermissionsRequest = New Query(
 				"SELECT TOP 1
 				|	AdditionalReportsAndPermissionProcessing.LineNumber,
@@ -88,37 +94,60 @@ Function AttachExternalDataProcessor(Ref) Export
 				|WHERE
 				|	AdditionalReportsAndPermissionProcessing.Ref = &Ref");
 			PermissionsRequest.SetParameter("Ref", Ref);
-			HasPermissions = Not PermissionsRequest.Execute().IsEmpty();
+			HasPermissions1 = Not PermissionsRequest.Execute().IsEmpty()
+				And CompatibilityMode = Enums.AdditionalReportsAndDataProcessorsPermissionCompatibilityModes.Version_2_2_2;
 			
-			CompatibilityMode = Common.ObjectAttributeValue(Ref, "PermissionsCompatibilityMode");
-			If CompatibilityMode = Enums.AdditionalReportsAndDataProcessorsPermissionCompatibilityModes.Version_2_2_2
-				And HasPermissions Then
+			If HasPermissions1 Then
 				SafeMode = False;
 			EndIf;
 		EndIf;
 		
 	EndIf;
 	
-	WriteComment(Ref, 
-		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Attachment, %1 = ""%2"".';"), "SafeMode", SafeMode));
-	DataProcessorName = Manager.Connect(AddressInTempStorage, , SafeMode,
-		Common.ProtectionWithoutWarningsDetails());
+	AttachmentMode = ModeForEnablingProcessingReport(Ref, BinaryData);
+	If AttachmentMode = Undefined Then
+		SafeModeOfFirstConnection = ?(SafeMode <> False, SafeMode, True);
+		AttachmentMode = SafeModeOfFirstConnection;
+		
+		DataProcessorName = Manager.Connect(AddressInTempStorage, , SafeModeOfFirstConnection,
+			Common.ProtectionWithoutWarningsDetails());
+		ExternalObject = Manager.Create(DataProcessorName);
+		
+		ExternalDataProcessorInfo = ExternalObject.ExternalDataProcessorInfo();
+		If (Not ExternalDataProcessorInfo.SafeMode Or HasPermissions1)
+			And SafeMode = False Then
+			// Re-connect in unsafe mode (if allowed).
+			DataProcessorName = Manager.Connect(AddressInTempStorage, , SafeMode,
+				Common.ProtectionWithoutWarningsDetails());
+			
+			AttachmentMode = SafeMode;
+			SaveModeForEnablingProcessingReport(Ref, BinaryData, SafeMode);
+		EndIf;
+	Else
+		DataProcessorName = Manager.Connect(AddressInTempStorage, , AttachmentMode,
+			Common.ProtectionWithoutWarningsDetails());
+	EndIf;
+	
+	WriteComment(Ref,
+		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Attachment, %1 = ""%2"".';"), "SafeMode",
+			AttachmentMode));
+	
 	Return DataProcessorName;
 	
 EndFunction
 
-// Returns an object of an external report or treatment.
+// Returns an object of an external report or data processor.
 //
-// Important: the function option "use additional processing Reports"
-// must be checked by the calling code.
+// Important: Checking functional option UseAdditionalReportsAndDataProcessors
+// must be executed by the calling code.
 //
 // Parameters:
-//   Ref - CatalogRef.AdditionalReportsAndDataProcessors -  plug-in report or processing.
+//   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a report or a data processor to attach.
 //
 // Returns: 
-//   ExternalDataProcessor - 
-//   
-//   
+//   ExternalDataProcessor - — an object of the attached data processor.
+//   ExternalReport — an object of the attached report.
+//   Undefined — if an invalid reference is passed.
 //
 Function ExternalDataProcessorObject(Ref) Export
 	
@@ -130,15 +159,15 @@ Function ExternalDataProcessorObject(Ref) Export
 		Return Result;
 	EndIf;
 	
-	// Connection
+	// Attaching.
 	DataProcessorName = AttachExternalDataProcessor(Ref);
 	
-	// 
+	// Validating the passed parameters.
 	If DataProcessorName = Undefined Then
 		Return Undefined;
 	EndIf;
 	
-	// 
+	// Get an object instance.
 	Kind = Common.ObjectAttributeValue(Ref, "Kind");
 	If Kind = Enums.AdditionalReportsAndDataProcessorsKinds.Report
 		Or Kind = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalReport Then
@@ -151,18 +180,18 @@ Function ExternalDataProcessorObject(Ref) Export
 	
 EndFunction
 
-// Generates a printed form from an external source.
+// Generates a print form based on an external source.
 //
 // Parameters:
-//   AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors -  external processing.
+//   AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors - external data processor.
 //   SourceParameters            - Structure:
-//       * CommandID - String -  a comma-separated list of layouts.
+//       * CommandID - String - a list of comma-separated templates.
 //       * RelatedObjects    - Array
-//   PrintFormsCollection - ValueTable -  generated table documents (returned parameter).
-//   PrintObjects         - ValueList  -  correspondence between objects and names of print
-//                                             areas in a table document. Value - Object, view-name of the area
-//                                             where the object was output (returned parameter).
-//   OutputParameters       - Structure       -  additional parameters of generated table documents
+//   PrintFormsCollection - ValueTable - generated spreadsheet documents (return parameter).
+//   PrintObjects         - ValueList  - a map between objects and names of spreadsheet document
+//                                             print areas. Value - Object, Presentation - a name of the area
+//                                             the object (return parameter) was displayed in.
+//   OutputParameters       - Structure       - additional parameters of generated spreadsheet documents
 //                                             (return parameter).
 //
 Procedure PrintByExternalSource(AdditionalDataProcessorRef, SourceParameters, PrintFormsCollection,
@@ -180,108 +209,110 @@ Procedure PrintByExternalSource(AdditionalDataProcessorRef, SourceParameters, Pr
 	
 EndProcedure
 
-// Creates a template for information about an external report or processing for later filling in.
+// Generates a details template for an external report or data processor to be filled in later.
 //
 // Parameters:
 //   SSLVersion - See StandardSubsystemsServer.LibraryVersion.
 //
 // Returns:
-//   Structure - :
+//   Structure - Parameters of the external report or data processor:
 //       * Kind - EnumRef.AdditionalReportsAndDataProcessorsKinds 
-//             - String - 
-//           
-//           :
-//           
-//           
-//           
-//           
-//           
-//           
-//           
+//             - String - Kind of the external report or data processor. To specify the kind, use functions
+//           AdditionalReportsAndDataProcessorsClientServer.DataProcessorKind<KindName>.
+//           You can also specify the kind explicitly:
+//           PrintForm
+//           ObjectFilling
+//           RelatedObjectsCreation
+//           Report
+//           MessageTemplate
+//           AdditionalDataProcessor
+//           AdditionalReport
 //       
-//       * Version - String -  version of the report or processing (hereinafter referred to as processing).
-//           Set in the format: "< Senior number>.<Minor number>".
+//       * Version - String - a version of the report or data processor (later on data processor).
+//           Conforms to "<Senior number>.<Junior number>" format.
 //       
-//       * Purpose - Array -  full names of the configuration objects (String) that this processing is intended for.
+//       * Purpose - Array - full names of the configuration objects (String) for which the data processor is intended for.
 //                               Optional property.
 //       
-//       * Description - String -  view for the administrator (name of the directory element).
-//                                 If it is not filled in, the representation of the external processing metadata object is taken.
+//       * Description - String - a presentation for the administrator (a catalog item description).
+//                                 If empty, a presentation of an external data processor metadata object is used.
 //                                 Optional property. 
 //       
-//       * SafeMode - Boolean - 
-//                                    
-//                                    :
-//                                     
-//                                     
-//                                      
-//                                      
-//                                      
-//                                      
-//                                      
-//                                    
+//       * SafeMode - Boolean - Flag indicating whether the external data processor is attached in safe mode.
+//                                    True by default (data processor runs in safe mode).
+//                                    In safe mode:
+//                                     Privileged mode is ignored.
+//                                     The following external (relative to the 1C:Enterprise platform) actions are prohibited:
+//                                      COM
+//                                      Importing add-ins
+//                                      Running external applications and operating system commands
+//                                      Accessing file system except for temporary files
+//                                      Accessing the Internet
+//                                    Optional property.
 //       
-//       * Permissions - Array of XDTODataObject -  additional permissions that are required by the external processing if you are working in
-//                               safe mode. An element of the array ОбъектXDTO - the permission of type
-//                               {http://www.1c.ru/1cFresh/ApplicationExtensions/Permissions/a.b.c.d}PermissionBase.
-//                               We recommend using the following functions to generate a resolution description
-//                               Work in safe mode.Permission<Resolution Type>(<Resolution Parameters>).
+//       * Permissions - Array of XDTODataObject - additional permissions required for the external data processor in
+//                               safe mode. ArrayElement - XDTODataObject - a permission of type
+//                               http://www.1c.ru/1cFresh/ApplicationExtensions/Permissions/a.b.c.d}PermissionBase.
+//                               To generate permission details, use functions
+//                               SafeModeManager.Permission<PermissionKind>(<PermissionParameters>).
 //                               Optional property.
 //       
-//       * Information - String -  brief information about external processing.
-//                               In this parameter, we recommend that the administrator describe its features.
-//                               If not filled in, the comment of the external processing metadata object is taken.
+//       * Information - String - short information on the external data processor.
+//                               It is recommended that you provide the data processor functionality for the administrator in this parameter.
+//                               If empty, a comment of an external data processor metadata object is used.
 //       
 //       * SSLVersion - See StandardSubsystemsServer.LibraryVersion.
 //       
-//       * DefineFormSettings - Boolean - 
-//                                              
-//                                             
+//       * DefineFormSettings - Boolean - Applicable only to additional reports attached to the ReportForm common form.
+//                                             It's intended for overriding some settings of the common report form and subscribe to its events. 
+//                                             If True, 
 //                                             :
 //       
-//       * ReportOptionAssignment - EnumRef.ReportOptionPurposes - 
-//										
+//       * ReportOptionAssignment - EnumRef.ReportOptionPurposes - Report option device compativility
+//										(ForComputersAndTablets, ForSmartphones, ForAnyDevice).
 //           
-//           
+//           Specify report form settings.
 //           //
 //           :
-//           
-//           
-//            See ReportsClientServer.DefaultReportSettings
+//           Parameters
+//           Form - ClientApplicationForm, Undefined
+//           VariantKey - String, Undefined See ReportsClientServer.DefaultReportSettings
 //           //
-//           
+//           Settings -
 //           	
+//           Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 //           
-//           
-//           
-//           
+//           Procedure code.
+//           EndProcedure
+//                                                                                    For details, see "Additional reports and data processors" and "Report options" in the subsystem documentation.
+//                                                                                    An optional property.
 //       
-//       * Commands - ValueTable - :
-//           ** Id - String - :
-//                 
-//                 
-//                 
-//           ** Presentation - String -  custom view of the command.
-//           ** Use - String - :
-//               
-//               
-//               
-//               
-//               
-//               
-//               
-//               
-//           ** ShouldShowUserNotification - Boolean -  if True, the "Command in progress..." notification is displayed when the command is run.
-//              it is valid For all types of commands, except for commands to open the form (Use = "OpenForm").
-//           ** Modifier - String - 
-//               :
-//                 
-//               
-//                 
-//                 
-//                 
-//           ** Hide - Boolean -  optional. Indicates that this is a service command.
-//               If set to True, the command is hidden in the additional object card.
+//       * Commands - ValueTable - settings of the commands provided by the external data processor (optional for reports):
+//           ** Id - String - an internal command name. For external print forms (when Kind = "PrintForm"):
+//                 ID can contain comma-separated names of one or more
+//                 print commands. For more information, see details of column ID
+//                 in function PrintManagement.CreatePrintCommandsCollection.
+//           ** Presentation - String - a user presentation of the command.
+//           ** Use - String - a command type:
+//               "ClientMethodCall",
+//               "ServerMethodCall",
+//               "FillingForm",
+//               "OpeningForm", or
+//               "SafeModeScenario".
+//               To get command types, use functions
+//               AdditionalReportsAndDataProcessorsClientServer.CommandType<TypeName>.
+//               Comments to these functions also contain templates of command handler procedures.
+//           ** ShouldShowUserNotification - Boolean - if True, show "Executing command…" notification upon command execution.
+//              It is used for all command types except for commands for opening a form (Usage = "OpeningForm").
+//           ** Modifier - String - Additional command classification.
+//               For external print forms (Kind = "PrintForm"):
+//                 MXLPrinting for print forms generated on the basis of spreadsheet templates.
+//               For data import from file (Kind = "PrintForm" and Usage = "ImportDataFromFile"):
+//                 Modifier is required.
+//                 It must contain the full name of the metadata object (catalog)
+//                 the data is being imported for.
+//           ** Hide - Boolean - optional. Indicates whether it is an internal command.
+//               If True, the command is hidden from the additional object card.
 //
 Function ExternalDataProcessorInfo(SSLVersion = "") Export
 	RegistrationParameters = New Structure;
@@ -317,23 +348,23 @@ Function ExternalDataProcessorInfo(SSLVersion = "") Export
 	Return RegistrationParameters;
 EndFunction
 
-// Executes a processing command and returns the result of its execution.
+// Executes a data processor command and returns the result.
 //
-// Important: the function option "use additional processing Reports"
-// must be checked by the calling code.
+// Important: Checking functional option UseAdditionalReportsAndDataProcessors
+// must be executed by the calling code.
 //
 // Parameters:
-//   CommandParameters - Structure - :
-//       * AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors -  the element of the dictionary.
-//       * CommandID - String -  name of the command to run.
-//       * RelatedObjects    - Array -  references of objects that are being processed. Required for
-//                                         assigned treatments.
-//   ResultAddress - String -  the address of the temporary storage where the execution result will be placed
-//                              .
+//   CommandParameters - Structure - parameters of the command:
+//       * AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors - catalog item.
+//       * CommandID - String - a name of the command being executed.
+//       * RelatedObjects    - Array - references to the objects the data processor is running for. Mandatory for assignable
+//                                         data processors.
+//   ResultAddress - String - address of a temporary storage where the execution result
+//                              will be stored.
 //
 // Returns:
-//   Structure - 
-//   
+//   Structure - an execution result to be passed to client.
+//   Undefined - if ResultAddress is passed.
 //
 Function ExecuteCommand(CommandParameters, ResultAddress = Undefined) Export
 	
@@ -350,20 +381,20 @@ Function ExecuteCommand(CommandParameters, ResultAddress = Undefined) Export
 	
 EndFunction
 
-// 
-//  See AdditionalReportsAndDataProcessorsClient.ExecuteCommandInBackground.
+// Executes a data processor command directly from the external object form and returns the execution result.
+// Usage example: See AdditionalReportsAndDataProcessorsClient.ExecuteCommandInBackground.
 //
-// 
-// 
+// Important! The check of the functional option UseAdditionalReportsAndDataProcessors
+// must be triggered in the calling code.
 //
 // Parameters:
-//   CommandID - String    -  the name of the command as specified in the detailingexternal Processing() function of the object module.
-//   CommandParameters     - Structure -  the parameters of the command.
+//   CommandID - String    - a command name as it is specified in function ExternalDataProcessorInfo() in the object module.
+//   CommandParameters     - Structure - command execution parameters.
 //                                      See AdditionalReportsAndDataProcessorsClient.ExecuteCommandInBackground.
-//   Form                - ClientApplicationForm -  the form to return the result to.
+//   Form                - ClientApplicationForm - a form to return the result to.
 //
 // Returns:
-//   Structure -  for official use.
+//   Structure - for internal use.
 //
 Function ExecuteCommandFromExternalObjectForm(CommandID, CommandParameters, Form) Export
 	
@@ -373,66 +404,113 @@ Function ExecuteCommandFromExternalObjectForm(CommandID, CommandParameters, Form
 	
 EndFunction
 
-// Generates a list of sections where the command to call additional reports is available.
+// Generates a list of sections where the additional report calling command is available.
 //
 // Returns: 
-//   Array - 
-//                                                    
+//   Array - an array of Subsystem metadata objects - metadata of the sections where the list of commands of additional
+//                                                    data processors is displayed.
 //
 Function AdditionalReportSections() Export
 	MetadataSections = New Array;
 	
 	AdditionalReportsAndDataProcessorsOverridable.GetSectionsWithAdditionalReports(MetadataSections);
 	
-	// 
+	// ACC:1383-off Get a manager module instead of a common module.
 	If Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
 		ModuleDataProcessorsControlPanelSSL = Common.CommonModule("DataProcessors.SSLAdministrationPanel");
 		ModuleDataProcessorsControlPanelSSL.OnDefineSectionsWithAdditionalReports(MetadataSections);
 	EndIf;
-	// 
+	// ACC:1383-on
 	
 	Return MetadataSections;
 EndFunction
 
-// Generates a list of sections where the command to call additional processing is available.
+// Generates a list of sections where the additional data processor calling command is available.
 //
 // Returns: 
-//   Array - 
-//   
+//   Array - an array of Subsystem metadata objects - metadata of the sections where the list of commands of additional data processors
+//   is displayed.
 //
 Function AdditionalDataProcessorSections() Export
 	MetadataSections = New Array;
 	
-	// 
+	// ACC:1383-off Get a manager module instead of a common module.
 	If Common.SubsystemExists("StandardSubsystems.ApplicationSettings") Then
 		ModuleDataProcessorsControlPanelSSL = Common.CommonModule("DataProcessors.SSLAdministrationPanel");
 		ModuleDataProcessorsControlPanelSSL.OnDefineSectionsWithAdditionalDataProcessors(MetadataSections);
 	EndIf;
-	// 
+	// ACC:1383-on
 	
 	AdditionalReportsAndDataProcessorsOverridable.GetSectionsWithAdditionalDataProcessors(MetadataSections);
 	
 	Return MetadataSections;
 EndFunction
 
+// Saves settings mandatory for executing the data processor. 
+// Use it to:
+// - Save the latest user entries in interactive data processors.
+// - Allow admins to set up default values and launch modes.
+// 
+// Parameters:
+//   Ref    - CatalogRef.AdditionalReportsAndDataProcessors
+//   Settings - Arbitrary - Settings to save
+//
+Procedure ShouldSaveSettings(Ref, Settings) Export
+	
+	SetSafeModeDisabled(True);
+	
+	BeginTransaction();
+	Try
+		Block = New DataLock;
+		LockItem = Block.Add("Catalog.AdditionalReportsAndDataProcessors");
+		LockItem.SetValue("Ref", Ref);
+		Block.Lock();
+		AdditionalDataProcessorObject = Ref.GetObject();
+		AdditionalDataProcessorObject.SettingsStorage = New ValueStorage(Settings);
+		AdditionalDataProcessorObject.Write();
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
+EndProcedure
+
+// Returns saved parameters of an additional data processor.
+// See the procedure "ShouldSaveSetting",
+// 
+// Parameters:
+//   Ref - CatalogRef.AdditionalReportsAndDataProcessors
+//
+// Returns:
+//   Arbitrary - Saved setting.
+//
+Function LoadSettings(Ref) Export
+	
+	SettingsStorage = Common.ObjectAttributeValue(Ref, "SettingsStorage");
+	Return SettingsStorage.Get();
+	
+EndFunction
+
 #EndRegion
 
 #Region Internal
 
-// Defines a list of metadata objects that can be applied to the assigned processing of the passed type.
+// Determines a list of metadata objects to which an assignable data processor of the passed kind can be applied.
 //
 // Parameters:
-//   Kind - EnumRef.AdditionalReportsAndDataProcessorsKinds -  type of external processing.
+//   Kind - EnumRef.AdditionalReportsAndDataProcessorsKinds - External data processor type.
 //
 // Returns:
-//   ValueTable - :
-//       * Metadata - MetadataObject -  the metadata object attached to this view.
-//       * FullName  - String -  the full name of the metadata object, such as " reference.Currencies".
-//       * Ref     - CatalogRef.MetadataObjectIDs -  link to the metadata object.
-//       * Kind        - String -  type of metadata object.
-//       * Presentation       - String -  representation of the metadata object.
-//       * FullPresentation - String -  representation of the name and type of the metadata object.
-//   Undefined - if an invalid view Was passed.
+//   ValueTable - Metadata object details:
+//       * Metadata - MetadataObject - a metadata object attached to this kind.
+//       * FullName  - String - a full name of the metadata object, for example, Catalog.Currencies.
+//       * Ref     - CatalogRef.MetadataObjectIDs - a metadata object reference.
+//       * Kind        - String - a metadata object kind.
+//       * Presentation       - String - a metadata object presentation.
+//       * FullPresentation - String - a presentation of a metadata object name and kind.
+//   Undefined - if invalid Kind is passed.
 //
 Function AttachedMetadataObjects(Kind) Export
 	Result = New ValueTable;
@@ -518,34 +596,34 @@ Function AttachedMetadataObjects(Kind) Export
 	Return Result;
 EndFunction
 
-// Generates a request to get a table of commands for additional reports or processes.
+// Generates a new query used to get a command table for additional reports or data processors.
 //
 // Parameters:
-//   DataProcessorsKind - EnumRef.AdditionalReportsAndDataProcessorsKinds -  type of treatment.
+//   DataProcessorsKind - EnumRef.AdditionalReportsAndDataProcessorsKinds - Data processor type.
 //   Location - CatalogRef.MetadataObjectIDs
-//              - String - 
-//       
-//       
+//              - String - a reference or a full name of the metadata object
+//       linked to the searched additional reports and data processors.
+//       Global data processors are located in sections, while context ones are used in catalogs and documents.
 //   IsObjectForm - Boolean -
-//       The type of forms that contain contextual additional reports and processing.
-//       True - only reports and processes linked to object forms.
-//       False - only reports and processes linked to list forms.
-//   CommandsTypes - EnumRef.AdditionalReportsAndDataProcessorsPublicationOptions -  type of commands received.
+//       Type of forms that contain context additional reports and data processors.
+//       True - only reports and data processors linked to object forms.
+//       False - only reports and data processors linked to list forms.
+//   CommandsTypes - EnumRef.AdditionalReportsAndDataProcessorsPublicationOptions - a type of commands to get.
 //              - Array of EnumRef.AdditionalReportsAndDataProcessorsPublicationOptions
 //   EnabledOnly - Boolean -
-//       The type of forms that contain contextual additional reports and processing.
-//       True - only reports and processes linked to object forms.
-//       False - only reports and processes linked to list forms.
+//       Type of forms that contain context additional reports and data processors.
+//       True - only reports and data processors linked to object forms.
+//       False - only reports and data processors linked to list forms.
 //
 // Returns:
 //   ValueTable:
-//       * Ref - CatalogRef.AdditionalReportsAndDataProcessors -  link to an additional report or processing.
-//       * Id - String -  the team ID, as set by the developer of the additional object.
+//       * Ref - CatalogRef.AdditionalReportsAndDataProcessors - a reference of an additional report or data processor.
+//       * Id - String - a command ID as it is specified by the developer of the additional object.
 //       * StartupOption - EnumRef.AdditionalDataProcessorsCallMethods -
-//           Method for calling the additional object command.
-//       * Presentation - String -  name of the command in the user interface.
-//       * ShouldShowUserNotification - Boolean -  show a notification to the user after executing the command.
-//       * Modifier - String -  the command modifier.
+//           A method of calling the additional object command.
+//       * Presentation - String - a command name in the user interface.
+//       * ShouldShowUserNotification - Boolean - show user notification when a command is executed.
+//       * Modifier - String - a command modifier.
 //
 Function NewQueryByAvailableCommands(DataProcessorsKind, Location, IsObjectForm = Undefined, CommandsTypes = Undefined, EnabledOnly = True) Export
 	Query = New Query;
@@ -560,12 +638,12 @@ Function NewQueryByAvailableCommands(DataProcessorsKind, Location, IsObjectForm 
 		EndIf;
 	EndIf;
 	
-	If ParentOrSectionRef <> Undefined Then // 
+	If ParentOrSectionRef <> Undefined Then // Filter by parent is set.
 		AreGlobalDataProcessors = (
 			DataProcessorsKind = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalReport
 			Or DataProcessorsKind = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalDataProcessor);
 		
-		// 
+		// Calls used for global and for assignable data processors are fundamentally different.
 		If AreGlobalDataProcessors Then
 			QueryText =
 			"SELECT ALLOWED DISTINCT
@@ -681,7 +759,7 @@ Function NewQueryByAvailableCommands(DataProcessorsKind, Location, IsObjectForm 
 		
 	EndIf;
 	
-	// 
+	// Disabling filters by list and object form.
 	If IsObjectForm <> True Then
 		QueryText = StrReplace(QueryText, "AND (AdditionalReportsAndDataProcessors1.UseForObjectForm = TRUE)", "");
 	EndIf;
@@ -740,17 +818,17 @@ Function NewQueryByAvailableCommands(DataProcessorsKind, Location, IsObjectForm 
 EndFunction
 
 // Parameters:
-//   ReferencesArrray - Array of AnyRef -  links to the selected objects that the command is running on.
+//   ReferencesArrray - Array of AnyRef - references to the selected objects for which a command is being executed.
 //   ExecutionParameters - Structure:
 //    * CommandDetails - Structure:
-//      ** Id - String -  command ID.
-//      ** Presentation - String -  representation of the team in the form.
-//      ** Name - String -  name of the team in the form.
+//      ** Id - String - Command ID.
+//      ** Presentation - String - Command presentation in a form.
+//      ** Name - String - a command name on a form.
 //      ** AdditionalParameters - See AdditionalFillingCommandParameters
-//    * Form - ClientApplicationForm -  the form from which the command was called.
+//    * Form - ClientApplicationForm - a form where the command is called.
 //    * Source - FormDataStructure:
 //      ** Ref - AnyRef
-//               - FormTable - 
+//               - FormTable - an object or a form list with the Reference field.
 //
 Procedure HandlerFillingCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 	CommandToExecute = ExecutionParameters.CommandDetails.AdditionalParameters; 
@@ -769,7 +847,7 @@ Function AdditionalReportsAndDataProcessorsAreUsed() Export
 EndFunction
 
 // Returns:
-//  String - 
+//  String - — a command workstation name.
 //
 Function SectionPresentation(Section) Export
 	If Section = AdditionalReportsAndDataProcessorsClientServer.StartPageName()
@@ -784,9 +862,9 @@ Function IsAdditionalReportOrDataProcessorType(Type) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event subscription handlers.
 
-// Deleting subsystem references before deleting them.
+// Delete subsystems references before their deletion.
 Procedure BeforeDeleteMetadataObjectID(MetadataObjectIDObject, Cancel) Export
 	If MetadataObjectIDObject.DataExchange.Load Then
 		Return;
@@ -843,13 +921,13 @@ Procedure BeforeDeleteMetadataObjectID(MetadataObjectIDObject, Cancel) Export
 	EndTry;	
 EndProcedure
 
-// Updates reports and processes in the reference list from shared layouts.
+// Updates reports and data processors in the catalog from common templates.
 //
 // Parameters:
-//   ReportsAndDataProcessors - ValueTable - :
-//     * MetadataObject - MetadataObject -  report or processing from the configuration.
-//     * OldObjectsNames - Array -  old object names for searching for old versions of this report or processing.
-//     * OldFilesNames - Array -  old file names for searching for old versions of this report or processing.
+//   ReportsAndDataProcessors - ValueTable - a table of reports and data processors in common templates:
+//     * MetadataObject - MetadataObject - a report or a data processor from the configuration.
+//     * OldObjectsNames - Array - old names of objects used while searching for old versions of the report or data processor.
+//     * OldFilesNames - Array - old names of files used while searching for old versions of the report or data processor.
 //     * Ref - CatalogRef.AdditionalReportsAndDataProcessors
 //     * Name - String
 //
@@ -860,28 +938,31 @@ Procedure ImportAdditionalReportsAndDataProcessorsFromMetadata(ReportsAndDataPro
 	
 	MapConfigurationDataProcessorsWithCatalogDataProcessors(ReportsAndDataProcessors);
 	If ReportsAndDataProcessors.Count() = 0 Then
-		Return; // 
+		Return; // The update is not required.
 	EndIf;
 	
 	ExportReportsAndDataProcessorsToFiles(ReportsAndDataProcessors);
 	If ReportsAndDataProcessors.Count() = 0 Then
-		Return; // 
+		Return; // Export failed.
 	EndIf;
 	
 	RegisterReportsAndDataProcessors(ReportsAndDataProcessors);
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See CommonOverridable.OnAddMetadataObjectsRenaming.
-Procedure OnAddMetadataObjectsRenaming(Total) Export
+Procedure OnAddMetadataObjectsRenaming(Renamings) Export
 	
-	Library = "StandardSubsystems";
+	Common.AddRenaming(Renamings, "2.3.3.3", 
+		"Role.UseAdditionalReportsAndServiceProcessors", "Role.ReadAdditionalReportsAndDataProcessors", "StandardSubsystems");
 	
-	Common.AddRenaming(
-		Total, "2.3.3.3", "Role.UseAdditionalReportsAndServiceProcessors", "Role.ReadAdditionalReportsAndDataProcessors", Library);
-	
+EndProcedure
+
+// See CommonOverridable.OnAddSessionParameterSettingHandlers.
+Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
+	Handlers.Insert("ModesForLaunchingExternalReportsAndProcessing", "AdditionalReportsAndDataProcessors.SessionParametersSetting");
 EndProcedure
 
 // See StandardSubsystemsServer.OnReceiveDataFromSlave.
@@ -910,7 +991,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	If ModuleToDoListServer.UserTaskDisabled("AdditionalReportsAndDataProcessors") Then
-		Return; // 
+		Return; // The to-do is disabled in the overridable module.
 	EndIf;
 	
 	Subsystem = Metadata.Subsystems.Find("Administration");
@@ -929,7 +1010,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ArrayVersion  = StrSplit(Metadata.Version, ".", True);
 		CurrentVersion = ArrayVersion[0] + ArrayVersion[1] + ArrayVersion[2];
 		If VersionChecked = CurrentVersion Then
-			OutputToDoItem = False; // 
+			OutputToDoItem = False; // Additional reports and data processors were checked on the current version.
 		EndIf;
 	EndIf;
 	
@@ -956,7 +1037,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.Form         = "Catalog.AdditionalReportsAndDataProcessors.Form.AdditionalReportsAndDataProcessorsCheck";
 		ToDoItem.Owner      = SectionID;
 		
-		// 
+		// Check for the to-do's group. If the group is missing, add it.
 		ToDoGroup = ToDoList.Find(SectionID, "Id");
 		If ToDoGroup = Undefined Then
 			ToDoGroup = ToDoList.Add();
@@ -1029,7 +1110,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// 
+	// BothForUsersAndExternalUsers.
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.ReadAdditionalReportsAndDataProcessors.Name);
 	
@@ -1038,20 +1119,20 @@ EndProcedure
 // See UsersOverridable.OnGetOtherSettings.
 Procedure OnGetOtherSettings(UserInfo, Settings) Export
 	
-	// 
+	// Gets additional report and data processor settings for a passed user.
 	
 	If Not GetFunctionalOption("UseAdditionalReportsAndDataProcessors")
 		Or Not AccessRight("Update", Metadata.InformationRegisters.DataProcessorAccessUserSettings) Then
 		Return;
 	EndIf;
 	
-	// 
+	// Settings string name to be displayed in the data processor settings tree.
 	SettingName1 = NStr("en = 'Settings for additional report and data processor quick access';");
 	
-	// 
+	// Settings string picture.
 	PictureSettings = "";
 	
-	// 
+	// List of additional reports and data processors the user can quickly access.
 	Query = New Query;
 	Query.Text = 
 	"SELECT
@@ -1079,7 +1160,7 @@ EndProcedure
 // See UsersOverridable.OnSaveOtherSetings.
 Procedure OnSaveOtherSetings(UserInfo, Settings) Export
 	
-	// 
+	// Saves additional report and data processor commands for the specified users.
 	
 	If Not GetFunctionalOption("UseAdditionalReportsAndDataProcessors") Then
 		Return;
@@ -1107,7 +1188,7 @@ EndProcedure
 // See UsersOverridable.OnDeleteOtherSettings.
 Procedure OnDeleteOtherSettings(UserInfo, Settings) Export
 	
-	// 
+	// Clears additional report and data processor commands for the specified user.
 	
 	If Not GetFunctionalOption("UseAdditionalReportsAndDataProcessors") Then
 		Return;
@@ -1282,12 +1363,12 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 EndProcedure
 
-// Adds reports of the "Additional reports and processing" subsystem,
-// in the object modules of which there is a procedure for defining form Settings.
-// Called from Balantiocheilos.Parameters.
+// Adds the reports of the "Additional reports and data processors" subsystem
+// whose object modules contain the DefineFormSettings procedure.
+// Called from ReportsOptionsCached.Parameters.
 //
 // Parameters:
-//   ReportsWithSettings - Array -  links to reports in units of objects of which there is a procedure Pregelatinization().
+//   ReportsWithSettings - Array - references of the reports whose object modules contain procedure DefineFormSettings().
 //
 Procedure OnDetermineReportsWithSettings(ReportsWithSettings) Export
 	
@@ -1329,7 +1410,7 @@ Procedure OnDetermineReportsWithSettings(ReportsWithSettings) Export
 	
 EndProcedure
 
-// Gets a link to an additional report if it is connected to the storage of the report Options subsystem.
+// Gets an additional report reference, provided that the report is attached to the "Report options" subsystem storage.
 //
 // Parameters:
 //   ReportInformation - See ReportsOptions.ReportInformation.
@@ -1362,7 +1443,7 @@ Procedure OnDetermineTypeAndReferenceIfReportIsAuxiliary(ReportInformation) Expo
 	Query.SetParameter("KindAdditionalReport", Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalReport);
 	Query.SetParameter("PublicationAvailable", Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used);
 	
-	// 
+	// Required for generated data integrity. Access rights will apply at the use stage.
 	ReferencesArrray = Query.Execute().Unload().UnloadColumn("Ref");
 	For Each Ref In ReferencesArrray Do
 		If Not IsSuppliedDataProcessor(Ref) Then
@@ -1373,13 +1454,13 @@ Procedure OnDetermineTypeAndReferenceIfReportIsAuxiliary(ReportInformation) Expo
 	
 EndProcedure
 
-// Adds links to additional reports available to the current user.
+// Supplements the array with references to additional reports the current user can access.
 //
 // Parameters:
-//   AvailableReports - Array - 
+//   AvailableReports - Array - references to reports the current user can access.
 //
-// :
-//   
+// Usage locations:
+//   ReportsOptions.CurrentUserReports().
 //
 Procedure OnAddAdditionalReportsAvailableForCurrentUser(AvailableReports) Export
 	
@@ -1415,15 +1496,15 @@ Procedure OnAddAdditionalReportsAvailableForCurrentUser(AvailableReports) Export
 	
 EndProcedure
 
-// Adds links to additional reports available to the current user.
+// Supplements the array with references to additional reports the current user can access.
 //
 // Parameters:
-//   AvailableReports - Array -  the full names of the reports available to the specified user.
+//   AvailableReports - Array - full report names available to the specified user.
 //   IBUser - InfoBaseUser
 //   UserRef - CatalogRef.Users
 //
-// :
-//   
+// Usage locations:
+//   DataProcessor.UsersSettings.ReportsAvailableToUser().
 //
 Procedure OnAddAdditionalReportsAvailableToSpecifiedUser(AvailableReports, IBUser, UserRef) Export
 	
@@ -1462,20 +1543,20 @@ Procedure OnAddAdditionalReportsAvailableToSpecifiedUser(AvailableReports, IBUse
 	
 EndProcedure
 
-// Connects the report of the subsystem "Additional reports and processing".
+// Attaches a report from the "Additional reports and data processors" subsystem.
 // Exception handling is performed by the control code.
 //
-// Places of use:
-//   Report options.Connect the report object.
-//   Mailing of reports.Initialize the report.
+// Usage locations:
+//   ReportsOptions.AttachReportObject.
+//   ReportMailing.InitializeReport.
 //   
 // Parameters:
-//   Ref - CatalogRef.AdditionalReportsAndDataProcessors -  the report that you want to initialize.
+//   Ref - CatalogRef.AdditionalReportsAndDataProcessors - a report to initialize.
 //   ReportParameters - See ReportMailing.InitializeReport
 //   Result - Boolean
-//             - Undefined - 
-//       
-//       
+//             - Undefined - an attachment result.
+//       True - an additional report is attached.
+//       False - failed to attach an additional report.
 //  GetMetadata - Boolean
 //
 Procedure OnAttachAdditionalReport(Ref, ReportParameters, Result, GetMetadata) Export
@@ -1517,15 +1598,15 @@ Procedure OnAttachAdditionalReport(Ref, ReportParameters, Result, GetMetadata) E
 	
 EndProcedure
 
-// Connects the report of the "Additional reports and processing" subsystem.
+// Attaches a report from the "Additional reports and data processors" subsystem.
 //   Exception handling is performed by the control code.
 //
 // Parameters:
-//   Context - Structure - 
+//   Context - Structure - a set of parameters got while checking and attaching a report.
 //       See ReportsOptions.OnAttachReport.
 //
-// :
-//   
+// Usage locations:
+//   ReportsOptions.OnAttachReport().
 //
 Procedure OnAttachReport(Context) Export
 	Ref = CommonClientServer.StructureProperty(Context, "Report");
@@ -1591,15 +1672,15 @@ Procedure OnDefineReportsAvailability(AddlReportsRefs, Result) Export
 	EndDo;
 EndProcedure
 
-// Adds external print forms to the list of print commands.
+// Adds external print forms to the print command list.
 //
 // Parameters:
 //   PrintCommands - See PrintManagement.CreatePrintCommandsCollection
-//   ObjectName    - String          - 
-//                                     
+//   ObjectName    - String          - a full name of the metadata object to obtain the list of print
+//                                     commands for.
 //
-// :
-//   
+// Usage locations:
+//   PrintManagement.FormPrintCommands().
 //
 Procedure OnReceivePrintCommands(PrintCommands, ObjectName) Export
 	
@@ -1622,25 +1703,25 @@ Procedure OnReceivePrintCommands(PrintCommands, ObjectName) Export
 		EndIf;
 		PrintCommand = PrintCommands.Add();
 		
-		// 
+		// Mandatory parameters.
 		FillPropertyValues(PrintCommand, TableRow, "Id, Presentation");
-		// 
+		// Parameters used as subsystem IDs.
 		PrintCommand.PrintManager = "StandardSubsystems.AdditionalReportsAndDataProcessors";
 		
-		// 
+		// Additional parameters.
 		PrintCommand.AdditionalParameters = New Structure("Ref, Modifier, StartupOption, ShouldShowUserNotification");
 		FillPropertyValues(PrintCommand.AdditionalParameters, TableRow);
 	EndDo;
 	
 EndProcedure
 
-// Fills in the list of printed forms from external sources.
+// Fills a list of print forms from external sources.
 //
 // Parameters:
 //   ExternalPrintForms - ValueList:
-//       Value      - String-ID of the printed form.
-//       View-String - name of the printed form.
-//   FullMetadataObjectName - String - 
+//       Value      - String - a print form ID.
+//       Presentation - String - a print form name.
+//   FullMetadataObjectName - String - Full name of the metadata object to get print form list for.
 //       
 //
 Procedure OnReceiveExternalPrintFormList(ExternalPrintForms, FullMetadataObjectName) Export
@@ -1662,14 +1743,14 @@ Procedure OnReceiveExternalPrintFormList(ExternalPrintForms, FullMetadataObjectN
 		If Command.StartupOption <> Enums.AdditionalDataProcessorsCallMethods.ServerMethodCall Then
 			Continue;
 		EndIf;
-		If StrFind(Command.Id, ",") = 0 Then // 
+		If StrFind(Command.Id, ",") = 0 Then // Ignore sets.
 			ExternalPrintForms.Add(Command.Id, Command.Presentation);
 		EndIf;
 	EndDo;
 	
 EndProcedure
 
-// 
+// Returns a reference to an external print form object.
 //
 Procedure OnReceiveExternalPrintForm(Id, FullMetadataObjectName, ExternalPrintFormRef) Export
 	If Not GetFunctionalOption("UseAdditionalReportsAndDataProcessors") Then
@@ -1731,26 +1812,97 @@ EndFunction
 
 #Region Private
 
-////////////////////////////////////////////////////////////////////////////////
-// 
+// Parameters:
+//  ParameterName - String
+//  SpecifiedParameters - Array of String
+//
+Procedure SessionParametersSetting(Val ParameterName, SpecifiedParameters) Export
+	If ParameterName = "ModesForLaunchingExternalReportsAndProcessing" Then
+		SessionParameters.ModesForLaunchingExternalReportsAndProcessing = New FixedMap(New Map);
+		SpecifiedParameters.Add("ModesForLaunchingExternalReportsAndProcessing");
+	EndIf;
+EndProcedure
 
-// Handler for an instance of the scheduled task start Processing.
-//   Starts the global processing handler for a scheduled task
-//   with the specified command ID.
+// Returns:
+//   Boolean, Undefined
+//
+Function ModeForEnablingProcessingReport(Ref, BinaryData)
+	
+	SetPrivilegedMode(True);
+	ProcessingParameters = SessionParameters.ModesForLaunchingExternalReportsAndProcessing.Get(Ref);
+	SetPrivilegedMode(False);
+	If ProcessingParameters = Undefined Then
+		Return ProcessingParameters;
+	EndIf;
+	
+	Hashing = New DataHashing(HashFunction.SHA256);
+	Hashing.Append(BinaryData);
+	
+	If Base64String(Hashing.HashSum) <> ProcessingParameters.HashSum Then
+		Return Undefined;
+	EndIf;
+	
+	Return ProcessingParameters.SafeMode;
+	
+EndFunction
+
+Procedure SaveModeForEnablingProcessingReport(Ref, BinaryData, SafeMode)
+	
+	Hashing = New DataHashing(HashFunction.SHA256);
+	Hashing.Append(BinaryData);
+	
+	ConnectionParameters = NewOptionsForEnablingExternalReportsAndProcessing();
+	ConnectionParameters.HashSum = Base64String(Hashing.HashSum);
+	ConnectionParameters.SafeMode = SafeMode;
+	
+	SetPrivilegedMode(True);
+	CurrentParameters = New Map(SessionParameters.ModesForLaunchingExternalReportsAndProcessing);
+	SetPrivilegedMode(False);
+	
+	CurrentParameters.Insert(Ref, New FixedStructure(ConnectionParameters));
+	
+	SetPrivilegedMode(True);
+	SessionParameters.ModesForLaunchingExternalReportsAndProcessing = New FixedMap(CurrentParameters);
+	SetPrivilegedMode(False);
+	
+EndProcedure
+
+// Returns:
+//   Structure:
+//      * HashSum - String
+//      * SafeMode - Boolean, String
+//
+Function NewOptionsForEnablingExternalReportsAndProcessing()
+	
+	Parameters = New Structure;
+	Parameters.Insert("HashSum");
+	Parameters.Insert("SafeMode");
+	
+	Return Parameters;
+	
+EndFunction
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Scheduled jobs.
+
+// StartingDataProcessors scheduled job instance handler.
+//   Starts a global data processor handler for the scheduled job
+//   using the specified command ID.
 //
 // Parameters:
-//   ExternalDataProcessor     - CatalogRef.AdditionalReportsAndDataProcessors -  link to the processing being performed.
-//   CommandID - String -  ID of the command being executed.
+//   ExternalDataProcessor     - CatalogRef.AdditionalReportsAndDataProcessors - a reference to the data processor being executed.
+//   CommandID - String - an ID of the command being executed.
 //
 Procedure ExecuteDataProcessorByScheduledJob(ExternalDataProcessor, CommandID) Export
 	
 	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.StartingAdditionalDataProcessors);
 	
-	// 
+	// Event log record.
 	WriteInformation(ExternalDataProcessor, 
 		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Command %1: Start.';"), CommandID));
 	
-	// 
+	// Run the command.
 	Try
 		ExecuteCommand(New Structure("AdditionalDataProcessorRef, CommandID", ExternalDataProcessor, CommandID), Undefined);
 	Except
@@ -1760,23 +1912,23 @@ Procedure ExecuteDataProcessorByScheduledJob(ExternalDataProcessor, CommandID) E
 		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo());
 	EndTry;
 	
-	// 
+	// Event log record.
 	WriteInformation(ExternalDataProcessor, 
 		StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Command %1: Complete.';"), CommandID));
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal export procedures and functions.
 
-// Returns True if the view belongs to the category of global additional reports or treatments.
+// Returns True when the specified additional report (data processor) kind is global.
 //
 // Parameters:
-//   Kind - EnumRef.AdditionalReportsAndDataProcessorsKinds -  type of external processing.
+//   Kind - EnumRef.AdditionalReportsAndDataProcessorsKinds - External data processor type.
 //
 // Returns:
-//     Boolean - 
-//    
+//     Boolean - True - a data processor is global.
+//    False   - a data processor is assignable.
 //
 Function CheckGlobalDataProcessor(Kind) Export
 	
@@ -1785,13 +1937,13 @@ Function CheckGlobalDataProcessor(Kind) Export
 	
 EndFunction
 
-// Converts the type of additional reports or processes from a string constant to an enumeration reference.
+// Transforms an additional report (data processor) type from a string constant to an enumeration reference.
 //
 // Parameters:
-//   StringPresentation - String -  string representation of the view.
+//   StringPresentation - String - String presentation of the type.
 //
 // Returns: 
-//   EnumRef.AdditionalReportsAndDataProcessorsKinds - 
+//   EnumRef.AdditionalReportsAndDataProcessorsKinds - a reference of the kind.
 //
 Function GetDataProcessorKindByKindStringPresentation(StringPresentation) Export
 	
@@ -1888,7 +2040,7 @@ Function InsertRight1(Val AdditionalDataProcessor = Undefined) Export
 	
 EndFunction
 
-// Checks whether an additional report can be uploaded or processed from the program to a file.
+// Checks whether an additional report or data processor can be exported to a file.
 //
 // Parameters:
 //   DataProcessor - CatalogRef.AdditionalReportsAndDataProcessors
@@ -1910,7 +2062,7 @@ Function CanExportDataProcessorToFile(Val DataProcessor) Export
 	
 EndFunction
 
-// Checks whether additional processing that already exists in the is can be loaded from a file.
+// Checks whether an additional data processor already existing in the infobase can be imported from a file.
 //
 // Parameters:
 //   DataProcessor - CatalogRef.AdditionalReportsAndDataProcessors
@@ -1932,7 +2084,7 @@ Function CanImportDataProcessorFromFile(Val DataProcessor) Export
 	
 EndFunction
 
-// Returns the checkbox for displaying extended information about an additional report or processing to the user.
+// Returns a flag specifying whether extended information on an additional report or a data processor must be displayed to the user.
 //
 // Parameters:
 //   DataProcessor - CatalogRef.AdditionalReportsAndDataProcessors
@@ -1946,7 +2098,7 @@ Function DisplayExtendedInformation(Val DataProcessor) Export
 	
 EndFunction
 
-// Types of publications that are not available for use in the current mode of the program.
+// Publication kinds unavailable for use in the current application mode.
 //
 // Returns:
 //  Array of String
@@ -1968,46 +2120,46 @@ Function IsSuppliedDataProcessor(Ref)
 		Return ModuleAdditionalReportsAndDataProcessorsSaaS.IsSuppliedDataProcessor(Ref);
 		
 	EndIf;
-	Return True; // 
+	Return True; // including local operation mode
 	
 EndFunction	
 	
-// Called when creating a query to get a table of commands for additional reports or treatments.
-// Recording an error in the log for an additional report or processing.
+// The function is called on generating a new query used to get a command table for additional reports or data processors.
+// Writing an error to the event log dedicated to the additional report (data processor).
 //
 Procedure WriteError(Ref, MessageText) Export
 	WriteToLog(EventLogLevel.Error, Ref, MessageText);
 EndProcedure
 
-// Write a warning to the log for an additional report or processing.
+// Writing a warning to the event log dedicated to the additional report (data processor).
 Procedure WriteWarning(Ref, MessageText)
 	WriteToLog(EventLogLevel.Warning, Ref, MessageText);
 EndProcedure
 
-// Recording information in the log for an additional report or processing.
+// Writing information to the event log dedicated to the additional report (data processor).
 Procedure WriteInformation(Ref, MessageText)
 	WriteToLog(EventLogLevel.Information, Ref, MessageText);
 EndProcedure
 
-// Write a note to the log for an additional report or processing.
+// Writing a comment to the event log dedicated to the additional report (data processor).
 Procedure WriteComment(Ref, MessageText)
 	WriteToLog(EventLogLevel.Note, Ref, MessageText);
 EndProcedure
 
-// Recording an event in the log for an additional report or processing.
+// Writing an event to the event log dedicated to the additional report (data processor).
 Procedure WriteToLog(Level, Ref, Text)
 	WriteLogEvent(SubsystemDescription(), Level, Metadata.Catalogs.AdditionalReportsAndDataProcessors,
 		Ref, Text);
 EndProcedure
 
-// Generates the name of the subsystem for recording the event in the log.
+// Generates a subsystem description to write an event to the event log.
 //
 Function SubsystemDescription()
 	Return NStr("en = 'Additional reports and data processors';", Common.DefaultLanguageCode());
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Local internal procedures and functions.
 
 // For internal use.
 Procedure ExecuteAdditionalReportOrDataProcessorCommand(ExternalObject, Val CommandID, CommandParameters)
@@ -2057,7 +2209,7 @@ Procedure ExecutePrintFormCreationCommand(ExternalObject, Val CommandID, Command
 	
 EndProcedure
 
-// Executes an additional report or processing command from an object.
+// Executes an additional report (data processor) command from an object.
 Function ExecuteExternalObjectCommand(ExternalObject, CommandID, CommandParameters, ResultAddress)
 	
 	ExternalObjectInfo = ExternalObject.ExternalDataProcessorInfo(); // See ExternalDataProcessorInfo
@@ -2107,7 +2259,7 @@ Function ExecuteExternalObjectCommand(ExternalObject, CommandID, CommandParamete
 		
 		If DataProcessorKind = Enums.AdditionalReportsAndDataProcessorsKinds.PrintForm Then
 			
-			// 
+			// Only custom print is available here. To print in MXL, use the Print tools subsystem.
 			ExecutePrintFormCreationCommand(
 				ExternalObject,
 				CommandID,
@@ -2140,22 +2292,22 @@ Function ExecuteExternalObjectCommand(ExternalObject, CommandID, CommandParamete
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures used for data exchange.
 
-// Overrides the standard behavior when loading data.
-// The detail of the regular Taskguid of the table part of the Command is not transferred,
-// because it is associated with the regular task of the current database.
+// Overrides standard behavior during data import.
+// Attribute GUIDScheduledJob of the Commands tabular section cannot be transferred
+// because it is related to a scheduled job of the current infobase.
 //
 Procedure OnGetAdditionalDataProcessor(DataElement, ItemReceive)
 	
 	If ItemReceive = DataItemReceive.Ignore Then
 		
-		// 
+		// No overriding for standard data processor.
 		
 	ElsIf TypeOf(DataElement) = Type("CatalogObject.AdditionalReportsAndDataProcessors")
 		And DataElement.Kind = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalDataProcessor Then
 		
-		// 
+		// The table of scheduled job UUIDs.
 		QueryText =
 		"SELECT
 		|	Commands.Ref AS Ref,
@@ -2171,7 +2323,7 @@ Procedure OnGetAdditionalDataProcessor(DataElement, ItemReceive)
 		
 		ScheduledJobsIDs = Query.Execute().Unload();
 		
-		// 
+		// Filling in the command table with the scheduled job IDs based on the current database data.
 		For Each StringCommand In DataElement.Commands Do
 			FoundItems = ScheduledJobsIDs.FindRows(New Structure("Id", StringCommand.Id));
 			If FoundItems.Count() = 0 Then
@@ -2186,7 +2338,7 @@ Procedure OnGetAdditionalDataProcessor(DataElement, ItemReceive)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Mapping catalog items with configuration metadata objects.
 
 
 // Parameters:
@@ -2227,7 +2379,7 @@ Procedure MapConfigurationDataProcessorsWithCatalogDataProcessors(ReportsAndData
 			ManagerFromConfigurationMetadata = DataProcessors[TableRow.Name];
 		Else
 			ReportsAndDataProcessors.Delete(ReverseIndex);
-			Continue; // 
+			Continue; // Unsupported metadata object kind.
 		EndIf;
 		TableRow.FileName = TableRow.Name + "." + TableRow.Extension;
 		TableRow.OldFilesNames.Insert(0, TableRow.FileName);
@@ -2235,7 +2387,7 @@ Procedure MapConfigurationDataProcessorsWithCatalogDataProcessors(ReportsAndData
 		
 		TableRow.InformationRecords = ManagerFromConfigurationMetadata.Create().ExternalDataProcessorInfo();
 		
-		// 
+		// Search by the catalog.
 		DataFromCatalog = Undefined;
 		For Each FileName In TableRow.OldFilesNames Do
 			DataFromCatalog = DataProcessorsFromConfiguration.Find(Upper(FileName), "FileName");
@@ -2253,15 +2405,15 @@ Procedure MapConfigurationDataProcessorsWithCatalogDataProcessors(ReportsAndData
 		EndIf;
 		
 		If DataFromCatalog = Undefined Then
-			Continue; // 
+			Continue; // Registering a new data processor.
 		EndIf;
 		
 		If VersionAsNumber(DataFromCatalog.Version) = VersionAsNumber(TableRow.InformationRecords.Version)
 			And TableRow.InformationRecords.Version <> Metadata.Version Then
-			// 
+			// Update is not required because the catalog contains the latest version of the data processor.
 			ReportsAndDataProcessors.Delete(ReverseIndex);
 		Else
-			// 
+			// Registering a reference for update.
 			TableRow.Ref = DataFromCatalog.Ref;
 		EndIf;
 		DataProcessorsFromConfiguration.Delete(DataFromCatalog);
@@ -2297,7 +2449,7 @@ Function DataProcessorsFromConfiguration()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Exporting configuration reports and data processors to files of external reports and data processors.
 
 // Parameters:
 //  ReportsAndDataProcessors - See ImportAdditionalReportsAndDataProcessorsFromMetadata.ReportsAndDataProcessors
@@ -2535,7 +2687,7 @@ Procedure WriteDOMDocument(DOMDocument, FileName)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Performs batch registration of external reports and data processors in the catalog.
 
 Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 	
@@ -2548,7 +2700,7 @@ Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 	AdditionalReportsAndDataProcessorsKinds.Add(Enums.AdditionalReportsAndDataProcessorsKinds.Report);
 	
 	For Each TableRow In ReportsAndDataProcessors Do
-		// 
+		// Update or add.
 		If TableRow.Ref = Undefined Then
 			CatalogObject = Catalogs.AdditionalReportsAndDataProcessors.CreateItem();
 			CatalogObject.UseForObjectForm = True;
@@ -2578,7 +2730,7 @@ Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 		
 		FillPropertyValues(CatalogObject, DataProcessorInfo, "Description, SafeMode, Version, Information");
 		
-		// 
+		// Exporting command settings that can be changed by administrator.
 		JobsSearch = New Map;
 		For Each ObsoleteCommand In CatalogObject.Commands Do
 			If ValueIsFilled(ObsoleteCommand.GUIDScheduledJob) Then
@@ -2637,7 +2789,7 @@ Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 		CatalogObject.ObjectName         = ExternalObjectMetadata.Name;
 		CatalogObject.FileName           = TableRow.FileName;
 		
-		// 
+		// Clearing and importing new commands.
 		For Each Command In CatalogObject.Commands Do
 			GUIDScheduledJob = JobsSearch.Get(Upper(Command.Id));
 			If GUIDScheduledJob <> Undefined Then
@@ -2646,7 +2798,7 @@ Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 			EndIf;
 		EndDo;
 		
-		// 
+		// Delete outdated jobs.
 		For Each KeyAndValue In JobsSearch Do
 			Try
 				Job = ScheduledJobsServer.Job(KeyAndValue.Value);
@@ -2687,18 +2839,18 @@ Procedure RegisterReportsAndDataProcessors(ReportsAndDataProcessors)
 			EndDo;
 		EndIf;
 		
-		// 
-		// 
+		// ACC:1327-off - The mechanism of updating additional reports and data processors from metadata.
+		// Competitive operations are not expected.
 		InfobaseUpdate.WriteObject(CatalogObject, , True);
-		// 
+		// ACC:1327-on
 	EndDo;
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Miscellaneous.
 
-// Sets the type of publication to be used for conflicting additional reports and treatments.
+// Sets the data processor publication kind used for conflicting additional reports and data processors.
 Procedure DisableConflictingDataProcessor(DataProcessorObject)
 	KindDebugMode = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.DebugMode;
 	AvailableKinds = AdditionalReportsAndDataProcessorsCached.AvaliablePublicationKinds();
@@ -2716,8 +2868,8 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 	KindAdditionalReport     = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalReport;
 	KindOfReport                   = Enums.AdditionalReportsAndDataProcessorsKinds.Report;
 	
-	// 
-	// 
+	// Gets a data processor file from temporary storage, tries to create an external report object,
+	// and gets information from the external data processor/report object.
 	If RegistrationParameters.DisableConflicts Then
 		For Each ListItem In RegistrationParameters.Conflicting Do
 			BeginTransaction();
@@ -2818,14 +2970,14 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 		EndIf;
 	EndIf;
 	
-	// 
+	// A different data processor is imported (an object name or a data processor type was changed).
 	If Object.IsNew() Or Object.ObjectName <> Result.ObjectName Or Object.Kind <> RegistrationData.Kind Then
 		Object.Purpose.Clear();
 		Object.Sections.Clear();
 		Object.Kind = RegistrationData.Kind;
 	EndIf;
 	
-	// 
+	// If the assignment is not specified, setting the value from the data processor.
 	If Object.Purpose.Count() = 0
 		And Object.Kind <> KindAdditionalReport
 		And Object.Kind <> KindAdditionalDataProcessor Then
@@ -2835,7 +2987,7 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 			
 			For Each FullMetadataObjectName In RegistrationData.Purpose Do
 				PointPosition = StrFind(FullMetadataObjectName, ".");
-				If Mid(FullMetadataObjectName, PointPosition + 1) = "*" Then // 
+				If Mid(FullMetadataObjectName, PointPosition + 1) = "*" Then // For example, [Catalog.*].
 					Search = New Structure("Kind", Left(FullMetadataObjectName, PointPosition - 1));
 				Else
 					Search = New Structure("FullName", FullMetadataObjectName);
@@ -2854,7 +3006,7 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 	
 	Object.Commands.Clear();
 	
-	// 
+	// Initialize commands.
 	For Each DetailsCommand In RegistrationData.Commands Do
 		
 		If Not ValueIsFilled(DetailsCommand.StartupOption) Then
@@ -2866,7 +3018,7 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 		
 	EndDo;
 	
-	// 
+	// Reading permissions required by the additional data processor.
 	Object.Permissions.Clear();
 	For Each Resolution In RegistrationData.Permissions Do
 		
@@ -2900,8 +3052,8 @@ Function RegisterDataProcessor(Val Object, Val RegistrationParameters) Export
 EndFunction
 
 // Parameters:
-//   
-//   
+//   Object - CatalogRef.AdditionalReportsAndDataProcessors
+//   ObjectName - String
 // Returns:
 //   ValueTable:
 //   * Ref - CatalogRef.AdditionalReportsAndDataProcessors
@@ -2968,7 +3120,7 @@ EndFunction
 //
 Procedure OnGetRegistrationData(Object, RegistrationData, RegistrationParameters, RegistrationResult)
 	
-	// 
+	// Attaching and getting the name to be used when attaching the object.
 	Manager = ?(RegistrationParameters.IsReport, ExternalReports, ExternalDataProcessors);
 	
 	ErrorInfo = Undefined;
@@ -2983,7 +3135,7 @@ Procedure OnGetRegistrationData(Object, RegistrationData, RegistrationParameters
 				Common.ProtectionWithoutWarningsDetails()));
 #EndIf
 		
-		// 
+		// Getting information about an external data processor.
 		ExternalObject = Manager.Create(RegistrationResult.ObjectName);
 		ExternalObjectMetadata = ExternalObject.Metadata(); // MetadataObjectReport
 		
@@ -3057,12 +3209,12 @@ Procedure OnGetRegistrationData(Object, RegistrationData, RegistrationParameters
 		DetailsCommand.StartupOption = Enums.AdditionalDataProcessorsCallMethods[DetailsCommand.Use];
 	EndDo;
 	
-	#If ThickClientOrdinaryApplication Then
+#If ThickClientOrdinaryApplication Then
 		RegistrationResult.ObjectName = ExternalObjectMetadata.Name;
-	#EndIf
+#EndIf
 EndProcedure
 
-// The output of fill-in the forms of objects.
+// Displays filling commands in object forms.
 Procedure OnDetermineFillingCommandsAttachedToObject(Commands, ObjectsIDs, CommandsSources)
 	
 	Table = ReportsAndDataProcessorsTable(ObjectsIDs);
@@ -3110,8 +3262,8 @@ EndProcedure
 
 // Returns:
 //   Structure:
-//   * Kind      - String -  the type of processing that can be obtained using the functions
-//                        Additional reports and processing of the Clientserver.View processing<...>.
+//   * Kind      - String - A data processor type that can be obtained from the
+//                        AdditionalReportsAndDataProcessorsClientServer.DataProcessorKind<…> function.
 //   * IsReport - Boolean
 //
 Function AdditionalCommandParameters(Kind, IsReport) Export
@@ -3186,7 +3338,7 @@ Function ReportsAndDataProcessorsTable(Val ObjectsIDs)
 	Return Table
 EndFunction
 
-// Converts the string representation of the version to a numeric one.
+// Converts a string presentation of a version to a number presentation.
 //
 Function VersionAsNumber(VersionAsString)
 	If IsBlankString(VersionAsString) Or VersionAsString = "0.0.0.0" Then
@@ -3213,8 +3365,8 @@ Function VersionAsNumber(VersionAsString)
 	Result = Result * 1000 + Number;
 	Digit = Digit + 1;
 	
-	// 
-	// 
+	// The comma-delimited version numbers that follow the 4th dot.
+	// For example, if you pass "1.2.3.4.5.6.7", it returns "1002003004,005006007".
 	If Digit > 4 Then
 		Result = Result / Pow(1000, Digit - 4);
 	EndIf;

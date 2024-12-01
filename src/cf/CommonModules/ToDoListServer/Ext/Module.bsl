@@ -1,37 +1,39 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Table of the user's current affairs.
-// It is passed to the handlers when filling in the current data.
+// The user's to-do items table.
+// Is passed to the OnFillToDoList handlers.
 //
 // Returns:
-//  ValueTable - :
-//    * Id  - String -  internal case ID used by the subsystem.
-//    * HasToDoItems       - Boolean -  if True, the case is displayed in the user's to-do list.
-//    * Important         - Boolean -  if True, the case will be highlighted in red.
-//    * OutputInNotifications - Boolean -  if True, the case notification will be duplicated by a pop
-//                             -up notification and displayed in the notification center.
-//    * HideInSettings - Boolean -  if True, the case will be hidden in the current Affairs settings form.
-//                            You can use it for cases that do not require multiple
-//                            use, i.e. after they are completed, they
-//                            will no longer be displayed for this information base.
-//    * Presentation  - String -  view of the case that is displayed to the user.
-//    * Count     - Number  -  quantitative indicator of the case, displayed in the title bar of the case.
-//    * Form          - String -  full path to the form to open when you click on the to-do hyperlink
-//                                in the Current Affairs panel.
-//    * FormParameters - Structure -  parameters to open the metric form with.
+//  ValueTable - Defines the parameters of a to-do item:
+//    * Id  - String - an internal to-do ID used by the subsystem.
+//    * HasToDoItems       - Boolean - if True, the to-do item is displayed in the user's to-do list.
+//    * Important         - Boolean - if True, the to-do item is highlighted in red.
+//    * OutputInNotifications - Boolean - if True, the notification of the item will be duplicated in a pop-up
+//                             notification and displayed in the notification center.
+//    * HideInSettings - Boolean - if True, the to-do item is hidden from the to-do list settings form.
+//                            It can be applied to
+//                            nonrecurring to-do items. Once completed, these to-do items are
+//                            no longer displayed in the infobase.
+//    * Presentation  - String - a to-do item presentation displayed to a user.
+//    * Count     - Number  - a number related to a to-do item; it is displayed in a to-do item's title.
+//    * Form          - String - a full path to the form that is displayed by clicking on the
+//                                to-do item hyperlink in the "To-do list" panel.
+//    * FormParameters - Structure - parameters for opening the indicator form.
 //    * Owner       - String
-//                     - MetadataObject -  string ID of the case that will be the owner for the current
-//                       or metadata object subsystem.
-//    * ToolTip      - String -  hint text.
-//    * ToDoOwnerObject - String -  full name of the metadata object where the case completion handler is located.
+//                     - MetadataObject - String ID of the to-do item that is the owner of the current to-do item,
+//                       or a subsystem metadata object.
+//    * ToolTip      - String - a tooltip text.
+//    * ToDoOwnerObject - String - the full name of the metadata object where the handler of the to-do list filling is placed.
 //
 Function ToDoList() Export
 	
@@ -48,20 +50,20 @@ Function ToDoList() Export
 	UserTasks1.Columns.Add("Owner");
 	UserTasks1.Columns.Add("ToolTip", New TypeDescription("String", New StringQualifiers(250)));
 	UserTasks1.Columns.Add("ToDoOwnerObject", New TypeDescription("String", New StringQualifiers(256)));
-	UserTasks1.Columns.Add("HasUserTasks"); // 
+	UserTasks1.Columns.Add("HasUserTasks"); // Backward compatibility.
 	
 	Return UserTasks1;
 	
 EndFunction
 
-// Returns an array of command interface subsystems that include the passed
+// Returns an array of command interface subsystems containing the passed
 // metadata object.
 //
 // Parameters:
-//  MetadataObjectName - String -  full name of the metadata object.
+//  MetadataObjectName - String - Full name of a metadata object.
 //
 // Returns: 
-//  Array - 
+//  Array - an array of command interface subsystems.
 //
 Function SectionsForObject(MetadataObjectName) Export
 	ObjectsBelonging = ToDoListInternalCached.ObjectsBelongingToCommandInterfaceSections();
@@ -81,13 +83,13 @@ Function SectionsForObject(MetadataObjectName) Export
 	Return CommandInterfaceSubsystems;
 EndFunction
 
-// Determines whether to display a task in the user's to-do list.
+// Determines whether a to-do item must be displayed in a user's to-do list.
 //
 // Parameters:
-//  ToDoItemID - String -  ID of the task to search for in the disabled list.
+//  ToDoItemID - String - a to-do item ID to be checked against the list of disabled to-do items.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - Boolean - True if a to-do was disabled programmatically and it should not be shown to the user.
 //
 Function UserTaskDisabled(ToDoItemID) Export
 	ToDoItemsToDisable = New Array;
@@ -98,50 +100,50 @@ Function UserTaskDisabled(ToDoItemID) Export
 	
 EndFunction
 
-// Returns the structure of common values used for calculating current cases.
+// Returns a structure of common values used for calculating current to-do items.
 //
 // Returns:
 //  Structure:
 //    * User - CatalogRef.Users
-//                   - CatalogRef.ExternalUsers - 
-//    * IsFullUser - Boolean -  True if the user is a full-fledged user.
-//    * CurrentDate - Date -  the current date of the session.
-//    * DateEmpty  - Date -  an empty date.
+//                   - CatalogRef.ExternalUsers - current user.
+//    * IsFullUser - Boolean - True if it is a full access user.
+//    * CurrentDate - Date - a current session date.
+//    * DateEmpty  - Date - a blank date.
 //
 Function CommonQueryParameters() Export
 	Return ToDoListInternal.CommonQueryParameters();
 EndFunction
 
-// Sets General parameters of the queries for calculation of current Affairs.
+// Sets common query parameters for calculating to-do items.
 //
 // Parameters:
-//  Query                 - Query    -  a query that
-//                                       needs to fill in the General parameters.
-//  CommonQueryParameters - Structure -  common values for the calculation of the indicators.
+//  Query                 - Query    - a running query with common parameters
+//                                       to be filled in.
+//  CommonQueryParameters - Structure - common values for calculating indicators.
 //
 Procedure SetQueryParameters(Query, CommonQueryParameters) Export
 	ToDoListInternal.SetCommonQueryParameters(Query, CommonQueryParameters);
 EndProcedure
 
-// Retrieves numeric case values from the passed request.
+// Gets numeric values of to-do items from a query.
 //
-// The data request must contain only one row with an arbitrary number of fields.
-// The values of these fields must be the values of the corresponding indicators.
+// Query with data must have only one string with an arbitrary number of fields.
+// Values of such fields must be values of matching indicators.
 //
-// For example, such a request might look like this:
-//   CHOOSE
-//      Count(*) from <Name of a predefined element measure of the number of documents>.
+// For example, such query can be as follows:
+//   SELECT
+//      COUNT(*) AS <Name of a predefined item being a document quantity indicator>.
 //   FROM
-//      the Document.<Document name>.
+//      Document.<Document name>.
 //
 // Parameters:
-//  Query - Query -  the request being executed.
-//  CommonQueryParameters - Structure -  the total value to calculate the current Affairs.
+//  Query - Query - a running query.
+//  CommonQueryParameters - Structure - common values for calculating to-do items.
 //
 // Returns:
 //  Structure:
-//     * Key     - String -  name of the current Affairs indicator.
-//     * Value - Number -  numeric value of the indicator.
+//     * Key     - String - a name of a to-do item indicator.
+//     * Value - Number - a numerical indicator value.
 //
 Function NumericUserTasksIndicators(Query, CommonQueryParameters = Undefined) Export
 	Return ToDoListInternal.NumericUserTasksIndicators(Query, CommonQueryParameters);

@@ -1,21 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Generates a tabular document report.
+// Generates a spreadsheet document with the report.
 //
 // Parameters:
-//  ReportTable - SpreadsheetDocument -  the document that the data is output to.
-//  Survey  - DocumentRef.PollPurpose -  the survey that the report is based on.
-//  ReportKind - String -  it can take the values of response Analysis and responder Analysis.
+//  ReportTable - SpreadsheetDocument - a document, in which data is output.
+//  Survey  - DocumentRef.PollPurpose - a survey, on which the report is generated.
+//  ReportKind - String - it can take the AnswersAnalysis and RespondersAnalysis values.
 //
 Procedure GenerateReport(ReportTable,Survey,ReportKind) Export
 	
@@ -79,14 +81,14 @@ Procedure GenerateAnswersAnalysisReport(ReportTable, Survey)
 	
 EndProcedure 
 
-// Called recursively, generates the complete code, and calls the output procedures for questions and sections .
+// It is called recursively, generates full code and calls procedures for outputting questions and sections.
 //
 // Parameters:
-//  TreeRows    - ValueTreeRowCollection -  tree rows for which the action is performed.
-//  ReportTable   - SpreadsheetDocument -    data is output to it.
-//  Template           - SpreadsheetDocument -  the layout used for data output.
-//  RecursionLevel - Number             -  the current level of recursion.
-//  ArrayFullCode - Array            -  used to generate the full text of the processed string.
+//  TreeRows    - ValueTreeRowCollection - tree rows, for which the action is executed.
+//  ReportTable   - SpreadsheetDocument -  a document, in which the data is output.
+//  Template           - SpreadsheetDocument - a template used to output the data.
+//  RecursionLevel - Number             - the current recursion level.
+//  ArrayFullCode - Array            - - used to generate a full code of processed rows.
 // 
 Procedure OutputToSpreadsheetDocument(TreeRows,ReportTable,Template,RecursionLevel,ArrayFullCode, QuestionsPresentations)
 	
@@ -119,11 +121,11 @@ Procedure OutputToSpreadsheetDocument(TreeRows,ReportTable,Template,RecursionLev
 EndProcedure
 
 // Parameters:
-//  ReportTable - SpreadsheetDocument -  information is output to it.
-//  TreeRow  - ValueTreeRow - :
+//  ReportTable - SpreadsheetDocument - a document, in which information is output.
+//  TreeRow  - ValueTreeRow - a current row with data:
 //   * Description - String
-//  Template         - SpreadsheetDocument -  layout used for displaying information.
-//  FullCode     - String -  full code of the line to output to the report.
+//  Template         - SpreadsheetDocument - a template used to output information.
+//  FullCode     - String - a full code of a row to be output in the report.
 // 
 Procedure OutputSection(ReportTable,TreeRow,Template,FullCode)
 	
@@ -135,11 +137,11 @@ Procedure OutputSection(ReportTable,TreeRow,Template,FullCode)
 EndProcedure
 
 // Parameters:
-//  ReportTable - SpreadsheetDocument -  information is output to it.
-//  TreeRow  - ValueTreeRow - :
+//  ReportTable - SpreadsheetDocument - a document, in which information is output.
+//  TreeRow  - ValueTreeRow - a current row with data:
 //   * Description - String
-//  Template         - SpreadsheetDocument -  layout used for displaying information.
-//  Full code-Line - the full code of the line that is output to the report.
+//  Template         - SpreadsheetDocument - a template used to output information.
+//  FullCode - String - a full code of a row to be output in the report.
 //
 Procedure OutputQuestion(ReportTable,TreeRow,Template,FullCode, QuestionsPresentations)
 	
@@ -165,11 +167,11 @@ Procedure OutputQuestion(ReportTable,TreeRow,Template,FullCode, QuestionsPresent
 EndProcedure
 
 // Parameters:
-//  ReportTable         - SpreadsheetDocument -  information is output to it.
-//  TreeRow          - ValueTreeRow -  current row with data.
-//  Template                 - SpreadsheetDocument -  layout used for displaying information.
-//  FullCode             - String -  full code of the line to output to the report.
-//  QuestionsPresentations - Map -  contains information about the phrase and the "Aggregate in reports" attribute. 
+//  ReportTable         - SpreadsheetDocument - a document, in which information is output.
+//  TreeRow          - ValueTreeRow - a current row with data.
+//  Template                 - SpreadsheetDocument - a template used to output information.
+//  FullCode             - String - a full code of a row to be output in the report.
+//  QuestionsPresentations - Map - contains information on the formulation and the Aggregate in reports flag. 
 // 
 Procedure OutputAnswerTabularQuestion(ReportTable, TreeRow, Template, FullCode, QuestionsPresentations)
 	
@@ -193,14 +195,14 @@ Procedure OutputAnswerTabularQuestion(ReportTable, TreeRow, Template, FullCode, 
 	
 EndProcedure
 
-// Displays the answers to a table question with predefined answers in columns in the report table.
+// Outputs answers from a question chart with predefined answers in columns into a report table.
 //
 // Parameters:
-//  ReportTable         - SpreadsheetDocument -  information is output to it.
-//  TreeRow          - ValueTreeRow -  current row with data.
-//  Template                 - SpreadsheetDocument -  layout used for displaying information.
-//  FullCode             - String -  full code of the line to output to the report.
-//  QuestionsPresentations - Map -  contains information about the phrase and the "Aggregate in reports" attribute. 
+//  ReportTable         - SpreadsheetDocument - a document, in which information is output.
+//  TreeRow          - ValueTreeRow - a current row with data.
+//  Template                 - SpreadsheetDocument - a template used to output information.
+//  FullCode             - String - a full code of a row to be output in the report.
+//  QuestionsPresentations - Map - contains information on the formulation and the Aggregate in reports flag. 
 //
 Procedure OutputAnswerPredefinedAnswersInColumnsTabularQuestion(ReportTable, TreeRow, Template, FullCode, QuestionsPresentations)
 	
@@ -261,11 +263,11 @@ Procedure OutputAnswerPredefinedAnswersInColumnsTabularQuestion(ReportTable, Tre
 EndProcedure
 
 // Parameters:
-//  ReportTable         - SpreadsheetDocument -  information is output to it.
-//  TreeRow          - ValueTreeRow -  current row with data.
-//  Template                 - SpreadsheetDocument -  layout used for displaying information.
-//  FullCode             - String -  full code of the line to output to the report.
-//  QuestionsPresentations - Map -  contains information about the phrase and the "Aggregate in reports" attribute. 
+//  ReportTable         - SpreadsheetDocument - a document, in which information is output.
+//  TreeRow          - ValueTreeRow - a current row with data.
+//  Template                 - SpreadsheetDocument - a template used to output information.
+//  FullCode             - String - a full code of a row to be output in the report.
+//  QuestionsPresentations - Map - contains information on the formulation and the Aggregate in reports flag. 
 //
 Procedure OutputAnswerPredefinedAnswersInRowsTabularQuestion(ReportTable, TreeRow, Template, FullCode, QuestionsPresentations)
 	
@@ -334,14 +336,14 @@ Procedure OutputAnswerPredefinedAnswersInRowsTabularQuestion(ReportTable, TreeRo
 	
 EndProcedure
 
-// Displays the answers to a table question with predefined answers in rows and columns in the report table.
+// Outputs answers from a question chart with predefined answers in rows and columns into a report table.
 //
 // Parameters:
-//  ReportTable         - SpreadsheetDocument -  information is output to it.
-//  TreeRow          - ValueTreeRow -  current row with data.
-//  Template                 - SpreadsheetDocument -  layout used for displaying information.
-//  FullCode             - String -  full code of the line to output to the report.
-//  QuestionsPresentations - Map -  contains information about the phrase and the "Aggregate in reports" attribute. 
+//  ReportTable         - SpreadsheetDocument - a document, in which information is output.
+//  TreeRow          - ValueTreeRow - a current row with data.
+//  Template                 - SpreadsheetDocument - a template used to output information.
+//  FullCode             - String - a full code of a row to be output in the report.
+//  QuestionsPresentations - Map - contains information on the formulation and the Aggregate in reports flag. 
 //
 Procedure OutputAnswerPredefinedAnswersInRowsAndColumnsTabularQuestion(ReportTable, TreeRow, Template, FullCode, QuestionsPresentations)
 	
@@ -415,11 +417,11 @@ Procedure OutputAnswerPredefinedAnswersInRowsAndColumnsTabularQuestion(ReportTab
 EndProcedure
 
 // Parameters:
-//  ReportTable         - SpreadsheetDocument -  information is output to it.
-//  TreeRow          - ValueTreeRow -  current row with data.
-//  Template                 - SpreadsheetDocument -  layout used for displaying information.
-//  FullCode             - String -  full code of the line to output to the report.
-//  QuestionsPresentations - Map -  contains information about the phrase and the "Aggregate in reports" attribute.
+//  ReportTable         - SpreadsheetDocument - a document, in which information is output.
+//  TreeRow          - ValueTreeRow - a current row with data.
+//  Template                 - SpreadsheetDocument - a template used to output information.
+//  FullCode             - String - a full code of a row to be output in the report.
+//  QuestionsPresentations - Map - contains information on the formulation and the Aggregate in reports flag.
 //
 Procedure OutputAnswerCompositeTabularQuestion(ReportTable, TreeRow, Template, FullCode, QuestionsPresentations)
 	
@@ -462,10 +464,10 @@ Procedure OutputAnswerCompositeTabularQuestion(ReportTable, TreeRow, Template, F
 EndProcedure
 
 // Parameters:
-//  ReportTable         - SpreadsheetDocument -  information is output to it.
-//  TreeRow          - ValueTreeRow -  current row with data.
-//  Template                 - SpreadsheetDocument -  layout used for displaying information.
-//  FullCode             - String -  full code of the line to output to the report.
+//  ReportTable         - SpreadsheetDocument - a document, in which information is output.
+//  TreeRow          - ValueTreeRow - a current row with data.
+//  Template                 - SpreadsheetDocument - a template used to output information.
+//  FullCode             - String - a full code of a row to be output in the report.
 //
 Procedure OutputAnswerSimpleQuestion(ReportTable, TreeRow, Template, FullCode)
 	
@@ -489,10 +491,10 @@ Procedure OutputAnswerSimpleQuestion(ReportTable, TreeRow, Template, FullCode)
 EndProcedure
 
 // Parameters:
-//  ReportTable         - SpreadsheetDocument -  information is output to it.
-//  TreeRow          - ValueTreeRow -  current row with data.
-//  Template                 - SpreadsheetDocument -  layout used for displaying information.
-//  FullCode             - String -  full code of the line to output to the report.
+//  ReportTable         - SpreadsheetDocument - a document, in which information is output.
+//  TreeRow          - ValueTreeRow - a current row with data.
+//  Template                 - SpreadsheetDocument - a template used to output information.
+//  FullCode             - String - a full code of a row to be output in the report.
 //
 Procedure OutputAnswerAnswersOptions(ReportTable,TreeRow,Template,FullCode)
 	
@@ -532,11 +534,11 @@ Procedure OutputAnswerAnswersOptions(ReportTable,TreeRow,Template,FullCode)
 EndProcedure
 
 // Parameters:
-//  Survey  - DocumentRef.PollPurpose -  the survey that the query is based on.
-//  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates -  according to which the survey was conducted.
+//  Survey  - DocumentRef.PollPurpose - a survey on which the query is created.
+//  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates - used for the survey.
 //
 // Returns:
-//   QueryResult   -  result of the executed request.
+//   QueryResult   - query execution result.
 //
 Function ExecuteQueryByQuestionnaireTemplateQuestions(Survey,QuestionnaireTemplate)
 	
@@ -905,8 +907,8 @@ EndFunction
 #Region RespondersAnalysis
 
 // Parameters:
-//  ReportTable - SpreadsheetDocument -  the tabular document in which the report is output.
-//  Survey         - DocumentRef.PollPurpose -  the survey that the report is being built for.
+//  ReportTable - SpreadsheetDocument - Spreadsheet document to output the report to.
+//  Survey         - DocumentRef.PollPurpose - a survey for which the report is created.
 //
 Procedure GenerateRespondersAnalysisReport(ReportTable,Survey)
 
@@ -926,9 +928,9 @@ Procedure GenerateRespondersAnalysisReport(ReportTable,Survey)
 EndProcedure
 
 // Parameters:
-//  QueryResult - QueryResult  -  result of the executed request.
-//  AttributesSurvey   - Structure -  contains the values of the required details for the assignment of the Query.
-//  ReportTable   - SpreadsheetDocument -  table document that the report is output to.
+//  QueryResult - QueryResult  - query execution result.
+//  AttributesSurvey   - Structure - contains values of the SurveyPurpose attributes.
+//  ReportTable   - SpreadsheetDocument - Spreadsheet document to output the report to.
 //
 Procedure OutputRespondersQueryResultToSpreadsheetDocument(QueryResult,AttributesSurvey,ReportTable)
 	
@@ -961,10 +963,10 @@ Procedure OutputRespondersQueryResultToSpreadsheetDocument(QueryResult,Attribute
 EndProcedure
 
 // Parameters:
-//  Selection       - QueryResultSelection -  the selection that contains the data that is output to the report.
-//  Template         - SpreadsheetDocument -  table document that contains the report layout.
-//  ReportTable - SpreadsheetDocument -  table document to output to.
-//  AreaName    - String -  name of the layout area to be used for output.
+//  Selection       - QueryResultSelection - a selection containing the data to be displayed in the report.
+//  Template         - SpreadsheetDocument - Spreadsheet document containing the report template.
+//  ReportTable - SpreadsheetDocument - Spreadsheet document to output the string to.
+//  AreaName    - String - a name of the template area to be used for output.
 //
 Procedure OutputRespondentsRowToSpreadsheetDocument(Selection,Template,ReportTable,AreaName);
 	
@@ -982,7 +984,7 @@ Procedure OutputRespondentsRowToSpreadsheetDocument(Selection,Template,ReportTab
 EndProcedure
 
 // Parameters:
-//  Survey - DocumentRef.PollPurpose -  the survey that the report is being built for.
+//  Survey - DocumentRef.PollPurpose - a survey for which the report is created.
 //  
 // Returns:
 //   QueryResult
@@ -1040,9 +1042,9 @@ Function ExecuteQueryOnSurveysRespondentsWithSpecificCompositionOfRespondents(Su
 EndFunction
 
 // Parameters:
-//  Survey           - DocumentRef.PollPurpose -  the survey that the report is being built for.
-//  RespondentsType - CatalogRef -  an empty reference to the reference book whose elements are 
-//                    respondents for this survey.
+//  Survey           - DocumentRef.PollPurpose - a survey for which the report is created.
+//  RespondentsType - CatalogRef - an empty reference to the catalog the elements 
+//                    of which are respondents for this survey.
 // Returns:
 //   QueryResult
 //

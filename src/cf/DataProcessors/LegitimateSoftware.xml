@@ -13,7 +13,12 @@
 		</InternalInfo>
 		<Properties>
 			<Name>LegitimateSoftware</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Software license</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<UseStandardCommands>false</UseStandardCommands>
 			<DefaultForm>DataProcessor.LegitimateSoftware.Form.SoftwareLicenseCheck</DefaultForm>

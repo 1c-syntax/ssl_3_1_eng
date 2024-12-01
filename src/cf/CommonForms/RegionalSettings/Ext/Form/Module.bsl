@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -21,6 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Source = Parameters.Source;
 	If Source = "SSLAdministrationPanel" Then
 		Items.OK.Title = NStr("en = 'OK';");
+		Items.OK.ToolTipRepresentation = ToolTipRepresentation.None;
 		Items.ApplicationTimeZoneGroup.Visible = False;
 		Title = NStr("en = 'Accounting languages';");
 		AutoTitle = False;
@@ -182,11 +185,13 @@ EndProcedure
 &AtClient
 Procedure UseAdditionalLanguage1OnChange(Item)
 	Items.AdditionalLanguage1.Enabled = UseAdditionalLanguage1;
+	DataChanged = True;
 EndProcedure
 
 &AtClient
 Procedure UseAdditionalLanguage2OnChange(Item)
 	Items.AdditionalLanguage2.Enabled = UseAdditionalLanguage2;
+	DataChanged = True;
 EndProcedure
 
 &AtClient
@@ -199,6 +204,8 @@ Procedure DefaultLanguageOnChange(Item)
 			AdditionalLanguage2 = PreviousLanguage;
 		EndIf;
 	EndIf;
+	
+	DataChanged = True;
 	
 EndProcedure
 
@@ -217,7 +224,9 @@ Procedure AdditionalLanguage1OnChange(Item)
 			AdditionalLanguage2 = PreviousLanguage;
 		EndIf;
 	EndIf;
-
+	
+	DataChanged = True;
+	
 EndProcedure
 
 &AtClient
@@ -230,7 +239,9 @@ Procedure AdditionalLanguage2OnChange(Item)
 			DefaultLanguage = PreviousLanguage;
 		EndIf;
 	EndIf;
-
+	
+	DataChanged = True;
+	
 EndProcedure
 
 &AtClient
@@ -246,6 +257,7 @@ EndProcedure
 &AtClient
 Procedure AppTimeZoneOnChange(Item)
 	TimeZoneOffset = TimeZoneOffset(AppTimeZone, CurrentTimeOnTheClient());
+	DataChanged = True;
 EndProcedure
 
 #EndRegion
@@ -276,7 +288,7 @@ EndProcedure
 &AtClient
 Procedure AutoCloseInactiveForm()
 	
-	If Modified Then
+	If DataChanged Then
 		Items.OK.Title = NStr("en = 'OK';");
 		Return;
 	EndIf;
@@ -577,7 +589,7 @@ Function OldAndNewValuesOfConstants()
 	
 EndFunction
 
-// 
+// Time zone.
 
 &AtServer
 Procedure FillInTimeZones()
@@ -616,9 +628,9 @@ EndProcedure
 &AtClient
 Function CurrentTimeOnTheClient()
 
-	// 
+	// ACC:143-off To calculate the time offset for the form, CurrentDate is required.
 	Return CurrentDate();
-	//  
+	// ACC:143-on 
 	
 EndFunction
 

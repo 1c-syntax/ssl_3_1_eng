@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -18,6 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FillPropertyValues(Record, Parameters.KeyData);
 		Record.Read();
 		
+		OnReadAtServer(Record);
 		ValueToFormAttribute(Record, "Object");
 	EndIf;
 	
@@ -88,7 +91,7 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -148,7 +151,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// 
+	// If this is a new record.
 	If Not ValueIsFilled(Object.SourceRecordKey) Then
 		If Items.SourceAttributeName.ChoiceList.Count() > 0 Then
 			Object.SourceAttributeName = Items.SourceAttributeName.ChoiceList[0].Value;
@@ -187,7 +190,7 @@ EndProcedure
 
 &AtClient
 Procedure AfterWrite(WriteParameters)
-	// 
+	// For the cache update purposes.
 	ParametersStructure = UserRemindersClientServer.ReminderDetails(Object, True);
 	ParametersStructure.URL = WriteParameters.URL;
 	ParametersStructure.Insert("PictureIndex", 2);
@@ -213,7 +216,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -414,7 +417,7 @@ Procedure FillSourceAttributesList()
 	
 	AttributesWithDates = New Array;
 	
-	// 
+	// Populate with default values.
 	SourceMetadata = Object.Source.Metadata();	
 	For Each Attribute In SourceMetadata.Attributes Do
 		If Not StrStartsWith(Lower(Attribute.Name), Lower("Delete"))
@@ -423,7 +426,7 @@ Procedure FillSourceAttributesList()
 		EndIf;
 	EndDo;
 	
-	// 
+	// Get an overridden array of attributes.
 	SSLSubsystemsIntegration.OnFillSourceAttributesListWithReminderDates(Object.Source, AttributesWithDates);
 	UserRemindersOverridable.OnFillSourceAttributesListWithReminderDates(Object.Source, AttributesWithDates);
 	

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -21,10 +23,10 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// 
+	// Setting the current navigation table.
 	FillNavigationTable();
 	
-	// 
+	// Selecting the first wizard step.
 	SetNavigationNumber(1);
 	
 EndProcedure
@@ -138,10 +140,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// 
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// 
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -159,7 +161,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 		
 	EndIf;
 	
-	// 
+	// Set the default button.
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "NextCommand");
 	
 	If NextButton <> Undefined Then
@@ -189,7 +191,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	
-	// 
+	// Navigation event handlers.
 	If IsMoveNext Then
 		
 		NavigationRows = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber - 1));
@@ -198,7 +200,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 			
 			NavigationRow = NavigationRows[0];
 			
-			// 
+			// OnNavigationToNextPage handler.
 			If Not IsBlankString(NavigationRow.OnNavigationToNextPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -228,7 +230,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 			
 			NavigationRow = NavigationRows[0];
 			
-			// 
+			// OnNavigationToPreviousPage handler.
 			If Not IsBlankString(NavigationRow.OnSwitchToPreviousPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -266,7 +268,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		Return;
 	EndIf;
 	
-	// 
+	// OnOpen handler
 	If Not IsBlankString(NavigationRowCurrent.OnOpenHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, SkipPage, IsMoveNext)";
@@ -313,7 +315,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
 	
-	// 
+	// TimeConsumingOperationProcessing handler.
 	If Not IsBlankString(NavigationRowCurrent.TimeConsumingOperationHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, GoToNext)";

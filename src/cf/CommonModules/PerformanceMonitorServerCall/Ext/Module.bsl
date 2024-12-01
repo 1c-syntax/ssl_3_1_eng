@@ -1,22 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
 // Parameters:
 //  MeasurementsToWrite - Structure:
 //   * CompletedMeasurements - Map of KeyAndValue:
-//      ** Key - UUID -  the unique identifier of the measurement.
+//      ** Key - UUID - a measurement UUID.
 //      ** Value - Map
 //   * UserAgentInformation - String
 //
 // Returns:
-//   Number - 
+//   Number - a current recording period on the server if measurements were recorded, in seconds.
 //
 Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
 	
@@ -104,7 +106,7 @@ Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
 		NewRecord.RecordDateLocal = RecordDateLocal;
 		NewRecord.Comment = DefaultCommentLine;
 		
-		// 
+		// Record nested measurements.
 		NestedMeasurements = Measurement.Value["NestedMeasurements"];
 		If NestedMeasurements = Undefined Then
 			Continue;
@@ -143,7 +145,7 @@ Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
 			NewRecord.RecordDateLocal = RecordDateLocal;
 			NewRecord.Comment = StepCommentString;
 		EndDo;
-		// 
+		// Committing the key operation's weighted time.
 		If NestedMeasurements.Count() > 0 Then
 			KeyOperationWeighted = KeyOperation + ".Specific";
 			KeyOperationWeightedRef = PerformanceMonitorCached.GetKeyOperationByName(KeyOperationWeighted, True);
@@ -186,10 +188,10 @@ Function RecordKeyOperationsDuration(MeasurementsToWrite) Export
 	
 EndFunction
 
-// Performance evaluation parameters
+// Performance monitor parameters
 //
 // Returns:
-//   Structure - 
+//   Structure - parameters obtained from the server.
 //
 Function GetParametersAtServer() Export
 	

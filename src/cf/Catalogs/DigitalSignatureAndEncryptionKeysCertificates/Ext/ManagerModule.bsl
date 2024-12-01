@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns the details of an object that is not recommended to edit
-// by processing a batch update of account details.
+// Returns the object attributes that are not recommended to be edited
+// using a bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String
@@ -56,9 +58,9 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.ReportsOptions
 
-// Defines a list of report commands.
+// Defines the list of report commands.
 //
 // Parameters:
 //  ReportsCommands - See ReportsOptionsOverridable.BeforeAddReportCommands.ReportsCommands
@@ -132,10 +134,10 @@ EndProcedure
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Update handlers.
 
-// Registers objects
-// that need to be updated in the register on the exchange plan for updating the information Database.
+// Registers objects, 
+// for which it is necessary to update register records on the InfobaseUpdate exchange plan.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -188,7 +190,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// 
+// Update register records.
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 	Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue,
@@ -237,7 +239,7 @@ Procedure ProcessCertificatesRequestsNotificationsAndValidityPeriods(Selection)
 
 			CertificateObject = Selection.Ref.GetObject(); // CatalogObject.DigitalSignatureAndEncryptionKeysCertificates
 			
-			// 
+			// Transfer certificate update notifications into the information register.
 			If CertificateObject.DeleteUserNotifiedOfExpirationDate Then
 				AlertRecordset = InformationRegisters.CertificateUsersNotifications.CreateRecordSet();
 				AlertRecordset.Filter.Certificate.Set(Selection.Ref);
@@ -267,7 +269,7 @@ Procedure ProcessCertificatesRequestsNotificationsAndValidityPeriods(Selection)
 				WriteObject = True;
 			EndIf;
 			
-			// 
+			// Transfer request data into the information register.
 			If CertificateIssueRequestAvailable
 			   And ValueIsFilled(CertificateObject.DeleteStatementStatement) Then
 				
@@ -347,7 +349,7 @@ Procedure ProcessCertificatesRequestsNotificationsAndValidityPeriods(Selection)
 		Except
 
 			RollbackTransaction();
-			// 
+			// If a certificate cannot be processed, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			InfobaseUpdate.WriteErrorToEventLog(

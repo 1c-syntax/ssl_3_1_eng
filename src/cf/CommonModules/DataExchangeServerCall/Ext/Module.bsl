@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Sets the value of the constant dateappearance of re-used Valuespro.
-// The current date of the computer (server) is used as the set value.
-// When the value of this constant is changed, the re-used values 
-// for the data exchange subsystem become irrelevant and require reinitialization.
+// Sets the ORMCachedValuesRefreshDate constant value.
+// The value is set to the current date of the computer (server).
+// On changing the value of this constant, cached values become outdated 
+// for the data exchange subsystem and require re-initialization.
 // 
 Procedure ResetObjectsRegistrationMechanismCache() Export
 	
@@ -23,18 +25,18 @@ EndProcedure
 
 #Region Internal
 
-// Returns the status of the background task.
-// Used to implement the logic of long-running operations.
+// Returns background job state.
+// This function is used to implement long-running operations.
 //
 // Parameters:
-//  JobID - UUID -  ID of the background task to get
-//                                                   the status for.
+//  JobID - UUID - ID of the background job to receive
+//                                                   state for.
 // 
 // Returns:
-//  String - :
-//   
-//   
-//   
+//  String - The status of the background job:
+//   Active - The job is running.
+//   Completed - The job completed successfully.
+//   Failed - The job failed or was canceled by the user.
 //
 Function JobState(Val JobID) Export
 	
@@ -49,7 +51,7 @@ Function JobState(Val JobID) Export
 	Return Result;
 EndFunction
 
-// Deletes the data synchronization setting.
+// Deletes data synchronization settings item.
 //
 Procedure DeleteSynchronizationSetting(Val InfobaseNode) Export
 	
@@ -61,25 +63,25 @@ EndProcedure
 
 #Region Private
 
-// Performs the data exchange process separately for each exchange setup line.
-// The data exchange process consists of two stages:
-// - initialization of the exchange-preparation of the data exchange subsystem for the exchange process
-// - data exchange        - the process of reading the message file and then uploading this data to the is 
-//                          or uploading changes to the message file.
-// The initialization stage is performed once per session and is stored in the session cache on the server 
-// until the session is restarted or the data exchange subsystem resets reused values.
-// Reused values are reset when data changes that affect the data exchange process
-// (transport settings, exchange execution settings, selection settings on exchange plan nodes).
+// Executes data exchange process separately for each exchange setting line.
+// Data exchange process consists of two stages:
+// - Exchange initialization - preparation of data exchange subsystem to perform data exchange
+// - Data exchange - a process of reading a message file and then importing this data to infobase 
+//                          or exporting changes to the message file.
+// The initialization stage is performed once per session and is saved to the session cache at server 
+// until the session is restarted or cached values of data exchange subsystem are reset.
+// Cached values are reset when data that affects data exchange process is changed
+// (transport settings, exchange settings, filter settings on exchange plan nodes).
 //
-// The exchange can be performed completely for all lines of the script,
-// or it can be performed for a separate line of the PM exchange script.
+// The exchange can be executed completely for all scenario lines
+// or can be executed for a single row of the exchange scenario TS.
 //
 // Parameters:
-//  Cancel                     - Boolean -  failure flag; raised if an error occurs during script execution.
-//  ExchangeExecutionSettings - CatalogRef.DataExchangeScenarios -  a reference
-//                              list element that will be used for data exchange.
-//  LineNumber               - Number -  number of the line that will be used for data exchange.
-//                              If not specified, then the data exchange will be executed for all rows.
+//  Cancel                     - Boolean - a cancellation flag. It appears when scenario execution errors occur.
+//  ExchangeExecutionSettings - CatalogRef.DataExchangeScenarios - a catalog item
+//                              whose attribute values are used to perform data exchange.
+//  LineNumber               - Number - a number of the line to use for performing data exchange.
+//                              If it is not specified, all lines are involved in data exchange.
 // 
 Procedure ExecuteDataExchangeByDataExchangeScenario(Cancel, ExchangeExecutionSettings, LineNumber = Undefined) Export
 	
@@ -87,7 +89,7 @@ Procedure ExecuteDataExchangeByDataExchangeScenario(Cancel, ExchangeExecutionSet
 	
 EndProcedure
 
-// Records the successful execution of data exchange in the system.
+// Records that data exchange is completed.
 //
 Procedure RecordDataExportInTimeConsumingOperationMode(Val InfobaseNode, Val StartDate) Export
 	
@@ -109,7 +111,7 @@ Procedure RecordDataExportInTimeConsumingOperationMode(Val InfobaseNode, Val Sta
 	
 EndProcedure
 
-// Detects an emergency termination of data exchange.
+// Records data exchange crash.
 //
 Procedure WriteExchangeFinishWithError(Val InfobaseNode,
 												Val ActionOnExchange,
@@ -124,11 +126,11 @@ Procedure WriteExchangeFinishWithError(Val InfobaseNode,
 											ErrorMessageString);
 EndProcedure
 
-// Returns an indication that the register recordset does not contain data.
+// Returns the flag of whether a register record set is empty.
 //
 Function RegisterRecordSetIsEmpty(RecordStructure, RegisterName) Export
 	
-	// 
+	// Create a set of register records.
 	RecordSet = InformationRegisters[RegisterName].CreateRecordSet(); // InformationRegisterRecordSet
 	
 	For Each FilterElement In RecordSet.Filter Do
@@ -144,7 +146,7 @@ Function RegisterRecordSetIsEmpty(RecordStructure, RegisterName) Export
 	
 EndFunction
 
-// Returns the key of the log message for the action string.
+// Returns the event log message key by the specified action string.
 //
 Function EventLogMessageKeyByActionString(InfobaseNode, ActionOnStringExchange) Export
 	
@@ -154,7 +156,7 @@ Function EventLogMessageKeyByActionString(InfobaseNode, ActionOnStringExchange) 
 	
 EndFunction
 
-// Returns a structure with selection data for the log.
+// Returns the structure that contains event log filter data.
 //
 Function EventLogFilterData(InfobaseNode, Val ActionOnExchange) Export
 	
@@ -177,7 +179,7 @@ Function EventLogFilterData(InfobaseNode, Val ActionOnExchange) Export
 	
 EndFunction
 
-// Returns an array of all reference types defined in the configuration.
+// Returns an array of all reference types available in the configuration.
 //
 Function AllConfigurationReferenceTypes() Export
 	
@@ -193,16 +195,16 @@ Function DataExchangeOption(Val Peer) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Data exchange in a privileged mode.
 
-// Retrieves a list of metadata for node objects that are not allowed to be uploaded.
-// Uploading is not allowed if the table is marked as non-Upload in the rules for registering exchange plan objects.
+// Returns a list of metadata objects prohibited to export.
+// Export is prohibited if a table is marked as DoNotExport in the rules of exchange plan objects registration.
 //
 // Parameters:
-//     InfobaseNode - ExchangePlanRef -  link to the exchange plan node being analyzed.
+//     InfobaseNode - ExchangePlanRef - a reference to the exchange plan node being analyzed.
 //
 // Returns:
-//     Array - 
+//     Array - containing full metadata objects names.
 //
 Function NotExportedNodeObjectsMetadataNames(Val InfobaseNode) Export
 	Result = New Array;
@@ -218,11 +220,11 @@ Function NotExportedNodeObjectsMetadataNames(Val InfobaseNode) Export
 	Return Result;
 EndFunction
 
-// Checks whether the specified exchange node is the main one.
+// Checks if the specified exchange node is the master node.
 //
 // Parameters:
-//   InfobaseNode - ExchangePlanRef -  link to the exchange plan node
-//       to check whether it is the main one or not.
+//   InfobaseNode - ExchangePlanRef - a reference to the exchange plan node
+//       to be checked if it is master node.
 //
 // Returns:
 //   Boolean
@@ -233,7 +235,7 @@ Function IsMasterNode(Val InfobaseNode) Export
 	
 EndFunction
 
-// Creates a request to clear permissions for the node (on deletion).
+// Creates a query for clearing node permissions (on deleting).
 //
 Function RequestToClearPermissionsToUseExternalResources(Val InfobaseNode) Export
 	
@@ -260,7 +262,7 @@ Procedure DownloadExtensions() Export
 		DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("DownloadingExtensions", True);
 		SetPrivilegedMode(False);
 		
-		// 
+		// Updating object registration rules before importing data.
 		DataExchangeServer.UpdateDataExchangeRules();
 		
 		TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(InfobaseNode);

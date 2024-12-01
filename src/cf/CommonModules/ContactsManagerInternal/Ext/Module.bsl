@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
@@ -46,14 +48,14 @@ EndFunction
 // Searches for contacts with email addresses.
 // 
 // Parameters:
-//  SearchString - String -  search text
+//  SearchString - String - search text
 //  ContactsDetails - Array of See NewContactDescription
 // Returns:
 //   ValueTable:
-//   * Contact               - DefinedType.InteractionContact -  was found contact.
-//   * Description          - String -  name of the contact.
-//   * OwnerDescription1 - String -  name of the contact owner.
-//   * Presentation         - String -  email address.
+//   * Contact               - DefinedType.InteractionContact - a found contact.
+//   * Description          - String - contact name.
+//   * OwnerDescription1 - String - a contact owner name.
+//   * Presentation         - String - an email address.
 //   
 //
 Function FindContactsWithEmailAddresses(SearchString, ContactsDetails) Export
@@ -80,7 +82,7 @@ Function FindContactsWithEmailAddresses(SearchString, ContactsDetails) Export
 	For Each ContactDescription In ContactsDetails Do
 		
 		If ContactDescription.Name = "Users" Then
-			Continue; // 
+			Continue; // Skip.
 		EndIf;
 			
 		InputFieldsConditionByString = "";
@@ -147,16 +149,16 @@ Function FindContactsWithEmailAddresses(SearchString, ContactsDetails) Export
 EndFunction
 
 
-// A new description of the contact with the email addresses to search for.
+// New contact details with email addresses for search.
 //
 // Returns:
 //   Structure:
-//     * Type                               - Type    -  type of contact link.
-//     * Name                               - String -  name of the contact type as defined in the metadata.
-//     * HasOwner                      - Boolean -  indicates that the contact has an owner.
-//     * ContactPresentationAttributeName - String -  name of the contact details that the contact view will be received from
-//                                                    . If not specified,
-//                                                    the standard name is used.
+//     * Type                               - Type    - a contact reference type.
+//     * Name                               - String - a contact type name as it is defined in metadata.
+//     * HasOwner                      - Boolean - indicates that the contact has an owner.
+//     * ContactPresentationAttributeName - String - a contact attribute name, from which a contact presentation
+//                                                    will be received. If it is not specified, the standard
+//                                                    Description attribute is used.
 //
 Function NewContactDescription() Export
 	
@@ -170,7 +172,7 @@ Function NewContactDescription() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See ObjectsVersioningOverridable.OnPrepareObjectData.
 Procedure OnPrepareObjectData(Object, AdditionalAttributes) Export 
@@ -192,7 +194,7 @@ EndProcedure
 // See ImportDataFromFileOverridable.OnDefineCatalogsForDataImport.
 Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 	
-	// 
+	// Importing to the countries classifier is denied.
 	TableRow = CatalogsToImport.Find(Metadata.Catalogs.WorldCountries.FullName(), "FullName");
 	If TableRow <> Undefined Then 
 		CatalogsToImport.Delete(TableRow);
@@ -284,7 +286,7 @@ Procedure OnDefineObjectsWithSearchForDuplicates(Objects) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.When defining settings
+// See also InfobaseUpdateOverridable.OnDefineSettings
 //
 // Parameters:
 //  Objects - Array of MetadataObject
@@ -498,7 +500,7 @@ Procedure FormattingAutoCompleteResults(ChoiceData, Val Text, HighlightOutdatedA
 	
 	ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
 	
-	// 
+	// Search list appearance.
 	SearchTextFragments = StrSplit(Text, " ");
 	For Each DataString1 In ChoiceData Do
 		
@@ -525,7 +527,7 @@ Procedure FormattingAutoCompleteResults(ChoiceData, Val Text, HighlightOutdatedA
 
 EndProcedure
 
-// Function-constructor of the test result.
+// A function creating the check result.
 // 
 // Returns:
 //   Structure:
@@ -714,7 +716,7 @@ Procedure CorrectContactInformationKindsInBackground(Val CheckParameters, Storag
 		
 		LastObjectWithIssue = ObjectsWithIssues.Get(ObjectsWithIssues.Count() - 1).ObjectWithIssue;
 		TotalObjectCount = TotalObjectCount + ObjectsWithIssues.Count();
-		// 
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		TotalObjectsCorrected = TotalObjectsCorrected + CorrectContactInformationKindsBatch(ObjectsWithIssues, Validation);
 		ObjectsWithIssues = ModuleAccountingAudit.ObjectsWithIssues(Validation, LastObjectWithIssue);
 	
@@ -727,10 +729,10 @@ Procedure CorrectContactInformationKindsInBackground(Val CheckParameters, Storag
 	
 EndProcedure
 
-// Performs verification and correction of incorrect types of contact information.
+// Checks and patches incorrect contact information kinds.
 //
 // Parameters:
-//   Validation            - CatalogRef.AccountingCheckRules -  an executable test.
+//   Validation            - CatalogRef.AccountingCheckRules - a check being executed.
 //   CheckParameters   - See AccountingAudit.IssueDetails.CheckParameters
 //
 Procedure CheckContactInformationKinds(Validation, CheckParameters) Export
@@ -818,7 +820,7 @@ Procedure UpdateExistingWorldCountries() Export
 	Filter = New Structure("Code");
 	ModuleAddressManager = Common.CommonModule("AddressManager");
 	
-	// 
+	// Cannot perform comparison in the query due to possible database case-insensitivity.
 	For Each ClassifierRow In ModuleAddressManager.TableOfClassifier() Do
 		Filter.Code = ClassifierRow.Code;
 		Selection = Catalogs.WorldCountries.Select(,, Filter);
@@ -865,7 +867,7 @@ EndProcedure
 
 Procedure UpdatePhoneExtensionSettings() Export
 	
-	// 
+	// Sets the PhoneWithExtensionNumber flag for backward compatibility.
 	Query = New Query;
 	Query.Text = 
 		"SELECT
@@ -945,7 +947,7 @@ Procedure SetUsageFlagValue() Export
 	
 EndProcedure
 
-// Event handler for Contactinformationprocessingcheckfill
+// ContactInformationValidationProcessing event handler
 // 
 // Parameters:
 //   Source - CatalogObject
@@ -968,14 +970,14 @@ Procedure ContactInformationValidationProcessing(Source, Cancel, CheckedAttribut
 		Return;
 	EndIf;
 	
-	// 
+	// Contact information is attached to an object.
 	Validation = New Structure;
 	Validation.Insert("ContactInformation", Undefined);
 	Validation.Insert("IsFolder", False);
 	FillPropertyValues(Validation, Source);
 	
 	If Validation.ContactInformation = Undefined Or Validation.IsFolder Then
-		Return; // 
+		Return; // "Contact information" tabular section is missing in the object.
 	EndIf;
 	
 	ContactInformationKinds = RequiredKinds(Source.Ref);
@@ -1105,13 +1107,13 @@ Function EventLogEvent() Export
 	
 EndFunction
 
-Function ContactsByPresentation(Presentation, ExpectedKind, SplitByFields = False) Export
+Function ContactsByPresentation(Presentation, ExpectedKind, SplitByFields = False, RecognizeAddress = True) Export
 	
 	ExpectedType = ContactsManagerInternalCached.ContactInformationKindType(ExpectedKind);
 	
 	If ExpectedType = Enums.ContactInformationTypes.Address Then
 		
-		Return GenerateAddressByPresentation(Presentation, SplitByFields);
+		Return GenerateAddressByPresentation(Presentation, SplitByFields, RecognizeAddress);
 		
 	ElsIf ExpectedType = Enums.ContactInformationTypes.Phone
 		Or ExpectedType = Enums.ContactInformationTypes.Fax Then
@@ -1127,7 +1129,7 @@ Function ContactsByPresentation(Presentation, ExpectedKind, SplitByFields = Fals
 	
 EndFunction
 
-Function GenerateAddressByPresentation(Presentation, SplitByFields = False)
+Function GenerateAddressByPresentation(Presentation, SplitByFields = False, RecognizeAddress = True)
 	
 	HasAddressManagerClientServer = ContactsManagerInternalCached.AreAddressManagementModulesAvailable();
 	
@@ -1174,8 +1176,12 @@ Function GenerateAddressByPresentation(Presentation, SplitByFields = False)
 		
 		If Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
 			
-			ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
-			AddressOptions = ModuleAddressClassifierInternal.RecognizeAddress(AnalysisData, Presentation, SplitByFields);
+			If RecognizeAddress Then
+				ModuleAddressClassifierInternal = Common.CommonModule("AddressClassifierInternal");
+				AddressOptions = ModuleAddressClassifierInternal.RecognizeAddress(AnalysisData, Presentation, SplitByFields);
+			Else
+				AddressOptions = Undefined;
+			EndIf;
 			
 			If AddressOptions = Undefined Then
 				
@@ -1295,7 +1301,7 @@ Procedure DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData)
 	
 EndProcedure
 
-// 
+// Splits an address string into address lines.
 //
 // Returns:
 //   See AddressParts
@@ -1387,7 +1393,7 @@ Function BusinessObjectsTypes()
 	
 EndFunction
 
-// Function-constructor of a table containing an address, where each row is a part of the address.
+// A function creating a table that contains an address where each row is a part of the address.
 //
 // Returns:
 //  ValueTable:
@@ -1421,7 +1427,7 @@ EndFunction
 
 Function TextWordsAsTable(Val Text, Val Separators = Undefined)
 	
-	// 
+	// Deleting special characters (dots and numbers) from the text.
 	Text = StrReplace(Text, "№", "");
 	
 	WordBeginning = 0;
@@ -1455,7 +1461,7 @@ Function TextWordsAsTable(Val Text, Val Separators = Undefined)
 	Return Result;
 EndFunction
 
-// Fragment table constructor function
+// A function creating the part table
 // 
 // Returns:
 //  ValueTable:
@@ -1635,7 +1641,7 @@ Function AddressPresentation(Val Address, Val InformationKind)
 				For IndexOf = 0 To PresentationAsArray.UBound() Do
 					PresentationAsArray[IndexOf] = TrimAll(PresentationAsArray[IndexOf]);
 				EndDo;
-				PresentationAsArray.Delete(0); // 
+				PresentationAsArray.Delete(0); // Remove the country.
 				Presentation = StrConcat(PresentationAsArray, ", ");
 			EndIf;
 		EndIf;
@@ -1900,7 +1906,7 @@ Procedure UpdateContactInformationForLists() Export
 				|	ContactInformation.Presentation TOTALS BY Kind";
 			
 			Query.SetParameter("ContactInformation", ContactInformation);
-			QueryResult = Query.Execute(); // 
+			QueryResult = Query.Execute(); // @skip-check query-in-loop - Multi-table queries.
 			SelectionKind = QueryResult.Select(QueryResultIteration.ByGroups);
 			
 			While SelectionKind.Next() Do
@@ -1999,7 +2005,7 @@ Function ObjectsContainingKindForList()
 
 EndFunction
 
-// LongDesc
+// Details
 // 
 // Parameters:
 //   ContactInformationKind - FormDataStructure
@@ -2062,7 +2068,7 @@ Function HasRightToAdd() Export
 	Return AccessRight("Insert", Metadata.Catalogs.WorldCountries);
 EndFunction
 
-Procedure AddContactInformationForRef(Ref, ValueOrPresentation, ContactInformationKind, Date = Undefined, Replace = True) Export
+Procedure AddContactInformationForRef(Ref, ValueOrPresentation, ContactInformationKind, Date = Undefined, Replace = True, RecognizeAddress = True) Export
 	
 	MetadataObject = Metadata.FindByType(TypeOf(Ref));
 	
@@ -2076,7 +2082,7 @@ Procedure AddContactInformationForRef(Ref, ValueOrPresentation, ContactInformati
 		Block.Lock();
 		Object = Ref.GetObject();
 		Object.Lock();
-		AddContactInformation(Object, ValueOrPresentation, ContactInformationKind, Date, Replace);
+		AddContactInformation(Object, ValueOrPresentation, ContactInformationKind, Date, Replace, RecognizeAddress);
 		
 		Object.Write();
 		CommitTransaction();
@@ -2094,7 +2100,7 @@ EndProcedure
 //   Date - Undefined
 //   Replace - Boolean
 // 
-Procedure AddContactInformation(Object, ValueOrPresentation, ContactInformationKind, Val Date, Val Replace) Export
+Procedure AddContactInformation(Object, ValueOrPresentation, ContactInformationKind, Val Date, Val Replace, RecognizeAddress = True) Export
 	
 	ContactInformation                  = Object.ContactInformation;
 	IsXMLContactInformation           = ContactsManagerClientServer.IsXMLContactInformation(ValueOrPresentation);
@@ -2132,7 +2138,7 @@ Procedure AddContactInformation(Object, ValueOrPresentation, ContactInformationK
 			Presentation = ContactInformationPresentation(ValueOrPresentation);
 			
 		Else
-			ObjectOfContactInformation = ContactsByPresentation(ValueOrPresentation, ContactInformationKindProperties.Type);
+			ObjectOfContactInformation = ContactsByPresentation(ValueOrPresentation, ContactInformationKindProperties.Type, ,RecognizeAddress);
 			Value = ToJSONStringStructure(ObjectOfContactInformation);
 			FieldValues = ContactsManager.ContactInformationToXML(Value);
 			Presentation = ValueOrPresentation;
@@ -2158,7 +2164,7 @@ Procedure AddContactInformation(Object, ValueOrPresentation, ContactInformationK
 				ContactInformationRow = Object.ContactInformation.Find(ValueOrPresentation, "Presentation");
 			EndIf;
 			If ContactInformationRow <> Undefined Then
-				Return; // 
+				Return; // Only one value of this contact information kind is allowed.
 			EndIf;
 		EndIf;
 		ContactInformationRow = ContactInformation.Add();
@@ -2268,7 +2274,7 @@ Procedure SetObjectContactInformationForRef(Ref, Val ContactInformation, Metadat
 		Object.Lock();
 		
 		If ContactInformation.Count() = 0 Then
-			// 
+			// Clearing contact information using a blank table.
 			Object.ContactInformation.Clear();
 		Else
 			SetObjectContactInformation(Object, ContactInformation, MetadataObject, Replace);
@@ -2380,7 +2386,7 @@ EndFunction
 
 Procedure FillContactInformationTechnicalFields(ContactInformationRow, Object, ContactInformationType) Export
 	
-	// 
+	// Filling in additional attributes of the tabular section.
 	If ContactInformationType = Enums.ContactInformationTypes.Email Then
 		FillTabularSectionAttributesForEmailAddress(ContactInformationRow, Object);
 		
@@ -2422,15 +2428,15 @@ Procedure FillObjectContactInformationFromString(ObjectContactInformationRow, Pe
 	
 EndProcedure
 
-// Fills in additional details of the "Contact information" table for the address.
+// Fills the additional attributes of the "Contact information" tabular section for an address.
 //
 // Parameters:
-//    LineOfATabularSection - LineOfATabularSection -  the line to fill in in the "Contact information" table part.
-//    Source-object Xdto-contact information.
+//    LineOfATabularSection - LineOfATabularSection - a row of the "Contact information" tabular section to be filled.
+//    Source             - XDTOObject  - contact information.
 //
 Procedure FillTabularSectionAttributesForAddress(LineOfATabularSection, Address)
 	
-	// 
+	// Default values.
 	LineOfATabularSection.Country = "";
 	LineOfATabularSection.State = "";
 	LineOfATabularSection.City  = "";
@@ -2446,11 +2452,11 @@ Procedure FillTabularSectionAttributesForAddress(LineOfATabularSection, Address)
 	
 EndProcedure
 
-// Fills in additional details of the "Contact information" tabular part for the email address.
+// Fills the additional attributes of the "Contact information" tabular section for an email address.
 //
 // Parameters:
-//    LineOfATabularSection - LineOfATabularSection -  the line to fill in in the "Contact information" table part.
-//    Source             - XDTODataObject  -  contact information.
+//    LineOfATabularSection - LineOfATabularSection - a row of the "Contact information" tabular section to be filled.
+//    Source             - XDTODataObject  - contact information.
 //
 Procedure FillTabularSectionAttributesForEmailAddress(LineOfATabularSection, Source)
 	
@@ -2467,11 +2473,11 @@ Procedure FillTabularSectionAttributesForEmailAddress(LineOfATabularSection, Sou
 	
 EndProcedure
 
-// Fills in additional details of the "Contact information" table for phone and Fax.
+// Fills the additional attributes of the "Contact information" tabular section for phone and fax numbers.
 //
 // Parameters:
-//    LineOfATabularSection - LineOfATabularSection -  the line to fill in in the "Contact information" table part.
-//    Source-object Xdto-contact information.
+//    LineOfATabularSection - LineOfATabularSection - a row of the "Contact information" tabular section to be filled.
+//    Source             - XDTOObject  - contact information.
 //
 Procedure FillTabularSectionAttributesForPhone(LineOfATabularSection, Phone)
 	
@@ -2479,7 +2485,7 @@ Procedure FillTabularSectionAttributesForPhone(LineOfATabularSection, Phone)
 		Return;
 	EndIf;
 	
-	// 
+	// Default values.
 	LineOfATabularSection.PhoneNumberWithoutCodes = "";
 	LineOfATabularSection.PhoneNumber         = "";
 	
@@ -2506,16 +2512,16 @@ Procedure FillTabularSectionAttributesForPhone(LineOfATabularSection, Phone)
 	
 EndProcedure
 
-// Fills in additional details of the "Contact information" table for phone and Fax.
+// Fills the additional attributes of the "Contact information" tabular section for phone and fax numbers.
 //
 // Parameters:
-//    LineOfATabularSection - LineOfATabularSection -  the line to fill in in the "Contact information" table part.
+//    LineOfATabularSection - LineOfATabularSection - a row of the "Contact information" tabular section to be filled.
 //    Source             - Structure
-//                         - XDTODataObject -  contact information.
+//                         - XDTODataObject - contact information.
 //
 Procedure FillTabularSectionAttributesForWebPage(LineOfATabularSection, Source)
 	
-// 
+// Default values.
 	LineOfATabularSection.ServerDomainName = "";
 	
 	If TypeOf(Source) = Type("Structure") Then
@@ -2535,7 +2541,7 @@ Procedure FillTabularSectionAttributesForWebPage(LineOfATabularSection, Source)
 		
 	EndIf;
 	
-	// 
+	// Delete the protocol.
 	Position = StrFind(AddressAsString, "://");
 	ServerAddress = ?(Position = 0, AddressAsString, Mid(AddressAsString, Position + 3));
 	
@@ -2543,13 +2549,13 @@ Procedure FillTabularSectionAttributesForWebPage(LineOfATabularSection, Source)
 	
 EndProcedure
 
-// Removes separators in the phone number.
+// Removes separators from a phone number.
 //
 // Parameters:
-//    PhoneNumber - String -  phone or Fax number.
+//    PhoneNumber - String - a phone or fax number.
 //
 // Returns:
-//     String - 
+//     String - a phone or fax number without separators.
 //
 Function RemoveSeparatorsFromPhoneNumber(Val PhoneNumber)
 	
@@ -2625,7 +2631,7 @@ EndProcedure
 
 Function ConvertStringToFieldsList(FieldsString) Export
 	
-	// 
+	// Conversion of XML serialization is not required.
 	If ContactsManagerClientServer.IsXMLContactInformation(FieldsString) Then
 		Return FieldsString;
 	EndIf;
@@ -2696,7 +2702,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	If ContactsManagerInternalCached.IsLocalizationModuleAvailable() 
 		And ContactsManagerClientServer.IsXMLContactInformation(FieldValues) Then
 		
-			// 
+			// Common format of contact information.
 			ModuleContactsManagerLocalization = Common.CommonModule("ContactsManagerLocalization");
 			Return ModuleContactsManagerLocalization.ContactsFromXML(FieldValues, ExpectedType);
 		
@@ -2704,7 +2710,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	
 	Data = ContactsManagerClientServer.NewContactInformationDetails(ExpectedType);
 	
-	// 
+	// Get from key—pair values.
 	FieldsValueList = Undefined;
 	If TypeOf(FieldValues)=Type("ValueList") Then
 		FieldsValueList = FieldValues;
@@ -2736,7 +2742,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 			
 		EndDo;
 		
-		// 
+		// Presentation with priorities.
 		If Not IsBlankString(Presentation) Then
 			Data.value = Presentation;
 		ElsIf ValueIsFilled(PresentationField) Then
@@ -2748,10 +2754,10 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 		Return Data;
 	EndIf;
 	
-	// 
+	// Parsing from the presentation.
 	
-	//  
-	// 
+	// Digit groups separated by non-digits: country code, area code, phone number, and extension. 
+	// The extension includes leading and trailing non-whitespace characters.
 	Position = 1;
 	Data.CountryCode  = FindDigitSubstring(Presentation, Position);
 	CityBeginning = Position;
@@ -2771,10 +2777,10 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	EndIf;
 	Data.ExtNumber = TrimAll(PhoneExtension);
 	
-	// 
+	// Fix possible errors.
 	If IsBlankString(Data.Number) Then
 		If StrStartsWith(TrimL(Presentation), "+") Then
-			// 
+			// An attempt to specify the area code explicitly is detected. Leaving the area code "as is".
 			Data.AreaCode  = "";
 			Data.Number      = RemoveNonDigitCharacters(Mid(Presentation, CityBeginning));
 			Data.ExtNumber = "";
@@ -2820,7 +2826,7 @@ Function FindDigitSubstring(Text, StartPosition = Undefined, AllowedBesidesNumbe
 		StartPosition = StartPosition + 1;
 	EndDo;
 	
-	// 
+	// Discarding possible hanging separators on the right.
 	Return RemoveNonDigitCharacters(Result, AllowedBesidesNumbers, False);
 	
 EndFunction
@@ -2829,12 +2835,12 @@ Function RemoveNonDigitCharacters(Text, AllowedBesidesNumbers = "", Direction = 
 	
 	Length = StrLen(Text);
 	If Direction Then
-		// 
+		// Left trim.
 		IndexOf = 1;
 		End  = 1 + Length;
 		Step    = 1;
 	Else
-		//     
+		// Right trim.    
 		IndexOf = Length;
 		End  = 0;
 		Step    = -1;
@@ -2850,11 +2856,11 @@ Function RemoveNonDigitCharacters(Text, AllowedBesidesNumbers = "", Direction = 
 	EndDo;
 	
 	If Direction Then
-		// 
+		// Left trim.
 		Return Right(Text, Length - IndexOf + 1);
 	EndIf;
 	
-	// 
+	// Right trim.
 	Return Left(Text, IndexOf);
 	
 EndFunction
@@ -2951,7 +2957,7 @@ Function ToJSONStringStructure(Value) Export
 	
 	For Each StructureItem In Value Do
 		If IsBlankString(StructureItem.Value) And StructureItem.Value <> "" Then
-			// 
+			// Converting undefined, NULL, and insignificant characters to an empty string.
 			Value[StructureItem.Key] = "";
 		ElsIf TypeOf(StructureItem.Value) = Type("Array") Then
 			
@@ -3010,11 +3016,11 @@ EndFunction
 //                          - EnumRef.ContactInformationTypes
 //
 // Returns:
-//   
+//   See AddressManagerClientServer.NewContactInformationDetails
 //
 Function JSONToContactInformationByFields(Val Value, ContactInformationType) Export
 	
-	Value = StrReplace(Value, "\R\N", "\r\n"); // 
+	Value = StrReplace(Value, "\R\N", "\r\n"); // Fix newline characters.
 	
 	Result = New Structure();
 	
@@ -3046,7 +3052,7 @@ Function JSONToContactInformationByFields(Val Value, ContactInformationType) Exp
 	
 EndFunction
 
-Function ContactInformationTypeFromRow(Val ContactInformationTypeAsString)
+Function ContactInformationTypeFromRow(Val ContactInformationTypeAsString) Export
 	
 	Result = New Map;
 	Result.Insert("Address", PredefinedValue("Enum.ContactInformationTypes.Address"));

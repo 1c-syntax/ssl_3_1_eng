@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -34,14 +36,14 @@ EndProcedure
 
 #Region Private
 
-// Replaces the attachment image ID in the HTML text with the file path and creates an HTML document object.
+// Replaces attachment picture IDs with file path in the HTML text and creates an HTML document object.
 //
 // Parameters:
-//  HTMLText     - String -  the HTML text being processed.
+//  HTMLText     - String - an HTML text to process.
 //  TableOfFiles - ValueTable 
 //
 // Returns:
-//  HTMLDocument   - 
+//  HTMLDocument   - Created HTML document.
 //
 &AtServerNoContext
 Function ReplacePicturesIDsWithPathToFiles(HTMLText, TableOfFiles)
@@ -84,13 +86,13 @@ Function ReplacePicturesIDsWithPathToFiles(HTMLText, TableOfFiles)
 
 EndFunction
 
-// Retrieves the Dochtml object from the HTML text.
+// Receives the HTMLDocument object from an HTML text.
 //
 // Parameters:
 //  HTMLText - String
 //
 // Returns:
-//   HTMLDocument - 
+//   HTMLDocument - Created HTML document.
 //
 &AtServerNoContext
 Function HTMLDocumentObjectFromHTMLText(HTMLText)
@@ -118,13 +120,13 @@ Function HTMLDocumentObjectFromHTMLText(HTMLText)
 
 EndFunction
 
-// Retrieves HTML text from the Dochtml object.
+// Receives an HTML text from the HTMLDocument object.
 //
 // Parameters:
-//  HTMLDocument - HTMLDocument -  the document from which the text will be extracted.
+//  HTMLDocument - HTMLDocument - a document, from which the text will be extracted.
 //
 // Returns:
-//   String - 
+//   String - HTML text.
 //
 &AtServerNoContext
 Function HTMLTextFromHTMLDocumentObject(HTMLDocument)

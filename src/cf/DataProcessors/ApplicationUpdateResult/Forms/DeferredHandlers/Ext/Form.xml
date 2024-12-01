@@ -909,7 +909,7 @@
 						</v8:StringQualifiers>
 					</Type>
 				</Column>
-				<Column name="ThisIsOutOfDateDataCleanupHandler" id="14">
+				<Column name="IsObsoleteDataCleanupHandler" id="14">
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>

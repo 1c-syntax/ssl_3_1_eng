@@ -1,33 +1,35 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Creates a column description structure for the layout of loading data from a file.
+// Creates a structure to describe columns for a template of importing data from file.
 //
 // Parameters:
-//  Name        -String -  column name.
-//  Type       - TypeDescription -  the type of the column.
-//  Title - String -  column header displayed in the upload form.
-//  Width    - Number -  column width.
-//  ToolTip - String -  hint displayed in the column header.
+//  Name        -String - Column name.
+//  Type       - TypeDescription - column type.
+//  Title - String - Column header displayed in the template for import.
+//  Width    - Number - column width.
+//  ToolTip - String - a tooltip displayed in the column header.
 // 
 // Returns:
-//  Structure - :
-//    * Name                      - String -  column name.
-//    * Title                - String -  column header displayed in the upload form.
-//    * Type                      - TypeDescription -  the type of the column.
-//    * Width                   - Number  -  column width.
-//    * Position                  - Number  - 
-//    * ToolTip                - String - 
-//    * IsRequiredInfo - Boolean -  true if the column must contain values.
-//    * Group                   - String -  name of the column group.
-//    * Parent                 - String -  used to link a dynamic column to the details of the table part of the object.
+//  Structure - Structure containing column details:
+//    * Name                      - String - Column name.
+//    * Title                - String - Column header displayed in the template for import.
+//    * Type                      - TypeDescription - column type.
+//    * Width                   - Number  - column width.
+//    * Position                  - Number  - Column position in the table.
+//    * ToolTip                - String - a tooltip displayed in the column header.
+//    * IsRequiredInfo - Boolean - "True" if the column must contain values.
+//    * Group                   - String - Column group name.
+//    * Parent                 - String - used to connect a dynamic column with an attribute of the object tabular section.
 //
 Function TemplateColumnDetails(Name, Type, Title = Undefined, Width = 0, ToolTip = "") Export
 	
@@ -47,15 +49,15 @@ Function TemplateColumnDetails(Name, Type, Title = Undefined, Width = 0, ToolTip
 	
 EndFunction
 
-// Returns the layout column by name.
+// Returns a template column by its name.
 //
 // Parameters:
-//  Name				 - String -  column name.
+//  Name				 - String - Column name.
 //  ColumnsList	 - Array of See ImportDataFromFileClientServer.TemplateColumnDetails
 // 
 // Returns:
 //   - See TemplateColumnDetails
-//   - Undefined - if the column does not exist.
+//   - — Undefined — if the column does not exist.
 //
 Function TemplateColumn(Name, ColumnsList) Export
 	For Each Column In ColumnsList Do
@@ -67,10 +69,10 @@ Function TemplateColumn(Name, ColumnsList) Export
 	Return Undefined;
 EndFunction
 
-// Removes the layout column from the array.
+// Deletes a template column from the array.
 //
 // Parameters:
-//  Name           - String -  column name.
+//  Name           - String - Column name.
 //  ColumnsList - Array of See ImportDataFromFileClientServer.TemplateColumnDetails
 //
 Procedure DeleteTemplateColumn(Name, ColumnsList) Export

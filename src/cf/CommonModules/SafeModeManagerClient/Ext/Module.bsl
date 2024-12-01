@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Applies requests to use external resources that were previously saved in the information database.
+// Applies requests to use external resources saved to the infobase.
 //
 // Parameters:
-//  IDs - Array -  the IDs of the queries that you want to apply,
-//  OwnerForm - ClientApplicationForm -  a form that should be blocked until permissions are applied,
-//  ClosingNotification1 - NotifyDescription -  which will be called when permissions are granted successfully.
+//  IDs - Array - Request IDs.
+//  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
+//  ClosingNotification1 - NotifyDescription - Notification triggered when permissions are granted.
 //
 Procedure ApplyExternalResourceRequests(Val IDs, OwnerForm, ClosingNotification1) Export
 	
@@ -30,8 +32,8 @@ Procedure ApplyExternalResourceRequests(Val IDs, OwnerForm, ClosingNotification1
 	
 EndProcedure
 
-// Opens the dialog for configuring the mode of using security profiles for
-// the current database.
+// Opens the security profile setup dialog for
+// the current infobase.
 //
 Procedure OpenSecurityProfileSetupDialog() Export
 	
@@ -47,10 +49,10 @@ Procedure OpenSecurityProfileSetupDialog() Export
 	
 EndProcedure
 
-// Allows the administrator to open an external processing or report with a safe mode selection.
+// Allows the administrator to open an external data processor or report in safe mode.
 //
 // Parameters:
-//   Owner - ClientApplicationForm -  form-owner of the external processing form or report. 
+//   Owner - ClientApplicationForm - a form that owns the external report or data processor form. 
 //
 Procedure OpenExternalDataProcessorOrReport(Owner) Export
 	
@@ -63,8 +65,8 @@ EndProcedure
 
 #Region Private
 
-// Checks whether you need to display the assistant for configuring permissions to use
-// external (relative to the 1C server cluster:Enterprises) resources.
+// Checks whether
+// external (relative to 1C:Enterprise server cluster) resource permissions setup wizard must be shown.
 //
 // Returns:
 //   Boolean

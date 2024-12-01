@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// The version number that the handler is intended to broadcast from.
+// Version number, from which the translation by handler is used.
 //
 // Returns:
-//   String - 
+//   String - a source version of message interface.
 //
 Function SourceVersion() Export
 	
@@ -19,10 +21,10 @@ Function SourceVersion() Export
 	
 EndFunction
 
-// Namespace of the version that the handler is intended to broadcast from.
+// Namespace of the version, from which the translation by handler is used.
 //
 // Returns:
-//   String -  name space.
+//   String - a namespace.
 //
 Function SourceVersionPackage() Export
 	
@@ -30,10 +32,10 @@ Function SourceVersionPackage() Export
 	
 EndFunction
 
-// The version number that the handler is intended to translate to.
+// Version number, to which the translation by handler is used.
 //
 // Returns:
-//   String - 
+//   String - a resulting version of message interface.
 //
 Function ResultingVersion() Export
 	
@@ -41,10 +43,10 @@ Function ResultingVersion() Export
 	
 EndFunction
 
-// Namespace of the version that the handler is intended to translate to.
+// Namespace of the version, to which the translation by handler is used.
 //
 // Returns:
-//   String -  name space.
+//   String - a namespace.
 //
 Function ResultingVersionPackage() Export
 	
@@ -52,14 +54,14 @@ Function ResultingVersionPackage() Export
 	
 EndFunction
 
-// Handler for checking the execution of standard translation processing.
+// Handler of standard translation processing execution check.
 //
 // Parameters:
-//   SourceMessage    - XDTODataObject -  broadcast message.
-//   StandardProcessing - Boolean -  to cancel the standard translation processing
-//                          , this parameter must be set to False within this procedure.
-//                          In this case, the function will be called instead of performing standard translation processing.
-//                          Broadcast messages () of the broadcast handler.
+//   SourceMessage    - XDTODataObject - a message being translated.
+//   StandardProcessing - Boolean - set
+//                          this parameter to False within this procedure to cancel standard translation processing.
+//                          The function is called instead of the standard translation processing
+//                          MessageTranslation() of the translation handler.
 //
 Procedure BeforeTranslate(Val SourceMessage, StandardProcessing) Export
 	
@@ -73,15 +75,15 @@ Procedure BeforeTranslate(Val SourceMessage, StandardProcessing) Export
 	
 EndProcedure
 
-// Handler for performing an arbitrary message translation. Called only
-// if the value of the standard Processing parameter
-// was set to False when executing the procedure before Translation.
+// Handler of execution of an arbitrary message translation. It is only called
+// if the StandardProcessing parameter of the BeforeTranslation procedure
+// was set to False.
 //
 // Parameters:
-//   SourceMessage - XDTODataObject -  broadcast message.
+//   SourceMessage - XDTODataObject - a message being translated.
 //
 // Returns:
-//   XDTODataObject - 
+//   XDTODataObject - a result of arbitrary message translation.
 //
 Function MessageTranslation(Val SourceMessage) Export
 	

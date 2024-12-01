@@ -1,33 +1,35 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Overrides the setting of input commands on the base.
+// Overrides settings of commands of input on basis.
 //
 // Parameters:
 //  Settings - Structure:
-//   * UseInputBasedOnCommands - Boolean -  allows the use of program-based input commands
-//                                                    instead of regular ones. The default value is: True.
+//   * UseInputBasedOnCommands - Boolean - allows using application commands of input on basis
+//                                                    instead of the standard ones. The default value is True.
 //
 Procedure OnDefineSettings(Settings) Export
 	
 EndProcedure
 
-// Defines a list of configuration objects, in the modules of managers of which the procedure is provided 
-// Add a creation command on the basis that forms creation commands based on objects.
-// For the syntax of the Add Command Creation procedure, see the documentation.
+// Specifies the list of configuration objects whose manager modules contain the AddGenerationCommands procedure, 
+// which creates commands for generating objects based on other objects.
+// See the SSL documentation for the procedure syntax.
 //
 // Parameters:
-//   Objects - Array -  metadata objects (metadata Objects) with commands to create based on.
+//   Objects - Array - metadata objects (MetadataObject) with commands of creation on basis.
 //
 // Example:
-//  Objects.Add (Metadata.Guides.Companies);
+//  Objects.Add(Metadata.Catalogs.Companies);
 //
 Procedure OnDefineObjectsWithCreationBasedOnCommands(Objects) Export
 	
@@ -35,88 +37,88 @@ Procedure OnDefineObjectsWithCreationBasedOnCommands(Objects) Export
 
 EndProcedure
 
-// Called to generate a list of create commands based on the create command base, once for when
-// necessary, and then the result is cached using the module with repeated use of the return values.
-// Here you can define base creation commands that are common to most configuration objects.
+// Called once to generate the GenerationCommands list when it is first
+// required. After that, the result is cached by the memorization module.
+// Here you can define generation commands that are common for most configuration objects.
 //
 // Parameters:
-//   GenerationCommands - ValueTable - :
+//   GenerationCommands - ValueTable - Generated commands to be shown in the submenu:
 //     
+//     Common settings
+//       * Id - String - a command ID.
 //     
-//       * Id - String - 
-//     
-//     :
-//       * Presentation - String   -  representation of the team in the form.
-//       * Importance      - String   -  the group in the submenu to display this command in.
-//                                    Allowed to use: "Important", "Normal" and "Stacie".
-//       * Order       - Number    -  the order in which the command is placed in the submenu. Used for setting up for a specific
+//     Appearance settings:
+//       * Presentation - String   - Command presentation in a form.
+//       * Importance      - String   - a submenu group to display the command in.
+//                                    The following values are acceptable: "Important", "Ordinary", and "SeeAlso".
+//       * Order       - Number    - an order of placing the command in the submenu. It is used to set up a particular
 //                                    workplace.
-//       * Picture      - Picture - 
+//       * Picture      - Picture - a command picture.
 //     
-//     :
-//       * ParameterType - TypeDescription -  types of objects that this command is intended for.
-//       * VisibilityInForms    - String -  comma-separated form names that the command should be displayed in.
-//                                        Used when the composition of teams differs for different forms.
-//       * FunctionalOptions - String -  comma-separated names of functional options that define the visibility of the command.
-//       * VisibilityConditions    - Array -  determines the visibility of the command depending on the context.
-//                                        To register conditions, use the procedure
-//                                        Pluggable commands.Dobasefinalization().
-//                                        Conditions are combined by "And".
-//       * ChangesSelectedObjects - Boolean - 
+//     Visibility and availability settings:
+//       * ParameterType - TypeDescription - types of objects that the command is intended for.
+//       * VisibilityInForms    - String - Comma-delimited names of the forms to add a command to.
+//                                        Use to add different set of commands to different forms.
+//       * FunctionalOptions - String - Comma-delimited names of functional options that affect the command visibility.
+//       * VisibilityConditions    - Array - Defines the command conditional visibility.
+//                                        To add conditions, use procedure AttachableCommands.AddCommandVisibilityCondition().
+//                                        Use "And" to specify multiple conditions.
 //                                        
-//                                        
-//                                        
+//       * ChangesSelectedObjects - Boolean - defines whether the command is available in case
+//                                        a user is not authorized to edit the object.
+//                                        If True, the button will be unavailable.
+//                                        Optional. The default value is False.
 //     
-//     :
+//     Execution process settings:
 //       * MultipleChoice - Boolean
-//                            - Undefined - 
-//             
-//             
-//       * WriteMode - String -  actions related to writing an object that are performed before the command handler.
-//             "Non-write" - the Object is not written, and the entire form is passed in the handler parameters instead of references
-//                                       . In this mode, we recommend working directly with the form
-//                                       that is passed in the structure of the 2 parameters of the command handler.
-//             "Write new objects" - Write new objects.
-//             "Write" - Write new and modified objects.
-//             "Conduct" - Conduct documents.
-//             The user is asked for confirmation before recording and conducting the session.
-//             Optional. Default value: "Write".
-//       * FilesOperationsRequired - Boolean - 
-//             
-//             
+//                            - Undefined - if True, then the command supports multiple choice.
+//             In this case, the parameter is passed via a list.
+//             Optional. Default value is False.
+//       * WriteMode - String - actions associated with object writing that are executed before the command handler.
+//             "DoNotWrite"          - do not write the object and pass
+//                                       the full form in the handler parameters instead of references. In this mode, we recommend that you operate directly with a form
+//                                       that is passed in the structure of parameter 2 of the command handler.
+//             "WriteNewOnly" - Write only new objects.
+//             "Write"            - Write only new and modified objects.
+//             "Post"             - Post documents.
+//             Before writing or posting the object, users are asked for confirmation.
+//             Optional. Default value is "Write".
+//       * FilesOperationsRequired - Boolean - If True, in the web client, users are prompted
+//             to install 1C:Enterprise Extension.
+//             Optional. The default value is False.
 //     
-//     :
-//       * Manager - String -  the object responsible for executing the command.
-//       * FormName - String -  name of the form to get for executing the command.
-//             If no Handler is specified, the "Open" method is called for the form.
+//     Handler settings:
+//       * Manager - String - an object responsible for executing the command.
+//       * FormName - String - name of the form to be retrieved for the command execution.
+//             If Handler is not specified, the "Open" form method is called.
 //       * FormParameters - Undefined
-//                        - FixedStructure - 
-//       * Handler - String - 
-//             
-//             :
-//               
-//               
-//       * AdditionalParameters - FixedStructure -  optional. Parameters of the handler specified in the Handler.
+//                        - FixedStructure - -- optional. Form parameters specified in FormName.
+//       * Handler - String - details of the procedure that handles the main action of the command.
+//             Format "<CommonModuleName>.<ProcedureName>" is used when the procedure is in a common module.
+//             Format "<ProcedureName>" is used in the following cases:
+//               1) If FormName is filled, a client procedure is expected in the specified form module.
+//               2) If FormName is not filled, a server procedure is expected in the manager module.
+//       * AdditionalParameters - FixedStructure - optional. Parameters of the handler specified in Handler.
 //   
-//   Parameters - Structure - :
-//       * FormName - String -  full name of the form.
+//   Parameters - Structure - information about execution context:
+//       * FormName - String - Form full name.
 //
-//   StandardProcessing - Boolean -  if set to False, the "add command to create Base" event of
-//                                   the object Manager will not be called.
+//   StandardProcessing - Boolean - If False, the object manager's AddGenerationCommands event
+//                                   is not called.
 //
 Procedure BeforeAddGenerationCommands(GenerationCommands, Parameters, StandardProcessing) Export
 
 EndProcedure
 
-// Defines a list of creation commands based on. Called before calling "
-// add a command to create a Base" in the object Manager module.
+// Defines the list of generation commands. Called before the object manager's
+// AddGenerationCommands call.
 //
 // Parameters:
-//  Object - MetadataObject -  object to add commands to.
+//  Object - MetadataObject - an object for which the commands are added.
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
 //  Parameters - See GenerateFromOverridable.BeforeAddGenerationCommands.Parameters
-//  StandardProcessing - Boolean -  if set to False, the "add command to create Base" event of
-//                                  the object Manager will not be called.
+//  StandardProcessing - Boolean - If False, the object manager's AddGenerationCommands event
+//                                  is not called.
 //
 Procedure OnAddGenerationCommands(Object, GenerationCommands, Parameters, StandardProcessing) Export
 	

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -703,7 +705,7 @@ Procedure ConditionalFormDesign()
 	DesignFieldNames.Add("InfobaseNode");
 	DesignFieldNames.Add("UniqueKey");
 	
-	// 
+	// Highlight blocking warnings in red.
 	TypesOfCriticalWarnings = New ValueList;
 	TypesOfCriticalWarnings.Add(Enums.DataExchangeIssuesTypes.ApplicationAdministrativeError);
 	TypesOfCriticalWarnings.Add(Enums.DataExchangeIssuesTypes.HandlersCodeExecutionErrorOnSendData);
@@ -714,7 +716,7 @@ Procedure ConditionalFormDesign()
 	ErrorsInRed.Appearance.SetParameterValue("TextColor", WebColors.DarkRed);
 	AddDesignFields(ErrorsInRed, DesignFieldNames);
 	
-	// 
+	// Format hidden warnings in gray.
 	HiddenWarningsInGray = ConditionalAppearance.Items.Add();
 	CommonClientServer.AddCompositionItem(HiddenWarningsInGray.Filter, "List.HideWarning", DataCompositionComparisonType.Equal, True);
 	HiddenWarningsInGray.Appearance.SetParameterValue("TextColor", WebColors.Gray);
@@ -1121,9 +1123,9 @@ EndProcedure
 &AtClient
 Procedure AfterGroupProcessingOfWarnings(Result, AdditionalParameters) Export
 	
-	// 
-	// 
-	// 
+	// Cannot add "Result <> Undefined" due to:
+	// - "ChangeTheDetailsOfTheGroupProcessing" always returns "Undefined".
+	// - In other forms, the user can do the fixing and then click Cancel.
 	UpdateTheFormList();
 	
 EndProcedure

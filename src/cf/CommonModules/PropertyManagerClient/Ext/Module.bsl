@@ -1,27 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Specifies that the specified event is an event about changing a set of properties.
+// Determines that the specified event is an event of property set change.
 //
 // Parameters:
-//  Form      - ClientApplicationForm -  form, which was caused by the processing of the alert.
-//  EventName - String       -  name of the event to process.
-//  Parameter   - Arbitrary -  parameters passed in the event.
+//  Form      - ClientApplicationForm - a form, from which the notification processing was called.
+//  EventName - String       - a name of the processed event.
+//  Parameter   - Arbitrary - parameters passed in the event.
 //             - Structure:
-//                  * Ref - CatalogRef.AdditionalAttributesAndInfoSets -  a modified set of properties.
-//                           - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - 
-//                                                                                             
+//                  * Ref - CatalogRef.AdditionalAttributesAndInfoSets - a changed property set.
+//                           - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - — a changed additional
+//                                                                                             attribute.
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - if True, it is a notification of property set change, and
+//           it needs to be processed in the form.
 //
 Function ProcessNotifications(Form, EventName, Parameter) Export
 	
@@ -63,14 +65,14 @@ Function ProcessNotifications(Form, EventName, Parameter) Export
 	
 EndFunction
 
-// Updates visibility, availability, and whether
-// additional details must be filled in.
+// Updates visibility, availability, and required filling
+// of additional attributes.
 //
 // Parameters:
-//  Form  - ClientApplicationForm     -  the form being processed.
-//  Object - FormDataStructure -  description of the object to which the properties are connected
-//                                  . if the property is not specified or Undefined, the
-//                                  object will be taken from the "Object"form details.
+//  Form  - ClientApplicationForm     - a form being processed.
+//  Object - FormDataStructure - details of the object, to which properties are attached,
+//                                  if the property is not specified or Undefined, the
+//                                  object is taken from the Object form attribute.
 //
 Procedure UpdateAdditionalAttributesDependencies(Form, Object = Undefined) Export
 	
@@ -142,11 +144,11 @@ Procedure UpdateAdditionalAttributesDependencies(Form, Object = Undefined) Expor
 	
 EndProcedure
 
-// Checks for the presence of dependent additional details on the form
-// and, if necessary, connects the handler for waiting for verification of the details ' dependencies.
+// Checks for dependent additional attributes on the form
+// and attaches an idle handler for checking attribute dependencies if needed.
 //
 // Parameters:
-//  Form - ClientApplicationForm -  the form being checked.
+//  Form - ClientApplicationForm - a form to be checked.
 //
 Procedure AfterImportAdditionalAttributes(Form) Export
 	
@@ -160,18 +162,18 @@ Procedure AfterImportAdditionalAttributes(Form) Export
 	
 EndProcedure
 
-// Handler for commands from forms that have additional properties attached to them.
+// Command handler from forms, to which additional properties are attached.
 // 
 // Parameters:
-//  Form                - ClientApplicationForm -  a form with additional details that is pre
-//                          -configured in the property Management procedure.Precontamination().
+//  Form                - ClientApplicationForm - a form with additional attributes preliminarily
+//                          set in the PropertyManager.OnCreateAtServer() procedure.
 //  Item              - FormField
-//                       - FormCommand - 
-//  StandardProcessing - Boolean -  the returned parameter is set to False if you want to perform interactive
-//                          actions with the user.
-//  Object - FormDataStructure -  description of the object to which the properties are connected
-//                                  . if the property is not specified or Undefined, the
-//                                  object will be taken from the "Object"form details.
+//                       - FormCommand - an item whose clicking is to be processed.
+//  StandardProcessing - Boolean - a returned parameter, if interactive
+//                          actions with the user are needed, it is set to False.
+//  Object - FormDataStructure - details of the object, to which properties are attached,
+//                                  if the property is not specified or Undefined, the
+//                                  object is taken from the Object form attribute.
 //
 Procedure ExecuteCommand(Form,
 						   Item = Undefined,
@@ -205,13 +207,13 @@ Procedure ExecuteCommand(Form,
 	
 EndProcedure
 
-// 
+// Opens the form for editing labels for an object.
 //
 // Parameters:
-//  Form  - ClientApplicationForm     -  the form being processed.
-//  Object - FormDataStructure -  description of the object to which the properties are connected
-//                                  . if the property is not specified or Undefined, the
-//                                  object will be taken from the "Object"form details.
+//  Form  - ClientApplicationForm     - a form being processed.
+//  Object - FormDataStructure - details of the object, to which properties are attached,
+//                                  if the property is not specified or Undefined, the
+//                                  object is taken from the Object form attribute.
 //
 Procedure EditLabels(Form, Object = Undefined) Export
 	
@@ -229,11 +231,11 @@ Procedure EditLabels(Form, Object = Undefined) Export
 	
 EndProcedure
 
-// 
+// Sets the filter in the list by label.
 //
 // Parameters:
-//  Form      - ClientApplicationForm     -  the form being processed.
-//  CommandName - String - 
+//  Form      - ClientApplicationForm     - a form being processed.
+//  CommandName - String - a name of the command to set a filter by label.
 //
 Procedure ApplyFilterByLabel(Form, CommandName) Export
 	
@@ -313,10 +315,10 @@ EndProcedure
 
 #Region Private
 
-// Opens the form for editing a set of additional details.
+// Opens the editing form of an additional attribute set.
 //
 // Parameters:
-//  Form - ClientApplicationForm -  the form from which the method is called.
+//  Form - ClientApplicationForm - a form the method is called from.
 //
 Procedure EditPropertiesContent(Form)
 	
@@ -385,7 +387,7 @@ Procedure EditAttributeHyperlink(Form, HyperlinkAction = False, Item = Undefined
 	AttributeDetails = AttributesDetails1[0];
 	
 	If Not AttributeDetails.RefTypeString Then
-		Item = Form.Items[AttributeName]; // 
+		Item = Form.Items[AttributeName]; // FormFieldExtensionForLabelField, FormFieldExtensionForInputField
 		If Item.Type = FormFieldType.InputField Then
 			Item.Type = FormFieldType.LabelField;
 			Item.Hyperlink = True;

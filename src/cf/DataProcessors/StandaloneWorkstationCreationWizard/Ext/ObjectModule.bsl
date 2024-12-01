@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Creates an initial image for an Offline workplace in accordance
-// with the passed settings and places it in temporary storage.
+// Creates an initial image of a standalone workstation
+// according to the passed settings and puts it to the temporary storage.
 // 
 // Parameters:
-//  Settings - Structure -  selection settings on the node.
+//  Settings - Structure - filter settings on the node.
 //  SelectedSynchronizationUsers - Array of CatalogRef.Users
 //  InitialImageTempStorageAddress - String
 //  InstallationPackageInformationTempStorageAddress - String
@@ -32,7 +34,7 @@ Procedure CreateStandaloneWorkstationInitialImage(
 	BeginTransaction();
 	Try
 		
-		// 
+		// Assigning rights to perform synchronization to selected users
 		If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 			
 			CommonModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
@@ -45,7 +47,7 @@ Procedure CreateStandaloneWorkstationInitialImage(
 			
 		EndIf;
 		
-		// 
+		// Generating a prefix for a new standalone workstation
 		Block = New DataLock;
 		LockItem = Block.Add("Constant.LastStandaloneWorkstationPrefix");
 		LockItem.Mode = DataLockMode.Exclusive;
@@ -56,15 +58,15 @@ Procedure CreateStandaloneWorkstationInitialImage(
 		
 		Constants.LastStandaloneWorkstationPrefix.Set(StandaloneWorkstationPrefix);
 		
-		// 
+		// Creating a standalone workstation node
 		StandaloneWorkstation = NewStandaloneWorkstation(Settings);
 		
 		InitialImageCreationDate = CurrentSessionDate();
 		
-		// 
+		// Exporting settings to an initial image of the standalone workstation
 		ImportParametersToInitialImage(StandaloneWorkstationPrefix, InitialImageCreationDate, StandaloneWorkstation);
 		
-		// 
+		// Setting an initial image creation date as the date of the first successful synchronization.
 		RecordStructure = New Structure;
 		RecordStructure.Insert("InfobaseNode", StandaloneWorkstation);
 		RecordStructure.Insert("ActionOnExchange", Enums.ActionsOnExchange.DataExport);
@@ -169,7 +171,7 @@ Procedure WriteInstallationPackageToTempStorage(WriteParameters)
 	
 	CreateDirectory(ArchiveDirectory);
 	
-	// 
+	// Create an initial image of the standalone workstation.
 	ConnectionString = "File = ""&InfobaseDirectory""";
 	ConnectionString = StrReplace(
 		ConnectionString, "&InfobaseDirectory", TrimAll(WriteParameters.InitialImageDirectory));
@@ -182,24 +184,24 @@ Procedure WriteInstallationPackageToTempStorage(WriteParameters)
 	StandaloneWorkstationObject.AdditionalProperties.Insert("MetadataProperties1", New Map);
 	StandaloneWorkstationObject.AdditionalProperties.Insert("ExportingParameters", ExportingParameters);
 	
-	// 
+	// Updating cached object registration mechanism values.
 	DataExchangeInternal.CheckObjectsRegistrationMechanismCache();
 	
 	Try
 		ExchangePlans.CreateInitialImage(StandaloneWorkstationObject, ConnectionString);
-		// 
+		// Storing standalone workstation settings in the infobase is unsafe.
 		Constants.SubordinateDIBNodeSettings.Set("");
 	Except
 		WriteLogEvent(EventLogEvent(),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		
-		// 
+		// Storing standalone workstation settings in the infobase is unsafe.
 		Constants.SubordinateDIBNodeSettings.Set("");
 		
 		ExportingParameters.ExportedData = Undefined;
 		ExportingParameters.DestinationStream = Undefined;
 		
-		// 
+		// Deleting a standalone workstation
 		StandaloneModeInternal.DeleteStandaloneWorkstation1(New Structure("StandaloneWorkstation", StandaloneWorkstation), "");
 		
 		Raise;
@@ -290,7 +292,7 @@ EndProcedure
 
 Function NewStandaloneWorkstation(Settings)
 	
-	// 
+	// Updating SaaS application node if necessary
 	If IsBlankString(Common.ObjectAttributeValue(StandaloneModeInternal.ApplicationInSaaS(), "Code")) Then
 		
 		ApplicationInSaaSObject = CreateApplicationInSaaS();
@@ -299,13 +301,13 @@ Function NewStandaloneWorkstation(Settings)
 		
 	EndIf;
 	
-	// 
+	// Creating a standalone workstation node
 	StandaloneWorkstationObject = CreateStandaloneWorkstation();
 	StandaloneWorkstationObject.Description = StandaloneWorkstationDescription;
 	StandaloneWorkstationObject.RegisterChanges = True;
 	StandaloneWorkstationObject.DataExchange.Load = True;
 	
-	// 
+	// Setting filter values on the node
 	DataExchangeEvents.SetNodeFilterValues(StandaloneWorkstationObject, Settings);
 	
 	StandaloneWorkstationObject.Write();
@@ -456,7 +458,7 @@ Function DataUploadParameterStructure()
 	ExportingParameters.Insert("WrittenItemsAfterCheckFileSize", 0);
 	ExportingParameters.Insert("MaximumNumberOfElements", 50000);
 	ExportingParameters.Insert("NumberofItemsFileSizeCheck", 1000);
-	ExportingParameters.Insert("MaxFileSize", 1024 * 1024 * 100); // 
+	ExportingParameters.Insert("MaxFileSize", 1024 * 1024 * 100); // 100 MB
 	
 	Return ExportingParameters;
 	

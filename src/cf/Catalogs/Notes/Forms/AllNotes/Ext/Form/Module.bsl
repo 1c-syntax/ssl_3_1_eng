@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -19,13 +21,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	List.Parameters.SetParameterValue("ShowDeleted", False);
 	
 	FillInSelectFilterBySubjectList();
+	
+	// Standard subsystems.Pluggable commands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	#If WebClient Then 
+#If WebClient Then 
 	Items.FilterByColor.ChoiceList.Insert(0, PredefinedValue("Enum.NoteColors.EmptyRef")," ");
-	#EndIf
+#EndIf
 EndProcedure
 
 &AtServer
@@ -52,6 +62,18 @@ EndProcedure
 &AtClient
 Procedure ShowDeletedOnChange(Item)
 	List.Parameters.SetParameterValue("ShowDeleted", ShowDeleted);
+EndProcedure
+
+&AtClient
+Procedure ListOnActivateRow(Item)
+	
+	// Standard subsystems.Pluggable commands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 EndProcedure
 
 #EndRegion
@@ -108,5 +130,44 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("Font", StyleFonts.ImportantLabelFont);
 	
 EndProcedure
+
+// Standard subsystems.Pluggable commands
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Items.List);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	
+	ExecuteCommandAtServer(ExecutionParameters);
+	
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Items.List);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Items.List);
+	EndIf;
+	
+EndProcedure
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion

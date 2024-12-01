@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -60,16 +62,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
+	If ValueIsFilled(Parameters.TextOfAdditionalLink) Then
+		Items.AdditionalLink.Visible = True;
+		Items.AdditionalLink.Title = StringFunctions.FormattedString(Parameters.TextOfAdditionalLink);
+	Else
+		Items.AdditionalLink.Visible = False;
+	EndIf;
+	
 EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	#If Not MobileAppClient And Not MobileClient Then
+#If Not MobileAppClient And Not MobileClient Then
 	If ClassifierErrorSolutionTextSupplementOptions <> Undefined Then
 		AttachIdleHandler("SupplementErrorClassifierSolutionWithDetails", 0.1, True);
 	EndIf;
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -102,49 +111,8 @@ Procedure SupportInformationURLProcessing(Item, Var_URL, StandardProcessing)
 		DigitalSignatureClient.OpenInstructionOnTypicalProblemsOnWorkWithApplications();
 	Else
 		
-		FilesDetails = New Array;
-		ErrorsText = "";
-		If ValueIsFilled(AdditionalData) Then
-			DigitalSignatureInternalServerCall.AddADescriptionOfAdditionalData(
-				AdditionalData, FilesDetails, ErrorsText);
-		EndIf;
+		UploadTechnicalInformation(False);
 		
-		If ValueIsFilled(ErrorDescription) Then
-			MessageSubject1 = MessageSubject1(ErrorDescription);
-		ElsIf ValueIsFilled(ErrorText) Then
-			MessageSubject1 = MessageSubject1(ErrorText);
-		ElsIf ValueIsFilled(ErrorTextClient) Then
-			MessageSubject1 = MessageSubject1(ErrorTextClient);
-		ElsIf ValueIsFilled(ErrorTextServer) Then
-			MessageSubject1 = MessageSubject1(ErrorTextServer);
-		Else
-			MessageSubject1 = NStr("en = 'Technical details about the issue';");
-		EndIf;
-		
-		Array = New Array;
-		If ValueIsFilled(ErrorsText) Then
-			Array.Add(ErrorsText);
-		EndIf;
-		If ValueIsFilled(ErrorDescription) Then
-			Array.Add(ErrorDescription);
-		EndIf;
-		If ValueIsFilled(ErrorText) Then
-			Array.Add(ErrorText);
-		EndIf;
-		If ValueIsFilled(ErrorTextClient) Then
-			Array.Add(NStr("en = 'On the client:';"));
-			Array.Add(ErrorTextClient);
-		EndIf;
-		If ValueIsFilled(ErrorTextServer) Then
-			Array.Add(NStr("en = 'On the server:';"));
-			Array.Add(ErrorTextServer);
-		EndIf;
-		
-		ErrorsText = StrConcat(Array, Chars.LF);
-		
-		DigitalSignatureInternalClient.GenerateTechnicalInformation(
-			ErrorsText, New Structure("Subject, Message", MessageSubject1), , FilesDetails);
-	
 	EndIf;
 	
 EndProcedure
@@ -187,6 +155,27 @@ Procedure DecisionsServerTextURLProcessing(Item, FormattedStringURL, StandardPro
 		Item, FormattedStringURL, StandardProcessing, AdditionalData());
 EndProcedure
 
+&AtClient
+Procedure AdditionalLinkURLProcessing(Item, FormattedStringURL, StandardProcessing)
+
+	If ValueIsFilled(Parameters.AdditionalLinkHandler) Then
+		
+		StandardProcessing = False;
+		FullProcedureName = Parameters.AdditionalLinkHandler;
+		PartsOfProcedureName = StrSplit(FullProcedureName, ".");
+		ModuleName = PartsOfProcedureName[0];
+		ProcedureName = PartsOfProcedureName[1];
+		Notification = New NotifyDescription(ProcedureName, CommonClient.CommonModule(ModuleName));
+		
+		NotificationParameter1 = New Structure("ParameterOfAdditionalLinkHandler, URL",
+			Parameters.ParameterOfAdditionalLinkHandler, FormattedStringURL);
+		
+		ExecuteNotifyProcessing(Notification, NotificationParameter1);
+		
+	EndIf;
+
+EndProcedure
+
 #EndRegion
 
 #Region FormCommandsEventHandlers
@@ -207,9 +196,82 @@ Procedure InstallExtension(Command)
 	
 EndProcedure
 
+&AtClient
+Procedure DownloadTechnicalInformation(Command)
+	
+	UploadTechnicalInformation(True);
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
+
+&AtClient
+Procedure UploadTechnicalInformation(ExportArchive)
+
+	If ExportArchive Then
+		Items.DownloadTechnicalInformation.Enabled = False;
+		Items.GroupGeneratesTechnicalInformation.Visible = True;
+	EndIf;
+	
+	FilesDetails = New Array;
+	ErrorsText = "";
+	If ValueIsFilled(AdditionalData) Then
+		DigitalSignatureInternalServerCall.AddADescriptionOfAdditionalData(
+			AdditionalData, FilesDetails, ErrorsText);
+	EndIf;
+	
+	If ValueIsFilled(ErrorDescription) Then
+		MessageSubject1 = MessageSubject1(ErrorDescription);
+	ElsIf ValueIsFilled(ErrorText) Then
+		MessageSubject1 = MessageSubject1(ErrorText);
+	ElsIf ValueIsFilled(ErrorTextClient) Then
+		MessageSubject1 = MessageSubject1(ErrorTextClient);
+	ElsIf ValueIsFilled(ErrorTextServer) Then
+		MessageSubject1 = MessageSubject1(ErrorTextServer);
+	Else
+		MessageSubject1 = NStr("en = 'Technical details about the issue';");
+	EndIf;
+	
+	Array = New Array;
+	If ValueIsFilled(ErrorsText) Then
+		Array.Add(ErrorsText);
+	EndIf;
+	If ValueIsFilled(ErrorDescription) Then
+		Array.Add(ErrorDescription);
+	EndIf;
+	If ValueIsFilled(ErrorText) Then
+		Array.Add(ErrorText);
+	EndIf;
+	If ValueIsFilled(ErrorTextClient) Then
+		Array.Add(NStr("en = 'On client:';"));
+		Array.Add(ErrorTextClient);
+	EndIf;
+	If ValueIsFilled(ErrorTextServer) Then
+		Array.Add(NStr("en = 'On server:';"));
+		Array.Add(ErrorTextServer);
+	EndIf;
+	
+	ErrorsText = StrConcat(Array, Chars.LF);
+	
+	If ExportArchive Then
+		DigitalSignatureInternalClient.GenerateTechnicalInformation(
+			ErrorsText, Undefined, New NotifyDescription("AfterUploadingTechnicalInformation", ThisObject), FilesDetails);
+	Else
+		DigitalSignatureInternalClient.GenerateTechnicalInformation(
+			ErrorsText, New Structure("Subject, Message", MessageSubject1), , FilesDetails);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure AfterUploadingTechnicalInformation(Result, Context) Export
+	
+	Items.DownloadTechnicalInformation.Enabled = True;
+	Items.GroupGeneratesTechnicalInformation.Visible = False;
+
+EndProcedure
 
 &AtClient
 Procedure SupplementErrorClassifierSolutionWithDetails()
@@ -343,7 +405,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		EndIf;
 		
 		CommonClientServer.SetFormItemProperty(Items,
-				InstructionItem.Name, "Title", NStr("en = 'Поиск решения...';"));
+				InstructionItem.Name, "Title", NStr("en = 'Finding solution…';"));
 		
 		RequiredNumberOfRows = 0;
 		MarginWidth = Int(?(Width < 20, 20, Width) * 1.4);
@@ -352,9 +414,9 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 				+ Int(StrLen(StrGetLine(ErrorText, LineNumber)) / MarginWidth);
 		EndDo;
 		If RequiredNumberOfRows > 5 And Not TwoMistakes Then
-			ErrorTextElement.Height = 4;
+			ErrorTextElement.Height = 5;
 		ElsIf RequiredNumberOfRows > 3 Then
-			ErrorTextElement.Height = 3;
+			ErrorTextElement.Height = 4;
 		ElsIf RequiredNumberOfRows > 1 Then
 			ErrorTextElement.Height = 2;
 		Else

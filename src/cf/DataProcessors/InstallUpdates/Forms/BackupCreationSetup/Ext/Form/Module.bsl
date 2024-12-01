@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -81,13 +83,13 @@ Procedure UpdateControlsStates(Form)
 	InfoPages = Form.Items.InfoPanel.ChildItems;
 	CreateDataBackup = Form.Object.CreateDataBackup;
 	InfoPanel = Form.Items.InfoPanel;
-	If CreateDataBackup = 0 Then // 
+	If CreateDataBackup = 0 Then // Do not create a backup.
 		Form.Object.RestoreInfobase = False;
 		InfoPanel.CurrentPage = InfoPages.NoRollback;
-	ElsIf CreateDataBackup = 1 Then // 
+	ElsIf CreateDataBackup = 1 Then // Create a temporary backup.
 		InfoPanel.CurrentPage = InfoPages.ManualRollback;
 		UpdateManualRollbackLabel(Form);
-	ElsIf CreateDataBackup = 2 Then // 
+	ElsIf CreateDataBackup = 2 Then // Create a backup in the specified directory.
 		Form.Object.RestoreInfobase = True;
 		InfoPanel.CurrentPage = InfoPages.AutomaticRollback;
 	EndIf;

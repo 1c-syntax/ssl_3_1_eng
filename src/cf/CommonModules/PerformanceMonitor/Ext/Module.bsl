@@ -1,18 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Starts measuring the time of the key operation. You must explicitly end the measurement by calling
-// the end Timestamp or end Timestamptechnological procedure.
+// Starts measuring the time for the key operation. Time measurement must be completed explicitly by calling
+// EndTimeMeasurement or EndTechnologicalTimeMeasurement.
 //
 // Returns:
-//  Number - 
+//  Number - a 14-character-long number, start time in UTC, accurate to the nearest millisecond.
 //
 Function StartTimeMeasurement() Export
 
@@ -26,18 +28,18 @@ Function StartTimeMeasurement() Export
 
 EndFunction
 
-// Completes the key operation time measurement
-// and writes the result to the time Measurement information register.
+// Ends time measurement for the key operation
+// and writes the result to the TimeMeasurements information register.
 //
 // Parameters:
 //   KeyOperation	- CatalogRef.KeyOperations
-//                   	- String -  key operation.
-//  BeginTime			- Number										-  universal date, in milliseconds,
-//								  				  					  returned at the start of measurement by the performance Estimation function.Start timestamp.
-//  MeasurementWeight			- Number										-  a quantitative measurement indicator, such as the number of lines in a document.
+//                   	- String - key operation.
+//  BeginTime			- Number										- universal date (in milliseconds)
+//								  				  					  returned at the beginning of measurement by the PerformanceMonitor.BeginTimeMeasurement function.
+//  MeasurementWeight			- Number										- a quantitative indicator of the measurement, such as number of rows in a document.
 //  Comment			- String
-//             			- Map - 
-//  CompletedWithError	- Boolean									-  an indication that the measurement was not completed before the end of,
+//             			- Map - arbitrary information about the measurement.
+//  CompletedWithError	- Boolean									- indicates that the measurement was not completed to the end,
 //
 Procedure EndTimeMeasurement(KeyOperation, BeginTime, MeasurementWeight = 1, Comment = Undefined,
 	CompletedWithError = False) Export
@@ -60,17 +62,17 @@ Procedure EndTimeMeasurement(KeyOperation, BeginTime, MeasurementWeight = 1, Com
 	EndIf;
 EndProcedure
 
-// Completes the measurement time key operation
-// and writes the result to the register information Sametimeintegration.
+// Completes measuring the time of a key operation
+// and writes the result to the TimeMeasurementsTechnological information register.
 //
 // Parameters:
 //   KeyOperation	- CatalogRef.KeyOperations
-//                   	- String -  key operation.
-//  BeginTime			- Number										-  universal date, in milliseconds,
-//								  				  					  returned at the start of measurement by the performance Estimation function.Start timestamp.
-//  MeasurementWeight			- Number										-  a quantitative measurement indicator, such as the number of lines in a document.
+//                   	- String - key operation.
+//  BeginTime			- Number										- universal date (in milliseconds)
+//								  				  					  returned at the beginning of measurement by the PerformanceMonitor.BeginTimeMeasurement function.
+//  MeasurementWeight			- Number										- a quantitative indicator of the measurement, such as number of rows in a document.
 //  Comment			- String
-//             			- Map - 
+//             			- Map - arbitrary information about the measurement.
 //
 Procedure EndTechnologicalTimeMeasurement(KeyOperation, BeginTime, MeasurementWeight = 1,
 	Comment = Undefined) Export
@@ -93,10 +95,10 @@ Procedure EndTechnologicalTimeMeasurement(KeyOperation, BeginTime, MeasurementWe
 	EndIf;
 EndProcedure
 
-// Creates a key operation in the event of their absence.
+// Creates key operations if they are not available.
 //
 // Parameters:
-//  KeyOperations - Array -  key operations, array element-Structure ("key operation Name, target Time").
+//  KeyOperations - Array - key operations; each array element is a Structure("KeyOperationName, ResponseTimeThreshold").
 //
 Procedure CreateKeyOperations(KeyOperations) Export
 	Table = New ValueTable;
@@ -135,15 +137,15 @@ Procedure CreateKeyOperations(KeyOperations) Export
 
 	While Selection.Next() Do
 		If Selection.Ref.IsEmpty() Then
-			CreateKeyOperation(Selection.KeyOperationName, Selection.ResponseTimeThreshold); // 
+			CreateKeyOperation(Selection.KeyOperationName, Selection.ResponseTimeThreshold); // @skip-check query-in-loop - Create a key operation if it is missing.
 		EndIf;
 	EndDo;
 EndProcedure
 
-// Sets a new target time for the operation.
+// Sets a new time threshold for a key operation.
 //
 // Parameters:
-//  KeyOperations - Array -  key operations, array element-Structure ("key operation Name, target Time").
+//  KeyOperations - Array - key operations; each array element is a Structure("KeyOperationName, ResponseTimeThreshold").
 //
 Procedure SetTimeThreshold(KeyOperations) Export
 
@@ -204,14 +206,14 @@ Procedure SetTimeThreshold(KeyOperations) Export
 
 EndProcedure
 
-// Changes key operations.
+// Modifies key operations.
 //
 // Parameters:
-//  KeyOperations - Array -  key operations,
-//								array element-Structure ("Keyoperation_name, Keyoperation_name, target Time")
+//  KeyOperations - Array - key operations,
+//								each array element is a Structure("KeyOperationNameOld, KeyOperationNameNew , ResponseTimeThreshold")
 //								or
-//								array element - Structure ("Keyoperation_name, Keyoperation_name"),
-//								the target time does not change.
+//								a Structure("KeyOperationNameOld, KeyOperationNameNew"),
+//								does not change the time threshold.
 //
 Procedure ChangeKeyOperations(KeyOperations) Export
 
@@ -287,22 +289,22 @@ Procedure ChangeKeyOperations(KeyOperations) Export
 
 EndProcedure
 
-// Starts measuring the time of a long key operation. You must explicitly end the measurement by calling
-// the end-of-the-freeze Operation procedure.
+// Starts measuring the time of a long-running key operation. You must complete the measurement explicitly by calling
+// the EndTimeConsumingOperationMeasurement procedure.
 //
 // Parameters:
-//   KeyOperation	- String -  key operation.
+//   KeyOperation	- String - key operation.
 //
 // Returns:
 //   Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//   :
-//    
-//    
-//    
-//    
-//    
+//   Keys are:
+//    # KeyOperation - String - Key operation name.
+//    # StartTime - Number - Operation start time, in ms.
+//    # LastMeasurementTime - Last time the key operation was measured, in ms.
+//    # MeasurementWeight - Number - Amount of data processed during the runtime.
+//    # NestedMeasurements - Map - Collection of nested step samples.
 //
 Function StartTimeConsumingOperationMeasurement(KeyOperation) Export
 
@@ -320,12 +322,12 @@ Function StartTimeConsumingOperationMeasurement(KeyOperation) Export
 
 EndFunction
 
-// Captures the measurement of the nested step of a long operation.
+// Records the measurement of a nested step of a long-running operation.
 // Parameters:
-//  MeasurementDetails 		- Map	 -  must be obtained by calling the start method of a slow Operation.
-//  DataVolume 	- Number			 -  the amount of data, for example, of rows processed during execution of a nested step.
-//  StepName 			- String		 -  custom name of the nested step.
-//  Comment 		- String		 -  any additional description of the measurement.
+//  MeasurementDetails 		- Map	 - must be obtained by calling the StartTimeConsumingOperationMeasurement method.
+//  DataVolume 	- Number			 - amount of data, e.g. lines, processed during the nested step.
+//  StepName 			- String		 - an arbitrary name of the nested step.
+//  Comment 		- String		 - an arbitrary additional description of the measurement.
 //
 Procedure FixTimeConsumingOperationMeasure(MeasurementDetails, DataVolume, StepName, Comment = "") Export
 
@@ -337,7 +339,7 @@ Procedure FixTimeConsumingOperationMeasure(MeasurementDetails, DataVolume, StepN
 
 	Duration = CurrentTime - MeasurementDetails["LastMeasurementTime"];
 	DataVolumeInStep = ?(DataVolume = 0, 1, DataVolume);
-	// 
+	// Initializing the nested measurement if it's the first time it's performed.
 	NestedMeasurements = MeasurementDetails["NestedMeasurements"];
 	If NestedMeasurements[StepName] = Undefined Then
 		NestedMeasurements.Insert(StepName, New Map);
@@ -347,25 +349,25 @@ Procedure FixTimeConsumingOperationMeasure(MeasurementDetails, DataVolume, StepN
 		NestedMeasurementStep.Insert("Duration", 0.0);
 		NestedMeasurementStep.Insert("MeasurementWeight", 0);
 	EndIf;                                                            
-	// 
+	// Writing the nested measurement data.
 	NestedMeasurementStep = NestedMeasurements[StepName];
 	NestedMeasurementStep.Insert("EndTime", CurrentTime);
 	NestedMeasurementStep.Insert("Duration", Duration + NestedMeasurementStep["Duration"]);
 	NestedMeasurementStep.Insert("MeasurementWeight", DataVolumeInStep + NestedMeasurementStep["MeasurementWeight"]);
 	
-	// 
+	// Writing the data for a durable measurement.
 	MeasurementDetails.Insert("LastMeasurementTime", CurrentTime);
 	MeasurementDetails.Insert("MeasurementWeight", DataVolumeInStep + MeasurementDetails["MeasurementWeight"]);
 
 EndProcedure
 
-// Completes the measurement of a long operation.
-// If a step name is specified, captures it as a separate nested step
+// Completes the measurement of a long-running operation.
+// If a step name is specified, records it as a separate nested step
 // Parameters:
-//  MeasurementDetails 		- Map	 -  must be obtained by calling the start method of a slow Operation.
-//  DataVolume 	- Number			 -  the amount of data, for example, of rows processed during execution of a nested step.
-//  StepName 			- String		 -  custom name of the nested step.
-//  Comment 		- String		 -  any additional description of the measurement.
+//  MeasurementDetails 		- Map	 - must be obtained by calling the StartTimeConsumingOperationMeasurement method.
+//  DataVolume 	- Number			 - amount of data, e.g. lines, processed during the nested step.
+//  StepName 			- String		 - an arbitrary name of the nested step.
+//  Comment 		- String		 - an arbitrary additional description of the measurement.
 //
 Procedure EndTimeConsumingOperationMeasurement(MeasurementDetails, DataVolume, StepName = "", Comment = "") Export
 
@@ -377,18 +379,18 @@ Procedure EndTimeConsumingOperationMeasurement(MeasurementDetails, DataVolume, S
 		Return;
 	EndIf;
 	
-	// 
+	// Variables from the measurement details.
 	MeasurementStartTime	 = MeasurementDetails["BeginTime"];
 	KeyOperationName	 = MeasurementDetails["KeyOperation"];
 	NestedMeasurements		 = MeasurementDetails["NestedMeasurements"];
 	
-	// 
+	// Computed variables.
 	NestedMeasurementsAvailable = NestedMeasurements.Count();
 	CurrentTime = CurrentUniversalDateInMilliseconds();
 	Duration = CurrentTime - MeasurementStartTime;
 	WeightedTimeTotal = 0;
 	
-	// 
+	// If no step name is specified, but there are nested steps, the default name is "LastStep".
 	DataVolumeInStep = ?(DataVolume = 0, 1, DataVolume);
 	If NestedMeasurementsAvailable Then
 		FixTimeConsumingOperationMeasure(MeasurementDetails, DataVolumeInStep, ?(IsBlankString(StepName),
@@ -419,7 +421,7 @@ Procedure EndTimeConsumingOperationMeasurement(MeasurementDetails, DataVolume, S
 		MeasurementsArrayToWrite.Add(MeasurementParameters);
 	EndDo;
 	
-	// 
+	// Committing the key operation's weighted time.
 	MeasurementParameters = New Structure;
 	MeasurementParameters.Insert("KeyOperation", KeyOperationName + ".Specific");
 	MeasurementParameters.Insert("KeyOperationStartDate", MeasurementStartTime);
@@ -432,13 +434,13 @@ Procedure EndTimeConsumingOperationMeasurement(MeasurementDetails, DataVolume, S
 		MeasurementParameters.Insert("Duration", WeightedTimeTotal / 1000);
 		MeasurementParameters.Insert("MeasurementWeight", MeasurementDetails["MeasurementWeight"]);
 	Else
-		// 
+		// If there were no nested measurements, recording the weighted measurement.
 		MeasurementParameters.Insert("Duration", Duration / 1000 / DataVolumeInStep);
 		MeasurementParameters.Insert("MeasurementWeight", DataVolumeInStep);
 	EndIf;
 	MeasurementsArrayToWrite.Add(MeasurementParameters);
 	
-	// 
+	// Recording a long-running operation.
 	MeasurementParameters = New Structure;
 	MeasurementParameters.Insert("KeyOperation", KeyOperationName);
 	MeasurementParameters.Insert("Duration", (Duration) / 1000);
@@ -461,11 +463,11 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
+// Deprecated. Obsolete. It will be removed in the next library version.
+// Sets an error flag for a key operation.
 //
 // Parameters:
-//  KeyOperations - Array -  key operations, array element-Structure ("key operation Name, Attribute").
+//  KeyOperations - Array - key operations; each array element is a Structure("KeyOperationName, Flag").
 //
 Procedure SetCompletedWithErrorFlag(KeyOperations) Export
 
@@ -491,7 +493,7 @@ Procedure SetCompletedWithErrorFlag(KeyOperations) Export
 
 		For Each KeyOperation In KeyOperations Do
 			Query.SetParameter("Name", KeyOperation.KeyOperationName);
-			QueryResult = Query.Execute(); // 
+			QueryResult = Query.Execute(); // @skip-check query-in-loop - Obsolete code, not subject for rework.
 			If Not QueryResult.IsEmpty() Then
 				Selection = QueryResult.Select();
 				Selection.Next();
@@ -516,7 +518,7 @@ EndProcedure
 
 #Region Internal
 
-// Enables / disables performance measurements
+// Enables or disables performance measurements
 //
 Procedure EnablePerformanceMeasurements(Parameter) Export
 
@@ -528,12 +530,12 @@ EndProcedure
 
 #Region Private
 
-// Creates a new element of the "Key operations"reference list.
+// Creates an element in the "Key operations" catalog.
 //
 // Parameters:
-//  KeyOperationName - String -  name of the key operation.
-//  ResponseTimeThreshold - Number -  target time of the key operation.
-//  TimeConsuming - Boolean -  indicates whether the specific time for measuring a key operation is fixed.
+//  KeyOperationName - String - key operation name.
+//  ResponseTimeThreshold - Number - key operation time threshold.
+//  TimeConsuming - Boolean - indicates recording weighted time for the key operation measurement.
 //
 // Returns:
 //  CatalogRef.KeyOperations
@@ -596,18 +598,18 @@ Function CreateKeyOperation(KeyOperationName, ResponseTimeThreshold = 1, TimeCon
 
 EndFunction
 
-// Splits a string of several combined words into a string with individual words.
-// An uppercase character is considered a sign of the beginning of a new word.
+// Splits a string of several merged words into a string with separated words.
+// A sign of new word beginning is an uppercase letter.
 //
 // Parameters:
-//  String                 - String -  delimited text;
+//  String                 - String - delimited text;
 //
 // Returns:
-//  String - 
+//  String - String split into separate words.
 //
-// :
-//  
-//  
+// Example::
+//  SplitStringByWords("OneTwoThree") returns "One two three".
+//  Note that SplitStringByWords("onetwothree") returns "onetwothree".
 //
 Function SplitStringByWords(Val String)
 
@@ -654,23 +656,23 @@ Function SplitStringByWords(Val String)
 
 EndFunction
 
-// Current value of the measurement results recording period on the server
+// Returns the period of writing performance measurement results on the server
 //
 // Returns:
-//   Number - 
+//   Number - value in seconds.
 //
 Function RecordPeriod() Export
 	CurrentPeriod = Constants.PerformanceMonitorRecordPeriod.Get();
 	Return ?(CurrentPeriod > 60, CurrentPeriod, 60);
 EndFunction
 
-// Procedure for recording a single measurement
+// Writes a single measurement
 //
 // Parameters:
-//  Key Operation-Reference Link.Key operations - key operation
-//						or String - name of the key operation
-//  Duration - The Number
-//  Distanceluminosity Of - Date.
+//  KeyOperation - CatalogRef.KeyOperations - key operation
+//						or String - key operation name
+//  Duration - Number
+//  KeyOperationStartDate - Date.
 //
 Procedure RecordKeyOperationDuration(Parameters)
 
@@ -722,17 +724,17 @@ Procedure RecordKeyOperationDuration(Parameters)
 
 	Record.KeyOperation = KeyOperationRef;
 	
-	// 
+	// Getting the date in UTC
 	Record.MeasurementStartDate = KeyOperationStartDate;
 	Record.SessionNumber = InfoBaseSessionNumber();
 
-	Record.RunTime = ?(Duration = 0, 0.001, Duration); // 
+	Record.RunTime = ?(Duration = 0, 0.001, Duration); // Duration is less than timer resolution.
 	Record.MeasurementWeight = MeasurementWeight;
 
 	Record.RecordDate = Date(1, 1, 1) + CurrentUniversalDateInMilliseconds() / 1000;
 	Record.RecordDateBegOfHour = BegOfHour(Record.RecordDate);
 	If KeyOperationEndDate <> Undefined Then
-		// 
+		// Getting the date in UTC
 		Record.EndDate = KeyOperationEndDate;
 	EndIf;
 	Record.User = InfoBaseUsers.CurrentUser();
@@ -746,16 +748,16 @@ Procedure RecordKeyOperationDuration(Parameters)
 
 EndProcedure
 
-// Records the passed array of measurements.
-// The elements of the array - type structure.
-// Recording is performed by a set of records.
-//   Key operation - name of the key operation.
+// Records an array of measurements.
+// Each array element is a structure.
+// Records are made in sets.
+//   KeyOperation - name of the key operation.
 //   Duration - duration in milliseconds.
-//   Distanceluminosity - the start key of the operation in milliseconds.
-//   Key operation end dateis the time when the key operation ends, in milliseconds.
-//   Comment - any string, measurement comment.
-//   Measure weight - the amount of data processed.
-//   Long - indicates that the measurement duration is calculated per unit weight.
+//   KeyOperationStartDate - key operation start time in milliseconds.
+//   KeyOperationEndDate - key operation end time in milliseconds.
+//   Comment - any comment to the measurement.
+//   MeasurementWeight - amount of data processed.
+//   TimeConsuming - indicates whether the measurement duration is calculated per weight unit.
 //
 Procedure WriteTimeMeasurements(MeasurementsArray)
 
@@ -805,17 +807,17 @@ Procedure WriteTimeMeasurements(MeasurementsArray)
 
 		Record.KeyOperation = KeyOperationRef;
 	
-		// 
+		// Getting the date in UTC
 		Record.MeasurementStartDate = Measurement.KeyOperationStartDate;
 		Record.SessionNumber = SessionNumber;
 
-		Record.RunTime = ?(Measurement.Duration = 0, 0.001, Measurement.Duration); // 
+		Record.RunTime = ?(Measurement.Duration = 0, 0.001, Measurement.Duration); // Duration is less than timer resolution.
 		Record.MeasurementWeight = Measurement.MeasurementWeight;
 
 		Record.RecordDate = RecordDate;
 		Record.RecordDateBegOfHour = RecordDateBegOfHour;
 		If ValueIsFilled(Measurement.KeyOperationEndDate) Then
-			// 
+			// Getting the date in UTC
 			Record.EndDate = Measurement.KeyOperationEndDate;
 		EndIf;
 		Record.User = User;
@@ -839,11 +841,11 @@ Procedure WriteTimeMeasurements(MeasurementsArray)
 
 EndProcedure
 
-// Procedure for processing a routine task for uploading data
+// Processes a data export scheduled job
 //
 // Parameters:
-//  DirectoriesForExport - Structure -  a structure with an Array value.
-//   AddlParameters - Structure -  advanced setting.
+//  DirectoriesForExport - Structure - a structure with Array values.
+//   AddlParameters - Structure - additional parameters.
 //
 Procedure PerformanceMonitorDataExport(DirectoriesForExport, AddlParameters = Undefined) Export
 
@@ -853,7 +855,7 @@ Procedure PerformanceMonitorDataExport(DirectoriesForExport, AddlParameters = Un
 			Metadata.ScheduledJobs.PerformanceMonitorDataExport);
 	EndIf;
 		
-	// 
+	// Skipping data export if performance measurement is turned off
 	If AddlParameters = Undefined
 		And Not PerformanceMonitorServerCallCached.RunPerformanceMeasurements() Then
 		Return;
@@ -920,7 +922,7 @@ Procedure PerformanceMonitorDataExport(DirectoriesForExport, AddlParameters = Un
 
 EndProcedure
 
-// Procedure for processing a routine task for clearing measurement registers
+// Handles the scheduled job for clearing measurement registers
 Procedure ClearTimeMeasurementsRegisters() Export
 
 	If PerformanceMonitorInternal.SubsystemExists("StandardSubsystems.Core") Then
@@ -963,7 +965,7 @@ Procedure ClearTimeMeasurementsRegisters() Export
 		If DeletionRequired Then
 			DeletionRequired = False;
 
-			Result = TimeMeasurementsQuery.Execute(); // 
+			Result = TimeMeasurementsQuery.Execute(); // @skip-check query-in-loop - Batch-wise data processing.
 			Selection = Result.Select();
 			Selection.Next();
 			RecordDateBegOfHour = Selection.RecordDateBegOfHour;
@@ -977,7 +979,7 @@ Procedure ClearTimeMeasurementsRegisters() Export
 
 		If TechnologicalDeletionRequired Then
 			TechnologicalDeletionRequired = False;
-			Result = TechnologicalTimeMeasurementsQuery.Execute(); // 
+			Result = TechnologicalTimeMeasurementsQuery.Execute(); // @skip-check query-in-loop - Batch-wise data processing.
 			Selection = Result.Select();
 			Selection.Next();
 			RecordDateBegOfHour = Selection.RecordDateBegOfHour;
@@ -992,11 +994,11 @@ Procedure ClearTimeMeasurementsRegisters() Export
 
 EndProcedure
 
-// Routine export task
+// Scheduled job for export
 // Parameters:
 //   AddlParameters - Structure:
-//   * StartDate - Date -  measurement start date
-//   * EndDate - Date -  end date of measurements.
+//   * StartDate - Date - measurement start date
+//   * EndDate - Date - measurement end date.
 //
 Function MeasurementsDividedByKeyOperations(MeasurementsDateUpperBoundary, AddlParameters = Undefined)
 
@@ -1092,12 +1094,12 @@ Function MeasurementsDividedByKeyOperations(MeasurementsDateUpperBoundary, AddlP
 	Return MeasurementsByFiles;
 EndFunction
 
-// Saves the results of the APDEX calculation to a file
+// Saves Apdex calculation result to a file
 //
 // Parameters:
-//  DirectoriesForExport - 
-//  
-//  MeasurementsArrays - a structure with an Array value.
+//  DirectoriesForExport - a structure with Array values.
+//  APDEXSelection - a query result
+//  MeasurementsArrays - a structure with Array values.
 //
 Procedure ExportResults(DirectoriesForExport, MeasurementsArrays, CurDate, FileSequenceNumber)
 
@@ -1237,14 +1239,14 @@ Function TimeMeasurementsWithProfileFiltering()
 			|";
 EndFunction
 
-// Generates a file name for export
+// Generates a file name for exporting measurement results
 //
 // Parameters:
 //  Directory - String, 
-//  Dataterminalready of - date - the date and time reset
-//  ExtentionWithDot - String -  specifies the file extension, in the form". xxx". 
+//  FileGenerationDate - Date - a measurement date and time
+//  ExtentionWithDot - String - a string containing a file extension with a dot. For example, ".xxx". 
 // Returns:
-//  String - 
+//  String - full path to the export file.
 //
 Function ExportFileFullName(Directory, CurDate, FileSequenceNumber, ExtentionWithDot)
 
@@ -1252,14 +1254,14 @@ Function ExportFileFullName(Directory, CurDate, FileSequenceNumber, ExtentionWit
 	FileSequenceNumberFormat = Format(FileSequenceNumber, "ND=5; NLZ=; NG=0");
 
 	Separator = ?(Upper(Left(Directory, 3)) = "FTP", "/", GetPathSeparator());
-	// 
+	// ACC-1367-off - A non-localizable (hard-coded) filename template.
 	Return RemoveSeparatorsAtFileNameEnd(Directory, Separator) + Separator + Format(FileFormationDate,
 		"DF='yyyy-MM-dd HH-mm-ex-" + FileSequenceNumberFormat + "'") + ExtentionWithDot;
-	// 
+	// ACC:1367-on
 
 EndFunction
 
-// Check the path for a trailing slash, and if there is one, delete it
+// Checks whether a path ends with a slash mark and deletes the slash mark
 //
 // Parameters:
 //  FileName - String
@@ -1313,7 +1315,7 @@ Procedure LoadPerformanceMonitorFile(FileName, StorageAddress) Export
 			XMLReader.OpenFile(File.FullName);
 			XMLReader.MoveToContent();
 
-			// 
+			// @skip-check query-in-loop - Batch-wise data processing.
 			LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperations,
 				KeyOperationsToWrite, RawMeasurementsToWrite);  
 			XMLReader.Close();
@@ -1351,7 +1353,7 @@ Procedure LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperation
 
 	Namespace = XMLReader.NamespaceURI;
 	
-	// 
+	// Starting from version 1.0.0.4, information on executing a measurement with an error is stored in the measurement itself instead of the key operation.
 	ErrorInMeasurementFlag = Metadata.XDTOPackages.ApdexExport_1_0_0_4.Namespace = Namespace;
 
 	Measurements = "measurement";
@@ -1370,7 +1372,7 @@ Procedure LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperation
 
 		KeyOperationRef = AvailableKeyOperations[KeyOperationName1];
 		If KeyOperationRef = Undefined Then
-			KeyOperationRef = CreateKeyOperation(KeyOperationName1, ResponseTimeThreshold, TimeConsuming);  // 
+			KeyOperationRef = CreateKeyOperation(KeyOperationName1, ResponseTimeThreshold, TimeConsuming);  // @skip-check query-in-loop - Create an operation if it is missing.
 			AvailableKeyOperations.Insert(KeyOperationName1, KeyOperationRef);
 		EndIf;
 
@@ -1422,19 +1424,19 @@ Function AvailableKeyOperations()
 	Return AvailableKeyOperations;
 EndFunction
 
-// Adds a trailing delimiter character to the passed directory path, if it is missing.
+// Adds the trailing separator to the passed directory path if it is missing.
 //
 // Parameters:
-//  DirectoryPath - String -  directory path.
-//  Platform - PlatformType -  this parameter is deprecated and is no longer used.
+//  DirectoryPath - String - directory path.
+//  Platform - PlatformType - deprecated parameter.
 //
 // Returns:
-//  String - 
+//  String - path to the directory, including the trailing separator.
 //
 // Example:
-//  Result = Dobasefinalization("Svi directory"); // returns "Svi directory\".
-//  Result = Dobasefinalization("Svi directory\"); // returns "Svi directory\".
-//  Result = add an end path Separator ("%APPDATA%"); / / returns " %APPDATA%\".
+//  Result = AddFinalPathSeparator("C:\My directory"); // Returns "C:\My directory\".
+//  Result = AddFinalPathSeparator("C:\My directory\"); // Returns "C:\My directory\".
+//  Result = AddFinalPathSeparator("%APPDATA%"); // Returns "%APPDATA%\".
 //
 Function AddLastPathSeparator(Val DirectoryPath, Val Platform = Undefined)
 	If IsBlankString(DirectoryPath) Then

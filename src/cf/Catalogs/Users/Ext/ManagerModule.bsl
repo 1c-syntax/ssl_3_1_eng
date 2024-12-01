@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Not MobileStandaloneServer Then
 
@@ -14,10 +16,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns the details of an object that is not recommended to edit
-// by processing a batch update of account details.
+// Returns the object attributes that are not recommended to be edited
+// using a bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String
@@ -36,7 +38,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -56,9 +58,9 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
-// Defines a list of creation commands based on.
+// Defines the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
@@ -68,14 +70,14 @@ Procedure AddGenerationCommands(GenerationCommands, Parameters) Export
 	
 EndProcedure
 
-// To use in the procedure add a create command Based on other object Manager modules.
-// Adds this object to the list of base creation commands.
+// Intended for use by the AddGenerationCommands procedure in other object manager modules.
+// Adds this object to the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
 //
 // Returns:
-//  ValueTableRow, Undefined - 
+//  ValueTableRow, Undefined - Details of the added command.
 //
 Function AddGenerateCommand(GenerationCommands) Export
 	
@@ -125,7 +127,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Infobase update.
 	
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	

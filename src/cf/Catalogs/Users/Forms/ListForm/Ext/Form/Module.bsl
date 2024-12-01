@@ -1,15 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 ////////////////////////////////////////////////////////////////////////////////
-//                          
+//                          FORM USAGE                                         //
 //
-//  See UsersOverridable.OnDefineUsersSelectionForm
+// Description of the parameters See UsersOverridable.OnDefineUsersSelectionForm
 //
 
 #Region Variables
@@ -27,14 +29,14 @@ Var SearchStringText;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// 
+	// The initial setting value (before loading data from the settings).
 	SelectHierarchy = True;
 	Items.ChoiceCommandBarGroup.Visible = False;
 	
@@ -45,14 +47,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
 		
 	ElsIf Users.IsFullUser() Then
-		// 
+		// Adding the filter by users added by the person responsible for the list.
 		CommonClientServer.SetDynamicListFilterItem(
 			UsersList, "Prepared", True, ,
 			NStr("en = 'Users are submitted for authorization';"), False,
 			DataCompositionSettingsItemViewMode.Normal);
 	EndIf;
 	
-	// 
+	// If the parameter value is True, hide users with empty IDs.
 	If Parameters.HideUsersWithoutMatchingIBUsers Then
 		CommonClientServer.SetDynamicListFilterItem(
 			UsersList,
@@ -61,7 +63,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			DataCompositionComparisonType.NotEqual);
 	EndIf;
 	
-	// 
+	// Hide utility users.
 	If Users.IsFullUser() Then
 		CommonClientServer.SetDynamicListFilterItem(
 			UsersList, "IsInternal", False, , , True,
@@ -94,7 +96,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.UsersInfo.Visible = False;
 		Items.UserGroups.ChoiceMode = StoredParameters.UsersGroupsSelection;
 		
-		// 
+		// Hiding the user passed from the user selection form.
 		If TypeOf(Parameters.UsersToHide) = Type("ValueList") Then
 			CommonClientServer.SetDynamicListFilterItem(
 				UsersList,
@@ -103,7 +105,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				DataCompositionComparisonType.NotInList);
 		EndIf;
 		
-		// 
+		// Disabling dragging users in the "select users" and "pick users" forms.
 		Items.UsersList.EnableStartDrag = False;
 		
 		If ValueIsFilled(Parameters.NonExistingIBUsersIDs) Then
@@ -115,7 +117,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		
 		If Parameters.CloseOnChoice = False Then
-			// 
+			// Pick mode.
 			Items.UsersList.MultipleChoice = True;
 			
 			If StoredParameters.AdvancedPick Then
@@ -558,7 +560,7 @@ Procedure UsersListOnActivateRow(Item)
 	Items.FormSetPassword.Enabled = CanChangePassword;
 	Items.UsersListContextMenuSetPassword.Enabled = CanChangePassword;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Not StoredParameters.AdvancedPick
 	   And CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		
@@ -672,7 +674,7 @@ EndProcedure
 &AtClient
 Procedure UsersListSearchOnActivateRow(Item)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -775,7 +777,7 @@ Procedure UsersInfo(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Support of batch object change.
 
 &AtClient
 Procedure ChangeSelectedItems(Command)
@@ -966,7 +968,7 @@ EndFunction
 //   * AdvancedPick - Boolean
 //   * UseGroups - Arbitrary
 //   * AllUsersGroup - CatalogRef.UserGroups
-//   * CurrentRow - 
+//   * CurrentRow - CatalogRef, Undefined
 //   * PickFormHeader - String
 //   * PickingCompletionButtonTitle - String
 //
@@ -1010,7 +1012,7 @@ Procedure SetAllUsersGroupOrder(List)
 	
 	Var Order;
 	
-	// 
+	// Order.
 	Order = List.SettingsComposer.Settings.Order;
 	Order.UserSettingID = "DefaultOrder";
 	
@@ -1134,7 +1136,7 @@ EndFunction
 &AtServer
 Procedure ChangeExtendedPickFormParameters()
 	
-	// 
+	// Loading the list of selected users.
 	PickingParameters = UsersInternal.NewParametersOfExtendedPickForm();
 	If ValueIsFilled(Parameters.ExtendedPickFormParameters) Then
 		GivenParameters = GetFromTempStorage(Parameters.ExtendedPickFormParameters);
@@ -1154,10 +1156,10 @@ Procedure ChangeExtendedPickFormParameters()
 	StoredParameters.PickFormHeader = PickingParameters.PickFormHeader;
 	StoredParameters.PickingCompletionButtonTitle = PickingParameters.PickingCompletionButtonTitle;
 	
-	// 
+	// Setting parameters of the extended pick form.
 	Items.EndAndClose.Visible         = True;
 	Items.SelectUserGroup.Visible = True;
-	// 
+	// Making the list of selected users visible.
 	Items.SelectedUsersAndGroups.Visible = True;
 	
 	If Common.IsMobileClient() Then
@@ -1173,7 +1175,7 @@ Procedure ChangeExtendedPickFormParameters()
 		Items.UserGroups.Height                      = 3;
 		Height                                        = 17;
 		Items.SelectGroupGroup.Visible                   = True;
-		// 
+		// Making the titles of UsersList and UserGroups lists visible.
 		Items.UserGroups.TitleLocation          = FormItemTitleLocation.Top;
 		Items.UsersList.TitleLocation           = FormItemTitleLocation.Top;
 		Items.UsersList.Title                    = NStr("en = 'Users in group';");
@@ -1297,7 +1299,7 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False,
 		AutoTitle = False;
 		
 		If Parameters.CloseOnChoice = False Then
-			// 
+			// Pick mode.
 			If UsersGroupsSelection Then
 				Title = ?(StoredParameters.AdvancedPick, StoredParameters.PickFormHeader,
 					NStr("en = 'Pick users and groups';"));
@@ -1317,7 +1319,7 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False,
 				EndIf;
 			EndIf;
 		Else
-			// 
+			// Selection mode.
 			If UsersGroupsSelection Then
 				Title = NStr("en = 'Select user or group';");
 				
@@ -1331,8 +1333,8 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False,
 	
 	RefreshFormContentOnGroupChange(ThisObject);
 	
-	// 
-	// 
+	// Force-update the visibility after the functional option changed
+	// without employing the "RefreshInterface" command.
 	Items.UserGroups.Visible = False;
 	Items.UserGroups.Visible = True;
 	
@@ -1377,7 +1379,7 @@ Function MoveUserToNewGroup(UsersArray, NewParentGroup, Move)
 	
 EndFunction
 
-// Question handler.
+// A question handler.
 //
 // Parameters:
 //  Response - DialogReturnCode
@@ -1488,7 +1490,7 @@ Procedure ListOnChangeAtServer()
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

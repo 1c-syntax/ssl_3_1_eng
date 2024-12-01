@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns the details of an object that is not recommended to edit
-// by processing a batch update of account details.
+// Returns the object attributes that are not recommended to be edited
+// using a bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String
@@ -51,14 +53,14 @@ Procedure CreateScenario(
 	
 	DataExchangeScenario = CreateItem();
 	
-	// 
+	// Filling in header attributes
 	DataExchangeScenario.Description = Description;
 	DataExchangeScenario.UseScheduledJob = UseScheduledJob;
 	
-	// 
+	// Creating a scheduled job.
 	UpdateScheduledJobData(Cancel, Schedule, DataExchangeScenario);
 	
-	// 
+	// A table.
 	TableRow = DataExchangeScenario.ExchangeSettings.Add();
 	TableRow.ExchangeTransportKind = ExchangeTransportKind;
 	TableRow.CurrentAction = Enums.ActionsOnExchange.DataImport;
@@ -100,15 +102,15 @@ Function DefaultJobSchedule() Export
 	
 	Schedule = New JobSchedule;
 	Schedule.WeekDays                = WeekDays;
-	Schedule.RepeatPeriodInDay = 900; // 
-	Schedule.DaysRepeatPeriod        = 1; // 
+	Schedule.RepeatPeriodInDay = 900; // 15 minutes.
+	Schedule.DaysRepeatPeriod        = 1; // Every day.
 	Schedule.Months                   = Months;
 	
 	Return Schedule;
 EndFunction
 
-// Gets the schedule of a scheduled task.
-// If a scheduled task is not set, it returns an empty schedule (by default).
+// Gets a scheduled job schedule.
+// If a scheduled job is not specified, the function returns an empty schedule (by default).
 //
 Function GetDataExchangeExecutionSchedule(ExchangeExecutionSettings) Export
 	
@@ -144,16 +146,16 @@ Procedure UpdateScheduledJobData(Cancel, JobSchedule, CurrentObject) Export
 		
 	Else
 	
-		// 
+		// Getting a scheduled job by ID. If the scheduled job is not found, a new one is created.
 		ScheduledJobObject = CreateScheduledJobIfNecessary(Cancel, CurrentObject);
 				
-		// 
+		// Update scheduled job properties.
 		SetScheduledJobParameters(ScheduledJobObject, JobSchedule, CurrentObject);
 		
-		// 
+		// Writing a modified job.
 		WriteScheduledJob(Cancel, ScheduledJobObject);
 		
-		// 
+		// Writing GUID of the scheduled job in the object attribute.
 		CurrentObject.GUIDScheduledJob = String(ScheduledJobObject.UUID);
 	
 	EndIf;
@@ -164,7 +166,7 @@ Function CreateScheduledJobIfNecessary(Cancel, CurrentObject)
 	
 	ScheduledJobObject = ScheduledJobByID(CurrentObject.GUIDScheduledJob);
 	
-	// 
+	// Creating a scheduled job if necessary.
 	If ScheduledJobObject = Undefined Then
 		JobParameters = New Structure("Metadata", Metadata.ScheduledJobs.DataSynchronization);
 		ScheduledJobObject = ScheduledJobsServer.AddJob(JobParameters);
@@ -186,19 +188,19 @@ Procedure SetScheduledJobParameters(ScheduledJobObject, JobSchedule, CurrentObje
 	ScheduledJobObject.Use = CurrentObject.UseScheduledJob;
 	ScheduledJobObject.Parameters     = ScheduledJobParameters;
 	
-	// 
+	// Updating the schedule if it is modified.
 	If JobSchedule <> Undefined Then
 		ScheduledJobObject.Schedule = JobSchedule;
 	EndIf;
 	
 EndProcedure
 
-// Records a routine task.
+// Writes a scheduled job.
 //
 // Parameters:
-//  Cancel                     - Boolean -  flag of failure. If errors were detected during the procedure
-//                                       , the failure flag is set to True.
-//  ScheduledJobObject - 
+//  Cancel                     - Boolean - a cancellation flag. It is set to True
+//                                       if errors occur upon the procedure execution.
+//  ScheduledJobObject - a scheduled job object to record.
 // 
 Procedure WriteScheduledJob(Cancel, ScheduledJobObject)
 	
@@ -206,7 +208,7 @@ Procedure WriteScheduledJob(Cancel, ScheduledJobObject)
 	
 	Try
 		
-		// 
+		// Write a scheduled job.
 		ScheduledJobObject.Write();
 		
 	Except
@@ -278,14 +280,14 @@ Procedure CreateUpdateScheduledJobInService(JobSchedule, CurrentObject)
 
 EndProcedure
 
-// Returns a scheduled task by GUID.
+// Returns a scheduled job by GUID.
 //
 // Parameters:
-//  JobUUID - String -  a string with the GUID of the scheduled task.
+//  JobUUID - String - a string with the scheduled job GUID.
 // 
 // Returns:
-//  Undefined        - 
-//  
+//  Undefined        - if a scheduled job with the specified GUID is not found or
+//  ScheduledJob - a scheduled job found by GUID.
 //
 Function ScheduledJobByID(Val JobUUID) Export
 	
@@ -307,8 +309,8 @@ Function ScheduledJobByID(Val JobUUID) Export
 	
 EndFunction
 
-// Removes a node from all data exchange scenarios.
-// If the script is empty after that, the script is deleted.
+// Deletes a node from all data exchange scenarios.
+// If the node deletion leaves some scenarios empty, the scenario is deleted.
 //
 Procedure ClearRefsToInfobaseNode(Val InfobaseNode) Export
 
@@ -432,7 +434,7 @@ Procedure AddDataExchangeScenarioSettingsRows(
 	ExchangeTransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(InfobaseNode);
 	
 	If CurrentAction = Enums.ActionsOnExchange.DataExport Then
-		// 
+		// Adding data export in a loop.
 		MaxIndex = ExchangeSettings.Count() - 1;
 		
 		For IndexOf = 0 To MaxIndex Do
@@ -441,7 +443,7 @@ Procedure AddDataExchangeScenarioSettingsRows(
 			
 			TableRow = ExchangeSettings[ReverseIndex];
 			
-			// 
+			// The last export row.
 			If TableRow.CurrentAction = CurrentAction Then
 				
 				NewRow = ExchangeSettings.Insert(ReverseIndex + 1);
@@ -455,7 +457,7 @@ Procedure AddDataExchangeScenarioSettingsRows(
 			
 		EndDo;
 		
-		// 
+		// If the row is not added to the loop, add a row to the end of the table.
 		Filter = New Structure("InfobaseNode, CurrentAction", InfobaseNode, CurrentAction);
 		If ExchangeSettings.FindRows(Filter).Count() = 0 Then
 			
@@ -467,10 +469,10 @@ Procedure AddDataExchangeScenarioSettingsRows(
 			
 		EndIf;
 	ElsIf CurrentAction = Enums.ActionsOnExchange.DataImport Then
-		// 
+		// Adding data import in a loop.
 		For Each TableRow In ExchangeSettings Do
 			
-			If TableRow.CurrentAction = CurrentAction Then // 
+			If TableRow.CurrentAction = CurrentAction Then // The first import row.
 				
 				NewRow = ExchangeSettings.Insert(ExchangeSettings.IndexOf(TableRow));
 				
@@ -483,7 +485,7 @@ Procedure AddDataExchangeScenarioSettingsRows(
 			
 		EndDo;
 		
-		// 
+		// If the row is not added in the loop, insert the row to the beginning of the table.
 		Filter = New Structure("InfobaseNode, CurrentAction", InfobaseNode, CurrentAction);
 		If ExchangeSettings.FindRows(Filter).Count() = 0 Then
 			

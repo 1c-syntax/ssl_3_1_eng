@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// To set up a report form.
+// Set report form settings.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -402,10 +404,10 @@ Function NextColor(Colors, HandlerName, Generator, Precise)
 			Red = Generator.RandomNumber(32, 192);
 			Green = Generator.RandomNumber(32, 192);
 			B = Generator.RandomNumber(32, 192);
-			Color = New Color(Red, Green, B);
+			Color = New Color(Red, Green, B); //@skip-check new-color - Intended for making the Gantt chart more visually informative.
 		Else
 			Gray = Generator.RandomNumber(32, 192);
-			Color = New Color(Gray, Gray, Gray);
+			Color = New Color(Gray, Gray, Gray); //@skip-check new-color - Intended for making the Gantt chart more visually informative.
 		EndIf;
 		
 		Handler[HandlerName] = Color;

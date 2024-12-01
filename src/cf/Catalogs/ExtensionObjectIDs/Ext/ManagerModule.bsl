@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Not MobileStandaloneServer Then
 
@@ -14,10 +16,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -30,12 +32,12 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// SaaSTechnology.ExportImportData
 
-// Returns the directory details that form the natural key for the directory elements.
+// Returns the catalog attributes that naturally form a catalog item key.
 //
 // Returns:
-//  Array of String - 
+//  Array of String - Array of attribute names used to generate a natural key.
 //
 Function NaturalKeyFields() Export
 	
@@ -43,7 +45,7 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End CloudTechnology.ExportImportData
+// End SaaSTechnology.ExportImportData
 
 #EndRegion
 
@@ -116,18 +118,18 @@ EndFunction
 
 #Region Private
 
-// This procedure updates the configuration metadata reference data.
+// This procedure updates catalog data using the configuration metadata.
 //
 // Parameters:
-//  HasChanges  - Boolean -  the return value. This parameter returns
-//                   the value True if a record was made, otherwise it does not change.
+//  HasChanges  - Boolean - a return value). True is returned
+//                   to this parameter if changes are saved. Otherwise, not modified.
 //
-//  HasDeletedItems  - Boolean -  the return value. This parameter returns
-//                   the value True if at least one element of the directory has been marked
-//                   for deletion, otherwise it does not change.
+//  HasDeletedItems  - Boolean - a return value. Receives
+//                   True if a catalog item was marked
+//                   for deletion. Otherwise, not modified.
 //
-//  IsCheckOnly - Boolean -  do not make any changes, but only check the
-//                   check boxes there are Changes, there are Deleted.
+//  IsCheckOnly - Boolean - make no changes, just set
+//                   the HasChanges and HasDeleted flags.
 //
 Procedure UpdateCatalogData(HasChanges = False, HasDeletedItems = False, IsCheckOnly = False) Export
 	
@@ -136,16 +138,16 @@ Procedure UpdateCatalogData(HasChanges = False, HasDeletedItems = False, IsCheck
 	
 EndProcedure
 
-// Returns True if the metadata object that corresponds
-// to the extension object ID exists in the directory and
-// is not marked for deletion, but is not in the extension metadata cache.
+// Returns True if the metadata object,
+// which the extension object ID corresponds to, exists in the catalog,
+// does not have the deletion mark but is absent from the extension metadata cache.
 //
 // Parameters:
-//  Id - CatalogRef.ExtensionObjectIDs -  ID
-//                    of the extension metadata object.
+//  Id - CatalogRef.ExtensionObjectIDs - the ID
+//                    of a metadata object in an extension.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if disabled.
 //
 Function ExtensionObjectDisabled(Id) Export
 	

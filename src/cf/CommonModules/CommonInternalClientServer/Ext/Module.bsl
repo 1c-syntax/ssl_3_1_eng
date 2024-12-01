@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
@@ -52,24 +54,24 @@ EndFunction
 
 #Region Other
 
-// Calculates the values of numeric cells in a table document.
+// Calculates indicators of numeric cells in a spreadsheet document.
 //
 // Parameters:
-//   SpreadsheetDocument - SpreadsheetDocument - 
+//   SpreadsheetDocument - SpreadsheetDocument - Spreadsheet document whose indicators are being computed.
 //   SelectedAreas - Array of See CommonClientServer.CellsIndicatorsCalculationParameters.
 //
 // Returns:
-//   Structure - :
-//       * Count         - Number -  the number of selected cells.
-//       * NumericCellsCount - Number -  number of numeric cells.
-//       * Sum      - Number -  the sum of the selected cells with numbers.
-//       * Mean    - Number -  the sum of the selected cells with numbers.
-//       * Minimum    - Number -  the sum of the selected cells with numbers.
-//       * Maximum   - Number -  maximum of selected cells with numbers.
+//   Structure - Outcome of the selected cell.:
+//       * Count         - Number - selected cells count.
+//       * NumericCellsCount - Number - numeric cells count.
+//       * Sum      - Number - a sum of the selected cells with numbers.
+//       * Mean    - Number - a sum of the selected cells with numbers.
+//       * Minimum    - Number - a sum of the selected cells with numbers.
+//       * Maximum   - Number - a sum of the selected cells with numbers.
 //
 Function CalculationCellsIndicators(Val SpreadsheetDocument, SelectedAreas) Export 
 	
-	#Region ResultConstructor
+#Region ResultConstructor
 	
 	CalculationIndicators = New Structure;
 	CalculationIndicators.Insert("Count", 0);
@@ -80,7 +82,7 @@ Function CalculationCellsIndicators(Val SpreadsheetDocument, SelectedAreas) Expo
 	CalculationIndicators.Insert("Minimum", 0);
 	CalculationIndicators.Insert("Maximum", 0);
 	
-	#EndRegion
+#EndRegion
 	
 	CheckedCells = New Map;
 	
@@ -91,7 +93,7 @@ Function CalculationCellsIndicators(Val SpreadsheetDocument, SelectedAreas) Expo
 			Continue;
 		EndIf;
 		
-		#Region SelectedAreaBoundariesDetermination
+#Region SelectedAreaBoundariesDetermination
 		
 		SelectedAreaTop  = SelectedArea1.Top;
 		SelectedAreaBottom   = SelectedArea1.Bottom;
@@ -122,7 +124,7 @@ Function CalculationCellsIndicators(Val SpreadsheetDocument, SelectedAreas) Expo
 		SelectedAreaHeight = SelectedAreaBottom   - SelectedAreaTop + 1;
 		SelectedAreaWidth = SelectedAreaRight - SelectedAreaLeft + 1;
 		
-		#EndRegion
+#EndRegion
 		
 		CalculationIndicators.Count = CalculationIndicators.Count + SelectedAreaWidth * SelectedAreaHeight;
 		
@@ -140,7 +142,7 @@ Function CalculationCellsIndicators(Val SpreadsheetDocument, SelectedAreas) Expo
 				
 				If Cell.Visible = True Then
 					
-					#Region CellValueDetermination
+#Region CellValueDetermination
 					
 					If Cell.AreaType <> SpreadsheetDocumentCellAreaType.Columns
 						And Cell.ContainsValue And TypeOf(Cell.Value) = Type("Number") Then
@@ -175,11 +177,11 @@ Function CalculationCellsIndicators(Val SpreadsheetDocument, SelectedAreas) Expo
 						Continue;
 					EndIf;
 					
-					#EndRegion
+#EndRegion
 					
 					CalculationIndicators.FilledCellsCount = CalculationIndicators.FilledCellsCount + 1;
 					
-					#Region IndicatorsCalculation
+#Region IndicatorsCalculation
 					
 					If TypeOf(Number) = Type("Number") Then
 						
@@ -196,7 +198,7 @@ Function CalculationCellsIndicators(Val SpreadsheetDocument, SelectedAreas) Expo
 						
 					EndIf;
 					
-					#EndRegion
+#EndRegion
 					
 				EndIf;
 				
@@ -220,7 +222,7 @@ Function AddInAttachType(Isolated) Export
 		Return Undefined;
 	EndIf;
 	
-	#If Not WebClient And Not MobileClient Then
+#If Not WebClient And Not MobileClient Then
 		
 	If Isolated Then
 		Return AddInAttachmentType.Isolated;
@@ -228,11 +230,11 @@ Function AddInAttachType(Isolated) Export
 	
 	Return AddInAttachmentType.NotIsolated;
 	
-	#Else
+#Else
 	
 	Return Undefined;
 	
-	#EndIf
+#EndIf
 	
 EndFunction
 
@@ -284,10 +286,10 @@ EndFunction
 
 Function UseStandardGettingPredefinedItemFunction(FullPredefinedItemName) Export
 	
-	// 
-	//   
-	//  
-	//  
+	// A standard 1C:Enterprise function is used to obtain:
+	//  - Empty references 
+	//  - Enumeration members
+	//  - Business process route points
 	
 	Return StrEndsWith(Upper(FullPredefinedItemName), ".EMPTYREF")
 		Or StrStartsWith(Upper(FullPredefinedItemName), "ENUM.")
@@ -315,20 +317,20 @@ EndFunction
 
 Function PredefinedItem(FullPredefinedItemName, PredefinedItemFields, PredefinedValues) Export
 	
-	// 
+	// In case of error in metadata name.
 	If PredefinedValues = Undefined Then 
 		Raise PredefinedValueNotFoundErrorText(FullPredefinedItemName);
 	EndIf;
 	
-	// 
+	// Getting result from cache.
 	Result = PredefinedValues.Get(PredefinedItemFields.PredefinedItemName);
 	
-	// 
+	// If the predefined item does not exist in metadata.
 	If Result = Undefined Then 
 		Raise PredefinedValueNotFoundErrorText(FullPredefinedItemName);
 	EndIf;
 	
-	// 
+	// If the predefined item exists in metadata but not in the infobase.
 	If Result = Null Then 
 		Return Undefined;
 	EndIf;
@@ -415,7 +417,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 	
 	FileRunMode = Parameters.InfobaseOperatingMode = 0;
 	
-	// 
+	// Checking parameter correctness.
 	FillingCheckError = False;
 	If FileRunMode Then
 		
@@ -441,7 +443,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters, ConnectionNotAvaila
 		
 	EndIf;
 	
-	// 
+	// Generate the connection string.
 	ConnectionStringPattern = "[InfobaseString][AuthenticationString]";
 	
 	If FileRunMode Then
@@ -610,15 +612,15 @@ Function LatinString(Val Value, TransliterationRules) Export
 	
 	For Position = 1 To StrLen(Value) Do
 		Char = Mid(Value, Position, 1);
-		LatinChar = TransliterationRules[Lower(Char)]; // 
+		LatinChar = TransliterationRules[Lower(Char)]; // Search the map regardless the register.
 		If LatinChar = Undefined Then
-			// 
+			// Keep the other characters as is.
 			LatinChar = Char;
 		Else
 			If OnlyUppercaseInString Then 
-				LatinChar = Upper(LatinChar); // 
+				LatinChar = Upper(LatinChar); // Restore the register
 			ElsIf Char = Upper(Char) Then
-				LatinChar = Title(LatinChar); // 
+				LatinChar = Title(LatinChar); // Restore the register
 			EndIf;
 		EndIf;
 		Result = Result + LatinChar;
@@ -641,22 +643,22 @@ Function OnlyUppercaseInString(Value)
 	
 EndFunction
 
-// Returns the period representation in lowercase or uppercase
-//  if the phrase (sentence) begins with it.
-//  For example, if you want to output a representation of the period in the report header
-//  in the format of "Sales in [Datacache] - [Datacentre]", it is expected that
+// Returns a lowercase period presentation, or uppercase
+//  if a phrase or a sentence starts with the period.
+//  For example, if the period must be displayed in the report heading
+//  as "Sales for [StartDate] - [EndDate]",
 //  the result will look like this: "Sales for February 2020 - March 2020".
-//  Ie - line, since "February 2020 - March 2020" is not the beginning of a sentence.
+//  
 //
 // Parameters:
-//  StartDate - Date -  the beginning of the period.
-//  EndDate - Date -  end of period.
-//  FormatString - String -  specifies the formatting style of the period.
-//  Capitalize - Boolean -  True if the offer starts with the period representation.
-//                    By default, it is False.
+//  StartDate - Date - Period start.
+//  EndDate - Date - Period end.
+//  FormatString - String - determines a period formatting method.
+//  Capitalize - Boolean - True if the period presentation is the beginning of a sentence.
+//                    The default value is False.
 //
 // Returns:
-//   String - 
+//   String - a period presentation in the required format and register.
 //
 Function PeriodPresentationInText(StartDate, EndDate, FormatString, Capitalize) Export 
 	
@@ -715,29 +717,29 @@ EndProcedure
 
 #Region SpreadsheetDocument
 
-// Returns whether the cell text matches the exponential record format.
-//  This allows you to decide whether to calculate this value using the increment Method
-//  or not to calculate it, since the conversion to a number may require significant
-//  computing resources of the processor.
+// Returns the flag indicating whether the cell text matches the scientific notation format.
+//  It allows to decide whether to calculate the value by the AdjustValue method or
+//  cancel the calculation. Casting to a number might require significant
+//  computing processor resources.
 //
 // Parameters:
-//  CellText - String -  value of the selected cell.
+//  CellText - String - the value of the selected cell.
 //
 // Returns: 
-//   Boolean - 
+//   Boolean - if True, the text looks like a scientific notation.
 //
 Function TheTextOfACellOfTheFormForScientificNotation(Val CellText)
 	
 	NumberOfOccurrences = 0;
 	CellText = StrReplace(Upper(CellText), Chars.NBSp, "");
 	
-	// 
-	CellText = StrReplace(CellText, Char(44), ""); // 
-	CellText = StrReplace(CellText, Char(46), ""); // 
+	// Replace decimal separator characters.
+	CellText = StrReplace(CellText, Char(44), ""); // Comma ( , ).
+	CellText = StrReplace(CellText, Char(46), ""); // Dot ( . ).
 	
 	ExponentCharacterCodes = New Array;
-	ExponentCharacterCodes.Add(1045); // 
-	ExponentCharacterCodes.Add(69);   // 
+	ExponentCharacterCodes.Add(1045); // Cyrillic "E".
+	ExponentCharacterCodes.Add(69);   // Latin "E".
 	
 	For Each Code In ExponentCharacterCodes Do 
 		

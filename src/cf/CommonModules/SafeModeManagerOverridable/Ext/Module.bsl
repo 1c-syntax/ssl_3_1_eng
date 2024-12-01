@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 // Called when checking whether security profiles can be used.
 //
 // Parameters:
-//  Cancel - Boolean -  if the configuration is not adapted to the use
-//   of security profiles, the parameter value in this procedure must
-//   be set to True.
+//  Cancel - Boolean - if the configuration is not adapted to
+//   security profiles,
+//   set the parameter value of this procedure to True.
 //
 Procedure OnCheckSecurityProfilesUsageAvailability(Cancel) Export
 	
@@ -21,11 +23,11 @@ Procedure OnCheckSecurityProfilesUsageAvailability(Cancel) Export
 	
 EndProcedure
 
-// Called when checking whether security profiles can be configured.
+// Called when checking whether security profiles can be set up.
 //
 // Parameters:
-//  Cancel - Boolean -  if the use of security profiles is not available for the information database
-//    , set this parameter to True.
+//  Cancel - Boolean - if security profiles cannot be used for the infobase,
+//    set the value of this parameter to True.
 //
 Procedure OnCheckCanSetupSecurityProfiles(Cancel) Export
 	
@@ -33,7 +35,7 @@ Procedure OnCheckCanSetupSecurityProfiles(Cancel) Export
 	
 EndProcedure
 
-// Called when enabling the use of security profiles for the information database.
+// Called when infobase security profiles are enabled for the infobase.
 //
 Procedure OnEnableSecurityProfiles() Export
 	
@@ -41,8 +43,8 @@ Procedure OnEnableSecurityProfiles() Export
 	
 EndProcedure
 
-// Fills in the list of requests for external permissions that must be provided
-// when creating an information database or updating the program.
+// Fills in a list of requests for external permissions that must be granted
+// when an infobase is created or an application is updated.
 //
 // Parameters:
 //  PermissionsRequests - Array of See SafeModeManager.RequestToUseExternalResources
@@ -51,20 +53,20 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	
 EndProcedure
 
-// Called when creating a request for permissions to use external resources.
+// Called when creating a permission request to use external resources.
 //
 // Parameters:
-//  ProgramModule - AnyRef -  a reference to an information database object that represents the software
-//    module that is being requested for permissions,
-//  Owner - AnyRef -  reference to an information database object that represents the owner of the requested
-//    permissions to use external resources,
-//  ReplacementMode - Boolean -  flag for replacing previously granted permissions by owner,
-//  PermissionsToAdd - Array -  array of xdto Objects to add permissions to,
-//  PermissionsToDelete - Array -  array of xdto Object permissions to delete,
-//  StandardProcessing - Boolean -  flag for performing standard processing for creating a request to use
-//    external resources.
-//  Result - UUID -  the ID of the request (in that case, if inside the handler
-//    the value of the standard Processing parameter is set to False).
+//  ProgramModule - AnyRef - Reference to the infobase object that represents the module the permissions are requested for.
+//    
+//  Owner - AnyRef - Reference to the infobase object that owns the requested permissions to use external resources.
+//    
+//  ReplacementMode - Boolean - indicates that permissions granted earlier by owner are replaced,
+//  PermissionsToAdd - Array - XDTODataObject array of permissions being added,
+//  PermissionsToDelete - Array - XDTODataObject array of permissions being deleted,
+//  StandardProcessing - Boolean - indicates that a standard data processor to create a request to use
+//    external resources is processed.
+//  Result - UUID - a request ID (if StandardProcessing parameter
+//    value is set to False in the handler).
 //
 Procedure OnRequestPermissionsToUseExternalResources(Val ProgramModule, Val Owner, Val ReplacementMode, 
 	Val PermissionsToAdd, Val PermissionsToDelete, StandardProcessing, Result) Export
@@ -73,14 +75,14 @@ Procedure OnRequestPermissionsToUseExternalResources(Val ProgramModule, Val Owne
 	
 EndProcedure
 
-// Called when requesting the creation of a security profile.
+// Called when requesting to create a security profile.
 //
 // Parameters:
-//  ProgramModule - AnyRef -  a reference to an information database object that represents the software
-//    module that is being requested for permissions,
-//  StandardProcessing - Boolean -  flag for performing standard processing,
-//  Result - UUID -  the ID of the request (in that case, if inside the handler
-//    the value of the standard Processing parameter is set to False).
+//  ProgramModule - AnyRef - Reference to the infobase object that represents the module the permissions are requested for.
+//    
+//  StandardProcessing - Boolean - indicates that a standard data processor is being executed,
+//  Result - UUID - a request ID (if StandardProcessing parameter
+//    value is set to False in the handler).
 //
 Procedure OnRequestToCreateSecurityProfile(Val ProgramModule, StandardProcessing, Result) Export
 	
@@ -88,14 +90,14 @@ Procedure OnRequestToCreateSecurityProfile(Val ProgramModule, StandardProcessing
 	
 EndProcedure
 
-// Called when a request is made to delete a security profile.
+// Called when requesting to delete a security profile.
 //
 // Parameters:
-//  ProgramModule - AnyRef -  a reference to an information database object that represents the software
-//    module that is being requested for permissions,
-//  StandardProcessing - Boolean -  flag for performing standard processing,
-//  Result - UUID -  the ID of the request (in that case, if inside the handler
-//    the value of the standard Processing parameter is set to False).
+//  ProgramModule - AnyRef - Reference to the infobase object that represents the module the permissions are requested for.
+//    
+//  StandardProcessing - Boolean - indicates that a standard data processor is being executed,
+//  Result - UUID - a request ID (if StandardProcessing parameter
+//    value is set to False in the handler).
 //
 Procedure OnRequestToDeleteSecurityProfile(Val ProgramModule, StandardProcessing, Result) Export
 	
@@ -103,14 +105,14 @@ Procedure OnRequestToDeleteSecurityProfile(Val ProgramModule, StandardProcessing
 	
 EndProcedure
 
-// Called when an external module is connected. In the body of the handler procedure, you can change
-// the safe mode in which the connection will be performed.
+// Called when attaching an external module. In the handler procedure body, you can change
+// the safe mode, in which the module is attached.
 //
 // Parameters:
-//  ExternalModule - AnyRef -  reference to the information base object that represents
-//    the external plug-in,
-//  SafeMode - DefinedType.SafeMode -  safe mode in which the external
-//    module will be connected to the information database. Can be changed within this procedure.
+//  ExternalModule - AnyRef - Reference to the infobase object that represents the external module to be attached.
+//    
+//  SafeMode - DefinedType.SafeMode - a safe mode, in which the external
+//    module will be attached to the infobase. Can be changed within the procedure.
 //
 Procedure OnAttachExternalModule(Val ExternalModule, SafeMode) Export
 	

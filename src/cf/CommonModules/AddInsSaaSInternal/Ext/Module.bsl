@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// 
+// Deletes unused common add-ins.
 //
 Procedure RemoveUnusedAddIns() Export
 	
@@ -98,7 +100,7 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 			SharedAddIn.Lock();
 		EndIf;
 		
-		SharedAddIn.Fill(Undefined); // 
+		SharedAddIn.Fill(Undefined); // Default constructor
 		
 		ComponentBinaryData = New BinaryData(ComponentDetails.PathToFile);
 		Information = AddInsInternal.InformationOnAddInFromFile(ComponentBinaryData, False);
@@ -114,8 +116,8 @@ Procedure UpdateSharedAddIn(ComponentDetails) Export
 					": " + ErrorProcessing.BriefErrorDescription(Information.ErrorInfo)));
 		EndIf;
 		
-		FillPropertyValues(SharedAddIn, Information.Attributes); // 
-		FillPropertyValues(SharedAddIn, ComponentDetails);   // 
+		FillPropertyValues(SharedAddIn, Information.Attributes); // By manifest data.
+		FillPropertyValues(SharedAddIn, ComponentDetails);   // By data from the website.
 		
 		SharedAddIn.TargetPlatforms = New ValueStorage(Information.Attributes.TargetPlatforms);
 		SharedAddIn.AddInStorage = New ValueStorage(ComponentBinaryData);
@@ -144,9 +146,9 @@ EndFunction
 
 // Parameters:
 //   Result     - See AddInsInternal.SavedAddInInformation
-//   Id - String               -  ID of the external component object.
-//   Version        - Line
-//                 - Undefined -  version of the component.
+//   Id - String               - an add-in object ID.
+//   Version – String
+//                 - Undefined - an add-in version.
 // 
 Procedure FillAddInInformation(Result, Version, Id) Export
 	
@@ -166,8 +168,8 @@ Procedure FillAddInInformation(Result, Version, Id) Export
 			Result.Ref = ReferenceFromStorage;
 		Else
 			If ValueIsFilled(Version) Then
-				// 
-				// 
+				// The same add-in version is present in both the common storage and area storage.
+				// The add-in in the area has a higher priority.
 				Result.State = "FoundInStorage";
 				Result.Ref = ReferenceFromStorage;
 			Else
@@ -178,8 +180,8 @@ Procedure FillAddInInformation(Result, Version, Id) Export
 					Result.State = "FoundInSharedStorage";
 					Result.Ref = ReferenceFromSharedStorage;
 				Else
-					// 
-					// 
+					// The add-in is present in both the common storage and area storage.
+					// The add-in in the area has a higher priority.
 					Result.State = "FoundInStorage";
 					Result.Ref = ReferenceFromStorage;
 				EndIf;

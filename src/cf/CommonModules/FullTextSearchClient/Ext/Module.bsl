@@ -1,26 +1,28 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Event handler for the message Processing event for the form where you want to display the use search checkbox.
+// The NotificationProcessing event handler for the form, on which the flag of search usage is to be displayed.
 //
 // Parameters:
-//   EventName - String -  name of the event that was received by the event handler on the form.
-//   UseFullTextSearch - Number -  the props that the value will be placed in.
+//   EventName - String - a name of an event that is got by an event handler on the form.
+//   UseFullTextSearch - Number - an attribute that will store the flag value.
 // 
 // Example:
-//	If The General Purpose Is A Client.Subsystems Exist ("Standard Subsystems.Full-text search") Then
-//		Modulpol-Text Searchclient = General Purpose Client.General Module ("Full-Text Searchclient");
-//		Modelpantyhose.Processingreferencesexternal
-//			Linksreferencesexternal Linksexternal Linksexternal Linksexternal Linksexternal Linksexternal Linksexternal Linksexternal Linksexternal Linksexternal Links, 
-//			Use full-text search);
-//	Conicelli;
+//	If CommonClient.SubsystemExists("StandardSubsystems.FullTextSearch") Then
+//		ModuleFullTextSearchClient = CommonClient.CommonModule("FullTextSearchClient");
+//		ModuleFullTextSearchClient.UseSearchFlagChangeNotificationProcessing(
+//			EventName, 
+//			UseFullTextSearch);
+//	EndIf;
 //
 Procedure UseSearchFlagChangeNotificationProcessing(Val EventName, UseFullTextSearch) Export
 	
@@ -30,17 +32,17 @@ Procedure UseSearchFlagChangeNotificationProcessing(Val EventName, UseFullTextSe
 	
 EndProcedure
 
-// Handler for the Change event for the checkbox that switches the full-text search mode.
-// The check box must be associated with a number-type item.
+// The OnChange event handler for the flag that switches the full text search mode.
+// The flag is to be related to an attribute of the Number type.
 // 
 // Parameters:
-//   UseSearchFlagValue - Number -  the new value of the checkbox that you want to process.
+//   UseSearchFlagValue - Number - a new flag value to be processed.
 // 
 // Example:
-//	If The General Purpose Is A Client.Subsystems Exist ("Standard Subsystems.Full-text search") Then
-//		Modulpol-Text Searchclient = General Purpose Client.General Module ("Full-Text Searchclient");
-//		Modelpantyhose.When Changing The Use Search Option (Use Full-Text Search);
-//	Conicelli;
+//	If CommonClient.SubsystemExists("StandardSubsystems.FullTextSearch") Then
+//		ModuleFullTextSearchClient = CommonClient.CommonModule("FullTextSearchClient");
+//		ModuleFullTextSearchClient.OnChangeUseSearchFlag(UseFullTextSearch);
+//	EndIf;
 //
 Procedure OnChangeUseSearchFlag(UseSearchFlagValue) Export
 	
@@ -57,15 +59,15 @@ Procedure OnChangeUseSearchFlag(UseSearchFlagValue) Export
 	
 EndProcedure
 
-// Opens a form for managing full-text search and text extraction.
-// Don't forget to set the command that executes the procedure call 
-// to depend on the use full-text Search function option.
+// Opens a form with full-text search and text extraction settings.
+// Remember to make the command that calls the procedure 
+// dependent on the UseFullTextSearch functional option.
 //
 // Example:
-//	If The General Purpose Is A Client.Subsystems Exist ("Standard Subsystems.Full-text search") Then
-//		Modulpol-Text Searchclient = General Purpose Client.General Module ("Full-Text Searchclient");
-//		Modelpantyhose.Parasitisation();
-//	Conicelli;
+//	If CommonClient.SubsystemExists("StandardSubsystems.FullTextSearch") Then
+//		ModuleFullTextSearchClient = CommonClient.CommonModule("FullTextSearchClient");
+//		ModuleFullTextSearchClient.ShowSetting();
+//	EndIf;
 //
 Procedure ShowSetting() Export
 	
@@ -75,8 +77,8 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
+// Deprecated. Obsolete. Use ShowSetting.
+// Opens the form of full-text search and text extraction management.
 //
 Procedure ShowFullTextSearchAndTextExtractionManagement() Export
 	

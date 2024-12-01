@@ -513,7 +513,7 @@ Please wait…</v8:content>
 		<Attribute name="HandlerParameters" id="12">
 			<Type/>
 		</Attribute>
-		<Attribute name="CorrespondentDescription" id="13">
+		<Attribute name="PeerInfobaseName" id="13">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>

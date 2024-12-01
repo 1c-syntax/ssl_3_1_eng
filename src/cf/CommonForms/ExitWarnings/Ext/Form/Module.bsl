@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -105,18 +107,18 @@ EndProcedure
 
 #Region Private
 
-// Creates form elements for questions sent to the user.
+// Creates form items based on questions passed to a user.
 //
 // Parameters:
-//     
-//                        
+//     Questions - Array - Structures containing the question value parameters.
+//                        See StandardSubsystems.Core\BeforeExit.
 //
 &AtServer
 Procedure InitializeItemsInForm(Val Warnings)
 	
 	For Each CurrentWarning In WarningTable(Warnings) Do 
 		
-		// 
+		// Adding the item to the form only if either a flag text or a hyperlink text is specified, but not both at the same time.
 		RefRequired = Not IsBlankString(CurrentWarning.HyperlinkText);
 		FlagRequired   = Not IsBlankString(CurrentWarning.CheckBoxText);
 		
@@ -133,7 +135,7 @@ Procedure InitializeItemsInForm(Val Warnings)
 		
 	EndDo;
 	
-	// 
+	// Footer.
 	LabelText = NStr("en = 'Exit the app?';");
 	
 	LabelName    = FindLabelNameInForm("QuestionLabel1");
@@ -170,12 +172,12 @@ Function WarningTable(Val Warnings)
 		EndIf;
 	EndDo;
 	
-	// 
+	// Clear all warnings if at least one warning needs to be cleared (OutputSingleWarning = True).
 	If SingleWarnings.Count() > 0 Then
 		Result = Result.Copy(SingleWarnings);
 	EndIf;
 	
-	// 
+	// The higher the priority the higher the position of the warning in the list.
 	Result.Sort("Priority DESC");
 	
 	Return Result;
@@ -216,7 +218,7 @@ Procedure CreateHyperlinkInForm(QuestionStructure)
 		Return;
 	EndIf;
 	
-	// 
+	// Generate a hyperlink.
 	HyperlinkName = FindLabelNameInForm("QuestionLabel1");
 	HyperlinkType = Type("FormDecoration");
 	
@@ -268,7 +270,7 @@ Procedure CreateCheckBoxInForm(QuestionStructure)
 		Return;
 	EndIf;
 	
-	// 
+	// Adding the attribute to the form.
 	CheckBoxName = FindLabelNameInForm("QuestionLabel1");
 	FlagType = Type("FormField");
 	
@@ -326,7 +328,7 @@ Procedure SetExtendedTooltip(FormItem, Val DetailsString)
 	EndIf;
 	
 	If TypeOf(ExtendedTooltipDetails) <> Type("String") Then
-		// 
+		// Setting the extended tooltip.
 		FillPropertyValues(FormItem.ExtendedTooltip, ExtendedTooltipDetails);
 		FormItem.ToolTipRepresentation = ToolTipRepresentation.Button;
 		Return;

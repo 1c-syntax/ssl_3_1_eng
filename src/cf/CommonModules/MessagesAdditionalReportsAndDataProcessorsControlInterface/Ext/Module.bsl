@@ -1,16 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region ForCallsFromOtherSubsystems
 
-// Returns the current (used by the calling code) version of the message interface.
+// Returns the current (used by the calling code) message interface version.
 //
 // Returns:
 //   String
@@ -27,7 +29,7 @@ EndFunction
 
 #Region Private
 
-// Returns the namespace of the current (used by the calling code) version of the message interface.
+// Returns a namespace of the current (used by the calling code) message interface version.
 //
 // Returns:
 //   String
@@ -38,7 +40,7 @@ Function Package() Export
 	
 EndFunction
 
-// Returns the name of the message programming interface.
+// Returns the name of the message API.
 //
 // Returns:
 //   String
@@ -49,19 +51,19 @@ Function Public() Export
 	
 EndFunction
 
-// Registers message handlers as message channel handlers.
+// Registers message handlers as message exchange channel handlers.
 //
 // Parameters:
-//  HandlersArray - Array -  General modules or Manager modules.
+//  HandlersArray - Array - common modules or manager modules.
 //
 Procedure MessagesChannelsHandlers(Val HandlersArray) Export
 	
 EndProcedure
 
-// Registers handlers for broadcast messages.
+// Registers message translation handlers.
 //
 // Parameters:
-//  HandlersArray - Array -  General modules or Manager modules.
+//  HandlersArray - Array - common modules or manager modules.
 //
 Procedure MessagesTranslationHandlers(Val HandlersArray) Export
 	
@@ -69,11 +71,11 @@ Procedure MessagesTranslationHandlers(Val HandlersArray) Export
 	
 EndProcedure
 
-// Returns the message type {http://www.1c.ru/1cFresh/ApplicationExtensions/Control/a.b.c.d}ExtensionInstalled
+// Returns {http://www.1c.ru/1cFresh/ApplicationExtensions/Control/a.b.c.d}ExtensionInstalled message type
 //
 // Parameters:
-//  PackageToUse - String -  namespace of the message interface version for which
-//    the message type is obtained.
+//  PackageToUse - String - a namespace of the message interface version, for which
+//    the message type is being received.
 //
 // Returns:
 //  XDTOObjectType
@@ -84,11 +86,11 @@ Function AdditionalReportOrDataProcessorInstalledMessage(Val PackageToUse = Unde
 	
 EndFunction
 
-// Returns the message type {http://www.1c.ru/1cFresh/ApplicationExtensions/Control/a.b.c.d} ExtensionDeleted
+// Returns {http://www.1c.ru/1cFresh/ApplicationExtensions/Control/a.b.c.d}ExtensionDeleted message type
 //
 // Parameters:
-//  PackageToUse - String -  namespace of the message interface version for which
-//    the message type is obtained.
+//  PackageToUse - String - a namespace of the message interface version, for which
+//    the message type is being received.
 //
 // Returns:
 //  XDTOObjectType
@@ -99,11 +101,11 @@ Function AdditionalReportOrDataProcessorDeletedMessage(Val PackageToUse = Undefi
 	
 EndFunction
 
-// Returns the message type {http://www.1c.ru/1cFresh/ApplicationExtensions/Control/a.b.c.d} ExtensionInstallFailed
+// Returns {http://www.1c.ru/1cFresh/ApplicationExtensions/Control/a.b.c.d}ExtensionInstallFailed message type
 //
 // Parameters:
-//  PackageToUse - String -  namespace of the message interface version for which
-//    the message type is obtained.
+//  PackageToUse - String - a namespace of the message interface version, for which
+//    the message type is being received.
 //
 // Returns:
 //  XDTOObjectType
@@ -114,11 +116,11 @@ Function ErrorOfAdditionalReportOrDataProcessorInstallationMessage(Val PackageTo
 	
 EndFunction
 
-// Returns the message type {http://www.1c.ru/1cFresh/ApplicationExtensions/Control/a.b.c.d} ExtensionDeleteFailed
+// Returns {http://www.1c.ru/1cFresh/ApplicationExtensions/Control/a.b.c.d}ExtensionDeleteFailed message type
 //
 // Parameters:
-//  PackageToUse - String -  namespace of the message interface version for which
-//    the message type is obtained.
+//  PackageToUse - String - a namespace of the message interface version, for which
+//    the message type is being received.
 //
 // Returns:
 //  XDTOObjectType

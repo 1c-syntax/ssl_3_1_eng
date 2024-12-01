@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -97,7 +99,7 @@ Procedure AdditionalRegistrationBeforeDeleteRow(Item, Cancel)
 		Return;
 	EndIf;
 	
-	// 
+	// The AdditionalRegistrationBeforeDeleteEnd procedure is called from the user confirmation dialog.
 	Cancel = True;
 	
 	QueryText = NStr("en = 'Do you want to delete %1 from the additional data?';");    
@@ -117,12 +119,12 @@ Procedure AdditionalRegistrationChoiceProcessing(Item, ValueSelected, StandardPr
 	
 	SelectedValueType = TypeOf(ValueSelected);
 	If SelectedValueType=Type("Array") Then
-		// 
+		// Add a new row.
 		Items.AdditionalRegistration.CurrentRow = AddingRowToAdditionalCompositionServer(ValueSelected);
 		
 	ElsIf SelectedValueType= Type("Structure") Then
 		If ValueSelected.ChoiceAction=3 Then
-			// 
+			// Restore settings.
 			SettingPresentation = ValueSelected.SettingPresentation;
 			If Not IsBlankString(CurrentSettingsItemPresentation) And SettingPresentation<>CurrentSettingsItemPresentation Then
 				QueryText  = NStr("en = 'Do you want to restore ""%1"" settings?';");
@@ -137,7 +139,7 @@ Procedure AdditionalRegistrationChoiceProcessing(Item, ValueSelected, StandardPr
 				CurrentSettingsItemPresentation = SettingPresentation;
 			EndIf;
 		Else
-			// 
+			// Editing filter condition, negative line number.
 			Items.AdditionalRegistration.CurrentRow = FilterStringEditingAdditionalCompositionServer(ValueSelected);
 		EndIf;
 	EndIf;
@@ -195,7 +197,7 @@ EndProcedure
 &AtClient
 Procedure FiltersSettings(Command)
 	
-	// 
+	// Selecting from the list menu
 	VariantList = ReadSettingsVariantListServer();
 	
 	Text = NStr("en = 'Save current setting…';");
@@ -240,7 +242,7 @@ Procedure FiltersSettingsOptionSelectionCompletion(Val SelectedElement, Val Addi
 		
 	ElsIf SettingPresentation=1 Then
 		
-		// 
+		// Form that displays all settings.
 		
 		SettingsFormParameters = New Structure;
 		SettingsFormParameters.Insert("CloseOnChoice", True);
@@ -476,7 +478,7 @@ Procedure ImportCountsValuesServer()
 		String.Count = Format(CountExport, "NZ=0") + " / " + Format(TotalCount1, "NZ=0");
 	EndDo;
 	
-	// 
+	// Grand totals.
 	DataString1 = CountRows.Find(Undefined, "FullMetadataName", False);
 	UpdateTotalCountLabel(?(DataString1 = Undefined, Undefined, DataString1.ToExportCount));
 	

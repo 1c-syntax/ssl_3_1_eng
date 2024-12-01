@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -22,8 +24,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SpecifiedImmutableCertificateSet = True;
 		FillEncryptionCertificatesFromSet(Parameters.CertificatesSet);
 		If CertificatesSet.Count() = 0 And Parameters.ChangeSet Then
-			// 
-			// 
+			// If all certificates in the set have the Ref type and the set is editable,
+			// then the user can manage them like they added the certificate.
 			SpecifiedImmutableCertificateSet = False;
 		EndIf;
 	EndIf;
@@ -137,7 +139,7 @@ Procedure CertificateOnChange(Item)
 	
 EndProcedure
 
-// Continuation of the certificate Change procedure.
+// Continues the CertificateOnChange procedure.
 &AtClient
 Procedure CertificateOnChangeCompletion(CertificatesThumbprintsAtClient, Context) Export
 	
@@ -190,7 +192,7 @@ Procedure CertificateChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
 EndProcedure
 
-// Continuation of the certificate processing Selection procedure.
+// Continues the CertificateChoiceProcessing procedure.
 &AtClient
 Procedure CertificateChoiceProcessingCompletion(CertificatesThumbprintsAtClient, Context) Export
 	
@@ -304,7 +306,7 @@ Procedure Encrypt(Command)
 	
 EndProcedure
 
-// Continue with the procedure to Encrypt.
+// Continues the Encrypt procedure.
 &AtClient
 Procedure EncryptCompletion(Result, Context) Export
 	
@@ -441,7 +443,7 @@ Procedure FillEncryptionCertificatesFromSet(CertificatesSetDetails)
 		EndDo;
 	EndDo;
 	
-	// 
+	// Delete duplicates.
 	AllThumbprints = New Map;
 	IndexOf = CertificateTable.Count() - 1;
 	While IndexOf >= 0 Do
@@ -624,7 +626,7 @@ Async Procedure FillEncryptionApplication(Notification = Undefined)
 	
 EndProcedure
 
-// Continue the procedure to fill in the decryption Program.
+// Continues the FillEncryptionApplication procedure.
 &AtClient
 Procedure FillEncryptionApplicationAfterInitializeCertificate(CryptoCertificate, Context) Export
 	
@@ -636,7 +638,7 @@ Procedure FillEncryptionApplicationAfterInitializeCertificate(CryptoCertificate,
 	
 EndProcedure
 
-// Continue the procedure to fill in the decryption Program.
+// Continues the FillEncryptionApplication procedure.
 //
 // Parameters:
 //   Context - Structure:
@@ -668,7 +670,7 @@ Procedure FillEncryptionApplicationLoopStart(Context)
 	
 EndProcedure
 
-// Continue the procedure to fill in the decryption Program.
+// Continues the FillEncryptionApplication procedure.
 //
 // Parameters:
 //  CryptoManager - CryptoManager
@@ -692,7 +694,7 @@ Procedure FillEncryptionApplicationAfterCreateCryptoManager(CryptoManager, Conte
 	
 EndProcedure
 
-// Continue the procedure to fill in the decryption Program.
+// Continues the FillEncryptionApplication procedure.
 &AtClient
 Procedure FillEncryptionProgramAfterEncryptionError(ErrorInfo, StandardProcessing, Context) Export
 	
@@ -701,7 +703,7 @@ Procedure FillEncryptionProgramAfterEncryptionError(ErrorInfo, StandardProcessin
 	
 EndProcedure
 
-// Continue the procedure to fill in the decryption Program.
+// Continues the FillEncryptionApplication procedure.
 //
 // Parameters:
 //  EncryptedData - BinaryData
@@ -723,7 +725,7 @@ Procedure FillEncryptionApplicationAfterEncryption(EncryptedData, Context) Expor
 	
 EndProcedure
 
-// Continue the procedure to create a cryptography Manager.
+// Continues the CreateCryptoManager procedure.
 &AtClient
 Procedure FillEncryptionApplicationAfterLoop(Context)
 	
@@ -749,7 +751,7 @@ Procedure ContinueOpening(Notification, CommonInternalData, ClientParameters) Ex
 	
 EndProcedure
 
-// Continue the procedure continue Opening.
+// Continues the ContinueOpening procedure.
 &AtClient
 Procedure ContinueOpeningAfterStart(Result, Context) Export
 	
@@ -767,7 +769,7 @@ Procedure ContinueOpeningAfterStart(Result, Context) Export
 	
 EndProcedure
 
-// Continue the procedure continue Opening.
+// Continues the ContinueOpening procedure.
 &AtClient
 Procedure ContinueOpeningAfterFillApplication(Result, Context) Export
 	
@@ -803,7 +805,7 @@ Procedure ContinueOpeningAfterFillApplication(Result, Context) Export
 	
 EndProcedure
 
-// Continue the procedure continue Opening.
+// Continues the ContinueOpening procedure.
 &AtClient
 Procedure ContinueOpeningAfterDataEncryption(Result, Context) Export
 	
@@ -811,7 +813,7 @@ Procedure ContinueOpeningAfterDataEncryption(Result, Context) Export
 	
 EndProcedure
 
-// Continue the procedure continue Opening.
+// Continues the ContinueOpening procedure.
 &AtClient
 Procedure ContinueOpeningCompletion(Context, Result = Undefined)
 	
@@ -841,10 +843,10 @@ Function VariablesCleared()
 	
 EndFunction
 
-// APK: 78-off: for secure data transfer on the client between forms, without sending them to the server.
+// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure ExecuteEncryption(ClientParameters, CompletionProcessing) Export
-// 
+// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
 	
 	DigitalSignatureInternalClient.RefreshFormBeforeSecondUse(ThisObject, ClientParameters);
 	
@@ -859,7 +861,7 @@ Procedure ExecuteEncryption(ClientParameters, CompletionProcessing) Export
 	
 EndProcedure
 
-// Continuing the procedure will perform Decryption.
+// Continues the ExecuteEncryption procedure.
 &AtClient
 Procedure ExecuteEncryptionCompletion(Result, Context) Export
 	
@@ -875,7 +877,7 @@ Procedure OnChangeCertificatesList()
 	
 EndProcedure
 
-// Continuation of the procedure for changing the list of Certificates.
+// Continues the OnChangeCertificatesList procedure.
 &AtClient
 Procedure OnChangeCertificatesListCompletion(CertificatesThumbprintsAtClient, Context) Export
 	
@@ -957,7 +959,7 @@ Async Procedure EncryptData(Notification)
 	ExecutionParameters.Insert("DataDetails",     DataDetails);
 	ExecutionParameters.Insert("Form",              ThisObject);
 	ExecutionParameters.Insert("FormIdentifier", Context.FormIdentifier);
-	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // 
+	ExecutionParameters.Insert("AddressOfCertificate",    AddressOfCertificate); // Intended for automatically detecting the app.
 	
 	Context.Insert("ExecutionParameters", ExecutionParameters);
 	
@@ -969,7 +971,7 @@ Async Procedure EncryptData(Notification)
 			CertificateAtServerErrorDescription = New Structure;
 			EncryptDataAfterExecuteAtServerSide(Result, Context);
 		Else
-			// 
+			// An attempt to encrypt on the server.
 			DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 					"EncryptDataAfterExecuteAtServerSide", ThisObject, Context),
 				"Encryption", "AtServerSide", Context.ExecutionParameters);
@@ -980,7 +982,7 @@ Async Procedure EncryptData(Notification)
 	
 EndProcedure
 
-// Continue the procedure to encrypt Data.
+// Continues the EncryptData procedure.
 &AtClient
 Async Procedure EncryptDataAfterExecuteAtServerSide(Result, Context) Export
 	
@@ -1003,7 +1005,7 @@ Async Procedure EncryptDataAfterExecuteAtServerSide(Result, Context) Export
 			EndIf;
 		EndIf;
 		
-		// 
+		// An encryption attempt on the client.
 		DigitalSignatureInternalClient.ExecuteAtSide(New NotifyDescription(
 				"EncryptDataAfterExecuteAtClientSide", ThisObject, Context),
 			"Encryption", "OnClientSide", Context.ExecutionParameters);
@@ -1011,7 +1013,7 @@ Async Procedure EncryptDataAfterExecuteAtServerSide(Result, Context) Export
 	
 EndProcedure
 
-// Continue the procedure to encrypt Data.
+// Continues the EncryptData procedure.
 &AtClient
 Procedure EncryptDataAfterExecuteAtClientSide(Result, Context) Export
 	
@@ -1060,13 +1062,13 @@ Procedure EncryptDataAfterExecuteAtClientSide(Result, Context) Export
 	
 EndProcedure
 
-// Continue the procedure to encrypt Data.
+// Continues the EncryptData procedure.
 &AtClient
 Procedure EncryptDataAfterExecute(Result)
 	
 	If Result.Property("HasProcessedDataItems") Then
-		// 
-		// 
+		// Cannot change the certificates once the encryption has started.
+		// Otherwise, the dataset will be processed in different ways.
 		Items.Certificate.ReadOnly = True;
 		Items.EncryptionCertificates.ReadOnly = True;
 	EndIf;

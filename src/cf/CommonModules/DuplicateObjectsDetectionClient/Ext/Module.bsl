@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Opens the form for combining elements of reference books, plans for types of characteristics, types of calculations and invoices.
+// Opens a form to merge items of catalogs, charts of characteristic types, calculation types, and accounts.
 //
 // Parameters:
 //     ItemsToMerge - FormTable
 //                          - Array of AnyRef
-//                          - ValueList - 
-//                            
+//                          - ValueList - List of items to merge.
+//                            Alternatively can take a collection of items with the Reference attribute.
 //     AdditionalParameters - See AttachableCommandsClient.CommandExecuteParameters 
 //
 Procedure MergeSelectedItems(Val ItemsToMerge, AdditionalParameters = Undefined) Export
@@ -34,13 +36,13 @@ Procedure MergeSelectedItems(Val ItemsToMerge, AdditionalParameters = Undefined)
 	
 EndProcedure
 
-// Opens the form for replacing and deleting elements of reference books, plans for types of characteristics, types of calculations and invoices.
+// Opens a form to replace and delete items of catalogs, charts of characteristic types, calculation types, and accounts.
 //
 // Parameters:
 //     ReplacedItems - FormTable
 //                        - Array
-//                        - ValueList - 
-//                          
+//                        - ValueList - List of items to replace and delete.
+//                          Alternatively can take a collection of items with the Reference attribute.
 //     AdditionalParameters - See AttachableCommandsClient.CommandExecuteParameters 
 //
 Procedure ReplaceSelected(Val ReplacedItems, AdditionalParameters = Undefined) Export
@@ -61,18 +63,18 @@ Procedure ReplaceSelected(Val ReplacedItems, AdditionalParameters = Undefined) E
 	
 EndProcedure
 
-// Opens a report on where links are used.
-// The report does not include auxiliary data, such as record sets with a leading dimension, and so on.
+// Opens the reference occurrence report.
+// The report doesn't include auxiliary data, such as record sets with the master dimension.
 //
 // Parameters:
 //     Items - FormTable
 //              - FormDataCollection
 //              - Array of AnyRef
-//              - ValueList - 
-//         
-//     OpeningParameters - Structure -  
-//         
-//         
+//              - ValueList - List of items to analyze.
+//         Alternatively can take a collection of items with the Reference attribute.
+//     OpeningParameters - Structure - Form opening parameters. Optional fields are: 
+//         Owner, Uniqueness, Window, URL, OnCloseNotifyDescription, WindowOpeningMode
+//         The fields match the parameters of the "OpenForm" function.
 // 
 Procedure ShowUsageInstances(Val Items, Val OpeningParameters = Undefined) Export
 	
@@ -112,7 +114,7 @@ EndFunction
 //              * Ref - AnyRef
 // 	         - Array of AnyRef
 // Returns:
-//   List of values, Array of any Link, list of Values
+//   ValueList, Array of AnyRef, ValueList.
 //
 Function ReferencesArrray(Val Items)
 	

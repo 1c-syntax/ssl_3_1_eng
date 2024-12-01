@@ -1,22 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	
 #Region Private
 
-// Performs the preparation of the exchange component structure.
+// Prepares the ExchangeComponents structure.
 // Parameters:
-//   ExchangeDirection - String -  sending or Receiving.
-//   ExchangeFormatVersionOnImport1 - String -  the version of the format that should be used when loading data.
+//   ExchangeDirection - String - Sending or Receiving.
+//   ExchangeFormatVersionOnImport1 - String - a format version to be used on data import.
 //
 // Returns:
-//   Structure - 
+//   Structure - exchange components.
 //
 Function ExchangeComponents(ExchangeDirection, ExchangeFormatVersionOnImport1 = "", FormatExtensionOnImport = "") 
 	
@@ -78,16 +80,16 @@ Function ExchangeComponents(ExchangeDirection, ExchangeFormatVersionOnImport1 = 
 	
 EndFunction
 
-// Performs data unloading according to the settings.
+// Exports data according to the settings.
 // Parameters:
-//   ParametersStructure - Structure - :
-//    * ExportLocation - Number -  0 (to file), 1 (to text).
-//    * IsBackgroundJob - Boolean -  indicates whether the procedure is called from a background task.
-//      When starting from a background task, the structure contains data for filling in the details of the object.
-//   AddressToPlaceResult - String -  the address in the temporary storage.
+//   ParametersStructure - Structure - processing parameters:
+//    * ExportLocation - Number - 0 (to a file), 1 (to a text).
+//    * IsBackgroundJob - Boolean - indicates that the background job procedure is called.
+//      Structure contains data to fill in the object attributes upon running from the background job.
+//   AddressToPlaceResult - String - address in temporary storage.
 // 
 // Returns:
-//   String - 
+//   String - address in the temporary storage where the export result is placed.
 //
 Function ExportToXMLResult(ParametersStructure, AddressToPlaceResult = Undefined) Export
 	
@@ -113,11 +115,11 @@ Function ExportToXMLResult(ParametersStructure, AddressToPlaceResult = Undefined
 		Common.MessageToUser(MessageText);
 	EndIf;
 	
-	If ExportLocation = 0 Then // 
+	If ExportLocation = 0 Then // Into file.
 		
 		StorageContents = New BinaryData(AddressOnServer);
 		
-	Else // 
+	Else // Into text.
 		
 		TextDocument = New TextDocument;
 		TextDocument.Read(AddressOnServer);
@@ -141,22 +143,22 @@ Function ExportToXMLResult(ParametersStructure, AddressToPlaceResult = Undefined
 	
 EndFunction
 
-// Unloads objects according to the settings specified in the processing details and returns the result of unloading.
+// Exports objects by settings specified in the data processor attributes and returns the export result.
 // 
 // Returns:
-//   Structure - :
-//     * ExportText - String -  the text of the exchange message.
-//     * HasExportedObjects - Boolean -  True if at least one object is unloaded.
-//     * HasErrors - Boolean -  True if errors occurred during the upload.
-//     * ErrorText - String -  the text of the error when uploading.
-//     * ExportedObjects - Array -  array of unloaded objects by processing settings.
-//     * ExportedByRefObjects - Array -  array of unloaded objects by links.
+//   Structure - A structure with the export outcome:
+//     * ExportText - String - an exchange message text.
+//     * HasExportedObjects - Boolean - True if at least one object is exported.
+//     * HasErrors - Boolean - True if errors occurred during export.
+//     * ErrorText - String - an error text on import.
+//     * ExportedObjects - Array - an array of exported objects by data processor settings.
+//     * ExportedByRefObjects - Array - an array of exported objects by references.
 //
 Function ExportDataToXML(ExchangeFileName = "")
 	
 	ExchangeComponents = ExchangeComponents("Send");
 	
-	// 
+	// Open an exchange file.
 	DataExchangeXDTOServer.OpenExportFile(ExchangeComponents, ExchangeFileName);
 	
 	HasExportedObjects      = False;
@@ -183,7 +185,7 @@ Function ExportDataToXML(ExchangeFileName = "")
 		
 		ExchangePlanContent = ExchangeNode.Metadata().Content;
 		
-		// 
+		// Inner join with the main table is required to exclude dead reference from the export.
 		QueryTextTemplate2 =
 		"SELECT 
 		|	ChangesTable.Ref
@@ -280,12 +282,12 @@ Function ExportDataToXML(ExchangeFileName = "")
 	
 EndFunction
 
-// Loads the message.
+// Imports a message.
 // Parameters:
 //   ParametersStructure - Structure:
-//    * XMLText - String -  the message to download (in case of downloading from text).
-//    * AddressOnServer - String -  name of the temporary file with the data to upload (when downloading from a file)
-//   ResultAddress - String -  the address for placing the result, when starting from a background task.
+//    * XMLText - String - a message to export (on export from the text).
+//    * AddressOnServer - String - a name of temporary file with export data (on export from the file)
+//   ResultAddress - String - address of the result on start from the background job.
 //
 Procedure MessageImport(ParametersStructure, ResultAddress) Export
 	
@@ -336,16 +338,16 @@ Procedure MessageImport(ParametersStructure, ResultAddress) Export
 
 EndProcedure
 
-// Loads data from the exchange message.
+// Imports data from the exchange message.
 //
 // Parameters:
-//  XMLReader	 - XMLReader -  the object initialized by the exchange message reads XML.
+//  XMLReader	 - XMLReader - the XMLReader object initialized by the exchange message.
 // 
 // Returns:
 //   Structure:
-//    * HasErrors - Boolean -  indicates that errors occurred during the upload of the exchange message.
-//    * ErrorText - String -  text of the error message.
-//    * ImportedObjects - Array -  array of loaded objects.
+//    * HasErrors - Boolean - a flag showing that errors occurred while importing the exchange message.
+//    * ErrorText - String - an error message text.
+//    * ImportedObjects - Array - an imported objects array.
 //
 Function ImportDataFromXML(XMLReader)
 	
@@ -403,7 +405,7 @@ Function ImportDataFromXML(XMLReader)
 	
 EndFunction
 
-// Fills in the list of metadata objects available for uploading in accordance with the exchange components.
+// Fills the list of the metadata objects available to export according to exchange components.
 Procedure FillExportRules() Export
 	ExchangeComponents = ExchangeComponents("Send");
 	ExportRulesTable.Rows.Clear();
@@ -444,7 +446,7 @@ Procedure FillExportRules() Export
 			FullMDNameAsString = "ChartOfCharacteristicTypes." + CurName;
 			Presentation = NStr("en = '""%1"" chart of characteristic types';");
 		Else
-			// 
+			// Export of other metadata objects is not supported.
 			Continue;
 		EndIf;
 		Presentation = StrReplace(Presentation, "%1", CurrSynonym);
@@ -464,7 +466,7 @@ Procedure FillExportRules() Export
 			EndDo;
 		EndIf;
 	EndDo;
-	// 
+	// Remove extra branches.
 	If TreeNodeCatalogs.Rows.Count() = 0 Then
 		ExportRulesTable.Rows.Delete(TreeNodeCatalogs);
 	EndIf;
@@ -476,20 +478,20 @@ Procedure FillExportRules() Export
 	EndIf;
 EndProcedure
 
-//  Returns a linker for selections of one type of metadata.
+//  Returns a filters composer for a single metadata kind.
 //
 //  Parameters:
-//      FullMetadataName  - String -  name of the table to build the linker for. Perhaps there will 
-//                                      be IDs for "all documents" or "all reference books"
-//                                      or a link to the group.
-//      Presentation        - String -  representation of the object in the selection.
-//      Filter                - DataCompositionFilter -  selecting the layout to fill in.
+//      FullMetadataName  - String - a table name for filling composer settings. Perhaps there will be 
+//                                      IDs for all documents or all catalogs
+//                                      or reference to the group.
+//      Presentation        - String - object presentation in the filter.
+//      Filter                - DataCompositionFilter - a composition filter for filling.
 //      SchemaSavingAddress - String
-//                           - UUID - 
-//                             
+//                           - UUID - a temporary storage address for saving the
+//                             composition schema.
 //
 // Returns:
-//      DataCompositionSettingsComposer - 
+//      DataCompositionSettingsComposer - an initialized composer.
 //
 Function SettingsComposerByTableName(FullMetadataName, Presentation = Undefined, Filter = Undefined, SchemaSavingAddress = Undefined) Export
 	
@@ -517,22 +519,22 @@ Function SettingsComposerByTableName(FullMetadataName, Presentation = Undefined,
 	Return Composer;
 EndFunction
 
-// Returns an array of metadata table names by the composite type of the "Full Metadata name" parameter.
+// Returns a name array of metadata tables according to the FullMetadataName composite parameter type.
 //
 // Parameters:
 //      FullMetadataName - String
-//                          - ValueTree - 
-//                            
-//                            
+//                          - ValueTree - metadata object name (for example Catalog.Currencies), or
+//                            predefined group name
+//                            (for example AllDocuments), or value tree that describes a group.
 //
 // Returns:
-//      Array -  metadata names.
+//      Array - metadata names.
 //
 Function EnlargedMetadataGroupComposition(FullMetadataName) 
 	MetadataIteration = False;
 	CompositionTables = New Array;
 	If TypeOf(FullMetadataName) <> Type("String") Then
-		// 
+		// Value tree with a filter group. The root is the description, the rows are metadata names.
 		For Each GroupRow In FullMetadataName.Rows Do
 			For Each GroupCompositionRow In GroupRow.Rows Do
 				CompositionTables.Add(GroupCompositionRow.FullMetadataName);
@@ -549,7 +551,7 @@ Function EnlargedMetadataGroupComposition(FullMetadataName)
 		MetadataIteration = True;
 		MetaObjects = Metadata.ChartsOfCharacteristicTypes;
 	Else
-		// 
+		// Single metadata table.
 		CompositionTables.Add(FullMetadataName);
 	EndIf;
 	If MetadataIteration Then
@@ -561,14 +563,14 @@ Function EnlargedMetadataGroupComposition(FullMetadataName)
 	Return CompositionTables;
 EndFunction
 
-// Returns a description of the period and selection as a string.
+// Returns period and filter details as string.
 //
 //  Parameters:
-//      Period - StandardPeriod     -  period for describing the selection.
-//      Filter  - DataCompositionFilter -  selecting the data layout for the description.
-//      EmptyFilterDetails - String -  the value returned if the selection is empty.
+//      Period - StandardPeriod     - a period to describe filter.
+//      Filter  - DataCompositionFilter - a data composition filter to describe.
+//      EmptyFilterDetails - String - the function returns this value if an empty filter is passed.
 //  Returns:
-//   String - 
+//   String - filter string presentation.
 //
 Function FilterPresentation(Period, Filter, Val EmptyFilterDetails = Undefined) Export
 	OurFilter = ?(TypeOf(Filter)=Type("DataCompositionSettingsComposer"), Filter.Settings.Filter, Filter);
@@ -591,16 +593,16 @@ Function FilterPresentation(Period, Filter, Val EmptyFilterDetails = Undefined) 
 	Return FilterAsString;
 EndFunction
 
-// Adds a selection to the end of the selection with possible field corrections.
+// Adds a filter to the filter end with possible fields adjustment.
 //
 //  Parameters:
-//      DestinationItems - DataCompositionFilterItemCollection -  receiver.
+//      DestinationItems - DataCompositionFilterItemCollection - destination.
 //      SourceItems - DataCompositionFilterItemCollection - source.
-//      FieldsMap - Map - :
-//                           
-//                          
-//                          
-//                          
+//      FieldsMap - Map - data for fields adjustment:
+//                          Key - an initial path to the field data, Value - a path 
+//                          for the result. For example, to replace type fields.
+//                          "Ref.Description" -> "ObjectRef.Description"
+//                          pass New Structure("Ref", "ObjectRef").
 //
 Procedure AddDataCompositionFilterValues(DestinationItems, SourceItems, FieldsMap = Undefined) 
 	
@@ -633,11 +635,11 @@ Procedure AddDataCompositionFilterValues(DestinationItems, SourceItems, FieldsMa
 	
 EndProcedure
 
-// Prepares a list of objects to be uploaded according to the settings.
+// Prepares a list of objects to be exported in accordance with the settings.
 Procedure FillListOfObjectsToExport() 
 	SetPrivilegedMode(True);
-	// 
-	// 
+	// Objects are processed in batches.
+	// Objects with and without filter settings are processed separately.
 	// 
 	MetadataArrayWithoutFilters = New Array;
 	MetadataArrayFilterByPeriod = New Array;
@@ -664,11 +666,11 @@ Procedure FillListOfObjectsToExport()
 	EndIf;
 EndProcedure
 
-// Returns an extended representation of the object.
+// Returns an extended object presentation.
 // Parameters:
-//  ParameterObject - Arbitrary -  a string with the full name of the metadata object or metadata object.
+//  ParameterObject - Arbitrary - a string with a full metadata name or a metadata object.
 // Returns:
-//  String -  representation of objects.
+//  String - object presentation.
 //
 Function ObjectPresentation(ParameterObject) 
 	
@@ -677,7 +679,7 @@ Function ObjectPresentation(ParameterObject)
 	EndIf;
 	ObjectMetadata = ?(TypeOf(ParameterObject) = Type("String"), Metadata.FindByFullName(ParameterObject), ParameterObject);
 	
-	// 
+	// There can be no presentation attributes, iterating through structure.
 	Presentation = New Structure("ExtendedObjectPresentation, ObjectPresentation");
 	FillPropertyValues(Presentation, ObjectMetadata);
 	If Not IsBlankString(Presentation.ExtendedObjectPresentation) Then
@@ -689,35 +691,35 @@ Function ObjectPresentation(ParameterObject)
 	Return ObjectMetadata.Presentation();
 EndFunction
 
-//  Installs datasets into the schema and initializes the linker.
-//  It is based on the values of the requisites:
-//    "Additional registration", "The period of the collection of documents", "the linker of the collection of documents".
+//  Sets the data sets to the schema and initializes the composer.
+//  Is based on attribute values:
+//    "AdditionalRegistration", "AllDocumentsFilterPeriod", "AllDocumentsFilterComposer".
 //
 //  Parameters:
-//      MetadataNamesList - Array -  names of metadata (trees of values of the constraint group, service
+//      MetadataNamesList - Array - metadata names (trees of restriction group values, internal
 //                                      IDs
-//                                      "all documents" or "all NSI") for which the schema will be built. 
-//                                      If not specified, then for the entire node composition.
+//                                      of "All documents" or "All regulatory data") that serve as a basis for the composition schema. 
+//                                      If it is Undefined, all metadata types from node content are used.
 //
 //      SchemaSavingAddress - String
-//                           - UUID - 
-//                             
+//                           - UUID - a temporary storage address for saving the
+//                             composition schema.
 //
 //  Returns:
 //      Structure:
-//         * NodeCompositionMetadataTable - ValueTable -  description of the node composition.
-//         * CompositionSchema - DataCompositionSchema -  initiated value.
-//         * SettingsComposer - DataCompositionSettingsComposer -  initiated value.
+//         * NodeCompositionMetadataTable - ValueTable - node content description.
+//         * CompositionSchema - DataCompositionSchema - an initialized value.
+//         * SettingsComposer - DataCompositionSettingsComposer - an initialized value.
 //
 Function InitializeComposer(MetadataNamesList = Undefined, SchemaSavingAddress = Undefined)
 	
 	CompositionSchema = GetTemplate("DataCompositionSchema");
 	DataSource = CompositionSchema.DataSources.Get(0).Name;
 
-	// 
+	// Sets for each metadata type included in the exchange.
 	SetItemsChanges = CompositionSchema.DataSets.Find("ChangeRecords").Items;
 	While SetItemsChanges.Count() > 1 Do
-		// 
+		// [0] - Field details.
 		SetItemsChanges.Delete(SetItemsChanges[1]);
 	EndDo;
 	AdditionalChangesTable = AdditionalRegistration;
@@ -728,7 +730,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, SchemaSavingAddress =
 	|FROM
 	|	&NameOfTableToAdd AS AliasOfTheMetadataTable";
 	
-	// 
+	// Additional changes.
 	For Each String In AdditionalChangesTable Do
 		FullMetadataName = String.FullMetadataName;
 		CurrentFilter = String.Filter; // DataCompositionFilter
@@ -752,7 +754,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, SchemaSavingAddress =
 			QueryText = StrReplace(QueryText, "&NameOfTableToAdd", NameOfTableToAdd);
 			Set.Query = QueryText;
 				
-			// 
+			// Adding additional sets to receive data of their filter tabular sections.
 			AddingOptions = New Structure;
 			AddingOptions.Insert("NameOfTableToAdd", NameOfTableToAdd);
 			AddingOptions.Insert("CompositionSchema",       CompositionSchema);
@@ -771,7 +773,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, SchemaSavingAddress =
 		
 		SettingsRoot = SettingsComposer.Settings;
 		
-		// 
+		// Adding additional data filter settings.
 		FilterGroup = SettingsRoot.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
 		FilterGroup.Use = True;
 		FilterGroup.GroupType = DataCompositionFilterItemsGroupType.OrGroup;
@@ -817,7 +819,7 @@ Function InitializeComposer(MetadataNamesList = Undefined, SchemaSavingAddress =
 					
 				EndIf;
 
-				// 
+				// Adding filter items with field replacement: Ref -> ObjectRef.
 				AddingOptions = New Structure;
 				AddingOptions.Insert("NameOfTableToAdd", NameOfTableToAdd);
 				AddTabularSectionCompositionAdditionalFilters(
@@ -831,12 +833,13 @@ Function InitializeComposer(MetadataNamesList = Undefined, SchemaSavingAddress =
 		CompositionSchema, SettingsComposer);
 EndFunction
 
-//  Adds a data set with a single "Link" field by table name to the layout schema.
+//  Adds a data set with one Reference field by the table name in the composition schema.
 //
 //  Parameters:
-//      DataCompositionSchema - DataCompositionSchema -  the schema that is being added to.
-//      
-//      
+//      DataCompositionSchema - DataCompositionSchema - TableName - String - Data table name.
+//                                                      Presentation - String - Presentation of the Ref field.
+//      TableName - String - Data table name.
+//      Presentation - String - Presentation of the Ref field.
 //
 Procedure AddSetToCompositionSchema(DataCompositionSchema, TableName, Presentation = Undefined)
 	
@@ -854,14 +857,14 @@ Procedure AddSetToCompositionSchema(DataCompositionSchema, TableName, Presentati
 	
 EndProcedure
 
-//  Adds a single selection element to the list.
+//  Adds a single filter item to the list.
 //
 //  Parameters:
-//      FilterItems1  - DataCompositionFilterItem -  reference to the object being checked.
-//      DataPathField - String -  the data path for the element to add.
-//      Var_ComparisonType    - DataCompositionComparisonType -  comparison view for the element being added.
-//      Value        - Arbitrary -  comparison value for the element being added.
-//      Presentation    -String -  optional field representation.
+//      FilterItems1  - DataCompositionFilterItem - a reference to the object to check.
+//      DataPathField - String - data path of the filter item.
+//      Var_ComparisonType    - DataCompositionComparisonType - a type of comparison for item to be added.
+//      Value        - Arbitrary - a comparison value for item to be added.
+//      Presentation    -String - optional field presentation.
 //      
 Procedure AddFilterItem(FilterItems1, DataPathField, Var_ComparisonType, Value, Presentation = Undefined)
 	
@@ -905,7 +908,7 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 			Continue;
 		EndIf;
 		
-		// 
+		// It is an item, analyzing passed data kind.
 		FieldName = Item.LeftValue;
 		If StrStartsWith(FieldName, "Ref.") Then
 			FieldName = Mid(FieldName, 8);
@@ -920,17 +923,17 @@ Procedure AddTabularSectionCompositionAdditionalSets(SourceItems, AddingOptions)
 		TabularSectionMetadata = ObjectMetadata.TabularSections.Find(TableName);
 			
 		If Position = 0 Then
-			// 
+			// Filter of header attributes can be retrieved by reference.
 			Continue;
 		ElsIf TabularSectionMetadata = Undefined Then
-			// 
+			// The tabular section does not match the conditions.
 			Continue;
 		EndIf;
 		
-		// 
+		// The table that matches the conditions.
 		DataPath = Mid(FieldName, Position + 1);
 		If StrStartsWith(DataPath + ".", "Ref.") Then
-			// 
+			// Redirecting to the parent table.
 			Continue;
 		EndIf;
 		
@@ -978,11 +981,11 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 	MetaObject1 = Metadata.FindByFullName(NameOfTableToAdd);
 	
 	For Each Item In SourceItems Do
-		// 
+		// The analysis script fragment is similar to the script fragment in the AddTabularSectionCompositionAdditionalSets procedure.
 		
 		Type = TypeOf(Item);
 		If Type = Type("DataCompositionFilterItemGroup") Then
-			// 
+			// Copy filter item.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			
@@ -991,7 +994,7 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 			Continue;
 		EndIf;
 		
-		// 
+		// It is an item, analyzing passed data kind.
 		FieldName = String(Item.LeftValue);
 		If FieldName = "Ref" Then
 			FilterElement = DestinationItems.Add(Type);
@@ -1017,14 +1020,14 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 		MetaTabularSection = MetaObject1.TabularSections.Find(TableName);
 			
 		If Position = 0 Then
-			// 
+			// Header attribute filter is retrieved by reference.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue = New DataCompositionField("ObjectRef." + FieldName);
 			Continue;
 			
 		ElsIf MetaTabularSection = Undefined Then
-			// 
+			// The table does not match the conditions. Refine the filter.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue  = New DataCompositionField("FullMetadataName");
@@ -1035,17 +1038,17 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 			Continue;
 		EndIf;
 		
-		// 
+		// Setting up filter for a tabular section
 		DataPath = Mid(FieldName, Position + 1);
 		If StrStartsWith(DataPath + ".", "Ref.") Then
-			// 
+			// Redirecting to the parent table.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue = New DataCompositionField("ObjectRef." + Mid(DataPath, 8));
 			
 		ElsIf DataPath <> "LineNumber" And DataPath <> "Ref"
 			And MetaTabularSection.Attributes.Find(DataPath) = Undefined Then
-			// 
+			// The table is correct but the attribute does not match conditions. Refine the filter.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			FilterElement.LeftValue  = New DataCompositionField("FullMetadataName");
@@ -1054,7 +1057,7 @@ Procedure AddTabularSectionCompositionAdditionalFilters(DestinationItems, Source
 			FilterElement.RightValue = "";
 			
 		Else
-			// 
+			// Modify the name.
 			FilterElement = DestinationItems.Add(Type);
 			FillPropertyValues(FilterElement, Item);
 			DataPath = StrReplace(NameOfTableToAdd + TableName, ".", "") + DataPath;
@@ -1068,8 +1071,8 @@ EndProcedure
 // For internal use only.
 //
 // Parameters:
-//   MetaTabularSection - MetadataObjectTabularSection -  metadata of the table part.
-//   Prefix - String -  prefix of the prop name.
+//   MetaTabularSection - MetadataObjectTabularSection - table metadata.
+//   Prefix - String - an attribute name prefix.
 //
 Function TabularSectionAttributesForQuery(Val MetaTabularSection, Val Prefix = "")
 	
@@ -1119,14 +1122,14 @@ EndFunction
 Procedure AddListOfObjectsToExport(MetadataArrayFilter)
 	CompositionData = InitializeComposer(MetadataArrayFilter);
 	
-	// 
+	// Save filter settings.
 	FiltersSettings = CompositionData.SettingsComposer.GetSettings();
 	
-	// 
+	// Apply the selected option.
 	CompositionData.SettingsComposer.LoadSettings(
 		CompositionData.CompositionSchema.SettingVariants["UserData1"].Settings);
 	
-	// 
+	// Restore filters.
 	AddDataCompositionFilterValues(CompositionData.SettingsComposer.Settings.Filter.Items, 
 		FiltersSettings.Filter.Items);
 	

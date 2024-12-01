@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -31,7 +33,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.LabelsContextMenuClearAllIetmsCommand.Visible = False;
 	EndIf;
 	
-	// 
+	// Getting the list of available property sets.
 	PropertiesSets = PropertyManagerInternal.GetObjectPropertySets(ObjectReference);
 	For Each TableRow In PropertiesSets Do
 		AvailablePropertySets.Add(TableRow.Set);
@@ -41,7 +43,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Parameters.ObjectDetails.AdditionalAttributes.Unload(),
 		Enums.PropertiesKinds.Labels));
 	
-	// 
+	// Populate a label table.
 	FillLabels();
 	
 EndProcedure
@@ -49,7 +51,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
-	// 
+	// Refill a label table.
 	If EventName = "Write_AdditionalAttributesAndInfo" Then
 		FillLabels();
 	EndIf;

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -18,8 +20,8 @@ Var ErrorReport;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
-	// 
+	// Switch to opening the data re-sync form before a startup with the options
+	// "Sync and continue" and "Continue".
 	If Parameters.ErrorInfo <> Undefined Then
 		BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(Parameters.ErrorInfo);
 		DetailErrorDescription = ErrorProcessing.DetailErrorDescription(Parameters.ErrorInfo);
@@ -218,14 +220,14 @@ Function AttachExternalDataProcessor(AddressInTempStorage)
 		Raise NStr("en = 'Insufficient access rights.';");
 	EndIf;
 	
-	// 
-	// 
+	// ACC:552-off - The infobase repair scenario with update errors for the full-rights administrator.
+	// ACC:556-off
 	Manager = ExternalDataProcessors;
 	DataProcessorName = Manager.Connect(AddressInTempStorage, , False,
 		Common.ProtectionWithoutWarningsDetails());
 	Return Manager.Create(DataProcessorName, False).Metadata().FullName();
-	// 
-	// 
+	// ACC:556-on
+	// ACC:552-on
 	
 EndFunction
 

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns the details of an object that is not recommended to edit
-// by processing a batch update of account details.
+// Returns the object attributes that are not recommended to be edited
+// using a bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String
@@ -35,7 +37,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -53,9 +55,9 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// 
+// SaaSTechnology.ExportImportData
 
-// It is connected to the offload of the unloaded data, which is undetectable.When registering the data handlers, the data loads.
+// Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
 // Parameters:
 //   Container - DataProcessorObject.ExportImportDataContainerManager
@@ -85,7 +87,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End CloudTechnology.ExportImportData
+// End SaaSTechnology.ExportImportData
 
 #EndRegion
 
@@ -180,6 +182,11 @@ EndProcedure
 
 // See AccessManagement.AdministratorsAccessGroup
 Function AdministratorsAccessGroup(ProfileAdministrator = Undefined) Export
+	
+	If ValueIsFilled(ProfileAdministrator) Then
+		UsersInternal.CheckSafeModeIsDisabled(
+			"Catalogs.AccessGroups.AdministratorsAccessGroup");
+	EndIf;
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -295,7 +302,7 @@ Function AdministratorsAccessGroup(ProfileAdministrator = Undefined) Export
 	
 EndFunction
 
-// For the Group Access function, administrators.
+// For the AdministratorsAccessGroup function.
 Function AccessGroupByName(Description)
 	
 	Query = New Query;
@@ -320,16 +327,16 @@ Function AccessGroupByName(Description)
 	
 EndFunction
 
-// Sets the delete mark for access groups if
-// the delete mark is set for the access group profile. This is required, for example,
-// when deleting predefined access group profiles,
-// because the platform does not call object handlers when
-// setting the delete tag to former predefined
-// elements during database configuration updates.
+// Sets a deletion mark for access groups if the
+// deletion mark is set for the access group profile. It is required, for example,
+// upon deleting the predefined profiles of access groups,
+// since the platform does not call object handlers
+// when setting the deletion mark for former predefined
+// items upon the database configuration update.
 //
 // Parameters:
-//  HasChanges - Boolean -  the return value. If a record was made,
-//                  the Truth is set, otherwise it does not change.
+//  HasChanges - Boolean - return value. If recorded,
+//                  True is set, otherwise, it does not change.
 //
 Procedure MarkForDeletionSelectedProfilesAccessGroups(HasChanges = Undefined) Export
 	
@@ -361,7 +368,7 @@ Procedure MarkForDeletionSelectedProfilesAccessGroups(HasChanges = Undefined) Ex
 			InfobaseUpdate.WriteObject(AccessGroupObject);
 			InformationRegisters.AccessGroupsTables.UpdateRegisterData(Selection.Ref);
 			InformationRegisters.AccessGroupsValues.UpdateRegisterData(Selection.Ref);
-			// 
+			// @skip-check query-in-loop - Batch-wise data processing within a transaction
 			UsersForUpdate = UsersForRolesUpdate(Undefined, AccessGroupObject);
 			AccessManagement.UpdateUserRoles(UsersForUpdate);
 			HasChanges = True;
@@ -374,20 +381,20 @@ Procedure MarkForDeletionSelectedProfilesAccessGroups(HasChanges = Undefined) Ex
 	
 EndProcedure
 
-// Updates the access types of access groups for the specified profile.
-//  However, it is possible not to delete access types from the access group
-// that are deleted in the profile of this access group, if
-// the access group has access values assigned
-// for the type of access that is being deleted.
+// Updates access kinds of access groups for the specified profile.
+//  It is possible not to remove access kinds from the access group,
+// which are deleted in the access group profile,
+// if access values are assigned in the access group by
+// the type of access to be deleted.
 // 
 // Parameters:
-//  Profile - CatalogRef.AccessGroupProfiles -  profile of access groups.
+//  Profile - CatalogRef.AccessGroupProfiles - an access group profile.
 //
-//  UpdatingAccessGroupsWithObsoleteSettings - Boolean -  update access groups.
+//  UpdatingAccessGroupsWithObsoleteSettings - Boolean - update access groups.
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - if True, an access group is changed,
+//           if False, nothing is changed.
 //
 Function UpdateProfileAccessGroups(Profile, UpdatingAccessGroupsWithObsoleteSettings = False) Export
 	
@@ -422,16 +429,16 @@ Function UpdateProfileAccessGroups(Profile, UpdatingAccessGroupsWithObsoleteSett
 	Selection = Query.Execute().Select();
 	
 	While Selection.Next() Do
-		// 
+		// Checking if an access group must or can be updated.
 		AccessGroup = Selection.Ref.GetObject();
 		
 		If AccessGroup.Ref = AccessManagement.AdministratorsAccessGroup()
 		   And AccessGroup.Profile <> AccessManagement.ProfileAdministrator() Then
-			// 
+			// Setting the Administrator profile if it is not set.
 			AccessGroup.Profile = AccessManagement.ProfileAdministrator();
 		EndIf;
 		
-		// 
+		// Checking access kind content.
 		AccessKindsContentChanged1 = False;
 		HasAccessKindsToDeleteWithSpecifiedAccessValues = False;
 		If AccessGroup.AccessKinds.Count() <> ProfileAccessKinds.FindRows(New Structure("Predefined", False)).Count() Then
@@ -450,8 +457,8 @@ Function UpdateProfileAccessGroups(Profile, UpdatingAccessGroupsWithObsoleteSett
 		If AccessKindsContentChanged1
 		   And ( UpdatingAccessGroupsWithObsoleteSettings
 		       Or Not HasAccessKindsToDeleteWithSpecifiedAccessValues ) Then
-			// 
-			// 
+			// Access group update.
+			// 1. Delete unnecessary access kinds and access values.
 			CurrentRowNumber1 = AccessGroup.AccessKinds.Count()-1;
 			While CurrentRowNumber1 >= 0 Do
 				CurrentAccessKind = AccessGroup.AccessKinds[CurrentRowNumber1].AccessKind;
@@ -464,7 +471,7 @@ Function UpdateProfileAccessGroups(Profile, UpdatingAccessGroupsWithObsoleteSett
 				EndIf;
 				CurrentRowNumber1 = CurrentRowNumber1 - 1;
 			EndDo;
-			// 
+			// 2. Add new access kinds (if any).
 			For Each AccessKindRow In ProfileAccessKinds Do
 				If Not AccessKindRow.Predefined 
 				   And AccessGroup.AccessKinds.Find(AccessKindRow.AccessKind, "AccessKind") = Undefined Then
@@ -506,17 +513,17 @@ Function UpdateProfileAccessGroups(Profile, UpdatingAccessGroupsWithObsoleteSett
 	
 EndFunction
 
-// Returns a reference to the parent group of personal access groups.
-//  If the parent is not found, it will be created.
+// Returns a reference to a parent group of personal access groups.
+//  If the parent group is not found, it will be created.
 //
 // Parameters:
-//  DoNotCreate  - Boolean -  if set to True, the parent is not automatically created,
+//  DoNotCreate  - Boolean - if True, the parent is not automatically created
 //                 and the function returns Undefined if the parent is not found.
 //
 //  ItemsGroupDescription - String
 //
 // Returns:
-//  CatalogRef.AccessGroups - 
+//  CatalogRef.AccessGroups - a parent group reference.
 //
 Function PersonalAccessGroupsParent(Val DoNotCreate = False, ItemsGroupDescription = "") Export
 	
@@ -591,7 +598,7 @@ Function UsersForRolesUpdate(PreviousValues1, DataElement) Export
 		PreviousValues1 = New Structure("Ref, Profile, DeletionMark")
 	EndIf;
 	
-	// 
+	// Updating roles for added, remaining, and removed users.
 	Query = New Query;
 	
 	Query.SetParameter("NewMembers", ?(TypeOf(DataElement) <> Type("ObjectDeletion"),
@@ -604,7 +611,7 @@ Function UsersForRolesUpdate(PreviousValues1, DataElement) Export
 	 Or DataElement.Profile         <> PreviousValues1.Profile
 	 Or DataElement.DeletionMark <> PreviousValues1.DeletionMark Then
 		
-		// 
+		// Selecting all access group members.
 		Query.Text =
 		"SELECT DISTINCT
 		|	UserGroupCompositions.User AS User
@@ -614,7 +621,7 @@ Function UsersForRolesUpdate(PreviousValues1, DataElement) Export
 		|	(UserGroupCompositions.UsersGroup IN (&OldMembers)
 		|			OR UserGroupCompositions.UsersGroup IN (&NewMembers))";
 	Else
-		// 
+		// Selecting changes of access group members.
 		Query.Text =
 		"SELECT
 		|	Data.User AS User
@@ -672,7 +679,7 @@ Function RolesForUpdatingRights(PreviousValues1, DataElement) Export
 		PreviousValues1 = New Structure("Ref, Profile, DeletionMark")
 	EndIf;
 	
-	// 
+	// Updating roles for added, remaining, and removed users.
 	Query = New Query;
 	
 	Query.SetParameter("NewProfile",
@@ -686,7 +693,7 @@ Function RolesForUpdatingRights(PreviousValues1, DataElement) Export
 	If TypeOf(DataElement) = Type("ObjectDeletion")
 	 Or DataElement.DeletionMark <> PreviousValues1.DeletionMark Then
 		
-		// 
+		// Select all roles of the old or new access group profile.
 		Query.Text =
 		"SELECT DISTINCT
 		|	ProfilesRoles.Role AS Role
@@ -695,7 +702,7 @@ Function RolesForUpdatingRights(PreviousValues1, DataElement) Export
 		|WHERE
 		|	ProfilesRoles.Ref IN (&OldProfile, &NewProfile)";
 	Else
-		// 
+		// Select access group role changes.
 		Query.Text =
 		"SELECT
 		|	Data.Role AS Role
@@ -870,7 +877,7 @@ Procedure RegisterChangeInAccessGroupsMembers(Object, PreviousValues1) Export
 		Query.SetParameter("AccessGroupToExclude", AccessGroupToExclude);
 		Query.SetParameter("Profile", Object.Ref);
 		Query.SetParameter("IsNewDeletionMark", IsProfileMarkedForDeletion(Object, PreviousValues1));
-		// 
+		// ACC:1377-off - No.654.2.1. All four types are required for requests using dot notation.
 		Query.Text =
 		"SELECT
 		|	AccessGroups.Ref AS Ref,
@@ -904,7 +911,7 @@ Procedure RegisterChangeInAccessGroupsMembers(Object, PreviousValues1) Export
 		|	AccessGroups AS AccessGroups
 		|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsMembers
 		|		ON (AccessGroupsMembers.Ref = AccessGroups.Ref)";
-		// 
+		// ACC:1377-on
 		QueryResults = Query.ExecuteBatch();
 		If QueryResults[1].IsEmpty() Then
 			Return;
@@ -1018,7 +1025,7 @@ Procedure RegisterChangeInAccessGroupsMembers(Object, PreviousValues1) Export
 	
 EndProcedure
 
-// 
+// Intended for procedure "RegisterChangeInAccessGroupsMembers".
 Function ActiveMembers(ChangesInMembers)
 	
 	Attendees = ChangesInMembers.Copy(, "User");
@@ -1084,18 +1091,18 @@ EndFunction
 // Parameters:
 //  Object - CatalogObject.AccessGroups
 //         - CatalogObject.AccessGroupProfiles
-//         - DefinedType.AccessValueObject - 
-//             
+//         - DefinedType.AccessValueObject - Intended for registering changes in access value group usage and
+//             parent's hierarchy membership changes if the access value is used with the lower-level values.
 //         - Structure:
 //            * AccessKindsChange - ValueTable:
 //                ** AccessKind    - DefinedType.AccessValue
-//                ** Use - Boolean - 
-//                     
-//                ** ChangeType  - String - 
+//                ** Use - Boolean - A new usage of the access kind after a change made to
+//                     the information register "UsedAccessKinds".
+//                ** ChangeType  - String - Either of the values: "Added", "Removed", "IsChanged".
 //            * ChangeInUserGroupsMembership - See UsersInternal.NewChangeInRegistrableGroupMembership
 //
-//  PreviousValues1 - Structure - 
-//                 - Undefined - 
+//  PreviousValues1 - Structure - Properties' old values (applicable if the object is not Structure).
+//                 - Undefined - Applicable if the object is Structure.
 //
 Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 	
@@ -1132,7 +1139,7 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 	
 	If TypeOf(Object) = Type("CatalogObject.AccessGroups") Then
 		
-		// 
+		// Add the access kind membership changes and the "AllAllowed" flag.
 		PreviousValues1.Insert("ProfileAccessKinds", Undefined);
 		ProfileProperties = Common.ObjectAttributesValues(Object.Profile,
 			"DeletionMark, AccessKinds, AccessValues");
@@ -1148,8 +1155,8 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 			ProfileProperties.AccessKinds, ProfilePredefinedAccessKinds);
 		AccessKindsChange = ChangeInAccessKindsComposition(NewAccessKinds, PreviousValues1);
 		
-		// 
-		// 
+		// Add changes in the access value list and access value group, the "IncludeSubordinateAccessValues" flag,
+		// and the access values in whose access kind the "AllAllowed" flag was added, removed, or modified.
 		AccessValuesChange = ChangeInAccessValuesComposition(Object,
 			PreviousValues1, AccessKindsChange, AccessKindsProperties);
 		
@@ -1158,23 +1165,23 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 			Return;
 		EndIf;
 		
-		// 
+		// Add unmodified access kinds whose access value is changed.
 		AddAccessKindsWhoseAccessValuesChanged(AccessValuesChange,
 			AccessKindsChange, NewAccessKinds);
 		
 		AccessKindsChange.FillValues(Object.Ref, "AccessGroupOrProfile");
 		AccessValuesChange.FillValues(Object.Ref, "AccessGroupOrProfile");
 		
-		// 
+		// Add the profile's predefined access groups and their values when creating an access group.
 		AddPredefinedAccessKindsWithValues(AccessKindsChange, AccessValuesChange,
 			Object.Profile, ProfilePredefinedAccessKinds, ProfileProperties.AccessValues, AccessKindsProperties);
 		
-		// 
-		// 
+		// Populate the list of modified access value groups.
+		// Populate the subordinate access values if "IncludeSubordinateAccessValues" is selected or toggled.
 		ChangeInAccessValuesGroups = ValuesGroupsValues(AccessValuesChange, AccessKindsProperties);
 		DeleteExcessiveUnchangedValuesAndGroups(AccessValuesChange, ChangeInAccessValuesGroups);
 		
-		// 
+		// Add the presentations of the access group.
 		ProfileDeletionMark = ?(TypeOf(ProfileProperties.DeletionMark) = Type("Boolean"),
 			ProfileProperties.DeletionMark, False);
 		
@@ -1204,14 +1211,14 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 		
 	ElsIf TypeOf(Object) = Type("CatalogObject.AccessGroupProfiles") Then
 		
-		// 
+		// Add the access kind membership changes and the "AllAllowed" and "Predefined" flags.
 		AccessKindsWithChangePredefined = New Array;
 		NewAccessKinds = AccessKindsUnduplicated(Object.AccessKinds.Unload(), True);
 		AccessKindsChange = ChangeInAccessKindsComposition(NewAccessKinds,
 			PreviousValues1, True, AccessKindsWithChangePredefined);
 		
-		// 
-		// 
+		// Add changes in the access value list and access value group, the "IncludeSubordinateAccessValues" flag,
+		// and the access values in whose access kind the "AllAllowed" flag was added, removed, or modified.
 		AccessValuesChange = ChangeInAccessValuesComposition(Object, PreviousValues1,
 			AccessKindsChange, AccessKindsProperties);
 		
@@ -1220,25 +1227,25 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 			Return;
 		EndIf;
 		
-		// 
+		// Add unmodified access kinds whose access value is changed.
 		AddAccessKindsWhoseAccessValuesChanged(AccessValuesChange,
 			AccessKindsChange, NewAccessKinds);
 		
 		AccessKindsChange.FillValues(Object.Ref, "AccessGroupOrProfile");
 		AccessValuesChange.FillValues(Object.Ref, "AccessGroupOrProfile");
 		
-		// 
-		// 
+		// Add access values and kinds for the profile's access groups
+		// (for profile access kinds whose "Predefined" flag was modified).
 		AccessGroupsProperties = ProfileAccessGroupsProperties(Object.Ref, AccessKindsWithChangePredefined);
 		FillAccessKindsAndValues(AccessKindsChange,
 			AccessValuesChange, AccessGroupsProperties, AccessKindsProperties);
 		
-		// 
-		// 
+		// Populate the list of modified access value groups.
+		// Populate the subordinate access values if "IncludeSubordinateAccessValues" is selected or toggled.
 		ChangeInAccessValuesGroups = ValuesGroupsValues(AccessValuesChange, AccessKindsProperties);
 		DeleteExcessiveUnchangedValuesAndGroups(AccessValuesChange, ChangeInAccessValuesGroups);
 		
-		// 
+		// Add the presentations of the profile's access groups.
 		ProfileSerializedRef = SerializedRef(Object.Ref);
 		ProfilePresentation = RepresentationOfTheReference(Object.Ref);
 		OldPropertyValues = New Structure;
@@ -1319,10 +1326,10 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 		
 		DeleteExcessiveUnchangedValuesAndGroups(AccessValuesChange, ChangeInAccessValuesGroups);
 		
-		// 
+		// Add the presentations of the profiles' access groups.
 		FillProfilesAccessGroupsPresentation(Data, AccessGroupsAndProfilesProperties.AccessGroups);
 	Else
-		// 
+		// Add the changes of the access kind usage.
 		For Each String In Object.AccessKindsChange Do
 			Properties = New Structure;
 			Properties.Insert("AccessKind",   SerializedRef(String.AccessKind));
@@ -1338,11 +1345,11 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 		FillAccessKindsAndValues(AccessKindsChange,
 			AccessValuesChange, AccessGroupsAndProfilesProperties, AccessKindsProperties);
 		
-		// 
-		// 
+		// Populate the list of modified access value groups.
+		// Populate the subordinate access values if "IncludeSubordinateAccessValues" is selected.
 		ChangeInAccessValuesGroups = ValuesGroupsValues(AccessValuesChange, AccessKindsProperties);
 		
-		// 
+		// Add the presentations of the profiles' access groups.
 		FillProfilesAccessGroupsPresentation(Data, AccessGroupsAndProfilesProperties.AccessGroups);
 	EndIf;
 	
@@ -1351,7 +1358,7 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 		Return;
 	EndIf;
 	
-	// 
+	// Populate access kind changes.
 	For Each String In AccessKindsChange Do
 		Properties = New Structure;
 		Properties.Insert("AccessGroupOrProfile", SerializedRef(String.AccessGroupOrProfile));
@@ -1363,7 +1370,7 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 		Data.AccessKindsChange.Add(Properties);
 	EndDo;
 	
-	// 
+	// Populate access kind presentations.
 	AccessKindsToRegister = AccessKindsChange.Copy(, "AccessKind");
 	AccessKindsToRegister.GroupBy("AccessKind");
 	AccessKindsPropertiesByTypes = AccessKindsProperties.ByGroupsAndValuesTypes;
@@ -1387,7 +1394,7 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 		Data.AccessKindsPresentation.Add(Properties);
 	EndDo;
 	
-	// 
+	// Populate access value changes.
 	For Each String In AccessValuesChange Do
 		Properties = New Structure;
 		Properties.Insert("AccessGroupOrProfile", SerializedRef(String.AccessGroupOrProfile));
@@ -1402,7 +1409,7 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 	
 	ValuesToRegister = AccessValuesChange.Copy(, "AccessValue");
 	
-	// 
+	// Populate access value group changes.
 	If ValueIsFilled(ChangeInAccessValuesGroups) Then
 		For Each String In ChangeInAccessValuesGroups Do
 			Properties = New Structure;
@@ -1415,7 +1422,7 @@ Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
 		EndDo;
 	EndIf;
 	
-	// 
+	// Populate access value groups and presentations.
 	ValuesToRegister.GroupBy("AccessValue");
 	EnumerationsCodes = AccessManagementInternalCached.EnumerationsCodes();
 	EnumsAllRefsType = Enums.AllRefsType();
@@ -1612,8 +1619,8 @@ Function AccessKindsUnduplicated(Table, ThisProfile = False, ProfileAccessKinds 
 			EndIf;
 		EndDo;
 		If Not ThisProfile Then
-			// 
-			// 
+			// Ignore access group settings if the access group profile's
+			// has a predefined or missing access kind.
 			TSRow = PredefinedAccessKinds.Get(String.AccessKind);
 			If TSRow <> Undefined Then
 				String.Predefined = TSRow.Predefined;
@@ -1734,7 +1741,7 @@ Function ValuesGroupsValues(AccessValuesChange, AccessKindsProperties)
 	
 EndFunction
 
-// 
+// Intended for function "ChangeInAccessValuesGroups".
 Procedure AddQueriesForValuesGroupsValues(Query, QueryParts, AccessValuesChange, AccessKindsProperties)
 	
 	Filter = New Structure("IsValuesGroup", True);
@@ -1803,7 +1810,7 @@ Procedure AddQueriesForValuesGroupsValues(Query, QueryParts, AccessValuesChange,
 	
 EndProcedure
 
-// 
+// Intended for procedure "AddQueriesForValuesGroupsValues".
 Procedure AddQuerySegment(Properties, QueryParts, QuerySegmentTemplate)
 	
 	If Properties.ValuesGroupsType = Type("Undefined") Then
@@ -1824,7 +1831,7 @@ Procedure AddQuerySegment(Properties, QueryParts, QuerySegmentTemplate)
 	
 EndProcedure
 
-// 
+// Intended for function "ChangeInAccessValuesGroups".
 Procedure AddQueriesForLowerLevelValues(Query, QueryParts, AccessValuesChange)
 	
 	Filter = New Structure("IncludeSubordinateAccessValues", True);
@@ -1881,7 +1888,7 @@ Procedure DeleteExcessiveUnchangedValuesAndGroups(AccessValuesChange, ChangeInAc
 		ChangeInAccessValuesGroups.Indexes.Add("AccessValue");
 	EndIf;
 	
-	// 
+	// Delete unwanted unmodified values and value groups.
 	AccessValuesChange.Indexes.Add("AccessGroupOrProfile, AccessKind");
 	Filter = New Structure("ChangeType", "");
 	FoundRows = AccessValuesChange.FindRows(Filter);
@@ -1929,7 +1936,7 @@ Procedure DeleteExcessiveUnchangedValuesAndGroups(AccessValuesChange, ChangeInAc
 		EndDo;
 	EndDo;
 	
-	// 
+	// Delete unwanted value groups and their values.
 	If ChangeInAccessValuesGroups = Undefined Then
 		Return;
 	EndIf;
@@ -1951,7 +1958,7 @@ Procedure DeleteExcessiveUnchangedValuesAndGroups(AccessValuesChange, ChangeInAc
 	
 EndProcedure
 
-// 
+// Intended for procedure "DeleteExcessiveUnchangedValuesAndGroups".
 Function IsValueBelongsToModified(ValueUnchanged, ValuesAndGroupsWithChange, ValueGroups)
 	
 	If ValuesAndGroupsWithChange.Get(ValueUnchanged) <> Undefined Then
@@ -2507,7 +2514,7 @@ Function ValueWithParents(Parent)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions to support data exchange in DIB.
 
 // For internal use only.
 //
@@ -2515,6 +2522,9 @@ EndFunction
 //  DataElement - CatalogObject.AccessGroups
 //
 Procedure RestoreAdministratorsAccessGroupMembers(DataElement) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"Catalogs.AccessGroups.RestoreAdministratorsAccessGroupMembers");
 	
 	AdministratorsAccessGroup = AccessManagement.AdministratorsAccessGroup();
 	If DataElement.Ref <> AdministratorsAccessGroup Then
@@ -2647,7 +2657,7 @@ EndProcedure
 Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Changes of the access groups in SWP are blocked and are not imported into the data area.
 		Return;
 	EndIf;
 	
@@ -2662,7 +2672,7 @@ Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 EndProcedure
 
-// 
+// Intended for procedure "ProcessChangeRegisteredUponDataImport".
 Procedure ProcessRegisteredChangeInAccessGroups(RefsKindName, RegistrationCleanup)
 
 	ChangedAccessGroups = UsersInternal.RegisteredRefs(RefsKindName);
@@ -2694,7 +2704,7 @@ Procedure ProcessRegisteredChangeInAccessGroups(RefsKindName, RegistrationCleanu
 	
 EndProcedure
 
-// 
+// Intended for procedure "ProcessChangeRegisteredUponDataImport".
 Procedure ProcessRegisteredChangeInRoles(RefsKindName, RegistrationCleanup)
 	
 	If Not AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
@@ -2720,7 +2730,7 @@ Procedure ProcessRegisteredChangeInRoles(RefsKindName, RegistrationCleanup)
 	
 EndProcedure
 
-// 
+// Intended for procedure "ProcessChangeRegisteredUponDataImport".
 Procedure ProcessRegisteredChangeInMembers(RefsKindName, RegistrationCleanup)
 	
 	Content = UsersInternal.RegisteredRefs(RefsKindName);
@@ -2739,9 +2749,9 @@ Procedure ProcessRegisteredChangeInMembers(RefsKindName, RegistrationCleanup)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Initial population
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -2752,7 +2762,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -2769,7 +2779,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Infobase update.
 
 Procedure FillAdministratorsAccessGroupProfile() Export
 	

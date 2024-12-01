@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -14,7 +16,7 @@
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -31,9 +33,9 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
-// Defines a list of creation commands based on.
+// Defines the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
@@ -43,14 +45,14 @@ Procedure AddGenerationCommands(GenerationCommands, Parameters) Export
 	
 EndProcedure
 
-// To use in the procedure add a create command Based on other object Manager modules.
-// Adds this object to the list of base creation commands.
+// Intended for use by the AddGenerationCommands procedure in other object manager modules.
+// Adds this object to the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
 //
 // Returns:
-//  ValueTableRow, Undefined - 
+//  ValueTableRow, Undefined - Details of the added command.
 //
 Function AddGenerateCommand(GenerationCommands) Export
 	
@@ -93,7 +95,7 @@ EndProcedure
 
 #Region Internal
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateInternal.ItemsFillingSettings
@@ -107,7 +109,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -120,13 +122,13 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 //
 // Parameters:
-//  Object                  - CatalogObject.ContactInformationKinds -  the object to fill in.
-//  Data                  - ValueTableRow -  data for filling in the object.
+//  Object                  - CatalogObject.ContactInformationKinds - Object to populate.
+//  Data                  - ValueTableRow - Object fill data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable -  the data filled in in the procedure for the initial filling of the elements.
+//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	
@@ -201,7 +203,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Block.Lock();
 			
 			TemplateObject1 = Template.Ref.GetObject();
-			If TemplateObject1 = Undefined Then // 
+			If TemplateObject1 = Undefined Then // the object may have been deleted in other sessions
 				InfobaseUpdate.MarkProcessingCompletion(Template.Ref);
 				ObjectsProcessed = ObjectsProcessed + 1;
 				CommitTransaction();
@@ -279,7 +281,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			CommitTransaction();
 		Except
-			// 
+			// If message template procession failed, try again.
 			RollbackTransaction();
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			

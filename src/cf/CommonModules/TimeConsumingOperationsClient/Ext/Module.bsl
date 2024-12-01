@@ -1,27 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
+// Open the standard form for waiting the long-running operation completion or use a custom form
+// with an attached handler notifying about the procedure progress and completion.
 // 
-// 
-// 
-//  
-// 
+//  For a better UI responsiveness, use it with TimeConsumingOperations.ExecuteInBackground,
+// which replaces long server calls with a background job.
 // 
 // Parameters:
 //  TimeConsumingOperation     - See TimeConsumingOperations.ExecuteInBackground
-//  CallbackOnCompletion  - NotifyDescription - 
-//                           
-//                           : 
+//  CallbackOnCompletion  - NotifyDescription - Notification that is called upon the completion of a long-running operation
+//                           (including cases when the idle dialog is closed).
+//                           Notification handler parameters: 
 //   * Result - See NewResultLongOperation
-//               - Undefined - 
-//    
+//               - Undefined - In case the job is canceled.
+//   * AdditionalParameters - Arbitrary data passed in the notification. 
 //  IdleParameters      - See TimeConsumingOperationsClient.IdleParameters
 //
 Procedure WaitCompletion(Val TimeConsumingOperation, Val CallbackOnCompletion = Undefined, 
@@ -76,7 +78,7 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CallbackOnCompletion = 
 		AdvancedOptions_.Insert("AccumulatedMessages", New Array);
 		AdvancedOptions_.Insert("CallbackOnCompletion", CallbackOnCompletion);
 		AdvancedOptions_.Insert("CurrentInterval", ?(AdvancedOptions_.Interval <> 0, AdvancedOptions_.Interval, 1));
-		AdvancedOptions_.Insert("Control", CurrentDate() + AdvancedOptions_.CurrentInterval); // 
+		AdvancedOptions_.Insert("Control", CurrentDate() + AdvancedOptions_.CurrentInterval); // ACC:143 - Session date is not used in interval checks
 		AdvancedOptions_.Insert("LastProgressSendTime", 0);
 		
 		Operations = TimeConsumingOperationsInProgress();
@@ -86,52 +88,52 @@ Procedure WaitCompletion(Val TimeConsumingOperation, Val CallbackOnCompletion = 
 	
 EndProcedure
 
-// Returns an empty structure for the parameter waiting For the procedure Longoperationclient.Expect completion.
+// Returns a blank structure for the IdleParameters parameter of TimeConsumingOperationsClient.WaitForCompletion procedure.
 //
 // Parameters:
 //  OwnerForm - ClientApplicationForm
-//                - Undefined - 
+//                - Undefined - the form used to call the long-running operation.
 //
 // Returns:
-//  Structure              - : 
+//  Structure              - Job runtime parameters: 
 //   * OwnerForm          - ClientApplicationForm
-//                            - Undefined - 
-//   * Title              - String - 
-//   * MessageText         - String -  the text messages displayed in the form of expectations.
-//                                       If omitted, "Please wait..."is output.
-//   * OutputIdleWindow   - Boolean -  if True, open a waiting window with a visual indication of a long operation. 
-//                                       If you use your own display mechanism, you should specify False.
-//   * OpeningModeForWaitDialog - FormWindowOpeningMode - 
-//                               - Undefined -  default.
-//   * OutputProgressBar - Boolean -  display progress as a percentage on the waiting form.
-//                                      A procedure that handles a long operation can report the progress of its execution
-//                                      by calling the long Operation procedure.Subsidiares.
-//   * OutputMessages          - Boolean - 
-//                                       
-//   * CancelButtonTitle  - String - 
-//   * ExecutionProgressNotification - NotifyDescription -  
-//                                      
-//                                      :
+//                            - Undefined - the form used to call the long-running operation.
+//   * Title              - String - Title displayed on the wait form. If empty, the title is hidden. 
+//   * MessageText         - String - the message text that is displayed in the idle form.
+//                                       The default value is "Please wait…".
+//   * OutputIdleWindow   - Boolean - If True, open the idle window with visual indication of a long-running operation. 
+//                                       Set the value to False if you use your own indication engine.
+//   * OpeningModeForWaitDialog - FormWindowOpeningMode - The idle form's "WindowOpenMode" parameter.
+//                               - Undefined - Default value.
+//   * OutputProgressBar - Boolean - show execution progress as percentage in the idle form.
+//                                      The handler procedure of a long-running operation can report the progress of its execution
+//                                      by calling the TimeConsumingOperations.ReportProgress procedure.
+//   * OutputMessages          - Boolean - Flag indicating whether to output messages generated in long-running operation handler
+//                                       from the wait form to the message's OwnerForm.
+//   * CancelButtonTitle  - String - Title of the "Cancel" button. If not specified, "Canceled".
+//   * ExecutionProgressNotification - NotifyDescription - The notification called repeatedly to check if the background job is completed. 
+//                                      Applies if "OutputIdleWindow" is set to "False".
+//                                      The parameters of the event handler are::
 //      ** Result - See LongRunningOperationNewState
-//      ** AdditionalParameters - Arbitrary -  custom data passed in the alert description. 
+//      ** AdditionalParameters - Arbitrary - arbitrary data that was passed in the notification details. 
 //
-//   * Interval               - Number  -  the interval, in seconds, between checks that a long operation is ready.
-//                                       By default, 0-after each check, the interval increases from 1 to 15 seconds
-//                                       with a coefficient of 1.4.
+//   * Interval               - Number  - Interval between long-running operation completion checks, in seconds.
+//                                       The default value is 0. After each check, the value increases from 1 to 15 seconds
+//                                       with increment 1.4.
 //   * UserNotification - Structure:
-//     ** Show            - Boolean -  if True, then display a user alert when the long operation is completed.
-//     ** Text               - String -  text of the user's notification.
-//     ** URL - String -  navigation link for user alerts.
-//     ** Explanation           - String -  explanation of the user notification.
-//     ** Picture            - Picture - 
-//                                         
-//     ** Important              - Boolean - 
+//     ** Show            - Boolean - show user notification upon completion of the long-running operation if True.
+//     ** Text               - String - the user notification text.
+//     ** URL - String - the user notification URL.
+//     ** Explanation           - String - the user notification note.
+//     ** Picture            - Picture - Picture to show in the notification dialog.
+//                                         If Undefined, don't show the picture.
+//     ** Important              - Boolean - If True, after being closed automatically, add the notification to the notification center.
 //                                       
 //   
-//   * ShouldCancelWhenOwnerFormClosed - Boolean - 
-//       
+//   * ShouldCancelWhenOwnerFormClosed - Boolean - By default, OwnerForm.IsOpen(). False if no form is specified.
+//       If False, the long-running operation won't be canceled when the owner form or wait form is closed.
 //   
-//   * MustReceiveResult - Boolean -  the service parameter. Not intended for use.
+//   * MustReceiveResult - Boolean - For internal use only.
 //
 Function IdleParameters(OwnerForm) Export
 	
@@ -164,37 +166,37 @@ Function IdleParameters(OwnerForm) Export
 	
 EndFunction
 
-//  
-// 
+// Returns the result of the notification specified in the "CompletionNotification2" parameter 
+// of "TimeConsumingOperationsClient.WaitForCompletion".
 //
 // Returns:
-//  Undefined - 
-//  :
-//   * Status - String - 
-//                       
+//  Undefined - Passed in the result of "NotificationOfCompletion" if the user canceled the job.
+//  Structure:
+//   * Status - String - "Completed " if the job has completed.
+//                       "Error" if the job has completed with error.
 //
-//   * ResultAddress  - String - 
-//                         
+//   * ResultAddress  - String - Address of the temporary storage where the result
+//                         of the long-running operation should be (or already is) stored.
 //
-//   * AdditionalResultAddress - String -  
-//                         
-//                         
+//   * AdditionalResultAddress - String - If "AdditionalResult" is specified, 
+//                         it contains the address of the additional temporary storage
+//                         where the procedure's additional result should be (or already is) stored.
 //
-//   * ErrorInfo - ErrorInfo - 
-//                        - Undefined - 
+//   * ErrorInfo - ErrorInfo - If Status = "Error".
+//                        - Undefined - If Status <> "Error".
 //
-//   * Messages - FixedArray -  
+//   * Messages - FixedArray - Array of MessageToUser objects, 
+//                   generated in the long-running operation handler.
+//                   The array is empty if in the "TimeConsumingOperationsClient.WaitCompletion" procedure,
+//                   the OutputIdleWindow property of "IdleParameters" is set to "False"
+//                   and the "ExecutionProgressNotification" property is assigned a value.
 //                   
-//                   
-//                   
-//                   
-//                   
 //
-//   * JobID - UUID - 
-//                          - Undefined - 
+//   * JobID - UUID - Background job id (if it was started).
+//                          - Undefined - If the job wasn't started (foreground execution).
 //
-//   * BriefErrorDescription   - String - 
-//   * DetailErrorDescription - String - 
+//   * BriefErrorDescription   - String - Obsolete.
+//   * DetailErrorDescription - String - Obsolete.
 //
 Function NewResultLongOperation() Export
 	
@@ -212,23 +214,23 @@ Function NewResultLongOperation() Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns an empty structure to be passed as the result of the notification
+// specified in the property "LongRunningOperationNewState" of the parameter "IdleParameters"
+// in the procedure "TimeConsumingOperationsClient.WaitCompletion".
 //
 // Returns:
 //  Structure:
-//   * Status - String - 
-//                       
-//                       
+//   * Status - String - "Running" if the job is running.
+//                       "Completed " if the job is completed.
+//                       "Error" if the job is completed with error.
 //
 //   * Progress   - See TimeConsumingOperations.ReadProgress
-//   * Messages  - Undefined - 
-//                - FixedArray -  
-//                    
+//   * Messages  - Undefined - No messages
+//                - FixedArray - An array of "UserMessage" objects. 
+//                    A batch of messages sent from the long-running operation.
 //
-//   * JobID - UUID - 
-//                          - Undefined - 
+//   * JobID - UUID - Background job id (if it was started).
+//                          - Undefined - If the job wasn't started (foreground execution).
 //
 Function LongRunningOperationNewState() Export
 	
@@ -244,11 +246,11 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
+// Deprecated. Instead, use WaitForCompletion with the IdleParameters.OutputIdleWindow = True parameter.
+// Fills the parameter structure with default values.
 // 
 // Parameters:
-//  IdleHandlerParameters - Structure -  filled in with default values. 
+//  IdleHandlerParameters - Structure - the structure to be filled with default values. 
 //
 // 
 Procedure InitIdleHandlerParameters(IdleHandlerParameters) Export
@@ -261,11 +263,11 @@ Procedure InitIdleHandlerParameters(IdleHandlerParameters) Export
 	
 EndProcedure
 
-// Deprecated.
-// 
+// Deprecated. Instead, use WaitForCompletion with the IdleParameters.OutputIdleWindow = True parameter.
+// Fills the parameter structure with new calculated values.
 // 
 // Parameters:
-//  IdleHandlerParameters - Structure -  filled in with calculated values. 
+//  IdleHandlerParameters - Structure - the structure to be filled with calculated values. 
 //
 // 
 Procedure UpdateIdleHandlerParameters(IdleHandlerParameters) Export
@@ -277,15 +279,15 @@ Procedure UpdateIdleHandlerParameters(IdleHandlerParameters) Export
 		
 EndProcedure
 
-// Deprecated.
-// 
+// Deprecated. Instead, use WaitForCompletion with the IdleParameters.OutputIdleWindow = True parameter.
+// Opens the long-running operation progress form.
 // 
 // Parameters:
-//  FormOwner        - ClientApplicationForm -  the form from which the opening is made. 
-//  JobID - UUID -  ID of the background task.
+//  FormOwner        - ClientApplicationForm - the form used to open the long-running operation progress form. 
+//  JobID - UUID - a background job ID.
 //
 // Returns:
-//  ClientApplicationForm     - 
+//  ClientApplicationForm     - the reference to the opened form.
 // 
 Function OpenTimeConsumingOperationForm(Val FormOwner, Val JobID) Export
 	
@@ -295,11 +297,11 @@ Function OpenTimeConsumingOperationForm(Val FormOwner, Val JobID) Export
 	
 EndFunction
 
-// Deprecated.
-// 
+// Deprecated. Instead, use WaitForCompletion with the IdleParameters.OutputIdleWindow = True parameter.
+// Closes the long-running operation progress form.
 // 
 // Parameters:
-//  TimeConsumingOperationForm - ClientApplicationForm -  link to the form-indicator of a long operation. 
+//  TimeConsumingOperationForm - ClientApplicationForm - the reference to the long-running operation indication form. 
 //
 Procedure CloseTimeConsumingOperationForm(TimeConsumingOperationForm) Export
 	
@@ -319,12 +321,12 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // Parameters:
 //  Parameters - 
-//  AreChatsActive - Boolean - 
-//  Interval - Number - 
+//  AreChatsActive - Boolean - Flag indicating whether the Business interactions subsystem delivers messages.
+//  Interval - Number - Timeout in seconds before the next check.
 //
 Procedure BeforeRecurringClientDataSendToServer(Parameters, AreChatsActive, Interval) Export
 	
@@ -339,8 +341,8 @@ EndProcedure
 
 // Parameters:
 //  Results - See CommonOverridable.OnReceiptRecurringClientDataOnServer.Results
-//  AreChatsActive - Boolean - 
-//  Interval - Number - 
+//  AreChatsActive - Boolean - Flag indicating whether the Business interactions subsystem delivers messages.
+//  Interval - Number - Timeout in seconds before the next check.
 //
 Procedure AfterRecurringReceiptOfClientDataOnServer(Results, AreChatsActive, Interval) Export
 	
@@ -398,18 +400,18 @@ Procedure OnFormClosureLongRunningOperation(Result, Context) Export
 EndProcedure
 
 // Parameters:
-//  AreChatsActive - Boolean - 
-//  Interval - Number - 
+//  AreChatsActive - Boolean - Flag indicating whether the Business interactions subsystem delivers messages.
+//  Interval - Number - Timeout in seconds before the next check.
 //
 // Returns:
-//  Undefined - 
-//  :
+//  Undefined - Check is not required.
+//  Structure:
 //   * JobsToCheck - Array of UUID
 //   * JobsToCancel - Array of UUID
 //
 Function LongRunningOperationCheckParameters(AreChatsActive, Interval)
 	
-	CurrentDate = CurrentDate(); // 
+	CurrentDate = CurrentDate(); // ACC:143 - Session date is not used in interval checks
 	
 	ActionsUnderControl = New Map;
 	JobsToCheck = New Array;
@@ -477,7 +479,7 @@ Procedure ProcessOperationResult(TimeConsumingOperationsInProgress, Operation, R
 			TimeConsumingOperationsInProgress.Delete(Operation.JobID);
 		EndIf;
 	Except
-		// 
+		// Do not track anymore.
 		TimeConsumingOperationsInProgress.Delete(Operation.JobID);
 		Raise;
 	EndTry;
@@ -486,7 +488,7 @@ EndProcedure
 
 Procedure ReviseIdleHandlerInterval(Interval, TimeConsumingOperationsInProgress, AreChatsActive)
 	
-	CurrentDate = CurrentDate(); // 
+	CurrentDate = CurrentDate(); // ACC:143 - Session date is not used in interval checks
 	NewInterval = 120; 
 	For Each Operation In TimeConsumingOperationsInProgress Do
 		NewInterval = Max(Min(NewInterval, Operation.Value.Control - CurrentDate), 1);
@@ -504,10 +506,10 @@ Procedure ReviseIdleHandlerInterval(Interval, TimeConsumingOperationsInProgress,
 EndProcedure
 
 // Returns:
-//  Number - 
-//          
-//          
-//          
+//  Number - Time in seconds when a long-running operation is controlled
+//          by the server call when chats are active but new messages weren't sent.
+//          For example, if the operation is running longer than the specified time or
+//          when the background job crashed and the message wasn't sent via Business interactions.
 //          
 //          
 //
@@ -531,7 +533,7 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 		If Operation.LastProgressSendTime < Result.TimeSentOn Then
 			Operation.LastProgressSendTime = Result.TimeSentOn;
 		Else
-			Return; // 
+			Return; // Skip the obsolete progress message.
 		EndIf;
 	EndIf;
 	
@@ -569,7 +571,7 @@ EndProcedure
 //   * CurrentInterval       - Number
 //   * Control              - Date
 //    
-//   * LastProgressSendTime - Number - 
+//   * LastProgressSendTime - Number - Universal date in milliseconds
 //
 //  TimeConsumingOperation - See TimeConsumingOperations.OperationNewRuntimeResult
 //
@@ -612,8 +614,8 @@ Function ProcessActiveOperationResult(AdvancedOptions_, TimeConsumingOperation)
 		         And ValueIsFilled(AdvancedOptions_.ResultAddress)
 		       Or AdvancedOptions_.Property("AdditionalResultAddress")
 		         And ValueIsFilled(AdvancedOptions_.AdditionalResultAddress))
-		 // 
-		 // 
+		 // The check is required as the notification is sent before the background job is over,
+		 // and the outcome data cannot be accessed by address in the temp storage.
 		 Or TimeConsumingOperationsServerCall.IsBackgroundJobCompleted(AdvancedOptions_.JobID) Then
 		 
 			FinishLongRunningOperation(AdvancedOptions_, TimeConsumingOperation);
@@ -630,7 +632,7 @@ Function ProcessActiveOperationResult(AdvancedOptions_, TimeConsumingOperation)
 		EndIf;
 		AdvancedOptions_.CurrentInterval = IdleInterval;
 	EndIf;
-	AdvancedOptions_.Control = CurrentDate() + IdleInterval; // 
+	AdvancedOptions_.Control = CurrentDate() + IdleInterval; // ACC:143 - Session date is not used in interval checks
 	Return False;
 	
 EndFunction
@@ -709,10 +711,10 @@ EndProcedure
 // Returns:
 //   Structure:
 //    * List - Map of KeyAndValue:
-//       ** Key - UUID -  ID of the background task.
+//       ** Key - UUID - a background job ID.
 //       ** Value - See ProcessActiveOperationResult.TimeConsumingOperation
 //    * ActionsUnderControl - Map of KeyAndValue:
-//       ** Key - UUID -  ID of the background task.
+//       ** Key - UUID - a background job ID.
 //       ** Value - See ProcessActiveOperationResult.TimeConsumingOperation
 //
 Function TimeConsumingOperationsInProgress()

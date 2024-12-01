@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -58,7 +60,7 @@ Procedure RegisterApplicationStartupLogicDisabling()
 	SetPrivilegedMode(True);
 	
 	DataOwner = Catalogs.MetadataObjectIDs.GetRef(
-		New UUID("627a6fb8-872a-11e3-bb87-005056c00008")); // 
+		New UUID("627a6fb8-872a-11e3-bb87-005056c00008")); // Constants.
 	
 	DisablingDates = Common.ReadDataFromSecureStorage(DataOwner); // Array
 	If TypeOf(DisablingDates) <> Type("Array") Then

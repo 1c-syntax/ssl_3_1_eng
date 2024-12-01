@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -28,6 +30,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.NoteDate.Title = NStr("en = 'Saved';") + ": " + Format(Object.ChangeDate, "DLF=DDT");
 	EndIf;
 	
+	// Standard subsystems.Pluggable commands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 	SetVisibility1();
 	
 EndProcedure
@@ -36,13 +45,32 @@ EndProcedure
 Procedure OnReadAtServer(CurrentObject)
 	FormattedText = CurrentObject.Content.Get();
 
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.AccessManagement
+	
+	// Standard subsystems.Pluggable commands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
+EndProcedure
 
+&AtClient
+Procedure OnOpen(Cancel)
+	
+	// Standard subsystems.Pluggable commands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 EndProcedure
 
 &AtServer
@@ -61,7 +89,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -73,10 +101,17 @@ EndProcedure
 
 &AtClient
 Procedure AfterWrite(WriteParameters)
+	
 	NotifyChanged(Object.Ref);
 	If ValueIsFilled(Object.SubjectOf) Then
 		NotifyChanged(Object.SubjectOf);
 	EndIf;
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
+	EndIf;
+	
 EndProcedure
 
 #EndRegion
@@ -108,5 +143,44 @@ Procedure SetVisibility1()
 	Items.Content.ReadOnly = Not OpenedByAuthor;
 	Items.EditingCommandBar.Visible = OpenedByAuthor;
 EndProcedure
+
+// Standard subsystems.Pluggable commands
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Object);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	
+	ExecuteCommandAtServer(ExecutionParameters);
+	
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, Object);
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
+	EndIf;
+	
+EndProcedure
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion

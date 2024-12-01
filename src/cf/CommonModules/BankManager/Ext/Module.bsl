@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Provides data from the BIC Directory.
+// Provides data from the Bank codes catalog.
 // 
 // Parameters:
-//  BIC      - String -  bank identification code.
-//  CorrAccount - String -  Bank's correspondent account.
-//  CurrentOnly - Boolean -  if True, then only the active participants of the calculations are included in the search result.
+//  BIC      - String - Bank ID.
+//  CorrAccount - String - Bank's correspondent account.
+//  CurrentOnly - Boolean - If True, obsolete transaction parties are hidden from the search result.
 //
 // Returns:
 //  ValueTable:
@@ -30,7 +32,7 @@
 //   * InternationalDescription - String
 //   * CityInternationalFormat - String
 //   * InternationalAddress - String
-//   * Country - 
+//   * Country - String, CatalogRef.WorldCountries
 //   * CashSettlementCenterBIC - String
 //   * TheNameOfTheRomanCatholicChurch - String
 //   * CorrespondentAccountOfTheRCC - String
@@ -84,13 +86,13 @@ Function BICInformation(Val BIC, Val CorrAccount = Undefined, CurrentOnly = True
 	
 EndFunction
 
-// Returns a text description of the reason why the Bank is marked as invalid.
+// Returns text comment on a reason a bank is marked as inactive.
 //
 // Parameters:
-//  Bank - CatalogRef.BankClassifier -  the Bank for which you need to get the explanation text.
+//  Bank - CatalogRef.BankClassifier - the bank to get the text comment for.
 //
 // Returns:
-//  FormattedString - 
+//  FormattedString - the comment.
 //
 Function InvalidBankNote(Bank) Export
 	
@@ -131,14 +133,14 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
+// Deprecated. Instead, use "BICInformation".
+// Gets data from the "BankClassifier" catalog by the passed bank code and correspondent account.
 // 
 // Parameters:
-//  BIC          - String -  bank identification code.
-//  CorrAccount     - String -  Bank's correspondent account.
+//  BIC          - String - Bank ID.
+//  CorrAccount     - String - Bank's correspondent account.
 //  RecordAboutBank - CatalogRef
-//               - String - 
+//               - String - a found bank (returned).
 //
 Procedure GetClassifierData(BIC = "", CorrAccount = "", RecordAboutBank = "") Export
 	
@@ -178,12 +180,12 @@ EndProcedure
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See ImportDataFromFileOverridable.OnDefineCatalogsForDataImport.
 Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 	
-	// 
+	// Import to BankClassifier is denied.
 	TableRow = CatalogsToImport.Find(Metadata.Catalogs.BankClassifier.FullName(), "FullName");
 	If TableRow <> Undefined Then 
 		CatalogsToImport.Delete(TableRow);
@@ -199,7 +201,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment.
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// 
+	// ForSystemUsersOnly.
 	RolesAssignment.ForSystemUsersOnly.Add(
 		Metadata.Roles.AddEditBanks.Name);
 	
@@ -227,8 +229,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	EndIf;
 	
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
-	If Common.DataSeparationEnabled() // 
-		Or Common.IsSubordinateDIBNode() // 
+	If Common.DataSeparationEnabled() // Auto-updates in SaaS.
+		Or Common.IsSubordinateDIBNode() // The distributed infobase node is updated automatically.
 		Or Not AccessRight("Update", Metadata.Catalogs.BankClassifier)
 		Or ModuleToDoListServer.UserTaskDisabled("BankClassifier") Then
 		Return;
@@ -236,8 +238,8 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	Result = DataProcessors[DataProcessorName].RelevanceOfBankClassifier();
 	
-	// 
-	// 
+	// The procedure can be called only if the "To-do list" subsystem is integrated.
+	// Therefore, don't check if the subsystem is integrated.
 	Sections = ModuleToDoListServer.SectionsForObject(Metadata.Catalogs.BankClassifier.FullName());
 	
 	For Each Section In Sections Do
@@ -264,10 +266,10 @@ EndProcedure
 Procedure OnAddClientParametersOnStart(Parameters) Export
 	
 	OutputMessageOnInvalidity = (
-		Not Common.DataSeparationEnabled() // 
-		And Not Common.IsSubordinateDIBNode() // 
-		And AccessRight("Update", Metadata.Catalogs.BankClassifier) // 
-		And Not BankManagerInternal.ClassifierUpToDate()); // 
+		Not Common.DataSeparationEnabled() // Auto-updates in SaaS.
+		And Not Common.IsSubordinateDIBNode() // The distributed infobase node is updated automatically.
+		And AccessRight("Update", Metadata.Catalogs.BankClassifier) // A user with sufficient rights.
+		And Not BankManagerInternal.ClassifierUpToDate()); // Classifier is already updated.
 	
 	If Not Common.DataSeparationEnabled() Then
 		EnableNotifications = False;

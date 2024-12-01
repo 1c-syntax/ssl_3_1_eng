@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -33,7 +35,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -63,9 +65,9 @@ EndProcedure
 
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
 	If FormType = "ListForm" Then
-		// 
+		// ACC:1417-off - Structure with a dynamic property list.
 		CurrentRow = CommonClientServer.StructureProperty(Parameters, "CurrentRow");
-		// 
+		// ACC:1417-on
 		If TypeOf(CurrentRow) = Type("CatalogRef.FilesFolders") And Not CurrentRow.IsEmpty() Then
 			StandardProcessing = False;
 			Parameters.Delete("CurrentRow");
@@ -79,7 +81,7 @@ EndProcedure
 
 #Region Internal
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -90,7 +92,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -23,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -70,9 +72,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.OSAuthenticationProperties.ReadOnly = True;
 	EndIf;
 	
-	// 
+	// Filling auxiliary data.
 	
-	// 
+	// Filling the run mode selection list.
 	For Each RunMode In ClientRunMode Do
 		ValueFullName = GetPredefinedValueFullName(RunMode);
 		EnumValueName = Mid(ValueFullName, StrFind(ValueFullName, ".") + 1);
@@ -80,7 +82,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndDo;
 	Items.IBUserRunMode.ChoiceList.SortByPresentation();
 	
-	// 
+	// Filling the language selection list.
 	If Metadata.Languages.Count() < 2 Then
 		Items.IBUserLanguage.Visible = False;
 	Else
@@ -92,17 +94,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	AccessLevel = UsersInternal.UserPropertiesAccessLevel(Object);
 	
-	// 
+	// Preparing for execution of interactive actions according to the form opening scenarios.
 	SetPrivilegedMode(True);
 	
 	If Not ValueIsFilled(Object.Ref) Then
-		// 
+		// Creating an item.
 		If Parameters.NewUserGroup <> Users.AllUsersGroup() Then
 			NewUserGroup = Parameters.NewUserGroup;
 		EndIf;
 		
 		If ValueIsFilled(Parameters.CopyingValue) Then
-			// 
+			// Copy item.
 			CopyingValue = Parameters.CopyingValue;
 			Object.Description = "";
 			SourceIBUserID = Common.ObjectAttributeValue(
@@ -121,9 +123,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			
 			IBUserEmailAddress = "";
 		Else
-			// 
+			// Add item.
 			
-			// 
+			// Reading initial infobase user property values.
 			ReadIBUser();
 			
 			If Not ValueIsFilled(Parameters.IBUserID) Then
@@ -141,7 +143,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			EndIf;
 		EndIf;
 	Else
-		// 
+		// Open an existing item.
 		ReadIBUser();
 	EndIf;
 	
@@ -240,9 +242,9 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	#If WebClient Then
+#If WebClient Then
 	Items.IBUserOSUser.ChoiceButton = False;
-	#EndIf
+#EndIf
 	
 	UpdateShowInListProperty();
 	
@@ -251,7 +253,7 @@ Procedure OnOpen(Cancel)
 		ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -315,14 +317,14 @@ Procedure OnReadAtServer(CurrentObject)
 	
 	CustomizeForm(CurrentObject);
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -357,7 +359,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 	
 	QuestionTitle1 = NStr("en = 'Save infobase user';");
 	
-	// 
+	// Copy user rights.
 	If ValueIsFilled(CopyingValue)
 	   And Not ValueIsFilled(Object.Ref)
 	   And CommonClient.SubsystemExists("StandardSubsystems.AccessManagement")
@@ -402,7 +404,7 @@ Procedure BeforeWrite(Cancel, WriteParameters)
 		Return;
 	EndIf;
 	
-	// 
+	// Password request should be the last step to ensure the try/except statement works properly.
 	If CommonClient.DataSeparationEnabled()
 		And SynchronizationWithServiceRequired
 		And Not WriteParameters.Property("AfterAuthenticationPasswordRequestInService") Then
@@ -461,7 +463,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 								SetPrivilegedMode(False);
 							EndIf;
 							
-							// 
+							// Password check.
 							If Not ThePasswordIsTheSameAsTheSavedOne Then
 								PasswordToConfirmEmailChange = Undefined;
 								Raise NStr("en = 'Password is incorrect';");
@@ -566,7 +568,7 @@ EndProcedure
 &AtClient
 Procedure AfterWrite(WriteParameters)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
@@ -633,7 +635,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 			NStr("en = 'The expiration date must be tomorrow or later.';"),, "CanSignIn",, Cancel);
 	EndIf;
 	
-	// 
+	// Checking whether the metadata contains roles.
 	If Not Items.Roles.ReadOnly Then
 		Errors = Undefined;
 		TreeItems = Roles.GetItems();
@@ -949,9 +951,9 @@ EndProcedure
 &AtClient
 Procedure IBUserOSUserStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	#If Not WebClient And Not MobileClient Then
+#If Not WebClient And Not MobileClient Then
 		OpenForm("Catalog.Users.Form.SelectOperatingSystemUser", , Item);
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -1014,7 +1016,7 @@ Procedure PhotoClickCompletion(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 		Picture = New Picture(GetFromTempStorage(Result.Location));
 		If Picture.Format() = PictureFormat.UnknownFormat Then
 			ShowMessageBox(, NStr("en = 'Select a file with a picture.';"));
@@ -1025,7 +1027,7 @@ Procedure PhotoClickCompletion(Result, AdditionalParameters) Export
 			ShowMessageBox(, NStr("en = 'The picture size must be less than 2 MB.';"));
 			Return;
 		EndIf;
-	#EndIf
+#EndIf
 	
 	If IsTempStorageURL(PhotoAddress) Then
 		DeleteFromTempStorage(PhotoAddress);
@@ -1037,7 +1039,7 @@ Procedure PhotoClickCompletion(Result, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Provide contact information support.
 
 &AtClient
 Procedure Attachable_EMailOnChange(Item)
@@ -1067,7 +1069,7 @@ Procedure Attachable_EMailOnChange(Item)
 	
 EndProcedure
 
-// Plug-in cleanup handler.
+// An attachable clearing handler.
 //
 // Parameters:
 //  Item - FormField
@@ -1139,7 +1141,7 @@ Procedure Attachable_ContactInformationStartChoice(Item, ChoiceData, StandardPro
 	
 EndProcedure
 
-// Click handler to connect.
+// A attachable click handler.
 //
 // Parameters:
 //  Item - FormDecoration
@@ -1153,7 +1155,7 @@ Procedure Attachable_ContactInformationOnClick(Item, StandardProcessing)
 	ModuleContactsManagerClient.StartSelection(ThisObject, Item,, StandardProcessing);
 EndProcedure
 
-// Plug-in cleanup handler.
+// An attachable clearing handler.
 //
 // Parameters:
 //  Item - FormField
@@ -1168,7 +1170,7 @@ Procedure Attachable_ContactInformationClearing(Item, StandardProcessing)
 	
 EndProcedure
 
-// Plug-in command handler.
+// A attachable command handler.
 // 
 // Parameters:
 //  Command - FormCommand
@@ -1191,7 +1193,7 @@ Procedure Attachable_ContactInformationAutoComplete(Item, Text, ChoiceData, Data
 	
 EndProcedure
 
-// Plug-in selection handler.
+// An attachable choice handler.
 //
 // Parameters:
 //  Item - FormField
@@ -1217,7 +1219,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -1229,7 +1231,7 @@ Procedure RolesCheckOnChange(Item)
 	If TableRow.Check And TableRow.Name = "InteractiveOpenExtReportsAndDataProcessors" Then
 		Notification = New NotifyDescription("RolesMarkOnChangeAfterConfirm", ThisObject);
 		UsersInternalClient.ShowSecurityWarning(Notification,
-			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeSelectRole);
+			UsersInternalClientServer.SecurityWarningKinds().BeforeSelectRole);
 	Else
 		If TableRow.Name = "FullAccess" Then
 			DetermineNecessityForSynchronizationWithService(ThisObject);
@@ -1289,7 +1291,7 @@ Procedure ClearPhoto(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -1310,7 +1312,7 @@ EndProcedure
 &AtClient
 Procedure AddRoles(Command)
 	
-	ProcessRolesInterface("UpdateRoleComposition", "EnableHighlighted");
+	ProcessRolesInterface("UpdateRoleComposition", "IncludeSelected");
 	
 	UsersInternalClient.ExpandRoleSubsystems(ThisObject, False);
 	
@@ -1455,7 +1457,7 @@ EndProcedure
 Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters = Undefined)
 	
 	If InitialIBUserDetails = Undefined Then
-		Return; // 
+		Return; // OnReadAtServer before OnCreateAtServer.
 	EndIf;
 	
 	If Not OnCreateAtServer Then
@@ -1490,7 +1492,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 		EndTry;
 	EndIf;
 	
-	// 
+	// Viewability settings.
 	Items.ContactInformation.Visible   = ValueIsFilled(ActionsOnForm.ContactInformation);
 	Items.IBUserProperies.Visible = ValueIsFilled(ActionsOnForm.IBUserProperies);
 	Items.GroupName.Visible              = ValueIsFilled(ActionsOnForm.IBUserProperies);
@@ -1503,7 +1505,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 		And CurrentObject.Prepared
 		And Not CanSignInOnRead;
 	
-	// 
+	// Editability settings.
 	If CurrentObject.IsInternal Then
 		ReadOnly = True;
 	EndIf;
@@ -1589,7 +1591,7 @@ Function ObjectPresentation(MetadataObject)
 	
 EndFunction
 
-// Continuation of the event handler before Recording.
+// The BeforeWrite event handler continuation.
 &AtClient
 Procedure AfterAuthenticationPasswordRequestInServiceBeforeWrite(SaaSUserNewPassword, WriteParameters) Export
 	
@@ -1608,7 +1610,7 @@ Procedure AfterAuthenticationPasswordRequestInServiceBeforeWrite(SaaSUserNewPass
 	
 EndProcedure
 
-// Continuation of the event handler before Recording.
+// The BeforeWrite event handler continuation.
 &AtClient
 Procedure AfterRequestingAPasswordToChangeTheMail(Result, AdditionalParameters) Export
 	
@@ -1624,7 +1626,7 @@ Procedure UpdateUsername(Form, DescriptionOnChange = False)
 	
 	Items = Form.Items;
 	
-	// 
+	// Whether values are required.
 	ShowNameOfItemMarkedAsUnfilled = IBUserWritingRequired(Form, False);
 	Items.IBUserName.AutoMarkIncomplete = ShowNameOfItemMarkedAsUnfilled;
 	If Not ShowNameOfItemMarkedAsUnfilled Then
@@ -1742,7 +1744,7 @@ Procedure CreateEmailAddressChangeRequest(Val NewEmailAddress, Val User, Val Ser
 	
 EndProcedure
 
-// Continue the procedure to change the Password.
+// The procedure that follows ChangePassword procedure.
 &AtClient
 Procedure ChangePasswordAfterGetPassword(Result, Context) Export
 	
@@ -1779,23 +1781,23 @@ Procedure DefineActionsOnForm()
 	
 	ActionsOnForm = New Structure;
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("Roles", "");
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("ContactInformation", "View");
 	
-	// 
+	// "", "ViewAll", "Edit".
 	ActionsOnForm.Insert("IBUserProperies", "");
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("ItemProperties", "View");
 	
 	If Not AccessLevel.SystemAdministrator
 	   And AccessLevel.FullAccess
 	   And Users.IsFullUser(Object.Ref, True) Then
 		
-		// 
+		// The system administrator is read-only.
 		ActionsOnForm.Roles                   = "View";
 		ActionsOnForm.IBUserProperies = "View";
 	
@@ -1813,9 +1815,9 @@ Procedure DefineActionsOnForm()
 		EndIf;
 		
 		If AccessLevel.ListManagement Then
-			// 
-			// 
-			//  
+			// The person responsible for the user list and user groups.
+			// (The HR manager responsible for recruitment, transfers, reassignments,
+			//  and establishment of departments and teams.)
 			ActionsOnForm.IBUserProperies = "Edit";
 			ActionsOnForm.ContactInformation   = "Edit";
 			ActionsOnForm.ItemProperties       = "Edit";
@@ -1831,7 +1833,7 @@ Procedure DefineActionsOnForm()
 	
 	UsersInternal.OnDefineActionsInForm(Object.Ref, ActionsOnForm);
 	
-	// 
+	// Checking action names in the form.
 	If StrFind(", View, Edit,", ", " + ActionsOnForm.Roles + ",") = 0 Then
 		ActionsOnForm.Roles = "";
 		
@@ -1850,7 +1852,7 @@ Procedure DefineActionsOnForm()
 		
 		ActionsOnForm.IBUserProperies = "";
 		
-	Else // 
+	Else // For backward compatibility.
 		If StrFind(ActionsOnForm.IBUserProperies, "View") Then
 			ActionsOnForm.IBUserProperies = "View";
 			
@@ -1954,7 +1956,7 @@ Function IBUserDetails(ForFirstAdministratorCheck = False)
 		Return Result;
 	EndIf;
 	
-	// 
+	// Adding roles required to create the first administrator.
 	If UsersInternal.CreateFirstAdministratorRequired(Result) Then
 		
 		If Result.Property("Roles") And Result.Roles <> Undefined Then
@@ -2083,7 +2085,7 @@ Procedure CloseForm()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Provide contact information support.
 
 &AtServer
 Procedure UpdateContactInformation(Result)
@@ -2153,7 +2155,7 @@ Function ContactInformationKindUserEmail()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Support of additional attributes.
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -2196,7 +2198,7 @@ Procedure UpdateAdditionalAttributesItems()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Processes an infobase user.
 
 &AtServer
 Function InitialIBUserDetails()
@@ -2233,6 +2235,7 @@ Procedure ReadIBUser(OnCopyItem = False, OnCreateAtServer = True)
 	IBUserDetails   = InitialIBUserDetails();
 	IBUserExists = False;
 	IBUserMain   = False;
+	IBUserPassword     = Undefined;
 	CanSignIn   = False;
 	CanSignInDirectChangeValue = False;
 	
@@ -2241,14 +2244,14 @@ Procedure ReadIBUser(OnCopyItem = False, OnCreateAtServer = True)
 		ReadProperties = Users.IBUserProperies(Parameters.CopyingValue.IBUserID);
 		If ReadProperties <> Undefined Then
 			
-			// 
+			// Mapping an infobase user to a catalog user.
 			If Users.CanSignIn(ReadProperties) Then
 				CanSignIn = True;
 				CanSignInDirectChangeValue = True;
 				IBUserDetails.StandardAuthentication = True;
 			EndIf;
 			
-			// 
+			// Copying infobase user properties and roles.
 			FillPropertyValues(
 				IBUserDetails,
 				ReadProperties,
@@ -2355,7 +2358,7 @@ EndProcedure
 &AtServer
 Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	
-	// 
+	// Check if the infobase user's "FullName" property matches the user's "Description" attribute.
 	// 
 	
 	ShowDifference = True;
@@ -2390,7 +2393,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 			PropertiesToResolve.Insert(0, NStr("en = 'Login allowed';"));
 		EndIf;
 		
-		// 
+		// Validate the email.
 		If AccessLevel.ChangeCurrent Then
 			If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
 				
@@ -2470,7 +2473,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	Items.PropertiesMismatchNote.VerticalAlign = ?(ValueIsFilled(Recommendation),
 		ItemVerticalAlign.Top, ItemVerticalAlign.Center);
 	
-	// 
+	// Determining the mapping between a nonexistent infobase user and a catalog user.
 	HasNewMappingToNonExistingIBUser
 		= Not IBUserExists
 		And ValueIsFilled(Object.IBUserID);
@@ -2486,7 +2489,7 @@ Procedure FindUserAndIBUserDifferences(WriteParameters = Undefined)
 	If AccessLevel.ListManagement Then
 		Items.MappingMismatchProcessing.Visible = HasMappingToNonexistentIBUser;
 	Else
-		// 
+		// Cannot change the mapping.
 		Items.MappingMismatchProcessing.Visible = False;
 	EndIf;
 	
@@ -2560,7 +2563,7 @@ Procedure FillInTheMailFieldForPasswordRecoveryFromTheInformationSecuritySystem(
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Initial filling, fill checks, and availability of properties.
 
 &AtClientAtServerNoContext
 Procedure SetPropertiesAvailability(Form)
@@ -2570,7 +2573,7 @@ Procedure SetPropertiesAvailability(Form)
 	AccessLevel = Form.AccessLevel;
 	ActionsWithSaaSUser = Form.ActionsWithSaaSUser;
 	
-	// 
+	// Note to the "Sign-in blocked" state.
 	If Form.CanSignIn Then
 		Items.GroupNoRights.Visible         = Form.WhetherRightsAreAssigned.HasNoRights;
 		Items.GroupNoStartupRights.Visible = Not Form.WhetherRightsAreAssigned.HasNoRights
@@ -2584,7 +2587,7 @@ Procedure SetPropertiesAvailability(Form)
 		Items.GroupNoLogonRights.Visible   = False;
 	EndIf;
 	
-	// 
+	// Setting editing options.
 	Items.CanSignIn.ReadOnly =
 		Not (  Items.IBUserProperies.ReadOnly = False
 		    And (    AccessLevel.ChangeAuthorizationPermission
@@ -2598,7 +2601,7 @@ Procedure SetPropertiesAvailability(Form)
 	
 	UpdateUsername(Form);
 	
-	// 
+	// Setting availability of related items.
 	Items.CanSignIn.Enabled    = Not Object.Invalid;
 	Items.IBUserProperies.Enabled    = Not Object.Invalid;
 	Items.GroupName.Enabled                 = Not Object.Invalid;
@@ -2610,10 +2613,10 @@ Procedure SetPropertiesAvailability(Form)
 	
 	Items.IBUserCannotRecoveryPassword.Enabled = Not Form.IBUserCannotChangePassword;
 	
-	// 
+	// Adjusting SaaS settings.
 	If ActionsWithSaaSUser <> Undefined Then
 		
-		// 
+		// Contact information is editable.
 		Filter = New Structure("Kind", ContactInformationKindUserEmail());
 		FoundRows = Form.ContactInformationAdditionalAttributesDetails.FindRows(Filter);
 		EmailFilled = (FoundRows <> Undefined) And ValueIsFilled(Form[FoundRows[0].AttributeName]);
@@ -2652,7 +2655,7 @@ Function DetermineContactInformationItemsAvailability()
 	For Each ContactInformationRow In ContactInformationAdditionalAttributesDetails Do // ValueTableRow of See ContactsManager.NewContactInformation
 		ContactInformationKindActions = ActionsWithSaaSUser.ContactInformation.Get(ContactInformationRow.Kind);
 		If ContactInformationKindActions = Undefined Then
-			// 
+			// Service manager does not manage whether this kind of contact information can be edited.
 			Continue;
 		EndIf;
 		ContactInformationItem = Items[ContactInformationRow.AttributeName];
@@ -2665,7 +2668,7 @@ Function DetermineContactInformationItemsAvailability()
 	
 EndFunction
 
-// Continue with the procedure to change the limit of the input Program.
+// The procedure that follows ChangeAuthorizationRestriction.
 &AtClient
 Procedure ChangeAuthorizationRestrictionCompletion(Result, Context) Export
 	
@@ -2711,7 +2714,7 @@ Function IBUserWritingRequired(Form, UseStandardName = True)
 		Return True;
 	EndIf;
 	
-	// 
+	// Supported in the latest 1C:Enterprise versions.
 	If Template.Property("CannotRecoveryPassword")
 		 And Form.IBUserCannotRecoveryPassword <> Template.CannotRecoveryPassword Then
 			Return True;
@@ -2721,7 +2724,7 @@ Function IBUserWritingRequired(Form, UseStandardName = True)
 	
 EndFunction
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
@@ -2749,7 +2752,7 @@ EndProcedure
 // End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

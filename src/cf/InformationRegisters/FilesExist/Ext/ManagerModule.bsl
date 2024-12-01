@@ -1,22 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Update handlers.
 
-// Registers objects
-// that need to be updated in the register on the exchange plan for updating the information Database.
+// Registers objects, 
+// for which it is necessary to update register records on the InfobaseUpdate exchange plan.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
+	
+	SelectionParameters = Parameters.SelectionParameters; // See InfobaseUpdate.AdditionalMultithreadProcessingDataSelectionParameters
+	SelectionParameters.FullRegistersNames = Metadata.InformationRegisters.FilesExist.FullName();
+	SelectionParameters.SelectionMethod = InfobaseUpdate.SelectionMethodOfIndependentInfoRegistryMeasurements();
+	SelectionParameters.NameOfTheDimensionToSelect = "ObjectWithFiles";
 	
 	AdditionalParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();
 	AdditionalParameters.IsIndependentInformationRegister = True;
@@ -25,7 +32,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	FirstQueryText =
 		"SELECT DISTINCT
 		|	AttachedFiles.FileOwner AS FileOwner
-		|INTO OwnersOfFilesForAnalysis
+		|INTO FileOwnersForAnalysis
 		|FROM
 		|	&CatalogName AS AttachedFiles
 		|WHERE
@@ -35,13 +42,13 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		|INDEX BY
 		|	FileOwner";
 	
-	TextOfSecondRequest = 
+	SecondQueryText = 
 		"SELECT TOP 1000
-		|	OwnersOfFilesForAnalysis.FileOwner AS ObjectWithFiles
+		|	FileOwnersForAnalysis.FileOwner AS ObjectWithFiles
 		|FROM
-		|	OwnersOfFilesForAnalysis AS OwnersOfFilesForAnalysis
+		|	FileOwnersForAnalysis AS FileOwnersForAnalysis
 		|		INNER JOIN InformationRegister.FilesExist AS FilesExist
-		|		ON OwnersOfFilesForAnalysis.FileOwner = FilesExist.ObjectWithFiles
+		|		ON FileOwnersForAnalysis.FileOwner = FilesExist.ObjectWithFiles
 		|WHERE
 		|	NOT TRUE IN
 		|				(SELECT TOP 1
@@ -49,11 +56,11 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		|				FROM
 		|					&CatalogName AS AttachedFiles
 		|				WHERE
-		|					OwnersOfFilesForAnalysis.FileOwner = AttachedFiles.FileOwner
+		|					FileOwnersForAnalysis.FileOwner = AttachedFiles.FileOwner
 		|					AND AttachedFiles.IsInternal = FALSE
 		|					AND AttachedFiles.DeletionMark = FALSE)
 		|	AND FilesExist.HasFiles = TRUE
-		|	AND OwnersOfFilesForAnalysis.FileOwner > &FileOwnerLink
+		|	AND FileOwnersForAnalysis.FileOwner > &FileOwnerRef
 		|
 		|ORDER BY
 		|	FileOwner";
@@ -76,18 +83,18 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			Query = New Query;
 			Query.TempTablesManager = New TempTablesManager;
 			Query.Text =  StrReplace(FirstQueryText,"&CatalogName","Catalog." + KeyAndValue.Key);
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			Query.Execute();
 			
-			Query.Text = StrReplace(TextOfSecondRequest,"&CatalogName","Catalog." + KeyAndValue.Key);
+			Query.Text = StrReplace(SecondQueryText,"&CatalogName","Catalog." + KeyAndValue.Key);
 			AllFilesOwnersProcessed = False;
-			FileOwnerLink = "";
+			FileOwnerRef = "";
 			
 			While Not AllFilesOwnersProcessed Do
 				
-				Query.SetParameter("FileOwnerLink", FileOwnerLink);
+				Query.SetParameter("FileOwnerRef", FileOwnerRef);
 				
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				ValueTable = Query.Execute().Unload(); 
 			
 				InfobaseUpdate.MarkForProcessing(Parameters, ValueTable, AdditionalParameters);
@@ -98,7 +105,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 				EndIf;
 				
 				If RefsCount > 0 Then
-					FileOwnerLink = ValueTable[RefsCount-1].ObjectWithFiles;
+					FileOwnerRef = ValueTable[RefsCount-1].ObjectWithFiles;
 				EndIf;
 		
 			EndDo;
@@ -109,109 +116,247 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// Update the register entries.
+// Update register records.
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
-	Parameters.ProcessingCompleted = False;
+	// Data selection for a multithread update.
+	DataToProcess = InfobaseUpdate.DataToUpdateInMultithreadHandler(Parameters);
+	
 	FullRegisterName = "InformationRegister.FilesExist";
 	
-	TempTablesManager = New TempTablesManager();
-	AdditionalParameters = InfobaseUpdate.AdditionalProcessingDataSelectionParameters();
-			
-	RegisterSelection = InfobaseUpdate.SelectStandaloneInformationRegisterDimensionsToProcess(
-		Parameters.Queue,
-		FullRegisterName,
-		AdditionalParameters);
-	
-	If RegisterSelection.Count() = 0 Then
-		Parameters.ProcessingCompleted = True;
-		Return;
+	If DataToProcess.Count() = 0 Then
+		Parameters.ProcessingCompleted = Not InfobaseUpdate.HasDataToProcess(Parameters.Queue,
+			FullRegisterName);
+		Return;	
 	EndIf;
-	
-	DataTable = New ValueTable;
-	DataTable.Columns.Add("ObjectWithFiles");
 	
 	AddlParameters = InfobaseUpdate.AdditionalProcessingMarkParameters();
 	AddlParameters.IsIndependentInformationRegister = True;
 	AddlParameters.FullRegisterName = FullRegisterName;
 	
-	ObjectsProcessed = 0;
-	ObjectsWithIssuesCount = 0;
+	DataTable = New ValueTable;
+	DataTable.Columns.Add("ObjectWithFiles");
 	
-	While RegisterSelection.Next() Do
+	BeginTransaction();
+	Try
+		Block = New DataLock;
+		LockItem = Block.Add(FullRegisterName);
+		LockItem.DataSource = DataToProcess;
+		LockItem.UseFromDataSource("ObjectWithFiles", "ObjectWithFiles");
+		LockItem.Mode = DataLockMode.Exclusive;
+		Block.Lock();
 		
-		RepresentationOfTheReference = String(RegisterSelection.ObjectWithFiles);
-		BeginTransaction();
-		Try
+		Query = New Query;
+		// The table join is required to retrieve objects for which there are no records in the
+		// register at the time of execution in order to mark them as completed.
+		Query.Text = 
+			"SELECT
+			|	DataToProcess.ObjectWithFiles AS Ref
+			|INTO DataForProcessing
+			|FROM
+			|	&DataToProcess AS DataToProcess
+			|
+			|INDEX BY
+			|	Ref
+			|;
+			|
+			|////////////////////////////////////////////////////////////////////////////////
+			|SELECT
+			|	DataForProcessing.Ref AS Ref,
+			|	FilesExist.ObjectWithFiles AS ObjectWithFiles,
+			|	FilesExist.HasFiles AS HasFiles,
+			|	FilesExist.ObjectID AS ObjectID
+			|FROM
+			|	DataForProcessing AS DataForProcessing
+			|		LEFT JOIN InformationRegister.FilesExist AS FilesExist
+			|		ON DataForProcessing.Ref = FilesExist.ObjectWithFiles";
+		
+		Query.SetParameter("DataToProcess", DataToProcess);
+	
+		QueryResult = Query.Execute();
+		
+		SelectionDetailRecords = QueryResult.Select();		
+		
+		UpdatedDataHasBeenSuccessfullyProcessed = True;
+		
+		While SelectionDetailRecords.Next() Do
 			
-			Block = New DataLock;
-			LockItem = Block.Add(FullRegisterName);
-			LockItem.SetValue("ObjectWithFiles", RegisterSelection.ObjectWithFiles);
-			LockItem.Mode = DataLockMode.Shared;
-			Block.Lock();
+			RecordSetFilesExist = Undefined;
 			
-			If FilesOperationsInternal.OwnerHasFiles(RegisterSelection.ObjectWithFiles) = True Then
-				// 
-				DataTable.Clear();		
+			RepresentationOfTheReference = String(SelectionDetailRecords.Ref);
+						
+			If Not ValueIsFilled(SelectionDetailRecords.ObjectWithFiles) Then
+				// The register has no records on the object. Add it to the table to set the processing flag.
+				NewRow = DataTable.Add();
+				NewRow.ObjectWithFiles = SelectionDetailRecords.Ref;
 				
-				FillPropertyValues(DataTable.Add(),RegisterSelection);
-				InfobaseUpdate.MarkProcessingCompletion(DataTable,AddlParameters,Parameters.Queue);
-		
-			Else	
-			
+			ElsIf FilesOperationsInternal.OwnerHasFiles(SelectionDetailRecords.ObjectWithFiles) = True Then
+				// If files exist, do nothing. Add them to the table to set the processing flag.						
+				FillPropertyValues(DataTable.Add(),SelectionDetailRecords);
+				
+			Else
+				// The owner has only service files, and the register has a record.
 				RecordSetFilesExist = CreateRecordSet();
-				RecordSetFilesExist.Filter.ObjectWithFiles.Set(RegisterSelection.ObjectWithFiles);
-				RecordSetFilesExist.Read();
+				RecordSetFilesExist.Filter.ObjectWithFiles.Set(SelectionDetailRecords.ObjectWithFiles);
+				FilesExistSetRecord = RecordSetFilesExist.Add();
+				FillPropertyValues(FilesExistSetRecord,SelectionDetailRecords);
 				
-				If RecordSetFilesExist.Count() = 1 Then
-					// 
-					FilesExistSetRecord                      = RecordSetFilesExist[0];
-					FilesExistSetRecord.HasFiles            = False;
+				FilesExistSetRecord.HasFiles = False;
+				InfobaseUpdate.WriteRecordSet(RecordSetFilesExist, True);
+					
+			EndIf;
+										
+		EndDo;
+				
+		If DataTable.Count() Then
+			InfobaseUpdate.MarkProcessingCompletion(DataTable,AddlParameters,Parameters.Queue);
+		EndIf;
+		
+		MessageTemplate = NStr("en = 'The ""FilesExist"" register. The object batch has been processed: %1';");
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, DataToProcess.Count());
+			WriteLogEvent(
+				InfobaseUpdate.EventLogEvent(), EventLogLevel.Information, , ,
+				MessageText);
+		
+		CommitTransaction();
+		
+	Except
+		RollbackTransaction();
+		
+		UpdatedDataHasBeenSuccessfullyProcessed = False;
+	EndTry;
+
+	If UpdatedDataHasBeenSuccessfullyProcessed = False Then
+		ObjectsProcessed = 0;
+		ObjectsWithIssuesCount = 0;
+
+		ListOfDescriptions = New Array;
+		ListOfDescriptions.Add(NStr("en = 'Failed to process objects from the ""FilesExist"" information register:';"));
+
+		For Each CurrentItem In DataToProcess Do
+			
+			ExceptionReason = 0;
+            RepresentationOfTheReference = String(CurrentItem.ObjectWithFiles);
+			
+			BeginTransaction();
+
+			Try
+
+				ExceptionReason = 1; // IObjectLock
+
+				Block = New DataLock;
+				
+				// Block the "FilesExist" register.
+				LockItem = Block.Add("InformationRegister.FilesExist");
+				LockItem.SetValue("ObjectWithFiles", CurrentItem.ObjectWithFiles);
+				LockItem.Mode = DataLockMode.Exclusive;
+
+				Block.Lock();
+				
+				ExceptionReason = 2; // Poor data
+				
+				HasFiles = FilesOperationsInternal.OwnerHasFiles(CurrentItem.ObjectWithFiles);
+				
+				WriteSet = False;				
+				If HasFiles = True Then
+					// If files exist, do nothing. Add them to the table to set the processing flag.						
+					DataTable.Clear();
+					FillPropertyValues(DataTable.Add(),CurrentItem);
+				Else
+												
+					RecordSetFilesExist = CreateRecordSet();
+					RecordSetFilesExist.Filter.ObjectWithFiles.Set(CurrentItem.ObjectWithFiles);
+	                RecordSetFilesExist.Read();
+					
+					If RecordSetFilesExist.Count() = 1 Then
+						// The owner has only service files, and the register has a record.
+						FilesExistSetRecord = RecordSetFilesExist[0];
+						If FilesExistSetRecord.HasFiles = True Then
+							FilesExistSetRecord.HasFiles = False;
+							WriteSet = True;
+						Else
+							DataTable.Clear();
+							FillPropertyValues(DataTable.Add(),CurrentItem);
+						EndIf;
+					Else
+						// The owner has only service files but there is no record in the "FilesExist" information register. Set the processing flag.					
+						DataTable.Clear();
+						FillPropertyValues(DataTable.Add(),CurrentItem);
+					EndIf;
+				EndIf;
+				
+				ExceptionReason = 3; // Record
+				If WriteSet Then
 					InfobaseUpdate.WriteRecordSet(RecordSetFilesExist, True);
 				Else
-					// 
-					DataTable.Clear();		
-				
-					FillPropertyValues(DataTable.Add(),RegisterSelection);
-					InfobaseUpdate.MarkProcessingCompletion(DataTable,AddlParameters,Parameters.Queue);	
+					InfobaseUpdate.MarkProcessingCompletion(DataTable,AddlParameters,Parameters.Queue);
 				EndIf;
-			EndIf;		
-			
-			ObjectsProcessed = ObjectsProcessed + 1;
-			CommitTransaction();
-		Except
-			RollbackTransaction();
-			// 
-			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
-			
-			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Не удалось обновить сведения о наличие файлов %1 по причине:
-					|%2';"), 
-				RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-			WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
-				RegisterSelection.ObjectWithFiles.Metadata(), RegisterSelection.ObjectWithFiles, MessageText);
-		EndTry;
-			
-	EndDo;
+				
+				ObjectsProcessed = ObjectsProcessed + 1;
+				CommitTransaction();
+
+			Except
+
+				RollbackTransaction();
+
+				ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
+				
+				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot update information on the availability of files %1. Reason:
+						|%2';"), 
+					RepresentationOfTheReference, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				WriteLogEvent(InfobaseUpdate.EventLogEvent(), EventLogLevel.Warning,
+					CurrentItem.ObjectWithFiles.Metadata(), CurrentItem.ObjectWithFiles, MessageText);
+					
+				If ExceptionReason = 2 Then
+					
+					InfobaseUpdate.FileIssueWithData(CurrentItem.ObjectWithFiles, MessageText);
+					
+					// Skip objects with issues to prevent them from blocking the update
+					DataTable.Clear();
+					FillPropertyValues(DataTable.Add(),CurrentItem);
+					
+					InfobaseUpdate.MarkProcessingCompletion(DataTable,AddlParameters);
+
+				ElsIf ExceptionReason = 3 Then
+					
+					InfobaseUpdate.FileIssueWithData(CurrentItem.ObjectWithFiles, MessageText);
+					// Skip objects with issues to prevent them from blocking the update
+					
+					DataTable.Clear();
+					FillPropertyValues(DataTable.Add(),CurrentItem);
+					
+					InfobaseUpdate.MarkProcessingCompletion(DataTable,AddlParameters);
+																
+					Raise MessageText;
+				EndIf;
+				
+			EndTry;
+
+		EndDo;
+
+		If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
+
+			ListOfDescriptions.Add(NStr("en = 'Skipped: %1';"));
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(StrConcat(ListOfDescriptions, Chars.LF), 
+				ObjectsWithIssuesCount);
+			Raise MessageText;
+
+		Else
+
+			MessageTemplate = NStr("en = 'The ""FilesExist"" register. The object batch has been processed: %1';");
+			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, ObjectsProcessed);
+			WriteLogEvent(
+				InfobaseUpdate.EventLogEvent(), EventLogLevel.Information, , ,
+				MessageText);
+
+		EndIf;
 	
-	
-	
-	If ObjectsProcessed = 0 And ObjectsWithIssuesCount <> 0 Then
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Couldn''t process (skipped) information records about availability of files: %1';"), 
-			ObjectsWithIssuesCount);
-		Raise MessageText;
-	Else
-		WriteLogEvent(InfobaseUpdate.EventLogEvent(), 
-			EventLogLevel.Information, , ,
-			StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Yet another batch of information records about availability of files is processed: %1';"),
-				ObjectsProcessed));
-	EndIf;
+	EndIf;	
 	
 	Parameters.ProcessingCompleted = Not InfobaseUpdate.HasDataToProcess(Parameters.Queue,
 		FullRegisterName);
-			
+					
 EndProcedure
 
 #EndRegion

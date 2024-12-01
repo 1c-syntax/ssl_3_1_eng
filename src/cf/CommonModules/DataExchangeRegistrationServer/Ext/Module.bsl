@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region SelectiveDataRegistration
 
-// 
-// 
+// Returns the id of the selective registration mode that does not use selectiveness.
+// (In this mode, all objects are considered modified.)
 //
 // Returns:
-//  String - 
+//  String - The id of the "Disabled" selective registration mode.
 //
 Function SelectiveRegistrationModeDisabled() Export
 	
@@ -22,11 +24,11 @@ Function SelectiveRegistrationModeDisabled() Export
 	
 EndFunction
 
-// 
+// Returns the id of the selective registration mode that checks if an object is modified by its "Modified" property.
 // 
 //
 // Returns:
-//  String - 
+//  String - The id of the "Modified" selective registration mode.
 //
 Function SelectiveRegistrationModeModification() Export
 	
@@ -34,13 +36,13 @@ Function SelectiveRegistrationModeModification() Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns the id of the selective registration mode that checks the object's attribute state before writing and after writing.
+// The list of checked attributes is generated according to object properties specified in the conversion rules.
+// This mode supports only CRDE exchange plans.
 // 
 //
 // Returns:
-//  String - 
+//  String - The id of the "AccordingToXMLRules" selective registration mode.
 //
 Function SelectiveRegistrationModeByXMLRules() Export
 	
@@ -115,15 +117,15 @@ EndFunction
 
 Function DetermineObjectVersionsChanges(Object, RegistrationAttributesTableRow) Export
 	
-	If IsBlankString(RegistrationAttributesTableRow.TabularSectionName) Then // 
+	If IsBlankString(RegistrationAttributesTableRow.TabularSectionName) Then // Object header attributes.
 		
 		RegistrationAttributesTableObjectVersionBeforeChange = HeaderRegistrationAttributesBeforeChange(Object, RegistrationAttributesTableRow);
 		
 		RegistrationAttributesTableObjectVersionAfterChange = HeaderRegistrationAttributesAfterChange(Object, RegistrationAttributesTableRow);
 		
-	Else // 
+	Else // Object table attributes.
 		
-		// 
+		// Checking if it is an object tabular section not a register table.
 		If Object.Metadata().TabularSections.Find(RegistrationAttributesTableRow.TabularSectionName) = Undefined Then
 			Return False;
 		EndIf;
@@ -156,7 +158,7 @@ Function ModificationFlagFromPCR(Source, ExchangePlanName, MetadataObject, Regis
 	
 	If TypeOf(RegistrationAttributesTable) <> Type("ValueTable") Then
 		
-		// 
+		// If no selective object registration table is found, it is assumed that no filters are applied
 		Return True;
 		
 	EndIf;
@@ -166,8 +168,8 @@ Function ModificationFlagFromPCR(Source, ExchangePlanName, MetadataObject, Regis
 	ObjectSelectiveRegistrationAttributes = ObjectSelectiveRegistrationAttributes(RegistrationAttributesTable, ObjectName, ExchangePlanName);
 	If ObjectSelectiveRegistrationAttributes.Count() = 0 Then
 		
-		// 
-		// 
+		// If the table has no rows with SOR attributes, assume that
+		// no filters are applied and the object is always modified.
 		Return True;
 		
 	EndIf;
@@ -183,7 +185,7 @@ Function ModificationFlagFromPCR(Source, ExchangePlanName, MetadataObject, Regis
 		
 	EndDo;
 	
-	// 
+	// If an object reaches the end of the cycle, it means its registration attributes didn't change. Don't need to register changes.
 	Return False;
 	
 EndFunction
@@ -255,17 +257,17 @@ Function ObjectIsModified(Source, MetadataObject, ExchangePlanName, WriteMode, R
 		Or Source.IsNew()
 		Or Source.DataExchange.Load Then
 		
-		// 
-		// 
-		// 
-		// 
+		// Always register changes:
+		// - For register record sets
+		// - When an object is permanently deleted
+		// - For objects recorded as part of data exchange
 		// 
 		Return True;
 		
 	ElsIf WriteMode <> Undefined
 		And DocumentPostingChanged(Source, WriteMode) Then
 		
-		// 
+		// If the Posted flag is changed, the document is considered modified.
 		Return True;
 		
 	EndIf;
@@ -273,7 +275,7 @@ Function ObjectIsModified(Source, MetadataObject, ExchangePlanName, WriteMode, R
 	SelectiveRegistrationMode = DataExchangeRegistrationCached.ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName);
 	If SelectiveRegistrationMode = SelectiveRegistrationModeDisabled() Then
 		
-		// 
+		// This exchange plan does not use selective registration
 		Return True;
 		
 	ElsIf SelectiveRegistrationMode = SelectiveRegistrationModeModification() Then
@@ -289,15 +291,15 @@ Function ObjectIsModified(Source, MetadataObject, ExchangePlanName, WriteMode, R
 			
 		Else
 			
-			// 
+			// Generate new selective registration parameters and write them to the information register.
 			
 			
 		EndIf;
 		
 	EndIf;
 	
-	// 
-	// 
+	// This is a stub in case there are temporary registration parameters without the required field.
+	// This is abnormal behavior and if it happens, consider the selective registration passed.
 	Return True;
 	
 EndFunction
@@ -315,14 +317,14 @@ Function AttributeIsFoundInTabularSectionOfObjectRegistrationAttributes(Metadata
 	Correspondence = False;
 	If TypeOf(MetadataTables) = Type("MetadataObject") And Common.IsAccountingRegister(MetadataTables) Then
 		Correspondence = MetadataTables.Correspondence;
-		// 
-		// 
+		// Cannot check the Dr and Cr extra dimensions as they are missing from the dimensions.
+		// "Account" is a standard attribute without the balance flag.
 		If CandidateName = "EXTDIMENSIONDR" Or CandidateName = "EXTDIMENSIONCR"
 			Or CandidateName = "ACCOUNTDR" Or CandidateName = "ACCOUNTCR" Then
 			Return True;
 		EndIf;
 		
-		// 
+		// Take into account exchange plans without "Correspondences", "ExtDimension", and "Account"
 		If Correspondence = False Then
 			
 			If CandidateName = "EXTDIMENSION"
@@ -505,7 +507,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 		
 		MetadataObjectsList = Metadata.FindByType(ObjectType);
 		
-		// 
+		// Checking reference types only.
 		If Not Common.IsRefTypeObject(MetadataObjectsList) Then
 			Continue;
 		EndIf;
@@ -513,7 +515,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 		CommonAttributeTable = InitializeTablesOfCommonAttributes();
 		FillCommonAttributeTable(CommonAttributeTable);
 		
-		If IsBlankString(TableRow.TabularSectionName) Then // 
+		If IsBlankString(TableRow.TabularSectionName) Then // Header attributes.
 			
 			For Each Attribute In TableRow.RegistrationAttributesStructure Do
 				
@@ -561,7 +563,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 			
 		Else
 			
-			// 
+			// Tabular section, standard tabular section, records.
 			MetaTables = ObjectRegistrationAttributesTableMetadata(MetadataObjectsList, TableRow.TabularSectionName);
 			If MetaTables = Undefined Then
 				
@@ -571,7 +573,7 @@ Procedure CheckObjectChangeRecordAttributes(RegistrationAttributesTable)
 				
 			EndIf;
 			
-			// 
+			// Trying to find every attribute somewhere.
 			For Each Attribute In TableRow.RegistrationAttributesStructure Do
 				
 				PropsFound = False;
@@ -637,7 +639,7 @@ Procedure AddRowToSelectiveRegistrationTable(ObjectTypeString, ObjectName, Tabul
 		
 		PCRSource = PCR.Source;
 		
-		// 
+		// Checking for invalid characters in the row.
 		If IsBlankString(PCRSource)
 			Or Left(PCRSource, 1) = "{" Then
 			
@@ -690,7 +692,7 @@ Procedure PopulateAttributesOfSelectiveRegistrationByOCRCollection(SelectiveRegi
 	ResultTableGroup = ResultTable1.Copy();
 	ResultTableGroup.GroupBy("ObjectName, TabularSectionName");
 	
-	// 
+	// Getting the resulting table taking into account grouped rows of the preliminary table.
 	For Each TableRow In ResultTableGroup Do
 		
 		Filter = New Structure("ObjectName, TabularSectionName", TableRow.ObjectName, TableRow.TabularSectionName);
@@ -702,7 +704,7 @@ Procedure PopulateAttributesOfSelectiveRegistrationByOCRCollection(SelectiveRegi
 	DeleteChangeRecordAttributeTableRowsWithErrors(RegistrationAttributesTable);
 	CheckObjectChangeRecordAttributes(RegistrationAttributesTable);
 	
-	// 
+	// Column "ExchangePlanName" is saved for backward compatibility
 	RegistrationAttributesTable.FillValues(ExchangePlanName, "ExchangePlanName");
 	
 	SelectiveRegistrationParameters.RegistrationAttributesTable = RegistrationAttributesTable;
@@ -714,37 +716,37 @@ Procedure FillObjectChangeRecordAttributeTableDetailsByRule(OCR, ResultTable1)
 	ObjectName        = StrReplace(OCR.SourceType, "Ref", "");
 	ObjectTypeString = OCR.SourceType;
 	
-	// 
+	// Filling in the table with the header attributes (properties).
 	AddRowToSelectiveRegistrationTable(ObjectTypeString, ObjectName, "", -50, OCR.Properties, ResultTable1);
 	
-	// 
+	// Filling in the table with the header attributes (search properties).
 	AddRowToSelectiveRegistrationTable(ObjectTypeString, ObjectName, "", -50, OCR.SearchProperties, ResultTable1);
 	
-	// 
+	// Filling in the table with the header attributes (disabled properties).
 	AddRowToSelectiveRegistrationTable(ObjectTypeString, ObjectName, "", -50, OCR.DisabledProperties, ResultTable1);
 	
-	// 
+	// Rule tables.
 	PGCRArray = OCR.Properties.FindRows(New Structure("IsFolder", True));
 	
 	For Each PGCR In PGCRArray Do
 		
-		// 
+		// Filling in the table with the tabular section attributes.
 		AddRowToSelectiveRegistrationTable(ObjectTypeString, ObjectName, PGCR.Source, PGCR.Order, PGCR.GroupRules, ResultTable1);
 		
-		// 
+		// Filling in the table with the tabular section attributes (disabled).
 		AddRowToSelectiveRegistrationTable(ObjectTypeString, ObjectName, PGCR.Source, PGCR.Order, PGCR.DisabledGroupRules, ResultTable1);
 		
 	EndDo;
 	
-	// 
+	// Rule tabular sections (disabled).
 	PGCRArray = OCR.DisabledProperties.FindRows(New Structure("IsFolder", True));
 	
 	For Each PGCR In PGCRArray Do
 		
-		// 
+		// Filling in the table with the tabular section attributes.
 		AddRowToSelectiveRegistrationTable(ObjectTypeString, ObjectName, PGCR.Source, PGCR.Order, PGCR.GroupRules, ResultTable1);
 		
-		// 
+		// Filling in the table with the tabular section attributes (disabled).
 		AddRowToSelectiveRegistrationTable(ObjectTypeString, ObjectName, PGCR.Source, PGCR.Order, PGCR.DisabledGroupRules, ResultTable1);
 		
 	EndDo;
@@ -799,8 +801,8 @@ Procedure BeforeGenerateNewParametersOfExchangePlanDataSelectiveRegistration(Sel
 		
 		SelectiveRegistrationMode = DataExchangeRegistrationCached.ExchangePlanDataSelectiveRegistrationMode(ExchangePlanName);
 		
-		// 
-		// 
+		// Bypass the conversion rules and fill the "RegistrationAttributesTable" parameter
+		// if the "AccordingToXMLRules" selective registration is set in the exchange plan.
 		If SelectiveRegistrationMode = SelectiveRegistrationModeByXMLRules() Then
 			
 			RulesAreRead = InformationRegisters.DataExchangeRules.ParsedRulesOfObjectConversion(ExchangePlanName);
@@ -830,7 +832,7 @@ Procedure DeleteChangeRecordAttributeTableRowsWithErrors(RegistrationAttributesT
 		
 		TableRow = RegistrationAttributesTable[CollectionItemsCount - ReverseIndex];
 		
-		// 
+		// If there are no registration attributes, deleting the row.
 		If IsBlankString(TableRow.RegistrationAttributes) Then
 			
 			RegistrationAttributesTable.Delete(TableRow);

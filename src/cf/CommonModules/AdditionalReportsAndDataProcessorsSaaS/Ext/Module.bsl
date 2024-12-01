@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
@@ -26,15 +28,15 @@ EndProcedure
 
 #Region AdditionalReportsAndDataProcessors
 
-// Called when determining whether the current user has the right to add an additional
-// report or processing to the data area.
+// Call to determine whether the current user has right to add an additional
+// report or data processor to a data area.
 //
 // Parameters:
-//  AdditionalDataProcessor - 
-//    
-//  Result - Boolean -  this parameter is set to the permission flag in this procedure,
-//  StandardProcessing - Boolean -  this parameter in this procedure sets the flag for performing
-//    standard permission check processing.
+//  AdditionalDataProcessor - CatalogObject.AdditionalReportsAndDataProcessors, catalog item
+//    written by user.
+//  Result - Boolean - indicates whether the required rights are granted.
+//  StandardProcessing - Boolean - flag specifying whether
+//    standard processing is used to validate rights.
 //
 Procedure OnCheckInsertRight(Val AdditionalDataProcessor, Result, StandardProcessing) Export
 	
@@ -61,14 +63,14 @@ Procedure OnCheckInsertRight(Val AdditionalDataProcessor, Result, StandardProces
 	
 EndProcedure
 
-// Called when checking whether an additional report can be loaded or processed from a file.
+// Called to check whether an additional report or data processor can be imported from file.
 //
 // Parameters:
 //  AdditionalDataProcessor - CatalogRef.AdditionalReportsAndDataProcessors,
-//  Result - Boolean -  this parameter in this procedure sets the flag for whether
-//    an additional report can be loaded or processed from a file,
-//  StandardProcessing - Boolean -  this parameter in this procedure sets the flag for performing
-//    standard processing to check whether an additional report can be loaded or processed from a file.
+//  Result - Boolean - indicates whether additional reports or data processors can be
+//    imported from files.
+//  StandardProcessing - Boolean - indicates whether
+//    standard processing checks if additional reports or data processors can be imported from files.
 //
 Procedure OnCheckCanImportDataProcessorFromFile(Val AdditionalDataProcessor, Result, StandardProcessing) Export
 	
@@ -84,14 +86,14 @@ Procedure OnCheckCanImportDataProcessorFromFile(Val AdditionalDataProcessor, Res
 	
 EndProcedure
 
-// Called when checking whether an additional report can be uploaded or processed to a file.
+// Called to check whether an additional report or data processor can be exported to a file.
 //
 // Parameters:
 //  AdditionalDataProcessor - CatalogRef.AdditionalReportsAndDataProcessors,
-//  Result - Boolean -  this parameter in this procedure sets the flag for whether
-//    an additional report can be uploaded or processed to a file,
-//  StandardProcessing - Boolean -  this parameter in this procedure sets the flag for performing
-//    standard processing to check whether an additional report can be uploaded or processed to a file.
+//  Result - Boolean - indicates whether additional reports or data processors can be
+//    exported to files.
+//  StandardProcessing - Boolean - indicates whether
+//    standard processing checks if additional reports or data processors can be exported to files.
 //
 Procedure OnCheckCanExportDataProcessorToFile(Val AdditionalDataProcessor, Result, StandardProcessing) Export
 	
@@ -106,8 +108,8 @@ Procedure OnCheckCanExportDataProcessorToFile(Val AdditionalDataProcessor, Resul
 	
 EndProcedure
 
-// Fills in the types of publishing additional reports and processing that are not available for use
-// in the current database model.
+// Fills additional report or data processor publication kinds that cannot be used
+// in the current infobase model.
 //
 // Parameters:
 //  NotAvailablePublicationKinds - Array of String
@@ -120,14 +122,14 @@ Procedure OnFillUnavailablePublicationKinds(Val NotAvailablePublicationKinds) Ex
 	
 EndProcedure
 
-// The procedure must be called from the event before the directory is Written
-//  Additional processing reports, checks the validity of changing the details
-//  of elements in this directory for additional treatments received from
-//  the catalog of additional treatments of the service Manager.
+// The procedure is called from the BeforeWrite event of catalog
+//  AdditionalReportsAndDataProcessors. Validates changes to the catalog item
+//  attributes for additional data processors retrieved from the
+//  additional data processor directory from the service manager.
 //
 // Parameters:
 //  Source - CatalogObject.AdditionalReportsAndDataProcessors
-//  Cancel - Boolean -  flag for refusing to write a directory element.
+//  Cancel - Boolean - indicates whether writing a catalog item must be canceled.
 //
 Procedure BeforeWriteAdditionalDataProcessor(Source, Cancel) Export
 	
@@ -179,12 +181,12 @@ Procedure BeforeWriteAdditionalDataProcessor(Source, Cancel) Export
 	
 EndProcedure
 
-// The procedure must be called from the event Before deleting the directory
-//  Additional reports and processing.
+// The procedure is called from the BeforeDelete event of the
+//  AdditionalReportsAndDataProcessors catalog.
 //
 // Parameters:
 //  Source - CatalogObject.AdditionalReportsAndDataProcessors
-//  Cancel - Boolean -  flag for refusing to delete a directory element from the information database.
+//  Cancel - Boolean - indicates whether the catalog item deletion from the infobase must be canceled.
 //
 Procedure BeforeDeleteAdditionalDataProcessor(Source, Cancel) Export
 	
@@ -192,11 +194,11 @@ Procedure BeforeDeleteAdditionalDataProcessor(Source, Cancel) Export
 		Return;
 	EndIf;
 	
-	// 
+	// Determine the built-in data processor.
 	SuppliedDataProcessor = SuppliedDataProcessor(Source.Ref);
 	If ValueIsFilled(SuppliedDataProcessor) Then
 		
-		// 
+		// Clear up the mapping between the current data processor and the built-in data processor.
 		RecordSet = InformationRegisters.UseSuppliedAdditionalReportsAndProcessorsInDataAreas.CreateRecordSet();
 		RecordSet.Filter.SuppliedDataProcessor.Set(SuppliedDataProcessor);
 		RecordSet.Write();
@@ -205,7 +207,7 @@ Procedure BeforeDeleteAdditionalDataProcessor(Source, Cancel) Export
 		
 EndProcedure
 
-// 
+// Called when registration data is obtained for a new additional report or data processor.
 //
 Procedure OnGetRegistrationData(Object, RegistrationData, StandardProcessing) Export
 	
@@ -221,14 +223,14 @@ Procedure OnGetRegistrationData(Object, RegistrationData, StandardProcessing) Ex
 	
 EndProcedure
 
-// Called when external processing is enabled.
+// Called to attach an external data processor.
 //
 // Parameters:
 //  Ref - CatalogRef.AdditionalReportsAndDataProcessors,
-//  StandardProcessing - Boolean -  the flag need to perform the standard processing of the connection
-//    external processing,
-//  Result - String -  name of the connected external report or processing (if
-//    the default Processing parameter was set to False in the handler).
+//  StandardProcessing - Boolean - indicates whether the standard processing is required to attach an
+//    external data processor,
+//  Result - String - a name of the attached external report or data processor (provided that the
+//    handler StandardProcessing parameter is set to False).
 //
 Procedure OnAttachExternalDataProcessor(Val Ref, StandardProcessing, Result) Export
 	
@@ -297,28 +299,28 @@ Procedure OnAttachExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 		SafeMode = String(ConnectionParameters.GUIDVersion);
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// ACC:552-off - Connections in an additional report and data processor area approved by the service administrator.
+	// ACC:556-off
+	// ACC:553-off
 	AddressInTempStorage = PutToTempStorage(ConnectionParameters.DataProcessorStorage.Get());
 	Manager = ?(IsReport(Ref), ExternalReports, ExternalDataProcessors);
 	Result = Manager.Connect(AddressInTempStorage, ConnectionParameters.ObjectName, SafeMode, 
 		Common.ProtectionWithoutWarningsDetails()); 
-	// 
-	// 
-	// 
+	// ACC:552-on
+	// ACC:556-on
+	// ACC:552-on
 	
 EndProcedure
 
-// Called when creating an external processing object.
+// Called to create an external data processor object.
 //
 // Parameters:
-//  Ref - CatalogRef.AdditionalReportsAndDataProcessors -  additional report or processing.
-//  StandardProcessing - Boolean -  the flag need to perform the standard processing of the connection
-//                                  external processing.
+//  Ref - CatalogRef.AdditionalReportsAndDataProcessors - an additional report or data processor.
+//  StandardProcessing - Boolean - indicates whether the standard processing is required to attach an
+//                                  external data processor.
 //  Result - ExternalDataProcessor
-//            - ExternalReport - 
-//              
+//            - ExternalReport - a name of the attached external report or data processor
+//              (provided that the handler StandardProcessing parameter is set to False).
 //
 Procedure OnCreateExternalDataProcessor(Val Ref, StandardProcessing, Result) Export
 	
@@ -337,29 +339,29 @@ Procedure OnCreateExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 	
 	CheckCanExecute(Ref);
 	
-	// 
-	// 
+	// ACC:552-off - Connections in an additional report and data processor area approved by the service administrator.
+	// ACC:553-off
 	If IsReport(Ref) Then
 		Result = ExternalReports.Create(DataProcessorName);
 	Else
 		Result = ExternalDataProcessors.Create(DataProcessorName);
 	EndIf;
-	// 
-	// 
+	// ACC:553-on
+	// ACC:552-on
 	
 EndProcedure
 
-// Called before recording changes to the routine task for additional reports and processes in the service model.
+// Called before writing changes of a scheduled job of additional reports and data processors in SaaS.
 //
 // Parameters:
-//   Object - CatalogObject.AdditionalReportsAndDataProcessors -  the object of the report or additional processing.
-//   Command - CatalogTabularSectionRow.AdditionalReportsAndDataProcessors.Commands -  command description.
+//   Object - CatalogObject.AdditionalReportsAndDataProcessors - an object of an additional report or a data processor.
+//   Command - CatalogTabularSectionRow.AdditionalReportsAndDataProcessors.Commands - a command details.
 //   Job - ScheduledJob
-//           - ValueTableRow - 
+//           - ValueTableRow - scheduled job details.
 //       See ScheduledJobsServer.Job.
-//   Changes - Structure - 
-//       
-//       
+//   Changes - Structure - Job attribute values to be modified.
+//       See the second parameter of the "ScheduledJobsServer.ChangeJob" procedure.
+//       If set to "Undefined", the scheduled job stays unchanged.
 //
 Procedure BeforeUpdateJob(Object, Command, Job, Changes) Export
 	
@@ -406,11 +408,11 @@ EndProcedure
 
 #Region SaaSOperations
 
-// Checks whether the passed additional processing is an instance
-// of the supplied additional processing.
+// Checks whether the passed additional data processor is an instance of a built-in additional data processor.
+// 
 //
 // Parameters:
-//   DataProcessorToUse - CatalogRef.AdditionalReportsAndDataProcessors -  additional processing.
+//   DataProcessorToUse - CatalogRef.AdditionalReportsAndDataProcessors - an additional data processor.
 //
 // Returns:
 //  Boolean
@@ -422,10 +424,10 @@ Function IsSuppliedDataProcessor(DataProcessorToUse) Export
 	
 EndFunction
 
-// 
+// ACC:134-off for backward compatibility.
 
-// Installs the supplied additional processing in the current data area after receiving the supplied data
-// and notifies the service Manager in case of failure.
+// Installs the built-in additional data processor to the current data area after receiving default master data.
+// Notifies the service manager if an error occurs.
 //
 // Parameters:
 //  InstallationDetails - See InstallSuppliedDataProcessorToDataArea.InstallationDetails
@@ -453,34 +455,34 @@ Procedure InstallSuppliedDataProcessorOnGet(Val InstallationDetails, Val QuickAc
 	
 EndProcedure
 
-// Installs the supplied additional processing in the current data area.
+// Installs the built-in additional data processor to the current data area.
 //
 // Parameters:
-//  InstallationDetails - Structure - :
-//    * Id - UUID -  unique ID of the reference
-//                      element of the reference list deliverableadditional reports and Processing.
-//    * Presentation - String -  representation of the installation of the supplied additional
-//      processing (will be used as the name of the reference element
-//      Additional reports and processing).
-//    * Installation - UUID -  unique ID of the installation
-//      of the supplied additional processing (to be used as
-//      the unique ID of the reference reference for additional processing Reports).
-//  QuickAccess - ValueTable - 
-//     :
-//    * CommandID - String -  command ID.
-//    * User - CatalogRef.Users -  user of the app.
-//  Jobs - ValueTable - 
-//      :
-//    * Id - String -  command ID.
+//  InstallationDetails - Structure - Installation data on the built-in additional data processor:
+//    * Id - UUID - a reference UUID of the SuppliedAdditionalReportsAndDataProcessors
+//                      catalog item reference.
+//    * Presentation - String - Presentation of the built-in additional data processor installation.
+//      It will be used as the description of AdditionalReportsAndDataProcessors catalog item.
+//      
+//    * Installation - UUID - UUID of the built-in additional data processor installation.
+//      It will be used as the AdditionalReportsAndDataProcessors catalog reference UUID.
+//      
+//  QuickAccess - ValueTable - Settings for adding additional data processor commands to the quick access panel.
+//     Has the following columns:
+//    * CommandID - String - Command ID.
+//    * User - CatalogRef.Users - an application user.
+//  Jobs - ValueTable - settings for the execution of additional data processor commands
+//      as scheduled jobs, the columns are:
+//    * Id - String - Command ID.
 //    * ScheduledJobSchedule - ValueList:
-//       ** Value - JobSchedule -  schedule.
-//    * ScheduledJobUsage - Boolean -  indicates whether the command execution is enabled
-//          as a routine task.
-//  Sections - ValueTable - :
+//       ** Value - JobSchedule - a schedule.
+//    * ScheduledJobUsage - Boolean - a flag showing that command execution is included
+//          in the scheduled job.
+//  Sections - ValueTable - Settings for enabling commands for built-in additional data processor installation. Has the following columns:
 //    * Section - CatalogRef.MetadataObjectIDs
 //  CatalogsAndDocuments - ValueTable:
 //    * RelatedObject - CatalogRef.MetadataObjectIDs
-//  AdditionalReportOptions - Array -  keys for additional report report options.
+//  AdditionalReportOptions - Array - keys of report options for an additional report.
 //  EmployeeResponsible - CatalogRef.Users
 //
 Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val QuickAccess, Val Jobs, Val Sections, 
@@ -538,7 +540,7 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 				
 			EndDo;
 			
-			// 
+			// An item of the AdditionalReportsAndDataProcessors catalog is created. The item acts as a data processor being used.
 			DataProcessorToUseRef = DataProcessorToUse(SuppliedDataProcessor, InstallationDetails.Installation);
 			If ValueIsFilled(DataProcessorToUseRef) Then
 				DataProcessorToUse = DataProcessorToUseRef.GetObject();
@@ -568,7 +570,7 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 					InstallationDetails.Installation));
 			EndIf;
 			
-			// 
+			// Associates the current data processor with a built-in data processor.
 			RecordSet = InformationRegisters.UseSuppliedAdditionalReportsAndProcessorsInDataAreas.CreateRecordSet();
 			RecordSet.Filter.SuppliedDataProcessor.Set(SuppliedDataProcessor);
 			Record = RecordSet.Add();
@@ -582,8 +584,8 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 			
 			DataProcessorToUse.Write();
 			
-			// 
-			// 
+			// Place the additional report options in the user-selected sections
+			// (or in the sections specified in the manifest in case the user accepted the default settings).
 			If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 				ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 				For Each AdditionalReportOption In AdditionalReportOptions Do
@@ -606,7 +608,7 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 			
-			// 
+			// Sending a message about the successful installation of data processor to data area to SaaS
 			Message = ModuleMessagesSaaS.NewMessage(
 				MessagesAdditionalReportsAndDataProcessorsControlInterface.AdditionalReportOrDataProcessorInstalledMessage());
 			
@@ -627,8 +629,8 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 				
 		Else
 			
-			// 
-			// 
+			// The 1C-supplied data processor is not yet synced via the supplied data.
+			// It will be added to the installation queue and processed after the 1C-supplied data is synced.
 			// 
 			
 			Context = New Structure;
@@ -667,14 +669,14 @@ Procedure InstallSuppliedDataProcessorToDataArea(Val InstallationDetails, Val Qu
 
 EndProcedure
 
-// 
+// ACC:134-on
 
-// Deletes the supplied additional processing from the current data area.
+// Deletes the built-in additional data processor from the current data area.
 //
 // Parameters:
 //  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors,
-//  IDOfDataProcessorToUse - UUID -  GUID of an existing
-//    data area element in the additional reports and Processing reference list.
+//  IDOfDataProcessorToUse - UUID - GUID of an item of the AdditionalReportsAndDataProcessors catalog existing in the data
+//    area.
 //
 Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val IDOfDataProcessorToUse) Export
 	
@@ -697,11 +699,11 @@ Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val
 		LockItem.SetValue("SuppliedDataProcessor", SuppliedDataProcessor);
 		Block.Lock();
 		
-		// 
+		// Remove the association between the built-in data processor and the current data processor.
 		RecordSet = InformationRegisters.UseSuppliedAdditionalReportsAndProcessorsInDataAreas.CreateRecordSet();
 		RecordSet.Filter.SuppliedDataProcessor.Set(SuppliedDataProcessor);
 		
-		// 
+		// Delete the active data processor.
 		DataProcessorObject2 = DataProcessorToUse.GetObject();
 		If DataProcessorObject2 <> Undefined Then
 			DataProcessorObject2.Delete();
@@ -712,7 +714,7 @@ Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val
 		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 		
-		// 
+		// Sending a message about deleting a data processor from the data area to SaaS
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesAdditionalReportsAndDataProcessorsControlInterface.AdditionalReportOrDataProcessorDeletedMessage());
 		
@@ -752,7 +754,7 @@ Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val
 		ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 		ModuleSaaSOperationsCTLCached = Common.CommonModule("SaaSOperationsCTLCached");
 		
-		// 
+		// A message about the installation error of data processor to data area is being sent to SaaS
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesAdditionalReportsAndDataProcessorsControlInterface.ErrorOfAdditionalReportOrDataProcessorDeletionMessage());
 		
@@ -766,8 +768,8 @@ Procedure DeleteSuppliedDataProcessorFromDataArea(Val SuppliedDataProcessor, Val
 	
 EndProcedure
 
-// Deletes the supplied additional processing from all data areas
-//  of the current information database.
+// Deletes the built-in additional data processor from all data areas of the current infobase.
+//  
 //
 // Parameters:
 //  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors
@@ -815,12 +817,12 @@ Procedure RevokeSuppliedAdditionalDataProcessor(Val SuppliedDataProcessor) Expor
 	
 EndProcedure
 
-// Performs error handling when additional processing is installed in the data area.
+// Processes an error that occurred when installing the additional data processor to a data area.
 //
 // Parameters:
 //  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors,
 //  InstallationID - UUID,
-//  ExceptionText - String -  the exception text.
+//  ExceptionText - String - an exception text.
 //
 Procedure ProcessErrorOfInstallingAdditionalDataProcessorToDataArea(Val SuppliedDataProcessor, Val InstallationID, Val ExceptionText) Export
 	
@@ -841,7 +843,7 @@ Procedure ProcessErrorOfInstallingAdditionalDataProcessorToDataArea(Val Supplied
 		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 		ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
 		
-		// 
+		// A message about the installation error of data processor to data area is being sent to SaaS
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesAdditionalReportsAndDataProcessorsControlInterface.ErrorOfAdditionalReportOrDataProcessorInstallationMessage());
 			
@@ -868,16 +870,16 @@ Procedure ProcessErrorOfInstallingAdditionalDataProcessorToDataArea(Val Supplied
 	
 EndProcedure
 
-// Returns connection parameters for the supplied additional processing.
+// Returns attach parameters for the given built-in additional data processor.
 //
 // Parameters:
 //  DataProcessorToUse - CatalogRef.AdditionalReportsAndDataProcessors
 //
 // Returns:
 //   Structure:
-//   * DataProcessorStorage - ValueStorage -  contains binary data of an additional report
-//                                              or processing,
-//   * SafeMode - Boolean -  flag for enabling processing in safe mode.
+//   * DataProcessorStorage - ValueStorage - contains BinaryData of an additional report
+//                                              or a data processor,
+//   * SafeMode - Boolean - indicates whether the data processor is attached in a safe mode.
 //
 Function DataProcessorToUseAttachmentParameters(Val DataProcessorToUse) Export
 	
@@ -895,10 +897,10 @@ Function DataProcessorToUseAttachmentParameters(Val DataProcessorToUse) Export
 	
 EndFunction
 
-// Generates a list of information security parameters.
+// Generates the list of infobase parameters.
 //
 // Parameters:
-//   ParametersTable - ValueTable - 
+//   ParametersTable - ValueTable - Table of parameter details.
 //
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
@@ -911,8 +913,8 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "IndependentUsageOfAdditionalReportsAndDataProcessorsSaaS");
 		ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
 		
-		// 
-		// 
+		// The constants were renamed. The Service Manager sends parameters
+		// with the old constant names for backward compatibility.
 		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "AllowScheduledJobsExecutionSaaS");
 		ParameterString.Name = "AllowUseAdditionalReportsAndDataProcessorsByScheduledJobsInSaaSMode";
 		ParameterString = ModuleSaaSOperations.AddConstantToInformationSecurityParameterTable(ParametersTable, "MinimalARADPScheduledJobIntervalSaaS");
@@ -924,18 +926,18 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
 EndProcedure
 
-// Called before attempting to write the values of is parameters
-// to constants of the same name.
+// Called before an attempt to write infobase parameters as
+// constants with the same name.
 //
 // Parameters:
-//   ParameterValues - Structure -  the values of the parameters which you want to install.
-//   If the parameter value is set in this procedure
-//   , the corresponding key Value pair must be removed from the structure.
+//   ParameterValues - Structure - Parameter values to assign.
+//   If the value is assigned in this procedure, delete the corresponding KeyAndValue pair from the structure.
+//   
 //
 Procedure OnSetIBParametersValues(Val ParameterValues) Export
 	
-	// 
-	// 
+	// The constants were renamed. The Service Manager sends parameters with the old constant names.
+	// Parameters with old constant names are replaced with parameters with new constant names for backward compatibility.
 	AllowScheduledJobsExecutionSaaS = Undefined;
 	MinimalARADPScheduledJobIntervalSaaS = Undefined;
 	UseSecurityProfilesForARDP = Undefined;
@@ -974,21 +976,21 @@ Procedure OnSetIBParametersValues(Val ParameterValues) Export
 	
 EndProcedure
 
-// Event handler for determining the handler's Pseudonyms.
+// OnDefineHandlersAliases event handler.
 //
-// Fills in the matching of method names to their aliases for calling from the task queue
+// Fills in a mapping of method names and their aliases for calling from a job queue
 //
 // Parameters:
 //  NamesAndAliasesMap - Map of KeyAndValue:
-//   The key is an alias of the method, for example, clear the data area
-//   Value - the method name to call, for example Remoteupdateservice.Clear the data area
-//    As a value, you can specify Undefined, in this case it is assumed that the name 
-//    matches the alias.
+//   Key - Method alias, for example: ClearDataArea
+//   Value - a name of the method to be called, for example, SaaS.ClearDataArea
+//    You can specify Undefined as a value, in this case, the name is assumed to be 
+//    the same as an alias.
 //
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
 	NamesAndAliasesMap.Insert("AdditionalReportsAndDataProcessorsSaaS.AppliedDataProcessorSettingsUpdate");
-	// 
+	// Compatibility with SSL versions 2.2.1.25 and earlier.
 	NamesAndAliasesMap.Insert("AdditionalReportsAndDataProcessorsSaaS.InstallSuppliedDataProcessorToDataArea", 
 		"AdditionalReportsAndDataProcessorsSaaS.InstallSuppliedDataProcessorOnGet");
 	NamesAndAliasesMap.Insert("AdditionalReportsAndDataProcessorsSaaS.InstallSuppliedDataProcessorOnGet");
@@ -997,16 +999,16 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
 EndProcedure
 
-// Register handlers for delivered data
+// Register default master data handlers.
 //
-// When you receive a notification about the availability of new shared data, the procedure is called
-// Available data from modules registered through getprocesserssuppliable Data.
-// A descriptor, the xdto Descriptor Object, is passed to the procedure.
+// When a new shared data notification is received, procedures are called
+// NewDataAvailable from modules registered with GetSuppliedDataHandlers.
+// XDTODataObject Descriptor passed to the procedure.
 // 
-// If the available Data sets the Load argument to True, 
-// the data is loaded, and the handle and path to the data file are passed to the procedure 
-// Process the new data. The file will be automatically deleted after the procedure is completed.
-// If the file was not specified in the service Manager, the argument value is Undefined.
+// If NewDataAvailable sets Import to True, 
+// the data is imported, and the descriptor and the data file path are passed to the 
+// ProcessNewData procedure. The file is automatically deleted once the procedure is executed.
+// If a file is not specified in the service manager, the parameter value is Undefined.
 //
 // Parameters: 
 //   Handlers - See SuppliedDataOverridable.GetHandlersForSuppliedData.Handlers
@@ -1020,8 +1022,8 @@ Procedure OnDefineSuppliedDataHandlers(Handlers) Export
 	
 EndProcedure
 
-// Fills the passed array with General modules that are handlers
-//  for the received message interfaces.
+// Fills in the passed array with the common modules used as
+//  incoming message interface handlers.
 //
 // Parameters:
 //  HandlersArray - Array
@@ -1032,8 +1034,8 @@ Procedure RecordingIncomingMessageInterfaces(HandlersArray) Export
 	
 EndProcedure
 
-// Fills the passed array with General modules that are handlers for the interfaces
-//  of the sent messages.
+// Fills in the passed array with the common modules used as
+//  outgoing message interface handlers.
 //
 // Parameters:
 //  HandlersArray - Array
@@ -1044,20 +1046,20 @@ Procedure RecordingOutgoingMessageInterfaces(HandlersArray) Export
 	
 EndProcedure
 
-// Called when determining the version of the message interface supported by both the corresponding IB
-//  and the current IB. This procedure is intended to implement mechanisms to support backward compatibility
-//  with older versions of correspondent information systems.
+// It is called when identifying a message interface version supported both by the correspondent infobase
+//  and the current infobase. This procedure is used to implement functionality for supporting backward compatibility
+//  with earlier versions of correspondent infobases.
 //
 // Parameters:
-//  MessageInterface - String -  name of the program interface of the message that the version is defined for
-//  ConnectionParameters - Structure -  parameters for connecting to an IB correspondent
-//  RecipientPresentation1 - String -  representation of an information security correspondent
-//  Result - String -  the designated version. The value of this parameter can be changed in this procedure.
+//  MessageInterface - String - name of a message API whose version is to be determined
+//  ConnectionParameters - Structure - parameters for connecting to the correspondent infobase
+//  RecipientPresentation1 - String - infobase correspondent presentation
+//  Result - String - a version to be defined. Value of this parameter can be modified in this procedure.
 //
 Procedure OnDefineCorrespondentInterfaceVersion(Val MessageInterface, Val ConnectionParameters, Val RecipientPresentation1, Result) Export
 	
-	// 
-	// 
+	// Compatibility with the Service Manager versions where the "ApplicationExtensionsControl" API
+	// was a part of "RemoteAdministrationControl".
 	
 	If Common.DataSeparationEnabled()
 		And Result = Undefined
@@ -1100,8 +1102,8 @@ EndProcedure
 
 #Region ScheduledJobsHandlers
 
-// The procedure is called as a routine task after receiving a new version of additional
-//  processing from the catalog of additional reports and processes of the service Manager.
+// The procedure is called as a scheduled job after receiving a new version of the additional
+//  data processor from the additional report and data processor directory of the service manager.
 //
 // Parameters:
 //  Ref - CatalogRef.AdditionalReportsAndDataProcessors
@@ -1142,15 +1144,15 @@ EndProcedure
 
 #Region SuppliedData
 
-// 
+// ACC:299-off Built-in data handlers.
 
-// Called when a notification of new data is received.
-// In the body, check whether the application needs this data, 
-// and if so, select the Upload checkbox.
+// The procedure is called when a new data notification is received.
+// In the procedure body, check whether the application requires this data. 
+// If it requires, select the Import check box.
 // 
 // Parameters:
 //   Descriptor   - XDTODataObject - Descriptor.
-//   ToImport    - Boolean -  returned.
+//   ToImport    - Boolean - a return value.
 //
 Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
@@ -1164,7 +1166,7 @@ Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 		XDTOCompatibilityTable = XDTOFactory.ReadXML(Read, XDTOFactory.Type(Read.NamespaceURI, Read.Name));
 		CompatibilityTable = ReadCompatibilityTable(XDTOCompatibilityTable);
 		
-		If CheckSuppliedDataProcessorCompatibility(CompatibilityTable) Then // 
+		If CheckSuppliedDataProcessorCompatibility(CompatibilityTable) Then // If a data processor is compatible with the infobase
 			
 			ToImport = True;
 			
@@ -1186,13 +1188,13 @@ Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
 EndProcedure
 
-// Called after calling available Data, allows you to parse the data.
+// The procedure is called after calling NewDataAvailable, it parses the data.
 //
 // Parameters:
-//   Descriptor   - XDTODataObject -  descriptor.
-//   PathToFile   - String, Undefined -  full name of the extracted file. The file will be automatically deleted 
-//                  after the procedure is completed. If the
-//                  file was not specified in the service Manager, the argument value is Undefined.
+//   Descriptor   - XDTODataObject - descriptor.
+//   PathToFile   - String, Undefined - Full name of the extracted file. 
+//                  The file is automatically deleted once the procedure is completed.
+//                  If a file is not specified, it is set to Undefined.
 //
 Procedure ProcessNewData(Val Descriptor, Val PathToFile) Export
 	
@@ -1202,20 +1204,20 @@ Procedure ProcessNewData(Val Descriptor, Val PathToFile) Export
 	
 EndProcedure
 
-// Called when data processing is canceled in the event of a failure
+// Runs if data processing is failed due to an error.
 //
 Procedure DataProcessingCanceled(Val Descriptor) Export 
 	
 EndProcedure
 
-// 
+// ACC:299-on
 
 #EndRegion
 
 #Region UpdateHandlers
 
-// Blocks additional reports and processing in data areas for
-// getting new versions from the service Manager.
+// Locks additional reports and data processors in data areas to
+// get new versions from the service manager.
 //
 Procedure LockAdditionalReportsAndDataProcessorsForUpdate() Export
 	
@@ -1271,10 +1273,10 @@ EndProcedure
 
 #Region Private
 
-// Returns the supplied processing that corresponds to the processing used.
+// Returns the built-in data processor corresponding to the current data processor.
 //
 // Parameters:
-//   DataProcessorToUse - CatalogRef.AdditionalReportsAndDataProcessors -  additional processing.
+//   DataProcessorToUse - CatalogRef.AdditionalReportsAndDataProcessors - an additional data processor.
 //
 // Returns:
 //  CatalogRef.SuppliedAdditionalReportsAndDataProcessors
@@ -1308,10 +1310,10 @@ Function SuppliedDataProcessor(DataProcessorToUse)
 	
 EndFunction
 
-// Returns the processing used that corresponds to the supplied processing for the current value of the data Area separator.
+// Returns the custom data processor that corresponds to the built-in data processor for the given DataArea separator.
 //
 // Parameters:
-//  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors -  supplied processing.
+//  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors - Built-in data processor.
 //
 // Returns:
 //  CatalogRef.AdditionalReportsAndDataProcessors
@@ -1357,15 +1359,15 @@ Function DataProcessorToUse(SuppliedDataProcessor, InstallationID = Undefined)
 	
 EndFunction
 
-// Returns a list of installations for the supplied additional processing in the data area.
+// Returns the installation list for the given built-in additional data processor in the data area.
 //
 // Parameters:
-//  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors -  supplied processing.
+//  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors - Built-in data processor.
 //
 // Returns:
 //  ValueTable:
-//    * DataArea - Number -  a number with a length of 7 characters, the number of the data area.
-//    * DataProcessorToUse - CatalogRef.AdditionalReportsAndDataProcessors -  additional processing.
+//    * DataArea - Number - a number 7 characters long, a data area number.
+//    * DataProcessorToUse - CatalogRef.AdditionalReportsAndDataProcessors - an additional data processor.
 //
 Function InstallationsList(Val SuppliedDataProcessor)
 	
@@ -1383,15 +1385,15 @@ Function InstallationsList(Val SuppliedDataProcessor)
 	
 EndFunction
 
-// Returns the installation queue for the supplied additional processing in the data area.
+// Returns installation queue for the given built-in additional data processor in the data area.
 //
 // Parameters:
-//  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors -  supplied processing.
+//  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors - Built-in data processor.
 //
 // Returns:
 //  ValueTable:
-//    * DataArea - Number -  a number with a length of 7 characters, the number of the data area.
-//    * InstallationParameters - ValueStorage -  installation queue.
+//    * DataArea - Number - a number 7 characters long, a data area number.
+//    * InstallationParameters - ValueStorage - an installation queue.
 //
 Function InstallationsQueue(Val SuppliedDataProcessor)
 	
@@ -1411,15 +1413,15 @@ EndFunction
 
 #Region SuppliedData
 
-// Returns the ID of the type of data to be delivered for additional reports
-// and treatments.
+// Returns the ID of a built-in data kind for additional reports and data processors.
+// 
 //
 // Returns:
 //   String
 //
 Function SuppliedDataKindID()
 	
-	Return "ARandDP"; // 
+	Return "ARandDP"; // Not localizable.
 	
 EndFunction
 
@@ -1443,7 +1445,7 @@ Function ParseSuppliedDataDescriptor(Descriptor)
 	
 EndFunction
 
-// Monitoring compatibility with the current version of the database configuration
+// Control of compatibility with the current version of infobase configuration
 Function CheckSuppliedDataProcessorCompatibility(Val CompatibilityTable)
 	
 	For Each CompatibilityDeclaration In CompatibilityTable Do
@@ -1472,7 +1474,7 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Read the built-in data instance characteristics.
 	SuppliedDataProcessorDetails = ParseSuppliedDataDescriptor(Descriptor);
 	
 	Read = New XMLReader();
@@ -1495,7 +1497,7 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 	
 	BeginTransaction();
 	Try
-		// 
+		// Get CatalogObject.SuppliedAdditionalReportsAndDataProcessors.
 		SuppliedDataProcessorRef = Catalogs.SuppliedAdditionalReportsAndDataProcessors.GetRef(
 			New UUID(SuppliedDataProcessorDetails.Id));
 		If Common.RefExists(SuppliedDataProcessorRef) Then
@@ -1524,18 +1526,18 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 			Return;
 		EndIf;
 			
-		// 
+		// Populate CatalogObject.SuppliedAdditionalReportsAndDataProcessors.
 		SuppliedDataProcessorReportsOptions = Undefined;
 		AdditionalReportsAndDataProcessorsSaaSManifest.ReadManifest(
 			AdditionalDataProcessorManifest, SuppliedDataProcessor, SuppliedDataProcessor,
 			SuppliedDataProcessorReportsOptions);
 		
-		// 
+		// Assigns DataProcessorStorage value to the built-in data file.
 		DataProcessorBinaryData = New BinaryData(PathToFile);
 		SuppliedDataProcessor.DataProcessorStorage = New ValueStorage(
 			DataProcessorBinaryData, New Deflation(9));
 		
-		// 
+		// Table of compatibility with configuration versions
 		SuppliedDataProcessor.ControlCompatibilityWithConfigurationVersions = True;
 		SuppliedDataProcessor.Compatibility.Clear();
 		For Each CompatibilityInformation In CompatibilityTable Do
@@ -1549,7 +1551,7 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 			EndIf;
 		EndDo;
 		
-		// 
+		// Write CatalogObject.SuppliedAdditionalReportsAndDataProcessors.
 		SuppliedDataProcessor.GUIDVersion = New UUID(SuppliedDataProcessorDetails.Version);
 		SuppliedDataProcessor.Write();
 		CommitTransaction();
@@ -1570,7 +1572,7 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 	EndIf;
 	
 	ModuleJobsQueue = Common.CommonModule("JobsQueue");
-	// 
+	// Planning to update settings of data processors in use
 	DataProcessorsToUse = InstallationsList(SuppliedDataProcessor.Ref);
 	For Each DataProcessorInstallation In DataProcessorsToUse Do
 		
@@ -1594,7 +1596,7 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 		
 	EndDo;
 	
-	// 
+	// Schedule the installation of the built-in data processor to the pending areas.
 	InstallationsQueue = InstallationsQueue(SuppliedDataProcessor.Ref);
 	For Each QueueItem In InstallationsQueue Do
 		
@@ -1639,8 +1641,8 @@ EndProcedure
 
 #Region AdditionalReportsAndDataProcessors
 
-// Returns True if the passed reference to the additional reports and Processing reference list item
-// is a report, not a processing.
+// Returns True if the passed reference to the item of the AdditionalReportsAndDataProcessors catalog 
+// is a report, not a data processor.
 //
 Function IsReport(Val Ref)
 	
@@ -1649,8 +1651,8 @@ Function IsReport(Val Ref)
 	
 EndFunction
 
-// The procedure performs a refillingof the reference list item additional Reportsprocessing for the reference list
-// item supplied additional Reportsprocessing.
+// The procedure repopulates the AdditionalReportsAndDataProcessors catalog item
+// from the SuppliedAdditionalReportsAndDataProcessors catalog item.
 //
 // Parameters:
 //   DataProcessorToUse - CatalogObject.AdditionalReportsAndDataProcessors
@@ -1663,7 +1665,7 @@ Procedure FillSettingsOfDataProcessorToUse(DataProcessorToUse, SuppliedDataProce
 	CommandsOfDataProcessorToUse = DataProcessorToUse.Commands.Unload();
 	SuppliedDataProcessorCommands = SuppliedDataProcessor.Commands.Unload();
 	
-	// 
+	// Sync commands of the given data processor with the commands of the built-in data processor.
 	For Each SuppliedDataProcessorCommand In SuppliedDataProcessorCommands Do
 		
 		CommandOfDataProcessorToUse = CommandsOfDataProcessorToUse.Find(
@@ -1678,7 +1680,7 @@ Procedure FillSettingsOfDataProcessorToUse(DataProcessorToUse, SuppliedDataProce
 		
 	EndDo;
 	
-	// 
+	// Delete the data processor commands that were deleted from the new 1C-supplied data processor.
 	// 
 	CommandsToRemove = New Array();
 	For Each CommandOfDataProcessorToUse In CommandsOfDataProcessorToUse Do
@@ -1702,7 +1704,7 @@ Procedure FillSettingsOfDataProcessorToUse(DataProcessorToUse, SuppliedDataProce
 	
 EndProcedure
 
-// 
+// Returns registration data for the given data processor being registered by the 1C-supplied data processor.
 //
 // Parameters:
 //  SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors
@@ -1718,14 +1720,14 @@ Function GetRegistrationData(Val SuppliedDataProcessor)
 	DataProcessor = SuppliedDataProcessor.GetObject();
 	FillPropertyValues(Result, DataProcessor);
 	
-	// Purpose
+	// Assignment.
 	Purpose = New Array;
 	For Each AssignmentItem1 In DataProcessor.Purpose Do
 		Purpose.Insert(AssignmentItem1.RelatedObject);
 	EndDo;
 	Result.Insert("Purpose", Purpose);
 	
-	// Commands
+	// Commands.
 	Result.Insert("Commands", DataProcessor.Commands.Unload(
 		, "Presentation, Id, Modifier, ShouldShowUserNotification, Use"));
 	
@@ -1733,16 +1735,16 @@ Function GetRegistrationData(Val SuppliedDataProcessor)
 	
 EndFunction
 
-// Reads the compatibility table of the supplied additional processing with configurations
-//  and their versions.
+// Reads a compatibility table between built-in additional data processors with configurations by versions.
+//  
 //
 // Parameters:
-//  CompatibilityTable - XDTODataObject -  Xdto object {http://www.1c.ru/1cFresh/ApplicationExtensions/Compatibility/1.0.0.1} CompatibilityList.
+//  CompatibilityTable - XDTODataObject - XDTODataObject {http://www.1c.ru/1cFresh/ApplicationExtensions/Compatibility/1.0.0.1}CompatibilityList.
 //
 // Returns:
 //  ValueTable:
-//    ConfigarationName-String-configuration name,
-//    VersionNumber-String - configuration version.
+//    ConfigarationName - String - a configuration name,
+//    VersionNumber - String - a configuration version.
 //
 Function ReadCompatibilityTable(Val CompatibilityTable)
 	
@@ -1765,14 +1767,14 @@ EndFunction
 
 #Region AdditionalReportsAndDataProcessorsSpecificInSaaS
 
-// This procedure is used to synchronize the values of constants that regulate
-//  the use of additional reports and processes in the service model. The procedure
-//  must be called whenever any of the constants that govern
-//  the use of additional reports and treatments are changed.
+// The procedure is designed to synchronize constant values that regulate
+//  the use of additional reports and data processors in SaaS mode. The procedure
+//  must be called upon any change of any constant regulating
+//  the use of additional reports and data processors.
 //
 // Parameters:
-//  Constant - String -  name of the changed constant, as specified in the metadata,
-//  Value - Boolean -  new value of the changed constant.
+//  Constant - String - a name of the changed constant as it is specified in metadata.
+//  Value - Boolean - a new value of the changed constant.
 //
 Procedure RegulatingConstantsValuesSynchronization(Val Constant, Val Value) Export
 	
@@ -1798,7 +1800,7 @@ Procedure RegulatingConstantsValuesSynchronization(Val Constant, Val Value) Expo
 	
 EndProcedure
 
-// Called when checking whether an additional report can be executed or processed.
+// Called to check whether it is possible to execute an additional report or a data processor.
 //
 Procedure CheckCanExecute(Ref)
 	
@@ -1818,8 +1820,8 @@ Procedure CheckCanExecute(Ref)
 	
 EndProcedure
 
-// This procedure is called to check whether additional processing code
-//  can be executed in the information database.
+// The procedure is called to check whether it is possible to execute code of an additional report or a data processor
+//  in the infobase.
 //
 Procedure CheckCanExecuteSuppliedDataProcessor(Val DataProcessorToUse)
 	
@@ -1839,12 +1841,12 @@ Procedure CheckCanExecuteSuppliedDataProcessor(Val DataProcessorToUse)
 		
 	PublicationParametersOfSuppliedDataProcessor = Common.ObjectAttributesValues(SuppliedDataProcessor, "Publication, DisableReason, Version");
 	
-	// 
+	// Check if the built-in data processor is published.
 	If PublicationParametersOfSuppliedDataProcessor.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled Then
 		Raise LockReasonsDetails[PublicationParametersOfSuppliedDataProcessor.DisableReason];
 	EndIf;
 	
-	// 
+	// Checking for data processor version update
 	If PublicationParametersOfDataProcessorToUse.Version <> PublicationParametersOfSuppliedDataProcessor.Version Then
 		Raise NStr(
 			"en = 'Usage of additional data processor is temporarily unavailable. Try again in a few minutes. We apologize for the inconvenience.';");

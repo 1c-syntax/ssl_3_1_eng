@@ -417,7 +417,7 @@
 								</SearchControlAddition>
 							</ChildItems>
 						</CommandBar>
-						<UsualGroup name="CertificateListUpdateGroup" id="483">
+						<UsualGroup name="GroupRefreshCertificateList" id="483">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -425,9 +425,9 @@
 								</v8:item>
 							</Title>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="CertificateListUpdateGroupExtendedTooltip" id="484"/>
+							<ExtendedTooltip name="GroupRefreshCertificateListExtendedTooltip" id="484"/>
 							<ChildItems>
-								<PictureDecoration name="ImageUpdatingListOfCertificates" id="485">
+								<PictureDecoration name="PictureRefreshCertificateList" id="485">
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -438,18 +438,18 @@
 										<xr:Ref>CommonPicture.TimeConsumingOperation16</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
-									<ContextMenu name="ImageUpdatingListOfCertificatesContextMenu" id="486"/>
-									<ExtendedTooltip name="ImageUpdatingListOfCertificatesExtendedTooltip" id="487"/>
+									<ContextMenu name="PictureRefreshCertificateListContextMenu" id="486"/>
+									<ExtendedTooltip name="PictureRefreshCertificateListExtendedTooltip" id="487"/>
 								</PictureDecoration>
-								<LabelDecoration name="DecorationUpdatingListOfCertificates" id="480">
+								<LabelDecoration name="DecorationRefreshCertificateList" id="480">
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
 											<v8:content>Searching for certificates in personal storage…</v8:content>
 										</v8:item>
 									</Title>
-									<ContextMenu name="DecorationUpdatingListOfCertificatesContextMenu" id="481"/>
-									<ExtendedTooltip name="DecorationUpdatingListOfCertificatesExtendedTooltip" id="482"/>
+									<ContextMenu name="DecorationRefreshCertificateListContextMenu" id="481"/>
+									<ExtendedTooltip name="DecorationRefreshCertificateListExtendedTooltip" id="482"/>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -602,18 +602,21 @@
 								</LabelField>
 							</ChildItems>
 						</Table>
-						<Button name="OpenMachineReadableLettersOfAuthority" id="476">
-							<Type>Hyperlink</Type>
-							<Visible>false</Visible>
-							<CommandName>Form.Command.OpenMachineReadableLettersOfAuthority</CommandName>
-							<Title>
+						<LabelDecoration name="DecorationToOpenMachineReadablePowerOfAttorney" id="490">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Title formatted="false">
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Machine-readable letters of authority</v8:content>
+									<v8:content>Open machine-readable letters of authority</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="OpenMachineReadableLettersOfAuthorityExtendedTooltip" id="477"/>
-						</Button>
+							<ContextMenu name="DecorationToOpenMachineReadablePowerOfAttorneyContextMenu" id="491"/>
+							<ExtendedTooltip name="DecorationToOpenMachineReadablePowerOfAttorneyExtendedTooltip" id="492"/>
+							<Events>
+								<Event name="URLProcessing">DecorationToOpenMachineReadablePowerOfAttorneyURLProcessing</Event>
+							</Events>
+						</LabelDecoration>
 						<UsualGroup name="LegendGroup" id="379">
 							<Title>
 								<v8:item>
@@ -811,7 +814,7 @@
 							<ContextMenu name="SettingInCentralNodeLabelContextMenu" id="356"/>
 							<ExtendedTooltip name="SettingInCentralNodeLabelExtendedTooltip" id="357"/>
 						</LabelDecoration>
-						<UsualGroup name="UpdateProgramGroup" id="488">
+						<UsualGroup name="GroupApplicationsRefresh" id="488">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -819,7 +822,7 @@
 								</v8:item>
 							</Title>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="UpdateProgramGroupExtendedTooltip" id="489"/>
+							<ExtendedTooltip name="GroupApplicationsRefreshExtendedTooltip" id="489"/>
 							<ChildItems>
 								<PictureDecoration name="ApplicationsRefreshDecoration" id="329">
 									<Title formatted="false">
@@ -871,6 +874,7 @@
 											<v8:content>Decoration information</v8:content>
 										</v8:item>
 									</Title>
+									<GroupVerticalAlign>Center</GroupVerticalAlign>
 									<Picture>
 										<xr:Ref>StdPicture.Information</xr:Ref>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
@@ -1183,12 +1187,6 @@
 							</ChildItems>
 						</Table>
 						<UsualGroup name="ApplicationsLinuxPathToApplicationGroup" id="228">
-							<Title>
-								<v8:item>
-									<v8:lang>en</v8:lang>
-									<v8:content>App path</v8:content>
-								</v8:item>
-							</Title>
 							<Group>Vertical</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
@@ -1772,7 +1770,7 @@ WHERE
 						</v8:NumberQualifiers>
 					</Type>
 				</Column>
-				<Column name="ThisIsToken" id="40">
+				<Column name="IsToken" id="40">
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>
@@ -2107,20 +2105,6 @@ WHERE
 			</Picture>
 			<Action>AddToEncryptOnly</Action>
 			<Representation>TextPicture</Representation>
-		</Command>
-		<Command name="OpenMachineReadableLettersOfAuthority" id="12">
-			<Title>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Machine-readable letters of authority</v8:content>
-				</v8:item>
-			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Open machine-readable letters of authority</v8:content>
-				</v8:item>
-			</ToolTip>
 		</Command>
 	</Commands>
 	<Parameters>

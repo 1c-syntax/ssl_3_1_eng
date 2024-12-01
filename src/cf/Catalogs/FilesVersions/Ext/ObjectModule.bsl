@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -26,7 +28,7 @@ Procedure BeforeWrite(Cancel)
 		ParentVersion = DetailsOfOwner.CurrentVersion;
 	EndIf;
 	
-	// 
+	// Setting an icon index upon object write.
 	PictureIndex = FilesOperationsInternalClientServer.IndexOfFileIcon(Extension);
 	
 	If TextExtractionStatus.IsEmpty() Then
@@ -42,8 +44,8 @@ Procedure BeforeWrite(Cancel)
 			Raise NStr("en = 'Cannot delete the first version.';");
 		EndIf;
 	ElsIf DeletionMark = True And DetailsOfOwner.DeletionMark <> True Then
-		//  
-		// 
+		// For the versions that are children of the marked one, 
+		// replace the reference with the reference of the parent version.
 		Query = New Query;
 		Query.Text = 
 			"SELECT

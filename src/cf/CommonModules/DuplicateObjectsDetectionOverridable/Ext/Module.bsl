@@ -1,35 +1,37 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Define metadata objects whose Manager modules provide the ability to parameterize 
-// the duplicate search algorithm using the export procedures Parameterssearchable, Subsearchable, 
-// and element substitution.
+// Define metadata objects whose manager modules provide parametrization of duplicate search 
+// algorithm using the DuplicatesSearchParameters, OnSearchForDuplicates, and 
+// CanReplaceItems export procedures.
 //
 // Parameters:
-//   Objects - Map of KeyAndValue - :
-//       * Key     - String -  the full name of the metadata object connected to the Duplicate Search and Delete subsystem.
-//                              For example, " Directory.Counterparties".
-//       * Value - String - :
-//                              
-//                              
-//                              
-//                              
-//                              
+//   Objects - Map of KeyAndValue - Objects whose manager modules contain export procedures:
+//       * Key     - String - Full name of the metadata object attached to the "Duplicate cleaner" subsystem.
+//                              For example, "Catalog.Counterparties".
+//       * Value - String - names of export handler procedures defined in the manager module:
+//                              "DuplicatesSearchParameters",
+//                              "OnDuplicatesSearch",
+//                              "CanReplaceItems".
+//                              Every name must start with a new line.
+//                              Empty string means that all procedures are determined in the manager module.
 //
 // Example:
-//  1. The Handbook defines all of the procedure-handlers:
-//  Objects.Insert (Metadata.Guides.Contractors.Full name(), "");
+//  1. All handler procedures are defined in the catalog:
+//  Objects.Insert(Metadata.Catalogs.Counterparties.FullName(), "");
 //
-//  2.only the procedures are Defined for the parameters of searchable and near-Searchable:
-//  Objects.Insert (Metadata.Guides.Tasks of the project.Paloema(), "Parametrictable
-//                   |Preposterously");
+//  2. Only the DuplicatesSearchParameters and OnDuplicatesSearch procedures are defined:
+//  Objects.Insert(Metadata.Catalogs.ProjectTasks.FullName(),"DuplicatesSearchParameters
+//                   |OnDuplicatesSearch");
 //
 Procedure OnDefineObjectsWithSearchForDuplicates(Objects) Export
 	
@@ -37,16 +39,17 @@ Procedure OnDefineObjectsWithSearchForDuplicates(Objects) Export
 	
 EndProcedure
 
-// 
-// 
+// Identifies objects whose list forms will display commands
+// for duplicate merging, reference replacement, and the
 // See DuplicateObjectsDetectionClient.MergeSelectedItems
+// "DuplicateObjectsDetectionClient.ReplaceSelected" command
 // 
 // Parameters:
 //     Objects - Array of MetadataObject
 //
 // Example:
-//	
-//	
+//	Objects.Add(Metadata.Catalogs.Products);
+//	Objects.Add(Metadata.Catalogs.Partners);
 //
 Procedure OnDefineObjectsWithReferenceReplacementDuplicatesMergeCommands(Objects) Export
 
@@ -54,68 +57,68 @@ Procedure OnDefineObjectsWithReferenceReplacementDuplicatesMergeCommands(Objects
 
 EndProcedure
 
-// Allows you to implement additional checks for pairs of links to replace one with another.
-// For example, you can prohibit replacing different types of items with each other.
-// Basic checks to prevent replacing groups and links of different types are performed before calling 
+// Allows to additional check pairs of references on the possibility of replacing one with another.
+// For example, you can prohibit to replace the products of different types on each other.
+// Basic checks whether the replacement of groups and references of different types are prohibited are made before calling 
 // this handler.
 //
 // Parameters:
-//     MetadataObjectName - String -  full name of the metadata reference object whose elements are being replaced.
-//                                     For Example, " Directory.Contractors".
+//     MetadataObjectName - String - Full name of the reference metadata object whose items are being replaced.
+//                                     For example, "Catalog.Counterparties".
 //     ReplacementPairs - Map of KeyAndValue:
-//       * Key - AnyRef -  what will be replaced
-//       * Value - AnyRef -  what will be replaced with
-//     ReplacementParameters - Structure - :
-//        * DeletionMethod - String - :
-//                         
-//                                             
-//                         
+//       * Key - AnyRef - Value to be replaced.
+//       * Value - AnyRef - Replacement value.
+//     ReplacementParameters - Structure - Action to perform with the replaced items:
+//        * DeletionMethod - String - Valid values:
+//                         Directly - If the replaced reference has zero occurrences, delete it directly.
+//                                             Mark - If the replaced reference has zero occurrences, mark it for deletion.
+//                         With other values, the reference will not be changed.
 //                                             
 //                         
 //     ProhibitedReplacements - Map of KeyAndValue:
-//       * Key - AnyRef -  replacement link
-//       * Value - String -  description of why the replacement is not allowed. If all substitutions are valid, an empty match is returned
+//       * Key - AnyRef - Reference being replaced.
+//       * Value - String - Explains why a replacement is invalid. If all replacements are valid, returns an empty map.
 //
 Procedure OnDefineItemsReplacementAvailability(Val MetadataObjectName, Val ReplacementPairs, Val ReplacementParameters, ProhibitedReplacements) Export
 	
 EndProcedure
 
-// Is called to determine the application parameters of the search takes.
-// For example, you can prohibit replacing different types of items with each other for the item reference list.
+// It is called to define application parameters for duplicate search.
+// For example, for products catalog, you can prohibit the replacement of different types of products with each other.
 //
 // Parameters:
-//     MetadataObjectName - String -  full name of the metadata reference object whose elements are being replaced.
-//                                     For Example, " Directory.Contractors".
-//     SearchParameters - Structure - :
-//       * SearchRules - ValueTable - :
-//         ** Attribute - String -  name of the prop to compare.
-//         ** Rule  - String -  the rule of comparison: "Equal" - for exact equality, "Like" - similar strings,
+//     MetadataObjectName - String - a full name of reference metadata object whose items are replaced.
+//                                     For example, "Catalog.Counterparties".
+//     SearchParameters - Structure - duplicate search parameters (an output parameter):
+//       * SearchRules - ValueTable - object comparison rules:
+//         ** Attribute - String - an attribute name to compare.
+//         ** Rule  - String - comparison rule: "Equals" - equity comparison, "Similarly" - rows similarity,
 //                                "" - do not compare.
-//       * StringsComparisonForSimilarity - Structure - :
-//          ** StringsMatchPercentage   - Number -  minimum match percentage for strings (from 0 to 100).
-//                The match percentage is calculated based on the Levenshtein-Damerau distance, taking into account common 
+//       * StringsComparisonForSimilarity - Structure - rules of rows fuzzy search (rows comparison on similarity):
+//          ** StringsMatchPercentage   - Number - minimum percentage of rows matches (from 0 to 100).
+//                The match percentage is calculated based on the Damerau-Levenshtein distance, taking into account the common 
 //                types of errors: different case of characters, random insertion, deletion of one character, 
-//                replacement of one character with another. Also, the order of words in the strings does not matter, 
-//                i.e. for example, the strings "first second word" and "second first word" have a 100% match.
-//                By default, 90.
-//          ** SmallStringsMatchPercentage - Number -  minimum match percentage for small strings (from 0 to 100).
-//                By default, 80.
-//          ** SmallStringsLength - Number -  if the string length is less than or equal to the specified length, the string is considered small.
-//                By default, 30.
-//          ** ExceptionWords - Array of String -  a list of words to skip when comparing for similarity.
-//                               For example, for companies and contractors, this may be: sole proprietor, state unitary enterprise, LLC, JSC, etc.
-//       * FilterComposer - DataCompositionSettingsComposer -  initialized by the linker to 
-//                             the pre-selection. It can be changed, for example, to enhance selections.
-//       * ComparisonRestrictions - Array of Structure - :
-//         ** Presentation      - String -  text description of the restriction rule.
-//         ** AdditionalFields - String -  a comma-separated list of Bank details whose values are
-//                                          required for analysis in the searchable list.
-//       * ItemsCountToCompare - Number - 
-//                                                   
-//     AdditionalParameters - Arbitrary - 
-//                               
-//     StandardProcessing - Boolean -  specify False if the output parameter of the search Parameter is filled in and the call
-//                            to the search handler is required. By default, True.
+//                replacement of one character by another. Also the word order in the rows does not matter. 
+//                For example, the rows "first second word" and "word second first" have a 100% match.
+//                Default value is 90.
+//          ** SmallStringsMatchPercentage - Number - minimum percentage of small rows matches (from 0 to 100).
+//                Default value is 80.
+//          ** SmallStringsLength - Number - if a row length is less than or equal to the specified one, a row is considered small.
+//                Default value is 30.
+//          ** ExceptionWords - Array of String - a list of words that must be skipped when comparing similarity.
+//                               For example, for companies and counterparties, it can be: IE, SUE, LLC, OJSC.
+//       * FilterComposer - DataCompositionSettingsComposer - an initialized composer for 
+//                             preliminary filter. Can be changed, for example, to refine the filters.
+//       * ComparisonRestrictions - Array of Structure - details of applied restriction rules:
+//         ** Presentation      - String - text details of a restriction rule.
+//         ** AdditionalFields - String - a list of comma-separated attributes, the values of which
+//                                          are required for analysis in the OnDuplicatesSearch.
+//       * ItemsCountToCompare - Number - Number of duplicates to be passed in a single call to the
+//                                                   "ItemsDuplicates" parameter of the "OnDuplicatesSearch" handler. By default, "1500".
+//     AdditionalParameters - Arbitrary - Value passed when calling DuplicateObjectsDetection.FindItemDuplicates.
+//                               When calling from the DuplicateObjectsDetection data processor, the value is Undefined.
+//     StandardProcessing - Boolean - if the SearchParameters output parameter is filled in and a call of
+//                            the OnDuplicatesSearch handler is required, set to False. Default value is True.
 //
 Procedure OnDefineDuplicatesSearchParameters(Val MetadataObjectName, SearchParameters, Val AdditionalParameters,
 	StandardProcessing) Export
@@ -124,29 +127,29 @@ Procedure OnDefineDuplicatesSearchParameters(Val MetadataObjectName, SearchParam
 	
 EndProcedure
 
-// 
-// 
+// Called during a search by rules specified in "OnDefineDuplicatesSearchParameters".
+// It supports appending the duplicate list and overriding the "IsDuplicates" flag for the found candidates.
 //
 // Parameters:
-//     MetadataObjectName - String -  full name of the metadata reference object whose elements are being replaced.
-//                                     For Example, " Directory.Contractors".
-//     ItemsDuplicates - ValueTable - :
-//         * Ref1  - AnyRef -  link to the first element.
-//         * Ref2  - AnyRef -  link to the second element.
-//         * IsDuplicates - Boolean      -  indicates that the candidates are duplicates. False by default. 
-//                                    Can be set to True to mark duplicates.
-//         * Fields1    - Structure   - 
-//                                    
-//                                    :
+//     MetadataObjectName - String - a full name of reference metadata object whose items are replaced.
+//                                     For example, "Catalog.Counterparties".
+//     ItemsDuplicates - ValueTable - Information on the found duplicates:
+//         * Ref1  - AnyRef - a reference to the first item.
+//         * Ref2  - AnyRef - a reference to the second item.
+//         * IsDuplicates - Boolean      - indicates whether the candidates are duplicates. Default value is False. 
+//                                    It can be set to True to mark duplicates.
+//         * Fields1    - Structure   - Values of the attributes "Code", "Description", and additional fields of the first item,
+//                                    specified in the "SearchParameters.ComparisonRestrictions.AdditionalFields" parameter of
+//                                    the "OnDuplicatesSearchParametersDefine" handler.:
 //             ** Code - String 
 //             ** Description - String
 //             ** DeletionMark - Boolean
-//         * Fields2    - Structure   - :
+//         * Fields2    - Structure   - Same attributes in the second item.:
 //             ** Code - String 
 //             ** Description - String
 //             ** DeletionMark - Boolean
-//     AdditionalParameters - Arbitrary - 
-//                               
+//     AdditionalParameters - Arbitrary - Value passed when calling DuplicateObjectsDetection.FindItemDuplicates.
+//                               When calling from the DuplicateObjectsDetection data processor, the value is Undefined.
 //
 Procedure OnSearchForDuplicates(Val MetadataObjectName, Val ItemsDuplicates, Val AdditionalParameters) Export
 	

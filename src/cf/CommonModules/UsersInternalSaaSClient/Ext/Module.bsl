@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Opens the form for entering the service user's password.
+// Opens the service user password input form.
 //
 // Parameters:
-//  ContinuationHandler      - NotifyDescription -  which should be processed after receiving the password.
-//  OwnerForm             - ClientApplicationForm -  which asks for a password.
-//  ServiceUserPassword - String -  the current password of the service user.
+//  ContinuationHandler      - NotifyDescription - to be processed after the password is entered.
+//  OwnerForm             - ClientApplicationForm - that requests the password.
+//  ServiceUserPassword - String - a current SaaS user password.
 //
 Procedure RequestPasswordForAuthenticationInService(ContinuationHandler, OwnerForm, ServiceUserPassword) Export
 	

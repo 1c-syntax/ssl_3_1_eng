@@ -1,35 +1,37 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Generates a manifest for an additional report or processing.
-// To call from external processing, prepare additional reports and workspublications of the service Model. epf,
-// which is included in the delivery package of the service Manager.
+// Generates a manifest of additional report or data processor.
+// To call from the PrepareAdditionalReportsAndDataProcessorsToPublishInSaaS.epf external data processor,
+// included in the Service manager distribution package.
 //
 // Parameters:
-//  DataProcessorObject2 - CatalogObject.AdditionalReportsAndDataProcessors -  additional processing.
-//  VersionObject1 - CatalogObject.AdditionalReportsAndDataProcessors -  additional processing.
+//  DataProcessorObject2 - CatalogObject.AdditionalReportsAndDataProcessors - an additional data processor.
+//  VersionObject1 - CatalogObject.AdditionalReportsAndDataProcessors - an additional data processor.
 //  ReportOptions - ValueTable:
-//    * VariantKey - String -  key for the additional report option.
-//    * Presentation - String -  presentation of a variant of an additional report.
+//    * VariantKey - String - a key of the additional report option.
+//    * Presentation - String - an additional report option presentation.
 //    * Purpose - ValueTable:
-//       ** SectionOrGroup - String -  to map to the directory element IDs of metadata Objects.
-//       ** Important - Boolean -  The truth is, if you are in the group important.
-//       ** SeeAlso - Boolean - 
-//  CommandsSchedules - Structure -  the keys contain the team IDs, and the values contain the schedule.
+//       ** SectionOrGroup - String - for mapping with the MetadataObjectIDs catalog item.
+//       ** Important - Boolean - True, if it is displayed in the important group.
+//       ** SeeAlso - Boolean - If set to "True", the report is displayed in "See also" group.
+//  CommandsSchedules - Structure - the keys contain the command IDs and the values contain the schedule.
 //  DataProcessorPermissions - Array of XDTODataObject
 //                      - CatalogTabularSection.AdditionalReportsAndDataProcessors.Permissions
 //                      - Undefined
 //
 // Returns:
-//  XDTODataObject - 
-//    
+//  XDTODataObject - XDTODataObject {http://www.1c.ru/1cFresh/ApplicationExtensions/Manifest/a.b.c.d}ExtensionManifest - an
+//    additional report or data processor manifest.
 //
 Function GenerateManifest(Val DataProcessorObject2, Val VersionObject1, Val ReportOptions = Undefined, 
 	Val CommandsSchedules = Undefined, Val DataProcessorPermissions = Undefined) Export
@@ -81,7 +83,7 @@ Function GenerateManifest(Val DataProcessorObject2, Val VersionObject1, Val Repo
 		If DataProcessorObject2.Kind = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalDataProcessor 
 			Or	DataProcessorObject2.Kind = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalReport Then
 			
-			// 
+			// Process the section assignment.
 			SelectedSections = VersionObject1.Sections.Unload();
 			
 			If DataProcessorObject2.Kind = Enums.AdditionalReportsAndDataProcessorsKinds.AdditionalDataProcessor Then
@@ -119,7 +121,7 @@ Function GenerateManifest(Val DataProcessorObject2, Val VersionObject1, Val Repo
 			
 		Else
 			
-			// 
+			// Processing the metadata object assignment
 			SelectedRelatedObjects = VersionObject1.Purpose.Unload();
 			
 			PossibleRelatedObjects = New Array();
@@ -286,23 +288,23 @@ Function GenerateManifest(Val DataProcessorObject2, Val VersionObject1, Val Repo
 	
 EndFunction
 
-// Populates object Processing, object Conversion, and report Options with data that is read from the manifest
-// of an additional report or processing.
+// Fills in the DataProcessorObject, VersionObject, and ReportOptions objects with data read from a manifest
+// of an additional report or a data processor.
 //
 // Parameters:
-//  Manifest - XDTODataObject -  Xdto object {http://www.1c.ru/1cFresh/ApplicationExtensions/Manifest/a.b.c.d} ExtensionManifest-
-//    additional report or processing manifest.
-//  DataProcessorObject2 - CatalogObject.AdditionalReportsAndDataProcessors -  an object whose property values will be set
-//    by the values of additional report or processing properties from the manifest.
-//  VersionObject1 - CatalogObject.AdditionalReportsAndDataProcessors -  an object whose property values will be set
-//    by the property values of the additional report or processing version from the manifest.
-//  ReportOptions - ValueTable - :
-//    * VariantKey - String -  key for the additional report option.
-//    * Presentation - String -  presentation of a variant of an additional report.
+//  Manifest - XDTODataObject - XDTODataObject {http://www.1c.ru/1cFresh/ApplicationExtensions/Manifest/a.b.c.d}ExtensionManifest - an
+//    additional report or data processor manifest.
+//  DataProcessorObject2 - CatalogObject.AdditionalReportsAndDataProcessors - an object whose property values will be set
+//    by property values of an additional report or a data processor from manifest.
+//  VersionObject1 - CatalogObject.AdditionalReportsAndDataProcessors - an object whose property values will be set
+//    by property values of an additional report or a data processor version from manifest.
+//  ReportOptions - ValueTable - information on report options:
+//    * VariantKey - String - a key of the additional report option.
+//    * Presentation - String - an additional report option presentation.
 //    * Purpose - ValueTable:
-//       ** SectionOrGroup - String -  to map an item to the reference list of object IDs of Metadata,
-//       ** Important - Boolean  -  The truth is, if you are in the group important.
-//       ** SeeAlso - Boolean - 
+//       ** SectionOrGroup - String - for mapping with the MetadataObjectIDs catalog item,
+//       ** Important - Boolean  - True, if it is displayed in the important group.
+//       ** SeeAlso - Boolean - If set to "True", the report is displayed in "See also" group.
 //
 Procedure ReadManifest(Val Manifest, DataProcessorObject2, VersionObject1, ReportOptions) Export
 	

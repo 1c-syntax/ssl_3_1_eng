@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -33,11 +35,11 @@ EndProcedure
 
 #Region Private
 
-// APK: 78-off: for secure data transfer on the client between forms, without sending them to the server.
+// CAC:78-off: to securely pass data between forms on the client without sending them to the server.
 &AtClient
 Procedure OpenNewForm(FormType, ServerParameters1, ClientParameters = Undefined,
 			CompletionProcessing = Undefined, Val NewFormOwner = Undefined) Export
-// 
+// CAC:78-on: to securely pass data between forms on the client without sending them to the server.
 	
 	FormsKinds =
 		",DataSigning,DataEncryption,DataDecryption,
@@ -87,7 +89,7 @@ Procedure OpenNewForm(FormType, ServerParameters1, ClientParameters = Undefined,
 	
 EndProcedure
 
-// Continue the procedure open the new Form.
+// Continues the OpenNewForm procedure.
 &AtClient
 Procedure OpenNewFormFollowUp(Result, Context) Export
 	
@@ -103,7 +105,7 @@ Procedure OpenNewFormFollowUp(Result, Context) Export
 	
 EndProcedure
 
-// Continue the procedure open the new Form.
+// Continues the OpenNewForm procedure.
 &AtClient
 Procedure OpenNewFormClosingNotification(Result, Context) Export
 	
@@ -127,9 +129,9 @@ Procedure UpdateFormStorage(Context)
 	   And Context.ClientParameters.DataDetails.Property("OperationContext")
 	   And TypeOf(Context.ClientParameters.DataDetails.OperationContext) = Type("ClientApplicationForm") Then
 	
-	#If WebClient Then
+#If WebClient Then
 		ExtendStoringOperationContext(Context.ClientParameters.DataDetails.OperationContext);
-	#EndIf
+#EndIf
 	EndIf;
 	
 EndProcedure
@@ -165,7 +167,7 @@ Procedure DeleteObsoleteOperationsContexts()
 EndProcedure
 
 &AtClient
-Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) Export // 
+Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) Export // CAC:78 - an exception for secure password storage.
 	
 	SpecifiedPasswords = CommonInternalData.Get("SpecifiedPasswords");
 	SpecifiedPasswordsNotes = CommonInternalData.Get("SpecifiedPasswordsNotes");
@@ -194,7 +196,7 @@ Procedure SetCertificatePassword(CertificateReference, Password, PasswordNote) E
 EndProcedure
 
 &AtClient
-Function CertificatePasswordIsSet(CertificateReference) Export // 
+Function CertificatePasswordIsSet(CertificateReference) Export // CAC:78 - an exception for secure password storage.
 	
 	SpecifiedPasswords = CommonInternalData.Get("SpecifiedPasswords");
 	
@@ -213,7 +215,7 @@ Function CertificatePasswordIsSet(CertificateReference) Export //
 EndFunction
 
 &AtClient
-Procedure ResetTheCertificatePassword(CertificateReference) Export // 
+Procedure ResetTheCertificatePassword(CertificateReference) Export // CAC:78 - an exception for secure password storage.
 	
 	PasswordStorage = CommonInternalData.Get("PasswordStorage");
 	If PasswordStorage <> Undefined Then

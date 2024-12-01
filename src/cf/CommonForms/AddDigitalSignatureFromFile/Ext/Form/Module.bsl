@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -218,7 +220,7 @@ Procedure OK(Command)
 	
 EndProcedure
 
-// Continue with the OK procedure.
+// Continues the OK procedure.
 &AtClient
 Procedure OKCompletion(Result, Context = Undefined) Export
 	
@@ -314,7 +316,7 @@ Procedure SelectFiles(MultipleChoice = False)
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Procedure SelectFilesAfterPutFiles(PlacedFiles, Context) Export
 	
@@ -433,7 +435,7 @@ Procedure SelectFilesAfterLoop(Context)
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Procedure ChooseFileAfterCreateCryptoManager(CryptoManager, Context) Export
 	
@@ -462,7 +464,7 @@ Procedure ChooseFileAfterCreateCryptoManager(CryptoManager, Context) Export
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Procedure SelectFileAfterSignaturePropertiesRead(Result, Context) Export
 	
@@ -498,7 +500,7 @@ Procedure SelectFileAfterSignaturePropertiesRead(Result, Context) Export
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Procedure SelectFileAfterReceivingSignatureContainerError(ErrorInfo, StandardProcessing, Context) Export
 	
@@ -517,7 +519,7 @@ Procedure SelectFileAfterReceivingSignatureContainerError(ErrorInfo, StandardPro
 		
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Async Procedure SelectFileAfterGettingContainerSignature(ContainerSignatures, Context) Export
 	
@@ -541,7 +543,7 @@ Async Procedure SelectFileAfterGettingContainerSignature(ContainerSignatures, Co
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Procedure SelectFileAfterGetCertificateFromSignatureError(ErrorInfo, StandardProcessing, Context) Export
 	
@@ -560,7 +562,7 @@ Procedure SelectFileAfterGetCertificateFromSignatureError(ErrorInfo, StandardPro
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Procedure ChooseFilesAfterGetCertificatesFromSignature(Certificates, Context) Export
 	
@@ -593,7 +595,7 @@ Procedure ChooseFilesAfterGetCertificatesFromSignature(Certificates, Context) Ex
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Async Procedure ChooseFileAfterCertificateExport(CertificateData, Context) Export
 	
@@ -611,13 +613,13 @@ Async Procedure ChooseFileAfterCertificateExport(CertificateData, Context) Expor
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Procedure SelectFileAfterAddRow(Context)
 	
 	If Not DataDetails.Property("Data") Or Context.DataToValidateSignature = False Then
 		SelectFilesLoopStart(Context);
-		Return; // 
+		Return; // If data is not specified, the signature cannot be checked.
 	EndIf;
 	
 	If Context.DataToValidateSignature = Undefined Then
@@ -630,14 +632,14 @@ Procedure SelectFileAfterAddRow(Context)
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Procedure ChooseFileAfterGetData(Result, Context) Export
 	
 	If TypeOf(Result) = Type("Structure") Then
 		Context.DataToValidateSignature = False;
 		SelectFilesLoopStart(Context);
-		Return; // 
+		Return; // Cannot get data. Signature check is impossible.
 	EndIf;
 	
 	If Context.DataToValidateSignature = Undefined Then
@@ -654,13 +656,13 @@ Procedure ChooseFileAfterGetData(Result, Context) Export
 	
 EndProcedure
 
-// Continue the select File procedure.
+// Continues the SelectFile procedure.
 &AtClient
 Procedure ChooseFileAfterCheckSignature(CheckResult, Context) Export
 	
 	If CheckResult.Result = Undefined Then
 		SelectFilesLoopStart(Context);
-		Return; // 
+		Return; // Cannot check the signature.
 	EndIf;
 	
 	UpdateCheckSignatureResult(Context.SignatureAdditionResult.SignaturePropertiesAddress, CheckResult);

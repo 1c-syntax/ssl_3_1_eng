@@ -1,34 +1,36 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
-// 
+// Mandatory form parameters:
 //
-// 
-// 
-// 
+// ObjectToMap - String - Object details in the current app.
+// Application1 - String - Name of the peer app.
+// Application2 - String - Name of the current app.
 //
-// 
-//      
-//     
-//     
+// UsedFieldsList - ValueList - Fields to be used for mapping.
+//     Value - String - Field name. 
+//     Presentation - String - Field header.
+//     Check - Boolean - Flag indicating whether the field is being used.
 //
-// 
+// MaxUserFields - Number - Mapped field threshold.
 //
-// 
+// StartRowSerialNumber - Number - Current row key in the input table.
 //
-// 
-//     
-//     
-//     
-//     
-//     
+// TempStorageAddress - String - Address of the input mapping table. Columns are:
+//     PictureIndex - Number
+//     IndexNumber - Number - Row's unique key.
+//     OrderField1 - String - Value of the attribute #1 in the used fields list.
+//     …
+//     OrderFieldNN - String - Value of the attribute #NN in the used fields list.
 //
-// 
+// After the form opens, data at the address "TempStorageAddress" is deleted from the temporary storage.
 //
 
 #Region FormEventHandlers
@@ -36,7 +38,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
+	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("ObjectToMap") Then
 		
 		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
@@ -51,7 +53,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.Header.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Object in ""%1""';"), Parameters.Application2);
 	
-	// 
+	// Setting up choice table on the form.
 	GenerateChoiceTable(Parameters.MaxUserFields, Parameters.UsedFieldsList, 
 		Parameters.TempStorageAddress);
 		
@@ -97,7 +99,7 @@ EndProcedure
 &AtServer
 Procedure GenerateChoiceTable(Val FieldsTotal, Val UsedFields, Val DataAddress)
 	
-	// 
+	// Adding attribute columns.
 	ItemsToAdd = New Array;
 	StringType   = New TypeDescription("String");
 	For FieldNumber=1 To FieldsTotal Do
@@ -105,7 +107,7 @@ Procedure GenerateChoiceTable(Val FieldsTotal, Val UsedFields, Val DataAddress)
 	EndDo;
 	ChangeAttributes(ItemsToAdd);
 	
-	// 
+	// Add it on form.
 	ColumnGroup = Items.FieldsGrouping;
 	ElementType   = Type("FormField");
 	ListSize  = UsedFields.Count() - 1;
@@ -124,7 +126,7 @@ Procedure GenerateChoiceTable(Val FieldsTotal, Val UsedFields, Val DataAddress)
 		EndIf;
 	EndDo;
 	
-	// 
+	// Filling the selection table and clearing data in the temporary storage.
 	If Not IsBlankString(DataAddress) Then
 		ChoiceTable.Load( GetFromTempStorage(DataAddress) );
 		DeleteFromTempStorage(DataAddress);

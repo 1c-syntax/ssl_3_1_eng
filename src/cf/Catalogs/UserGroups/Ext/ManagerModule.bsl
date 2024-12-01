@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// 
+// Returns the UUID of the predefined group "AllUsers".
 // 
 //
 // Returns:
-//  String - 
+//  String - UUID string.
 //
 Function AllUsersGroupID()
 	
@@ -23,11 +25,11 @@ Function AllUsersGroupID()
 EndFunction
 
 // Parameters:
-//  GroupName - String - 
+//  GroupName - String - AllExternalUsers, AllUsers.
 //
 // Returns:
 //  CatalogRef.UserGroups
-//  
+//  CatalogRef.ExternalUsersGroups
 //
 Function StandardUsersGroup(GroupName) Export
 	
@@ -138,7 +140,7 @@ Function StandardUsersGroup(GroupName) Export
 	
 EndFunction
 
-// 
+// Intended for function "StandardUsersGroup".
 Function GroupFromPredefinedItemDuplicates(Selection, GroupDescription, RefToNew)
 	
 	GroupInOrder = Undefined;
@@ -182,7 +184,7 @@ Function GroupFromPredefinedItemDuplicates(Selection, GroupDescription, RefToNew
 	
 EndFunction
 
-// 
+// Intended for function "StandardUsersGroup".
 Function GroupByDescription(Description, FullCatalogName)
 	
 	Query = New Query;
@@ -208,7 +210,7 @@ Function GroupByDescription(Description, FullCatalogName)
 	
 EndFunction
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -219,7 +221,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes

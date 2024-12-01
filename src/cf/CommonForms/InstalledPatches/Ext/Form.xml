@@ -43,6 +43,12 @@
 							<ExtendedTooltip name="InformationPictureExtendedTooltip" id="64"/>
 						</PictureDecoration>
 						<UsualGroup name="GroupUpdateInformation" id="132">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Info about update</v8:content>
+								</v8:item>
+							</Title>
 							<GroupVerticalAlign>Center</GroupVerticalAlign>
 							<Group>Vertical</Group>
 							<VerticalAlign>Top</VerticalAlign>
@@ -68,8 +74,21 @@
 									<Type>Hyperlink</Type>
 									<GroupVerticalAlign>Bottom</GroupVerticalAlign>
 									<CommandName>Form.Command.FindAndInstallUpdates</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Find and install updates</v8:content>
+										</v8:item>
+									</Title>
 									<ToolTipRepresentation>ShowRight</ToolTipRepresentation>
-									<ExtendedTooltip name="FindAndInstallUpdatesExtendedTooltip" id="131"/>
+									<ExtendedTooltip name="FindAndInstallUpdatesExtendedTooltip" id="131">
+										<Title formatted="false">
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>from the 1C:Application update portal.</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -728,6 +747,18 @@
 			<Action>ExportAttachedPatches</Action>
 		</Command>
 		<Command name="FindAndInstallUpdates" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Find and install updates</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Find and install updates</v8:content>
+				</v8:item>
+			</ToolTip>
 			<Action>FindAndInstallUpdates</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>

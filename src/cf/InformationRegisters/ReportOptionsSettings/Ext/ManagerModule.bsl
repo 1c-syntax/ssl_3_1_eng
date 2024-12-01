@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -93,7 +95,7 @@ Procedure WriteSettingsPackage(SettingsTable, Dimensions, Resources, DeleteOldIt
 	
 EndProcedure
 
-// Clears the settings for the report option.
+// Clears settings by a report option.
 Procedure ResetSettings(OptionRef = Undefined) Export
 	
 	RecordSet = CreateRecordSet();
@@ -104,7 +106,7 @@ Procedure ResetSettings(OptionRef = Undefined) Export
 	
 EndProcedure
 
-// Clears the settings of the specified (or current) user in the section.
+// Clears settings of the specified (of the current) user in the section.
 Procedure ResetUsesrSettingsInSection(SectionReference, User = Undefined) Export
 	If User = Undefined Then
 		User = Users.AuthorizedUser();
@@ -130,7 +132,7 @@ Procedure ResetUsesrSettingsInSection(SectionReference, User = Undefined) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Handlers of reading or writing settings of report option availability.
 
 Procedure ReadReportOptionAvailabilitySettings(ReportVariant, OptionUsers,
 	UseUserGroups = Undefined, UseExternalUsers = Undefined) Export 
@@ -144,9 +146,9 @@ Procedure ReadReportOptionAvailabilitySettings(ReportVariant, OptionUsers,
 	UseUserGroups = GetFunctionalOption("UseUserGroups");
 	UseExternalUsers = GetFunctionalOption("UseExternalUsers");
 	
-	#Region OptionUsersQuery
+#Region OptionUsersQuery
 	
-	// 
+	// ACC:96-off When receiving the result of combining the second and third queries, non-unique records might be in the result.
 	
 	Query = New Query(
 	"SELECT ALLOWED
@@ -253,9 +255,9 @@ Procedure ReadReportOptionAvailabilitySettings(ReportVariant, OptionUsers,
 	Query.SetParameter("UseExternalUsers", UseExternalUsers);
 	Query.SetParameter("CurrentUser", Users.AuthorizedUser());
 	
-	// 
+	// ACC:96-on When receiving the result of combining the second and third queries, non-unique records might be in the result.
 	
-	#EndRegion
+#EndRegion
 	
 	Selection = Query.Execute().Select();
 	
@@ -509,10 +511,10 @@ Function SelectedReportOptionUsers(OptionUsers)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Handlers of a report option user notification.
 
-// Creates a message in the context of a report variant notifying users
-//  who have been granted rights to this report variant.
+// Creates a message in the report option context that notifies users
+//  having rights to the current report option.
 //
 // Parameters:
 //  Records - InformationRegisterRecordSet.ReportOptionsSettings
@@ -607,10 +609,10 @@ Function ReportOptionUsers(ReportVariant, SelectedUsers = Undefined) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Update handlers.
 
-// 
-//  
+// This procedure registers data to be updated in the InfobaseUpdate exchange plan.
+//  See "Parallel mode of deferred update" in the application development standards.
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters
@@ -669,8 +671,8 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// 
-//  
+// This procedure processes data registered in the InfobaseUpdate exchange plan.
+//  See "Parallel mode of deferred update" in the application development standards.
 //
 // Parameters:
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters

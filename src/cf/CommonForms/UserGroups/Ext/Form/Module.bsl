@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -303,7 +305,7 @@ Procedure FillGroupTree(OnlyClearAll = False)
 	
 EndProcedure
 
-// Gets user groups.
+// Receives user groups.
 //
 // Parameters:
 //  UserGroups - ValueTable:
@@ -326,7 +328,7 @@ Procedure GetUserGroups(UserGroups)
 	
 EndProcedure
 
-// Gets groups of external users.
+// Receives groups of external users.
 //
 // Parameters:
 //  UserGroups - ValueTable:
@@ -356,7 +358,7 @@ Procedure GetExternalUserGroups(UserGroups)
 	
 EndProcedure
 
-// Gets child user groups.
+// Receives user subgroups.
 // 
 // Parameters:
 //  UserGroups - See GetExternalUserGroups.UserGroups
@@ -463,7 +465,7 @@ Procedure WriteChanges(NotifyUser1)
 	
 EndProcedure
 
-// LongDesc
+// Details
 // 
 // Parameters:
 //  GroupTreeSource - FormDataTreeItemCollection

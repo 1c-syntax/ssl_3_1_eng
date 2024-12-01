@@ -1,39 +1,41 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Information about the external component by ID and version.
+// Information on add-in by ID and version.
 //
 // Parameters:
-//  Id - String - 
-//  Version - String -  version of the component. 
+//  Id - String - Add-in identification code.
+//  Version - String - Add-in version. 
 //
 // Returns:
 //  Structure:
-//      * Exists - Boolean -  indicates that the component is missing.
-//      * EditingAvailable - Boolean -  indicates that the component can be changed by the scope administrator.
-//      * ErrorDescription - String -  brief description of the error.
-//      * Id - String - 
-//      * Version - String -  version of the component.
-//      * Description - String -  name and brief information about the component.
+//      * Exists - Boolean - Add-in absence flag.
+//      * EditingAvailable - Boolean - indicates that the area administrator can change the add-in.
+//      * ErrorDescription - String - brief error message.
+//      * Id - String - the add-in identification code.
+//      * Version - String - Add-in version.
+//      * Description - String - Add-in description and brief details.
 //
 // Example:
 //
-//  Result = External Component Of The Server Call.Component Information ("InputDevice", " 8.1.7.10");
+//  Result = AddInServerCall.InformationOnAddIn("InputDevice", "8.1.7.10");
 //
-//  If The Result.There Is Then
+//  If Result.Exists Then
 //      ID = Result.ID;
-//      Version = Result.Version;
-//      Name = Result.Name;
-//  Otherwise
-//      General purpose clientserver.Inform The User(Result.Opisaniyami);
-//  Conicelli;
+//      Version        = Result.Version;
+//      Description = Result.Description;
+//  Else
+//      CommonClientServer.MessageToUser(Result.ErrorDetails);
+//  EndIf;
 //
 Function AddInInformation(Id, Version = Undefined) Export
 	

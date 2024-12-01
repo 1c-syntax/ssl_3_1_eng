@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Reads information about registers from a constant and forms a match for the list of registrationsreferencesexternal Users.
+// Reads information on registers from the constant and generates a mapping for ListOfRegistersWithRefsToUsers.
 //
 Function RecordSetsWithRefsToUsersList() Export
 	
@@ -28,14 +30,14 @@ EndFunction
 
 #Region Private
 
-// Returns sets of records containing fields that have the reference Link type set as the value
-// type.Users.
+// Returns record sets containing fields that have
+// CatalogRef.Users as a value type.
 //
 // Returns:
 //   ValueTable:
-//                         * Collection - String -  name of the metadata collection,
-//                         * Object - String -  name of the metadata object,
-//                         * Dimensions - Array of String -  dimension name.
+//                         * Collection - String - a metadata collection name
+//                         * Object - String - a metadata object name
+//                         * Dimensions - Array of String - dimension names.
 //
 Function RecordSetsWithRefsToUsers()
 	

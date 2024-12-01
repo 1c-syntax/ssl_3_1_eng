@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -28,7 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Object.CheckBoxType = Enums.CheckBoxKindsInQuestionnaires.InputField;
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	PlacementParameters = AttachableCommands.PlacementParameters();
 	PlacementParameters.Sources = New TypeDescription("ChartOfCharacteristicTypesRef.QuestionsForSurvey");
 	PlacementParameters.CommandBar = Items.FormCommandBar;
@@ -351,7 +353,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 // 
 // Parameters:
 //   Command - FormCommand
@@ -435,7 +437,7 @@ Procedure SetConditionalAppearance()
 
 	Item.Appearance.SetParameterValue("MarkIncomplete", True);
 
-	// 
+	// Hint range text.
 
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -458,7 +460,7 @@ Procedure SetConditionalAppearance()
 	FormattedField.Field = New DataCompositionField("HintsRangeValueUpTo");
 	FormattedField.Use = True;
 	
-	// 
+	// Availability of the upper value range.
 	
 	ConditionalAppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -683,7 +685,7 @@ Procedure SetDefaultRangeSliderStep()
 		Return;
 	EndIf;
 	
-	// 
+	// If the step does not evenly divide the range between the maximum and minimum values, set the step to 1.
 	SliderLength = (Object.MaxValue - Object.MinValue) / Object.RangeSliderStep;
 	If SliderLength <> Int(SliderLength) Then
 		Object.RangeSliderStep = 1;

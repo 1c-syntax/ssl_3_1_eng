@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Opens the form for creating a new message.
+// Opens a message creation form.
 //
 // Parameters:
 //  EmailSendOptions  - See EmailOperationsClient.EmailSendOptions.
-//  FormClosingNotification - NotifyDescription -  the procedure to transfer control to after closing
-//                                                  the email sending form.
+//  FormClosingNotification - NotifyDescription - procedure to be executed after closing
+//                                                  the message sending form.
 //
 Procedure CreateNewEmailMessage(EmailSendOptions = Undefined, FormClosingNotification = Undefined) Export
 	
@@ -47,44 +49,44 @@ Procedure CreateNewEmailMessage(EmailSendOptions = Undefined, FormClosingNotific
 	
 EndProcedure
 
-// Returns an empty structure with parameters for sending the message.
+// Returns an empty structure with email sending parameters.
 //
 // Returns:
-//  Structure - :
-//   * Sender - CatalogRef.EmailAccounts -  the account that
-//                   the email message can be sent from;
-//                 - ValueList - :
-//                     ** Presentation - String - 
-//                     ** Value - CatalogRef.EmailAccounts -  user account.
+//  Structure - parameters for filling the sending form for a new message (all optional):
+//   * Sender - CatalogRef.EmailAccounts - account used to
+//                   send the email message.
+//                 - ValueList - list of accounts available for selection in the following format:
+//                     ** Presentation - String - email name.
+//                     ** Value - CatalogRef.EmailAccounts - an account.
 //    
-//   * Recipient - String - :
-//                           
+//   * Recipient - String - list of addresses in the following format:
+//                           [RecipientPresentation1] <Address1>; [[RecipientPresentation2] <Address2>;…]
 //                - ValueList:
-//                   ** Presentation - String - 
-//                   ** Value      - String -  postal address.
-//                - Array - :
-//                   ** Address                        - String -  email address of the message recipient;
-//                   ** Presentation                - String -  representation of the addressee;
-//                   ** ContactInformationSource - CatalogRef -  owner of the contact information.
+//                   ** Presentation - String - an addressee presentation.
+//                   ** Value      - String - an email address.
+//                - Array - Array of structures describing recipients:
+//                   ** Address                        - String - an email recipient address.
+//                   ** Presentation                - String - an addressee presentation.
+//                   ** ContactInformationSource - CatalogRef - contact information owner.
 //   
 //   * Cc - ValueList
-//           - String - see the description of the Recipient field.
+//           - String - See the "Recipient" field description.
 //   * BCCs - ValueList
-//                  - String - see the description of the Recipient field.
-//   * Subject - String -        message subject.
-//   * Text - String -        message body.
+//                  - String - See the "Recipient" field description.
+//   * Subject - String - an email subject.
+//   * Text - String - an email body.
 //
-//   * Attachments - Array - :
-//     ** Presentation - String -  attachment file name;
-//     ** AddressInTempStorage - String -  address of binary data or a table document in temporary storage.
-//     ** Encoding - String -  encoding of the attachment (used if it differs from the encoding of the message).
-//     ** Id - String -  (optional) used to mark images displayed in the message body.
+//   * Attachments - Array - files to be attached (described as structures):
+//     ** Presentation - String - an attachment file name.
+//     ** AddressInTempStorage - String - address of binary data or spreadsheet document in temporary storage.
+//     ** Encoding - String - an attachment encoding (used if it differs from the message encoding).
+//     ** Id - String - (optional) used to store images displayed in the message body.
 //   
-//   * DeleteFilesAfterSending - Boolean -  delete temporary files after sending a message.
-//   * SubjectOf - AnyRef -  subject of the letter.
-//   * IsInteractiveRecipientSelection - Boolean -  
-// 				 
-// 				 
+//   * DeleteFilesAfterSending - Boolean - delete temporary files after sending the message.
+//   * SubjectOf - AnyRef - an email subject.
+//   * IsInteractiveRecipientSelection - Boolean - If set to "True", when a user composes an email message, the app prompts to choose recipients. 
+// 				If set to "False", the app auto-selects recipients from the document's contacts. 
+// 				This might result in poor UX if the document is associated with a lot of contacts. 
 //
 Function EmailSendOptions() Export
 	EmailParameters = New Structure;
@@ -103,15 +105,15 @@ Function EmailSendOptions() Export
 	Return EmailParameters;
 EndFunction
 
-// 
-// 
-// 
-// 
+// If a user has no email account configured for sending emails, does one of the following depending on the access rights: starts
+// the email account setup wizard, or displays a message that email cannot be sent.
+// The procedure is intended for scenarios that require email account setup before requesting additional
+// sending parameters.
 //
 // Parameters:
-//  ResultHandler - NotifyDescription -  the procedure in which you want to transfer code execution after verification.
-//                                              The result returns True if there is
-//                                              an account available for sending mail. Otherwise, it returns False.
+//  ResultHandler - NotifyDescription - procedure to be executed after the check is completed.
+//                                              True returns if there is an available
+//                                              account for sending emails.
 //
 Procedure CheckAccountForSendingEmailExists(ResultHandler) Export
 	If EmailServerCall.HasAvailableAccountsForSending() Then
@@ -129,13 +131,13 @@ Procedure CheckAccountForSendingEmailExists(ResultHandler) Export
 	EndIf;
 EndProcedure
 
-// 
-// 
+// Opens an error dialog.
+// Besides the error message, it contains the possible reasons and troubleshooting tips.
 // 
 // Parameters:
 //  Account - CatalogRef.EmailAccounts
-//  Title - String - 
-//  ErrorText - String - 
+//  Title - String - Title of the opening form.
+//  ErrorText - String - Original exception text. We recommend to pass BriefErrorPresentation.
 //
 Procedure ReportConnectionError(Account, Title, ErrorText) Export
 	
@@ -171,7 +173,7 @@ EndProcedure
 
 #Region Private
 
-// Continue with the create new Message procedure.
+// Continues the CreateNewEmailMessage procedure.
 Procedure CreateNewEmailMessageAccountChecked(AccountSetUp, SendOptions) Export
 	
 	If AccountSetUp <> True Then
@@ -198,7 +200,7 @@ Procedure CreateNewEmailMessagePrepareAttachments(SettingsForSaving, SendOptions
 	CreateNewEmailMessageAttachmentsPrepared(True, SendOptions);
 EndProcedure
 
-// Continue with the create new Message procedure.
+// Continues the CreateNewEmailMessage procedure.
 Procedure CreateNewEmailMessageAttachmentsPrepared(AttachmentsPrepared, SendOptions, IsRecipientsSelected = False)
 
 	If AttachmentsPrepared <> True Then
@@ -260,11 +262,11 @@ Procedure AfterRecipientsSelected(Result, SendOptions) Export
 	
 EndProcedure
 
-// An interface client function that supports a simplified call to a simple
-// form of editing a new letter. When sending a letter through a simple
-// form, the messages are not saved in the information database.
+// Client interface function supporting simplified call of simple
+// form for editing new message. Messages sent using simple
+// form are not saved to the infobase.
 //
-// For parameters, see the description of the Create New Message function.
+// For parameters, see the CreateNewEmailMessage function description.
 //
 Procedure OpenSimpleSendEmailMessageForm(EmailParameters, OnCloseNotifyDescription)
 	OpenForm("CommonForm.SendMessage", EmailParameters, , , , , OnCloseNotifyDescription);

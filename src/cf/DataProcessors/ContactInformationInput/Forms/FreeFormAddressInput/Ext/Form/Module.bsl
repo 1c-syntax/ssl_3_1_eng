@@ -1,29 +1,31 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
-// 
+// Form parameterization:
 //
-//      
-//       
-//                                
-//      
-//      
-//                                
-//      
+//      Title - String  - Form's title.
+//      FieldValues - String - Serialized value of the contact information. 
+//                                Or an empty string for a new input.
+//      Presentation - String  - Address presentation (used for managing old data).
+//      ContactInformationKind - CatalogRef.ContactInformationKinds, Structure - Details of the contact information to edit.
+//                                Comment - String - Optional text for the "Comment" field.
+//      ReturnValueList - Boolean - Optional flag indicating if the return value of the "ContactInformation" field
 //
-//      
-//                                 
+//      has the "ValueList" data type (intended for compatibility).
+//                                 Selection result:
 //
-//  
-//      
-//          
-//          
-//          
+//  Structure - Has the following fields:
+//      * ContactInformation - String - XML data of the contact information.
+//          * Presentation - String - Data presentation.
+//          * Comment - String - Comment to the contact information.
+//          * EnteredInFreeFormat - Boolean - Arbitrary input flag.
 //          
 //
 
@@ -36,7 +38,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Raise NStr("en = 'The data processor cannot be opened manually.';");
 	EndIf;
 	
-	// 
+	// Form settings.
 	Parameters.Property("ReturnValueList", ReturnValueList);
 	
 	MainCountry           = MainCountry();
@@ -49,11 +51,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	HideObsoleteAddresses  = ContactInformationKind.HideObsoleteAddresses;
 	ContactInformationType     = ContactInformationKind.Type;
 	
-	// 
+	// Attempting to fill data based on parameter values.
 	FieldValues = DefineAddressValue(Parameters);
 	
 	If IsBlankString(FieldValues) Then
-		LocalityDetailed = ContactsManager.NewContactInformationDetails(Enums.ContactInformationTypes.Address); // 
+		LocalityDetailed = ContactsManager.NewContactInformationDetails(Enums.ContactInformationTypes.Address); // New address.
 		LocalityDetailed.AddressType = ContactsManagerClientServer.CustomFormatAddress();
 		LocalityDetailed.value       = Parameters.Presentation;
 	ElsIf ContactsManagerClientServer.IsJSONContactInformation(FieldValues) Then
@@ -122,7 +124,7 @@ EndProcedure
 Procedure CountryAutoComplete(Item, Text, ChoiceData, Waiting, StandardProcessing)
 	
 	If Waiting = 0 Then
-		// 
+		// Generating the quick selection list.
 		If IsBlankString(Text) Then
 			ChoiceData = New ValueList;
 		EndIf;
@@ -139,7 +141,7 @@ Procedure CountryTextInputEnd(Item, Text, ChoiceData, StandardProcessing)
 	EndIf;
 	
 #If WebClient Then
-	// 
+	// Bypass platform features.
 	StandardProcessing = False;
 	ChoiceData         = New ValueList;
 	ChoiceData.Add(Country);
@@ -173,7 +175,7 @@ Procedure ForeignAddressPresentationOnChange(Item)
 	
 EndProcedure
 
-// 
+// House, premises.
 
 &AtClient
 Procedure AddressOnDateAutoComplete(Item, Text, ChoiceData, DataGetParameters, Waiting, StandardProcessing)
@@ -285,12 +287,12 @@ EndProcedure
 &AtClient
 Procedure ConfirmAndClose(Result = Undefined, AdditionalParameters = Undefined) Export
 	
-	If Modified Then // 
+	If Modified Then // When unmodified, it functions as "cancel".
 		Context = New Structure("ContactInformationKind, LocalityDetailed, MainCountry, Country");
 		FillPropertyValues(Context, ThisObject);
 		Result = FlagUpdateSelectionResults(Context, ReturnValueList);
 		
-		// 
+		// Reading contact information kind flags again.
 		ContactInformationKind = Context.ContactInformationKind;
 		
 		Result = Result.ChoiceData;
@@ -314,7 +316,7 @@ Procedure ConfirmAndClose(Result = Undefined, AdditionalParameters = Undefined) 
 		SaveFormState();
 		
 	ElsIf Comment <> CommentCopy Then
-		// 
+		// Only the comment was modified, attempting to revert.
 		Result = CommentChoiceOnlyResult(Parameters.FieldValues, Parameters.Presentation, Comment);
 		Result = Result.ChoiceData;
 		
@@ -407,7 +409,7 @@ Procedure ProcessContactInformationWithHistory(Result)
 		ElsIf ValidAddressString <> Undefined
 				And StrCompare(Result.Comment, ValidAddressString.Comment) <> 0 
 				And StringsWithAddress.Count() > 0 Then
-					// 
+					// Only the comment is modified.
 					StringsWithAddress[0].Comment = Result.Comment;
 		EndIf;
 	Else
@@ -488,7 +490,7 @@ EndProcedure
 
 &AtServerNoContext
 Function FlagUpdateSelectionResults(Context, ReturnValueList = False)
-	// 
+	// Update some flags.
 	FlagsValue = ContactsManagerInternal.ContactInformationKindStructure(ContactInformationKindDetails(Context).Ref);
 	
 	Context.ContactInformationKind.OnlyNationalAddress = FlagsValue.OnlyNationalAddress;
@@ -543,7 +545,7 @@ Function SelectionResult(Context, ReturnValueList = False)
 	Result.ChoiceData.Insert("EnteredInFreeFormat",
 		ContactsManagerInternal.AddressEnteredInFreeFormat(LocalityDetailed));
 		
-	// 
+	// Population errors.
 	Result.FillingErrors = New Array;
 		
 	If Context.ContactInformationKind.Type = Enums.ContactInformationTypes.Address 
@@ -554,7 +556,7 @@ Function SelectionResult(Context, ReturnValueList = False)
 	EndIf;
 	Result.ChoiceData.Insert("AsHyperlink", AsHyperlink);
 	
-	// 
+	// Suppressing line breaks in the separately returned presentation.
 	Result.ChoiceData.Presentation = TrimAll(StrReplace(Result.ChoiceData.Presentation, Chars.LF, " "));
 	Result.ChoiceData.Insert("Kind", 	ContactInformationKindDetails(Context).Ref);
 	Result.ChoiceData.Insert("Type", Context.ContactInformationKind.Type);
@@ -594,9 +596,9 @@ Function CommentChoiceOnlyResult(ContactInfo, Presentation, Comment)
 		AddressEnteredInFreeFormat = False;
 		
 	ElsIf ContactsManagerClientServer.IsXMLContactInformation(ContactInfo) Then
-		// Copy
+		// A copy.
 		NewContactInfo = ContactInfo;
-		// 
+		// Modifying the NewContactInfo value.
 		ContactsManager.SetContactInformationComment(NewContactInfo, Comment);
 		AddressEnteredInFreeFormat = ContactsManagerInternal.AddressEnteredInFreeFormat(ContactInfo);
 		
@@ -623,13 +625,13 @@ EndProcedure
 &AtServer
 Procedure SetAttributesValueByContactInformation(AddressInfo3, AddressData)
 	
-	// 
+	// Common attributes.
 	AddressInfo3.AddressPresentation = AddressData.Value;
 	If AddressData.Property("Comment") Then
 		AddressInfo3.Comment         = AddressData.Comment;
 	EndIf;
 	
-	// 
+	// Comment copy used to analyze changes.
 	AddressInfo3.CommentCopy = AddressInfo3.Comment;
 	
 	RefToMainCountry = MainCountry();
@@ -639,7 +641,7 @@ Procedure SetAttributesValueByContactInformation(AddressInfo3, AddressData)
 	EndIf;
 	
 	If CountryData1 = Undefined Then
-		// 
+		// Country data is found neither in the catalog nor in the ARCC.
 		AddressInfo3.Country    = RefToMainCountry;
 		CountryCode = Common.ObjectAttributeValue(RefToMainCountry, "Code");
 		If CountryCode <> Undefined Then

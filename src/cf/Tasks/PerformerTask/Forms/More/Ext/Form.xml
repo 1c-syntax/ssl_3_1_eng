@@ -30,8 +30,6 @@
 		</ChildItems>
 	</AutoCommandBar>
 	<Events>
-		<Event name="AfterWriteAtServer">AfterWriteAtServer</Event>
-		<Event name="OnReadAtServer">OnReadAtServer</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
@@ -259,7 +257,6 @@
 			<Type>
 				<v8:Type>cfg:TaskObject.PerformerTask</v8:Type>
 			</Type>
-			<MainAttribute>true</MainAttribute>
 		</Attribute>
 	</Attributes>
 	<Parameters>

@@ -1,45 +1,47 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Formats the string according to the specified template.
-// The possible values of the tags in the template:
-// - <span style= " property Name: Style element name" > String</span> - forms the text
-//      with the style elements described in the style attribute.
-// - <b> String </b> - selects a string with an important typescript Style element
-//      that corresponds to a bold font.
-// - <a href="link">String</a> - adds a hyperlink.
-// - <img src= "Calendar" > - adds an image from the image library.
-// The style attribute is used for text formatting. The attribute can be used for the span and a tags.
-// First comes the name of the style property, then the name of the style element separated by a colon.
+// Generates a string according to the specified pattern.
+// The possible tag values in the template:
+// - String  - formats text with style items described
+//      in the style attribute.
+// -  String  - highlights the line with an ImportantLabelFont style item
+//      that matches the bold font.
+// - String - adds a hyperlink.
+// -  - adds a picture from the picture library.
+// The style attribute is used to arrange the text. The attribute can be used for the span and a tags.
+// First goes a style property name, then a style item name through the colon.
 // Style properties:
-//  - color-Defines the color of the text. For example, color: hyperlink Color;
-//  - background-color-Defines the background color of the text. For example, background-color: Togetherby;
-//  - font-Defines the font of the text.For example, the font: Mainelement of the list.
-// Style properties are separated by semicolons. For example, style= " color: hyperlink Color; font: Mainelement of the list"
+//  - color - defines text color. For example, color: HyperlinkColor;
+//  - background-color - defines color of the text background. For example, background-color: TotalsGroupBackground;
+//  - font - defines text font. For example, font: MainListItem.
+// Style properties are separated by semicolon. For example, style="color: HyperlinkColor; font: MainListItem"
 // Nested tags are not supported.
 //
 // Parameters:
-//  StringPattern - String -  a string containing formatting tags.
-//  Parameter<n> - String-value of the parameter to be substituted.
+//  StringPattern - String - a string containing formatting tags.
+//  Parameter<n>  - String - parameter value to insert.
 //
 // Returns:
-//  FormattedString - 
+//  FormattedString - a converted string.
 //
 // Example:
-//  
-//        
-//       
-//  
-//       
-//       
-//  
+//  1. StringFunctionsClient.FormattedString(NStr("en='
+//       Minimum version 1.1. 
+//       Update the app.'"));
+//  2. StringFunctionsClient.FormattedString(NStr("en='Mode: 
+//       Edit'"));
+//       3. StringFunctionsClient.FormattedString(NStr("en='Current date 
+//  %1'"), CurrentSessionDate());
 //       
 //
 Function FormattedString(Val StringPattern, Val Parameter1 = Undefined, Val Parameter2 = Undefined,
@@ -50,16 +52,16 @@ Function FormattedString(Val StringPattern, Val Parameter1 = Undefined, Val Para
 	
 EndFunction
 
-// Converts the source string to a transliteration.
-// It can be used for sending SMS messages in Latin letters or for saving
-// files and folders to allow them to be transferred between different operating systems.
-// Reverse conversion from Latin characters is not provided.
+// Transliterates the source string.
+// It can be used to send text messages in Latin characters or to save
+// files and folders to ensure that they can be transferred between different operating systems.
+// Reverse conversion from the Latin character is not available.
 //
 // Parameters:
-//  Value - String -  arbitrary string.
+//  Value - String - arbitrary string.
 //
 // Returns:
-//  String - 
+//  String - a string where Cyrillic is replaced by transliteration.
 //
 Function LatinString(Val Value) Export
 	
@@ -69,22 +71,22 @@ Function LatinString(Val Value) Export
 	
 EndFunction
 
-// Returns the period representation in lowercase or uppercase
-//  if the phrase (sentence) begins with it.
-//  For example, if you want to output a representation of the period in the report header
-//  in the format of "Sales in [Datacache] - [Datacentre]", it is expected that
+// Returns a lowercase period presentation, or uppercase
+//  if a phrase or a sentence starts with the period.
+//  For example, if the period must be displayed in the report heading
+//  as "Sales for [StartDate] - [EndDate]",
 //  the result will look like this: "Sales for February 2020 - March 2020".
-//  Ie - line, since "February 2020 - March 2020" is not the beginning of a sentence.
+//  
 //
 // Parameters:
-//  StartDate - Date -  the beginning of the period.
-//  EndDate - Date -  end of period.
-//  FormatString - String -  specifies the formatting style of the period.
-//  Capitalize - Boolean -  True if the offer starts with the period representation.
-//                    By default, it is False.
+//  StartDate - Date - Period start.
+//  EndDate - Date - Period end.
+//  FormatString - String - determines a period formatting method.
+//  Capitalize - Boolean - True if the period presentation is the beginning of a sentence.
+//                    The default value is False.
 //
 // Returns:
-//   String - 
+//   String - a period presentation in the required format and register.
 //
 Function PeriodPresentationInText(StartDate, EndDate, FormatString = "", Capitalize = False) Export 
 	

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -18,7 +20,7 @@ Procedure BeforeWrite(Cancel, Replacing)
 	
 	For Each SetRow In ThisObject Do
 		
-		// 
+		// Deleting insignificant characters (spaces) on the left and right for string parameters.
 		TrimAllFieldValue(SetRow, "COM1CEnterpriseServerSideInfobaseName");
 		TrimAllFieldValue(SetRow, "COMUserName");
 		TrimAllFieldValue(SetRow, "COM1CEnterpriseServerName");
@@ -39,8 +41,8 @@ Procedure OnWrite(Cancel, Replacing)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// Update 1C:Enterprise cache so that the "DataExchangeCached.DataExchangeSettings"
+	// procedure could read up-to-date transport settings.
 	RefreshReusableValues();
 	
 EndProcedure

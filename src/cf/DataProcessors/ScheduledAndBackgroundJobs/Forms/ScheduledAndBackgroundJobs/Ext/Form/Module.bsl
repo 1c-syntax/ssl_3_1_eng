@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -418,7 +420,7 @@ Procedure RunScheduledJobNotInBackground(JobID)
 	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-		ModuleAccessManagementInternal.BeforeStartingRoutineTaskNotInBackground(Job);
+		ModuleAccessManagementInternal.BeforeRunScheduledJobNotInBackground(Job);
 	EndIf;
 	
 	Common.SystemSettingsStorageSave("ScheduledJobs", MethodName, True);
@@ -443,7 +445,9 @@ Procedure EventLogEvents(Command)
 			Return;
 		EndIf;
 		EventFilter.Insert("StartDate", CurrentData.StartDate);
-		EventFilter.Insert("EndDate", CurrentData.EndDate);
+		If CurrentData.EndDate <> PresentationOfEmptyDate() Then
+			EventFilter.Insert("EndDate", CurrentData.EndDate);
+		EndIf;
 		AddSelectionBySession(EventFilter, CurrentData.Id);
 	ElsIf Items.Jobs.CurrentPage = Items.BackgroundJobs Then
 		CurrentData = Items.BackgroundJobsTable.CurrentData;
@@ -478,7 +482,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("BackgroundJobsTable.End");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
-	Item.Appearance.SetParameterValue("Text", NStr("en = '<>';"));
+	Item.Appearance.SetParameterValue("Text", PresentationOfEmptyDate());
 	
 	//
 	Item = ConditionalAppearance.Items.Add();
@@ -635,7 +639,7 @@ Procedure FillFormSettings(Val Settings)
 	
 	DefaultSettings = New Structure;
 	
-	// 
+	// Background job filter setting.
 	If Settings.Get("FilterByActiveState") = Undefined Then
 		Settings.Insert("FilterByActiveState", True);
 	EndIf;
@@ -658,8 +662,8 @@ Procedure FillFormSettings(Val Settings)
 		Settings.Insert("ScheduledJobForFilterID", BlankID);
 	EndIf;
 	
-	// 
-	//  
+	// Set the period filter to "All time".
+	// See also the radio button event handler "FilterKindByPeriodOnChange".
 	If Settings.Get("FilterKindByPeriod") = Undefined
 	 Or Settings.Get("FilterPeriodFrom")       = Undefined
 	 Or Settings.Get("FilterPeriodFor")      = Undefined Then
@@ -676,7 +680,7 @@ Procedure FillFormSettings(Val Settings)
 	
 	FillPropertyValues(ThisObject, DefaultSettings);
 	
-	// 
+	// Setting visibility and accessibility.
 	Items.SettingArbitraryPeriod.Visible = (FilterKindByPeriod = 4);
 	Items.FilterPeriodFrom.ReadOnly  = Not (FilterKindByPeriod = 4);
 	Items.FilterPeriodFor.ReadOnly = Not (FilterKindByPeriod = 4);
@@ -802,7 +806,7 @@ Procedure UpdateScheduledJobChoiceList()
 	Table = ScheduledJobsTable;
 	List  = Items.ScheduledJobForFilter.ChoiceList;
 	
-	// 
+	// Add a predefined item.
 	If List.Count() = 0 Then
 		List.Add(BlankID, TextUndefined);
 	EndIf;
@@ -811,7 +815,7 @@ Procedure UpdateScheduledJobChoiceList()
 	For Each Job In Table Do
 		If IndexOf >= List.Count()
 		 Or List[IndexOf].Value <> Job.Id Then
-			// 
+			// Insert a new job.
 			List.Insert(IndexOf, Job.Id, Job.Description);
 		Else
 			List[IndexOf].Presentation = Job.Description;
@@ -819,7 +823,7 @@ Procedure UpdateScheduledJobChoiceList()
 		IndexOf = IndexOf + 1;
 	EndDo;
 	
-	// 
+	// Delete excessive rows.
 	While IndexOf < List.Count() Do
 		List.Delete(IndexOf);
 	EndDo;
@@ -918,7 +922,7 @@ Procedure LockOfOperationsWithExternalResourcesURLProcessingAtServerNote()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Background import of scheduled jobs.
 
 &AtClient
 Procedure ImportScheduledJobs(JobID = Undefined, UpdateSilently = False)
@@ -976,7 +980,7 @@ Function ScheduledJobsImport(JobID)
 	If JobID <> Undefined Then
 		ExecutionParameters.RunNotInBackground1 = True;
 	EndIf;
-	ExecutionParameters.WaitCompletion = 0; // 
+	ExecutionParameters.WaitCompletion = 0; // Run immediately.
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Generate scheduled job list';");
 	
 	Return TimeConsumingOperations.ExecuteInBackground("ScheduledJobsInternal.GenerateScheduledJobsTable",
@@ -1010,7 +1014,7 @@ Procedure ProcessResult(JobParameters)
 	
 	Items.ScheduledJobsTable.Refresh();
 	
-	// 
+	// Positioning of the scheduled jobs list.
 	If ValueIsFilled(CurrentRowID) Then
 		SearchResult = ScheduledJobsTable.FindRows(New Structure("Id", CurrentRowID));
 		If SearchResult.Count() = 1 Then
@@ -1035,8 +1039,13 @@ Procedure ProcessResult(JobParameters)
 	
 EndProcedure
 
+&AtClientAtServerNoContext
+Function PresentationOfEmptyDate()
+	Return "<>";
+EndFunction
+
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Background import of background jobs.
 
 &AtClient
 Procedure UpdateBackgroundJobsTableAtClient()
@@ -1083,10 +1092,10 @@ EndFunction
 &AtServer
 Function BackgroundJobsFilter()
 	
-	// 
+	// 1. Prepare filter.
 	Filter = New Structure;
 	
-	// 
+	// 1.1. Add filter by state.
 	StateArray = New Array;
 	
 	If FilterByActiveState Then 
@@ -1113,7 +1122,7 @@ Function BackgroundJobsFilter()
 		EndIf;
 	EndIf;
 	
-	// 
+	// 1.2. Add filter by scheduled job.
 	If FilterByScheduledJob Then
 		Filter.Insert(
 				"ScheduledJobID",
@@ -1122,7 +1131,7 @@ Function BackgroundJobsFilter()
 				ScheduledJobForFilterID));
 	EndIf;
 	
-	// 
+	// 1.3. Add filter by period.
 	If FilterKindByPeriod <> 0 Then
 		RefreshAutomaticPeriod(ThisObject, CurrentSessionDate());
 		Filter.Insert("Begin", FilterPeriodFrom);
@@ -1136,7 +1145,7 @@ EndFunction
 &AtServer
 Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 	
-	// 
+	// Refreshing the background job list.
 	
 	If ResultAddress <> Undefined Then
 		DataFromStorage = GetFromTempStorage(ResultAddress);
@@ -1152,9 +1161,9 @@ Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 		
 		If IndexOf >= Table.Count()
 		 Or Table.Get(IndexOf).Id <> Job.Id Then
-			// 
+			// Insert a new job.
 			ToUpdate = Table.Insert(IndexOf);
-			// 
+			// Assign a UUID.
 			ToUpdate.Id = Job.Id;
 		Else
 			ToUpdate = Table[IndexOf];
@@ -1162,7 +1171,7 @@ Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 		
 		FillPropertyValues(ToUpdate, Job);
 		
-		// 
+		// Setting the scheduled job description from the ScheduledJobTable collection.
 		If ValueIsFilled(ToUpdate.ScheduledJobID) Then
 			
 			Rows = ScheduledJobsTable.FindRows(
@@ -1175,16 +1184,16 @@ Procedure UpdateBackgroundJobTable(ResultAddress = Undefined)
 			ToUpdate.ScheduledJobID = TextUndefined;
 		EndIf;
 		
-		// 
+		// Getting error details.
 		ToUpdate.MessagesToUserAndErrorDescription 
 			= ScheduledJobsInternal.BackgroundJobMessagesAndErrorDescriptions(
 				ToUpdate.Id, Job);
 		
-		// 
+		// Index increase.
 		IndexOf = IndexOf + 1;
 	EndDo;
 	
-	// 
+	// Deleting unnecessary rows.
 	While IndexOf < Table.Count() Do
 		Table.Delete(Table.Count()-1);
 	EndDo;

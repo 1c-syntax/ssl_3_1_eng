@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -39,8 +41,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		Object.UseScheduledJob = True;
 	Else
-		// 
-		// 
+		// Get the schedule from the job. If it's not set, set it to "Undefined".
+		// In this case, it's created on the client side when the user sets the schedule.
 		JobSchedule = Catalogs.DataExchangeScenarios.GetDataExchangeExecutionSchedule(Object.Ref);
 	EndIf;
 	
@@ -262,7 +264,7 @@ EndProcedure
 &AtClient
 Procedure EditScheduledJobSchedule()
 	
-	// 
+	// Creating a new schedule if it is not initialized in a form on the server.
 	If JobSchedule = Undefined Then
 		
 		JobSchedule = New JobSchedule;
@@ -271,7 +273,7 @@ Procedure EditScheduledJobSchedule()
 	
 	Dialog = New ScheduledJobDialog(JobSchedule);
 	
-	// 
+	// Opening a dialog box for editing the schedule.
 	NotifyDescription = New NotifyDescription("EditScheduledJobScheduleCompletion", ThisObject);
 	Dialog.Show(NotifyDescription);
 	
@@ -323,14 +325,14 @@ EndProcedure
 &AtClient
 Procedure ExecuteDataExchangeAtClient()
 	
-	If NumberOfRowToProcess > RowsCount Then // 
+	If NumberOfRowToProcess > RowsCount Then // Exit from the recursion.
 		
 		OutputState = (RowsCount > 1);
 		Status(NStr("en = 'Data is synchronized.';"), ?(OutputState, 100, Undefined));
 		
 		Items.ScheduleComposition.ReadOnly = False;
 		
-		Return; // 
+		Return; // Exit.
 		
 	EndIf;
 	
@@ -351,14 +353,14 @@ Procedure ExecuteDataExchangeAtClient()
 	Progress = Round(100 * (NumberOfRowToProcess -1) / ?(RowsCount = 0, 1, RowsCount));
 	Status(MessageString, ?(OutputState, Progress, Undefined));
 	
-	// 
+	// Starting data exchange by setting string.
 	ExecuteDataExchangeBySettingString(NumberOfRowToProcess);
 	
 	UserInterruptProcessing();
 	
 	NumberOfRowToProcess = NumberOfRowToProcess + 1;
 	
-	// 
+	// Calling this procedure recursively.
 	AttachIdleHandler("ExecuteDataExchangeAtClient", 0.1, True);
 	
 EndProcedure
@@ -408,10 +410,10 @@ Procedure ExecuteDataExchangeBySettingString(Val IndexOf)
 	
 	Cancel = False;
 	
-	// 
+	// Starting data exchange.
 	DataExchangeServer.ExecuteDataExchangeByDataExchangeScenario(Cancel, Object.Ref, IndexOf);
 	
-	// 
+	// Updating tabular section data of the data exchange scenario.
 	RefreshDataExchangesStates();
 	
 EndProcedure

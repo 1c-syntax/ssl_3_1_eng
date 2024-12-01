@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Namespace of the message interface version.
+// Namespace of message interface version.
 //
 // Returns:
-//   String -  name space.
+//   String - a namespace.
 //
 Function Package() Export
 	
@@ -19,10 +21,10 @@ Function Package() Export
 	
 EndFunction
 
-// The version of the message interface served by the handler.
+// Message interface version supported by the handler.
 //
 // Returns:
-//   String - 
+//   String - a message interface version.
 //
 Function Version() Export
 	
@@ -33,7 +35,7 @@ EndFunction
 // Base type for version messages.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a base type of message body.
 //
 Function BaseType() Export
 	
@@ -47,13 +49,13 @@ Function BaseType() Export
 	
 EndFunction
 
-// Processes incoming messages from the service model
+// Processing incoming SaaS messages
 //
 // Parameters:
-//   Message   - XDTODataObject -  incoming message.
-//   Sender - ExchangePlanRef.MessagesExchange -  the exchange plan node that corresponds to the sender of the message.
-//   MessageProcessed - Boolean -  flag for successful message processing. The value of this parameter must
-//                         be set to True if the message was successfully read in this handler.
+//   Message   - XDTODataObject - an incoming message.
+//   Sender - ExchangePlanRef.MessagesExchange - exchange plan node that matches the message sender.
+//   MessageProcessed - Boolean - indicates whether the message is successfully processed. The parameter value must be
+//                         set to True if the message was successfully read in this handler.
 //
 Procedure ProcessSaaSMessage(Val Message, Val Sender, MessageProcessed) Export
 	
@@ -153,13 +155,13 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 		XDTOCorrespondentSettings = Filter_Settings.XDTOCorrespondentSettings;
 	EndIf;
 	
-	// 
+	// Create an exchange setting.
 	ConnectionSettings = New Structure;
 	ConnectionSettings.Insert("ExchangePlanName", Body.ExchangePlan);
 	ConnectionSettings.Insert("SettingID", SettingID);
 	
-	ConnectionSettings.Insert("Description", ""); // 
-	ConnectionSettings.Insert("CorrespondentDescription", Body.CorrespondentName);
+	ConnectionSettings.Insert("Description", ""); // Not required.
+	ConnectionSettings.Insert("PeerInfobaseName", Body.CorrespondentName);
 	
 	ConnectionSettings.Insert("Prefix",               Prefix);
 	ConnectionSettings.Insert("CorrespondentPrefix", CorrespondentPrefix);
@@ -171,7 +173,7 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 	
 	ConnectionSettings.Insert("XDTOCorrespondentSettings", XDTOCorrespondentSettings);
 
-	ConnectionSettings.Insert("Peer"); // 
+	ConnectionSettings.Insert("Peer"); // Output parameter.
 	
 	ConnectionSettings.Insert("CorrespondentDataArea", Body.CorrespondentZone);
 	
@@ -180,7 +182,7 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 		DataExchangeSaaS.CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 			True, , ThisNodeAlias);
 			
-		// 
+		// Sending a response message that notifies about the successful operation.
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeSetupStep1CompletedMessage());
 			
@@ -201,7 +203,7 @@ Procedure ConfigureExchangeStep1(Message, Sender) Export
 		
 		DataExchangeSaaS.DeleteExchangePlanNode(ConnectionSettings.Peer);
 		
-		// 
+		// Sending a response error message.
 		BeginTransaction();
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeSetupErrorStep1Message());
@@ -249,7 +251,7 @@ Procedure ImportExchangeMessage(Message, Sender) Export
 	Try
 		Peer = ExchangeCorrespondent(Body.ExchangePlan, Body.CorrespondentCode);
 		
-		// 
+		// Import an exchange message.
 		Cancel = False;
 		DataExchangeSaaS.RunDataImport(Cancel, Peer, MessageForDataMapping);
 		If Cancel Then
@@ -258,7 +260,7 @@ Procedure ImportExchangeMessage(Message, Sender) Export
 				String(Peer));
 		EndIf;
 		
-		// 
+		// Sending a response message that notifies about the successful operation.
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeMessageImportCompletedMessage());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
@@ -270,7 +272,7 @@ Procedure ImportExchangeMessage(Message, Sender) Export
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
 			EventLogLevel.Error, , , ErrorPresentation);
 		
-		// 
+		// Sending a response error message.
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.ExchangeMessageImportErrorMessage());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
@@ -312,7 +314,7 @@ Procedure GetCorrespondentData(Message, Sender)
 		CorrespondentData = DataExchangeServer.CorrespondentTablesData(
 			XDTOSerializer.ReadXDTO(Body.Tables), Body.ExchangePlan);
 		
-		// 
+		// Sending a response message that notifies about successful setup
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentDataGettingCompletedMessage());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
@@ -331,7 +333,7 @@ Procedure GetCorrespondentData(Message, Sender)
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
 			EventLogLevel.Error,,, ErrorPresentation);
 		
-		// 
+		// Sending a response error message
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentDataGettingErrorMessage());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
@@ -362,7 +364,7 @@ Procedure GetCommonDataOfCorrespondentNodes1(Message, Sender) Export
 	
 	BeginTransaction();
 	Try
-		// 
+		// Sending a response message that notifies about the successful operation.
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.GettingCommonDataOfCorrespondentNodeCompletedMessage());
 			
@@ -390,7 +392,7 @@ Procedure GetCommonDataOfCorrespondentNodes1(Message, Sender) Export
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
 			EventLogLevel.Error,,, ErrorPresentation);
 		
-		// 
+		// Sending a response error message
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentNodeCommonDataGettingErrorMessage());
 		ResponseMessage.Body.Zone = ModuleSaaSOperations.SessionSeparatorValue();
@@ -434,7 +436,7 @@ Procedure GetCorrespondentAccountingParameters(Message, Sender) Export
 		CorrespondentData.Insert("AccountingParametersSpecified", Not Cancel);
 		CorrespondentData.Insert("ErrorPresentation",  ErrorPresentation);
 		
-		// 
+		// Sending a response message that notifies about successful setup
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.GettingCorrespondentAccountingParametersCompletedMessage());
 			
@@ -456,7 +458,7 @@ Procedure GetCorrespondentAccountingParameters(Message, Sender) Export
 		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
 			EventLogLevel.Error,,, ErrorPresentation);
 		
-		// 
+		// Sending a response error message
 		ResponseMessage = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesControlInterface.CorrespondentAccountingParametersGettingErrorMessage());
 			

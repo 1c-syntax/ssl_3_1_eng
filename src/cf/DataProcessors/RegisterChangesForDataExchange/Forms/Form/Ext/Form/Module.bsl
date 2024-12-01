@@ -1,26 +1,28 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
+// A form for customizing the registration of object changes on the given node.
+// Form parameters:
 // 
-// 
-// 
-// 
-// 
-//                                                  
-// 
-//                                                  
+// ExchangeNode - ExchangePlanRef - Reference to the exchange node.
+// SelectExchangeNodeProhibited - Boolean - Flag indicating whether the user is not allowed to edit the node.
+//                                                  Requires the "ExchangeNode" parameter.
+// NamesOfMetadataToHide - ValueList - Names of metadata objects to hide from the registration tree.
+//                                                  The subsystem "AdditionalReportsAndDataProcessors" supports additional parameters:
 //
-// 
+// AdditionalDataProcessorRef - Arbitrary - Reference to a catalog item that is calling the form.
 //
-// 
-//                                                
-//                                                
-// 
+// Requires the "RelatedObjects" parameter.
+//                                                RelatedObjects - Array - Objects to be processed. The first array element will be used to
+//                                                open the form for registering the object on the nodes.
+// Requires the "CommandID" parameter.
 //                                                
 //                                                
 //
@@ -36,18 +38,18 @@ Var MetadataCurrentRow;
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.AdditionalReportsAndDataProcessors
 
-// 
+// ACC:78-on additional data processor.
 
-// Export command handler for the additional reports and processing subsystem.
+// Command export handler for the additional reports and data processors subsystem.
 //
 // Parameters:
-//     CommandID - String -  ID of the command to execute.
-//     RelatedObjects    - Array of AnyRef -  links to process. Is not used here,
-//                            it is expected that a similar parameter was passed to and processed when creating the form.
-//     CreatedObjects     - Array of AnyRef -  returned array of references to created objects. 
-//                            It is not used in this processing.
+//     CommandID - String - command ID to execute.
+//     RelatedObjects    - Array of AnyRef - references to process. This parameter is not used in the current procedure,
+//                            expected that a similar parameter is passed and processed during the from creation.
+//     CreatedObjects     - Array of AnyRef - a return value, an array of references to created objects. 
+//                            This parameter is not used in the current data processor.
 //
 &AtClient
 Procedure ExecuteCommand(CommandID, RelatedObjects, CreatedObjects) Export
@@ -55,7 +57,7 @@ Procedure ExecuteCommand(CommandID, RelatedObjects, CreatedObjects) Export
 	If CommandID = "OpenRegistrationEditingForm" Then
 		
 		If RegistrationObjectParameter <> Undefined Then
-			// 
+			// Using parameters that are set in the OnCreateAtServer procedure.
 			
 			RegistrationFormParameters = New Structure;
 			RegistrationFormParameters.Insert("RegistrationObject",  RegistrationObjectParameter);
@@ -67,7 +69,7 @@ Procedure ExecuteCommand(CommandID, RelatedObjects, CreatedObjects) Export
 	EndIf;
 	
 EndProcedure
-// APK:78-on
+// ACC:78-on
 
 // End StandardSubsystems.AdditionalReportsAndDataProcessors
 
@@ -90,18 +92,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	OpenWithNodeParameter = False;
 	CurrentObject = ThisObject();
 	ThisFormName = GetFormName();
-	// 
+	// Analyze form parameters and setting options.
 	If Parameters.AdditionalDataProcessorRef = Undefined Then
-		// 
+		// Starting the data processor in standalone mode, with the ExchangeNodeRef parameter specified.
 		ExchangeNodeReference = Parameters.ExchangeNode;
 		Parameters.Property("SelectExchangeNodeProhibited", SelectExchangeNodeProhibited);
 		OpenWithNodeParameter = True;
 		
 	Else
-		// 
+		// This data processor is called from the additional reports and data processors subsystem.
 		If TypeOf(Parameters.RelatedObjects) = Type("Array") And Parameters.RelatedObjects.Count() > 0 Then
 			
-			// 
+			// The form is opened with the specified object.
 			RelatedObject = Parameters.RelatedObjects[0];
 			Type = TypeOf(RelatedObject);
 			
@@ -109,13 +111,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				ExchangeNodeReference = RelatedObject;
 				OpenWithNodeParameter = True;
 			Else
-				// 
+				// Filling internal attributes.
 				LongDesc = CurrentObject.MetadataCharacteristics(RelatedObject.Metadata());
 				If LongDesc.IsReference Then
 					RegistrationObjectParameter = RelatedObject;
 					
 				ElsIf LongDesc.IsRecordsSet Then
-					// 
+					// Structure and table name
 					RegistrationTableParameter = LongDesc.TableName;
 					RegistrationObjectParameter  = New Structure;
 					For Each Dimension In CurrentObject.RecordSetDimensions(RegistrationTableParameter) Do
@@ -134,18 +136,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// 
+	// Initializing object settings.
 	CurrentObject.ReadSettings();
 	CurrentObject.ReadSSLSupportFlags();
 	CurrentObject.ReadSignsOfBSDSupport();
 	ThisObject(CurrentObject);
 	
-	// 
+	// Initializing other parameters only if this form will be opened
 	If RegistrationObjectParameter <> Undefined Then
 		Return;
 	EndIf;
 	Items.GroupPages.CurrentPage = Items.Main;
-	// 
+	// Filling the list of prohibited metadata objects based on form parameters.
 	Parameters.Property("NamesOfMetadataToHide", Object.NamesOfMetadataToHide);
 	AddNameOfMetadataToHide();
 	
@@ -208,7 +210,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		Return;
 	EndIf;
 	
-	// 
+	// Analyzing selected value, it must be a structure.
 	If TypeOf(ValueSelected) <> Type("Structure") 
 		Or (Not ValueSelected.Property("ChoiceAction"))
 		Or (Not ValueSelected.Property("ChoiceData"))
@@ -257,7 +259,7 @@ EndProcedure
 
 &AtServer
 Procedure OnSaveDataInSettingsAtServer(Settings)
-	// 
+	// Automatic settings.
 	CurrentObject = ThisObject();
 	CurrentObject.ShouldSaveSettings();
 	ThisObject(CurrentObject);
@@ -267,7 +269,7 @@ EndProcedure
 Procedure OnLoadDataFromSettingsAtServer(Settings)
 	
 	If RegistrationObjectParameter <> Undefined Then
-		// 
+		// Another form will be used.
 		Return;
 	EndIf;
 	
@@ -276,7 +278,7 @@ Procedure OnLoadDataFromSettingsAtServer(Settings)
 	Else
 		ExchangeNodeReference = Settings["ExchangeNodeReference"];
 		DataVersion = Common.ObjectAttributeValue(ExchangeNodeReference, "DataVersion");
-		// 
+		// If restored exchange node is deleted, clearing the ExchangeNodeRef value.
 		If ExchangeNodeReference <> Undefined 
 		    And ExchangePlans.AllRefsType().ContainsType(TypeOf(ExchangeNodeReference))
 		    And IsBlankString(DataVersion) Then
@@ -887,7 +889,7 @@ Procedure SetConditionalAppearance()
 EndProcedure
 //
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 &AtClient 
 Procedure RegisterMetadataObjectIDCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	
@@ -901,7 +903,7 @@ Procedure RegisterMetadataObjectIDCompletion(Val QuestionResult, Val AdditionalP
 	UpdatePageContent();
 EndProcedure
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 &AtClient 
 Procedure ChoiceProcessingCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
@@ -938,11 +940,11 @@ Procedure EditConstantMessageNo()
 	ShowInputNumber(Notification, MessageNo, ToolTip);
 EndProcedure
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 &AtClient
 Procedure EditConstantMessageNoCompletion(Val MessageNo, Val AdditionalParameters) Export
 	If MessageNo = Undefined Then
-		// 
+		// Cancel input.
 		Return;
 	EndIf;
 	
@@ -956,7 +958,7 @@ EndProcedure
 //   Ref - ExchangePlanRef
 //
 // Returns:
-//   Structure - :
+//   Structure - Additional parameters.:
 //     * Ref - ExchangePlanRef
 //
 &AtClient
@@ -982,7 +984,7 @@ Procedure EditRefMessageNo()
 	ShowInputNumber(Notification, MessageNo, ToolTip);
 EndProcedure
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 //
 // Parameters:
 //   MessageNo - Number
@@ -991,7 +993,7 @@ EndProcedure
 &AtClient
 Procedure EditRefMessageNoCompletion(Val MessageNo, Val AdditionalParameters) Export
 	If MessageNo = Undefined Then
-		// 
+		// Cancel input.
 		Return;
 	EndIf;
 	
@@ -1026,11 +1028,11 @@ Procedure EditMessageNoSetList()
 	ShowInputNumber(Notification, MessageNo, ToolTip);
 EndProcedure
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 &AtClient
 Procedure EditMessageNoSetListCompletion(Val MessageNo, Val AdditionalParameters) Export
 	If MessageNo = Undefined Then
-		// 
+		// Cancel input.
 		Return;
 	EndIf;
 	
@@ -1084,25 +1086,25 @@ EndProcedure
 &AtServer
 Procedure ExchangeNodeChoiceProcessingServer()
 	
-	// 
+	// Modifying node numbers in the FormEditMessageNumbers title.
 	SetMessageNumberTitle();
 	
-	// 
+	// Refresh metadata tree.
 	ReadMetadataTree();
 	FillRegistrationCountInTreeRows();
 	
-	// 
+	// Refresh the active page.
 	Items.ObjectsListOptions.CurrentPage = Items.BlankPage;
 	
-	// 
+	// Setting visibility for related buttons.
 	
 	MetaNodeExchangePlan = ExchangeNodeReference.Metadata();
 	
 	FillAdditionalInformation();
 	
-	If Object.DIBModeAvailable                             // 
-		And (ExchangePlans.MasterNode() = Undefined)          // 
-		And MetaNodeExchangePlan.DistributedInfoBase Then // 
+	If Object.DIBModeAvailable                             // Current SSL version supports MOID.
+		And (ExchangePlans.MasterNode() = Undefined)          // Current infobase is a master node.
+		And MetaNodeExchangePlan.DistributedInfoBase Then // Current node is DIB.
 		Items.FormRegisterMOIDAndPredefinedItems.Visible = True;
 	Else
 		Items.FormRegisterMOIDAndPredefinedItems.Visible = False;
@@ -1218,7 +1220,7 @@ Procedure DeleteConstantRegistrationInList()
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , ,QuestionTitle);
 EndProcedure
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 &AtClient
 Procedure DeleteConstantRegistrationInListCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
@@ -1308,7 +1310,7 @@ Procedure DeleteRegistrationFromReferenceList()
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , , QuestionTitle);
 EndProcedure
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 &AtClient 
 Procedure DeleteRegistrationFromReferenceListCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
@@ -1381,7 +1383,7 @@ Procedure AddSelectedObjectRegistration(NoAutoRegistration = True)
 	Data = GetSelectedMetadataNames(NoAutoRegistration);
 	Count = Data.MetaNames.Count();
 	If Count = 0 Then
-		// 
+		// Current row.
 		Data = GetCurrentRowMetadataNames(NoAutoRegistration);
 	EndIf;
 	
@@ -1401,7 +1403,7 @@ Procedure AddSelectedObjectRegistration(NoAutoRegistration = True)
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , , QuestionTitle);
 EndProcedure
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 &AtClient 
 Procedure AddSelectedObjectRegistrationCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
@@ -1446,7 +1448,7 @@ Procedure DeleteSelectedObjectRegistration(NoAutoRegistration = True)
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , , QuestionTitle);
 EndProcedure
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 &AtClient
 Procedure DeleteSelectedObjectRegistrationCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
@@ -1550,7 +1552,7 @@ Function BackgroundJobStartAtServer(BackgroundJobParameters)
 	ExecutionParameters.AdditionalResult = False;
 	
 	If BackgroundJobParameters.Property("AddressData2") Then
-		// 
+		// Data storage address is passed.
 		Result = GetFromTempStorage(BackgroundJobParameters.AddressData2);
 		Result= Result[Result.UBound()];
 		Data = Result.Unload().UnloadColumn("Ref");
@@ -1598,15 +1600,15 @@ Procedure EndExecutingTimeConsumingOperation(JobID)
 	ModuleTimeConsumingOperations.CancelJobExecution(JobID);
 EndProcedure
 
-// Returns a reference to the General module "Deletelilypondonchord".
+// Returns a reference to the TimeConsumingOperationsClient common module.
 //
 // Returns:
-//  CommonModule - 
+//  CommonModule - the TimeConsumingOperationsClient common module.
 //
 &AtClient
 Function CommonModuleTimeConsumingOperationsClient()
 	
-	// 
+	// Don't call CalculateInSafeMode. Calculation takes a string literal instead.
 	Module = Eval("TimeConsumingOperationsClient");
 	
 	If TypeOf(Module) <> Type("CommonModule") Then
@@ -1617,16 +1619,16 @@ Function CommonModuleTimeConsumingOperationsClient()
 	
 EndFunction
 
-// Returns a reference to the General module "long Operations".
+// Returns a reference to the TimeConsumingOperations common module.
 //
 // Returns:
-//  CommonModule - 
+//  CommonModule - the TimeConsumingOperations common module.
 //
 &AtServerNoContext
 Function CommonModuleTimeConsumingOperations()
 
 	If Metadata.CommonModules.Find("TimeConsumingOperations") <> Undefined Then
-		// 
+		// Don't call CalculateInSafeMode. Calculation takes a string literal instead.
 		Module = Eval("TimeConsumingOperations");
 	Else
 		Module = Undefined;
@@ -1641,7 +1643,7 @@ Function CommonModuleTimeConsumingOperations()
 EndFunction
 
 // Returns:
-//   Structure - :
+//   Structure - Additional parameters.:
 //     * Action - Boolean
 //     * FormTable - FormTable
 //     * Data - Arbitrary
@@ -1672,7 +1674,7 @@ Procedure DataChoiceProcessing(FormTable, ValueSelected)
 		If Not (ValueSelected.Property("TableName")
 			And ValueSelected.Property("ChoiceAction")
 			And ValueSelected.Property("ChoiceData")) Then
-			// 
+			// Waiting for the structure in the specified format.
 			Return;
 		EndIf;
 		TableName = ValueSelected.TableName;
@@ -1729,7 +1731,7 @@ Procedure DataChoiceProcessing(FormTable, ValueSelected)
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , ,QuestionTitle);
 EndProcedure
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 //
 // Parameters:
 //   QuestionResult -DialogReturnCode
@@ -1839,7 +1841,7 @@ Procedure ActionWithQueryResult(ActionCommand)
 	
 	CurFormName = GetQueryResultChoiceForm();
 	If CurFormName <> Undefined Then
-		// 
+		// Open form.
 		If ActionCommand Then
 			Text = NStr("en = 'Register query results';");
 		Else
@@ -1859,7 +1861,7 @@ Procedure ActionWithQueryResult(ActionCommand)
 		Return;
 	EndIf;
 	
-	// 
+	// If the query execution handler is not specified, prompting the user to specify it.
 	Text = NStr("en = 'Query data processor not specified.
 	                        |Do you want to specify it now?';");
 	
@@ -1869,7 +1871,7 @@ Procedure ActionWithQueryResult(ActionCommand)
 	ShowQueryBox(Notification, Text, QuestionDialogMode.YesNo, , , QuestionTitle);
 EndProcedure
 
-// The handler alerts the continuation of the dialogue.
+// Dialog continuation notification handler.
 &AtClient 
 Procedure ActionWithQueryResultCompletion(Val QuestionResult, Val AdditionalParameters) Export
 	If QuestionResult <> DialogReturnCode.Yes Then
@@ -1908,7 +1910,7 @@ EndProcedure
 Procedure ReadMetadataTree()
 	Data = ThisObject().GenerateMetadataStructure(ExchangeNodeReference);
 	
-	// 
+	// Deleting rows that cannot be edited.
 	MetaTree = Data.Tree;
 	For Each ListItem In Object.NamesOfMetadataToHide Do
 		DeleteMetadataValueTreeRows(ListItem.Value, MetaTree.Rows);
@@ -1926,22 +1928,22 @@ Procedure DeleteMetadataValueTreeRows(Val MetaFullName, TreeRows)
 		Return;
 	EndIf;
 	
-	// 
+	// In the current set.
 	Filter = New Structure("MetaFullName", MetaFullName);
 	For Each DeletionRow In TreeRows.FindRows(Filter, False) Do
 		TreeRows.Delete(DeletionRow);
-		// 
+		// If there are no subordinate rows left, deleting the parent row.
 		If TreeRows.Count() = 0 Then
 			ParentString = TreeRows.Parent;
 			If ParentString.Parent <> Undefined Then
 				ParentString.Parent.Rows.Delete(ParentString);
-				// 
+				// There are no subordinate rows.
 				Return;
 			EndIf;
 		EndIf;
 	EndDo;
 	
-	// 
+	// Deleting subordinate row recursively.
 	For Each TreeRow In TreeRows Do
 		DeleteMetadataValueTreeRows(MetaFullName, TreeRow.Rows);
 	EndDo;
@@ -1957,7 +1959,7 @@ Procedure FillRegistrationCountInTreeRows()
 	
 	Data = ThisObject().GetChangeCount(MetadataNamesStructure, ExchangeNodeReference);
 	
-	// 
+	// Insert values to the tree.
 	Filter = New Structure("MetaFullName, ExchangeNode", Undefined, ExchangeNodeReference);
 	Zeros   = New Structure("ChangeCount, ExportedCount, NotExportedCount", 0,0,0);
 	
@@ -1969,7 +1971,7 @@ Procedure FillRegistrationCountInTreeRows()
 			
 			NodesList = Var_Group.GetItems();
 			If NodesList.Count() = 0 And MetadataNamesStructure.Property(Var_Group.MetaFullName) Then
-				// 
+				// Node collection without nodes, sum manually, and take autoregistration from structure.
 				For Each MetaName1 In MetadataNamesStructure[Var_Group.MetaFullName] Do
 					Filter.MetaFullName = MetaName1;
 					Found4 = Data.FindRows(Filter);
@@ -1982,7 +1984,7 @@ Procedure FillRegistrationCountInTreeRows()
 				EndDo;
 				
 			Else
-				// 
+				// Calculating count values for each node
 				For Each Node In NodesList Do
 					Filter.MetaFullName = Node.MetaFullName;
 					Found4 = Data.FindRows(Filter);
@@ -2079,17 +2081,17 @@ Procedure SetUpChangeEditingServer(CurrentRow)
 		NewPage1 = Items.BlankPage;
 		
 	ElsIf Meta = Metadata.Constants Then
-		// 
+		// All constants are included in the list
 		SetUpConstantList();
 		NewPage1 = Items.ConstantsPage;
 		
 	ElsIf TypeOf(Meta) = Type("MetadataObjectCollection") Then
-		// 
+		// All catalogs, all documents, and so on
 		SetUpEmptyPage(Description, TableName);
 		NewPage1 = Items.BlankPage;
 		
 	ElsIf Metadata.Constants.Contains(Meta) Then
-		// 
+		// One constant.
 		SetUpConstantList(TableName, Description);
 		NewPage1 = Items.ConstantsPage;
 		
@@ -2100,12 +2102,12 @@ Procedure SetUpChangeEditingServer(CurrentRow)
 		Or Metadata.ChartsOfCalculationTypes.Contains(Meta)
 		Or Metadata.BusinessProcesses.Contains(Meta)
 		Or Metadata.Tasks.Contains(Meta) Then
-		// 
+		// Reference data type.
 		SetUpRefList(TableName, Description);
 		NewPage1 = Items.ReferencesListPage;
 		
 	Else
-		// 
+		// Checking whether a record set is passed
 		Dimensions = CurrentObject.RecordSetDimensions(TableName);
 		If Dimensions <> Undefined Then
 			SetUpRecordSet(TableName, Dimensions, Description);
@@ -2129,8 +2131,8 @@ Procedure SetUpChangeEditingServer(CurrentRow)
 	
 EndProcedure
 
-// Output changes for the reference type (reference, document, feature type 
-// plan, chart of accounts, calculation type, business processes, tasks).
+// Displaying changes for a reference type (catalog, document, chart of characteristic types, 
+// chart of accounts, calculation type, business processes, tasks).
 //
 &AtServer
 Procedure SetUpRefList(TableName, Description)
@@ -2162,7 +2164,7 @@ Procedure SetUpRefList(TableName, Description)
 	ReferenceList.Parameters.SetParameterValue("SelectedNode", ExchangeNodeReference);
 	ReferencesListTableName = TableName;
 	
-	// 
+	// Object presentation.
 	Meta = ThisObject().MetadataByFullName(TableName);
 	CurTitle = Meta.ObjectPresentation;
 	If IsBlankString(CurTitle) Then
@@ -2171,13 +2173,13 @@ Procedure SetUpRefList(TableName, Description)
 	Items.ReferencesListRefPresentation.Title = CurTitle;
 EndProcedure
 
-// Output changes for constants.
+// Displaying changes for constants.
 //
 &AtServer
 Procedure SetUpConstantList(TableName = Undefined, Description = "")
 	
 	If TableName = Undefined Then
-		// 
+		// All constants.
 		Names = MetadataNamesStructure.Constants;
 		Presentations = MetadataPresentationsStructure.Constants;
 		AutoRecord = MetadataAutoRecordStructure.Constants;
@@ -2208,7 +2210,7 @@ Procedure SetUpConstantList(TableName = Undefined, Description = "")
 	|WHERE
 	|	ChangesTable.Node = &SelectedNode";
 	
-	// 
+	// The limit to the number of tables must be considered.
 	Text = "";
 	For IndexOf = 0 To Names.UBound() Do
 		
@@ -2269,7 +2271,7 @@ Procedure SetUpConstantList(TableName = Undefined, Description = "")
 	ConstantsList.Parameters.SetParameterValue("SelectedNode", ExchangeNodeReference);
 EndProcedure	
 
-// Output a stub with an empty page.
+// Displaying cap with an empty page.
 &AtServer
 Procedure SetUpEmptyPage(Description, TableName = Undefined)
 	
@@ -2303,7 +2305,7 @@ Procedure SetUpEmptyPage(Description, TableName = Undefined)
 	Items.EmptyPageDecoration.Title = Text;
 EndProcedure
 
-// Output changes for record sets.
+// Displaying changes for record sets.
 //
 &AtServer
 Procedure SetUpRecordSet(TableName, Dimensions, Description)
@@ -2313,7 +2315,7 @@ Procedure SetUpRecordSet(TableName, Dimensions, Description)
 	For Each String In Dimensions Do
 		Name = String.Name;
 		ChoiceText = ChoiceText + ",ChangesTable." + Name + " AS " + Prefix + Name + Chars.LF;
-		// 
+		// Adding the prefix to exclude the MessageNumber and NotExported dimensions.
 		String.Name = Prefix + Name;
 	EndDo;
 	
@@ -2336,7 +2338,7 @@ Procedure SetUpRecordSet(TableName, Dimensions, Description)
 	
 	RecordSetsList.Parameters.SetParameterValue("SelectedNode", ExchangeNodeReference);
 	
-	// 
+	// Adding columns to the appropriate group.
 	ThisObject().AddColumnsToFormTable(
 		Items.RecordSetsList, 
 		"MessageNo, NotExported, 
@@ -2347,13 +2349,13 @@ Procedure SetUpRecordSet(TableName, Dimensions, Description)
 	RecordSetsListTableName = TableName;
 EndProcedure
 
-// General selection by the "message Number" field.
+// Common filter by the MessageNumber field.
 //
 &AtServer
 Procedure SetFilterByMessageNo(DynamList, Variant)
 	
 	Field = New DataCompositionField("NotExported");
-	// 
+	// Iterating through the filter item list to delete a specific item.
 	ListItems = DynamList.Filter.Items;
 	IndexOf = ListItems.Count();
 	While IndexOf > 0 Do
@@ -2370,11 +2372,11 @@ Procedure SetFilterByMessageNo(DynamList, Variant)
 	FilterElement.Use = False;
 	FilterElement.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 	
-	If Variant = 1 Then 		// Exported_
+	If Variant = 1 Then 		// Exported items.
 		FilterElement.RightValue = False;
 		FilterElement.Use  = True;
 		
-	ElsIf Variant = 2 Then	// 
+	ElsIf Variant = 2 Then	// Not exported items.
 		FilterElement.RightValue = True;
 		FilterElement.Use  = True;
 		
@@ -2454,7 +2456,7 @@ Function SerializationText(Serialization)
 			Value = Manager.CreateValueManager();
 			
 		ElsIf Item.TypeFlag = 2 Then
-			// 
+			// Creating record set with a filter
 			Manager = GetManagerByMetadata(RecordSetsListTableName);
 			Value = Manager.CreateRecordSet();
 			For Each NameValue In Item.Data Do
@@ -2463,7 +2465,7 @@ Function SerializationText(Serialization)
 			Value.Read();
 			
 		ElsIf Item.TypeFlag = 3 Then
-			// Ref
+			// Reference
 			Value = Item.Data.GetObject();
 			If Value = Undefined Then
 				Value = New ObjectDeletion(Item.Data);
@@ -2499,19 +2501,19 @@ EndFunction
 Function GetSelectedMetadataDetails(NoAutoRegistration, MetaGroupName = Undefined, MetaNodeName = Undefined)
     
 	If MetaGroupName = Undefined And MetaNodeName = Undefined Then
-		// 
+		// No item selected.
 		Text = NStr("en = 'all items %1 of the metadata type';");
 		
 	ElsIf MetaGroupName <> Undefined And MetaNodeName = Undefined Then
-		// 
+		// Only a group is specified.
 		Text = "%2 %1";
 		
 	ElsIf MetaGroupName = Undefined And MetaNodeName <> Undefined Then
-		// 
+		// Only a node is specified.
 		Text = NStr("en = 'all items %1 of the metadata type';");
 		
 	Else
-		// 
+		// A group and a node are specified, using these values to obtain a metadata presentation.
 		Text = NStr("en = 'all items of type ""%3"" %1';");
 		
 	EndIf;
@@ -2587,12 +2589,12 @@ Function GetSelectedMetadataNames(NoAutoRegistration)
 			If Var_Group.Check = 0 Then
 				Continue;
 			ElsIf Var_Group.Check = 1 Then
-				//	
+				//	Getting data of the selected group.
 				GroupCount = GroupCount + 1;
 				GroupDetails = GetSelectedMetadataDetails(NoAutoRegistration, Var_Group.Description);
 				
 				If Var_Group.GetItems().Count() = 0 Then
-					// 
+					// Reading marked data from the metadata names structure.
 					AutoArray = MetadataAutoRecordStructure[Var_Group.MetaFullName];
 					NamesArray = MetadataNamesStructure[Var_Group.MetaFullName];
 					For IndexOf = 0 To NamesArray.UBound() Do
@@ -2611,7 +2613,7 @@ Function GetSelectedMetadataNames(NoAutoRegistration)
 			
 			For Each Node In Var_Group.GetItems() Do
 				If Node.Check = 1 Then
-					// 
+					// Node.AutoRecord = 2 -> allowed
 					If NoAutoRegistration Or Node.AutoRecord = 2 Then
 						Result.MetaNames.Add(Node.MetaFullName);
 						NodeDetails = GetSelectedMetadataDetails(NoAutoRegistration, Var_Group.MetaFullName, Node.MetaFullName);
@@ -2667,17 +2669,17 @@ EndProcedure
 Function ControlSettings()
 	Result = True;
 	
-	// 
+	// Checking a specified exchange node.
 	CurrentObject = ThisObject();
 	If ExchangeNodeReference <> Undefined And ExchangePlans.AllRefsType().ContainsType(TypeOf(ExchangeNodeReference)) Then
 		AllowedExchangeNodes = CurrentObject.GenerateNodeTree();
 		PlanName = ExchangeNodeReference.Metadata().Name;
 		If AllowedExchangeNodes.Rows.Find(PlanName, "ExchangePlanName1", True) = Undefined Then
-			// 
+			// A node with an invalid exchange plan.
 			ExchangeNodeReference = Undefined;
 			Result = False;
 		ElsIf ExchangeNodeReference = ExchangePlans[PlanName].ThisNode() Then
-			// 
+			// This node.
 			ExchangeNodeReference = Undefined;
 			Result = False;
 		EndIf;
@@ -2688,7 +2690,7 @@ Function ControlSettings()
 	EndIf;
 	ProcessNodeChangeProhibition();
 	
-	// 
+	// Settings dependencies.
 	SetFiltersInDynamicLists();
 	
 	Return Result;
@@ -2709,7 +2711,7 @@ Function RecordSetKeyStructure(Val CurrentData)
 	LongDesc = DataProcessorObject.MetadataCharacteristics(RecordSetsListTableName);
 	
 	If LongDesc = Undefined Then
-		// 
+		// Unknown source.
 		Return Undefined;
 	EndIf;
 	
@@ -2736,17 +2738,17 @@ Function RecordSetKeyStructure(Val CurrentData)
 		EndIf;
 		
 	ElsIf Dimensions.Count() = 0 Then
-		// 
+		// Degenerated record set.
 		Result.FormName = RecordSetsListTableName + ".ListForm";
 		
 	Else
-		Set = LongDesc.Manager.CreateRecordSet(); // 
+		Set = LongDesc.Manager.CreateRecordSet(); // InformationRegisterRecordSet, etc.
 		For Each KeyValue In Dimensions Do
 			DataProcessorObject.SetFilterItemValue(Set.Filter, KeyValue.Key, KeyValue.Value);
 		EndDo;
 		Set.Read();
 		If Set.Count() = 1 Then
-			// 
+			// Single item.
 			Result.FormName = RecordSetsListTableName + ".RecordForm";
 			Result.Parameter = "Key";
 			
@@ -2819,7 +2821,7 @@ EndFunction
 
 &AtServer
 Procedure AddNameOfMetadataToHide()
-	// 
+	// Registers with the Node dimension are hidden
 	For Each InformationRegisterMetadata In Metadata.InformationRegisters Do
 		For Each RegisterDimension In InformationRegisterMetadata.Dimensions Do
 			If Lower(RegisterDimension.Name) = "node" Then
@@ -2931,22 +2933,22 @@ EndFunction
 
 &AtServer
 Function CommonModuleDataExchangeCached()
-	Return Eval("DataExchangeCached"); // 
+	Return Eval("DataExchangeCached"); // ACC:488 - No need to call "CalculateInSafeMode" as a string literal was passed.
 EndFunction
 
 &AtServer
 Function CommonModuleDataExchangeRegistrationCached()
-	Return Eval("DataExchangeRegistrationCached"); // 
+	Return Eval("DataExchangeRegistrationCached"); // ACC:488 - No need to call "CalculateInSafeMode" as a string literal was passed.
 EndFunction
 
 &AtServer
 Function CommonModuleDataExchangeRegistrationServer()
-	Return Eval("DataExchangeRegistrationServer"); // 
+	Return Eval("DataExchangeRegistrationServer"); // ACC:488 - No need to call "CalculateInSafeMode" as a string literal was passed.
 EndFunction
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Base-functionality procedures and functions for standalone mode support.
 
 &AtServer
 Function SubstituteParametersToString(Val SubstitutionString, Val Parameter1, Val Parameter2 = Undefined, Val Parameter3 = Undefined)

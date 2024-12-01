@@ -1,15 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
-// 
-//   
-//    
-//    
+// Form parameters:
+//   TableQuestionComposition - FormDataCollection:
+//    * ElementaryQuestion - ChartOfCharacteristicTypesRef.QuestionsForSurvey
+//    * LineNumber - Number
 //
 
 #Region FormEventHandlers
@@ -416,7 +418,7 @@ Procedure AvailabilityControl()
 EndProcedure
 
 // Returns:
-//   Boolean - 
+//   Boolean - True if all answers are filled in.
 //
 &AtClient
 Function AllAnswersFilled()
@@ -453,8 +455,8 @@ Procedure ListsChoiceStart(Item,StandardProcessing,DetailsOfAvailableTypes)
 	
 EndProcedure
 
-// The procedure clears the response table from responses whose parent question is
-// not included in the array of Questions that acts as a parameter.
+// The procedure clears up those answers whose parent question is not included in the QuestionsArray passed as a parameter.
+// 
 //
 &AtClient
 Procedure ClearAnswersListIfNecessary(QuestionsArray)
@@ -672,7 +674,7 @@ Procedure SetLinkOfAnswersAndQuestionsChoiceParameter(AnswerFieldName, QuestionA
 EndProcedure
 
 // Parameters:
-//   Item - FormTable - 
+//   Item - FormTable - Item that caused the change.
 //
 &AtClient
 Procedure OnChangeAnswers(Item)

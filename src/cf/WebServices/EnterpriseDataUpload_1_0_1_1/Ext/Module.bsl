@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Web service operation handlers.
 
 Function Ping()
 	Return "";
@@ -18,7 +20,7 @@ Function ConnectionCheckUp(ErrorMessage)
 	
 	ErrorMessage = "";
 	
-	// 
+	// Checking whether a user has rights to perform the data exchange.
 	Try
 		DataExchangeInternal.CheckCanSynchronizeData();
 	Except
@@ -26,7 +28,7 @@ Function ConnectionCheckUp(ErrorMessage)
 		Return False;
 	EndTry;
 	
-	// 
+	// Checking whether the infobase is locked for update.
 	Try
 		DataExchangeInternal.CheckInfobaseLockForUpdate();
 	Except
@@ -62,7 +64,7 @@ Function ImportDataToInfobase(FileID, BackgroundJobIdentifier, ErrorMessage)
 	ParametersStructure.TempStorageFileID = DataExchangeInternal.PrepareFileForImport(FileID, ErrorMessage);
 	ParametersStructure.NameOfTheWEBService                          = "EnterpriseDataUpload_1_0_1_1";
 	
-	// 
+	// Importing to the infobase.
 	ProcedureParameters = New Structure;
 	ProcedureParameters.Insert("WebServiceParameters", ParametersStructure);
 	ProcedureParameters.Insert("ErrorMessage",   ErrorMessage);

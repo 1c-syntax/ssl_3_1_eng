@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -26,7 +28,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.GoToTemplateManagementButton.Visible = False;
 	EndIf;
 	
-	// 
+	// Validate input parameters.
 	If Not ValueIsFilled(Parameters.DataSource) Then 
 		CommonClientServer.Validate(TypeOf(Parameters.CommandParameter) = Type("Array") Or Common.RefTypeValue(Parameters.CommandParameter),
 			StringFunctionsClientServer.SubstituteParametersToString(NStr(
@@ -40,7 +42,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				 TypeOf(Parameters.CommandParameter)));
 	EndIf;
 
-	// 
+	// Support of backward compatibility with version 2.1.3.
 	PrintParameters = Parameters.PrintParameters;
 	If Parameters.PrintParameters = Undefined Then
 		PrintParameters = New Structure;
@@ -151,7 +153,7 @@ Procedure OnOpen(Cancel)
 	EndIf;
 	
 	If ValueIsFilled(SaveFormatSettings) Then
-		Cancel = True; // 
+		Cancel = True; // Interrupt the form opening.
 		SavePrintFormToFile();
 		Return;
 	EndIf;
@@ -541,7 +543,7 @@ Procedure Print(Command)
 	PrintManagementClient.PrintSpreadsheetDocuments(SpreadsheetDocuments, PrintObjects,
 		SpreadsheetDocuments.Count() > 1, ?(PrintFormsSettings.Count() > 1, Copies, 1));
 	
-	// Standard subsystems.Accounting for originalsservicedocuments
+	// StandardSubsystems.SourceDocumentsOriginalsRecording
 	If CommonClient.SubsystemExists("StandardSubsystems.SourceDocumentsOriginalsRecording") Then
 		PrintList = New ValueList; 
 		For Each PrintForm In PrintFormsSettings Do
@@ -771,7 +773,7 @@ EndProcedure
 Function GeneratePrintForms(TemplatesNames, Cancel)
 	
 	Result = Undefined;
-	// 
+	// Generate spreadsheet documents.
 	If ValueIsFilled(Parameters.DataSource) Then
 		If TypeOf(OutputParameters) = Type("Structure") And OutputParameters.Property("LanguageCode") Then
 			OutputParameters.LanguageCode = CurrentLanguage;
@@ -796,7 +798,7 @@ Function GeneratePrintForms(TemplatesNames, Cancel)
 		Result = PrintForms.PrintFormsCollection;
 	EndIf;
 	
-	// 
+	// Setting the flag of saving print forms to a file (do not open the form, save it directly to a file).
 	If TypeOf(Parameters.PrintParameters) = Type("Structure") And Parameters.PrintParameters.Property("SaveFormat")
 		And ValueIsFilled(Parameters.PrintParameters.SaveFormat) Then
 		FoundFormat = PrintManagement.SpreadsheetDocumentSaveFormatsSettings().Find(SpreadsheetDocumentFileType[Parameters.PrintParameters.SaveFormat], "SpreadsheetDocumentFileType");
@@ -854,7 +856,7 @@ EndProcedure
 &AtServer
 Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 	
-	// 
+	// Create attributes for spreadsheets.
 	NewFormAttributes = New Array; // Array of FormAttribute -
 	For PrintFormNumber = 1 To PrintFormsCollection.Count() Do
 		AttributeName = "PrintForm" + Format(PrintFormNumber,"NG=0");
@@ -863,14 +865,14 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 	EndDo;
 	ChangeAttributes(NewFormAttributes);
 	
-	// 
+	// Create pages with spreadsheet documents on a form.
 	PrintFormNumber = 0;
 	PrintOfficeDocuments = False;
 	AddedPrintFormsSettings = New Map;
 	For Each FormAttribute In NewFormAttributes Do
 		PrintFormDetails = PrintFormsCollection[PrintFormNumber];
 		
-		// 
+		// Print form settings table (beginning).
 		NewPrintFormSetting = PrintFormsSettings.Add();
 		NewPrintFormSetting.Presentation = PrintFormDetails.TemplateSynonym;
 		NewPrintFormSetting.Print = PrintFormDetails.Copies2 > 0;
@@ -899,11 +901,11 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 		
 		PreviouslyAddedPrintFormSetting = AddedPrintFormsSettings[PrintFormDetails.TemplateName];
 		If PreviouslyAddedPrintFormSetting = Undefined Then
-			// 
+			// Copy the spreadsheet to the form attribute.
 			AttributeName = FormAttribute.Name;
 			ThisObject[AttributeName] = PrintFormDetails.SpreadsheetDocument;
 			
-			// 
+			// Create pages for spreadsheet documents.
 			PageName = "Page" + AttributeName;
 			Page = Items.Add(PageName, Type("FormGroup"), Items.Pages);
 			Page.Type = FormGroupType.Page;
@@ -912,14 +914,14 @@ Procedure CreateAttributesAndFormItemsForPrintForms(PrintFormsCollection)
 			Page.ToolTip = PrintFormDetails.TemplateSynonym;
 			Page.Visible = ThisObject[AttributeName].TableHeight > 0;
 			
-			// 
+			// Create items for displaying spreadsheet documents.
 			NewItem = Items.Add(AttributeName, Type("FormField"), Page);
 			NewItem.Type = FormFieldType.SpreadsheetDocumentField;
 			NewItem.TitleLocation = FormItemTitleLocation.None;
 			NewItem.DataPath = AttributeName;
 			SetSpreadsheetFieldParameters(NewItem, PrintFormDetails.SpreadsheetDocument);
 			
-			// 
+			// Print form settings table (continued).
 			NewPrintFormSetting.PageName = PageName;
 			NewPrintFormSetting.AttributeName = AttributeName;
 			
@@ -1209,7 +1211,7 @@ Procedure RestorePrintFormsSettings(SavedPrintFormsSettings = Undefined)
 		FoundSettings = PrintFormsSettings.FindRows(New Structure("DefaultPosition", SavedSetting.DefaultPosition));
 		For Each PrintFormSetting In FoundSettings Do
 			RowIndex = PrintFormsSettings.IndexOf(PrintFormSetting);
-			PrintFormsSettings.Move(RowIndex, PrintFormsSettings.Count()-1 - RowIndex); // 
+			PrintFormsSettings.Move(RowIndex, PrintFormsSettings.Count()-1 - RowIndex); // Move to the end.
 			PrintFormSetting.Count = SavedSetting.Count;
 			PrintFormSetting.Print = PrintFormSetting.Count > 0;
 		EndDo;
@@ -1300,7 +1302,7 @@ Function PutSpreadsheetDocumentsInTempStorage(PassedSettings)
 		ObjectsToAttach = Common.CopyRecursive(PassedSettings.ObjectsToAttach);
 	EndIf;
 	
-	// 
+	// Save print forms.
 	ProcessedPrintForms = New Array;
 	For Each PrintFormSetting In PrintFormsSettings Do
 		
@@ -1375,7 +1377,7 @@ Function PutSpreadsheetDocumentsInTempStorage(PassedSettings)
 				
 				MaxLength = 218; // https://docs.microsoft.com/en-us/office/troubleshoot/office-suite-issues/error-open-document
 				If FileType = SpreadsheetDocumentFileType.XLS And StrLen(FullFileName) > MaxLength Then
-					MaxLength = MaxLength - 5; // 
+					MaxLength = MaxLength - 5; // Reserve characters in order to generate a unique name.
 					If StrLen(TempDirectoryName) < MaxLength Then
 						FileName = Left(FileName, MaxLength - StrLen(TempDirectoryName) - StrLen(FileExtention) - 1);
 						FileNameWithExtension = FileName + "." + FileExtention;
@@ -2027,7 +2029,7 @@ Procedure GoToDocumentCompletion(SelectedElement, AdditionalParameters) Export
 	SpreadsheetDocument = CurrentPrintForm;
 	SelectedDocumentArea = SpreadsheetDocument.Areas.Find(SelectedElement.Value);
 	
-	SpreadsheetDocumentField.CurrentArea = SpreadsheetDocument.Area("R1C1"); // 
+	SpreadsheetDocumentField.CurrentArea = SpreadsheetDocument.Area("R1C1"); // Move to the beginning.
 	
 	If SelectedDocumentArea <> Undefined Then
 		SpreadsheetDocumentField.CurrentArea = SpreadsheetDocument.Area(SelectedDocumentArea.Top,,SelectedDocumentArea.Bottom,);
@@ -2055,7 +2057,7 @@ Function EmailSendOptions(SelectedOptions, AttachmentsList = Undefined)
 		AttachmentsList = PutFilesToArchive(AttachmentsList, SelectedOptions);
 	EndIf;
 	
-	// 
+	// Check the names for uniqueness.
 	FileNameTemplate = "%1%2.%3";
 	UsedFilesNames = New Map;
 	For Each Attachment In AttachmentsList Do
@@ -2161,7 +2163,7 @@ Function SpreadsheetDocumentsToPrint()
 			PrintForm = ThisObject[PrintFormSetting.AttributeName];
 			SpreadsheetDocument = New SpreadsheetDocument;
 			SpreadsheetDocument.Put(PrintForm);
-			FillPropertyValues(SpreadsheetDocument, PrintForm, PrintManagement.SpreadsheetDocumentPropertiesToCopy());
+			PrintManagement.CopyPropertiesOfTableDocument(SpreadsheetDocument, PrintForm);
 			SpreadsheetDocument.Copies = PrintFormSetting.Count;
 			SpreadsheetDocuments.Add(SpreadsheetDocument, PrintFormSetting.Presentation);
 		EndIf;
@@ -2348,8 +2350,8 @@ Procedure OnExecuteCommandAtServer(AdditionalParameters)
 	
 EndProcedure
 
-// 
-// 
+// This procedure calculates functions for the selected cell range.
+// See the ReportSpreadsheetDocumentOnActivateArea event handler.
 //
 &AtClient
 Procedure CalculateIndicatorsDynamically()

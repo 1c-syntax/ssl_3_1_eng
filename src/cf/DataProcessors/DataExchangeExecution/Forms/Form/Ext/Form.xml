@@ -1592,7 +1592,7 @@ To continue with the changes made, restart the application.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="CorrespondentDescription" id="39">
+		<Attribute name="PeerInfobaseName" id="39">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>

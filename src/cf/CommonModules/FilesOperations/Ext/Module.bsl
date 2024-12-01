@@ -1,34 +1,36 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Returns the binary data of the file.
+// Returns the file binary data.
 //
 // Parameters:
-//  AttachedFile - DefinedType.AttachedFile -  link to the directory element with the file.
+//  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
 //
-//  RaiseException1 - Boolean -  if you specify False, the function will return Undefined
-//                     			  instead of calling exceptions, and the log entry level will be downgraded to "Warning".
-//                                The default value is True.
+//  RaiseException1 - Boolean - if False is specified, the function will return Undefined
+//                     			  instead of throwing exceptions, the event log record level will be lowered to "Warning".
+//                                The default is True.
 //
 // Returns:
-//  BinaryData, Undefined - 
-//                               
-//                               
+//  BinaryData, Undefined - binary data of the attachment. If the binary data of the file is not found
+//                               in the infobase or volumes, an exception is thrown. If the binary data is not found and the ShouldRaiseException parameter is set to False,
+//                               the return value is Undefined.
 //                               
 //
 // Example:
 //  Saving file data on the server:
-//	Datafile = Workfiles.Binary Data Files(File, False);
-//	If The File Data <> Is Undefined Then
-//		Data files.Write(Pathfile);
-//	Conicelli;
+//	FileData = StoredFiles.FileBinaryData(File, False);
+//	If FileData <> Undefined Then
+//		FileData.Write(PathToFile);
+//	EndIf
 //
 Function FileBinaryData(Val AttachedFile, Val RaiseException1 = True) Export
 	
@@ -77,21 +79,21 @@ Function FileBinaryData(Val AttachedFile, Val RaiseException1 = True) Export
 	
 EndFunction
 
-// Returns the binary data of the file.
+// Returns file binary data.
 //
 // Parameters:
-//  AttachedFiles - Array of DefinedType.AttachedFile - 
-//                                                                       
+//  AttachedFiles - Array of DefinedType.AttachedFile - An array of items from the file catalog.
+//                                                                       All items must be of the same type.
 //
-//  RaiseException1 - Boolean -  if you specify False, the function will return Undefined
-//                     			  instead of calling exceptions, and the log entry level will be downgraded to "Warning".
-//                                The default value is True.
+//  RaiseException1 - Boolean - If set to "False", the function will return "Undefined" instead of throwing exceptions,
+//                     			  and the logging level will be lowered to "Warning".
+//                                By default, "True".
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - DefinedType.AttachedFile -  
-//   * Value - BinaryData - 
-//                               
+//   * Key - DefinedType.AttachedFile - A file from the "AttachedFiles" parameter. 
+//   * Value - BinaryData - Attachment binary data. If the file binary data is not found in the infobase or volumes, an exception is raised.
+//                               If binary data is not found and "RaiseException" is set to "False", it returns "Undefined".
 //                               
 //                               
 //
@@ -268,80 +270,80 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 	
 EndFunction
 
-// Returns information about the file. It is used in various file management commands
-// and as the value of the file Data parameter in other procedures and functions.
+// Returns the file information. It is used in variety of file operation commands
+// and as the FileData parameter value in other procedures and functions.
 // 
 // Parameters:
-//  AttachedFile                    - DefinedType.AttachedFile -  link to the directory element with the file.
+//  AttachedFile                    - DefinedType.AttachedFile - a reference to the catalog item with file.
 //  AdditionalParameters               - See FilesOperationsClientServer.FileDataParameters.
-//  DeleteGetRefToBinaryData - Boolean -  deprecated, additional Parameters should be used.
-//  DeleteForEditing              - Boolean -  deprecated, additional Parameters should be used.
+//  DeleteGetRefToBinaryData - Boolean - obsolete, use AdditionalParameters instead.
+//  DeleteForEditing              - Boolean - obsolete, use AdditionalParameters instead.
 //
 // Returns:
-//  Structure, Undefined - 
-//    
-//    
-//    
-//    :
-//    * Ref                             - DefinedType.AttachedFile -  link to the directory element with the file.
-//    * RefToBinaryFileData        - String - 
-//    * Owner                           - DefinedType.FilesOwner - 
-//    * RelativePath                  - String -  relative path of the file. 
-//    * UniversalModificationDate       - Date   - 
-//    * FileName                           - String - 
-//    * Description                       - String - 
-//    * Extension                         - String -  file extension without a dot.
-//    * Size                             - Number  -  file size in bytes.
+//  Structure, Undefined - information about the attachment. If the file is not found or
+//    some required information about the file is unavailable and the ShouldRaiseException property of
+//    the AdditionalParameters parameter is set to False, the return value is Undefined. If the file is not found
+//    or some required information about the file is unavailable
+//    and ShouldRaiseException is missing or set to True, an exception is thrown. Structure properties:
+//    * Ref                             - DefinedType.AttachedFile - a reference to the catalog item with file.
+//    * RefToBinaryFileData        - String - Address in the temporary storage where data is located.
+//    * Owner                           - DefinedType.FilesOwner - Reference to the object that is a file owner.
+//    * RelativePath                  - String - a relative file path. 
+//    * UniversalModificationDate       - Date   - Date and time the file was edited, in UTC time.
+//    * FileName                           - String - File name. For example "Document.txt".
+//    * Description                       - String - File description in the file storage catalog.
+//    * Extension                         - String - File extension without a dot.
+//    * Size                             - Number  - File size in bytes.
 //    * BeingEditedBy                        - CatalogRef.Users
 //                                         - CatalogRef.ExternalUsers
-//                                         - Undefined - 
-//    * LockedDate                          - Date   - 
-//    * SignedWithDS                         - Boolean -  indicates that the file is signed.
-//    * Encrypted                         - Boolean -  indicates that the file is encrypted.
+//                                         - Undefined - a user who locked the file for editing.
+//    * LockedDate                          - Date   - Date and time the file was opened for editing.
+//    * SignedWithDS                         - Boolean - indicates that the file is signed.
+//    * Encrypted                         - Boolean - indicates whether the file is encrypted.
 //    * EncryptionCertificatesArray       - See DigitalSignature.EncryptionCertificates
-//    * DeletionMark                    - Boolean - 
-//    * URL                - String -     
-//    * StoreVersions                      - Boolean - 
-//    * CurrentVersion                      - DefinedType.AttachedFile -  if the file directory supports creating
-//                                              versions, it contains a link to the current version of the file. Otherwise, it contains
-//                                              a link to the file.
-//    * Version                             - DefinedType.AttachedFile - 
-//    * VersionNumber                        - Number -  if the file directory supports creating versions, it contains
-//                                                   the current version number of the file, otherwise it is 0.
+//    * DeletionMark                    - Boolean - File deletion mark.
+//    * URL                - String - Reference to file.    
+//    * StoreVersions                      - Boolean - Flag indicating if change tracking is enabled for the file.
+//    * CurrentVersion                      - DefinedType.AttachedFile - if the file catalog supports version
+//                                              creation, it contains a reference to the current file version. Otherwise, it contains
+//                                              a file reference.
+//    * Version                             - DefinedType.AttachedFile - Same as above.
+//    * VersionNumber                        - Number - if file catalog supports version creation, it contains
+//                                                   current file version number, otherwise 0.
 //    * CurrentVersionAuthor                 - CatalogRef.FileSynchronizationAccounts
 //                                         - CatalogRef.Users
-//                                         - CatalogRef.ExternalUsers - 
-//    * Volume                                - CatalogRef.FileStorageVolumes -  the storage volume of the file.
+//                                         - CatalogRef.ExternalUsers - a user who edited the file.
+//    * Volume                                - CatalogRef.FileStorageVolumes - a volume storing file.
 //    * Author                              - CatalogRef.FileSynchronizationAccounts
 //                                         - CatalogRef.Users
-//                                         - CatalogRef.ExternalUsers - 
-//    * TextExtractionStatus             - String - 
-//    * FullVersionDescription           - String -  if the file directory supports creating versions, it contains the full
-//                                              name of the current version of the file. Otherwise, it contains the full
-//                                              name of the file.
-//    * CurrentVersionEncoding             - String -  encoding of the text file.
-//    * ForReading                           - Boolean -  indicates that the file is being edited by a user other than the current user.
-//    * FullFileNameInWorkingDirectory     - String -  path to the file in the working directory.
-//    * InWorkingDirectoryForRead           - Boolean -  the file in the working directory is marked read-only.
-//    * OwnerWorkingDirectory            - String -  path to the owner's working directory.
-//    * FolderForSaveAs               - String -  path to the save folder.
-//    * FileBeingEdited                  - Boolean -  indicates that the file is busy for editing.
-//    * CurrentUserEditsFile - Boolean -  indicates that the file is currently being edited by the current user.
-//    * Encoding                          - String -  encoding of the text file.
-//    * IsInternal                          - Boolean -  indicates that the file is a service file.
+//                                         - CatalogRef.ExternalUsers - a file author.
+//    * TextExtractionStatus             - String - Status of extracting text from file.
+//    * FullVersionDescription           - String - if file catalog supports version creation, it contains full
+//                                              description of the current file version. Otherwise, it contains full
+//                                              file description.
+//    * CurrentVersionEncoding             - String - a text file encoding.
+//    * ForReading                           - Boolean - indicates that the file is being edited by a user other than the current one.
+//    * FullFileNameInWorkingDirectory     - String - a file path in working directory.
+//    * InWorkingDirectoryForRead           - Boolean - a file in working directory is marked for reading only.
+//    * OwnerWorkingDirectory            - String - a path to owner working directory.
+//    * FolderForSaveAs               - String - a path to saving directory.
+//    * FileBeingEdited                  - Boolean - indicates that file is locked for editing.
+//    * CurrentUserEditsFile - Boolean - indicates that file is locked for editing by the current user.
+//    * Encoding                          - String - a text file encoding.
+//    * IsInternal                          - Boolean - Indicates that the file is an internal one.
 //
 // Example:
 // 
+// In this example, by setting the form ID in AdditionalParameters, we prevent a premature cleanup of the temporary storage
+// caused by server calls during file opening.
+// This might happen if the file is encrypted or when 1C:Enterprise opens a text or table editor.
 // 
-// 
-// 
-// 
-// 
-//	
-//	
-//	
-//		
-//	
+// Opening multiple files.
+//	FileDataParameters = StoredFilesClientServer.FileDataParameters();
+//	FileDataParameters.FormID = UUID;
+//	While Selection.Next() Do
+//		FileDataArray.Add(StoredFiles.FileData(Selection.File, FileDataParameters));
+//	EndDo;
 //
 Function FileData(Val AttachedFile, Val AdditionalParameters = Undefined,
 	Val DeleteGetRefToBinaryData = True, Val DeleteForEditing = False) Export
@@ -456,11 +458,11 @@ Function FileData(Val AttachedFile, Val AdditionalParameters = Undefined,
 	
 EndFunction
 
-// 
+// Finds all files attached to an object and adds references to them to the Files property.
 //
 // Parameters:
 //  FileOwner - DefinedType.AttachedFilesOwner
-//  Files         - Array of DefinedType.AttachedFile - 
+//  Files         - Array of DefinedType.AttachedFile - Array to add references to objects to.
 //
 Procedure FillFilesAttachedToObject(Val FileOwner, Val Files) Export
 	
@@ -476,21 +478,21 @@ Procedure FillFilesAttachedToObject(Val FileOwner, Val Files) Export
 	
 EndProcedure
 
-// Returns a new file reference for the specified file owner.
-// In particular, the link is used when adding a file to the Addfile function.
+// Returns a new reference to a file for the specified file owner.
+// In particular, the reference is used when adding a file to the AddFile function.
 //
 // Parameters:
-//  FilesOwner - DefinedType.AttachedFilesOwner -  the object to which
-//                   you want to attach the file to add.
+//  FilesOwner - DefinedType.AttachedFilesOwner - an object, to which
+//                   you need to attach the file.
 //
-//  CatalogName - Undefined -  calculate the owner reference (allowed
-//                   when there is only one reference, otherwise an exception will be thrown).
+//  CatalogName - Undefined - find catalog by the owner (valid
+//                   if catalog is unique, otherwise, an exception is thrown).
 //
-//                 - String - 
-//                            
+//                 - String - an *AttachedFiles catalog name that differs from
+//                            the standard name <OwnerName>AttachedFiles.
 //  
 // Returns:
-//  DefinedType.AttachedFile - 
+//  DefinedType.AttachedFile - a reference to a new catalog item with a file that is not saved yet.
 //
 Function NewRefToFile(FilesOwner, CatalogName = Undefined) Export
 	
@@ -500,25 +502,25 @@ Function NewRefToFile(FilesOwner, CatalogName = Undefined) Export
 	
 EndFunction
 
-// Updates file properties without taking into account versions: binary data, text, date of change,
-// and other optional properties. Use only for files that do not store versions.
+// Updates file properties without considering versions: binary data, text, modification date,
+// and also other optional properties. Use only for files that do not store versions.
 //
 // Parameters:
-//  AttachedFile - DefinedType.AttachedFile -  link to the directory element with the file.
+//  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
 //  FileInfo - Structure:
-//     * FileAddressInTempStorage - String -  the address of the new binary data of the file.
-//     * TempTextStorageAddress - String -  the address of the new binary data of the text
-//                                                 extracted from the file.
-//     * BaseName               - String -  optional, if the property is not specified or is not filled in,
-//                                                 then it will not be changed.
-//     * UniversalModificationDate   - Date   -  optional, the date of the last modification of the file, if
-//                                                 the property is not specified or not filled in, then
-//                                                 the current session date will be set.
-//     * Extension                     - String -  optional, new file extension.
-//     * BeingEditedBy                    - AnyRef -  optional, a new user editing the file.
-//     * Encoding                      - String -  optional, the encoding in which the file is saved.
-//                                                 For a list of supported encodings, see the help for
-//                                                 the global context method "Get Binary Strings".
+//     * FileAddressInTempStorage - String - Address of new binary data.
+//     * TempTextStorageAddress - String - an address of text new binary data,
+//                                                 extracted from a file.
+//     * BaseName               - String - optional, if the property is not specified or empty,
+//                                                 it will not be changed.
+//     * UniversalModificationDate   - Date   - optional, the file modification date.
+//                                                 If this property is not specified or is empty,
+//                                                 set it to the current session date.
+//     * Extension                     - String - optional, a new file extension.
+//     * BeingEditedBy                    - AnyRef - optional, a user who edits the file.
+//     * Encoding                      - String - optional, an encoding, in which the file is saved.
+//                                                 See the list of supported encodings in the help
+//                                                 to the GetBinaryDataFromString global context method.
 //
 Procedure RefreshFile(Val AttachedFile, Val FileInfo) Export
 	
@@ -526,14 +528,14 @@ Procedure RefreshFile(Val AttachedFile, Val FileInfo) Export
 	
 EndProcedure
 
-// Returns the name of the attached files object form by owner.
+// Returns a form name of the attachment object by owner.
 //
 // Parameters:
-//  FilesOwner - DefinedType.AttachedFilesOwner -  the object to which
-//                       you want to attach the file to add.
+//  FilesOwner - DefinedType.AttachedFilesOwner - an object, to which
+//                       you need to attach the file.
 //
 // Returns:
-//  String - 
+//  String - a full object form name of attachments by an owner.
 //
 Function FilesObjectFormNameByOwner(Val FilesOwner) Export
 	
@@ -557,16 +559,16 @@ Function FilesObjectFormNameByOwner(Val FilesOwner) Export
 	
 EndFunction
 
-// Determines whether the file to be added can be attached to the file owner.
+// Defines the possibility of attaching the file to add to the file owner.
 //
 // Parameters:
-//  FilesOwner - DefinedType.AttachedFilesOwner -  the object to which
-//                       you want to attach the file to add.
-//  CatalogName - String -  if specified, it checks whether files are added to the specified storage.
-//                            Otherwise, the directory name will be determined by its owner.
+//  FilesOwner - DefinedType.AttachedFilesOwner - an object, to which
+//                       you need to attach the file.
+//  CatalogName - String - if specified, a check of adding in the definite file storage is executed.
+//                            Otherwise, the catalog name will be defined by the owner.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, files can be attached to the object.
 //
 Function CanAttachFilesToObject(FilesOwner, CatalogName = "") Export
 	
@@ -584,17 +586,17 @@ Function CanAttachFilesToObject(FilesOwner, CatalogName = "") Export
 	
 EndFunction
 
-// Adds a new file from the file system.
-// If the file directory supports storing versions, the first version of the file will be created.
+// Adds a new file from file system.
+// If the file catalog supports version storage, the first file version will be created.
 // 
 // Parameters:
-//   FilesOwner    - DefinedType.AttachedFilesOwner -  the object to which
-//                       you want to attach the file to add.
-//   FilePathOnHardDrive - String - 
-//                       
+//   FilesOwner    - DefinedType.AttachedFilesOwner - an object, to which
+//                       you need to attach the file.
+//   FilePathOnHardDrive - String - a full path to the file with a file name and extension.
+//                       The file must be located on the server.
 //
 // Returns:
-//  DefinedType.AttachedFile - 
+//  DefinedType.AttachedFile - a reference to a catalog item with the created file.
 //
 Function AddFileFromHardDrive(FilesOwner, FilePathOnHardDrive) Export
 	
@@ -611,10 +613,10 @@ Function AddFileFromHardDrive(FilesOwner, FilePathOnHardDrive) Export
 	TempTextStorageAddress = "";
 	
 	If FilesOperationsInternal.ExtractTextFilesOnServer() Then
-		// 
+		// The scheduled job will extract a text.
 		TempTextStorageAddress = ""; 
 	Else
-		// 
+		// An attempt to extract a text if the server is under Windows.
 		If Common.IsWindowsServer() Then
 			Text = FilesOperationsInternal.ExtractTextFromFileOnHardDrive(FilePathOnHardDrive);
 			TempTextStorageAddress = New ValueStorage(Text);
@@ -628,15 +630,15 @@ Function AddFileFromHardDrive(FilesOwner, FilePathOnHardDrive) Export
 	
 EndFunction
 
-// The event handler before writing the file owner objects,
-// marks the attached files for deletion when the owner object is marked.
-// Only suitable for documents.
+// The BeforeWrite event handler of the file owner objects
+// marks attachments for deletion when the owner object is marked.
+// Applicable to documents only.
 //
 // Parameters:
-//  Source        - DocumentObject -  a document with attached files.
-//  Cancel           - Boolean -  standard pre-recording handler parameter. 
-//  WriteMode     - DocumentWriteMode -  standard pre-recording handler parameter.    
-//  PostingMode - DocumentPostingMode -  standard pre-recording handler parameter.
+//  Source        - DocumentObject - a document with attached files.
+//  Cancel           - Boolean - the standard parameter of the BeforeWrite handler. 
+//  WriteMode     - DocumentWriteMode - the standard parameter of the BeforeWrite handler.    
+//  PostingMode - DocumentPostingMode - the standard parameter of the BeforeWrite handler.
 //
 Procedure SetDeletionMarkOfDocumentsBeforeWrite(Source, Cancel, WriteMode, PostingMode) Export
 	
@@ -650,13 +652,13 @@ Procedure SetDeletionMarkOfDocumentsBeforeWrite(Source, Cancel, WriteMode, Posti
 	
 EndProcedure
 
-// The event handler before writing the file owner objects,
-// marks the attached files for deletion when the owner object is marked.
-// Suitable for reference objects other than documents.
+// The BeforeWrite event handler of the file owner objects
+// marks attachments for deletion when the owner object is marked.
+// Applicable to reference objects, except for documents.
 //
 // Parameters:
-//  Source - DefinedType.AttachedFilesOwnerObject -  an object with attached files.
-//  Cancel    - Boolean -  standard pre-recording handler parameter.
+//  Source - DefinedType.AttachedFilesOwnerObject - the object with attached files.
+//  Cancel    - Boolean - the standard parameter of the BeforeWrite handler.
 //
 Procedure SetFilesDeletionMarkBeforeWrite(Source, Cancel) Export
 	
@@ -674,38 +676,38 @@ Procedure SetFilesDeletionMarkBeforeWrite(Source, Cancel) Export
 	
 EndProcedure
 
-// 
-// 
+// Initializes parameter structure to add the file.
+// Use this function in StoredFiles.AddToFile.
 // 
 // Parameters:
 //   AdditionalAttributes - String
-//                           - Array - 
-//                           
-//                           - Structure - 
-//                           
+//                           - Array - comma-separated attachment attribute names
+//                           or an array of attribute names.
+//                           - Structure - a collection of additional attributes. Standard properties will be added
+//                           to the collection if there are none.
 //
 // Returns:
 //   Structure:
 //      * Author                       - CatalogRef.Users
 //                                    - CatalogRef.ExternalUsers
-//                                    - CatalogRef.FileSynchronizationAccounts - 
-//                                    
-//                                    
-//      * FilesOwner              - DefinedType.AttachedFilesOwner -  the object to which
-//                                    you want to attach the file to add.
+//                                    - CatalogRef.FileSynchronizationAccounts - a user or
+//                                    an account of file synchronization on whose behalf the file is created.
 //                                    The default value is Undefined.
-//      * BaseName            - String -  file name without extension.
+//      * FilesOwner              - DefinedType.AttachedFilesOwner - an object, to which
+//                                    you need to attach the file.
+//                                    The default value is Undefined.
+//      * BaseName            - String - File name without the extension.
 //                                    The default value is "".
-//      * ExtensionWithoutPoint          - String -  file extension (without the dot at the beginning).
+//      * ExtensionWithoutPoint          - String - File extension (without a dot).
 //                                    The default value is "".
-//      * ModificationTimeUniversal - Date -  date and time when the file was modified (UTC+0: 00). If the parameter takes the value
-//                                    Undefined. when adding a file, the modification time will be set to
-//                                    the result of executing the function current universal Date().
+//      * ModificationTimeUniversal - Date - date and time of file modification (UTC+0:00). If the parameter value is
+//                                    Undefined, when adding a file, the modification time will be set equal to
+//                                    the result of the CurrentUniversalDate() function.
 //                                    The default value is Undefined.
-//      * FilesGroup                - DefinedType.AttachedFile -  the directory group with files to
-//                                    add the new file to.
+//      * FilesGroup                - DefinedType.AttachedFile - a catalog group with files,
+//                                    where a new file will be added.
 //                                    The default value is Undefined.
-//      * IsInternal                   - Boolean -  if True, then the file will be hidden from users.
+//      * IsInternal                   - Boolean - if True, the file will be hidden from users.
 //                                    The default value is False.
 //
 Function FileAddingOptions(AdditionalAttributes = Undefined) Export
@@ -714,21 +716,21 @@ Function FileAddingOptions(AdditionalAttributes = Undefined) Export
 	
 EndFunction
 
-// Creates an object in the directory for storing the file and fills in its details with the passed properties.
+// Creates an object that will store a file in the catalog and fills its attributes with the passed properties.
 //
 // Parameters:
 //   FileParameters                 - See FilesOperations.FileAddingOptions.
-//   FileAddressInTempStorage - String -  an address that points to binary data in temporary storage.
-//   TempTextStorageAddress - String -  an address that points to the extracted text from a file in temporary storage.
-//   LongDesc                       - String -  text description of the file.
-//   NewRefToFile              - Undefined -  if the file owner has only one file storage directory.
-//                                  - DefinedType.AttachedFile - 
-//                                    
-//                                    
-//                                    
+//   FileAddressInTempStorage - String - an address in a temporary storage that points to binary data.
+//   TempTextStorageAddress - String - an address in a temporary storage that points to text extracted from the file.
+//   LongDesc                       - String - a text description of the file.
+//   NewRefToFile              - Undefined - if the file owner has only one file storage catalog.
+//                                  - DefinedType.AttachedFile - a reference to an item of a file storage catalog
+//                                    that must be used for a file to be added.
+//                                    It must match one of the types of file storage catalogs of a file
+//                                    owner. The reference can be received using the NewRefToFile function.
 // 
 // Returns:
-//   DefinedType.AttachedFile - 
+//   DefinedType.AttachedFile - a reference to the created attachment.
 //
 Function AppendFile(FileParameters,
                      Val FileAddressInTempStorage,
@@ -771,9 +773,6 @@ Function AppendFile(FileParameters,
 		BaseName = ForUnencryptedFile.BaseName;
 		FileParameters.Insert("Encrypted", True);
 	EndIf;
-	
-	BaseName = CommonClientServer.ReplaceProhibitedCharsInFileName(BaseName);
-	ExtensionWithoutPoint = CommonClientServer.ReplaceProhibitedCharsInFileName(ExtensionWithoutPoint); 
 	
 	ModificationTimeUniversal = FileParameters.ModificationTimeUniversal;
 	If Not ValueIsFilled(ModificationTimeUniversal)
@@ -929,35 +928,35 @@ Function AppendFile(FileParameters,
 	
 EndFunction
 
-// Returns personal settings for working with files.
+// Returns personal settings of operations with files.
 //
 // Returns:
 //  Structure:
-//    * ShowLockedFilesOnExit        - Boolean -  exists only if the
-//                                                                  file management subsystem is implemented.
-//    * PromptForEditModeOnOpenFile    - Boolean -  exists only if the
-//                                                                  file management subsystem is implemented.
-//    * ShowSizeColumn                          - Boolean -  exists only if the
-//                                                                  file management subsystem is implemented.
-//    * ActionOnDoubleClick                     - String -  exists only if the
-//                                                                  file management subsystem is implemented.
-//    * FileVersionsComparisonMethod                      - String -  exists only if the
-//                                                                  file management subsystem is implemented.
-//    * GraphicalSchemasExtension                       - String -  list of extensions for graphic diagrams.
-//    * GraphicalSchemasOpeningMethod                   - EnumRef.OpenFileForViewingMethods -  method
-//                                                       for opening graphic diagrams.
-//    * TextFilesExtension                         - String -  file extensions for open document formats.
-//    * TextFilesOpeningMethod                     - EnumRef.OpenFileForViewingMethods -  method
-//                                                       for opening text files.
-//    * LocalFileCacheMaxSize           - Number -  specifies the maximum size of the local file cache.
-//    * ShowFileNotModifiedFlag          - Boolean -  show files at shutdown.
-//    * ShowTooltipsOnEditFiles       - Boolean -  and the web client shows hints when
+//    * ShowLockedFilesOnExit        - Boolean - exists only if the
+//                                                                  File operations subsystem is available.
+//    * PromptForEditModeOnOpenFile    - Boolean - exists only if the
+//                                                                  File operations subsystem is available.
+//    * ShowSizeColumn                          - Boolean - exists only if the
+//                                                                  File operations subsystem is available.
+//    * ActionOnDoubleClick                     - String - exists only if the
+//                                                                  File operations subsystem is available.
+//    * FileVersionsComparisonMethod                      - String - exists only if the
+//                                                                  File operations subsystem is available.
+//    * GraphicalSchemasExtension                       - String - a list of extensions for graphical schemas.
+//    * GraphicalSchemasOpeningMethod                   - EnumRef.OpenFileForViewingMethods - a method
+//                                                       to open graphical schemas.
+//    * TextFilesExtension                         - String - an open document format file extension.
+//    * TextFilesOpeningMethod                     - EnumRef.OpenFileForViewingMethods - a method
+//                                                       of opening text files.
+//    * LocalFileCacheMaxSize           - Number - determines the maximum size of the local file cache.
+//    * ShowFileNotModifiedFlag          - Boolean - show file when the job is completed.
+//    * ShowTooltipsOnEditFiles       - Boolean - show tooltips in web client when
 //                                                                  editing files.
-//    * PathToLocalFileCache                        - String -  path to the local file cache.
-//    * IsFullUser                      - Boolean - 
-//                                                           
-//    * DeleteFileFromLocalFileCacheOnCompleteEdit - Boolean -  deleting files from the local cache when
-//                                                                              editing is complete.
+//    * PathToLocalFileCache                        - String - a path to local file cache.
+//    * IsFullUser                      - Boolean - obsolete, use
+//                                                           UsersClient.IsFullUser instead.
+//    * DeleteFileFromLocalFileCacheOnCompleteEdit - Boolean - delete files from the local cache
+//                                                                              when complete editing.
 //
 Function FilesOperationSettings() Export
 	
@@ -965,10 +964,10 @@ Function FilesOperationSettings() Export
 	
 EndFunction
 
-// Returns the maximum file size.
+// Returns maximum file size.
 //
 // Returns:
-//  Number - 
+//  Number - an integer number of bytes.
 //
 Function MaxFileSize() Export
 	
@@ -983,7 +982,7 @@ Function MaxFileSize() Export
 	MaxFileSize = Constants[ConstantName].Get();
 	
 	If Not ValueIsFilled(MaxFileSize) Then
-		MaxFileSize = 52428800; // 
+		MaxFileSize = 52428800; // 50*1024*1024 = 50 MB
 	EndIf;
 	
 	If SeparationEnabledAndAvailableUsage Then
@@ -997,10 +996,10 @@ Function MaxFileSize() Export
 	
 EndFunction
 
-// Returns the maximum file size of the provider.
+// Returns maximum provider file size.
 //
 // Returns:
-//  Number - 
+//  Number - an integer number of bytes.
 //
 Function MaxFileSizeCommon() Export
 	
@@ -1012,35 +1011,35 @@ Function MaxFileSizeCommon() Export
 	If MaxFileSize = Undefined
 	 Or MaxFileSize = 0 Then
 		
-		MaxFileSize = 50*1024*1024; // 
+		MaxFileSize = 50*1024*1024; // 50 MB
 	EndIf;
 	
 	Return MaxFileSize;
 	
 EndFunction
 
-// Saves settings for working with files.
+// Saves settings of operations with files.
 //
 // Parameters:
-//  FilesOperationSettings - Structure - :
-//     * ShowFileNotModifiedFlag        - Boolean -  optional. Show a message if the file has not
-//                                                      been modified.
-//     * ShowLockedFilesOnExit      - Boolean -  optional. Show files at shutdown.
-//     * ShowSizeColumn                        - Boolean - 
+//  FilesOperationSettings - Structure - settings of operations with files and their values.:
+//     * ShowFileNotModifiedFlag        - Boolean - optional. Show message if the file has
+//                                                      not been modified.
+//     * ShowLockedFilesOnExit      - Boolean - optional. Show files on exit.
+//     * ShowSizeColumn                        - Boolean - Optional. If True, show "Size" column in file lists.
 //                                                      
-//     * TextFilesExtension                       - String -  file extensions for open document formats.
-//     * TextFilesOpeningMethod                   - EnumRef.OpenFileForViewingMethods -  method
-//                                                      for opening text files.
-//     * GraphicalSchemasExtension                     - String -  list of image file extensions.
-//     * ShowTooltipsOnEditFiles     - Boolean -  optional. Show hints
-//                                                      when editing files in the web client.
-//     * PromptForEditModeOnOpenFile  - Boolean -  optional. Select the editing mode when
+//     * TextFilesExtension                       - String - an open document format file extension.
+//     * TextFilesOpeningMethod                   - EnumRef.OpenFileForViewingMethods - a method
+//                                                      of opening text files.
+//     * GraphicalSchemasExtension                     - String - a list of graphical file extensions.
+//     * ShowTooltipsOnEditFiles     - Boolean - optional. Show tooltips in web client
+//                                                      when editing files.
+//     * PromptForEditModeOnOpenFile  - Boolean - optional. Select editing mode when
 //                                                      opening the file.
 //     * FileVersionsComparisonMethod                    - EnumRef.FileVersionsComparisonMethods -
-//                                                        optional. Method for comparing versions and files.
-//     * ActionOnDoubleClick                   - EnumRef.DoubleClickFileActions -  optional.
+//                                                         optional. Files and versions comparison method.
+//     * ActionOnDoubleClick                   - EnumRef.DoubleClickFileActions - optional.
 //     * GraphicalSchemasOpeningMethod                 - EnumRef.OpenFileForViewingMethods -
-//                                                        optional. Method for opening the file for viewing.
+//                                                        optional. A method to open graphical schemas.
 //
 Procedure SaveFilesOperationSettings(FilesOperationSettings) Export
 	
@@ -1064,8 +1063,8 @@ Procedure SaveFilesOperationSettings(FilesOperationSettings) Export
 	
 EndProcedure
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -1080,11 +1079,11 @@ Function AttributesToEditInBatchProcessing() Export
 	
 EndFunction
 
-//  
-// 
+// Transfers files between storage catalogs of the file owner and marks the transferred files for deletion. 
+// Intended for infobase update procedures in cases where attachments are transferred between file storing tables.
 //
-//  
-//  
+// For example, you can transfer attachments from "Catalog.<Owner catalog name>Attachments" to "Catalog.Files" or vice versa. 
+// It runs iteratively for each of the file owner objects (a catalog member, CCT, document, etc.) 
 //  
 //  
 //  
@@ -1092,17 +1091,17 @@ EndFunction
 // 
 //
 // Parameters:
-//   FilesOwner - DefinedType.AttachedFilesOwner -  the owner is the receiver of the files.
-//   Source - String - 
-//                       
-//   Receiver - String - 
-//                       
+//   FilesOwner - DefinedType.AttachedFilesOwner - an object that is owner and file destination.
+//   Source - String - If a conversion from the given storage is required.
+//                       If not specified, it uses the first secondary storage catalog.
+//   Receiver - String - If a conversion to the given storage is required.
+//                       If not specified, it uses the primary storage catalog.
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - DefinedType.AttachedFile - 
+//   * Key     - DefinedType.AttachedFile - A transferred file marked for deletion.
 //                                                     
-//   * Value - DefinedType.AttachedFile -  generated file.
+//   * Value - DefinedType.AttachedFile - The created file.
 //
 Function MoveFilesBetweenStorageCatalogs(Val FilesOwner, Val Source = Undefined,
 	Val Receiver = Undefined) Export
@@ -1179,7 +1178,7 @@ Function MoveFilesBetweenStorageCatalogs(Val FilesOwner, Val Source = Undefined,
 					EndIf;
 					
 					If CorrectRef Then
-						// 
+						// @skip-check query-in-loop - save files in a transaction object-by-object
 						RefToAttachedFile = CreateAttachedFileBasedOnFile(FilesOwner, 
 							AttachedFilesManager, SourceFileObject, CurrentVersionObject);
 						
@@ -1193,7 +1192,7 @@ Function MoveFilesBetweenStorageCatalogs(Val FilesOwner, Val Source = Undefined,
 						Result.Insert(SourceFileObject.Ref, RefToAttachedFile);
 					EndIf;
 				Else
-					// 
+					// @skip-check query-in-loop - save files in a transaction object-by-object
 					RefToAttachedFile = CreateAttachedFileBasedOnFile(FilesOwner, 
 						AttachedFilesManager, SourceFileObject);
 					
@@ -1215,13 +1214,13 @@ Function MoveFilesBetweenStorageCatalogs(Val FilesOwner, Val Source = Undefined,
 	
 EndFunction
 
-// Event handler for writing the file owner form to the server.
+// OnWriteAtServer event handler of a file owner form.
 //
 // Parameters:
-//  Cancel           - Boolean  -  standard parameter event of the form.
-//  CurrentObject   - DefinedType.AttachedFilesOwnerObject -  standard parameter event of the form.
-//  WriteParameters - Structure -  standard parameter event of the form.
-//  Form           - ClientApplicationForm - 
+//  Cancel           - Boolean  - Standard parameter of the form event.
+//  CurrentObject   - DefinedType.AttachedFilesOwnerObject - Standard parameter of the form event.
+//  WriteParameters - Structure - Standard parameter of the form event.
+//  Form           - ClientApplicationForm - Form of an object to save.
 //
 Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters, Form) Export
 	
@@ -1245,35 +1244,35 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters, Form) Export
 	
 EndProcedure
 
-// Places hyperlinks and fields of attached files on the form.
+// Places hyperlinks and fields of attachments in a form.
 //
 // Parameters:
-//  Form               - ClientApplicationForm -  connection form.
+//  Form               - ClientApplicationForm - a form for connection.
 //  ItemsToAdd1 - Structure
-//                      - Array - 
-//                      
-//                       See FilesOperations.FilesHyperlink
-//                      
+//                      - Array - Parameters of items that manage
+//                      attachments to be placed on the form or an array of such structures.
+//                      Properties: See FilesOperations.FilesHyperlink
+//                      and StoredFiles.FileField.
 //  SettingsOfFileManagementInForm - See FilesOperations.SettingsOfFileManagementInForm.
 //                      
 //
 // Example:
-//  1. Adding a hyperlink to attached files:
-//   Parameteryperlinks = work with Files.Gipersalivaciu();
-//   Parameter of the hyperlink.Placement = " Command Panel";
-//   Work with files.Precontamination(GetObject, Parametrisierung);
+//  1. Adding hyperlink of attachments:
+//   HyperlinkParameters = StoredFiles.FilesHyperlink();
+//   HyperlinkParameters.Placement = "CommandBar";
+//   StoredFiles.OnCreateAtServer(ThisObject, HyperlinkParameters);
 //
-//  2. Adding an image field:
-//   Parametersfields = Workfiles.Polifila();
-//   Parametritis.Pathname = " Object.Filerting";
-//   Parametritis.Pucklerstrasse = "Adreslerini";
-//   Work with files.Precontamination(GetObject, Parametrial);
+//  2. Adding a picture field:
+//   FieldParameters = StoredFiles.FileField();
+//   FieldParameters.PathToData = "Object.PicturesFile";
+//   FieldParameters.ImageDataPath = "PictureAddress";
+//   StoredFiles.OnCreateAtServer(ThisObject, FieldParameters);
 //
-//  3. Adding multiple controls:
-//   addable Elements = New Array;
-//   Adding elements.Add(Parametrisierung);
-//   Adding elements.Add (Field Parametres);
-//   Work with files.Append To The Server(This Is The Object That You Are Adding Elements To);
+//  3. Adding several controls:
+//   ItemsToAdd = New Array;
+//   ItemsToAdd.Add(HyperlinkParameters);
+//   ItemsToAdd.Add(FieldParameters);
+//   StoredFiles.OnCreateAtServer(ThisObject, ItemsToAdd);
 //
 Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManagementInForm = Undefined) Export
 	
@@ -1427,7 +1426,7 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManageme
 		EndIf;
 		
 		SynchronizationInfo = FilesOperationsInternal.SynchronizationInfo(AttachedFilesOwner);
-		FilesBeingEditedInCloudService = SynchronizationInfo.Count() > 0;
+		FilesBeingEditedInCloudService = SynchronizationInfo <> Undefined;
 		
 		AdditionAvailable = Not FilesBeingEditedInCloudService
 			And AccessRight("InteractiveInsert", MetadataOfCatalogWithFiles);
@@ -1480,32 +1479,32 @@ Procedure OnCreateAtServer(Form, ItemsToAdd1 = Undefined, SettingsOfFileManageme
 	
 EndProcedure
 
-// Initializes the parameter structure for placing a hyperlink of attached files on the form.
+// Initializes parameter structure to place a hyperlink of attachments on the form.
 //
 // Returns:
-//  Structure - :
-//    * Owner                   - String -  name of the attribute that contains a link to the owner of the attached files.
-//                                 The default value is " Object.Link".
+//  Structure - parameters for placing a hyperlink. Properties:
+//    * Owner                   - String - a name of the attribute containing a reference to the owner attached files.
+//                                 The default value is Object.Ref.
 //    * Location                 - String
-//                                 - Undefined - 
-//                                 
-//                                 
-//                                 
-//                                 
-//                                 
-//    * Title                  - String -  the title of the hyperlink. The default value is "Files".
-//    * DisplayTitleRight  - Boolean -  if the parameter is set to True, the header
-//                                 will be displayed after the add commands, otherwise it will be displayed before the add commands.
-//                                 The default value is True;
-//    * DisplayCount       - Boolean -  if the parameter is set to True, it displays
-//                                 the number of attached files in the header. The default value is True.
-//    * AddFiles2             - Boolean -  if you specify False, there will be no commands for adding files.
+//                                 - Undefined - if a form group name or a command panel is specified,
+//                                 the hyperlink is placed into the specified group or panel. If a form item
+//                                 name is specified, the hyperlink is inserted before the specified item. If a parameter
+//                                 value is Undefined or an item is not found, the hyperlink is added to the form
+//                                 after all existing items.
+//                                 The default value is AttachedFilesManagement.
+//    * Title                  - String - a hyperlink title. The default value is Files.
+//    * DisplayTitleRight  - Boolean - if parameter value is True, a title
+//                                 will be displayed after addition commands, otherwise, it will be displayed before addition commands.
 //                                 The default value is True.
-//    * ShapeRepresentation          - String -  string representation of the "figure Display" property for
-//                                 commands for adding attached files. The default value is "auto".
-//    * Visible                  - Boolean -  if the parameter is set to False, the hyperlink
-//                                 will not be placed on the form. The parameter makes sense only for the global disable visibility
-//                                 in the procedure Remotefilenamecharset.When defining hyperlink files.
+//    * DisplayCount       - Boolean - if parameter is True, it displays
+//                                 the number of attached files in the title. The default value is True.
+//    * AddFiles2             - Boolean - if you specify False, commands for adding files will be missing.
+//                                 The default value is True.
+//    * ShapeRepresentation          - String - string presentation of the FigureDisplay property for
+//                                 commands of adding attached files. The default value is Auto.
+//    * Visible                  - Boolean - if the parameter is False, a hyperlink
+//                                 will not be placed on the form. The parameter makes sense only if visibility
+//                                 in the FilesOperationsOverridable.OnDefineFilesHyperlink procedure is globally disabled.
 //
 Function FilesHyperlink() Export
 	
@@ -1525,65 +1524,65 @@ Function FilesHyperlink() Export
 	
 EndFunction
 
-// Initializes the parameter structure for placing the attached file field on the form.
+// Initializes parameter structure to place an attachment field on the form.
 //
 // Returns:
-//  Structure - :
-//    * Owner                  - String -  name of the attribute that contains a link to the owner of the attached files.
-//                                The default value is " Object.Link".
+//  Structure - Hyperlink placement parameters. Has the following properties:
+//    * Owner                  - String - a name of the attribute containing a reference to the owner attached files.
+//                                The default value is Object.Ref.
 //    * Location                - String
-//                                - Undefined - 
-//                                
-//                                
-//                                
-//                                
+//                                - Undefined - if a form group name is specified,
+//                                the field will be placed in the specified group. If a form item name is specified,
+//                                the field will be inserted before the item. If the parameter value is Undefined
+//                                or an item is not found, the field will be added on the form
+//                                after all existing items. The default value is AttachedFilesManagement.
 //    * DataPath               - String
-//                                - Undefined - 
-//                                
-//                                
-//                                
+//                                - Undefined - Name of a form attribute that contains a reference to a file
+//                                to display. If the parameter is set to Undefined or the attribute is not found,
+//                                it adds a form attribute with the AttachedFileField name
+//                                and the DefinedType.AttachedFile type. The default value is AttachedFileField.
 //    * PathToPictureData    - String
-//                                - Undefined - 
-//                                
-//                                
-//                                
-//    * OneFileOnly            - Boolean -  if set to True,
-//                                only one file can be attached using the add commands. After adding the first file, the "Add" command
-//                                will replace the existing file with the file selected by the user, and clicking on 
-//                                the title will open the file for viewing. The default value is False.
-//    * ShowPreview    - Boolean -  if the parameter is set to True, it adds
-//                                a preview area of the attached file to the form. The default value is True.
-//    * NonselectedPictureText  - String -  displayed in the image preview field if 
+//                                - Undefined - a name of a form attribute with an image
+//                                that will be displayed in the preview field. If the parameter is set to Undefined or an attribute is not found,
+//                                it adds a form attribute with the AttachedFilePictureField name
+//                                and the String type. The default value is Undefined.
+//    * OneFileOnly            - Boolean - if you specify True, you will be able to
+//                                attach only one file using addition commands. After adding the firs file, the Add command
+//                                will replace the existing file with the file selected by the user, and clicking the 
+//                                header will open the file for viewing. The default value is False.
+//    * ShowPreview    - Boolean - if parameter value is True, it adds the attached file preview area
+//                                to the form. The default value is True.
+//    * NonselectedPictureText  - String - it is displayed in the image preview field if 
 //                                the image is missing. The default value is "Add image".
-//    * Title                 - String -  if the header differs from an empty string, it adds the header
-//                                of the attached file field to the form. The default value is "".
-//    * OutputFileTitle    - Boolean -  if the parameter is set to True, it adds a hyperlink
-//                                whose header corresponds to the short file name. If the value
-//                                of the "Title" parameter is different from "", the file title will be added after the General title
-//                                of the control. The default value is False.
-//    * ShowCommandBar - Boolean -  if the parameter is set to True, the commands will be placed in 
-//                                the command panel on the form and in the context menu of the preview element, otherwise
-//                                only in the context menu of the preview element. The default value is True.
-//    * AddFiles2            - Boolean -  if you specify False, there will be no commands for adding files.
+//    * Title                 - String - if the title is different from the blank string, it adds the
+//                                field title of the attached file to the form. The default value is "".
+//    * OutputFileTitle    - Boolean - if the parameter is True, adds a hyperlink,
+//                                whose title matches the short file name. If the "Title"
+//                                parameter value is different from "", the file title will be added after the common title of
+//                                the control. The default value is False.
+//    * ShowCommandBar - Boolean - if the parameter value is True, commands will be placed in 
+//                                the command bar on the form and context menu of the preview item,
+//                                otherwise, they will be placed in the preview item context menu only. The default value is True.
+//    * AddFiles2            - Boolean - if you specify False, commands for adding files will be missing.
 //                                The default value is True.
-//    * NeedSelectFile              - Boolean -  if the parameter is set to True, it adds a command to select a file
-//                                from the attached files. The default value is True.
-//    * ViewFile         - Boolean -  if the parameter is set to True, it adds a command to open
-//                                the file for viewing. The default value is True.
-//    * EditFile         - String -  if the parameter is set to "in Form", it adds a command
-//                                to open the attached file form. If the parameter takes the value
-//                                "Directly", it adds commands for editing the file, saving and undoing
-//                                changes. If it is set to "non-Edit", no editing commands will be added
-//                                . The default value is "in Form".
-//    * ClearFile               - Boolean -  if the parameter is set to True, it adds a command to clear 
-//                                the owner's props. The default value is True.
-//    * MaximumSize        - Number -  limit on the size of the file (in megabytes) that can be downloaded from the file system.
-//                                If it is set to 0, the size check is not performed. This property is ignored
-//                                if it takes a value greater than specified in the maximum file Size constant.
+//    * NeedSelectFile              - Boolean - if True, add a command for selecting from a list
+//                                of attached files. The default value is True.
+//    * ViewFile         - Boolean - if True, add the command for opening
+//                                a file for viewing. The default value is True.
+//    * EditFile         - String - if InForm, add the command
+//                                for opening the attached file form. If the parameter value is
+//                                Directly, it adds commands for file editing, saving and canceling
+//                                changes. If the value is DontEdit, editing commands
+//                                will not be added. The default value is InForm.
+//    * ClearFile               - Boolean - if True, add the command for clearing 
+//                                the owner attribute. The default value is True.
+//    * MaximumSize        - Number - a restriction on the size of the file (in megabytes) imported from the file system.
+//                                If the value is 0, size is not checked. The property is ignored
+//                                if its value is bigger than it is specified in the MaxFileSize constant.
 //                                The default value is 0.
-//    * SelectionDialogFilter       - String -  the filter that is set in the selection dialog when adding a file.
-//                                For the format, see the Filter property of the Dialog File Selection object in the Syntax Assistant.
-//                                The default value is "All files (*.*)|*.*"
+//    * SelectionDialogFilter       - String - a filter set in the selection dialog when adding a file.
+//                                See the format description in the Filter property of the FileSelectionDialog object in Syntax Assistant.
+//                                The default value is "All files (*.*)|*.*".
 //
 Function FileField() Export
 	
@@ -1611,11 +1610,11 @@ Function FileField() Export
 	
 EndFunction
 
-// Determines whether there are active file storage volumes.
-// If there is at least one file storage volume, it will return True.
+// Determines whether active file storage volumes are available.
+// If at least one file storage volume is available, returns True.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, at least one working volume exists.
 //
 Function HasFileStorageVolumes() Export
 	
@@ -1623,15 +1622,15 @@ Function HasFileStorageVolumes() Export
 	
 EndFunction
 
-// Adds an electronic signature to the file.
+// Adds a digital signature to file.
 //
 // Parameters:
-//  AttachedFile - DefinedType.AttachedFile -  link to the directory element with the file.
+//  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
 //
 //  SignatureProperties    - See DigitalSignatureClientServer.NewSignatureProperties
+//                     - Array - an array of the structures described above.
 //                     
-//                     
-//  FormIdentifier - UUID -  if specified, it is used when locking the object.
+//  FormIdentifier - UUID - if specified, it is used when locking an object.
 //
 Procedure AddSignatureToFile(AttachedFile, SignatureProperties, FormIdentifier = Undefined) Export
 	
@@ -1663,14 +1662,14 @@ Procedure AddSignatureToFile(AttachedFile, SignatureProperties, FormIdentifier =
 	
 EndProcedure
 
-// When programmatically copying a Source, it creates copies of all
-// attached files from the Recipient. For interactive copying, you must use
-// the procedure for working with Files.When writing to the server.
-// The source and Destination must be objects of the same type.
+// When copying the Source programmatically, it creates at the Recipient copies of all
+// attachments. For interactive copying,
+// use the StoredFiles.OnWriteAtServer procedure.
+// Source and Recipient must be objects of the same type.
 //
 // Parameters:
-//  Source   - AnyRef -  an object that has attached files to copy.
-//  Recipient - AnyRef -  the object that the attached files are copied to.
+//  Source   - AnyRef - a source object with attached files.
+//  Recipient - AnyRef - an object, to which the attached files are copied to.
 //
 Procedure CopyAttachedFiles(Val Source, Val Recipient) Export
 	
@@ -1678,12 +1677,12 @@ Procedure CopyAttachedFiles(Val Source, Val Recipient) Export
 	
 EndProcedure
 
-// 
+// Initializes a structure of parameters to set up file management on the form.
 //
 // Returns:
-//  Structure - :
-//    * DuplicateAttachedFiles - Boolean - 
-//                                   
+//  Structure - parameters to copy files. Properties:
+//    * DuplicateAttachedFiles - Boolean - indicates that attachments are copied when an owner object is copied
+//                                   The default value is False.
 //
 Function SettingsOfFileManagementInForm() Export
 	
@@ -1694,10 +1693,10 @@ Function SettingsOfFileManagementInForm() Export
 	
 EndFunction
 
-// 
+// Gets user scanning settings.
 // 
 // Parameters:
-//  ClientID - UUID - 
+//  ClientID - UUID - client iD
 // 
 // Returns:
 //   See FilesOperationsClientServer.UserScanSettings
@@ -1776,7 +1775,7 @@ Function GetUserScanSettings(ClientID) Export
 	Return Result;
 EndFunction
 
-// 
+// Saves user scanning settings.
 //
 // Parameters:
 //  UserScanSettings - See FilesOperationsClientServer.UserScanSettings
@@ -1824,37 +1823,37 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// ElectronicInteraction
+// OnlineInteraction
 
-// 
+// These procedures and functions are intended for integration with 1C:Electronic document library.
 
-// Transfers information about electronic signatures of a file from the tabular part of the file to the information register.
+// Transfers information about digital file signatures from the tabular file section to the information register.
 //
 // Parameters:
-//   Parameters - Structure -  parameters for executing the deferred update handler.
+//   Parameters - Structure - parameters of executing the deferred update handler.
 //
-Procedure MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegisters(Parameters) Export  // 
-	// 
+Procedure MoveDigitalSignaturesAndEncryptionCertificatesToInformationRegisters(Parameters) Export  // ACC:530 - Processing tables of attachments (not data from other subsystems).
+	// Intended for backward compatibility
 EndProcedure
 
-// End ElectronicInteraction
+// End OnlineInteraction
 
 #EndRegion
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
-// 
+// Deprecated. Obsolete. Use StoredFiles.AddFileFromHardDrive
+// Adds a new file to the specified file owner based on the file from the file system.
+// If the file owner supports version storage, the first file version will be created.
 // 
 // Parameters:
-//   FilesOwner    - DefinedType.AttachedFilesOwner -  the file folder or object
-//                       to attach the file to.
-//   FilePathOnHardDrive - String - 
-//                       
+//   FilesOwner    - DefinedType.AttachedFilesOwner - a file folder or an object, to which
+//                       you need to attach the file.
+//   FilePathOnHardDrive - String - a full path to the file with a file name and extension.
+//                       The file must be located on the server.
 //
 // Returns:
-//  DefinedType.AttachedFile - 
+//  DefinedType.AttachedFile - a reference to a catalog item with the created file.
 //
 Function CreateFileBasedOnFileOnHardDrive(FilesOwner, FilePathOnHardDrive) Export
 	
@@ -1862,16 +1861,16 @@ Function CreateFileBasedOnFileOnHardDrive(FilesOwner, FilePathOnHardDrive) Expor
 	
 EndFunction
 
-// Deprecated.
-// 
+// Deprecated. Obsolete. Use StoredFilesClientServer.DetermineAttachedFileForm instead.
+// Handler of the subscription to FormGetProcessing event for overriding file form.
 //
 // Parameters:
-//  Source                 - CatalogManager -  directory Manager with the name "*Attached files".
-//  FormType                 - String -  name of the standard form.
-//  Parameters                - Structure -  shape parameter.
-//  SelectedForm           - String -  name or metadata object of the form to open.
-//  AdditionalInformation - Structure -  additional information for opening the form.
-//  StandardProcessing     - Boolean -  indicates whether standard (system) event processing is performed.
+//  Source                 - CatalogManager - the *AttachedFiles catalog manager.
+//  FormType                 - String - a standard form name.
+//  Parameters                - Structure - form parameters.
+//  SelectedForm           - String - a name or metadata object of the form to open.
+//  AdditionalInformation - Structure - additional information of the form opening.
+//  StandardProcessing     - Boolean - indicates whether standard (system) event processing is executed.
 //
 Procedure DetermineAttachedFileForm(Source, FormType, Parameters,
 	SelectedForm, AdditionalInformation, StandardProcessing) Export
@@ -1881,18 +1880,18 @@ Procedure DetermineAttachedFileForm(Source, FormType, Parameters,
 	
 EndProcedure
 
-// Deprecated.
+// Deprecated. Obsolete. Use ConvertFilesToAttachedFiles.
 //
-//  
-// 
+// Transfers files from the Files catalog to the attachments with the file owner object and marks 
+// the transferred files for deletion.
 //
-// 
-// 
-// 
+// Is used in infobase update procedures.
+// The procedure is executed sequentially for each item of the file owner object
+// (catalog, CCT, document item etc.).
 //
 // Parameters:
-//   FilesOwner - AnyRef -  a reference to the object that is being converted.
-//   CatalogName - String -  if conversion to the specified storage is required.
+//   FilesOwner - AnyRef - a reference to the object being converted.
+//   CatalogName - String - if a conversion to the specified storage is required.
 //
 Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Export
 	
@@ -1959,7 +1958,7 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 			AttachedFile.FileStorageType             = CurrentVersionObject.FileStorageType;
 			AttachedFile.DeletionMark              = SourceFileObject.DeletionMark;
 			
-			// 
+			// If the file is stored in a volume, create a reference to the existing file.
 			AttachedFile.Volume                          = CurrentVersionObject.Volume;
 			AttachedFile.PathToFile                   = CurrentVersionObject.PathToFile;
 			
@@ -1979,7 +1978,7 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 			AttachedFile.Write();
 			
 			If AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase Then
-				//  
+				// @skip-check query-in-loop - save data object-by-object 
 				FileStorage1 = FileFromInfobaseStorage(CurrentVersionObject.Ref);
 				
 				InformationRegisters.FileRepository.WriteBinaryData(RefToNew, FileStorage1.Get());
@@ -1988,7 +1987,7 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 			CurrentVersionObject.DeletionMark = True;
 			SourceFileObject.DeletionMark = True;
 			
-			// 
+			// Delete references to volume in the old file, to prevent file deleting.
 			If CurrentVersionObject.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 				CurrentVersionObject.PathToFile = "";
 				CurrentVersionObject.Volume = Catalogs.FileStorageVolumes.EmptyRef();
@@ -2017,23 +2016,23 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 	
 EndProcedure
 
-// Deprecated. 
-//  
-// 
+// Deprecated. Instead, use "FilesOperations.MoveFilesBetweenStorageCatalogs". 
+// Transfers files from the Files catalog to the attachments with the file owner object and marks 
+// the transferred files for deletion.
 //
-// 
-// 
-// 
-// 
+// For use in infobase update procedures if a transition is made from using
+// file storage in the Files catalog to store files as attached to the file owner object.
+// The procedure is executed sequentially for each item of the file owner object
+// (catalog, CCT, document item etc.).
 //
 // Parameters:
-//   FilesOwner - DefinedType.AttachedFilesOwner -  the owner is the receiver of the files.
-//   CatalogName - String -  if conversion to the specified storage is required.
+//   FilesOwner - DefinedType.AttachedFilesOwner - an object that is owner and file destination.
+//   CatalogName - String - if a conversion to the specified storage is required.
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - CatalogRef.Files -  a migrated file that is marked for deletion after migration.
-//   * Value - DefinedType.AttachedFile -  generated file.
+//   * Key     - CatalogRef.Files - a transferred file that is marked for deletion after transferring it.
+//   * Value - DefinedType.AttachedFile - a created file.
 //
 Function ConvertFilesToAttachedFiles(Val FilesOwner, CatalogName = Undefined) Export
 	
@@ -2058,7 +2057,7 @@ Function EncryptedFilesExtension() Export
 	
 EndFunction
 
-// Utility function for converting Filesconnected
+// Internal function for the ConvertFilesToAttachedFiles
 //
 Function CreateAttachedFileBasedOnFile(Val FilesOwner, Val AttachedFilesManager, 
 	Val SourceFileObject, Val CurrentVersionObject = Undefined)
@@ -2104,7 +2103,7 @@ Function CreateAttachedFileBasedOnFile(Val FilesOwner, Val AttachedFilesManager,
 	AttachedFile.FileStorageType             = CurrentVersionObject.FileStorageType;
 	AttachedFile.DeletionMark              = SourceFileObject.DeletionMark;
 	
-	// 
+	// If the file is stored in a volume, create a reference to the existing file.
 	AttachedFile.Volume                          = CurrentVersionObject.Volume;
 	AttachedFile.PathToFile                   = CurrentVersionObject.PathToFile;
 	
@@ -2126,8 +2125,8 @@ Function CreateAttachedFileBasedOnFile(Val FilesOwner, Val AttachedFilesManager,
 	If AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase Then
 		FileStorage1 = FileFromInfobaseStorage(CurrentVersionObject.Ref);
 		
-		// 
-		// 
+		// If binary file data is missing from the infobase, skip it but keep the file card.
+		// It can be done after garbage files are cleaned up or due to exchange or import errors.
 		If FileStorage1 <> Undefined Then
 			SetPrivilegedMode(True);
 			InformationRegisters.FileRepository.WriteBinaryData(RefToNew, FileStorage1.Get());
@@ -2141,7 +2140,7 @@ Function CreateAttachedFileBasedOnFile(Val FilesOwner, Val AttachedFilesManager,
 	
 	SourceFileObject.DeletionMark  = True;
 	
-	// 
+	// Delete references to volume in the old file, to prevent file deleting.
 	If CurrentVersionObject.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 		CurrentVersionObject.PathToFile        = "";
 		CurrentVersionObject.Volume               = Catalogs.FileStorageVolumes.EmptyRef();
@@ -2158,9 +2157,9 @@ Function CreateAttachedFileBasedOnFile(Val FilesOwner, Val AttachedFilesManager,
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
-// Returns the entity key of the settings file.
+// Returns keys of file operation setting objects.
 // 
 Function FilesOperationSettingsObjectsKeys()
 	
@@ -2184,7 +2183,7 @@ Function FilesOperationSettingsObjectsKeys()
 	
 EndFunction
 
-// Marks / removes the delete mark for attached files.
+// Marks or unmarks attachments for deletion.
 Procedure MarkToDeleteAttachedFiles(Val Source, CatalogName = Undefined)
 	
 	If Source.IsNew() Then
@@ -2261,7 +2260,7 @@ Procedure MarkToDeleteAttachedFiles(Val Source, CatalogName = Undefined)
 	
 EndProcedure
 
-// Returns the ID of the owner of the attached file.
+// Returns attachment owner ID.
 Function GetObjectID(Val FilesOwner)
 	
 	QueryText =
@@ -2288,13 +2287,13 @@ Function GetObjectID(Val FilesOwner)
 	
 EndFunction
 
-// Returns binary file data from the information database.
+// Returns file binary data from the infobase.
 //
 // Parameters:
-//   FileRef - 
+//   FileRef - a reference to a file or its version.
 //
 // Returns:
-//   ValueStorage -  binary data of the file.
+//   ValueStorage - binary file data.
 //
 Function FileFromInfobaseStorage(FileRef) Export
 	
@@ -2335,13 +2334,13 @@ Function FileFromInfobaseStorage(FileRef) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event subscription handlers.
 
-// Handler for subscribing to the pre-Recording event to fill in the auto details of the attached file.
+// BeforeWrite event handler for filling attachment attributes.
 //
 // Parameters:
-//  Source   - CatalogObject -  directory object with the name "*Attached files".
-//  Cancel      - Boolean -  parameter passed to the event subscription before Recording.
+//  Source   - CatalogObject - the *AttachedFiles catalog object.
+//  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 	
@@ -2362,7 +2361,7 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 	EndIf;
 	
 	If Source.IsNew() Then
-		// 
+		// Check the Add right.
 		If Not FilesOperationsInternal.HasRight("AddFilesAllowed", Source.FileOwner) Then
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Insufficient rights to add files to folder ""%1.""';"),
@@ -2436,8 +2435,8 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 			
 			CurrentVersionAttributes = Common.ObjectAttributesValues(Source.CurrentVersion, "Description");
 			
-			// 
-			// 
+			// Check if the filename matches its current version.
+			// If they mismatch, rename the file after the file card.
 			If CurrentVersionAttributes.Description <> Source.Description
 			   And ValueIsFilled(Source.CurrentVersion) Then
 				
@@ -2454,7 +2453,7 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 					SetSafeModeDisabled(True);
 					SetPrivilegedMode(True);
 					Object.Description = Source.Description;
-					// 
+					// So as not to start the CopyFileVersionAttributesToFile subscription.
 					Object.AdditionalProperties.Insert("FileRenaming", True);
 					Object.Write();
 					SetPrivilegedMode(False);
@@ -2492,11 +2491,11 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 	
 EndProcedure
 
-// Handler for subscribing to the pre-Delete event to delete data associated with the attached file.
+// BeforeDelete event handler for deleting data associated with the attachment.
 //
 // Parameters:
-//  Source   - CatalogObject -  directory object with the name "*Attached files".
-//  Cancel      - Boolean -  parameter passed to the event subscription before Recording.
+//  Source   - CatalogObject - the *AttachedFiles catalog object.
+//  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure ExecuteActionsBeforeDeleteAttachedFile(Source, Cancel) Export
 	
@@ -2517,11 +2516,11 @@ Procedure ExecuteActionsBeforeDeleteAttachedFile(Source, Cancel) Export
 	
 EndProcedure
 
-// Handler for subscribing to the Record event to update data associated with the attached file.
+// Handler of the OnWrite event for updating data associated with the attachment.
 //
 // Parameters:
-//  Source   - CatalogObject -  directory object with the name "*Attached files".
-//  Cancel      - Boolean -  parameter passed to the event subscription before Recording.
+//  Source   - CatalogObject - the *AttachedFiles catalog object.
+//  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure ExecuteActionsOnWriteAttachedFile(Source, Cancel) Export
 	
@@ -2555,12 +2554,12 @@ Procedure WriteFileDataToRegisterDuringExchange(Val Source)
 	
 EndProcedure
 
-// Handler for subscribing to the event before Recording the owner of the attached file.
+// Handler of the BeforeWrite event of the attachment owner.
 // Marks related files for deletion.
 //
 // Parameters:
-//  Source - DefinedType.AttachedFilesOwnerObject -  owner of the attached file, except for the document Object.
-//  Cancel    - Boolean -  indicates that the recording was rejected.
+//  Source - DefinedType.AttachedFilesOwnerObject - attached file owner, except for DocumentObject.
+//  Cancel    - Boolean - shows whether writing is canceled.
 // 
 Procedure SetAttachedFilesDeletionMarks(Source, Cancel) Export
 	
@@ -2576,14 +2575,14 @@ Procedure SetAttachedFilesDeletionMarks(Source, Cancel) Export
 
 EndProcedure
 
-// Handler for subscribing to the event before Recording the owner of the attached file.
+// Handler of the BeforeWrite event of the attachment owner.
 // Marks related files for deletion.
 //
 // Parameters:
-//  Source        - DocumentObject -  owner of the attached file.
-//  Cancel           - Boolean -  parameter passed to the event subscription before Recording.
-//  WriteMode     - Boolean -  parameter passed to the event subscription before Recording.
-//  PostingMode - Boolean -  parameter passed to the event subscription before Recording.
+//  Source        - DocumentObject - the attached file owner.
+//  Cancel           - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  WriteMode     - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  PostingMode - Boolean - a parameter passed to the BeforeWrite event subscription.
 // 
 Procedure SetAttachedDocumentFilesDeletionMark(Source, Cancel, WriteMode, PostingMode) Export
 	
@@ -2623,7 +2622,7 @@ EndProcedure
 
 Function InvalidAuthor(AuthorLink, CurrentUser)
 	
-	// 
+	// Can take two values: empty value or the current user.
 	Return AuthorLink <> Undefined And Not AuthorLink.IsEmpty() 
 		And TypeOf(AuthorLink) <> Type("CatalogRef.FileSynchronizationAccounts")
 		And AuthorLink <> CurrentUser; 
@@ -2631,7 +2630,7 @@ Function InvalidAuthor(AuthorLink, CurrentUser)
 EndFunction	
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Attachment management.
 
 Procedure CreateFilesHyperlink(Form, ItemToAdd, AttachedFilesOwner, HyperlinkParameters)
 	
@@ -2827,7 +2826,7 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 	If ItemToAdd.ShowPreview Then
 		
 		PreviewItem = Form.Items.Add("AttachedFilePictureField" + ItemNumber,
-			Type("FormField"), PlacementOnFormGroup); // FormFieldExtensionForATextBox
+			Type("FormField"), PlacementOnFormGroup); // FormFieldExtensionForInputField
 		
 		PreviewItem.Title                  = NStr("en = 'Attachment picture';") + " " + ItemNumber;
 		PreviewItem.Type                        = FormFieldType.PictureField;

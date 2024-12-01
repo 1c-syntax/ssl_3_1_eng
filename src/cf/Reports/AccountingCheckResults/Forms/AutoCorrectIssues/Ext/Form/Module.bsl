@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -60,7 +62,7 @@ Procedure SetCurrentPage(Form, PageName)
 		FormItems.TroubleshootingIndicatorGroup.Visible         = False;
 		FormItems.TroubleshootingStartIndicatorGroup.Visible   = False;
 		FormItems.TroubleshootingSuccessIndicatorGroup.Visible = True;
-	Else // 
+	Else // "Question"
 		FormItems.TroubleshootingIndicatorGroup.Visible         = False;
 		FormItems.TroubleshootingStartIndicatorGroup.Visible   = True;
 		FormItems.TroubleshootingSuccessIndicatorGroup.Visible = False;
@@ -111,7 +113,7 @@ EndProcedure
 &AtServerNoContext
 Procedure RestoreMissingPredefinedItems(CheckID) 
 	
-	// 
+	// 1. Search for an existing item that matches the predefined item. If found, link them.
 	Result = CheckByIDRule(CheckID);
 	CheckRule = Result.Ref;
 	
@@ -150,10 +152,10 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 			Query.Text = StrReplace(Query.Text,
 				"ISNULL(SpecifiedTableAlias.Parent.PredefinedDataName, """")", """""");
 		EndIf;
-		NameTable = Query.Execute().Unload(); // 
+		NameTable = Query.Execute().Unload(); // @skip-check query-in-loop - A multi-table query.
 		
 		If NameTable.Count() = 0 Then
-			Continue; // 
+			Continue; // All predefined items are missing, restoration in a regular way.
 		EndIf;
 		PredefinedItemsInData     = NameTable.UnloadColumn("Name");
 		PredefinedItemsInMetadata = New Array(MetadataObject.GetPredefinedNames());
@@ -161,7 +163,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 		ItemsIdentical = Common.IdenticalCollections(PredefinedItemsInData, PredefinedItemsInMetadata);
 		
 		If ItemsIdentical Then
-			Continue; // 
+			Continue; // Data has all predefined items.
 		EndIf;
 		
 		For Each TagName In PredefinedItemsInData Do
@@ -183,7 +185,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 			|WHERE
 			|	NOT SpecifiedTableAlias.Predefined";
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", FullName);
-		AllNonPredefinedItems = Query.Execute().Unload(); // 
+		AllNonPredefinedItems = Query.Execute().Unload(); // @skip-check query-in-loop - A multi-table query.
 		AllNonPredefinedItems.Indexes.Add("Description, Parent");
 		
 		If PredefinedItemsInMetadata.Count() > 0 Then
@@ -221,7 +223,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 		EndIf;
 	EndDo;
 	
-	// 
+	// 2. If an item is not found, create a new predefined item.
 	StandardSubsystemsServer.RestorePredefinedItems();
 	
 EndProcedure
@@ -257,14 +259,14 @@ EndFunction
 &AtServerNoContext
 Function MissingPredefinedItemsProperties(MetadataObject, PredefinedItemsInData, Absent)
 	Properties = New Array;
-	// 
+	// ACC:326-off - Obtain information records without data change.
 	BeginTransaction();
 	Try
 		For Each String In PredefinedItemsInData Do
 			Object = String.Ref.GetObject();
 			Object.PredefinedDataName = "";
-			// 
-			InfobaseUpdate.WriteData(Object); // 
+			// Competitive operations on the invalid predefined item is not expected.
+			InfobaseUpdate.WriteData(Object); // ACC:1327
 		EndDo;
 		Manager = Common.ObjectManagerByFullName(MetadataObject.FullName());
 		Manager.SetPredefinedDataInitialization(False);
@@ -277,7 +279,7 @@ Function MissingPredefinedItemsProperties(MetadataObject, PredefinedItemsInData,
 	Except
 		RollbackTransaction();
 	EndTry;
-	// 
+	// ACC:326-on
 	
 	Return Properties;
 EndFunction

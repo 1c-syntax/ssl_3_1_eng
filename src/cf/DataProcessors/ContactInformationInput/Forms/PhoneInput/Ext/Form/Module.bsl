@@ -1,31 +1,33 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
-// 
+// Form parameterization:
 //
-//      
-//       
-//                                
-//      
-//      
-//                                
-//      
+//      Title - String  - Form's title.
+//      FieldValues - String - Serialized value of the contact information. 
+//                                Or an empty string for a new input.
+//      Presentation - String  - Address presentation (used for managing old data).
+//      ContactInformationKind - CatalogRef.ContactInformationKinds, Structure - Details of the contact information to edit.
+//                                Comment - String - Optional text for the "Comment" field.
+//      ReturnValueList - Boolean - Optional flag indicating if the return value of the "ContactInformation" field
 //
-//      
-//                                 
+//      has the "ValueList" data type (intended for compatibility).
+//                                 Selection result:
 //
-//  
-//      
-//          
-//          
-//          
+//  Structure - Has the following fields:
+//      * ContactInformation - String - XML data of the contact information.
+//          * Presentation - String - Data presentation.
+//          * Comment - String - Comment to the contact information.
+//          * EnteredInFreeFormat - Boolean - Arbitrary input flag.
 //
-// 
+// -------------------------------------------------------------------------------------------------
 
 #Region FormEventHandlers
 
@@ -34,7 +36,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Parameters.Property("ReturnValueList", ReturnValueList);
 	
-	// 
+	// Copying parameters to attributes.
 	If TypeOf(Parameters.ContactInformationKind) = Type("CatalogRef.ContactInformationKinds") Then
 		ContactInformationKind = Parameters.ContactInformationKind;
 	EndIf;
@@ -75,7 +77,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				ReadResults = New Structure;
 				ContactInformation = ModuleContactsManagerLocalization.ContactsFromXML(FieldValues, ContactInformationType, ReadResults);
 				If ReadResults.Property("ErrorText") Then
-					// 
+					// Recognition errors. A warning must be displayed when opening the form.
 					WarningTextOnOpen = ReadResults.ErrorText;
 					ContactInformation.Presentation = Parameters.Presentation;
 				EndIf;
@@ -256,12 +258,12 @@ EndProcedure
 &AtClient
 Procedure ConfirmAndClose(Result = Undefined, AdditionalParameters = Undefined) Export
 	
-	// 
+	// When unmodified, it functions as "cancel".
 	
 	If Modified Then
 		
 		HasFillingErrors = False;
-		// 
+		// Determining whether validation is required.
 		If CheckValidity Then
 			
 			ModuleAddressManagerClient = Undefined;
@@ -295,7 +297,7 @@ Procedure ConfirmAndClose(Result = Undefined, AdditionalParameters = Undefined) 
 		NotifyChoice(Result);
 		
 	ElsIf Comment <> CommentCopy Then
-		// 
+		// Only the comment was modified, attempting to revert.
 		Result = CommentChoiceOnlyResult();
 		
 		ClearModifiedOnChoice();
@@ -386,15 +388,15 @@ Function CommentChoiceOnlyResult()
 		ContactInfo, Parameters.Presentation, Comment);
 EndFunction
 
-// Fills in the form details from the XTDO object of the "Contact information" type.
+// Fills in form attributes based on XTDO object of the Contact information type.
 &AtServer
 Procedure ContactInformationAttibutesValues(InformationToEdit)
 	
-	// 
+	// Common attributes.
 	Presentation = InformationToEdit.value;
 	Comment   = InformationToEdit.comment;
 	
-	// 
+	// Comment copy used to analyze changes.
 	CommentCopy = Comment;
 	
 	If EnterNumberByMask Then 
@@ -408,7 +410,7 @@ Procedure ContactInformationAttibutesValues(InformationToEdit)
 			
 EndProcedure
 
-// Returns an XTDO object of the "Contact information" type by the value of the details.
+// Returns an XTDO object of the Contact information type based on attribute values.
 &AtServer
 Function ContactInformationByAttributesValues()
 	
@@ -450,7 +452,7 @@ Procedure FillPhonePresentationNow()
 	
 EndProcedure
 
-// Reports fill-in errors based on the result of the function Errorfillingtelephonserver.
+// Notifies of any filling errors based on PhoneFillingErrorsServer function results.
 &AtClient
 Procedure NotifyFillErrors(ErrorList)
 	
@@ -461,7 +463,7 @@ Procedure NotifyFillErrors(ErrorList)
 	
 	ClearMessages();
 	
-	// 
+	// Values are XPaths. Presentations store error descriptions.
 	For Each Item In ErrorList Do
 		CommonClient.MessageToUser(Item.Presentation,,,
 		FormDataPathByXPath(Item.Value));

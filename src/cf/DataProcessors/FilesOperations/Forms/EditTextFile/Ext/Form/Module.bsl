@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -412,7 +414,7 @@ Procedure ExecuteCompareFiles(Result, ExecutionParameters) Export
 	If ExecutionParameters.CurrentStep = 1 Then
 		PersonalSettings = FilesOperationsInternalClient.PersonalFilesOperationsSettings();
 		ExecutionParameters.FileVersionsComparisonMethod = PersonalSettings.FileVersionsComparisonMethod;
-		// 
+		// First call means that the setting has not been initialized yet.
 		If ExecutionParameters.FileVersionsComparisonMethod = Undefined Then
 			ExecutionParameters.CurrentStep = 1.1;
 			Handler = New NotifyDescription("ExecuteCompareFiles", ThisObject, ExecutionParameters);
@@ -433,10 +435,10 @@ Procedure ExecuteCompareFiles(Result, ExecutionParameters) Export
 	EndIf;
 	
 	If ExecutionParameters.CurrentStep = 2 Then
-		// 
-		WriteText(); // 
+		// Saving file for the right part.
+		WriteText(); // Full name is placed to the FileToOpenName attribute.
 		
-		// 
+		// Saving file for the left part.
 		If FileData.CurrentVersion = FileData.Version Then
 			LeftFileData = FilesOperationsInternalServerCall.FileDataToSave(File, , OwnerID);
 			LeftFileAddress = LeftFileData.CurrentVersionURL;
@@ -451,7 +453,7 @@ Procedure ExecuteCompareFiles(Result, ExecutionParameters) Export
 			Return;
 		EndIf;
 		
-		// 
+		// Comparison.
 		FilesOperationsInternalClient.ExecuteCompareFiles(
 			ExecutionParameters.FullFileNameLeft,
 			FileToOpenName,

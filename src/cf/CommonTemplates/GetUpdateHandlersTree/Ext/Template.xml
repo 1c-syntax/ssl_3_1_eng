@@ -593,7 +593,7 @@ End, "Number(13, 0)")</dcscom:expression>
 		<useRestriction>true</useRestriction>
 	</parameter>
 	<parameter>
-		<name>IdOfHandlerForClearingOutdatedData</name>
+		<name>ObsoleteDataCleanupHandlerID</name>
 		<title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
@@ -761,7 +761,7 @@ End, "Number(13, 0)")</dcscom:expression>
 					<dcsset:item xsi:type="dcsset:FilterItemComparison">
 						<dcsset:left xsi:type="dcscor:Field">Id</dcsset:left>
 						<dcsset:comparisonType>Equal</dcsset:comparisonType>
-						<dcsset:right xsi:type="dcscor:Field">DataParameters.IdOfHandlerForClearingOutdatedData</dcsset:right>
+						<dcsset:right xsi:type="dcscor:Field">DataParameters.ObsoleteDataCleanupHandlerID</dcsset:right>
 						<dcsset:presentation xsi:type="v8:LocalStringType">
 							<v8:item>
 								<v8:lang>en</v8:lang>

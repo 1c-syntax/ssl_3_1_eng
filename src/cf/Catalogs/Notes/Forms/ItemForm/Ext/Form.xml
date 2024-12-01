@@ -4,6 +4,14 @@
 	<UseForFoldersAndItems>Items</UseForFoldersAndItems>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<ChildItems>
+			<Popup name="SubmenuOrganizer" id="121">
+				<Picture>
+					<xr:Ref>CommonPicture.Organizer</xr:Ref>
+					<xr:LoadTransparent>false</xr:LoadTransparent>
+				</Picture>
+				<Representation>Picture</Representation>
+				<ExtendedTooltip name="SubmenuOrganizerExtendedTooltip" id="122"/>
+			</Popup>
 			<ButtonGroup name="EditingCommandBar" id="79">
 				<Title>
 					<v8:item>
@@ -20,6 +28,7 @@
 		<Event name="AfterWrite">AfterWrite</Event>
 		<Event name="AfterWriteAtServer">AfterWriteAtServer</Event>
 		<Event name="OnReadAtServer">OnReadAtServer</Event>
+		<Event name="OnOpen">OnOpen</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 		<Event name="BeforeWriteAtServer">BeforeWriteAtServer</Event>
 	</Events>

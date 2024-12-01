@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -63,9 +65,9 @@ Procedure BeforeWrite(Cancel)
 			Raise NStr("en = 'Cannot perform tasks of suspended business processes.';");
 		EndIf;
 		
-		// 
-		// 
-		// 
+		// If the task is completed, assign the "Performer" attribute to the user who fulfilled it.
+		// This is required for reporting.
+		// (Assign only if it wasn't completed in the infobase and was in the object.)
 		// 
 		If Not ValueIsFilled(Performer) Then
 			Performer = Users.AuthorizedUser();
@@ -98,14 +100,14 @@ Procedure BeforeWrite(Cancel)
 		AcceptForExecutionDate = CurrentSessionDate();
 	EndIf;
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	SetPrivilegedMode(True);
 	TaskPerformersGroup = BusinessProcessesAndTasksServer.TaskPerformersGroup(PerformerRole, 
 		MainAddressingObject, AdditionalAddressingObject);
 	SetPrivilegedMode(False);
 	// End StandardSubsystems.AccessManagement
 	
-	// 
+	// Populate attribute AcceptForExecutionDate.
 	If AcceptedForExecution And AcceptForExecutionDate = Date('00010101') Then
 		AcceptForExecutionDate = CurrentSessionDate();
 	EndIf;
@@ -149,7 +151,7 @@ Procedure SetSubordinateBusinessProcessesState(NewState)
 			BusinessProcessObject = SubordinateBusinessProcess.GetObject();
 			BusinessProcessObject.Lock();
 			BusinessProcessObject.State = NewState;
-			BusinessProcessObject.Write(); // 
+			BusinessProcessObject.Write(); // CAC:1327 The lock is set in the BusinessProcessesAndTasksServer.MainTaskBusinessProcesses.
 		EndDo;	
 		CommitTransaction();
 	Except
@@ -159,10 +161,10 @@ Procedure SetSubordinateBusinessProcessesState(NewState)
 	
 EndProcedure
 
-// Determines whether the address details are filled in: the performer or the performer's role
+// Determines whether addressing attributes are filled in: assignee or business role
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - Returns True if an assignee or a business role is specified in the task.
 //
 Function AddressingAttributesAreFilled()
 	

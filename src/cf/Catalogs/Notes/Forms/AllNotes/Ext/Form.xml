@@ -183,6 +183,16 @@
 			</Title>
 			<CommandSource>Form</CommandSource>
 			<ExtendedTooltip name="CommandBarExtendedTooltip" id="38"/>
+			<ChildItems>
+				<Popup name="SubmenuOrganizer" id="57">
+					<Picture>
+						<xr:Ref>CommonPicture.Organizer</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</Picture>
+					<Representation>Picture</Representation>
+					<ExtendedTooltip name="SubmenuOrganizerExtendedTooltip" id="58"/>
+				</Popup>
+			</ChildItems>
 		</CommandBar>
 		<Table name="List" id="1">
 			<CommandBarLocation>None</CommandBarLocation>
@@ -248,6 +258,9 @@
 				<ContextMenu name="ListSearchControlContextMenu" id="52"/>
 				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="53"/>
 			</SearchControlAddition>
+			<Events>
+				<Event name="OnActivateRow">ListOnActivateRow</Event>
+			</Events>
 			<ChildItems>
 				<LabelField name="Subject" id="20">
 					<DataPath>List.Description</DataPath>

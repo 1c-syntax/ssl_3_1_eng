@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,9 +14,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.ReportsOptions
 
-// To set up a report form.
+// Set report form settings.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -78,7 +80,7 @@ EndProcedure
 Procedure SetPredefinedByImplementationOption(Form, VariantKey)
 	
 	If Form.Parameters.VariantKey <> Undefined Then
-		Return; // 
+		Return; // Report option is specified upon opening.
 	EndIf;
 	
 	Try
@@ -218,10 +220,10 @@ EndFunction
 
 Function QueryText()
 	
-	// 
-	// 
-	// 
-	// 
+	// ACC:494-off - No.656. A join with a nested query is acceptable
+	// since the dataset is small (from units to hundreds).
+	// ACC:96-off - No.434. The "JOIN" statement is acceptable since the rows
+	// must be unique and the dataset is small (from units to hundreds)
 	Return
 	"SELECT
 	|	PeriodClosingDates.Section AS Section,
@@ -461,8 +463,8 @@ Function QueryText()
 	|	AND (FALSE IN (&SpecifiedObjects)
 	|			OR ClosingDates.Object = ClosingDates.Section
 	|			OR ClosingDates.Object IN (&SpecifiedObjects))";
-	// 
-	// 
+	// ACC:96-off.
+	// ACC:494-off.
 	
 EndFunction
 

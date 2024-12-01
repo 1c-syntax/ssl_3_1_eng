@@ -1,15 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// 
-// 
+// Gets the unique file name for using it in the working directory.
+// If there are matches, the name is similar to "A1Order.doc".
 //
 Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 	
@@ -59,9 +61,9 @@ Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 			EndIf;
 		EndDo;
 		
-		Subdirectory = ""; // 
+		Subdirectory = ""; // A partial path.
 		
-		// 
+		// Try using the root. If it fails, add A, B, … Z, … ZZZZZ, … AAAAA, … AAAAAZ, etc.
 		// 
 		If  Counter = 0 Then
 			Subdirectory = "";
@@ -83,7 +85,7 @@ Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 		
 		FullSubdirectory = DirectoryName + Subdirectory;
 		
-		// 
+		// Creating a directory for files.
 		DirectoryOnHardDrive = New File(FullSubdirectory);
 		If Not DirectoryOnHardDrive.Exists() Then
 			Try
@@ -100,9 +102,9 @@ Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 		AttemptFile = FullSubdirectory + FileName;
 		Counter = Counter + 1;
 		
-		// 
+		// Checking whether the file name is unique
 		FileOnHardDrive = New File(AttemptFile);
-		If Not FileOnHardDrive.Exists() Then  // 
+		If Not FileOnHardDrive.Exists() Then  // File doesn't exist.
 			FinalPath = Subdirectory + FileName;
 			Success = True;
 		EndIf;
@@ -112,7 +114,7 @@ Function UniqueNameByWay(Val DirectoryName, Val FileName) Export
 	
 EndFunction
 
-// Returns True if the file with this extension is in the list of extensions.
+// Returns True if the file with such extension is in the list of extensions.
 Function FileExtensionInList(ExtensionsList, FileExtention) Export
 	
 	FileExtentionWithoutDot = CommonClientServer.ExtensionWithoutPoint(FileExtention);
@@ -129,9 +131,9 @@ Function FileExtensionInList(ExtensionsList, FileExtention) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// For user interface.
 
-// 
+// Returns the message stating that locked files cannot be signed.
 //
 Function MessageAboutInvalidSigningOfLockedFile(FileRef = Undefined) Export
 	
@@ -145,7 +147,7 @@ Function MessageAboutInvalidSigningOfLockedFile(FileRef = Undefined) Export
 	
 EndFunction
 
-// 
+// Returns the message stating that encrypted files cannot be signed.
 //
 Function MessageAboutInvalidSigningOfEncryptedFile(FileRef = Undefined) Export
 	
@@ -159,7 +161,7 @@ Function MessageAboutInvalidSigningOfEncryptedFile(FileRef = Undefined) Export
 	
 EndFunction
 
-// 
+// Receive a row representing the file size. For example, to display the state when the file is transferred.
 Function FileSizePresentation(Val SizeInMB) Export
 	
 	If SizeInMB < 0.1 Then
@@ -171,7 +173,7 @@ Function FileSizePresentation(Val SizeInMB) Export
 	
 EndFunction	
 
-// 
+// Get the index of the file icon. It is the index in the "FileIconCollection" picture.
 Function IndexOfFileIcon(Val FileExtention) Export
 	
 	If TypeOf(FileExtention) <> Type("String")
@@ -184,58 +186,58 @@ Function IndexOfFileIcon(Val FileExtention) Export
 	Extension = "." + Lower(FileExtention) + ";";
 	
 	If StrFind(".dt;.1cd;.cf;.cfu;", Extension) <> 0 Then
-		Return 6; // 
+		Return 6; // 1C:Enterprise files.
 		
 	ElsIf Extension = ".mxl;" Then
-		Return 8; // 
+		Return 8; // Spreadsheet files
 		
 	ElsIf StrFind(".txt;.log;.ini;", Extension) <> 0 Then
-		Return 10; // 
+		Return 10; // Text files
 		
 	ElsIf Extension = ".epf;" Then
-		Return 12; // 
+		Return 12; // External data processors.
 		
 	ElsIf StrFind(".ico;.wmf;.emf;",Extension) <> 0 Then
-		Return 14; // 
+		Return 14; // Pictures
 		
 	ElsIf StrFind(".htm;.html;.url;.mht;.mhtml;",Extension) <> 0 Then
 		Return 16; // HTML.
 		
 	ElsIf StrFind(".doc;.dot;.rtf;",Extension) <> 0 Then
-		Return 18; // 
+		Return 18; // Microsoft Word file.
 		
 	ElsIf StrFind(".xls;.xlw;",Extension) <> 0 Then
-		Return 20; // 
+		Return 20; // Microsoft Excel file.
 		
 	ElsIf StrFind(".ppt;.pps;",Extension) <> 0 Then
-		Return 22; // 
+		Return 22; // Microsoft PowerPoint file.
 		
 	ElsIf StrFind(".vsd;",Extension) <> 0 Then
-		Return 24; // 
+		Return 24; // Microsoft Visio file.
 		
 	ElsIf StrFind(".mpp;",Extension) <> 0 Then
-		Return 26; // 
+		Return 26; // Microsoft Visio file.
 		
 	ElsIf StrFind(".mdb;.adp;.mda;.mde;.ade;",Extension) <> 0 Then
-		Return 28; // 
+		Return 28; // Microsoft Access database.
 		
 	ElsIf StrFind(".xml;",Extension) <> 0 Then
 		Return 30; // xml.
 		
 	ElsIf StrFind(".msg;.eml;",Extension) <> 0 Then
-		Return 32; // 
+		Return 32; // Email message.
 		
 	ElsIf StrFind(".zip;.rar;.arj;.cab;.lzh;.ace;",Extension) <> 0 Then
-		Return 34; // 
+		Return 34; // Archives.
 		
 	ElsIf StrFind(".exe;.com;.bat;.cmd;",Extension) <> 0 Then
-		Return 36; // 
+		Return 36; // Executable files.
 		
 	ElsIf StrFind(".grs;",Extension) <> 0 Then
-		Return 38; // 
+		Return 38; // Graphical schema.
 		
 	ElsIf StrFind(".geo;",Extension) <> 0 Then
-		Return 40; // 
+		Return 40; // Geographical schema.
 		
 	ElsIf StrFind(".jpg;.jpeg;.jp2;.jpe;",Extension) <> 0 Then
 		Return 42; // jpg.
@@ -274,22 +276,22 @@ Function IndexOfFileIcon(Val FileExtention) Export
 		Return 64;
 		
 	ElsIf StrFind(".erf;",Extension) <> 0 Then
-		Return 66; // 
+		Return 66; // External reports.
 		
 	ElsIf StrFind(".docx;",Extension) <> 0 Then
-		Return 68; // 
+		Return 68; // Microsoft Word 2007 file (DOCX).
 		
 	ElsIf StrFind(".xlsx;",Extension) <> 0 Then
-		Return 70; // 
+		Return 70; // Microsoft Excel 2007 file (XLSX).
 		
 	ElsIf StrFind(".pptx;",Extension) <> 0 Then
-		Return 72; // 
+		Return 72; // Microsoft PowerPoint 2007 file (PPTX).
 		
 	ElsIf StrFind(".p7s;",Extension) <> 0 Then
-		Return 74; // 
+		Return 74; // Signature file.
 		
 	ElsIf StrFind(".p7m;",Extension) <> 0 Then
-		Return 76; // 
+		Return 76; // Encrypted message.
 	Else
 		Return 4;
 	EndIf;
@@ -297,7 +299,7 @@ Function IndexOfFileIcon(Val FileExtention) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// OtherItems
+// Miscellaneous.
 
 // For internal use only.
 Procedure FillSignatureStatus(SignatureRow, CurrentDate) Export
@@ -322,7 +324,7 @@ Procedure FillSignatureStatus(SignatureRow, CurrentDate) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// File synchronization.
 
 Function AddressInCloudService(Service, Href) Export
 	
@@ -342,13 +344,13 @@ Function AddressInCloudService(Service, Href) Export
 	
 EndFunction
 
-// 
+// Parameters to lock a file for editing.
 //
 // Returns:
 //   Structure:
-//     * UUID - unique form ID.
+//     * UUID - form UUID.
 //     * User - CatalogRef.Users
-//     * AdditionalProperties - Structure - 
+//     * AdditionalProperties - Structure - additional properties for writing a file.
 //
 Function FileLockParameters() Export
 	
@@ -362,7 +364,7 @@ Function FileLockParameters() Export
 	
 EndFunction
 
-// 
+// Scanning add-in attachment details.
 //
 // Returns:
 //  Structure:
@@ -380,8 +382,8 @@ EndFunction
 
 #Region TextExtraction
 
-// Extracts text according to the encoding.
-// If the encoding is not set, it calculates the encoding itself.
+// Extracts text in the specified encoding.
+// If encoding is not specified, it calculates the encoding itself.
 //
 Function ExtractTextFromTextFile(FullFileName, Encoding, Cancel) Export
 	
@@ -389,7 +391,7 @@ Function ExtractTextFromTextFile(FullFileName, Encoding, Cancel) Export
 	
 #If Not WebClient Then
 	
-	// 
+	// Determine encoding.
 	If Not ValueIsFilled(Encoding) Then
 		Encoding = Undefined;
 	EndIf;
@@ -409,7 +411,7 @@ Function ExtractTextFromTextFile(FullFileName, Encoding, Cancel) Export
 	
 EndFunction
 
-// Extract text from the OpenDocument file and return it as a string.
+// Extracts text from an OpenDocument file and returns it as String.
 //
 Function ExtractOpenDocumentText(PathToFile, Cancel) Export
 	
@@ -435,7 +437,7 @@ Function ExtractOpenDocumentText(PathToFile, Cancel) Export
 		ExtractedText = ExtractTextFromXMLContent(XMLReader);
 		XMLReader.Close();
 	Except
-		// 
+		// This is not an error because the OTF extension, for example, is related both to OpenDocument format and OpenType font format.
 		Archive     = Undefined;
 		XMLReader = Undefined;
 		Cancel = True;
@@ -457,7 +459,7 @@ EndFunction
 
 #Region Private
 
-// Extract text from the ReadXml object (read from the OpenDocument file).
+// Extract text from the XMLReader object (that was read from an OpenDocument file).
 Function ExtractTextFromXMLContent(XMLReader)
 	
 	ExtractedText = "";
@@ -491,7 +493,7 @@ Function ExtractTextFromXMLContent(XMLReader)
 			
 			If XMLReader.Name = "text:s" Then
 				
-				AdditionString = " "; // Whitespace
+				AdditionString = " "; // A whitespace.
 				
 				If XMLReader.AttributeCount() > 0 Then
 					While XMLReader.ReadAttribute() Do
@@ -499,7 +501,7 @@ Function ExtractTextFromXMLContent(XMLReader)
 							SpaceCount = Number(XMLReader.Value);
 							AdditionString = "";
 							For IndexOf = 0 To SpaceCount - 1 Do
-								AdditionString = AdditionString + " "; // Whitespace
+								AdditionString = AdditionString + " "; // A whitespace.
 							EndDo;
 						EndIf;
 					EndDo
@@ -528,14 +530,14 @@ Function ExtractTextFromXMLContent(XMLReader)
 	
 EndFunction
 
-// Get the name of the scanned file, type DM-00000012, where DM is the base prefix.
+// Receive scanned file name of the type DM-00000012, where DM is base prefix.
 //
 // Parameters:
-//  FileNumber  - Number -  an integer, such as 12.
-//  BasePrefix - String -  the base prefix, for example, "DM".
+//  FileNumber  - Number - an integer, for example, 12.
+//  BasePrefix - String - a base prefix, for example, DM.
 //
 // Returns:
-//  String - 
+//  String - scanned file name, for example, "DM-00000012".
 //
 Function ScannedFileName(FileNumber, BasePrefix) Export
 	
@@ -550,7 +552,7 @@ Function ScannedFileName(FileNumber, BasePrefix) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
 Function IsReservedDirectoryName(SubDirectoryName)
 	
@@ -564,8 +566,8 @@ Function IsReservedDirectoryName(SubDirectoryName)
 	
 EndFunction
 
-// 
-// 
+// Initializes parameter structure to add the file.
+// Use this function in StoredFiles.AddToFile and FilesOperationsInternalServerCall.AddFile.
 //
 Function FileAddingOptions(AdditionalAttributes = Undefined) Export
 	
@@ -609,11 +611,11 @@ Procedure AddProperty(Collection, Var_Key, Value = Undefined)
 	
 EndProcedure
 
-// Automatically detects and returns the encoding of a text file.
+// Automatically determines and returns the text file encoding.
 //
 // Parameters:
-//  DataForAnalysis - BinaryData, String - 
-//  Extension         - String -  file extension.
+//  DataForAnalysis - BinaryData, String - data to determine encoding or data address.
+//  Extension         - String - file extension.
 //
 // Returns:
 //  String
@@ -649,15 +651,15 @@ Function DetermineBinaryDataEncoding(DataForAnalysis, Extension) Export
 	
 EndFunction
 
-// Returns the encoding obtained from the binary data of the file if
-// the file contains the BOM signature at the beginning.
+// Returns the encoding received from file binary data if 
+// the file contains the BOM signature in the beginning.
 //
 // Parameters:
-//  BinaryData - BinaryData -  binary data of the file.
+//  BinaryData - BinaryData - binary data of the file.
 //
 // Returns:
-//  String -  
-//           
+//  String - file encoding. If the file does not contain the BOM signature, 
+//           returns an empty string.
 //
 Function EncodingFromBinaryData(BinaryData)
 
@@ -668,15 +670,15 @@ Function EncodingFromBinaryData(BinaryData)
 
 EndFunction
 
-// Returns the encoding obtained from the binary data of the file if
-// the file contains an XML Declaration.
+// Returns the encoding received from file binary data if 
+// the file contains the XML notification.
 //
 // Parameters:
-//  BinaryData - BinaryData-  binary data of the file.
+//  BinaryData - BinaryData- binary data of the file.
 //
 // Returns:
-//  String -  
-//                          
+//  String - file encoding. If  
+//                          the XML notification cannot be read, returns an empty string.
 //
 Function EncodingFromXMLNotification(BinaryData)
 	
@@ -705,14 +707,14 @@ Function EncodingFromXMLNotification(BinaryData)
 	
 EndFunction
 
-// Returns the text encoding obtained from the BOM signature at the beginning.
+// Returns the text encoding received from the BOM signature in the beginning.
 //
 // Parameters:
-//  BinaryDataBuffer - Number -  a collection of bytes to determine the encoding.
+//  BinaryDataBuffer - Number - a collection of bytes to define encoding.
 //
 // Returns:
-//  String -  
-//                       
+//  String - file encoding. If the file does not contain the BOM signature, 
+//                       returns an empty string.
 //
 Function BOMEncoding(BinaryDataBuffer)
 	
@@ -774,13 +776,13 @@ Function BOMEncoding(BinaryDataBuffer)
 	
 EndFunction
 
-// Returns the most appropriate text encoding obtained by comparing it with the alphabet.
+// Returns the most suitable text encoding obtained by comparing with the alphabet.
 //
 // Parameters:
-//  TextData - BinaryData -  binary data of the file.
+//  TextData - BinaryData - binary data of the file.
 //
 // Returns:
-//  String - 
+//  String - file encoding.
 //
 Function EncodingFromAlphabetMap(TextData)
 	
@@ -818,11 +820,11 @@ EndFunction
 
 Function AlphabetMapPercentage(BinaryData, EncodingToCheck)
 	
-	// 
+	// ACC:1036-off, ACC:163-off The alphabet doesn't require spell check.
 	Alphabet = "AABBBBGgDDHerHerLJZZIIYyKKLlMmNNOOPPPPSSTTUuFFXXCCHHShhShhYyYyEEYyYy"
 		+ "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"
 		+ "1234567890 ";
-	// 
+	// ACC:1036-on, ACC:163-on
 	
 	AlphabetStream = New MemoryStream();
 	WriteAlphabet = New DataWriter(AlphabetStream);
@@ -839,7 +841,7 @@ Function AlphabetMapPercentage(BinaryData, EncodingToCheck)
 		
 		CurrentChar = AlphabetBufferInEncoding[IndexOf];
 		
-		// 
+		// Cyrillic characters in UTF-8 encoding are double-byte.
 		If EncodingToCheck = "utf-8"
 			And (CurrentChar = 208
 			Or CurrentChar = 209) Then
@@ -867,7 +869,7 @@ Function AlphabetMapPercentage(BinaryData, EncodingToCheck)
 			And (CurrentChar = 208
 			Or CurrentChar = 209) Then
 			
-			// 
+			// If the last byte in buffer is the first byte of a double-byte character, ignore it.
 			If IndexOf = TextBufferSize - 1 Then
 				Break;
 			EndIf;
@@ -893,8 +895,8 @@ EndFunction
 //
 // Returns:
 //   ValueList:
-//     * Value - String -  for example, "ibm852".
-//     * Presentation - String -  for example, " ibm852 (Central European DOS)".
+//     * Value - String - for example, "ibm852".
+//     * Presentation - String - for example, "ibm852 (Central European DOS)".
 //
 Function Encodings() Export
 

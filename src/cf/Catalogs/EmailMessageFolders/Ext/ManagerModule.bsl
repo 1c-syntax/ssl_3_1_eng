@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns the details of an object that is not recommended to edit
-// by processing a batch update of account details.
+// Returns the object attributes that are not recommended to be edited
+// using a bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String
@@ -32,7 +34,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -57,8 +59,8 @@ EndProcedure
 
 #Region UpdateHandlers
 
-// Registers objects
-// that need to be updated to the new version on the exchange plan for updating the information Database.
+// Registers the objects to be updated in the InfobaseUpdate exchange plan.
+// 
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -78,8 +80,8 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// The update handler for version 3.1.5.108:
-// - fills in the details of the "Type-defined folder" in the directory "Email Folders".
+// A handler of the update to version 3.1.5.108:
+// - — fills in the "PredefinedFolderType" attribute in the "Mailbox folder" catalog.
 //
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
@@ -117,7 +119,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		
 		Try
 			
-			// 
+			// Setting a managed lock to post object responsible reading.
 			Block = New DataLock;
 			
 			LockItem = Block.Add(FullObjectName);

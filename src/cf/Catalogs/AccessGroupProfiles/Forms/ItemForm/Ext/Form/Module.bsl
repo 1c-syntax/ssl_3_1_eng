@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -21,19 +23,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ProcessRolesInterface("FillRoles", Object.Roles);
 	ProcessRolesInterface("SetUpRoleInterfaceOnFormCreate", ValueIsFilled(Object.Ref));
 	
-	// 
+	// Prepare auxiliary data.
 	AccessManagementInternal.OnCreateAtServerAllowedValuesEditForm(ThisObject, True);
 	StandardExtensionRoles =
 		AccessManagementInternalCached.DescriptionStandardRolesSessionExtensions().SessionRoles.All;
 	
-	// 
+	// Making the properties always visible.
 	
-	// 
+	// Determining if the access restrictions must be set.
 	If Not AccessManagement.LimitAccessAtRecordLevel() Then
 		Items.AccessKindsAndValues.Visible = False;
 	EndIf;
 	
-	// 
+	// Determining if the form item editing is possible.
 	WithoutEditingSuppliedValues = ReadOnly
 		Or Not Object.Ref.IsEmpty()
 		  And Catalogs.AccessGroupProfiles.ProfileChangeProhibition(Object, Items.Parent.ReadOnly);
@@ -46,7 +48,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.Description.ReadOnly = WithoutEditingSuppliedValues;
 	
-	// 
+	// Setting up access kind editing.
 	Items.AccessKinds.ReadOnly     = WithoutEditingSuppliedValues;
 	Items.AccessValues.ReadOnly = WithoutEditingSuppliedValues;
 	Items.SelectPurpose.Enabled = Not WithoutEditingSuppliedValues;
@@ -66,7 +68,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.FormWriteAndClose.Enabled = Not ReadOnly
 		And AccessRight("Edit", Metadata.Catalogs.AccessGroupProfiles);
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		PlacementParameters = ModuleAttachableCommands.PlacementParameters();
@@ -80,7 +82,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -92,14 +94,14 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -139,7 +141,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// 
+	// Filling object roles from the collection.
 	CurrentObject.Roles.Clear();
 	For Each String In RolesCollection Do
 		CurrentObject.Roles.Add().Role = Common.MetadataObjectID(
@@ -181,7 +183,7 @@ Procedure AfterWrite(WriteParameters)
 	ObjectWasWritten = True;
 	ProfileAccessGroupsUpdateRequired = False;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
@@ -215,7 +217,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	VerifiedObjectAttributes = New Array;
 	Errors = Undefined;
 	
-	// 
+	// Checking whether the metadata contains roles.
 	VerifiedObjectAttributes.Add("Roles.Role");
 	If Not Items.Roles.ReadOnly Then
 		TreeItems = Roles.GetItems();
@@ -242,7 +244,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		EndDo;
 	EndIf;
 	
-	// 
+	// Checking for blank and duplicate access kinds and values.
 	AccessManagementInternalClientServer.ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
 		ThisObject, Cancel, VerifiedObjectAttributes, Errors);
 	
@@ -319,7 +321,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the AccessKindPresentation item of the AccessKinds form table.
 
 &AtClient
 Procedure AccessKindsAccessKindPresentationOnChange(Item)
@@ -338,7 +340,7 @@ Procedure AccessKindsAccessKindPresentationChoiceProcessing(Item, ValueSelected,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the AllAllowedPresentation item of the AccessKinds form table.
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -429,7 +431,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -442,7 +444,7 @@ Procedure RolesCheckOnChange(Item)
 	If TableRow.Check And TableRow.Name = "InteractiveOpenExtReportsAndDataProcessors" Then
 		Notification = New NotifyDescription("RolesMarkOnChangeAfterConfirm", ThisObject);
 		UsersInternalClient.ShowSecurityWarning(Notification,
-			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeSelectRole);
+			UsersInternalClientServer.SecurityWarningKinds().BeforeSelectRole);
 		
 	ElsIf StandardExtensionRoles.Get(TableRow.Name) <> Undefined Then
 		TableRow.Check = Not TableRow.Check;
@@ -495,7 +497,7 @@ Procedure SnowUnusedAccessKinds(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -516,7 +518,7 @@ EndProcedure
 &AtClient
 Procedure AddRoles(Command)
 	
-	ProcessRolesInterface("UpdateRoleComposition", "EnableHighlighted");
+	ProcessRolesInterface("UpdateRoleComposition", "IncludeSelected");
 	
 	UsersInternalClient.ExpandRoleSubsystems(ThisObject, False);
 	
@@ -536,9 +538,9 @@ Procedure SelectPurpose(Command)
 EndProcedure
 
 &AtClient
-Procedure SelectAccessValues_(Command)
+Procedure PickAccessValues(Command)
 	
-	AccessManagementInternalClient.SelectAccessValues(ThisObject);
+	AccessManagementInternalClient.AccessValuesPick(ThisObject);
 	
 EndProcedure
 
@@ -546,7 +548,7 @@ EndProcedure
 
 #Region Private
 
-// Continuation of the event handler before Recording.
+// The BeforeWrite event handler continuation.
 &AtClient
 Procedure BeforeWriteFollowUpIdleHandler()
 	
@@ -564,7 +566,7 @@ Procedure BeforeWriteFollowUpIdleHandler()
 	
 EndProcedure
 
-// Continuation of the event handler before Recording.
+// The BeforeWrite event handler continuation.
 &AtClient
 Procedure BeforeWriteFollowUp(Response, WriteParameters) Export
 	
@@ -582,7 +584,7 @@ Procedure BeforeWriteFollowUp(Response, WriteParameters) Export
 	
 EndProcedure
 
-// Continuation of the restore command handler to initial Completion.
+// The RestoreByInitialFilling command handler continued.
 &AtClient
 Procedure RestoreByInitialFillingFollowUp(Response, Context) Export
 	
@@ -599,7 +601,7 @@ Procedure RestoreByInitialFillingFollowUp(Response, Context) Export
 	
 EndProcedure
 
-// Continuation of the restore command handler to initial Completion.
+// The RestoreByInitialFilling command handler continued.
 &AtClient
 Procedure RestoreByInitialFillingCompletion(Response, Context) Export
 	
@@ -665,7 +667,7 @@ Procedure SetAvailabilityToDescribeAndRestoreSuppliedProfile(CurrentObject = Und
 			Catalogs.AccessGroupProfiles.SuppliedProfileNote(CurrentObject.Ref);
 		
 		If Catalogs.AccessGroupProfiles.SuppliedProfileChanged(CurrentObject) Then
-			// 
+			// Defining the rights to restore based on the initial filling.
 			Items.RestoreByInitialFilling.Visible =
 				Users.IsFullUser(,, False);
 			
@@ -703,7 +705,7 @@ Procedure CloseForm()
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
@@ -730,7 +732,7 @@ EndProcedure
 // End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

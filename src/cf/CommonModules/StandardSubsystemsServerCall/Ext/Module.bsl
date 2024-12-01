@@ -1,32 +1,34 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Sets the cancel state when creating desktop forms.
-// Required if you need
-// to interact with the user (interactive processing) when starting the program.
+// Sets the parameter that cancels the desktop form creating.
+// The procedure is used if there is a need
+// to interact with the user during the startup.
 //
-// Used from the procedure of the same name in the standardsystem Client module.
-// A direct call on the server makes sense to reduce server calls
-// if you already
-// know that interactive processing is required when preparing client parameters via the Repeat module.
+// Used from the StandardSubsystemsClient module procedure of the same name.
+// The direct call on server has the meaning for reducing server call numbers
+// if during preparing client parameters with Cached module it is already
+// known that interactive processing is required.
 //
-// If a direct call is made from the procedure for getting the client parameters,
-// the state on the client will be updated automatically. otherwise
-// , you need to do it yourself on the client using the procedure
-// of the same name in the standardsystem Client module.
+// If the client parameter getting procedure directly calls this procedure,
+// the state on the client is updated automatically, otherwise
+// use the StandardSubsystemsClient module procedure of the same name
+// to update it.
 //
 // Parameters:
-//  Hide - Boolean -  if set to True, the state will be set,
-//           if set to False, the state will be removed (after that
-//           , you can run the update Interface method and
-//           the desktop forms will be recreated).
+//  Hide - Boolean - pass True to set the state
+//           or False to clear it. You
+//           can call the RefreshInterface method once the procedure is executed to recreate
+//           the interface.
 //
 Procedure HideDesktopOnStart(Hide = True) Export
 	
@@ -36,7 +38,7 @@ Procedure HideDesktopOnStart(Hide = True) Export
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Saving or restoring the home page form content.
 	ObjectKey         = "Common/HomePageSettings";
 	StorageObjectKey = "Common/HomePageSettingsBeforeClear";
 	SavedSettings = SystemSettingsStorage.Load(StorageObjectKey, "");
@@ -100,10 +102,10 @@ EndFunction
 // See InformationRegisters.UsersInfo.ProcessAnswerOnDisconnectingOpenIDConnect
 Procedure ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect) Export
 	
-	// 
-	// 
+	// ACC:277-off - The "StandardSubsystemsServerCall" is used to
+	// avoid creating "UsersServerCall" for one procedure.
 	InformationRegisters.UsersInfo.ProcessAnswerOnDisconnectingOpenIDConnect(Disconnect);
-	// 
+	// ACC:277-on
 	
 EndProcedure
 
@@ -116,10 +118,10 @@ EndFunction
 
 #Region Private
 
-// Returns the structure of parameters required for the client configuration code
-// to work at startup, i.e. in the event handlers before system operation, before system Operation.
+// Returns the structure of parameters required for the operation of the client code configuration,
+// that is in the BeforeStart, OnStart event handlers.
 //
-// Only for calling from the standard Subsystemclientpovtisp.Parametrizability.
+// To be called only from StandardSubsystemsClientCached.ClientParametersOnStart.
 //
 Function ClientParametersOnStart(Parameters) Export
 	
@@ -132,8 +134,8 @@ Function ClientParametersOnStart(Parameters) Export
 	
 	If Parameters.RetrievedClientParameters <> Undefined Then
 		If Not Parameters.Property("SkipClearingDesktopHiding") Then
-			// 
-			// 
+			// Update the desktop's hide state if the previous startup crashed
+			// before running a restoration with the built-in mechanisms.
 			HideDesktopOnStart(Undefined);
 		EndIf;
 	EndIf;
@@ -160,8 +162,8 @@ Function ClientParametersOnStart(Parameters) Export
 	
 EndFunction
 
-// Returns the structure of parameters required for the client configuration code to work. 
-// Only for calling from the standard Subsystemclientpovtisp.Parameters of the client's work.
+// Returns the structure of parameters required for the operation of the client code configuration. 
+// To be called only from StandardSubsystemsClientCached.ClientRunParameters.
 //
 Function ClientRunParameters(ClientProperties) Export
 	
@@ -192,8 +194,8 @@ Procedure SignInToDataArea(Val DataArea) Export
 EndProcedure
 
 // Checks the right to disable the system logic and
-// hides the desktop on the server if it has the right,
-// otherwise it throws an exception.
+// hides the desktop on the server if there is the right,
+// otherwise an exception is thrown.
 // 
 Procedure CheckDisableStartupLogicRight(ClientProperties) Export
 	
@@ -237,7 +239,7 @@ Procedure WriteErrorToEventLogOnStartOrExit(Shutdown, Val Event, Val ErrorText) 
 
 EndProcedure
 
-// Returns the full name of the metadata object by its type.
+// Returns full metadata object name by its type.
 Function FullMetadataObjectName(Type) Export
 	MetadataObject = Metadata.FindByType(Type);
 	If MetadataObject = Undefined Then
@@ -246,10 +248,10 @@ Function FullMetadataObjectName(Type) Export
 	Return MetadataObject.FullName();
 EndFunction
 
-// Returns the name of the metadata object by type.
+// Returns a metadata object name by type.
 //
 // Parameters:
-//  Source - type-object.
+//  Source - Type - object.
 //
 // Returns:
 //   String
@@ -287,7 +289,7 @@ Function NamesOfClientModules() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Predefined data processing.
 
 // See StandardSubsystemsCached.RefsByPredefinedItemsNames
 Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
@@ -297,7 +299,7 @@ Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// For the MetadataObjectIDs catalog.
 
 // See Catalogs.MetadataObjectIDs.IDPresentation
 Function MetadataObjectIDPresentation(Ref) Export
@@ -307,7 +309,7 @@ Function MetadataObjectIDPresentation(Ref) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// AUXILIARY PROCEDURES AND FUNCTIONS
 
 Procedure AddTimeAdjustments(Parameters, ClientProperties)
 	
@@ -339,7 +341,7 @@ Procedure HandleClientParametersAtServer(Val Parameters)
 	SetPrivilegedMode(True);
 	
 	If SessionParameters.ClientParametersAtServer.Get("TheFirstServerCallIsMade") <> True Then
-		// 
+		// First server call from client after start.
 		ClientParameters = New Map(SessionParameters.ClientParametersAtServer);
 		ClientParameters.Insert("TheFirstServerCallIsMade", True);
 		ClientParameters.Insert("LaunchParameter", Parameters.LaunchParameter);
@@ -366,9 +368,9 @@ Procedure HandleClientParametersAtServer(Val Parameters)
 		If Not Common.DataSeparationEnabled() Then
 			If ExchangePlans.MasterNode() <> Undefined
 				Or ValueIsFilled(Constants.MasterNode.Get()) Then
-				// 
-				// 
-				// 
+				// Prevent an unwanted update of predefined data in a child node during:
+				// - A startup with the master node temporarily disabled.
+				// - A data restructuring when restoring the node.
 				If GetInfoBasePredefinedData()
 					<> PredefinedDataUpdate.DontAutoUpdate Then
 					SetInfoBasePredefinedDataUpdate(
@@ -376,7 +378,7 @@ Procedure HandleClientParametersAtServer(Val Parameters)
 				EndIf;
 				If ExchangePlans.MasterNode() <> Undefined
 					And Not ValueIsFilled(Constants.MasterNode.Get()) Then
-					// 
+					// Saving the master node for recovery purpose.
 					StandardSubsystemsServer.SaveMasterNode();
 				EndIf;
 			EndIf;

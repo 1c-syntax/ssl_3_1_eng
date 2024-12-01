@@ -1,16 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #Region Private
 
-// Configures the object shape for the subsystem to work:
-// - adds the props of the Parametersupporteditingrequisits for storing internal data
-// -adds the command and button Allowededitingrequisitobject (if you have rights).
+// Sets up the object form for subsystem operations:
+// - Adds the AttributesLockParameters attribute that can be used to store internal data.
+// - Adds the AllowObjectAttributeEdit command and button (if sufficient rights are available).
 //
 // Parameters:
 //  Form - ClientApplicationForm:
@@ -31,7 +32,7 @@ Procedure PrepareForm(Form, Ref, LockButtonGroup, LockButtonTitle) Export
 	TypesDetailsBoolean = New TypeDescription("Boolean");
 	ArrayTypeDescription = New TypeDescription("ValueList");
 	
-	// 
+	// Adding attributes to form.
 	AttributesToBeAdded = New Array;
 	AttributesToBeAdded.Add(New FormAttribute("FullNameOfAttributesUnlockingObject", New TypeDescription("String")));
 	AttributesToBeAdded.Add(New FormAttribute("FullNameOfAttributeUnlockForm",   New TypeDescription("String")));
@@ -60,19 +61,19 @@ Procedure PrepareForm(Form, Ref, LockButtonGroup, LockButtonTitle) Export
 	
 	FillRelatedItems(Form);
 	
-	// 
+	// Adding command and button (if sufficient rights are available).
 	If Users.RolesAvailable("EditObjectAttributes")
 	   And AccessRight("Edit", ObjectMetadata)
 	   And Not AllAttributesEditProhibited Then
 		
-		// 
+		// Add a command.
 		Command = Form.Commands.Add("AllowObjectAttributeEdit");
-		Command.Title = ?(IsBlankString(LockButtonTitle), NStr("en = 'Разрешить редактирование реквизитов';"), LockButtonTitle);
+		Command.Title = ?(IsBlankString(LockButtonTitle), NStr("en = 'Allow edit attributes';"), LockButtonTitle);
 		Command.Action = "Attachable_AllowObjectAttributeEdit";
 		Command.Picture = PictureLib.AllowObjectAttributeEdit;
 		Command.ModifiesStoredData = True;
 		
-		// 
+		// Add a button.
 		ParentGroup2 = ?(LockButtonGroup <> Undefined, LockButtonGroup, Form.CommandBar);
 		Button = Form.Items.Add("AllowObjectAttributeEdit", Type("FormButton"), ParentGroup2);
 		Button.LocationInCommandBar = ButtonLocationInCommandBar.InAdditionalSubmenu;
@@ -82,9 +83,9 @@ Procedure PrepareForm(Form, Ref, LockButtonGroup, LockButtonTitle) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
-// 
+// Intended for the PrepareForm procedure.
 Procedure PopulateDetailsForLockedAttributes(LongDesc, ObjectMetadata, AttributesToLock,
 			AllAttributesEditProhibited, Form = Undefined) Export
 	
@@ -162,8 +163,8 @@ Procedure PopulateDetailsForLockedAttributes(LongDesc, ObjectMetadata, Attribute
 	
 EndProcedure
 
-// Prepare a Form for the procedure.
-// Complements the array of blocked form elements with related elements.
+// For the PrepareForm procedure.
+// Supplements an array of form items to be locked with the linked items.
 //
 Procedure FillRelatedItems(Form)
 	
@@ -205,11 +206,11 @@ Function ObjectsWithLockedAttributes()
 	
 EndFunction
 
-// Returns a list of details and table parts of the object that are prohibited from editing,
-// as well as related form elements.
+// Returns a list of attributes and object tabular sections locked for editing
+// and form items linked to them.
 // 
 // Parameters:
-//  ObjectName - String -  full name of the metadata object.
+//  ObjectName - String - Full name of a metadata object.
 //
 // Returns:
 //  Array of See ObjectAttributesLock.NewAttributeToLock

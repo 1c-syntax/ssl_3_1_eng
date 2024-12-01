@@ -1,28 +1,30 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Returns the data cache version of the resource type Granulematosny register Rasprosraneniya.
+// Retrieves cache version data from the ValueStorage resource of the ProgramInterfaceCache register.
 //
 // Parameters:
-//   Id - String -  ID of the cache entry.
+//   Id - String - cache record ID.
 //   DataType     - EnumRef.APICacheDataTypes
-//   ReceivingParameters - String -  an array of parameters serialized in XML to pass to the cache update method.
-//   UseObsoleteData - Boolean -  flag that specifies whether to wait
-//      for data updates in the cache before returning the value, if they are found to be outdated.
-//      The truth is always to use the data from the cache if they are there. False-wait
-//      for cache data to be updated if data is found to be outdated.
+//   ReceivingParameters - String - parameter array serialized to XML for passing into the cache update procedure.
+//   UseObsoleteData - Boolean - a flag that shows whether the procedure must wait for cache
+//      update before retrieving data if it is obsolete.
+//      True - always use cache data, if any. False - wait
+//      for the cache update if data is obsolete.
 //
 // Returns:
-//   Fixed Array, Binary Data
+//   FixedArray, BinaryData
 //
 Function VersionCacheData(Val Id, Val DataType, Val ReceivingParameters, Val UseObsoleteData = True) Export
 		
@@ -42,7 +44,7 @@ Function VersionCacheData(Val Id, Val DataType, Val ReceivingParameters, Val Use
 	
 	BeginTransaction();
 	Try
-		// 
+		// Managed lock is not set, so other sessions can change the value while this transaction is active.
 		SetPrivilegedMode(True);
 		Result = Query.Execute();
 		SetPrivilegedMode(False);
@@ -98,7 +100,7 @@ Function VersionCacheData(Val Id, Val DataType, Val ReceivingParameters, Val Use
 			
 			Jobs = BackgroundJobs.GetBackgroundJobs(JobsFilter);
 			If Jobs.Count() = 0 Then
-				// 
+				// Start a new one.
 				ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(Undefined);
 				ExecutionParameters.BackgroundJobDescription = JobDescription;
 				SafeMode = SafeMode();
@@ -113,7 +115,7 @@ Function VersionCacheData(Val Id, Val DataType, Val ReceivingParameters, Val Use
 			
 			BeginTransaction();
 			Try
-				// 
+				// Managed lock is not set, so other sessions can change the value while this transaction is active.
 				SetPrivilegedMode(True);
 				Result = Query.Execute();
 				SetPrivilegedMode(False);
@@ -145,9 +147,9 @@ EndFunction
 // Updates data in the version cache.
 //
 // Parameters:
-//  Id      - String -  ID of the cache entry.
-//  DataType          - EnumRef.APICacheDataTypes -  type of data to update.
-//  ReceivingParameters - Array -  additional parameters for getting data to the cache.
+//  Id      - String - cache record ID.
+//  DataType          - EnumRef.APICacheDataTypes - type of data to update.
+//  ReceivingParameters - Array - additional options of getting data to the cache.
 //
 Procedure UpdateVersionCacheData(Val Id, Val DataType, Val ReceivingParameters) Export
 	
@@ -159,7 +161,7 @@ Procedure UpdateVersionCacheData(Val Id, Val DataType, Val ReceivingParameters) 
 	Try
 		LockDataForEdit(Var_Key);
 	Except
-		// 
+		// The data is being updated from another session.
 		Return;
 	EndTry;
 	
@@ -189,7 +191,7 @@ Procedure UpdateVersionCacheData(Val Id, Val DataType, Val ReceivingParameters) 
 		
 		Result = Query.Execute();
 		
-		// 
+		// Committing the transaction so that other sessions can read data.
 		CommitTransaction();
 		
 	Except
@@ -202,7 +204,7 @@ Procedure UpdateVersionCacheData(Val Id, Val DataType, Val ReceivingParameters) 
 	
 	Try
 		
-		// 
+		// Making sure the data must be updated.
 		If Not Result.IsEmpty() Then
 			
 			Selection = Result.Select();
@@ -239,14 +241,14 @@ Procedure UpdateVersionCacheData(Val Id, Val DataType, Val ReceivingParameters) 
 	
 EndProcedure
 
-// Prepares data for the program interface cache.
+// Prepares the data for the interface cache.
 //
 // Parameters:
-//  DataType          - EnumRef.APICacheDataTypes -  type of data to update.
-//  ReceivingParameters - Array -  additional parameters for getting data to the cache.
+//  DataType          - EnumRef.APICacheDataTypes - type of data to update.
+//  ReceivingParameters - Array - additional options of getting data to the cache.
 //  
 // Returns:
-//  Fixed Array, Binary Data
+//  FixedArray, BinaryData
 //
 Function PrepareVersionCacheData(Val DataType, Val ReceivingParameters) Export
 	
@@ -264,14 +266,14 @@ Function PrepareVersionCacheData(Val DataType, Val ReceivingParameters) Export
 	
 EndFunction
 
-// Generates the version cache entry ID from the server address and resource name.
+// Generates a version cache record ID based on a server address and a resource name.
 //
 // Parameters:
-//  Address - String -  server address.
-//  Name   - String -  resource name.
+//  Address - String - server address.
+//  Name   - String - resource name.
 //
 // Returns:
-//  String - 
+//  String - version cache record ID.
 //
 Function VersionCacheRecordID(Val Address, Val Name) Export
 	
@@ -330,7 +332,7 @@ EndFunction
 Function InterfaceCacheCurrent(UpdateDate)
 	
 	If ValueIsFilled(UpdateDate) Then
-		Return UpdateDate + 24 * 60 * 60 > CurrentUniversalDate(); // 
+		Return UpdateDate + 24 * 60 * 60 > CurrentUniversalDate(); // caching no more than for 24 hours.
 	EndIf;
 	
 	Return False;
@@ -341,7 +343,7 @@ Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout 
 	
 	If Not Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 		Try
-			InternetProxy = Undefined; // 
+			InternetProxy = Undefined; // By default.
 			Definitions = New WSDefinitions(WSDLAddress, UserName, Password, InternetProxy, Timeout, SecureConnection);
 		Except
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(

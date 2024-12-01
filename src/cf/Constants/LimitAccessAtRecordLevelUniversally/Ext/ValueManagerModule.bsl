@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -30,7 +32,7 @@ Procedure BeforeWrite(Cancel)
 	
 	NewValue = Value;
 	
-	If Value And Not PreviousValue2 Then // 
+	If Value And Not PreviousValue2 Then // Enabled.
 		InformationRegisters.AccessRestrictionParameters.UpdateRegisterData();
 	EndIf;
 	
@@ -44,7 +46,7 @@ Procedure BeforeWrite(Cancel)
 		Raise ErrorText;
 	ElsIf Common.IsSubordinateDIBNode() Then
 		ErrorText =
-			NStr("en = 'To change the app mode (Standard or High-performance), go to the infobase''s master node.';");
+			NStr("en = 'The operation mode (standard or high-performance) can only be changed in the master node.';");
 		Raise ErrorText;
 	EndIf;
 	
@@ -63,21 +65,21 @@ Procedure OnWrite(Cancel)
 		Raise ErrorText;
 	EndIf;
 	
-	If Value And Not PreviousValue2 Then // 
+	If Value And Not PreviousValue2 Then // Enabled.
 		AccessManagementInternal.ClearLastAccessUpdate();
 		PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters();
 		PlanningParameters.LongDesc = "EnabledRestrictAccessAtTheRecordLevelUniversally";
 		AccessManagementInternal.ScheduleAccessUpdate(Undefined, PlanningParameters);
 	EndIf;
 	
-	If Not Value And PreviousValue2 Then // 
+	If Not Value And PreviousValue2 Then // Disabled.
 		ValueManager = Constants.FirstAccessUpdateCompleted.CreateValueManager();
 		ValueManager.Value = False;
 		InfobaseUpdate.WriteData(ValueManager);
 		AccessManagementInternal.EnableDataFillingForAccessRestriction();
 	EndIf;
 	
-	If Value <> PreviousValue2 Then // 
+	If Value <> PreviousValue2 Then // Modified.
 		AccessManagementInternal.UpdateSessionParameters();
 	EndIf;
 	

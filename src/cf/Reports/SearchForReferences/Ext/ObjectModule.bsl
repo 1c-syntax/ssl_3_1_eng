@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,9 +14,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.ReportsOptions
 
-// To set up a report form.
+// Set report form settings.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -38,7 +40,7 @@ EndProcedure
 Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	StandardProcessing = False;
 	
-	// 
+	// Regenerating a title by a reference set.
 	Settings = SettingsComposer.GetSettings();
 	RefSet = Settings.DataParameters.FindParameterValue( New DataCompositionParameter("RefSet") );
 	If RefSet <> Undefined Then
@@ -63,7 +65,7 @@ Function CompositionProcessor(DetailsData = Undefined, GeneratorType = "DataComp
 	
 	Settings = SettingsComposer.GetSettings();
 	
-	// 
+	// List of references from parameters.
 	ParameterValue = Settings.DataParameters.FindParameterValue( New DataCompositionParameter("RefSet") ).Value;
 	ValueType = TypeOf(ParameterValue);
 	If ValueType = Type("ValueList") Then
@@ -77,7 +79,7 @@ Function CompositionProcessor(DetailsData = Undefined, GeneratorType = "DataComp
 		EndIf;
 	EndIf;
 	
-	// 
+	// Parameters of output from fixed parameters.
 	For Each OutputParameter In SettingsComposer.FixedSettings.OutputParameters.Items Do
 		If OutputParameter.Use Then
 			Item = Settings.OutputParameters.FindParameterValue(OutputParameter.Parameter);
@@ -88,10 +90,10 @@ Function CompositionProcessor(DetailsData = Undefined, GeneratorType = "DataComp
 		EndIf;
 	EndDo;
 	
-	// 
+	// Data source tables.
 	UsageInstances = Common.UsageInstances(ReferencesArrray);
 	
-	// 
+	// Checking whether there are all references.
 	For Each Ref In ReferencesArrray Do
 		If UsageInstances.Find(Ref, "Ref") = Undefined Then
 			More = UsageInstances.Add();
@@ -103,7 +105,7 @@ Function CompositionProcessor(DetailsData = Undefined, GeneratorType = "DataComp
 	ExternalData = New Structure;
 	ExternalData.Insert("UsageInstances", UsageInstances);
 	
-	// Perform
+	// Runtime.
 	TemplateComposer = New DataCompositionTemplateComposer;
 	Template = TemplateComposer.Execute(DataCompositionSchema, Settings, DetailsData, , Type(GeneratorType));
 	

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -28,13 +30,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Visibility settings at startup.
 	Items.ApplySettingsGroup.Visible = Common.IsWebClient();
 	Items.StandaloneMode.Visible = StandaloneModeInternal.StandaloneModeSupported();
 	Items.TemporaryServerClusterDirectoriesGroup.Visible = (Not Common.FileInfobase())
 		And Users.IsFullUser(, True);
 	
-	// 
+	// Update items states.
 	SetAvailability();
 	
 EndProcedure
@@ -46,9 +48,9 @@ Procedure OnClose(Exit)
 		Return;
 	EndIf;
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 	RefreshApplicationInterface();
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -187,7 +189,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)

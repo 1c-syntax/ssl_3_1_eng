@@ -1,23 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Calculates the totals of all accounting registers and accumulations that have them enabled.
+// Calculates totals of all accounting registers and accumulations for which they are enabled.
 Procedure CalculateTotals() Export
 	
 	SessionDate = CurrentSessionDate();
-	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // 
-	AccountingRegisterPeriod = EndOfMonth(SessionDate); // 
+	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // End of the last month.
+	AccountingRegisterPeriod = EndOfMonth(SessionDate); // End of the last month.
 	
 	Cache = SplitCheckCache();
 	
-	// 
+	// Totals calculation for accumulation registers.
 	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	For Each MetadataRegister In Metadata.AccumulationRegisters Do
 		If MetadataRegister.RegisterType <> KindBalance Then
@@ -38,7 +40,7 @@ Procedure CalculateTotals() Export
 		AccumulationRegisterManager.RecalcPresentTotals();
 	EndDo;
 	
-	// 
+	// Totals calculation for accounting registers.
 	For Each MetadataRegister In Metadata.AccountingRegisters Do
 		If Not MetadataObjectAvailableOnSplit(Cache, MetadataRegister) Then
 			Continue;
@@ -55,7 +57,7 @@ Procedure CalculateTotals() Export
 		AccountingRegisterManager.RecalcPresentTotals();
 	EndDo;
 	
-	// 
+	// Register data.
 	If LocalFileOperationMode() Then
 		TotalsParameters = TotalsAndAggregatesParameters();
 		TotalsParameters.TotalsCalculationDate = BegOfMonth(SessionDate);
@@ -64,7 +66,7 @@ Procedure CalculateTotals() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -87,8 +89,8 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// Run the operations after all update handlers are completed.
+	// (They might change the states (usage) of totals and aggregates.)
 	
 	GenerateTotalsAndAggregatesParameters();
 	
@@ -143,9 +145,9 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Scheduled job runtime.
 
-// Handler for the routine task "setperiodarasscounted Totals".
+// TotalsPeriodSetup scheduled job handler.
 Procedure TotalsPeriodSetupJobHandler() Export
 	
 	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.TotalsPeriodSetup);
@@ -154,7 +156,7 @@ Procedure TotalsPeriodSetupJobHandler() Export
 	
 EndProcedure
 
-// Handler for the routine task "updating Aggregates".
+// UpdateAggregates scheduled job handler.
 Procedure UpdateAggregatesJobHandler() Export
 	
 	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.UpdateAggregates);
@@ -163,7 +165,7 @@ Procedure UpdateAggregatesJobHandler() Export
 	
 EndProcedure
 
-// Handler for the routine task "rebuilding Units".
+// RebuildAggregates scheduled job handler.
 Procedure RebuildAggregatesJobHandler() Export
 	
 	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.RebuildAggregates);
@@ -177,7 +179,7 @@ Procedure UpdateAggregates()
 	
 	Cache = SplitCheckCache();
 	
-	// 
+	// Aggregates update for turnover accumulation registers.
 	TurnoversKind = Metadata.ObjectProperties.AccumulationRegisterType.Turnovers;
 	For Each MetadataRegister In Metadata.AccumulationRegisters Do
 		If MetadataRegister.RegisterType <> TurnoversKind Then
@@ -191,7 +193,7 @@ Procedure UpdateAggregates()
 			Or Not AccumulationRegisterManager.GetAggregatesUsing() Then
 			Continue;
 		EndIf;
-		// 
+		// Update aggregates.
 		AccumulationRegisterManager.UpdateAggregates();
 	EndDo;
 EndProcedure
@@ -201,7 +203,7 @@ Procedure RebuildAggregates()
 	
 	Cache = SplitCheckCache();
 	
-	// 
+	// Aggregates rebuild for turnover accumulation registers.
 	TurnoversKind = Metadata.ObjectProperties.AccumulationRegisterType.Turnovers;
 	For Each MetadataRegister In Metadata.AccumulationRegisters Do
 		If MetadataRegister.RegisterType <> TurnoversKind Then
@@ -215,26 +217,26 @@ Procedure RebuildAggregates()
 			Or Not AccumulationRegisterManager.GetAggregatesUsing() Then
 			Continue;
 		EndIf;
-		// 
+		// Rebuild aggregates.
 		AccumulationRegisterManager.RebuildAggregatesUsing();
 	EndDo;
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// For file mode operation.
 
-// Returns True if the is is running in file mode and partitioning is disabled.
+// Returns True if the infobase operates in the file mode and split is disabled.
 Function LocalFileOperationMode()
 	Return Common.FileInfobase() And Not Common.DataSeparationEnabled();
 EndFunction
 
-// Determines the relevance of totals and aggregates. If there are no registers, it returns True.
+// Checks whether totals and aggregates are actual. Returns True if there are no registers.
 Function MustMoveTotalsBorder() Export
 	Parameters = TotalsAndAggregatesParameters();
 	Return Parameters.HasTotalsRegisters And AddMonth(Parameters.TotalsCalculationDate, 2) < CurrentSessionDate();
 EndFunction
 
-// Gets the value of the constant "parameters of totals and Aggregates".
+// Gets a value of the TotalsAndAggregatesParameters constant.
 Function TotalsAndAggregatesParameters()
 	SetPrivilegedMode(True);
 	Parameters = Constants.TotalsAndAggregatesParameters.Get().Get();
@@ -244,11 +246,11 @@ Function TotalsAndAggregatesParameters()
 	Return Parameters;
 EndFunction
 
-// Re-fills the constant "parameters of totals and Aggregates".
+// Overwrites the TotalsAndAggregatesParameters constant.
 Function GenerateTotalsAndAggregatesParameters()
 	Parameters = New Structure;
 	Parameters.Insert("HasTotalsRegisters", False);
-	Parameters.Insert("TotalsCalculationDate",  '39991231235959'); // 
+	Parameters.Insert("TotalsCalculationDate",  '39991231235959'); // 12/1/3999 11:59:59 PM, the maximum date.
 	
 	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	For Each MetadataRegister In Metadata.AccumulationRegisters Do
@@ -269,34 +271,34 @@ Function GenerateTotalsAndAggregatesParameters()
 	Return Parameters;
 EndFunction
 
-// Writes the value of the constant "parameters of totals and Aggregates".
+// Writes a value of the TotalsAndAggregatesParameters constant.
 Procedure WriteTotalsAndAggregatesParameters(Parameters) Export
 	Constants.TotalsAndAggregatesParameters.Set(New ValueStorage(Parameters));
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Infobase update.
 
-// [2.3.4.7] Updates the use of routine tasks for updating Units and rebuilding Units.
+// [2.3.4.7] Updates usage of UpdateAggregates and RebuildAggregates scheduled jobs.
 Procedure UpdateScheduledJobUsage() Export
-	// 
+	// UpdateAggregates and RebuildAggregates scheduled jobs.
 	HasRegistersWithAggregates = HasRegistersWithAggregates();
 	UpdateScheduledJob(Metadata.ScheduledJobs.UpdateAggregates, HasRegistersWithAggregates);
 	UpdateScheduledJob(Metadata.ScheduledJobs.RebuildAggregates, HasRegistersWithAggregates);
 	
-	// 
+	// Scheduled job TotalsPeriodSetup.
 	UpdateScheduledJob(Metadata.ScheduledJobs.TotalsPeriodSetup, True);
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Miscellaneous.
 
-// Auxiliary for the update userregistration Tasks procedure.
+// Secondary for UpdateScheduledJobsUsage procedure.
 Procedure UpdateScheduledJob(ScheduledJobMetadata, Use)
 	FoundItems = ScheduledJobsServer.FindJobs(New Structure("Metadata", ScheduledJobMetadata));
 	For Each Job In FoundItems Do
 		Changes = New Structure("Use", Use);
-		// 
+		// Change the schedule only if not set and only in on-prem.
 		If Not ScheduleFilled(Job.Schedule)
 			And Not Common.DataSeparationEnabled() Then
 			Changes.Insert("Schedule", DefaultSchedule(ScheduledJobMetadata));
@@ -305,22 +307,22 @@ Procedure UpdateScheduledJob(ScheduledJobMetadata, Use)
 	EndDo;
 EndProcedure
 
-// Determines whether the scheduled task schedule is set.
+// Defines whether the job schedule is set.
 //
 // Parameters:
-//   Schedule - JobSchedule -  schedule of a routine task.
+//   Schedule - JobSchedule - scheduled job schedule.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the job schedule is set.
 //
 Function ScheduleFilled(Schedule)
 	Return Schedule <> Undefined
 		And String(Schedule) <> String(New JobSchedule);
 EndFunction
 
-// Returns the schedule of a scheduled task by default.
-//   Used instead of the "metadata Object: routine Task" property.Schedule",
-//   because it always has the value Undefined.
+// Returns the default job schedule.
+//   The function is used instead of MetadataObject: ScheduledJob.Schedule property
+//   as its value is always set to Undefined.
 //
 Function DefaultSchedule(ScheduledJobMetadata)
 	Schedule = New JobSchedule;
@@ -341,7 +343,7 @@ Function DefaultSchedule(ScheduledJobMetadata)
 	Return Schedule;
 EndFunction
 
-// Auxiliary for the timesheet function.
+// Secondary for the DefaultSchedule function.
 Procedure AddDetailedSchedule(Schedule, Var_Key, Value)
 	DetailedSchedule = New JobSchedule;
 	FillPropertyValues(DetailedSchedule, New Structure(Var_Key, Value));
@@ -350,7 +352,7 @@ Procedure AddDetailedSchedule(Schedule, Var_Key, Value)
 	Schedule.DetailedDailySchedules = Array;
 EndProcedure
 
-// Auxiliary for the timesheet function.
+// Secondary for the DefaultSchedule function.
 Procedure SetWeekDays(Schedule, WeekDaysInRow)
 	WeekDays = New Array;
 	RowsArray = StrSplit(WeekDaysInRow, ",", False);

@@ -1,26 +1,28 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Opens the form for sending a new SMS.
+// Open the form to send a new text message.
 //
 // Parameters:
 //  RecipientsNumbers - Array of Structure:
-//   * Phone - String -  recipient's number in the format +<country Code><Codedef><number>;
-//   * Presentation - String -  phone number representation;
-//   * ContactInformationSource - CatalogRef -  owner of the phone number.
+//   * Phone - String - Recipient's number in the format: +<CountryCode><LocalCode><Number>.
+//   * Presentation - String - Phone number presentation.
+//   * ContactInformationSource - CatalogRef - Phone number owner.
 //  
-//  Text - String -  text of the message, no more than 1000 characters long.
+//  Text - String - Message text with the max length of 1,000 characters.
 //  
-//  AdditionalParameters - Structure - :
-//   * SenderName - String -  the sender's name that will be displayed instead of the recipient's number;
-//   * Transliterate - Boolean -  True if you want to translate the message text into translit before sending it.
+//  AdditionalParameters - Structure - additional text message sending parameters:
+//   * SenderName - String - Sender's name that recipients will see instead of the phone number.
+//   * Transliterate - Boolean - If True, transliterate the outgoing message.
 //
 Procedure SendSMS(RecipientsNumbers, Text, AdditionalParameters) Export
 	
@@ -43,10 +45,10 @@ Procedure SendSMS(RecipientsNumbers, Text, AdditionalParameters) Export
 	
 EndProcedure
 
-// 
+// Opens the form for setting up text message sending.
 // 
 // Parameters:
-//  OnCloseNotifyDescription - NotifyDescription - 
+//  OnCloseNotifyDescription - NotifyDescription - The procedure to be executed after the form is closed.
 //
 Procedure OpenSettingsForm(OnCloseNotifyDescription = Undefined) Export
 	
@@ -58,11 +60,11 @@ EndProcedure
 
 #Region Private
 
-// If the user does not have settings for sending SMS, then depending on the rights, it either displays
-// the SMS settings form, or displays a message about the inability to send.
+// If the user hasn't configured the SMS gateway, depending on the user rights:
+// Open the SMS gateway settings form; Or display a user message saying that the message cannot be sent.
 //
 // Parameters:
-//  ResultHandler - NotifyDescription -  the procedure in which you want to transfer code execution after verification.
+//  ResultHandler - NotifyDescription - a procedure to be executed after the check is completed.
 //
 Procedure CheckForSMSMessageSendingSettings(ResultHandler)
 	
@@ -89,7 +91,7 @@ Procedure AfterSetUpSMSMessage(Result, ResultHandler) Export
 	EndIf;
 EndProcedure
 
-// Continue with the send SMS procedure.
+// Continues the SendSMS procedure.
 Procedure CreateNewSMSMessageSettingsCheckCompleted(SMSMessageSendingIsSetUp, SendOptions) Export
 	
 	If Not SMSMessageSendingIsSetUp Then
@@ -112,10 +114,10 @@ Procedure CreateNewSMSMessageSettingsCheckCompleted(SMSMessageSendingIsSetUp, Se
 EndProcedure
 
 // Returns:
-//  Structure - :
-//   * SenderName - String -  the sender's name that will be displayed instead of the recipient's number;
-//   * Transliterate - Boolean -  True if you need to translate the message text into translit before sending it;
-//   * SubjectOf - AnyRef -  the item that the SMS is associated with.
+//  Structure - Additional text message sending parameters:
+//   * SenderName - String - Sender's name that recipients will see instead of the phone number.
+//   * Transliterate - Boolean - If True, transliterate the outgoing message.
+//   * SubjectOf - AnyRef - Topic the outgoing message is associated with.
 //
 Function SendOptions()
 	

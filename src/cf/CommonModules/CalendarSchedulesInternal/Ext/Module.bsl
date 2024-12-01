@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Called when production calendars are changed.
+// It is called when changing data of business calendars.
 //
 Procedure PlanUpdateOfDataDependentOnBusinessCalendars(Val UpdateConditions) Export
 	
@@ -34,7 +36,7 @@ Procedure PlanUpdateOfDataDependentOnBusinessCalendars(Val UpdateConditions) Exp
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See JobsQueueOverridable.OnDefineHandlerAliases.
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
@@ -47,11 +49,11 @@ EndProcedure
 
 #Region Private
 
-// The procedure for calling from the job queue is placed there in the scheduled update of data-dependent production Calendars.
+// The procedure for calling from a job queue. Add it to PlanUpdateOfDataDependentOnBusinessCalendars.
 // 
 // Parameters:
-//  UpdateConditions - 
-//  FileID - 
+//  UpdateConditions - a ValueTable with schedule update conditions.
+//  FileID - a file UUID of provided master data being processed.
 //
 Procedure UpdateDataDependentOnBusinessCalendars(Val UpdateConditions, Val FileID) Export
 	
@@ -59,11 +61,11 @@ Procedure UpdateDataDependentOnBusinessCalendars(Val UpdateConditions, Val FileI
 		
 		ModuleSuppliedData = Common.CommonModule("SuppliedData");
 		
-		// 
+		// Getting data areas to process.
 		AreasForUpdate = ModuleSuppliedData.AreasRequiringProcessing(
 			FileID, "BusinessCalendarsData");
 			
-		// 
+		// Updating work schedules by data areas.
 		DistributeBusinessCalendarsDataToDependentData(UpdateConditions, AreasForUpdate, 
 			FileID, "BusinessCalendarsData");
 			
@@ -71,13 +73,13 @@ Procedure UpdateDataDependentOnBusinessCalendars(Val UpdateConditions, Val FileI
 		
 EndProcedure
 
-// Fills in data that is dependent on production calendars based on production calendar data for all ODS.
+// Fills in data that depends on business calendars according to the business calendar data for all data areas.
 //
 // Parameters:
-//  UpdateConditions - ValueTable -  table with conditions for updating graphs.
-//  AreasForUpdate - 
-//  FileID - 
-//  HandlerCode - String -   the handler code.
+//  UpdateConditions - ValueTable - a table with schedule update conditions.
+//  AreasForUpdate - an array of area codes.
+//  FileID - a file UUID of processed rates.
+//  HandlerCode - String - a handler code.
 //
 Procedure DistributeBusinessCalendarsDataToDependentData(Val UpdateConditions, 
 	Val AreasForUpdate, Val FileID, Val HandlerCode)
@@ -97,8 +99,8 @@ Procedure DistributeBusinessCalendarsDataToDependentData(Val UpdateConditions,
 			ModuleSaaSOperations.SignInToDataArea(DataArea);
 			SetPrivilegedMode(False);
 		Except
-			// 
-			// 
+			// If the exclusive mode is set to a data area, skip it.
+			// Such data areas are inaccessible.
 			SetPrivilegedMode(True);
 			ModuleSaaSOperations.SignOutOfDataArea();
 			SetPrivilegedMode(False);

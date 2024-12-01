@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -31,7 +33,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -70,11 +72,11 @@ EndProcedure
 
 #Region Internal
 
-// Registers objects
-// that need to be updated to the new version on the exchange plan for updating the information Database.
+// Registers the objects to be updated in the InfobaseUpdate exchange plan.
+// 
 //
 // Parameters:
-//  Parameters - Structure -  service parameter to pass to the information database Update procedure.Mark the processing.
+//  Parameters - Structure - Internal parameter to pass to the InfobaseUpdate.MarkForProcessing procedure.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 
@@ -99,6 +101,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 		VersionsForProcessing = Result.UnloadColumn("Ref");
 		InfobaseUpdate.MarkForProcessing(Parameters, VersionsForProcessing);
 		Query.SetParameter("Ref", VersionsForProcessing[VersionsForProcessing.UBound()]);
+		//@skip-check query-in-loop - Batch data registration for processing
 		Result = Query.Execute().Unload();
 	EndDo;
 

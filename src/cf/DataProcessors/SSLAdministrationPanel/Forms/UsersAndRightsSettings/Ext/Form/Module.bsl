@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -48,7 +50,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.UseUserGroups.Visible = Not SimplifiedInterface;
 		Items.LimitAccessAtRecordLevelUniversally.Visible
 			= ModuleAccessManagementInternal.ScriptVariantRussian()
-				And Users.IsFullUser(, True);
+				And Users.IsFullUser();
 		Items.AccessUpdateOnRecordsLevel.Visible =
 			ModuleAccessManagementInternal.LimitAccessAtRecordLevelUniversally(True);
 		
@@ -109,7 +111,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.PasswordsRecovery.Visible = False;
 	EndIf;
 	
-	// 
+	// Update items states.
 	SetAvailability();
 	
 	ApplicationSettingsOverridable.UsersAndRightsSettingsOnCreateAtServer(ThisObject);
@@ -201,20 +203,14 @@ Procedure LimitAccessAtRecordLevelUniversallyOnChange(Item)
 		QueryText =
 			NStr("en = 'Do you want to enable the high-performance access restriction mode?
 			           |
-			           |The settings will take effect after the first update.
+			           |The update of the right settings will take some time.
 			           |To monitor the progress, click ""RLS access update progress"".';");
-	ElsIf ConstantsSet.LimitAccessAtRecordLevel Then
-		QueryText =
-			NStr("en = 'Do you want to disable the high-performance access restriction mode?
-			           |
-			           |This will initiate the ""Populate data for access restriction"" scheduled job to populate data in batches.
-			           |You can monitor the progress in the event log.';");
 	Else
 		QueryText =
 			NStr("en = 'Do you want to disable the high-performance access restriction mode?
 			           |
-			           |This will initiate the ""Populate data for access restriction"" scheduled job to populate some data in batches.
-			           |You can monitor the progress in the event log.';");
+			           |The update of the right settings will take some time.
+			           |To monitor the progress, click ""RLS access update progress"".';");
 	EndIf;
 	
 	If ValueIsFilled(QueryText) Then
@@ -234,11 +230,11 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 	
 	If ConstantsSet.LimitAccessAtRecordLevelUniversally Then
 		QueryText =
-			NStr("en = 'Access group settings will take effect gradually.
+			NStr("en = 'Access group settings will take effect in a while.
 			           |To monitor the progress, click ""RLS access update progress"".
 			           |
 			           |This might slow down the app and take
-			           |from seconds to a few hours depending on the data volume.';");
+			           |from seconds to a few hours, depending on the data volume.';");
 		If ConstantsSet.LimitAccessAtRecordLevel Then
 			QueryText = NStr("en = 'Do you want to enable record-level access restrictions?';")
 				+ Chars.LF + Chars.LF + QueryText;
@@ -249,12 +245,11 @@ Procedure LimitAccessAtRecordLevelOnChange(Item)
 		
 	ElsIf ConstantsSet.LimitAccessAtRecordLevel Then
 		QueryText =
-			NStr("en = 'Do you want to enable record-level access restriction?
+			NStr("en = 'Do you want to enable RLS restriction?
 			           |
-			           |This will initiate the ""Populate data for access restriction"" scheduled job to populate data in batches.
-			           |You can monitor the progress in the event log.
-			           |
-			           |The processing might slow down the app and take from seconds to a few hours depending on the data volume.';");
+			           |This might slow down the app and take
+			           |from seconds to a few hours, depending on the data volume.
+			           |To monitor the progress, see ""Populate data for access restriction"" in the event log.';");
 	Else
 		QueryText = "";
 	EndIf;
@@ -300,7 +295,7 @@ Procedure AccessUpdateOnRecordsLevel(Command)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternalClient = CommonClient.CommonModule("AccessManagementInternalClient");
-		ModuleAccessManagementInternalClient.OpenUpdateAccessFormAtRecordLevel(True, True);
+		ModuleAccessManagementInternalClient.OpenAccessUpdateOnRecordsLevelForm(True, True);
 	EndIf;
 	
 EndProcedure
@@ -320,7 +315,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -408,7 +403,7 @@ Procedure UseExternalUsersOnChangeCompletion(Response, Item) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -446,7 +441,7 @@ Procedure RegisterDataAccessOnChangeAtServer(Val ShouldRegisterDataAccess)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)

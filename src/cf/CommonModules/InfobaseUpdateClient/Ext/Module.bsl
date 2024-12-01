@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// OnlineUserSupport.GetApplicationUpdates
 
-// Opens a form with a list of deferred
-// update handlers for the current version.
+// Opens a form with the list of deferred update
+// handlers to the current version.
 //
 Procedure ShowDeferredHandlers() Export
 	OpenForm("DataProcessor.ApplicationUpdateResult.Form.DeferredHandlers");
@@ -32,7 +34,7 @@ Procedure ShowUpdateResults() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
@@ -196,14 +198,14 @@ Procedure OnProcessCommand(ReportForm, Command, Result) Export
 	
 EndProcedure
 
-// 
-// 
+// Handles mouse double-click, "Enter" key, and hyperlink activation in report spreadsheets.
+// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
 //
 // Parameters:
-//   ReportForm          - ClientApplicationForm -  report form.
-//   Item              - FormField        -  table document.
-//   Area              - SpreadsheetDocumentRange -  selected value.
-//   StandardProcessing - Boolean -  indicates whether standard event processing is being performed.
+//   ReportForm          - ClientApplicationForm - Report form.
+//   Item              - FormField        - Spreadsheet document.
+//   Area              - SpreadsheetDocumentRange - Selected value.
+//   StandardProcessing - Boolean - indicates whether standard event processing is executed.
 //
 Procedure OnProcessSpreadsheetDocumentSelection(ReportForm, Item, Area, StandardProcessing) Export
 	
@@ -292,7 +294,7 @@ Procedure UnlockObjectToEditAfterQuestion(Result, Parameters) Export
 	
 EndProcedure
 
-// For the procedure, update the information Database.
+// This method is required by UpdateInfobase procedure.
 Procedure CloseUpdateProgressIndicationFormIfOpen(Parameters)
 	
 	ParameterName = "StandardSubsystems.IBVersionUpdate.IBUpdateProgressIndicatorForm";
@@ -307,7 +309,7 @@ Procedure CloseUpdateProgressIndicationFormIfOpen(Parameters)
 	
 EndProcedure
 
-// For internal use only. Continue the procedure to update the information Database.
+// For internal use only. Continues the execution of InfobaseUpdate procedure.
 Procedure StartInfobaseUpdate1(Parameters, ContinuationHandler) Export
 	
 	ParameterName = "StandardSubsystems.IBVersionUpdate.IBUpdateProgressIndicatorForm";
@@ -324,7 +326,7 @@ Procedure StartInfobaseUpdate1(Parameters, ContinuationHandler) Export
 	
 EndProcedure
 
-// For internal use only. Continue the procedure before starting the program.
+// For internal use only. Continues the execution of BeforeApplicationStart procedure.
 Procedure ImportUpdateApplicationParameters(Parameters, Context) Export
 	
 	FormName = "DataProcessor.ApplicationUpdateResult.Form.ApplicationVersionUpdate";
@@ -335,7 +337,7 @@ Procedure ImportUpdateApplicationParameters(Parameters, Context) Export
 	
 EndProcedure
 
-// For internal use only. Continue the procedure to update the information Database.
+// For internal use only. Continues the execution of InfobaseUpdate procedure.
 Procedure AfterCloseIBUpdateProgressIndicatorForm(Result, Parameters) Export
 	
 	If TypeOf(Result) <> Type("Structure") Then
@@ -353,7 +355,7 @@ Procedure AfterCloseIBUpdateProgressIndicatorForm(Result, Parameters) Export
 	
 EndProcedure
 
-// For internal use only. Continue the procedure to check the status of the post-update process.
+// For internal use only. Continue the CheckDeferredUpdateHandlersStatus procedure.
 Procedure DeferredUpdateStatusCheckInteractiveHandler(Parameters, Context) Export
 	
 	OpenForm("DataProcessor.ApplicationUpdateResult.Form.DeferredUpdateNotCompleted", , , , , ,
@@ -362,7 +364,7 @@ Procedure DeferredUpdateStatusCheckInteractiveHandler(Parameters, Context) Expor
 	
 EndProcedure
 
-// For internal use only. Continue the procedure to check the status of the post-update process.
+// For internal use only. Continue the CheckDeferredUpdateHandlersStatus procedure.
 Procedure AfterDeferredUpdateStatusCheckFormClose(Result, Parameters) Export
 	
 	If Result <> True Then
@@ -373,8 +375,8 @@ Procedure AfterDeferredUpdateStatusCheckFormClose(Result, Parameters) Export
 	
 EndProcedure
 
-// If there are unproven descriptions of changes and the user is not disabled
-// , open the program change Descriptionform.
+// If there is hidden description of changes and settings allow a user
+// to view such information, open the ApplicationReleaseNotes form.
 //
 Procedure ShowChangeHistory1()
 	
@@ -389,8 +391,8 @@ Procedure ShowChangeHistory1()
 	
 EndProcedure
 
-// Notifies the user that deferred data processing
-// has not been completed.
+// Notifies the user that the deferred data processing
+// is not executed.
 //
 Procedure NotifyDeferredHandlersNotExecuted() Export
 	
@@ -405,13 +407,13 @@ Procedure NotifyDeferredHandlersNotExecuted() Export
 	
 EndProcedure
 
-// Returns the navigation link for updating the information Database.
+// Returns the URL of InfobaseUpdate data processor
 //
 Function DataProcessorURL()
 	Return "e1cib/app/DataProcessor.ApplicationUpdateResult";
 EndFunction
 
-// For internal use only. Continue the procedure before starting the system.
+// For internal use only. Continues the execution of BeforeStart procedure.
 Procedure InitiateAreaUpdate(Parameters, WarningDetails) Export
 	OpenForm("DataProcessor.ApplicationUpdateResult.Form.MessageToLimitedAccessUser");
 EndProcedure

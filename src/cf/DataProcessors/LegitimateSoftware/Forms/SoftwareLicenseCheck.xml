@@ -3,7 +3,12 @@
 	<Form uuid="d375fac5-098c-42b5-a0bd-9a4ae7516ada">
 		<Properties>
 			<Name>SoftwareLicenseCheck</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Licensed update verification</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<FormType>Managed</FormType>
 			<IncludeHelpInContents>false</IncludeHelpInContents>

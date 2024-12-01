@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -221,7 +223,7 @@ Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined)
 				Continue;
 			EndIf;
 			
-			//  
+			// @skip-check query-in-loop - Batch processing of a large amount of data. 
 			If Not RecordExists(File) Then
 				WriteBinaryData(File, BinaryData);
 			EndIf;
@@ -255,10 +257,10 @@ Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Update handlers.
 
-// Registers objects
-// that need to be updated in the register on the exchange plan for updating the information Database.
+// Registers objects, 
+// for which it is necessary to update register records on the "InfobaseUpdate" exchange plan.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -340,7 +342,7 @@ Procedure TransferFilesBinaryDataToFileStorageInfoRegister(Selection)
 			WriteFileVersionManager.Read();
 			
 			BinaryData = WriteFileVersionManager.StoredFile.Get();
-			//  
+			// @skip-check query-in-loop - Batch processing of a large amount of data. 
 			WriteBinaryData(Selection.Ref, BinaryData);
 
 			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
@@ -348,7 +350,7 @@ Procedure TransferFilesBinaryDataToFileStorageInfoRegister(Selection)
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			// 
+			// If processing for a document failed, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -422,7 +424,7 @@ Procedure ToCreateTheMissingVersionFile(Selection)
 				BinaryFilesData.File = FileRef;
 				BinaryFilesData.Read();
 				If BinaryFilesData.Selected() Then
-					//  
+					// @skip-check query-in-loop - Batch processing of a large amount of data. 
 					WriteBinaryData(Version.Ref, BinaryFilesData.FileBinaryData.Get());
 					BinaryFilesData.Delete();
 				EndIf;
@@ -434,7 +436,7 @@ Procedure ToCreateTheMissingVersionFile(Selection)
 		Except
 			
 			RollbackTransaction();
-			// 
+			// If processing for a file failed, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			InfobaseUpdate.WriteErrorToEventLog(

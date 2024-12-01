@@ -1,49 +1,51 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
-// Processing incoming messages with the {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}InstallExtension
+// Processing of incoming messages of type {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}InstallExtension
 //
 // Parameters:
 //  InstallationDetails - Structure:
-//    * Id - UUID -  the unique identifier links
-//      element of the directory of ПоставляемыеДополнительныеОтчетыиобработки,
-//    * Presentation - String -  representation of the installation of the supplied additional
-//      processing (will be used as the name of the reference element
-//      Dopolnitelnuyu),
-//    * Installation - UUID -  unique ID of the installation
-//      of the supplied additional processing (will be used as
-//      the unique ID of the reference reference for additional processing Reports),
-//  CommandsSettings - ValueTable - 
+//    * Id - UUID - UUID of the reference to SuppliedAdditionalReportsAndDataProcessors.
+//      
+//    * Presentation - String - Presentation of the built-in additional data processor installation.
+//      It will be used as a description of the AdditionalReportsAndDataProcessors catalog item.
+//      
+//    * Installation - UUID - UUID of the built-in additional data processor installation.
+//      It will be used as the AdditionalReportsAndDataProcessors catalog reference UUID.
+//      
+//  CommandsSettings - ValueTable - Installation command settings for the built-in additional data processor
 //      :
-//    * Id - String -  command ID,
-//    * QuickAccess - Array -  unique identifiers (unique Identifier)
-//      that define the service users to whom the command should be included in
+//    * Id - String - a command ID.
+//    * QuickAccess - Array - UUIDs (UUID)
+//      that determine service users, to which command needs to be included in
 //      quick access,
-//    * Schedule - JobSchedule -  schedule for setting
-//      an additional processing command (if the command is set to run as
-//      a scheduled task),
-//  Sections - ValueTable - 
-//      :
+//    * Schedule - JobSchedule - a job schedule for an
+//      additional processing command (if executing the command as
+//      a scheduled job is allowed).
+//  Sections - ValueTable - Settings for enabling commands for built-in additional data processor installation into the command interface.
+//      Has the following columns:
 //    * Section - CatalogRef.MetadataObjectIDs
-//  CatalogsAndDocuments - ValueTable - 
-//      :
+//  CatalogsAndDocuments - ValueTable - Settings for enabling commands for built-in additional data processor installation into list and item forms.
+//      Has the following columns:
 //    * RelatedObject - CatalogRef.MetadataObjectIDs
-//  AdditionalReportOptions - Array -  keys for additional report report options (Row).
-//  ServiceUserID - UUID -  defines
-//    the service user who initiated the installation of the supplied additional processing.
+//  AdditionalReportOptions - Array - the keys of report options for an additional report (String).
+//  ServiceUserID - UUID - Determines a service user who installed the built-in additional data processor.
+//    
 //
 Procedure SetAdditionalReportOrDataProcessor(Val InstallationDetails,
 		Val CommandsSettings, Val CommandsPlacementSettings, Val Sections, Val CatalogsAndDocuments, Val AdditionalReportOptions,
 		Val ServiceUserID) Export
 	
-	// 
+	// Settings are filled in based on the message data
 	QuickAccess = New ValueTable();
 	QuickAccess.Columns.Add("CommandID", New TypeDescription("String"));
 	QuickAccess.Columns.Add("User", New TypeDescription("CatalogRef.Users"));
@@ -105,13 +107,13 @@ Procedure SetAdditionalReportOrDataProcessor(Val InstallationDetails,
 	
 EndProcedure
 
-// Processing incoming messages with the {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}DeleteExtension
+// Processing of incoming messages of type {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}DeleteExtension
 //
 // Parameters:
-//  SuppliedDataProcessorID - UUID -  the link to the item
-//    Handbook of ПоставляемыеДополнительныеОтчетыиобработки;
-//  IDOfDataProcessorToUse - UUID -  link to an element
-//    in the additional reports and Processing reference list.
+//  SuppliedDataProcessorID - UUID - a reference to the item
+//    of the SuppliedAdditionalReportsAndDataProcessors catalog.
+//  IDOfDataProcessorToUse - UUID - a reference to the item
+//    of the AdditionalReportsAndDataProcessors catalog.
 //
 Procedure DeleteAdditionalReportOrDataProcessor(Val SuppliedDataProcessorID, Val IDOfDataProcessorToUse) Export
 	
@@ -124,11 +126,11 @@ Procedure DeleteAdditionalReportOrDataProcessor(Val SuppliedDataProcessorID, Val
 	
 EndProcedure
 
-// Processing incoming messages with the {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}DisableExtension
+// Processing of incoming messages of type {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}DisableExtension
 //
 // Parameters:
-//  ExtensionID - UUID -  the link to the item
-//                            Handbook of ПоставляемыеДополнительныеОтчетыиобработки,
+//  ExtensionID - UUID - a reference to the item
+//                            of the SuppliedAdditionalReportsAndDataProcessors catalog.
 //  DisableReason - EnumRef.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS
 //
 Procedure DisableAdditionalReportOrDataProcessor(Val ExtensionID, Val DisableReason = Undefined) Export
@@ -154,11 +156,11 @@ Procedure DisableAdditionalReportOrDataProcessor(Val ExtensionID, Val DisableRea
 	
 EndProcedure
 
-// Processing incoming messages with the {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}EnableExtension
+// Processing of incoming messages of type {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}EnableExtension
 //
 // Parameters:
-//  ExtensionID - UUID -  link to
-//                            the reference list item deliveredadditional reports and Processing.
+//  ExtensionID - UUID - a reference to the item
+//                            of the SuppliedAdditionalReportsAndDataProcessors catalog.
 //
 Procedure EnableAdditionalReportOrDataProcessor(Val ExtensionID) Export
 	
@@ -178,11 +180,11 @@ Procedure EnableAdditionalReportOrDataProcessor(Val ExtensionID) Export
 	
 EndProcedure
 
-// Processing incoming messages with the {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}DropExtension
+// Processing of incoming messages of type {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}DropExtension
 //
 // Parameters:
-//  Extension ID - unique Identifier-a link to
-//                            the reference list item supplied with additional reports and Processing.
+//  ExtensionID - UUID - a reference to the item
+//                            of the SuppliedAdditionalReportsAndDataProcessors catalog.
 //
 Procedure RevokeAdditionalReportOrDataProcessor(Val SuppliedDataProcessorID) Export
 	
@@ -197,13 +199,13 @@ Procedure RevokeAdditionalReportOrDataProcessor(Val SuppliedDataProcessorID) Exp
 	
 EndProcedure
 
-// Processing incoming messages with the {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}SetExtensionSecurityProfile
+// Processing of incoming messages of type {http://www.1c.ru/1cFresh/ApplicationExtensions/Management/a.b.c.d}SetExtensionSecurityProfile
 //
 // Parameters:
-//  SuppliedDataProcessorID - UUID -  the link to the item
-//                            Handbook of ПоставляемыеДополнительныеОтчетыиобработки;
-//  IDOfDataProcessorToUse - UUID -  link to an element
-//                            in the additional reports and Processing reference list.
+//  SuppliedDataProcessorID - UUID - a reference to the item
+//                            of the SuppliedAdditionalReportsAndDataProcessors catalog.
+//  IDOfDataProcessorToUse - UUID - a reference to the item
+//                            of the AdditionalReportsAndDataProcessors catalog.
 //
 Procedure SetModeOfAdditionalReportOrDataProcessorAttachmentInDataArea(Val SuppliedDataProcessorID, Val IDOfDataProcessorToUse, Val AttachmentMode) Export
 	

@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Handler for the connected command.
+// The attached command handler.
 //
 // Parameters:
-//   ReferencesArrray - Array of AnyRef -  links to the selected objects that the command is running on.
+//   ReferencesArrray - Array of AnyRef - references to the selected objects for which a command is being executed.
 //   ExecutionParameters - See AttachableCommandsClient.CommandExecuteParameters
 //
 Procedure HandlerCommands(Val ReferencesArrray, Val ExecutionParameters) Export
@@ -20,7 +22,7 @@ Procedure HandlerCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 	RunConnectedPrintCommandCompletion(True, ExecutionParameters);
 EndProcedure
 
-// Generates a tabular document in the form of the "Print" subsystem.
+// Generates a spreadsheet document in the Print subsystem form.
 Procedure ExecutePrintFormOpening(DataSource, CommandID, RelatedObjects, Form, StandardProcessing) Export
 	
 	Parameters = New Structure;
@@ -36,41 +38,41 @@ Procedure ExecutePrintFormOpening(DataSource, CommandID, RelatedObjects, Form, S
 	
 EndProcedure
 
-// Opens the settings form for the visibility of commands in the submenu "Print".
+// Opens a form for command visibility setting in the Print submenu.
 Procedure OpenPrintSubmenuSettingsForm(Filter) Export
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("Filter", Filter);
 	OpenForm("CommonForm.PrintCommandsSetup", OpeningParameters, , , , , , FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
 
-// 
+// Opening a form to select attachment format options
 //
 // Parameters:
 //  FormatSettings - Structure:
-//       * PackToArchive   - Boolean -  indicates whether attachments need to be archived.
-//       * SaveFormats - Array -  list of selected attachment formats.
-//  Notification       - NotifyDescription -  an alert that is called after the form is closed to process
-//                                          the selection results.
+//       * PackToArchive   - Boolean - shows whether it is necessary to archive attachments.
+//       * SaveFormats - Array - a list of the selected save formats.
+//  Notification       - NotifyDescription - a notification called after closing the form for processing
+//                                          the selection result.
 //
 Procedure OpenAttachmentsFormatSelectionForm(FormatSettings, Notification) Export
 	FormParameters = New Structure("FormatSettings", FormatSettings);
 	CommonClient.ShowAttachmentsFormatSelection(Notification, FormatSettings);
 EndProcedure
 
-// 
+// Opens the email message composition form.
 // 
 // Parameters:
 //  OwnerForm  - ClientApplicationForm 
 //  FormParameters - Structure:
-//    * Recipient - String - :
-//                           
+//    * Recipient - String - list of addresses in the following format:
+//                           [RecipientPresentation1] <Address1>; [[RecipientPresentation2] <Address2>;…]
 //                 - ValueList:
-//                     ** Presentation - String - 
-//                     ** Value      - String -  postal address.
-//                 - Array - :
-//                     ** Address                        - String -  email address of the message recipient;
-//                     ** Presentation                - String -  representation of the addressee;
-//                     ** ContactInformationSource - CatalogRef -  owner of the contact information. 
+//                     ** Presentation - String - Recipient's presentation.
+//                     ** Value      - String - Email address.
+//                 - Array - Array of structures with the recipient details:
+//                     ** Address                        - String - Recipient's address.
+//                     ** Presentation                - String - Recipient's presentation.
+//                     ** ContactInformationSource - CatalogRef - Contact information owner. 
 //  NotifyDescriptionOnCompletion - NotifyDescription
 //
 Procedure OpenNewMailPreparationForm(OwnerForm, FormParameters, NotifyDescriptionOnCompletion) Export
@@ -120,7 +122,7 @@ Procedure RunConnectedPrintCommandCompletion(FileSystemExtensionAttached1, Addit
 		CommandDetails.Insert("Form", Form);
 		HandlerName = CommandDetails.Handler;
 		If StrOccurrenceCount(HandlerName, ".") = 0 And IsReportOrDataProcessor(CommandDetails.PrintManager) Then
-			DefaultForm = GetForm(CommandDetails.PrintManager + ".Form", , Form, True);// 
+			DefaultForm = GetForm(CommandDetails.PrintManager + ".Form", , Form, True);// ACC:65 - Form is created to call a method.
 			HandlerName = "DefaultForm." + HandlerName;
 		EndIf;
 		PrintParameters = PrintManagementClient.DescriptionOfPrintParameters();
@@ -186,17 +188,17 @@ Procedure CheckDocumentsPostedDocumentsPosting(QuestionResult, AdditionalParamet
 	
 	CommonClient.NotifyObjectsChanged(ModifiedDocuments);
 	
-	// 
+	// If the command is called from a form, read the up-to-date (posted) copy from the infobase.
 	If TypeOf(AdditionalParameters.Form) = Type("ClientApplicationForm") Then
 		Try
 			AdditionalParameters.Form.Read();
 		Except
-			// 
+			// If the Read method is unavailable, printing was executed from a location other than the object form.
 		EndTry;
 	EndIf;
 		
 	If UnpostedDocuments.Count() > 0 Then
-		// 
+		// Asking a user whether they want to continue printing if there are unposted documents.
 		DialogText = NStr("en = 'Failed to post one or several documents.';");
 		
 		DialogButtons = New ValueList;
@@ -395,11 +397,11 @@ Function IdleParameters(FormOwner) Export
 
 EndFunction
 
-// Synchronous analog of the General purpose Client.Create a temporary directory for backward compatibility.
+// Synchronous analog of CommonClient.CreateTempDirectory for backward compatibility.
 //
 Function CreateTemporaryDirectory(Val Extension = "") Export 
 	
-	DirectoryName = TempFilesDir() + "v8_" + String(New UUID);// 
+	DirectoryName = TempFilesDir() + "v8_" + String(New UUID);// ACC:495 - Intended for backward compatibility.
 	If Not IsBlankString(Extension) Then 
 		DirectoryName = DirectoryName + "." + Extension;
 	EndIf;

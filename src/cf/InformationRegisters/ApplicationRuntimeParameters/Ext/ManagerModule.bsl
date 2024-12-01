@@ -1,41 +1,43 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Checks whether the database needs to be updated or configured
-// before using it.
+// Checks whether the update or configuration of the infobase is required
+// before you start using it.
 //
 // Parameters:
-//  SubordinateDIBNodeSetup - Boolean -  (return value), set to True
-//                                 if an update is required due to the configuration of a subordinate rib node.
+//  SubordinateDIBNodeSetup - Boolean - (return value), it is set to True
+//                                 if the update is required due to the subordinate DIB node setup.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - returns True, if update or setup of the infobase is required.
 //
 Function UpdateRequired1(SubordinateDIBNodeSetup = False) Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// Updating in SaaS.
 		If Common.SeparatedDataUsageAvailable() Then
 			If InfobaseUpdate.InfobaseUpdateRequired() Then
-				// 
+				// Filling separated extension parameters.
 				Return True;
 			EndIf;
 			
 		ElsIf InfobaseUpdateInternal.SharedInfobaseDataUpdateRequired() Then
-			// 
+			// Updating shared application parameters.
 			Return True;
 		EndIf;
 	Else
-		// 
+		// Updating in the local mode.
 		If InfobaseUpdate.InfobaseUpdateRequired() Then
 			Return True;
 		EndIf;
@@ -44,7 +46,7 @@ Function UpdateRequired1(SubordinateDIBNodeSetup = False) Export
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
 		
-		// 
+		// When running a child node's initial image, no import is required (only an update).
 		// 
 		If ModuleDataExchangeServer.SubordinateDIBNodeSetup() Then
 			SubordinateDIBNodeSetup = True;
@@ -56,14 +58,14 @@ Function UpdateRequired1(SubordinateDIBNodeSetup = False) Export
 	
 EndFunction
 
-// Causes all parameters of the program to be filled in forcibly.
+// Calls forced filling of all application parameters.
 Procedure UpdateAllApplicationParameters() Export
 	
 	ImportUpdateApplicationParameters();
 	
 EndProcedure
 
-// Returns the date when the program parameters were successfully checked/updated.
+// Returns the date of a successful check or update of application parameters.
 //
 // Returns:
 //  Date
@@ -104,6 +106,9 @@ EndFunction
 // See StandardSubsystemsServer.SetApplicationParameter.
 Procedure SetApplicationParameter(ParameterName, Value) Export
 	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"InformationRegisters.ApplicationRuntimeParameters.SetApplicationParameter");
+	
 	StandardSubsystemsServer.CheckApplicationVersionDynamicUpdate();
 	CheckIfCanUpdateSaaS(ParameterName, Value, "Set");
 	
@@ -117,6 +122,9 @@ EndProcedure
 
 // See StandardSubsystemsServer.UpdateApplicationParameter.
 Procedure UpdateApplicationParameter(ParameterName, Value, HasChanges = False, PreviousValue2 = Undefined) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"InformationRegisters.ApplicationRuntimeParameters.UpdateApplicationParameter");
 	
 	StandardSubsystemsServer.CheckApplicationVersionDynamicUpdate();
 	
@@ -140,17 +148,17 @@ Function ApplicationParameterChanges(ParameterName) Export
 	If Common.DataSeparationEnabled()
 	   And Not Common.SeparatedDataUsageAvailable() Then
 		
-		// 
-		// 
+		// The update plan covers only the areas whose version is equal to or greater than the shared data version.
+		// For the rest of the areas, all update handlers should be run.
 		// 
 		
-		// 
+		// Version of shared (common) data.
 		IBVersion = InfobaseUpdateInternal.IBVersion(Metadata.Name, True);
 	Else
 		IBVersion = InfobaseUpdateInternal.IBVersion(Metadata.Name);
 	EndIf;
 	
-	// 
+	// In case of initial filling, application parameter changes are not defined.
 	If CommonClientServer.CompareVersions(IBVersion, "0.0.0.0") = 0 Then
 		Return Undefined;
 	EndIf;
@@ -170,9 +178,9 @@ Function ApplicationParameterChanges(ParameterName) Export
 	NextVersion = NextVersion(Version);
 	UpdateOutsideIBUpdate = CommonClientServer.CompareVersions(IBVersion, Version) = 0;
 	
-	// 
-	// 
-	// 
+	// Changes for later versions are ignored unless the update is not part of the configuration upgrade
+	// (the infobase version matches the configuration version).
+	// In this case, changes for the next version are included in the scope.
 	// 
 	
 	IndexOf = LastChanges.Count()-1;
@@ -195,19 +203,22 @@ EndFunction
 // See StandardSubsystemsServer.AddApplicationParameterChanges.
 Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"InformationRegisters.ApplicationRuntimeParameters.AddApplicationParameterChanges");
+	
 	StandardSubsystemsServer.CheckApplicationVersionDynamicUpdate();
 	
-	// 
+	// Retrieving the infobase or shared data version.
 	IBVersion = InfobaseUpdateInternal.IBVersion(Metadata.Name);
 	
-	// 
+	// When you migrate to another application, the current configuration version is used.
 	If Not Common.DataSeparationEnabled()
 	   And InfobaseUpdateInternal.DataUpdateMode() = "MigrationFromAnotherApplication" Then
 		
 		IBVersion = Metadata.Version;
 	EndIf;
 	
-	// 
+	// In case of initial filling, parameter changes are not added.
 	If CommonClientServer.CompareVersions(IBVersion, "0.0.0.0") = 0 Then
 		Changes = Undefined;
 	EndIf;
@@ -242,8 +253,8 @@ Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 		
 		If ValueIsFilled(Changes) Then
 			
-			// 
-			// 
+			// If the update is not part of the infobase upgrade, add the changes to the next version
+			// so that they are applied when the configuration version is upgraded.
 			// 
 			// 
 			Version = Metadata.Version;
@@ -263,9 +274,9 @@ Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 		
 		EarliestIBVersion = InfobaseUpdateInternalCached.EarliestIBVersion();
 		
-		// 
-		// 
-		// 
+		// Delete the changes intended for the infobase versions that
+		// don't match the minimum version condition to ensure that
+		// the infobase updates regardless of the version.
 		IndexOf = LastChanges.Count()-1;
 		While IndexOf >=0 Do
 			RevisionVersion = LastChanges[IndexOf].ConfigurationVersion;
@@ -291,7 +302,7 @@ Procedure AddApplicationParameterChanges(ParameterName, Val Changes) Export
 EndProcedure
 
 
-// To call from the procedure, perform an update of the information Database.
+// This method is required for call from the ExecuteInfobaseUpdate procedure.
 Procedure ImportUpdateApplicationParameters() Export
 	
 	If Common.DataSeparationEnabled()
@@ -316,7 +327,7 @@ Procedure ImportUpdateApplicationParameters() Export
 	
 	If ValueIsFilled(SessionParameters.AttachedExtensions)
 		And Not UpdateWithoutBackgroundJob() Then
-		// 
+		// Run a background job to update the parameters.
 		Result = UpdateApplicationParametersInBackground(Undefined, Undefined, False);
 		ProcessedResult = ProcessedTimeConsumingOperationResult(Result, False);
 		
@@ -340,7 +351,7 @@ Procedure ImportUpdateApplicationParameters() Export
 	
 EndProcedure
 
-// 
+// Intended for procedure ImportUpdateApplicationParameters and for calling from the ApplicationVersionUpdate form.
 //
 // Returns:
 //  Boolean
@@ -351,7 +362,7 @@ Function NeedToImportApplicationParameters() Export
 	
 EndFunction
 
-// 
+// Intended to be called from form ApplicationVersionUpdate.
 //
 // Returns:
 //   See TimeConsumingOperations.ExecuteInBackground
@@ -360,9 +371,9 @@ Function ImportApplicationParametersInBackground(WaitCompletion, FormIdentifier,
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Background import of app parameters';");
-	// 
-	// 
-	// 
+	// To view the process bar, the update should run in the background.
+	// In the update mode, the launch of a background job is intermitted by a block of code,
+	// which mitigates the launch delay event without the exclusive mode set.
 	OperationParametersList.RunInBackground = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
@@ -377,7 +388,7 @@ Function ImportApplicationParametersInBackground(WaitCompletion, FormIdentifier,
 	
 EndFunction
 
-// 
+// Intended to be called from form ApplicationVersionUpdate.
 // 
 // Returns:
 //   See TimeConsumingOperations.ExecuteInBackground
@@ -415,7 +426,7 @@ Function UpdateApplicationParametersInBackground(WaitCompletion, FormIdentifier,
 	
 EndFunction
 
-// 
+// Intended to be called from form ApplicationVersionUpdate.
 //
 // Returns:
 //   See TimeConsumingOperations.ExecuteInBackground
@@ -424,9 +435,9 @@ Function UpdateExtensionVersionParametersInBackground(WaitCompletion, FormIdenti
 	
 	OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(FormIdentifier);
 	OperationParametersList.BackgroundJobDescription = NStr("en = 'Update extension version parameters in background';");
-	// 
-	// 
-	// 
+	// To view the process bar, the update should run in the background.
+	// In the update mode, the launch of a background job is intermitted by a block of code,
+	// which mitigates the launch delay event without the exclusive mode set.
 	OperationParametersList.RunInBackground = True;
 	OperationParametersList.WaitCompletion = WaitCompletion;
 	
@@ -443,7 +454,7 @@ Function UpdateExtensionVersionParametersInBackground(WaitCompletion, FormIdenti
 	
 EndFunction
 
-// 
+// Intended to be called from form ApplicationVersionUpdate.
 //
 // Returns:
 //  Structure:
@@ -467,7 +478,7 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 				NStr("en = 'Couldn''t update app parameters. Reason:
 				           |The update background job is canceled.';");
 			
-		Else // 
+		Else // ExtensionVersionParametersUpdate.
 			BriefErrorDescription =
 				NStr("en = 'Cannot update extension version parameters. Reason:
 				           |The update background job is canceled.';");
@@ -489,7 +500,7 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 				NStr("en = 'Couldn''t update app parameters. Reason:
 				           |The update background job has not returned the result.';");
 			
-		Else // 
+		Else // ExtensionVersionParametersUpdate.
 			BriefErrorDescription =
 				NStr("en = 'Cannot update extension version parameters. Reason:
 				           |The update background job has not returned the result.';");
@@ -498,7 +509,7 @@ Function ProcessedTimeConsumingOperationResult(Result, Operation) Export
 	        And Result.Status <> "ApplicationParametersImportAndUpdateNotRequired"
 	        And Result.Status <> "ExtensionVersionParametersUpdateNotRequired" Then
 		
-		// 
+		// Background job error.
 		ErrorInfo = Result.ErrorInfo;
 	EndIf;
 	
@@ -516,52 +527,52 @@ EndFunction
 #Region DeveloperToolUpdateAuxiliaryData
 
 // Parameters:
-//  ShouldUpdate - Boolean - 
+//  ShouldUpdate - Boolean - The initial value is False.
 //
 // Returns:
 //  Structure:
 //   * Core - Structure:
-//      ** MetadataObjectIDs  - 
-//      ** ClearAPIsCache - 
+//      ** MetadataObjectIDs  - See UpdateParameterProperties.
+//      ** ClearAPIsCache - See UpdateParameterProperties.
 //   * AttachableCommands - Structure:
-//      ** PluginCommandsConfig - 
+//      ** PluginCommandsConfig - See UpdateParameterProperties.
 //   * Users - Structure:
-//      ** CheckRoleAssignment - 
+//      ** CheckRoleAssignment - See UpdateParameterProperties.
 //   * AccessManagement - Structure:
-//      ** RolesRights                                    - 
-//      ** RightsDependencies                               - 
-//      ** AccessKindsProperties                          - 
-//      ** SuppliedAccessGroupProfilesDescription      - 
-//      ** AvailableRightsForObjectsRightSettingsDetails - 
+//      ** RolesRights                                    - See UpdateParameterProperties.
+//      ** RightsDependencies                               - See UpdateParameterProperties.
+//      ** AccessKindsProperties                          - See UpdateParameterProperties.
+//      ** SuppliedAccessGroupProfilesDescription      - See UpdateParameterProperties.
+//      ** AvailableRightsForObjectsRightSettingsDetails - See UpdateParameterProperties.
 //   * ReportsOptions - Structure:
-//      ** ParametersReportsConfiguration              - 
-//      ** ParametersIndexSearchReportsConfiguration - 
+//      ** ParametersReportsConfiguration              - See UpdateParameterProperties.
+//      ** ParametersIndexSearchReportsConfiguration - See UpdateParameterProperties.
 //   * InformationOnStart - Structure:
-//      ** InformationPackagesOnStart - 
+//      ** InformationPackagesOnStart - See UpdateParameterProperties.
 //   * AccountingAudit - Structure:
-//      ** SystemChecksAccounting - 
+//      ** SystemChecksAccounting - See UpdateParameterProperties.
 //
 Function ParametersOfUpdate(ShouldUpdate = False) Export
 	
 	Parameters = New Structure;
 	
-	// 
+	// StandardSubsystems Core
 	ParametersSubsystems = New Structure;
 	ParametersSubsystems.Insert("MetadataObjectIDs",  NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("ClearAPIsCache", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("Core", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AttachableCommands
 	ParametersSubsystems = New Structure;
 	ParametersSubsystems.Insert("PluginCommandsConfig", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AttachableCommands", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems Users
 	ParametersSubsystems = New Structure;
 	ParametersSubsystems.Insert("CheckRoleAssignment", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("Users", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AccessManagement
 	ParametersSubsystems.Insert("RolesRights",                                    NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("RightsDependencies",                               NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("AccessKindsProperties",                          NewUpdateParameterProperties(ShouldUpdate));
@@ -569,16 +580,16 @@ Function ParametersOfUpdate(ShouldUpdate = False) Export
 	ParametersSubsystems.Insert("AvailableRightsForObjectsRightSettingsDetails", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AccessManagement", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems ReportsOptions
 	ParametersSubsystems.Insert("ParametersReportsConfiguration", NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("ParametersIndexSearchReportsConfiguration", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("ReportsOptions", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems NotificationAtStartup
 	ParametersSubsystems.Insert("InformationPackagesOnStart", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("InformationOnStart", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AccountingAudit
 	ParametersSubsystems.Insert("SystemChecksAccounting", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AccountingAudit", ParametersSubsystems);
 	
@@ -646,7 +657,7 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// StandardSubsystems Core
 	If Parameters.Core.MetadataObjectIDs.ShouldUpdate Then
 		Catalogs.MetadataObjectIDs.UpdateCatalogData(
 			Parameters.Core.MetadataObjectIDs.HasChanges);
@@ -656,7 +667,7 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 			Parameters.Core.ClearAPIsCache.HasChanges);
 	EndIf;
 	
-	// 
+	// StandardSubsystems AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		If Parameters.AttachableCommands.PluginCommandsConfig.ShouldUpdate Then
@@ -665,12 +676,12 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 		EndIf;
 	EndIf;
 	
-	// 
+	// StandardSubsystems Users
 	If Parameters.Users.CheckRoleAssignment.ShouldUpdate Then
 		Users.CheckRoleAssignment(True);
 	EndIf;
 	
-	// 
+	// StandardSubsystems AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		If Parameters.AccessManagement.RolesRights.ShouldUpdate Then
 			ModulePermissionsRoles = Common.CommonModule("InformationRegisters.RolesRights");
@@ -699,16 +710,16 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 		EndIf;
 	EndIf;
 	
-	// 
+	// StandardSubsystems ReportsOptions
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 		Settings = ModuleReportsOptions.SettingsUpdateParameters();
-		Settings.SharedData = True; // 
+		Settings.SharedData = True; // Predefined data.
 		Settings.SeparatedData = False;
 		If Parameters.ReportsOptions.ParametersReportsConfiguration.ShouldUpdate Then
 			Settings.Configuration = True;
 			Settings.Extensions = False;
-			Settings.Nonexclusive = True; // 
+			Settings.Nonexclusive = True; // Update presentations and others.
 			Settings.Deferred2 = False;
 			Parameters.ReportsOptions.ParametersReportsConfiguration.HasChanges =
 				ModuleReportsOptions.Refresh(Settings).HasChanges;
@@ -718,14 +729,14 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 			Settings.Configuration = True;
 			Settings.Extensions = False;
 			Settings.Nonexclusive = False;
-			Settings.Deferred2 = True; // 
-			Settings.IndexSchema = True; // 
+			Settings.Deferred2 = True; // Update the DCS search index.
+			Settings.IndexSchema = True; // Force-rebuild the index.
 			Parameters.ReportsOptions.ParametersIndexSearchReportsConfiguration.HasChanges =
 				ModuleReportsOptions.Refresh(Settings).HasChanges;
 		EndIf;
 	EndIf;
 	
-	// 
+	// StandardSubsystems NotificationAtStartup
 	If Common.SubsystemExists("StandardSubsystems.InformationOnStart") Then
 		ModuleInformationOnStart = Common.CommonModule("InformationOnStart");
 		If Parameters.InformationOnStart.InformationPackagesOnStart.ShouldUpdate Then
@@ -734,7 +745,7 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 		EndIf;
 	EndIf;
 	
-	// 
+	// StandardSubsystems AccountingAudit
 	If Common.SubsystemExists("StandardSubsystems.AccountingAudit") Then
 		ModuleAccountingAuditInternal = Common.CommonModule("AccountingAuditInternal");
 		If Parameters.AccountingAudit.SystemChecksAccounting.ShouldUpdate Then
@@ -753,7 +764,7 @@ EndProcedure
 
 #Region Private
 
-// To call from a background task with the current set of configuration extensions.
+// To call from the background job with the current configuration extensions.
 Procedure ApplicationParametersImportLongRunningOperationHandler(ReportProgress, StorageAddress) Export
 	
 	ExecutionResult = New Structure;
@@ -768,8 +779,8 @@ Procedure ApplicationParametersImportLongRunningOperationHandler(ReportProgress,
 		ExecutionResult.ErrorInfo = ErrorInfo;
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		// 
-		// 
+		// Switch to opening the data re-sync form before a startup with the options
+		// "Sync and continue" and "Continue".
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -781,7 +792,7 @@ Procedure ApplicationParametersImportLongRunningOperationHandler(ReportProgress,
 	
 EndProcedure
 
-// To call from a background task without configuration extensions enabled.
+// To call from the background job without attached configuration extensions.
 Procedure ApplicationParametersUpdateLongRunningOperationHandler(ReportProgress, StorageAddress) Export
 	
 	ExecutionResult = New Structure;
@@ -796,8 +807,8 @@ Procedure ApplicationParametersUpdateLongRunningOperationHandler(ReportProgress,
 		ExecutionResult.ErrorInfo = ErrorInfo;
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		// 
-		// 
+		// Switch to opening the data re-sync form before a startup with the options
+		// "Sync and continue" and "Continue".
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -809,7 +820,7 @@ Procedure ApplicationParametersUpdateLongRunningOperationHandler(ReportProgress,
 	
 EndProcedure
 
-// To call from a background task with the current set of configuration extensions.
+// To call from the background job with the current configuration extensions.
 Procedure ExtensionsVersionsParametersUpdateLongRunningOperationHandler(ReportProgress, StorageAddress) Export
 	
 	ExecutionResult = New Structure;
@@ -824,8 +835,8 @@ Procedure ExtensionsVersionsParametersUpdateLongRunningOperationHandler(ReportPr
 		ExecutionResult.ErrorInfo = ErrorInfo;
 		ExecutionResult.BriefErrorDescription   = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 		ExecutionResult.DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-		// 
-		// 
+		// Switch to opening the data re-sync form before a startup with the options
+		// "Sync and continue" and "Continue".
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -855,7 +866,7 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		Return;
 	EndIf;
 	
-	// 
+	// Run DIB data exchange and update data in the subordinate node.
 	ModulePerformanceMonitor = Undefined;
 	If Common.SubsystemExists("StandardSubsystems.PerformanceMonitor") Then
 		ModulePerformanceMonitor = Common.CommonModule("PerformanceMonitor");
@@ -876,7 +887,7 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		If StandardProcessing = True
 		   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 			
-			// 
+			// Importing predefined items and metadata object IDs from the master node.
 			ModuleDataExchangeServer.ImportPriorityDataToSubordinateDIBNode();
 		EndIf;
 		
@@ -891,12 +902,12 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		TimeConsumingOperations.ReportProgress(5);
 	EndIf;
 	
-	// 
+	// Checking metadata object ID import from the master node.
 	ListOfCriticalChanges = "";
 	Try
 		Catalogs.MetadataObjectIDs.RunDataUpdate(False, False, True, , ListOfCriticalChanges);
 	Except
-		// 
+		// Switch to opening the data re-sync form before a startup with the option "Sync and continue".
 		// 
 		If Not SubordinateDIBNodeSetup
 		   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
@@ -912,7 +923,7 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 		
 		WriteLogEvent(EventName, EventLogLevel.Error, , , ListOfCriticalChanges);
 		
-		// 
+		// Switch to opening the data re-sync form before a startup with the option "Sync and continue".
 		// 
 		If Not SubordinateDIBNodeSetup
 		   And Common.SubsystemExists("StandardSubsystems.DataExchange") Then
@@ -932,12 +943,12 @@ Procedure LoadProgramOperationParametersTakingIntoAccountExecutionMode(ReportPro
 			           |%2';");
 		
 		If SubordinateDIBNodeSetup Then
-			// 
+			// Setting up a subordinate DIB node during the first start.
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				"/C" + " " + "StartInfobaseUpdate",
 				NStr("en = '- Then retry creating a subordinate node.';"));
 		Else
-			// 
+			// Updating a subordinate DIB node.
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
 				"/C" + " " + "StartInfobaseUpdate",
 				NStr("en = '- Then repeat data synchronization with this infobase: 
@@ -983,9 +994,9 @@ Procedure UpdateProgramOperationParametersBasedOnExecutionMode(ReportProgress)
 		BeginTime = ModulePerformanceMonitor.StartTimeMeasurement();
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// Either there's no DIB data exchange, an update in the master node,
+	// an initial update in the child node, or an update following
+	// an import of the "Metadata object IDs" catalog from the master node.
 	// 
 	UpdateApplicationParameters(ReportProgress);
 	
@@ -1022,7 +1033,7 @@ Procedure UpdateParametersOfExtensionVersionsTakingIntoAccountExecutionMode(Repo
 	
 EndProcedure
 
-// For the function of changing the parameter of the program Operation.
+// This method is required by ApplicationParameterChanges function.
 Function NextVersion(Version)
 	
 	Array = StrSplit(Version, ".");
@@ -1032,7 +1043,7 @@ Function NextVersion(Version)
 	
 EndFunction
 
-// For procedures, load and update program Workparameters.
+// For the ImportUpdateApplicationParameters procedures.
 Procedure UpdateApplicationParameters(ReportProgress = False)
 	
 	If ReportProgress Then
@@ -1090,7 +1101,7 @@ Procedure UpdateApplicationParameters(ReportProgress = False)
 	
 EndProcedure
 
-// For the program work Parameter function and procedure, update the program work Parameter.
+// This method is required by ApplicationParameter function and UpdateApplicationParameter procedure.
 Function ApplicationParameterValueDescription(ParameterName, CheckIfCanUpdateSaaS = True)
 	
 	ValueDescription = ApplicationParameterStoredData(ParameterName);
@@ -1111,9 +1122,9 @@ Function ApplicationParameterValueDescription(ParameterName, CheckIfCanUpdateSaa
 	
 EndFunction
 
-// 
-// 
-// 
+// Intended for the function ApplicationParameterValueDescription
+// and the procedures AddApplicationParameterChanges
+// and CheckIfCanUpdateSaaS.
 //
 Function ApplicationParameterStoredData(ParameterName)
 	
@@ -1136,7 +1147,7 @@ Function ApplicationParameterStoredData(ParameterName)
 		Try
 			Content = Selection.ParameterStorage.Get();
 		Except
-			// 
+			// If a data extraction error occurs, the data processor runs the same way as if the parameter is empty.
 			// 
 			Content = Undefined;
 			ErrorInfo = ErrorInfo();
@@ -1158,7 +1169,7 @@ Function ApplicationParameterStoredData(ParameterName)
 	
 EndFunction
 
-// 
+// Intended for the SetApplicationParameter procedure.
 Procedure SetApplicationParameterStoredData(ParameterName, StoredData)
 	
 	RecordSet = ServiceRecordSet(InformationRegisters.ApplicationRuntimeParameters);
@@ -1189,7 +1200,7 @@ Procedure CheckIfCanUpdateSaaS(Val ParameterName, NewValue, Val Operation)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Writing the error context to the event log for the service administrator.
 	ValueDescription = ApplicationParameterStoredData(ParameterName);
 	
 	ChangeStorageParameterName = ParameterName + ChangeStorageParameterNameClarification();
@@ -1221,7 +1232,7 @@ Procedure CheckIfCanUpdateSaaS(Val ParameterName, NewValue, Val Operation)
 	
 	WriteLogEvent(EventName, EventLogLevel.Error,,, Comment);
 	
-	// 
+	// Exception for the user.
 	ErrorText =
 		NStr("en = 'The application parameters are not updated in shared mode.
 		           |Please contact the service administrator. See the Event log for details.';");
@@ -1292,7 +1303,7 @@ Function ApplicationParameterChangesCollection()
 	
 EndFunction
 
-// Creates a set of service register entries that does not participate in event subscriptions.
+// Creates a record set of a service register that does subscribe to events.
 // 
 // Parameters:
 //  RegisterManager - InformationRegisterManager
@@ -1314,7 +1325,7 @@ Function ServiceRecordSet(RegisterManager) Export
 	
 EndFunction
 
-// 
+// Intended to be called from "ProcessedTimeConsumingOperationResult".
 Function InfoOnLongRunningOperationError(ErrorPresentation)
 	
 	If Not ValueIsFilled(ErrorPresentation) Then
@@ -1333,8 +1344,8 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * ShouldUpdate     - Boolean -  the initial value is True.
-//   * HasChanges - Boolean -  the initial value is False.
+//   * ShouldUpdate     - Boolean - an initial value is True.
+//   * HasChanges - Boolean - the initial value is False.
 //
 Function NewUpdateParameterProperties(ShouldUpdate)
 	

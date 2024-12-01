@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -30,7 +32,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		UsersList.Parameters.SetParameterValue("Email", KindEmail);
 	EndIf;
 	
-	// 
+	// Filling in contacts by the subject.
 	SubjectOf = Parameters.SubjectOf;
 	Interactions.FillContactsBySubject(Items, SubjectOf, ContactsBySubject, True);
 	
@@ -145,7 +147,7 @@ Procedure Attachable_CatalogListChoice(Item, RowSelected, Field, StandardProcess
 	
 EndProcedure
 
-// Universal handler for activating a dynamic list row that has subordinate lists.
+// Universal handler of a dynamic list line activation with subordinate lists.
 &AtClient
 Procedure Attachable_ListOwnerOnActivateRow(Item)
 	
@@ -190,8 +192,8 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// Passes the owner an array of structures containing 
-// the addresses of the selected recipients as the result of the form and closes the form. 
+// Passes to an owner a structure array 
+// with selected recipient addresses and closes the form. 
 //
 &AtClient
 Procedure OkCommandExecute()
@@ -218,7 +220,7 @@ Procedure OkCommandExecute()
 	
 EndProcedure
 
-// Moves the current contact from the "subject Contacts" list to the "email Recipients" list. 
+// Moves the contact from the Contacts by subject list to the Email recipients list. 
 //
 &AtClient
 Procedure AddFromSubjectsListExecute()
@@ -227,7 +229,7 @@ Procedure AddFromSubjectsListExecute()
 
 EndProcedure
 
-// Changes the current group of email recipients to the "To" group. 
+// Changes the current group of email recipients to To group. 
 //
 &AtClient
 Procedure ChangeGroupToExecute()
@@ -236,7 +238,7 @@ Procedure ChangeGroupToExecute()
 
 EndProcedure
 
-// Changes the current group of email recipients to the "Copies" group. 
+// Changes the current group of email recipients to CC group. 
 //
 &AtClient
 Procedure ChangeCcGroupExecute()
@@ -245,7 +247,7 @@ Procedure ChangeCcGroupExecute()
 
 EndProcedure 
 
-// Changes the current group of email recipients to the "Hidden" group. 
+// Changes the current group of email recipients to BCC group. 
 //
 &AtClient
 Procedure ChangeBCCGroupExecute()
@@ -254,7 +256,7 @@ Procedure ChangeBCCGroupExecute()
 
 EndProcedure
 
-// Initiates the contact search process.
+// Initiates a contact search process.
 //
 &AtClient
 Procedure FindContactsExecute()
@@ -285,8 +287,8 @@ Procedure FindContactsExecute()
 	
 EndProcedure
 
-// Performs positioning in the corresponding dynamic list on the current contact from 
-// the "Found contacts" list.
+// Positions in the dynamic list position for the current contact 
+// from the Found contacts list.
 //
 &AtClient
 Procedure FindInListFromFoundItemsListExecute()
@@ -298,8 +300,8 @@ Procedure FindInListFromFoundItemsListExecute()
 	
 EndProcedure
 
-// Performs positioning in the corresponding dynamic list on the current contact
-// from the "email Recipients" list.
+// Positions in the dynamic list for the current contact
+// from the Email recipients list.
 //
 &AtClient
 Procedure FindInListFromRecipientsListExecute()
@@ -311,8 +313,8 @@ Procedure FindInListFromRecipientsListExecute()
 	
 EndProcedure
 
-// Performs positioning in the corresponding dynamic list on the current contact
-// from The "contacts by subject" list.
+// Positions in the dynamic list for the current contact
+// from Contacts by subject list.
 //
 &AtClient
 Procedure FindInListFromSubjectsListExecute()
@@ -324,7 +326,7 @@ Procedure FindInListFromSubjectsListExecute()
 	
 EndProcedure 
 
-// Initiates a search for contacts by the email address of the current line in the "recipients" list. 
+// Initiates a contacts search by email address of the current line of the Email recipients list. 
 //
 &AtClient
 Procedure FindByAddressExecute()
@@ -344,7 +346,7 @@ Procedure FindByAddressExecute()
 
 EndProcedure
 
-// Initiates a search for contacts based on the current line in the "email Recipients"list. 
+// Initiates a contacts search by presentation of current line of the Email recipients list. 
 //
 &AtClient
 Procedure FindByPresentationExecute()
@@ -367,8 +369,8 @@ Procedure FindByPresentationExecute()
 	
 EndProcedure 
 
-// Searches for all the email addresses of a contact from the "email Recipients" list and
- // prompts the user to make a choice if the contact has more than one email address.
+// Searches all contact email addresses from the Email recipients list
+ // and prompts the user to choose when a contact has more than one email address.
 //
 &AtClient
 Procedure SetContactAddressExecute()
@@ -416,8 +418,8 @@ Procedure SetContactAddressExecute()
 
 EndProcedure
 
-// Performs positioning in the corresponding dynamic list on the current contact
-// from The "contacts by subject" list.
+// Positions in the dynamic list for the current contact
+// from Contacts by subject list.
 //
 &AtClient
 Procedure SetContactFromSubjectsListExecute()
@@ -446,10 +448,10 @@ Procedure DeleteRecipient(Command)
 	
 EndProcedure
 
-// Returns data from the Found contacts table row.
+// Returns the string data of the Found contacts table.
 // 
 // Parameters:
-//  SelectedRow  - FormDataCollectionItem -  the string whose data is received.
+//  SelectedRow  - FormDataCollectionItem - the string whose data is being received.
 //
 // Returns:
 //  Structure:
@@ -548,7 +550,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Search procedures and functions.
 
 &AtServer
 Function FindContacts()
@@ -579,7 +581,7 @@ Procedure FindByDescriptionBeginning()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// Other
+// Miscellaneous.
 
 &AtServer
 Procedure FillRecipientsTable()

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
@@ -47,7 +49,7 @@ Procedure RunDataExchangeByScenario(ExchangeScenarioCode) Export
 		Return;
 	EndIf;
 	
-	// 
+	// Jobs from the last runtime scenario must be completed.
 	If Not IsTaskQueueCompleted(Scenario) Then
 		
 		MessageText = NStr("en = 'A scenario-based synchronization run couldn not start.
@@ -132,7 +134,7 @@ Procedure RunTaskQueue(Task, JobPrev = "") Export
 	
 	EndIf;
 	
-	// 
+	// Actions running in the source infobase. The next task can start after their completion.
 	ActionsInSource = New Array;
 	ActionsInSource.Add(Enums.ActionsAtCancelInternalPublication.DataExport);
 	ActionsInSource.Add(Enums.ActionsAtCancelInternalPublication.DataImport);
@@ -157,7 +159,7 @@ Procedure RunTaskQueue(Task, JobPrev = "") Export
 			
 		EndIf;
 		
-		// 
+		// No more tasks left.
 		If CurrTask = Undefined Then
 			Break;
 		EndIf;
@@ -569,7 +571,7 @@ Function ExchangeSettingsForInfobaseNode(Node, Action, Cancel) Export
 		Node, ActionOnExchange, Enums.ExchangeMessagesTransportTypes.WS, False);
 	
 	If ExchangeSettingsStructure.Cancel Then
-		// 
+		// If a setting contains errors, canceling the exchange, Canceled status.
 		DataExchangeServer.WriteExchangeFinish(ExchangeSettingsStructure);
 		Cancel = True;
 		Return Undefined;
@@ -593,7 +595,7 @@ Procedure DeleteObsoleteTasks(Scenario = Undefined, ManualExchange = False)
 	
 	Try
 		
-		// 
+		// Delete records with broken references
 		Query = New Query;
 		Query.Text = 
 			"SELECT ALLOWED
@@ -631,7 +633,7 @@ Procedure DeleteObsoleteTasks(Scenario = Undefined, ManualExchange = False)
 			
 		EndDo;
 			
-		// 
+		// Keep N newest records.
 		Query = New Query;
 		Query.Text = 
 			"SELECT DISTINCT TOP 5
@@ -847,7 +849,7 @@ EndProcedure
 
 Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "")
 	
-	//  
+	// Assume that the scenario (or manual exchange) is completed if "CompletedSuccessfully" is set to "True" for all tasks, or an error occurred. 
 	If ValueIsFilled(Scenario) And Not ValueIsFilled(ExchangeID) Then
 		
 		Query = New Query;
@@ -946,20 +948,20 @@ Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "")
 	
 	Result = Query.ExecuteBatch();
 	
-	// 
+	// Completed with errors
 	Selection = Result[1].Select();
 	If Selection.Next() Then
 		Error = Selection.Error;
 		Return True;
 	EndIf;
 	
-	// 
+	// All tasks completed
 	Selection = Result[2].Select();
 	If Selection.Next() Then
 		Return True;
 	EndIf;
 	
-	// 
+	// Current task
 	Selection = Result[3].Select();
 	
 	If Selection.Next() Then
@@ -972,7 +974,7 @@ Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "")
 			
 		EndIf;	
 		
-		// 
+		// Check the task queue on the peer infobase
 		
 		State = "";
 		
@@ -989,7 +991,7 @@ Function IsTaskQueueCompleted(Scenario = Undefined, ExchangeID = "", Error = "")
 				ProxyInitialization(Proxy, ProxyParameters, ExchangeSettingsStructure, Cancel, Error);
 				State = Proxy.TaskStatus(Selection.TaskID__);
 			Except
-				// 
+				// Perhaps, an issue with accessing the peer infobase
 				Return False;
 			EndTry
 		Else
@@ -1074,7 +1076,7 @@ Procedure RunTaskByScenario(Scenario, FirstTask = Undefined)
 	
 	Query.SetParameter("Ref", Scenario);
 	
-	Selection = Query.Execute().Select(); // 
+	Selection = Query.Execute().Select(); // ACC:1328 - Lock not required.
 	
 	TaskNumber = 1;
 	
@@ -1175,7 +1177,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	TaskNumber = 1;
 			
-	// 
+	// Receive data (UploadDataInt)
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataExportPeer;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -1186,7 +1188,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 			
 	FirstTask = Common.CopyRecursive(Record, False);
 	
-	// 
+	// Receive data (Load)
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataImport;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -1195,7 +1197,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	TaskNumber = TaskNumber + 1;
 	
-	// 
+	// Additional registration
 	If ExportAddition <> Undefined Then
 
 		Record.Action = Enums.ActionsAtCancelInternalPublication.AdditionalRegistration;
@@ -1209,7 +1211,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	EndIf;
 		
-	// 
+	// Send data (Upload0)
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataExport;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;
@@ -1218,7 +1220,7 @@ Procedure PopulatesTasksForManualExchange(InfobaseNode, ExchangeID, FirstTask, E
 	
 	TaskNumber = TaskNumber + 1;
 		
-	// 
+	// Send data (DownloadDataInt)
 	Record.Action = Enums.ActionsAtCancelInternalPublication.DataImportPeer;
 	Record.TaskID__ = String(New UUID);
 	Record.TaskNumber = TaskNumber;	
@@ -1254,7 +1256,7 @@ EndProcedure
 
 Procedure ExecuteTask(Task, ExchangeParameters, Cancel) Export
 	
-	// 
+	// Syncing might be canceled by user.
 	If Task.OperationFailed Then
 		Cancel = True;
 		Return;
@@ -1507,11 +1509,11 @@ Procedure PerformTaskAdditionalRegistration(Task, Cancel, Error)
 		ObjectExportAddition.AllDocumentsComposerAddress = PutToTempStorage(ExportAddition.AllDocumentsComposer);
 	EndIf;
 	
-	// 
+	// Saving export addition settings.
 	DataExchangeServer.InteractiveExportChangeSaveSettings(ObjectExportAddition, 
 		DataExchangeServer.ExportAdditionSettingsAutoSavingName());
 	
-	// 
+	// Register additional data.
 	Try
 		DataExchangeServer.InteractiveExportChangeRegisterAdditionalData(ObjectExportAddition);
 	Except

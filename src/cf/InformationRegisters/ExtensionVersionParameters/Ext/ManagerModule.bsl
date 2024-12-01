@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -41,7 +43,7 @@ Function ExtensionParameter(ParameterName, IgnoreExtensionsVersion = False, IsAl
 	Try
 		Content = Selection.ParameterStorage.Get();
 	Except
-		// 
+		// If a data extraction error occurs, the data processor runs the same way as if the parameter is empty.
 		// 
 		ErrorInfo = ErrorInfo();
 		Comment = StringFunctionsClientServer.SubstituteParametersToString(
@@ -126,6 +128,9 @@ EndFunction
 // See StandardSubsystemsServer.SetExtensionParameter.
 Procedure SetExtensionParameter(ParameterName, Value, IgnoreExtensionsVersion = False) Export
 	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"InformationRegisters.ExtensionVersionParameters.SetExtensionParameter");
+	
 	ExtensionsVersion = ?(IgnoreExtensionsVersion,
 		Catalogs.ExtensionsVersions.EmptyRef(), SessionParameters.ExtensionsVersion);
 	
@@ -157,14 +162,14 @@ Procedure SetExtensionParameter(ParameterName, Value, IgnoreExtensionsVersion = 
 	
 EndProcedure
 
-// Forces all parameters to be filled in for the current version of extensions.
+// Forces all run parameters to be filled for the current extension version.
 Procedure FillAllExtensionParameters() Export
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
 		Return;
 	EndIf;
 	
-	// 
+	// Fill extension metadata object IDs.
 	If ValueIsFilled(SessionParameters.AttachedExtensions) Then
 		Refresh = Catalogs.ExtensionObjectIDs.CurrentVersionExtensionObjectIDsFilled();
 		StandardSubsystemsCached.MetadataObjectIDsUsageCheck(True, True);
@@ -200,7 +205,7 @@ Procedure FillAllExtensionParameters() Export
 	
 EndProcedure
 
-// Returns the date when the extension version parameters were last filled in.
+// Returns the date of the last filling in the extension version operation parameters.
 // 
 // Returns:
 //  Date
@@ -218,15 +223,15 @@ Function LastFillingDateOfAllExtensionsParameters() Export
 	
 EndFunction
 
-// Forces clearing of all parameters for the current version of extensions.
-// Only registers are cleared, and directories are not changed. Called to cause
-// the extension parameters to be re-filled, for example, when using the start parameter
-// to start updating the information Database.
+// Forces all run parameters to be cleared for the current extension version.
+// Only registers are cleared, catalogs are not changed. Called to
+// refill extension parameter values, for example, when you use the StartInfobaseUpdate launch
+// parameter.
 // 
-// The General register of parameters for working with extensions Is cleared automatically. If you use
-// your own data registers that store versions of caches of extension metadata objects,
-// then you need to connect to the event when cleaning up all the parameters of the extensions Of the
-// General integration module of the system.
+// The ExtensionVersionParameters common register is cleared automatically. If you use
+// your own information registers that store extension metadata object cache versions,
+// attach the OnClearAllExtemsionRunParameters event of the SSLSubsystemsIntegration
+// common module.
 //
 Procedure ClearAllExtensionParameters() Export
 	
@@ -260,7 +265,7 @@ Procedure ClearAllExtensionParameters() Export
 	
 EndProcedure
 
-// For the General Extension form.
+// This is required for the Extensions common form.
 Procedure FillAllExtensionParametersBackgroundJob(Parameters) Export
 	
 	ErrorText = "";
@@ -383,7 +388,7 @@ Procedure UpdateExtensionParameters(ExtensionsToCheck = Undefined, UnattachedExt
 	
 EndProcedure
 
-// 
+// For procedure HandleClientParametersAtServer of common module StandardSubsystemsServerCall.
 Procedure OnFirstServerCall() Export
 	
 	SetPrivilegedMode(True);
@@ -404,7 +409,7 @@ Procedure OnFirstServerCall() Export
 	
 EndProcedure
 
-// 
+// For procedure OnStartExecuteScheduledJob of common module Common.
 Procedure UponSuccessfulStartoftheExecutionoftheScheduledTask() Export
 	
 	If Common.DataSeparationEnabled() Then
@@ -432,9 +437,9 @@ Procedure UponSuccessfulStartoftheExecutionoftheScheduledTask() Export
 	
 EndProcedure
 
+// Can be called only from StandardSubsystemsServer.FillExtensionsOperationParameters.
 // 
-// 
-// 
+// Handles the FillExtensionsOperationParameters scheduled job.
 // 
 Procedure FillinAllJobParametersLatestVersionExtensions() Export
 	
@@ -452,7 +457,7 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 	EndIf;
 	CurrentJobID = CurrentBackgroundJob.UUID;
 	
-	// 
+	// Register the active background job as running. Or close it if exists.
 	ParameterName = "StandardSubsystems.Core.SettingFillingWorkParametersExtensions";
 	JobID = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
 	ActiveBackgroundJob = Undefined;
@@ -492,7 +497,7 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 		Return;
 	EndIf;
 	
-	// 
+	// Restart if the metadata in outdated.
 	ExtensionsVersion = SessionParameters.ExtensionsVersion;
 	VersionOnStartup = Catalogs.ExtensionsVersions.LastExtensionsVersion();
 	
@@ -507,7 +512,7 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 		Return;
 	EndIf;
 	
-	// 
+	// Populate all parameters of the current extension version.
 	AttemptNumber = 1;
 	AttemptsNumber = 3;
 	PreviousError = "";
@@ -575,9 +580,9 @@ Procedure FillinAllJobParametersLatestVersionExtensions() Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Intended for procedure "UpdateParametersOfExtensionVersionsTakingIntoAccountExecutionMode"
+// of the manager module of the "ApplicationParameters" information register
+// and procedure "FillAllExtensionParametersBackgroundJob".
 //
 Procedure MarkFillingOptionsExtensionsWork() Export
 	
@@ -613,11 +618,11 @@ Procedure LockForChangeInFileIB() Export
 	If TransactionActive() And Common.FileInfobase() Then
 		Block = New DataLock;
 		Block.Add("InformationRegister.ExtensionVersionParameters");
-		// 
-		// 
-		// 
+		// ACC:1320:off - No.783.1.3. It's acceptable to call a lock in a transaction external to the file infobase.
+		// It is intended to avoid deadlocks caused by an automatic shared
+		// lock set to the table when it is read by a query within a transaction.
 		Block.Lock();
-		// 
+		// ACC:1320-on
 	EndIf;
 	
 EndProcedure
@@ -625,59 +630,59 @@ EndProcedure
 #Region DeveloperToolUpdateAuxiliaryData
 
 // Parameters:
-//  ShouldUpdate - Boolean - 
+//  ShouldUpdate - Boolean - The initial value is False.
 //
 // Returns:
 //  Structure:
 //   * Core - Structure:
-//      ** ExtensionObjectIDs - 
+//      ** ExtensionObjectIDs - See UpdateParameterProperties.
 //   * AttachableCommands - Structure:
-//      ** ConnectableExtensionCommands - 
+//      ** ConnectableExtensionCommands - See UpdateParameterProperties.
 //   * Users - Structure:
-//      ** UserGroupsHierarchy - 
-//      ** UserGroupCompositions - 
-//      ** UsersInfo - 
+//      ** UserGroupsHierarchy - See UpdateParameterProperties.
+//      ** UserGroupCompositions - See UpdateParameterProperties.
+//      ** UsersInfo - See UpdateParameterProperties.
 //   * AccessManagement - Structure:
-//      ** SuppliedAccessGroupProfiles     - 
-//      ** UnsuppliedAccessGroupProfiles   - 
-//      ** InfobaseUsersRoles - 
-//      ** AccessRestrictionParameters         - 
-//      ** AccessGroupsTables                 - 
-//      ** AccessGroupsValues                - 
-//      ** ObjectRightsSettingsInheritance    - 
-//      ** ObjectsRightsSettings               - 
-//      ** AccessValuesGroups               - 
-//      ** AccessValuesSets               - 
+//      ** SuppliedAccessGroupProfiles     - See UpdateParameterProperties.
+//      ** UnsuppliedAccessGroupProfiles   - See UpdateParameterProperties.
+//      ** InfobaseUsersRoles - See UpdateParameterProperties.
+//      ** AccessRestrictionParameters         - See UpdateParameterProperties.
+//      ** AccessGroupsTables                 - See UpdateParameterProperties.
+//      ** AccessGroupsValues                - See UpdateParameterProperties.
+//      ** ObjectRightsSettingsInheritance    - See UpdateParameterProperties.
+//      ** ObjectsRightsSettings               - See UpdateParameterProperties.
+//      ** AccessValuesGroups               - See UpdateParameterProperties.
+//      ** AccessValuesSets               - See UpdateParameterProperties.
 //   * ReportsOptions - Structure:
-//      ** ConfigurationReports              - 
-//      ** IndexSearchReportsConfiguration - 
-//      ** ExtensionReports                - 
-//      ** IndexSearchReportsExtensions   - 
+//      ** ConfigurationReports              - See UpdateParameterProperties.
+//      ** IndexSearchReportsConfiguration - See UpdateParameterProperties.
+//      ** ExtensionReports                - See UpdateParameterProperties.
+//      ** IndexSearchReportsExtensions   - See UpdateParameterProperties.
 //   * AccountingAudit - Structure:
-//      ** AccountingCheckRules - 
+//      ** AccountingCheckRules - See UpdateParameterProperties.
 //
 Function ParametersOfUpdate(ShouldUpdate = False) Export
 	
 	Parameters = New Structure;
 	
-	// 
+	// StandardSubsystems Core
 	ParametersSubsystems = New Structure;
 	ParametersSubsystems.Insert("ExtensionObjectIDs", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("Core", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AttachableCommands
 	ParametersSubsystems = New Structure;
 	ParametersSubsystems.Insert("ConnectableExtensionCommands", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AttachableCommands", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems Users
 	ParametersSubsystems = New Structure;
 	ParametersSubsystems.Insert("UserGroupsHierarchy", NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("UserGroupCompositions", NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("UsersInfo", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("Users", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AccessManagement
 	ParametersSubsystems.Insert("SuppliedAccessGroupProfiles",     NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("UnsuppliedAccessGroupProfiles",   NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("InfobaseUsersRoles", NewUpdateParameterProperties(ShouldUpdate));
@@ -690,14 +695,14 @@ Function ParametersOfUpdate(ShouldUpdate = False) Export
 	ParametersSubsystems.Insert("AccessValuesSets",               NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AccessManagement", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems ReportsOptions
 	ParametersSubsystems.Insert("ConfigurationReports",              NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("IndexSearchReportsConfiguration", NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("ExtensionReports",                NewUpdateParameterProperties(ShouldUpdate));
 	ParametersSubsystems.Insert("IndexSearchReportsExtensions",   NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("ReportsOptions", ParametersSubsystems);
 	
-	// 
+	// StandardSubsystems AccountingAudit
 	ParametersSubsystems.Insert("AccountingCheckRules", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("AccountingAudit", ParametersSubsystems);
 	
@@ -761,13 +766,13 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// StandardSubsystems Core
 	If Parameters.Core.ExtensionObjectIDs.ShouldUpdate Then
 		Catalogs.ExtensionObjectIDs.UpdateCatalogData(
 			Parameters.Core.ExtensionObjectIDs.HasChanges);
 	EndIf;
 	
-	// 
+	// StandardSubsystems AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		If Parameters.AttachableCommands.ConnectableExtensionCommands.ShouldUpdate Then
@@ -776,7 +781,7 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 		EndIf;
 	EndIf;
 	
-	// 
+	// StandardSubsystems Users
 	If Parameters.Users.UserGroupsHierarchy.ShouldUpdate Then
 		InformationRegisters.UserGroupsHierarchy.UpdateRegisterData(
 			Parameters.Users.UserGroupsHierarchy.HasChanges);
@@ -790,7 +795,7 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 			Parameters.Users.UsersInfo.HasChanges);
 	EndIf;
 	
-	// 
+	// StandardSubsystems AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		If Parameters.AccessManagement.SuppliedAccessGroupProfiles.ShouldUpdate Then
 			AccessGroupModule = Common.CommonModule("Catalogs.AccessGroups");
@@ -854,7 +859,7 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 		EndIf;
 	EndIf;
 	
-	// 
+	// StandardSubsystems ReportsOptions
 	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
 		ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 		
@@ -878,7 +883,7 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 		EndIf;
 		
 		Settings = ModuleReportsOptions.SettingsUpdateParameters();
-		Settings.SharedData = True; // 
+		Settings.SharedData = True; // Predefined data.
 		Settings.SeparatedData = True;
 		Settings.Configuration = False;
 		Settings.Extensions = True;
@@ -897,7 +902,7 @@ Procedure LongOperationHandlerPerformUpdateSplitData(Parameters, ResultAddress) 
 		EndIf;
 	EndIf;
 	
-	// 
+	// StandardSubsystems AccountingAudit
 	If Common.SubsystemExists("StandardSubsystems.AccountingAudit") Then
 		ModuleAccountingAuditInternal = Common.CommonModule("AccountingAuditInternal");
 		If Parameters.AccountingAudit.AccountingCheckRules.ShouldUpdate Then
@@ -916,8 +921,8 @@ EndProcedure
 
 #Region Private
 
-// 
-// 
+// Intended for the procedures OnFirstServerCall, OnStartScheduledJobSucceed,
+// and DisableExtensionParametersPopulation.
 //
 Function RequiredEnableFillingExtensionsWorkParameters()
 	
@@ -966,8 +971,8 @@ Function DataAreaIsActivelyUsed()
 	
 EndFunction
 
-// 
-// 
+// Intended for the procedures OnFirstServerCall, OnStartScheduledJobSucceed,
+// of the Extensions common form and StandardSubsystemsServer.AfterImportData.
 //
 // Parameters:
 //  Run - Boolean
@@ -1013,7 +1018,7 @@ Procedure EnableFillingExtensionsWorkParameters(Run = True, EnableDefinitely = F
 	
 EndProcedure
 
-// 
+// For the PopulateAllLastExtensionsVersionsParameters procedure.
 Procedure FillActiveBackgroundQuest(ActiveBackgroundJob, JobID)
 	
 	If TypeOf(JobID) = Type("UUID") Then
@@ -1026,12 +1031,12 @@ Procedure FillActiveBackgroundQuest(ActiveBackgroundJob, JobID)
 	
 EndProcedure
 
-// 
-// 
+// Intended for the PopulateAllLastExtensionsVersionsParameters
+// and MarkExtensionsParametersAsPopulated procedures.
 //
 // Parameters:
 //  VersionOnStartup - See Catalogs.ExtensionsVersions.LastExtensionsVersion
-//  Restart    - Boolean -  the return value.
+//  Restart    - Boolean - Return value.
 //
 Procedure DisableFillingExtensionsWorkParameters(VersionOnStartup, Restart = False)
 	
@@ -1077,12 +1082,12 @@ Procedure DisableFillingExtensionsWorkParameters(VersionOnStartup, Restart = Fal
 	
 EndProcedure
 
-// 
-// 
-// 
+// Intended for the procedures EnableFillingExtensionsRuntimeParameters
+// PopulateAllLastExtensionsVersionsParameters and
+// StandardSubsystemsServer.AfterImportData.
 // 
 // Parameters:
-//  WaitForCompletion - Boolean - 
+//  WaitForCompletion - Boolean - Ignored in file infobases.
 //
 Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = False) Export
 	
@@ -1091,8 +1096,8 @@ Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = Fals
 	   And Not WaitForCompletion
 	 Or DataBaseConfigurationChangedDynamically()
 	   And Common.FileInfobase() Then
-		// 
-		// 
+		// For file infobases, a background job with database extensions is executed
+		// with the same version of the dynamic configuration generation.
 		Return;
 	EndIf;
 	
@@ -1123,7 +1128,7 @@ Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = Fals
 	
 EndProcedure
 
-// 
+// For the PopulateAllLastExtensionsVersionsParameters procedure.
 Procedure AddAdditionalDetails(Comment)
 	
 	ExtensionsDetails = Catalogs.ExtensionsVersions.DescriptionExtensionsForJournal();
@@ -1157,8 +1162,8 @@ EndProcedure
 
 // Returns:
 //  Structure:
-//   * ShouldUpdate     - Boolean -  the initial value is True.
-//   * HasChanges - Boolean -  the initial value is False.
+//   * ShouldUpdate     - Boolean - an initial value is True.
+//   * HasChanges - Boolean - the initial value is False.
 //
 Function NewUpdateParameterProperties(ShouldUpdate)
 	

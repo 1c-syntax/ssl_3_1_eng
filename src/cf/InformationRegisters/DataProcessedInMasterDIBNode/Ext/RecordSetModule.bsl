@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -13,8 +15,8 @@
 Procedure BeforeWrite(Cancel, Replacing)
 	
 	If DataExchange.Load Then
-		// 
-		// 
+		// No need to check "DataExchange.Load" as
+		// the register data is accessed during a data update.
 		
 		If Common.IsSubordinateDIBNode() And Not InfobaseUpdate.InfobaseUpdateRequired() Then 
 			MarkDataUpdatedInMasterNode();
@@ -50,11 +52,11 @@ Procedure MarkDataUpdatedInMasterNode()
 	For Each Record In ThisObject Do
 		
 		Object = Common.MetadataObjectByID(Record.MetadataObject, False);
-		If TypeOf(Object) = Type("MetadataObject") Then // 
+		If TypeOf(Object) = Type("MetadataObject") Then // Metadata object was deleted in the master node configuration.
 			MarkProcessingCompletion(Record, Object);
 		EndIf;	
 		
-		If DataExchange.Sender <> Undefined Then // 
+		If DataExchange.Sender <> Undefined Then // not creation of the initial image
 			SetToRegisterResponseToMasterNode = InformationRegisters.DataProcessedInMasterDIBNode.CreateRecordSet();
 			SetToRegisterResponseToMasterNode.Filter.ExchangePlanNode.Set(Record.ExchangePlanNode);
 			SetToRegisterResponseToMasterNode.Filter.MetadataObject.Set(Record.MetadataObject);

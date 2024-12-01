@@ -1,23 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Handler for subscribing to the event of controldistributed record Objects.
+// The handler of the CheckSharedObjectsOnWrite event subscription.
 //
 // Parameters:
-//   Source - AnyRef -  event source.
-//   Cancel    - Boolean -  indicates that the recording was rejected.
+//   Source - AnyRef - an event source.
+//   Cancel    - Boolean - shows whether writing is canceled.
 //
 Procedure CheckSharedObjectsOnWrite(Source, Cancel) Export
 	
-	// 
-	// 
+	// No need to run "DataExchange.Load".
+	// Writing shared data from a separated session is prohibited.
 	If Not Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -27,19 +29,19 @@ Procedure CheckSharedObjectsOnWrite(Source, Cancel) Export
 	
 EndProcedure
 
-// Handler for subscribing to the event controlselected Recordsetsrecords.
+// The handler of the CheckSharedRecordsSetsOnWrite event subscription.
 //
 // Parameters:
-//   Source  - InformationRegisterRecordSet -  event source.
-//   Cancel     - Boolean -  indicates that the set is not being written to the database.
-//   Replacing - Boolean -  recording mode is set. True-the record is performed by replacing
-//             the existing set records in the database. False-recording is performed with
-//             "appending" the current set of records.
+//   Source  - InformationRegisterRecordSet - an event source.
+//   Cancel     - Boolean - indicates whether the record of set to the infobase is canceled.
+//   Replacing - Boolean - a set record mode. True - writes with replacement of
+//             the records set in the infobase. False - writes with
+//             the addition of the current records set.
 //
 Procedure CheckSharedRecordsSetsOnWrite(Source, Cancel, Replacing) Export
 	
-	// 
-	// 
+	// No need to run "DataExchange.Load".
+	// Writing shared data from a separated session is prohibited.
 	If Not Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -53,8 +55,8 @@ EndProcedure
 
 #Region Internal
 
-// 
-// 
+// Returns "True" if a single standard numeric separator
+// "Data area" is used.
 //
 // Returns:
 //  Boolean

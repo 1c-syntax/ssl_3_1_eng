@@ -1,16 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Collects directory data from metadata object references and updates the register data for them.
+// Collects catalog data by metadata object references and updates register data.
 //
 Procedure UpdateDataByMetadataObjectsRefs(MetadataObjectsRefs) Export
 	Query = NewRegisterDataUpdateRequest(MetadataObjectsRefs);
@@ -25,11 +27,11 @@ Procedure UpdateDataByMetadataObjectsRefs(MetadataObjectsRefs) Export
 			RecordManager.Write(True);
 		EndDo;
 		
-		// 
+		// Registering the references being used for further deletion of the unused ones from the register.
 		MetadataObjectsRefs.Delete(MetadataObjectsRefs.Find(ReferencesSelection.RelatedObject));
 	EndDo;
 	
-	// 
+	// Clearing the register from unused references.
 	For Each RelatedObject In MetadataObjectsRefs Do
 		RecordSet = CreateRecordSet();
 		RecordSet.Filter.RelatedObject.Set(RelatedObject);
@@ -37,7 +39,7 @@ Procedure UpdateDataByMetadataObjectsRefs(MetadataObjectsRefs) Export
 	EndDo;
 EndProcedure
 
-// Returns the request text that is used to update the register data.
+// Returns the text of the register data update request.
 //
 Function NewRegisterDataUpdateRequest(MetadataObjectsRefs)
 	

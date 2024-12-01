@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// 
 //
-//    
+//
+
+// Optional parameters:
+//
+//    SimplifiedMode - Boolean - Flag indicating whether a simplified report should be generated.
 //
 
 #Region FormEventHandlers
@@ -17,7 +19,7 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
+	// Verify that the form is opened with the required parameters
 	If IsBlankString(Parameters.ObjectAddress)
 		And Parameters.ObjectSettings = Undefined Then
 		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
@@ -32,7 +34,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SourceObject = ThisDataProcessor.InitializeThisObject(Parameters.ObjectAddress) 
 	EndIf;
 	
-	// 
+	// Editing filter according to the node scenario and imitating global filter.
 	If SourceObject.ExportOption=3 Then
 		SourceObject.ExportOption = 2;
 		
@@ -87,7 +89,7 @@ Procedure ResultDetailProcessing(Item, Details, StandardProcessing)
 			DetailsType = TypeOf(DetailsParameters.RegistrationObject);
 			
 			If DetailsType = Type("Array") Or DetailsType = Type("ValueList") Then
-				// 
+				// List details.
 				DetailsParameters.Insert("ObjectSettings", Object);
 				DetailsParameters.Insert("SimplifiedMode", SimplifiedMode);
 				
@@ -95,12 +97,12 @@ Procedure ResultDetailProcessing(Item, Details, StandardProcessing)
 				Return;
 			EndIf;
 			
-			// 
+			// Object details.
 			FormParameters = New Structure("Key", DetailsParameters.RegistrationObject);
 			OpenForm(DetailsParameters.FullMetadataName + ".ObjectForm", FormParameters);
 
 		ElsIf Not IsBlankString(DetailsParameters.ListPresentation) Then
-			// 
+			// Opening this form with new parameters.
 			DetailsParameters.Insert("ObjectSettings", Object);
 			DetailsParameters.Insert("SimplifiedMode", SimplifiedMode);
 			

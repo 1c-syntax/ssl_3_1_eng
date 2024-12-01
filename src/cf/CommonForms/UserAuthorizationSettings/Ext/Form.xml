@@ -372,6 +372,7 @@ lowercase letters, numbers, and special characters
 to the moment the password expires.</v8:content>
 														</v8:item>
 													</ToolTip>
+													<Width>2</Width>
 													<MinValue xsi:type="xs:decimal">1</MinValue>
 													<ContextMenu name="MaxPasswordLifetimeContextMenu" id="13"/>
 													<ExtendedTooltip name="MaxPasswordLifetimeExtendedTooltip" id="14"/>
@@ -905,6 +906,7 @@ lowercase letters, numbers, and special characters
 to the moment the password expires.</v8:content>
 														</v8:item>
 													</ToolTip>
+													<Width>2</Width>
 													<MinValue xsi:type="xs:decimal">1</MinValue>
 													<ContextMenu name="MaxPasswordLifetime2ContextMenu" id="191"/>
 													<ExtendedTooltip name="MaxPasswordLifetime2ExtendedTooltip" id="192"/>
@@ -2105,7 +2107,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Type>
 				<v8:Type>xs:decimal</v8:Type>
 				<v8:NumberQualifiers>
-					<v8:Digits>2</v8:Digits>
+					<v8:Digits>3</v8:Digits>
 					<v8:FractionDigits>0</v8:FractionDigits>
 					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 				</v8:NumberQualifiers>
@@ -2366,7 +2368,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<Type>
 				<v8:Type>xs:decimal</v8:Type>
 				<v8:NumberQualifiers>
-					<v8:Digits>2</v8:Digits>
+					<v8:Digits>3</v8:Digits>
 					<v8:FractionDigits>0</v8:FractionDigits>
 					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 				</v8:NumberQualifiers>

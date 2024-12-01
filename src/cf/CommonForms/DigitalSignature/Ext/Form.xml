@@ -327,7 +327,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Error verifying signature against document</v8:content>
+									<v8:content>Verify if signature complies with the document</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>Top</TitleLocation>
@@ -367,7 +367,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Error verifying signature certificate</v8:content>
+									<v8:content>Verify signature certificate</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>Top</TitleLocation>

@@ -1,16 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -21,7 +23,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -55,10 +57,10 @@ EndProcedure
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Update handlers.
 
-// Registers objects
-// that need to be updated to the new version on the exchange plan for updating the information Database.
+// Registers in the InfobaseUpdate exchange plan the objects to update.
+// 
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -79,7 +81,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// 
+// Set value for attribute AddlOrderingAttribute of catalog SourceDocumentsOriginalsStates.
 // 
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		
@@ -129,7 +131,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			EndIf;
 			
 		Except
-			// 
+			// If procession failed, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			InfobaseUpdate.WriteErrorToEventLog(
@@ -160,14 +162,14 @@ EndProcedure
 
 #Region Private
 
-// Overrides the value of the service attribute of the reordering attribute of the passed element.
+// In the passed item, re-populate internal attribute AddlOrderingAttribute.
 //
 Procedure FillInTheDetailsOfTheAdditionalOrderingDetails(Selection, Order)
 	
 	BeginTransaction();
 	Try
 	
-		// 
+		// Lock the object (to ensure that it won't be edited in other sessions).
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.SourceDocumentsOriginalsStates");
 		LockItem.SetValue("Ref", Selection.Ref);
@@ -175,10 +177,10 @@ Procedure FillInTheDetailsOfTheAdditionalOrderingDetails(Selection, Order)
 		
 		TheStateOfTheObject = Selection.Ref.GetObject();
 		
-		// 
+		// Process object.
 		TheStateOfTheObject.AddlOrderingAttribute = Order;
 		
-		// 
+		// Write processed object.
 		InfobaseUpdate.WriteData(TheStateOfTheObject);
 		
 		CommitTransaction();

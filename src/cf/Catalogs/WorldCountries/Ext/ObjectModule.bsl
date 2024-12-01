@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -53,18 +55,18 @@ EndProcedure
 
 #Region Private
 
-// Controls the uniqueness of an element in the database.
-// If duplicate codes or names are detected, it returns a list of them.
+// Controls item uniqueness in the infobase.
+// If there are code or description duplicates, returns its list.
 //
 //  Returns:
-//      Array of See NewErrorMessage - 
+//      Array of See NewErrorMessage - Details of duplicate items (if found).
 //        
 //
 Function CheckTheUniquenessOfTheElements()
 	
 	Result = New Array;
 	
-	// 
+	// Skip non-numerical codes.
 	NumberType = New TypeDescription("Number", New NumberQualifiers(3, 0, AllowedSign.Nonnegative));
 	If Code= "0" Or Code = "00" Or Code = "000" Then
 		SearchCode = "000";
@@ -159,8 +161,8 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   Field Name-String
-//   Message Text-String
+//   FieldName - String
+//   MessageText - String
 //
 Function NewErrorMessage()
 	

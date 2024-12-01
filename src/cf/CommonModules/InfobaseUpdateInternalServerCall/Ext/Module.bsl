@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
-// See the description of the same function in the Service Information Database Update module.
+// For description of this function, see the InfobaseUpdateInternal module.
 Function UpdateInfobase(OnClientStart = False, Restart = False, ExecuteDeferredHandlers1 = False) Export
 	
 	ParametersOfUpdate = InfobaseUpdateInternal.ParametersOfUpdate();
@@ -19,8 +21,8 @@ Function UpdateInfobase(OnClientStart = False, Restart = False, ExecuteDeferredH
 	Try
 		Result = InfobaseUpdateInternal.UpdateInfobase(ParametersOfUpdate);
 	Except
-		// 
-		// 
+		// Switch to opening the data re-sync form before a startup with the options
+		// "Sync and continue" and "Continue".
 		If Common.SubsystemExists("StandardSubsystems.DataExchange")
 		   And Common.IsSubordinateDIBNode() Then
 			ModuleDataExchangeServer = Common.CommonModule("DataExchangeServer");
@@ -34,7 +36,7 @@ Function UpdateInfobase(OnClientStart = False, Restart = False, ExecuteDeferredH
 	
 EndFunction
 
-// Removes the lock on the information file database.
+// Unlocks file infobase.
 Procedure RemoveFileInfobaseLock() Export
 	
 	If Not Common.FileInfobase() Then

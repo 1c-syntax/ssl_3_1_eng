@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Updates the full-text search index.
+// Updates a full-text search index.
 Procedure FullTextSearchIndexUpdate() Export
 	
 	UpdateIndex(NStr("en = 'Update full-text search index';"), False, True);
@@ -22,11 +24,11 @@ Procedure FullTextSearchMergeIndex() Export
 	
 EndProcedure
 
-// Returns whether the full-text search index is up-to-date.
-//   The functional option "use full-text search" is checked in the calling code.
+// Returns a flag showing whether full-text search index is up-to-date.
+//   The UseFullTextSearch functional option is checked in the calling code.
 //
 // Returns: 
-//   Boolean - 
+//   Boolean - True - full-text search contains relevant data.
 //
 Function SearchIndexIsRelevant() Export
 	
@@ -35,18 +37,18 @@ Function SearchIndexIsRelevant() Export
 	
 EndFunction
 
-// State of the checkbox for the full-text search settings form.
+// Check box state for the full-text search setup form.
 //
 // Returns: 
-//   Number - 
+//   Number - 0 - disabled, 1 - enabled, 2 - settings error; settings are not synchronized.
 //
 // Example:
-//	If General Purpose.Subsystems Exist ("Standard Subsystems.Full-text search") Then
-//		Modulpol-Text Searchserver = General Purpose.General Module ("Full-Text Searchserver");
-//		Use Full-Text Search = Modulpol-Text Searchserver.Valueflageuse search();
-//	Otherwise 
-//		Elements.The full-text search management group.Visibility = False;
-//	Conicelli;
+//	If Common.SubsystemExists("StandardSubsystems.FullTextSearch") Then
+//		ModuleFullTextSearchServer = Common.CommonModule("FullTextSearchServer");
+//		UseFullTextSearch = ModuleFullTextSearchServer.UseSearchFlagValue();
+//	Else 
+//		Items.FullTextSearchManagementGroup.Visibility = False;
+//	EndIf;
 //
 Function UseSearchFlagValue() Export
 	
@@ -67,17 +69,17 @@ EndFunction
 
 #Region Internal
 
-// Returns the current state of the full-text search, depending on the settings and relevance.
+// Returns the current full text search status depending on settings and relevance.
 // Does not throw exceptions.
 //
 // Returns:
-//  String - :
-//    
-//    
-//    
-//    
-//    
-//    
+//  String - Valid values are:
+//    "SearchAllowed"
+//    "SearchProhibited"
+//    "UpdatingIndex"
+//    "IndexMergeInProgress"
+//    "IndexUpdateRequired"
+//    "SearchSettingsError"
 //
 Function FullTextSearchStatus() Export
 	
@@ -100,15 +102,15 @@ Function FullTextSearchStatus() Export
 			EndIf;
 			
 		Else 
-			// 
-			// 
+			// Desyncing of the "UseFullTextSearch" constant
+			// and the full-text search mode set in the infobase.
 			Return "SearchSettingsError";
 		EndIf;
 		
 	Else
 		If FullTextSearch.GetFullTextSearchMode() = FullTextSearchMode.Enable Then
-			// 
-			// 
+			// Desyncing of the "UseFullTextSearch" constant
+			// and the full-text search mode set in the infobase.
 			Return "SearchSettingsError";
 		Else 
 			Return "SearchProhibited";
@@ -117,10 +119,10 @@ Function FullTextSearchStatus() Export
 	
 EndFunction
 
-// A metadata object with a functional option for using full-text search.
+// Metadata object with functional option of full text search usage.
 //
 // Returns:
-//   MetadataObjectFunctionalOption -  
+//   MetadataObjectFunctionalOption - a functional option metadata 
 //
 Function UseFullTextSearchFunctionalOption() Export
 	
@@ -128,10 +130,10 @@ Function UseFullTextSearchFunctionalOption() Export
 	
 EndFunction
 
-// Returns the state of the functional option for using full-text search.
+// Returns the state of functional option of full text search usage.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - — if True, full-text search is used.
 //
 Function UseFullTextSearch() Export
 	
@@ -172,7 +174,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		EndIf;
 	EndIf;
 	
-	// 
+	// Search setup error.
 	
 	ToDoItem = ToDoList.Add();
 	ToDoItem.Id = "FullTextSearchInDataSearchSettingsError";
@@ -183,11 +185,11 @@ Procedure OnFillToDoList(ToDoList) Export
 		NStr("en = 'Try toggling the full-text search off and on.';");
 	ToDoItem.Owner = Section;
 	
-	// 
+	// Index update is required.
 	
 	If State = "IndexUpdateRequired" Then 
 		IndexUpdateDate = FullTextSearch.UpdateDate();
-		CurrentDate = CurrentDate(); // 
+		CurrentDate = CurrentDate(); // ACC:143 - CurrentDate() must be used.
 		
 		If IndexUpdateDate > CurrentDate Then
 			Interval = NStr("en = 'less than one day ago';");
@@ -242,9 +244,10 @@ EndProcedure
 
 #EndRegion
 
-// 
-// 
-// 
+// Sets a value to the UseFullTextSearch constant.
+// Used to synchronize a value
+// of the "UseFullTextSearch" functional option
+// with the value of the "FullTextSearch.GetFullTextSearchMode" function.
 //
 Procedure InitializeFullTextSearchFunctionalOption() Export
 	
@@ -259,7 +262,7 @@ EndProcedure
 
 #Region ScheduledJobsHandlers
 
-// The handler routine tasks Obnovleniyami.
+// Handler of the FullTextSearchIndexUpdate scheduled job.
 Procedure FullTextSearchUpdateIndexOnSchedule() Export
 	
 	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.FullTextSearchIndexUpdate);
@@ -272,7 +275,7 @@ Procedure FullTextSearchUpdateIndexOnSchedule() Export
 	
 EndProcedure
 
-// The handler routine tasks Lineintercept.
+// Handler of the FullTextSearchMergeIndex scheduled job.
 Procedure FullTextSearchMergeIndexOnSchedule() Export
 	
 	Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.FullTextSearchMergeIndex);
@@ -443,7 +446,7 @@ Function FullTextSearchResults(SearchResultsList)
 		Try
 			Ref = GetURL(Value);
 		Except
-			Ref = "#"; // 
+			Ref = "#"; // Unintended to be opened.
 		EndTry;
 		
 		ResultString1 = New Structure;
@@ -463,8 +466,8 @@ Function HTMLSearchResultStrings(SearchResultsList)
 	
 	HTMLListDisplay = SearchResultsList.GetRepresentation(FullTextSearchRepresentationType.HTMLText);
 	
-	// 
-	// 
+	// Get the DOM to display the list. NOTE: DOM getter cannot be implemented as a dedicated function:
+	// 1C:Enterprise throws an error in the call stack of the DOM read stream.
 	HTMLReader = New HTMLReader;
 	HTMLReader.SetString(HTMLListDisplay);
 	DOMBuilder = New DOMBuilder;
@@ -526,7 +529,7 @@ EndFunction
 
 #Region SearchIndexUpdate
 
-// General procedure for updating and merging the PPD index.
+// Common procedure for updating and merging a full-text search index.
 Procedure UpdateIndex(ProcedurePresentation, EnableJoining = False, InPortions = False)
 	
 	If (FullTextSearch.GetFullTextSearchMode() <> FullTextSearchMode.Enable) Then
@@ -557,11 +560,11 @@ Procedure UpdateIndex(ProcedurePresentation, EnableJoining = False, InPortions =
 EndProcedure
 
 // Parameters:
-//   LogLevel - EventLogLevel -  importance of the message for the administrator.
-//   CommentWithParameters - String -  a comment that can contain the %1 parameters.
+//   LogLevel - EventLogLevel - message importance for the administrator.
+//   CommentWithParameters - String - a comment that can contain parameters %1.
 //   ErrorInfo - ErrorInfo
-//                      - String - 
-//   Parameter - String -  to replace comments with Parameters instead of %1.
+//                      - String - error information placed after the comment.
+//   Parameter - String - replaces %1 in CommentWithParameters.
 //
 Procedure LogRecord(LogLevel, CommentWithParameters, ErrorInfo = Undefined,
 	Parameter = Undefined) Export

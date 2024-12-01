@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -33,13 +35,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EditCurrentRestrictions = True;
 	
 	If Users.IsFullUser() Then
-		// 
+		// Viewing and editing profile content and access restrictions.
 		FilterProfilesOnlyForCurrentUser = False;
 		
 	ElsIf Parameters.User = Users.AuthorizedUser() Then
-		// 
+		// Viewing your profiles and the access rights report.
 		FilterProfilesOnlyForCurrentUser = True;
-		// 
+		// Hiding unused information.
 		Items.Profiles.ReadOnly = True;
 		Items.ProfilesCheck.Visible = False;
 		Items.Access.Visible = False;
@@ -61,7 +63,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ImportData(FilterProfilesOnlyForCurrentUser);
 	
-	// 
+	// Prepare auxiliary data.
 	AccessManagementInternal.OnCreateAtServerAllowedValuesEditForm(ThisObject, , "");
 	
 	For Each ProfileProperties In Profiles Do
@@ -70,7 +72,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndDo;
 	CurrentAccessGroup = "";
 	
-	// 
+	// Determining if the access restrictions must be set.
 	If Not AccessManagement.LimitAccessAtRecordLevel() Then
 		Items.Access.Visible = False;
 	EndIf;
@@ -124,7 +126,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// 
+	// Checking for blank and duplicate access values.
 	Errors = Undefined;
 	
 	For Each ProfileProperties In Profiles Do
@@ -185,8 +187,8 @@ Procedure ProfilesCheckOnChange(Item)
 	
 	If CurrentData <> Undefined
 	   And Not CurrentData.Check Then
-		// 
-		// 
+		// Validate for empty and duplicate access values before
+		// disabling the profile and its setting.
 		ClearMessages();
 		Errors = Undefined;
 		AccessManagementInternalClientServer.ProcessingOfCheckOfFillingAtServerAllowedValuesEditForm(
@@ -256,7 +258,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the AllAllowedPresentation item of the AccessKinds form table.
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -378,9 +380,9 @@ Procedure SnowUnusedAccessKinds(Command)
 EndProcedure
 
 &AtClient
-Procedure SelectAccessValues_(Command)
+Procedure PickAccessValues(Command)
 	
-	AccessManagementInternalClient.SelectAccessValues(ThisObject);
+	AccessManagementInternalClient.AccessValuesPick(ThisObject);
 	
 EndProcedure
 
@@ -442,7 +444,7 @@ Procedure SetConditionalAppearance()
 
 EndProcedure
 
-// Continuation of the event handler before Closing.
+// The BeforeClose event handler continuation.
 &AtClient
 Procedure WriteAndCloseNotification(Result, Context) Export
 	
@@ -450,7 +452,7 @@ Procedure WriteAndCloseNotification(Result, Context) Export
 	
 EndProcedure
 
-// Continuation of the event handler before Closing.
+// The BeforeClose event handler continuation.
 &AtClient
 Procedure WriteAndCloseCompletion(Cancel, Context) Export
 	
@@ -633,7 +635,7 @@ Procedure WriteChangesAtServer(Cancel)
 	
 	Users.FindAmbiguousIBUsers(Undefined);
 	
-	// 
+	// Get a change list.
 	Query = New Query;
 	Query.SetParameter("User", Parameters.User);
 	Query.SetParameter("ProfileAdministrator", ProfileAdministrator);
@@ -841,7 +843,7 @@ Procedure WriteChangesAtServer(Cancel)
 				AccessGroupObject = Update.PersonalAccessGroup.GetObject();
 				AccessGroupObject.DeletionMark = False;
 			Else
-				// 
+				// Creating a personal access group.
 				AccessGroupObject = Catalogs.AccessGroups.CreateItem();
 				AccessGroupObject.Parent     = Catalogs.AccessGroups.PersonalAccessGroupsParent();
 				AccessGroupObject.Description = Update.ProfileDescription;
@@ -866,7 +868,7 @@ Procedure WriteChangesAtServer(Cancel)
 						AccessGroupObject.Users.Delete(UserDetails);
 						
 						If Not Common.DataSeparationEnabled() Then
-							// 
+							// Checking a blank list of infobase users in the Administrators access group.
 							ErrorDescription = "";
 							AccessManagementInternal.CheckAdministratorsAccessGroupForIBUser(
 								AccessGroupObject.Users, ErrorDescription);

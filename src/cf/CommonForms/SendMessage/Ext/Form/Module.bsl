@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -38,7 +40,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EmailImportance = "Ordinary";
 	
 	If Not ValueIsFilled(Parameters.Sender) Then
-		// 
+		// Account is not passed. Selecting the first available account.
 		AvailableEmailAccounts = EmailOperations.AvailableEmailAccounts(True);
 		If AvailableEmailAccounts.Count() = 0 Then
 			MessageText = NStr("en = 'There are no email accounts available. Please contact your system administrator.';");
@@ -72,7 +74,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.Account.ChoiceList.SortByPresentation();
 		Account = EmailAccountList[0].Value;
 		
-		// 
+		// Selecting accounts from the passed account list.
 		Items.Account.DropListButton = True;
 	EndIf;
 	
@@ -144,7 +146,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		NewRow.Presentation   = "";
 	EndIf;
 	
-	// 
+	// Getting the list of addresses that the user previously used.
 	ReplyToList = Common.CommonSettingsStorageLoad(
 		"EditNewEmailMessage", "ReplyToList");
 	
@@ -163,7 +165,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			"UseForReceiving,UserName,Email");
 		
 		If UserAccountAttributes.UseForReceiving Then
-			// 
+			// Setting default email address
 			If ValueIsFilled(UserAccountAttributes.UserName) Then 
 				ReplyToAddress = UserAccountAttributes.UserName + " <" + UserAccountAttributes.Email + ">";
 			Else
@@ -174,7 +176,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FillReplyToAddressAutomatically = True;
 	EndIf;
 	
-	// 
+	// StandardSubsystems.MessagesTemplates
 	
 	Items.FormGenerateFromTemplate.Visible = False;
 	Items.FormSaveAsTemplate.Visible    = False;
@@ -189,7 +191,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// End StandardSubsystems.MessageTemplates
+	// End StandardSubsystems.MessagesTemplates
 	
 	If Common.IsMobileClient() Then
 		Items.Attachment2.Visible = False;
@@ -236,7 +238,7 @@ EndProcedure
 
 #Region FormHeaderItemsEventHandlers
 
-// Substitutes the response address if the automatic response substitution flag is set.
+// Populating the reply address if the flag of automatic reply address substitution is set.
 //
 &AtClient
 Procedure AccountChoiceProcessing(Item, ValueSelected, StandardProcessing)
@@ -344,8 +346,8 @@ EndProcedure
 
 #Region FormTableItemsEventHandlersAttachments
 
-// Deletes an attachment from the list, and also calls the function
-// for updating the attachment view table.
+// Removes an attachment from the list and also calls the function
+// that updates the table of attachment presentations.
 //
 &AtClient
 Procedure AttachmentsBeforeDeleteRow(Item, Cancel)
@@ -547,7 +549,7 @@ Procedure ImportanceLow(Command)
 	Modified = True;
 EndProcedure
 
-// 
+// StandardSubsystems.MessagesTemplates
 
 &AtClient
 Procedure GenerateFromTemplate(Command)
@@ -561,7 +563,7 @@ Procedure GenerateFromTemplate(Command)
 	
 EndProcedure
 
-// End StandardSubsystems.MessageTemplates
+// End StandardSubsystems.MessagesTemplates
 
 #EndRegion
 
@@ -682,7 +684,7 @@ EndFunction
 Function GetSpreadsheetDocumentByBinaryData(Val BinaryData)
 	
 	If TypeOf(BinaryData) = Type("String") Then
-		// 
+		// Transferring binary data address to temporary storage.
 		BinaryData = GetFromTempStorage(BinaryData); // BinaryData
 	EndIf;
 	
@@ -749,7 +751,7 @@ Procedure RefreshAttachmentPresentation()
 		EndIf;
 		
 		PresentationRow["Attachment" + Format(IndexOf + 1, "NG=0")] = Attachment.Presentation;
-		If Items.Attachment2.Visible Then // 
+		If Items.Attachment2.Visible Then // For mobile client.
 			IndexOf = IndexOf + 1;
 			If IndexOf = 2 Then 
 				IndexOf = 0;
@@ -759,8 +761,8 @@ Procedure RefreshAttachmentPresentation()
 	
 EndProcedure
 
-// Checks whether the message can be sent and, if
-// possible, generates the sending parameters.
+// Checks whether it is possible to send the email.
+// If it is possible, sending parameters are generated.
 //
 &AtServer
 Function GenerateEmailParameters()
@@ -894,7 +896,7 @@ EndProcedure
 &AtServerNoContext
 Procedure SaveReplyTo(Val ReplyToAddress, Val AddAddressToList = True)
 	
-	// 
+	// Getting the list of addresses that the user previously used.
 	ReplyToList = Common.CommonSettingsStorageLoad(
 		"EditNewEmailMessage",
 		"ReplyToList");

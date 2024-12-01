@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Namespace of the message interface version.
+// Namespace of message interface version.
 //
 // Returns:
-//   String -  name space.
+//   String - a namespace.
 //
 Function Package() Export
 	
@@ -19,10 +21,10 @@ Function Package() Export
 	
 EndFunction
 
-// The version of the message interface served by the handler.
+// Message interface version supported by the handler.
 //
 // Returns:
-//   String - 
+//   String - a message interface version.
 //
 Function Version() Export
 	
@@ -33,7 +35,7 @@ EndFunction
 // Base type for version messages.
 //
 // Returns:
-//   XDTOObjectType - 
+//   XDTOObjectType - a base type of message body.
 //
 Function BaseType() Export
 	
@@ -47,13 +49,13 @@ Function BaseType() Export
 	
 EndFunction
 
-// Processes incoming messages from the service model
+// Processing incoming SaaS messages
 //
 // Parameters:
-//   Message   - XDTODataObject -  incoming message.
-//   Sender - ExchangePlanRef.MessagesExchange -  the exchange plan node that corresponds to the sender of the message.
-//   MessageProcessed - Boolean -  flag for successful message processing. The value of this parameter must
-//                         be set to True if the message was successfully read in this handler.
+//   Message   - XDTODataObject - an incoming message.
+//   Sender - ExchangePlanRef.MessagesExchange - exchange plan node that matches the message sender.
+//   MessageProcessed - Boolean - indicates whether the message is successfully processed. The parameter value must be
+//                         set to True if the message was successfully read in this handler.
 //
 Procedure ProcessSaaSMessage(Val Message, Val Sender, MessageProcessed) Export
 	
@@ -123,7 +125,7 @@ EndProcedure
 
 #Region Private
 
-// 
+// Exchange setup.
 
 Procedure ExchangeSetupStep1Completed(Message, Sender)
 	
@@ -161,7 +163,7 @@ Procedure ExchangeMessageImportError(Message, Sender)
 	
 EndProcedure
 
-// 
+// Get peer infobase data.
 
 Procedure CorrespondentDataGettingCompleted(Message, Sender)
 	
@@ -187,7 +189,7 @@ Procedure CorrespondentNodeCommonDataGettingError(Message, Sender)
 	
 EndProcedure
 
-// 
+// Retrieves correspondent accounting parameters.
 
 Procedure GettingCorrespondentAccountingParametersCompleted(Message, Sender)
 	
@@ -201,7 +203,7 @@ Procedure CorrespondentAccountingParametersGettingError(Message, Sender)
 	
 EndProcedure
 
-// 
+// Auxiliary functions.
 
 Function SynchronizationSetupStep1Presentation()
 	

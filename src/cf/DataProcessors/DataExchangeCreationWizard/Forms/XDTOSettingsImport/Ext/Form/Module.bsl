@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
+	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("ExchangeNode") Then
 		
 		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
@@ -20,13 +22,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ExchangeNode = Parameters.ExchangeNode;
 	
-	CorrespondentDescription = String(ExchangeNode);
+	PeerInfobaseName = String(ExchangeNode);
 	
 	Items.LabelWaitDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		Items.LabelWaitDecoration.Title, CorrespondentDescription);
+		Items.LabelWaitDecoration.Title, PeerInfobaseName);
 	
 	Items.ErrorLabelDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		Items.ErrorLabelDecoration.Title, CorrespondentDescription);
+		Items.ErrorLabelDecoration.Title, PeerInfobaseName);
 	
 	Title = NStr("en = 'Import data exchange parameters';");
 	

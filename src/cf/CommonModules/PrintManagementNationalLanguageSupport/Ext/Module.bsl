@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
@@ -211,10 +213,10 @@ EndFunction
 //
 Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter = Undefined) Export
 	
-	UseRegionalLanguageRepresentations = True; // 
+	UseRegionalLanguageRepresentations = True; // For a print form.
 	If Filter = Undefined Then
 		Filter = AvailableLanguages();
-		UseRegionalLanguageRepresentations = False; // 
+		UseRegionalLanguageRepresentations = False; // For an edit form.
 	EndIf;
 	
 	If Not ValueIsFilled(CurrentLanguage) Then
@@ -586,7 +588,7 @@ Function ReturnParametersToText(Val Text, TheProcessedParameters)
 	
 EndFunction
 
-// A sequence of characters that should not change when translated into any language.
+// A sequence of characters that must not change when translated into any language.
 Function ParameterId(Number)
 	
 	Return "{<" + XMLString(Number) + ">}"; 

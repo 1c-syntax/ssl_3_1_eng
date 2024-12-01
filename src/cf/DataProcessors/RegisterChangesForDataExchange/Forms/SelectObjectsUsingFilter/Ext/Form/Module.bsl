@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 //
@@ -16,12 +18,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	CurrentObject = ThisObject();
 	TableHeading  = "";
 	
-	// 
+	// Determining what kind of table is passed to the procedure.
 	LongDesc = CurrentObject.MetadataCharacteristics(DataTableName);
 	MetaInfo = LongDesc.Metadata;
 	Title = MetaInfo.Presentation();
 	
-	// 
+	// List and columns.
 	StructureOfData = "";
 	If LongDesc.IsReference Then
 		TableHeading = MetaInfo.ObjectPresentation;
@@ -76,7 +78,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 			
 	Else
-		// 
+		// No columns?
 		Return;
 	EndIf;
 	
@@ -219,7 +221,7 @@ Function CurrentObjectFormParameters(Val Data)
 		Value = Data[DataFormKey];
 		CurFormName = ThisObject().GetFormName(Value) + ".ObjectForm";
 	Else
-		// 
+		// The structure contains dimension names.
 		If Data.Property("Recorder") Then
 			Value = Data.Recorder;
 			CurFormName = ThisObject().GetFormName(Value) + ".ObjectForm";

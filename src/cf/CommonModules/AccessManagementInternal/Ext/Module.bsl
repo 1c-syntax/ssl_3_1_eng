@@ -1,50 +1,55 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Main procedures and functions.
 
-// Adds the user to the access group corresponding to the supplied profile.
-// The access group is determined by the link ID of the supplied profile.
-// If the access group is not found, it will be created.
+// Adds a user to an access group of the built-in profile.
+// The access group is determined by ID of the reference of a built-in profile.
+// If an access group is not found, it will be created.
 //
 // Parameters:
 //  User        - CatalogRef.Users
 //                      - CatalogRef.ExternalUsers
 //                      - CatalogRef.UserGroups
-//                      - CatalogRef.ExternalUsersGroups - 
+//                      - CatalogRef.ExternalUsersGroups - a member to be included in the access group.
 // 
-//  SuppliedProfile - String -  ID string for the supplied profile.
-//                      - CatalogRef.AccessGroupProfiles - 
-//                        
-//                        
-//                        
-//                        
+//  SuppliedProfile - String - an ID string of a built-in profile.
+//                      - CatalogRef.AccessGroupProfiles - a reference to the profile
+//                        created by description in the AccessControlOverridable module
+//                        in FillAccessGroupsSuppliedProfiles procedure.
+//                        Profiles with a non-blank list of access kinds are not supported.
+//                        Administrator access group profile is not supported.
 // 
 Procedure AddUserToAccessGroup(User, SuppliedProfile) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"AccessManagementInternal.AddUserToAccessGroup");
 	
 	ProcessUserLinkToAccessGroup(User, SuppliedProfile, True);
 	
 EndProcedure
 
-// Updates the list of users for the specified groups of performers.
+// Updates the users of the assignee groups.
 // 
-// You need to call when changing the composition of users for groups of performers,
-// for example, for groups of task performers.
+// This procedure must be called when users are changed in assignee groups,
+// for example, in task assignee groups.
 //
-// The parameter values are passed to groups of performers whose composition has changed.
+// Assignee groups whose members are changed, are passed as parameter values.
 //
 // Parameters:
-//  PerformersGroups - CatalogRef.TaskPerformersGroups -  one group,
-//                     - Array of CatalogRef.TaskPerformersGroups - 
-//                     - Undefined - 
+//  PerformersGroups - CatalogRef.TaskPerformersGroups - one group,
+//                     - Array of CatalogRef.TaskPerformersGroups - — several groups,
+//                     - Undefined - without filter.
 //
 Procedure UpdatePerformersGroupsUsers(PerformersGroups = Undefined) Export
 	
@@ -59,11 +64,11 @@ Procedure UpdatePerformersGroupsUsers(PerformersGroups = Undefined) Export
 	
 EndProcedure
 
-// Checks whether an access type with the specified name exists.
-// It is used for automating conditional embedding of subsystems.
+// Checks whether an access kind of the specified name exists.
+// It is used for automation of conditional subsystem embedding.
 // 
 // Parameters:
-//   AccessKindName - String -  name of the access type.
+//   AccessKindName - String - Access kind name.
 // 
 // Returns:
 //  Structure:
@@ -74,7 +79,7 @@ Function AccessKindExists(AccessKindName) Export
 	
 EndFunction
 
-// Returns the view of the user interface for configuring access.
+// Returns the user interface type for access setup.
 //
 // Returns:
 //  Boolean
@@ -89,28 +94,28 @@ Function SimplifiedAccessRightsSetupInterface() Export
 EndFunction
 
 // Returns an array of allowed values of the specified types within all access groups.
-// Used in the configure dynamic list Selection procedure to speed up the opening of dynamic lists.
+// Used in the SetDynamicListFilters procedure to speed up the opening of dynamic lists.
 // 
 // Parameters:
-//  Table      - String -  the full name of the metadata object, for example, " Document.Expense account".
-//  ValuesType  - Type    -  type of access values to return the allowed values for.
-//               - Array - 
+//  Table      - String - a full name of the metadata object, for example, Document.PurchaseInvoice.
+//  ValuesType  - Type    - a type of access values whose allowed values are to be returned.
+//               - Array - array of the types specified above.
 //
-//  Values     - Undefined -  ignore.
-//               - Array - 
+//  Values     - Undefined - do not consider.
+//               - Array - an array of type values specified in the ValuesType parameter.
 //
-//  User - Undefined -  returns the allowed values for the authorized user.
+//  User - Undefined - return allowed values for the authorized user.
 //               - CatalogRef.Users
-//               - CatalogRef.ExternalUsers - 
-//                   
+//               - CatalogRef.ExternalUsers - return
+//                   allowed values for the specified user.
 //
-//  ReturnAll   - Boolean -  if set to True, then all values will be returned even
-//                   when there are more than 100 of them.
+//  ReturnAll   - Boolean - if set to True, all values will be returned, even
+//                   if there are more than 100 values.
 //
 // Returns:
-//  Undefined - 
-//                 
-//  
+//  Undefined - either all values are allowed for the types specified in the ValuesType parameter,
+//                 or (when ReturnAll = False) the number of the allowed values exceeds 100.
+//  Array - references of allowed values of the specified types.
 //
 Function AllowedDynamicListValues(Table, ValuesType, Values = Undefined, User = Undefined, ReturnAll = False) Export
 	
@@ -333,9 +338,12 @@ Function AllowedDynamicListValues(Table, ValuesType, Values = Undefined, User = 
 EndFunction
 
 // Adds system administrators to the access group
-// associated with the predefined openingexternal accounts and Processing profile.
+// connected with the predefined OpenExternalReportsAndDataProcessors profile.
 //
 Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"AccessManagementInternal.SetExternalReportsAndDataProcessorsOpenRight");
 	
 	ProfileProperties = OpenExternalReportsAndDataProcessorsProfileDetails();
 	ProfileProperties.Insert("Ref", Catalogs.AccessGroupProfiles.SuppliedProfileByID(
@@ -344,14 +352,14 @@ Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 	RoleID = Common.MetadataObjectID(
 		Metadata.Roles.InteractiveOpenExtReportsAndDataProcessors);
 	
-	// 
+	// It is not required to create an access group in the simplified interface (only profile).
 	SimplifiedInterface = SimplifiedAccessRightsSetupInterface();
 	If Not SimplifiedInterface Then
 		ProfileGroup = OpenExternalReportsAndDataProcessorsAccessGroup(ProfileProperties);
 	EndIf;
 	
 	If OpenAllowed Then
-		// 
+		// Adding administrators to access groups with this profile.
 		AdministratorRole = Metadata.Roles.SystemAdministrator;
 		IBUsers = InfoBaseUsers.GetUsers();
 		UsersContent = New Array;
@@ -364,10 +372,10 @@ Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 					Continue;
 				EndIf;
 				If SimplifiedInterface Then
-					// 
+					// In the simplified interface, each administrator is added to a separate group.
 					AccessManagement.EnableProfileForUser(User, ProfileProperties.Ref);
 				Else
-					// 
+					// In the extended interface, administrators are added to one group connected to the predefined profile.
 					UsersContent.Add(User);
 				EndIf;
 			EndIf;
@@ -395,7 +403,7 @@ Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 			EndTry;
 		EndIf;
 	Else
-		// 
+		// Deleting a role from all profiles, except for the predefined one.
 		Query = New Query;
 		Query.Text =
 		"SELECT DISTINCT
@@ -428,7 +436,7 @@ Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 			EndTry;
 		EndDo;
 		
-		// 
+		// Clearing access group members connected to the predefined profile.
 		Query = New Query;
 		Query.Text =
 		"SELECT DISTINCT
@@ -482,31 +490,31 @@ Function ScriptVariantRussian() Export
 	
 EndFunction
 
-// Updates the list of database user roles
-// by their current access group membership.
-//  Users with the "full Rights" role are ignored.
+// Updates a role list of infobase users by their current
+// access groups.
+//  Users with the FullAccess role are skipped.
 //
 // Parameters:
 //  UsersDetails - CatalogRef.Users
 //                        - CatalogRef.ExternalUsers
-//                        - Array - 
-//                        - Undefined - 
-//                        - Type - :
-//                          
-//                          
-//                          
+//                        - Array - values of the type specified above.
+//                        - Undefined - update all user roles.
+//                        - Type - Used for metadata object search.:
+//                          If "Catalog.ExternalUsers" is found,
+//                          all external user roles will be updated.
+//                          Otherwise, all user roles will be updated.
 //
-//  ServiceUserPassword - String -  password for authorization in the service Manager.
+//  ServiceUserPassword - String - Password to sign in the Service Manager.
 //
-//  HasChanges - Boolean -  the return value. This parameter returns
-//                  the value True if a record was made, otherwise it does not change.
+//  HasChanges - Boolean - a return value). True is returned
+//                  to this parameter if changes are saved. Otherwise, not modified.
 //
 Procedure UpdateUserRoles(Val UsersDetails = Undefined,
                                     Val ServiceUserPassword = Undefined,
                                     HasChanges = False) Export
 	
 	If Not UsersInternal.CannotEditRoles() Then
-		// 
+		// Roles are set by tools of Users and ExternalUsers subsystems.
 		Return;
 	EndIf;
 	
@@ -537,7 +545,7 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
 	
 	CurrentUsersProperties = CurrentUsersProperties(UsersArray);
 	
-	// 
+	// Checking parameters in the loop.
 	AllRoles                             = UsersInternal.AllRoles().Map;
 	IBUsersIDs       = CurrentUsersProperties.IBUsersIDs;
 	NewUsersRoles              = CurrentUsersProperties.UsersRoles;
@@ -550,7 +558,7 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
 	InformationSecurityNeedsToBeUpdated              = InfobaseUpdate.InfobaseUpdateRequired();
 	CurrentIBUserID = InfoBaseUsers.CurrentUser().UUID;
 	
-	// 
+	// Expected result after the loop ends.
 	NewIBAdministrators     = New Map;
 	IBUsersToUpdate = New Map;
 	InvalidRoles          = NewInvalidRoles(NewUsersRoles);
@@ -561,7 +569,7 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
 		IBUserID = UserDetails.IBUserID;
 		NewIBAdministrator        = False;
 		
-		// 
+		// Search for an infobase user.
 		If TypeOf(IBUserID) = Type("UUID") Then
 			IBUser = InfoBaseUsers.FindByUUID(
 				IBUserID);
@@ -608,7 +616,7 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
 		UnavailableRoles = UsersInternal.UnavailableRolesByUserType(
 			TypeOf(CurrentUser) = Type("CatalogRef.ExternalUsers"));
 		
-		// 
+		// Check old roles.
 		RolesForAdding = New Map;
 		RolesForDeletion   = New Map;
 		
@@ -632,7 +640,7 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
 			EndIf;
 		EndDo;
 		
-		// 
+		// Check new roles.
 		For Each String In NewRoles Do
 			String.Role = RolesNames.Get(String.RoleRef);
 			
@@ -653,7 +661,7 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
 			EndIf;
 		EndDo;
 		
-		// 
+		// Completing the current user processing.
 		If RolesForAdding.Count() = 0
 		   And RolesForDeletion.Count()   = 0 Then
 			Continue;
@@ -676,12 +684,12 @@ Procedure UpdateUserRoles(Val UsersDetails = Undefined,
 	
 	RegisterInvalidRoles(InvalidRoles);
 	
-	// 
+	// Add administrators.
 	If NewIBAdministrators.Count() > 0 Then
 		UpdateIBUsersRoles(NewIBAdministrators, ServiceUserPassword);
 	EndIf;
 	
-	// 
+	// Deleting old administrators and updating other users.
 	If IBUsersToUpdate.Count() > 0 Then
 		UpdateIBUsersRoles(IBUsersToUpdate, ServiceUserPassword);
 	EndIf;
@@ -829,10 +837,10 @@ Function ConstantLimitAccessAtRecordLevelUniversally() Export
 	
 EndFunction
 
-// Sets the use of the scheduled update Access task.
+// Sets the use of the AccessUpdate scheduled job.
 //
 // Parameters:
-//   Use - Boolean -  True if the task needs to be enabled, otherwise False.
+//   Use - Boolean - If True, the job must be enabled. Otherwise, False.
 //   WithoutCheckingIBUpdateExecution - Boolean
 //
 Procedure SetAccessUpdate(Use, WithoutCheckingIBUpdateExecution = False) Export
@@ -841,7 +849,7 @@ Procedure SetAccessUpdate(Use, WithoutCheckingIBUpdateExecution = False) Export
 	   And Not WithoutCheckingIBUpdateExecution
 	   And InfobaseUpdate.InfobaseUpdateInProgress() Then
 		
-		Return; // 
+		Return; // After infobase update, the job is activated unconditionally.
 	EndIf;
 	
 	If Use Then
@@ -851,7 +859,13 @@ Procedure SetAccessUpdate(Use, WithoutCheckingIBUpdateExecution = False) Export
 		EndIf;
 	EndIf;
 	
-	EnableJob = ?(LimitAccessAtRecordLevelUniversally(), Use, False);
+	If Use Then
+		EnableJob = ?(Common.FileInfobase(),
+			LimitAccessAtRecordLevelUniversally(False, False, False),
+			LimitAccessAtRecordLevelUniversally());
+	Else
+		EnableJob = False;
+	EndIf;
 	
 	Filter = New Structure("Metadata", Metadata.ScheduledJobs.AccessUpdateOnRecordsLevel);
 	Jobs = ScheduledJobsServer.FindJobs(Filter);
@@ -890,14 +904,14 @@ Procedure SetAccessUpdate(Use, WithoutCheckingIBUpdateExecution = False) Export
 	
 EndProcedure
 
-// Returns errors for object access restrictions without taking into account dependencies between objects.
-// Texts are checked in the maximum restrictions mode (as if all types of restrictions are enabled).
-// the Function must be called before the Customizationview function to collect the entire error package.
+// Returns text errors of object access restrictions without dependencies between objects.
+// Texts are checked in the mode of maximum restrictions (as if all restriction kinds are enabled).
+// The function must be called before the ImplementationSettings function to collect the entire error package.
 //
 // Returns:
 //  Array of Structure:
-//    * FullName   - String -  full name of the metadata object.
-//    * ErrorText - String -  text of the access restriction error.
+//    * FullName   - String - Full name of a metadata object.
+//    * ErrorText - String - an error text in access restriction.
 //
 Function AccessRestrictionErrors() Export
 	
@@ -944,64 +958,64 @@ Function AccessRestrictionErrors() Export
 	
 EndFunction
 
-// Returns the settings for the introduction of developer tools.
+// Returns integration settings for developer tools.
 //
 // Parameters:
-//  ActiveParameters - Undefined -  default.
-//                       - Structure - 
+//  ActiveParameters - Undefined - a default value.
+//                       - Structure - only to call from the CheckAccessRestrictionResult function.
 //
 // Returns:
 //  Structure:
 //    * RestrictionsInRoles - Structure:
 //       ** ForUsers        - Map of KeyAndValue:
-//            *** Key     - String -  full name of the metadata object (list). Name of the collection in English.
-//                                    In the form of an object, there should be an account in the Server.
+//            *** Key     - String - a full name of the metadata object (list). Collection name in English.
+//                                    Object form must have the OnReadAtServer inserted.
 //            *** Value - Structure:
-//                  **** TemplateForObject - Boolean -  if True, then the pattern #is used for the Object,
-//                                                   if False, then the pattern #is used for the Register.
-//                  **** Parameters - Array of String -  template parameters (for object 1, for case 6).
-//                                   For example, the name of the "Owner" field or the "Company" register reference field.
-//       ** ForExternalUsers - Map of KeyAndValue - :
-//            *** Key     - String -  full name of the metadata object (list). Name of the collection in English.
-//                                    In the form of an object, there should be an account in the Server.
+//                  **** TemplateForObject - Boolean - if True, the #ForObject template is used,
+//                                                   if False, the #ForRegister template is used.
+//                  **** Parameters - Array of String - array parameters (1 for the object, 6 for the register).
+//                                   For example, the Owner field name, or a name of basic field of the Company register.
+//       ** ForExternalUsers - Map of KeyAndValue - as for the users above:
+//            *** Key     - String - a full name of the metadata object (list). Collection name in English.
+//                                    Object form must have the OnReadAtServer inserted.
 //            *** Value - Structure:
-//                  **** TemplateForObject - Boolean -  if True, then the pattern #is used for the Object,
-//                                                   if False, then the pattern #is used for the Register.
-//                  **** Parameters - Array of String -  template parameters (for object 1, for case 6).
-//                                   For example, the name of the "Owner" field or the "Company" register reference field.
+//                  **** TemplateForObject - Boolean - if True, the #ForObject template is used,
+//                                                   if False, the #ForRegister template is used.
+//                  **** Parameters - Array of String - array parameters (1 for the object, 6 for the register).
+//                                   For example, the Owner field name, or a name of basic field of the Company register.
 //
 //    * PredefinedIDs - Map of KeyAndValue:
-//        ** Key     - String -  name of the required predefined directory element
-//                               Object IDs of metadata or extension
-//                               object IDs in the format " <reference Name>.<Indeterminate name>".
-//        ** Value - String -  full name of the corresponding metadata object.
+//        ** Key     - String - the name of the required predefined catalog item
+//                               MetadataObjectIDs or ExtensionObjectIDs
+//                               in the "<CatalogName>.<PredefinedItemName>" format.
+//        ** Value - String - a full name of the relevant metadata object.
 //
-//    * AccessKeysValuesOwners - Structure - :
-//        ** References    - Array of String -  full names of link types (collection name in English).
-//        ** Documents - Array of String -  full names of object types (collection name in English).
-//        ** Objects                      - Array of String -  the same as in the previous paragraph.
-//        ** RecordSets                - Array of String -  the same as in the previous paragraph.
-//        ** CalculationRegisterRecordSets - Array of String -  the same as in the previous paragraph.
+//    * AccessKeysValuesOwners - Structure - For the group of type collections:
+//        ** References    - Array of String - full names of the reference types (collection name in English).
+//        ** Documents - Array of String - full names of the object types (collection name in English).
+//        ** Objects                      - Array of String - the same as in the previous paragraph.
+//        ** RecordSets                - Array of String - the same as in the previous paragraph.
+//        ** CalculationRegisterRecordSets - Array of String - the same as in the previous paragraph.
 //
-//    * AccessValues - Array of String -  full names of link types (collection name in English).
-//                                           To Supplement the defined access Value type.
+//    * AccessValues - Array of String - full names of the reference types (collection name in English).
+//                                           To supplement the defined AccessValue type.
 //
 //    * KeysRegistersDimensionsTypes - Map of KeyAndValue:
-//       For measurements with the name of the Field<?> register key access to registers and register key access to registers<*>:
-//           ** Key     - String -  register name.
+//       For the dimensions with the Field name<?> of the AccessKeysForRegisters register and the AccessKeysToRegister<*> registers:
+//           ** Key     - String - a register name.
 //           ** Value - Structure:
-//               *** TypesNames - Array of String -  full type names (in English).
+//               *** TypesNames - Array of String - full type names (in English).
 //               *** RegistersFields - Map of KeyAndValue:
-//                     **** Key - String -  full name of the case that is restricted.
+//                     **** Key - String - a full name of the register being restricted.
 //                     **** Value - Array of Structure:
-//                            ***** Field - String -  name of the register field.
-//                            ***** Type  - TypeDescription -  types of the register field.
-//                            The order of fields in the array corresponds
-//                            to the service fields Field1, Field2, ...
+//                            ***** Field - String - a register field name.
+//                            ***** Type  - TypeDescription - register field types.
+//                            Field order in the array matches
+//                            internal fields Field1, Field2, …
 //               *** RegistersFieldsByTypes - Map of KeyAndValue:
-//                     **** Key - String -  full name of the type (in English).
-//                     **** Value - Array of String -  full field names, such
-//                                     as " lead Register.Additional information.Property".
+//                     **** Key - String - a full name of a type (in English).
+//                     **** Value - Array of String - a full field name, for example,
+//                                     "InformationRegister.AdditionalInfo.Property".
 //
 Function ImplementationSettings(ActiveParameters = Undefined) Export
 	
@@ -1091,71 +1105,71 @@ Function ImplementationSettings(ActiveParameters = Undefined) Export
 	
 EndFunction
 
-// Returns the result of checking the access restriction for the developer tool.
+// Returns access restriction check result for the developer tool.
 //
 // Parameters:
-//  FullName - String -  full name of the metadata object.
-//  AdditionalParameters - Undefined -  check and return the current limit.
+//  FullName - String - Full name of a metadata object.
+//  AdditionalParameters - Undefined - check and return the current restriction.
 //                          - Structure:
-//        * Text - String -  new restriction text for users.
-//        * TextForExternalUsers1 - String -  new restriction text for external users.
-//        * ConsiderDependencies         - Boolean -  to take into account the dependencies between the constraints of the objects.
-//        * AllAccessKindsUsed   - Undefined -  calculate using the current settings.
-//                                       - Boolean - 
-//                                                  
+//        * Text - String - a new restriction text for users.
+//        * TextForExternalUsers1 - String - a new restriction text for external users.
+//        * ConsiderDependencies         - Boolean - consider dependencies between object restrictions.
+//        * AllAccessKindsUsed   - Undefined - find by the current settings.
+//                                       - Boolean - True (by default) - all kinds are used,
+//                                                  False - none are used.
 //
 // Returns:
 //  Structure:
-//   * RestrictionDetailsError - String -  if not empty, the description of the restriction could not be obtained.
-//       If dependencies = True are taken into Account, this is the text of the first error when getting all descriptions.
+//   * RestrictionDetailsError - String - if not blank, then the restriction description cannot be received.
+//       If ConsiderDependencies = True, this is a text of the first error when all details are received.
 //
-//   * TextInManagerModule - Undefined -  when the constraint description Error is filled in.
-//                           - Boolean - 
-//                               
+//   * TextInManagerModule - Undefined - when RestrictionDetailsError is filled in.
+//                           - Boolean - returns a restriction text location,
+//                               when True - in the manager module, otherwise, in the overridable module.
 //
 //   * ForUsers - Structure:
 //      ** RestrictionToCheck - Undefined
-//                                - String - 
+//                                - String - Checked restriction text.
 //      ** ErrorsDescription         - See ErrorsDescription
 //      ** RestrictionParametersGenerationError - Undefined
-//                                                 - String -  error text.
+//                                                 - String - Error text.
 //      ** QueriesTextsGenerationError       - Undefined
-//                                                 - String -  error text.
+//                                                 - String - Error text.
 //      ** RestrictionByOwnerPossible     - Undefined
-//                                            - Boolean - 
+//                                            - Boolean - Property of the checked restriction.
 //      ** TheOwnerRestrictionIsUsed - Undefined
-//                                            - Boolean - 
+//                                            - Boolean - If "ConsiderDependencies" is set to "True".
 //      ** RestrictionsInRoles - Undefined
 //                           - Structure:
-//          *** TemplateForObject - Boolean -  if True, then the pattern #is used for the Object,
-//                                          if False, then the pattern #is used for the Register.
-//          *** Parameters - Array - :
-//               **** Value - String -  for example, the name of the "Owner" field or
-//                                        the "Company" register reference field.
+//          *** TemplateForObject - Boolean - if True, the #ForObject template is used,
+//                                          if False, the #ForRegister template is used.
+//          *** Parameters - Array - Template parameters (1 for objects, 6 for registers):
+//               **** Value - String - for example, the Owner field name, or
+//                                        a name of basic field of the Company register.
 //      ** RestrictionInModule - Undefined
-//                            - String - 
+//                            - String - Restriction text.
 //      ** ByOwnerWithoutSavingAccessKeys - Undefined
-//                                           - Boolean - 
+//                                           - Boolean - Restriction setting.
 //                                               
 //
-//   * ForExternalUsers - Structure -  with properties like for Users.
+//   * ForExternalUsers - Structure - with properties like ForUsers.
 //
-//   * AccessKeysValuesOwner                            - String -  types for the same defined type.
-//   * AccessKeysValuesOwnerObject                      - String -  types for the same defined type.
-//   * AccessKeysValuesOwnerRecordSet                - String -  types for the same defined type.
-//   * AccessKeysValuesOwnerCalculationRegisterRecordSet - String -  types for the same defined type.
-//   * RegisterAccessKeysRegisterField                      - String -  types for the same defined type.
-//   * AccessValue                                          - String -  types for the same defined type.
+//   * AccessKeysValuesOwner                            - String - Types for the same type collection.
+//   * AccessKeysValuesOwnerObject                      - String - Types for the same type collection.
+//   * AccessKeysValuesOwnerRecordSet                - String - Types for the same type collection.
+//   * AccessKeysValuesOwnerCalculationRegisterRecordSet - String - Types for the same type collection.
+//   * RegisterAccessKeysRegisterField                      - String - Types for the same type collection.
+//   * AccessValue                                          - String - Types for the same type collection.
 //
 //   * DimensionTypesForSeparateKeyRegister - Undefined
 //                                           - Structure:
-//      ** InformationRegisterName - String -  name of the access key register.
-//      ** DimensionsTypes       - String -  types for the corresponding register dimensions.
+//      ** InformationRegisterName - String - an access key register name.
+//      ** DimensionsTypes       - String - types for the corresponding register dimensions.
 //
 //   * PredefinedID - Undefined
 //                                   - Structure:
-//      ** CatalogName       - String -  the name of the directory identifiers of the metadata objects (or extensions).
-//      ** PredefinedItemName - String -  name of the predefined one in the directory.
+//      ** CatalogName       - String - metadata object (or extension) IDs catalog name.
+//      ** PredefinedItemName - String - a predefined item name in the catalog.
 //
 Function AccessRestrictionCheckResult(FullName, AdditionalParameters = Undefined) Export
 	
@@ -1163,14 +1177,14 @@ Function AccessRestrictionCheckResult(FullName, AdditionalParameters = Undefined
 	
 EndFunction
 
-// Adds an access update for the specified lists or all lists.
+// Adds access update for the specified lists or all lists.
 // 
 // Parameters:
-//  Lists - Undefined -  schedule a full access update.
-//         - String -  full name of the metadata object.
-//         - CatalogRef.MetadataObjectIDs -  ID.
+//  Lists - Undefined - schedule full access update.
+//         - String - Full name of a metadata object.
+//         - CatalogRef.MetadataObjectIDs - an ID.
 //         - Array
-//         - FixedArray - 
+//         - FixedArray - values of the types specified above, except for Undefined.
 //
 //  PlanningParameters - See AccessUpdatePlanningParameters
 //
@@ -1254,13 +1268,13 @@ Procedure ScheduleAccessUpdate(Lists = Undefined, PlanningParameters = Undefined
 			ListsToUpdate.Add(KeyAndValue.Key);
 		EndDo;
 		
-		// 
-		// 
-		// 
-		// 
-		// 
-		// 
-		//    
+		// When planning a full update, the following is added:
+		// - Lists with restrictions
+		// - Lists that write access keys for restrictions on owner field
+		// - Lists without restrictions that have records in data access key registers
+		// - Lists whose allowed access keys are calculated
+		// Lists with no allowed access keys that have records in
+		//    allowed access key registers
 		
 	ElsIf TypeOf(Lists) <> Type("Array")
 	        And TypeOf(Lists) <> Type("FixedArray") Then
@@ -1425,17 +1439,17 @@ Procedure ScheduleAccessUpdate(Lists = Undefined, PlanningParameters = Undefined
 	
 EndProcedure
 
-// Constructor for the structure of additional parameters for the scheduled access Update procedure.
+// The constructor of additional parameter structure for the ScheduleAccessUpdate procedure.
 //
 // Returns:
 //  Structure:
-//    * DataAccessKeys     - Boolean -  by default, the Truth is plan to update the access keys
-//                                  data.
-//    * AllowedAccessKeys - Boolean -  by default, True-schedule update of access keys
-//                                  for users and access groups.
-//    * ForUsers        - Boolean -  by default, the Truth is to schedule the update for users.
-//    * ForExternalUsers - Boolean -  by default, the value of the constant use external Users to
-//                                         schedule updates for external users.
+//    * DataAccessKeys     - Boolean - True by default - schedule update of
+//                                  data access keys.
+//    * AllowedAccessKeys - Boolean - True by default - schedule update of access keys for
+//                                  users and access groups.
+//    * ForUsers        - Boolean - True by default - schedule an update for users.
+//    * ForExternalUsers - Boolean - the default value of the UseExternalUsers
+//                                         constant is schedule an update for external users.
 //
 Function AccessUpdatePlanningParameters(CalculateForExternalUsers = True) Export
 	
@@ -1458,11 +1472,11 @@ Function AccessUpdatePlanningParameters(CalculateForExternalUsers = True) Export
 EndFunction
 
 // Parameters:
-//  LongDesc - String   -  the name of the procedure that triggered the scheduling
-//                        used for extended logging.
-//  StartUpdate - Boolean -  if True, then the scheduling will
-//                        be non-guaranteed, since if there is a transaction
-//                        , it is performed in the background "as is" to be able to run the update.
+//  LongDesc - String   - the name of the procedure which called the planning
+//                        used for the extended registration in the log.
+//  StartUpdate - Boolean - if True, planning
+//                        will not be guaranteed as if there is a transaction,
+//                        "as is" runs in the background for the update to start.
 //
 Procedure ScheduleAccessRestrictionParametersUpdate(LongDesc, StartUpdate = False) Export
 	
@@ -1486,7 +1500,7 @@ Procedure ScheduleAccessRestrictionParametersUpdate(LongDesc, StartUpdate = Fals
 	
 EndProcedure
 
-// Only for the Schedule update procedure of the access restriction parameters.
+// Only for the ScheduleAccessRestrictionParametersUpdate procedure.
 Procedure RecordPlanningForUpdatingAccessRestrictionSettings(LongDesc, StartUpdate) Export
 	
 	If Not LimitAccessAtRecordLevelUniversally() Then
@@ -1507,7 +1521,7 @@ Procedure RecordPlanningForUpdatingAccessRestrictionSettings(LongDesc, StartUpda
 	
 EndProcedure
 
-// Starts an access update if it is scheduled and not yet started.
+// Starts access update if it is scheduled and not started yet.
 Procedure StartAccessUpdate() Export
 	
 	If Not LimitAccessAtRecordLevelUniversally(False) Then
@@ -1538,8 +1552,8 @@ Procedure UpdateAccessAfterInfobaseUpdate(ExecuteDeferredUpdateNow) Export
 	
 EndProcedure
 
-// For the Extension rights function and
-// the Fill in function, the Extension work parameters of the register manager module are set to the Extension Work parameters.
+// For the ExtensionsRolesRights function and the FillAllExtensionParameters function
+// of the ExtensionVersionParameters information register manager module.
 //
 Procedure SetARecordOfAccessRestrictionParametersInTheCurrentSession(Enable) Export
 	
@@ -1582,7 +1596,7 @@ EndProcedure
 #EndRegion
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See BatchEditObjectsOverridable.OnDefineObjectsWithEditableAttributes.
 Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
@@ -1623,7 +1637,7 @@ Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
 	Handlers.Insert("TableOfExtensionsWithAccessRestriction",
 		"AccessManagementInternal.SessionParametersSetting");
 	
-	#Region UniversalRestriction
+#Region UniversalRestriction
 	
 	Handlers.Insert("RecordLevelAccessRestrictionIsUniversal",
 		"AccessManagementInternal.SessionParametersSetting");
@@ -1664,7 +1678,7 @@ Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
 	Handlers.Insert("AccessRestrictionParameters",
 		"AccessManagementInternal.SessionParametersSetting");
 	
-	#EndRegion
+#EndRegion
 	
 EndProcedure
 
@@ -1681,41 +1695,41 @@ Procedure OnDefineScheduledJobSettings(Settings) Export
 	
 EndProcedure
 
-// Updates auxiliary data that depends only on the configuration.
-// Records changes to this data by configuration version(if there are changes),
-// so that you can use these changes when updating other auxiliary data,
-// for example, in the update Helpdefinitionconfiguration handler.
+// Updates auxiliary data that depends only on configuration.
+// Writes changes of this data (if any) by configuration versions
+// to use these changes upon updating other auxiliary data,
+// for example, in the UpdateAuxiliaryDataByConfigurationChanges handler.
 //
 Procedure UpdateAccessRestrictionParameters(HasChanges = Undefined) Export
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RolesRights.
 	InformationRegisters.RolesRights.UpdateRegisterData(HasChanges);
 	
 	// AccessRightsDependencies
 	InformationRegisters.AccessRightsDependencies.UpdateRegisterData(HasChanges);
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessKindsProperties.
 	UpdateAccessKindsPropertiesDetails(HasChanges);
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable.
 	InformationRegisters.ObjectsRightsSettings.UpdateAvailableRightsForObjectsRightsSettings(HasChanges);
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.SuppliedProfilesDescription.
 	Catalogs.AccessGroupProfiles.UpdateSuppliedProfilesDescription(HasChanges);
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessGroupPredefinedProfiles.
 	Catalogs.AccessGroupProfiles.UpdatePredefinedProfileComposition(HasChanges);
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion.
 	InformationRegisters.AccessRestrictionParameters.UpdateAccessRestrictionTextsVersion(HasChanges);
 	
 EndProcedure
 
-// Updates the description of access type properties in the program parameters.
+// Updates description of access kind properties in the application parameters.
 // 
 // Parameters:
-//  HasChanges - Boolean -  the return value. If a record was made,
-//                  the Truth is set, otherwise it does not change.
+//  HasChanges - Boolean - a return value. If recorded,
+//                  True is set, otherwise, it does not change.
 //
 Procedure UpdateAccessKindsPropertiesDetails(HasChanges = False) Export
 	
@@ -1760,7 +1774,7 @@ EndProcedure
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
 	
-	// 
+	// Shared data update handlers.
 	Handler = Handlers.Add();
 	Handler.SharedData = True;
 	Handler.HandlerManagement = True;
@@ -1769,13 +1783,13 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	Handler.ExecutionMode = "Seamless";
 	Handler.Procedure = "AccessManagementInternal.FillSeparatedDataHandlers";
 	
-	// 
+	// Separated data update handlers.
 	Handler = Handlers.Add();
 	Handler.Version = "*";
 	Handler.ExecutionMode = "Seamless";
 	Handler.Procedure = "AccessManagementInternal.UpdateAuxiliaryRegisterDataByConfigurationChanges";
 	
-	// 
+	// Executed after the FillSuppliedDataIDs handler.
 	Handler = Handlers.Add();
 	Handler.Version = "1.0.0.1";
 	Handler.InitialFilling = True;
@@ -1832,7 +1846,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.When defining settings
+// See also InfobaseUpdateOverridable.OnDefineSettings
 //
 // Parameters:
 //  Objects - Array of MetadataObject
@@ -1862,7 +1876,7 @@ EndProcedure
 // See InfobaseUpdateOverridable.OnPopulateObjectsPlannedForDeletion.
 Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	
-	// 
+	// InformationRegister.AccessRightsDependencies.LeadingTableType
 	AccessRightsDependencies = InformationRegisters.AccessRightsDependencies.AccessRightsDependencies();
 	LeadingTablesTypes = New Array;
 	For Each String In AccessRightsDependencies Do
@@ -1885,7 +1899,7 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	ServiceTypes.Add(Type("CatalogRef.ExtensionObjectIDs"));
 	ServiceTypes.Add(Type("EnumRef.AdditionalAccessValues"));
 	
-	// 
+	// DefinedType.AccessValue
 	TypesOfGroupsAndValues = New Array;
 	For Each KeyAndValue In AccessKindsProperties.ByGroupsAndValuesTypes Do
 		TypesOfGroupsAndValues.Add(KeyAndValue.Key);
@@ -1913,7 +1927,7 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.UsedAccessKindsByTables.Dimensions.AccessValuesType);
 	
-	// 
+	// DefinedType.RightsSettingsOwner
 	AvailableRights = RightsForObjectsRightsSettingsAvailable();
 	RightsSettingsOwnersTypes = New Array;
 	For Each RightsOwner In AvailableRights.OwnersTypes Do
@@ -1930,12 +1944,12 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	AddObjectPlannedForDeletion(Objects, RequiredTypeOfRightsSettingsOwner,
 		Metadata.InformationRegisters.ObjectRightsSettingsInheritance.Dimensions.Parent);
 	
-	// 
+	// DefinedType.AccessKeysValuesOwner
 	AddObjectPlannedForDeletion(Objects,
 		New TypeDescription(StrConcat(ImplementationSettings.AccessKeysValuesOwners.References, ",")),
 		Metadata.InformationRegisters.AccessKeysForObjects.Dimensions.Object);
 	
-	// 
+	// DefinedType.RegisterAccessKeysRegisterField
 	For Each KeysRegistersDetails In ImplementationSettings.KeysRegistersDimensionsTypes Do
 		KeysRegisterName = KeysRegistersDetails.Key;
 		KeysRegisterMetadata = Metadata.InformationRegisters[KeysRegisterName];
@@ -1949,7 +1963,7 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 		EndDo;
 	EndDo;
 	
-	// 
+	// InformationRegister.AccessValuesSets.Object
 	SubscriptionObjectsTypes = AccessManagementInternalCached.ObjectsTypesInSubscriptionsToEvents(
 		"WriteAccessValuesSets");
 	SubscriptionsObjectsRefsTypes = New Array;
@@ -1965,7 +1979,7 @@ Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
 	AddObjectPlannedForDeletion(Objects, RequiredTypeOfTablesWithWritingAccessValueSets,
 		Metadata.InformationRegisters.AccessValuesSets.Dimensions.Object);
 	
-	// 
+	// InformationRegister.AccessValuesSets.AccessValue
 	AddObjectPlannedForDeletion(Objects, RequiredAccessValueType,
 		Metadata.InformationRegisters.AccessValuesSets.Dimensions.AccessValue);
 	
@@ -1980,11 +1994,11 @@ Procedure WhenChangingTheLanguageOfTheInformationBase(ChangingLanguages) Export
 	
 EndProcedure
 
-// Fills in the structure of parameters required for the client
-// configuration code to work.
+// Fills parameter structures required by the
+// application client code.
 //
 // Parameters:
-//   Parameters   - Structure -  structure of parameters.
+//   Parameters   - Structure - a parameter structure.
 //
 Procedure OnAddClientParameters(Parameters) Export
 	
@@ -2038,23 +2052,23 @@ Procedure OnAddRefsSearchExceptionsThatAllowDeletion(RefSearchExclusions) Export
 	
 EndProcedure
 
-// Called when the download link predefined elements in the process of downloading important data.
-// Allows you to perform actions to correct or register information about non-uniqueness
-// of predefined elements, and also allows you to refuse to continue if this is not allowed.
+// This procedure is called when importing predefined item references while importing important data.
+// Allows correcting or registering information on non-unique
+// predefined items. Also allows you to cancel further actions if the uniqueness issue cannot be solved.
 //
 // Parameters:
 //   Object          - CatalogObject
 //                   - ChartOfCharacteristicTypesObject
 //                   - ChartOfAccountsObject
 //                   - ChartOfCalculationTypesObject -
-//                     
-//   WriteToLog - Boolean -  returned value. If you specify False, then information about non-uniqueness will not be
-//                     added to the log in the General message.
-//                     You need to set False if the uniqueness was not eliminated automatically.
-//   Cancel           - Boolean -  returned value. If set to True, a General exception
-//                     is thrown that contains all the reasons for the failure.
-//   CancelDetails  - String -  returned value. If the Refusal is set to True, the description will be added
-//                     to the list of reasons why it is impossible to continue.
+//                     The object of a predefined item after the writing of which the non-uniqueness was detected.
+//   WriteToLog - Boolean - a return value. Set to False not to
+//                     add the uniqueness conflict details to the event log in a common message.
+//                     Set to False if the uniqueness conflict was resolved automatically.
+//   Cancel           - Boolean - a return value. Set to True to raise an exception
+//                     with cancellation details.
+//   CancelDetails  - String -  a return value. If Cancel is set to True, the description is added
+//                     to the list of the reasons preventing from further actions.
 //
 Procedure OnFindNotUniquePredefinedItem(Object, WriteToLog, Cancel, CancelDetails) Export
 	
@@ -2160,10 +2174,10 @@ EndProcedure
 // See DataExchangeOverridable.OnSetUpSubordinateDIBNode.
 Procedure OnSetUpSubordinateDIBNode() Export
 	
-	// 
+	// Extension roles are assigned independently in all DIB nodes.
 	Catalogs.AccessGroupProfiles.DeleteExtensionsRolesInAllAccessGroupsProfiles();
 	
-	// 
+	// Administrators are assigned independently in all DIB nodes.
 	Catalogs.AccessGroups.DeleteMembersOfAdministratorsAccessGroupWithoutIBUser();
 	
 	Catalogs.AccessGroupProfiles.UpdateSuppliedProfilesByConfigurationChanges();
@@ -2278,56 +2292,56 @@ Procedure AfterGetData(Sender, Cancel, GetFromMasterNode) Export
 	
 EndProcedure
 
-// See the description in the procedure
-// to fill in the Extension Work Parameters of the Information Register Manager module Extension Work Parameters.
+// See description in the FillAllExtensionsParameters procedure
+// of the ExtensionVersionParameters information register manager module.
 //
 Procedure OnFillAllExtensionParameters() Export
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RolesRights.
 	UpdateAccessGroupsTablesForEnabledExtensions();
 	
 	If InformationRegisters.ApplicationRuntimeParameters.UpdateRequired1() Then
-		// 
-		// 
+		// Updated in the procedure "OnSetUpSubordinateDIBNode"
+		// or "UpdateAuxiliaryRegisterDataByConfigurationChanges".
 		// 
 		Return;
 	EndIf;
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessKindsProperties.
 	InformationRegisters.UsedAccessKinds.UpdateRegisterData();
 	UpdateGroupsAndSetsOfAccessValuesWhenGroupTypesAndValuesChange();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable.
 	InformationRegisters.ObjectsRightsSettings.UpdateAuxiliaryRegisterDataByConfigurationChanges1();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.SuppliedProfilesDescription.
 	Catalogs.AccessGroupProfiles.UpdateSuppliedProfilesByConfigurationChanges();
 	Catalogs.AccessGroupProfiles.UpdateNonSuppliedProfilesOnConfigurationChanges();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessGroupPredefinedProfiles.
 	Catalogs.AccessGroups.MarkForDeletionSelectedProfilesAccessGroups();
 	
-	// 
+	// If exceptions occurred and the update is not completed.
 	UpdateAuxiliaryDataOfItemsModifiedUponDataImport();
 	
-	// 
-	// 
+	// Update infobase user roles following such extension changes that misalign
+	// roles of infobase users and profiles while not changing the profile content.
 	// 
 	UpdateUserRoles();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion.
 	ScheduleAccessRestrictionParametersUpdate(
 		"OnFillAllExtensionParameters");
 	
 EndProcedure
 
 // Parameters:
-//   
+//   * Job - ScheduledJob
 //
-Procedure BeforeStartingRoutineTaskNotInBackground(Job) Export
+Procedure BeforeRunScheduledJobNotInBackground(Job) Export
 	
 	If Job.Metadata <> Metadata.ScheduledJobs.AccessUpdateOnRecordsLevel Then
 		Return;
@@ -2338,13 +2352,13 @@ Procedure BeforeStartingRoutineTaskNotInBackground(Job) Export
 	
 EndProcedure
 
-// 
+// Event handlers of the Users subsystem.
 
 // See UsersOverridable.OnDefineSettings.
 Procedure OnDefineSettings(Settings) Export
 	
-	// 
-	// 
+	// Roles are auto-assigned using the access group data as follows:
+	// AccessGroupUsers > Profile > ProfileRoles.
 	Settings.EditRoles = False;
 	
 EndProcedure
@@ -2486,12 +2500,12 @@ Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
 	
 EndProcedure
 
-// Defines the actions required after changing the external user's authorization object.
+// Redefines the actions that are required after changing an external user authorization object.
 // 
 // Parameters:
-//  AuthorizationObjects - Array of DefinedType.ExternalUser - 
+//  AuthorizationObjects - Array of DefinedType.ExternalUser - New and old (if any) authorization objects.
 //                         
-//                     - Undefined - 
+//                     - Undefined - All authorization objects.
 //
 Procedure AfterChangeExternalUserAuthorizationObject(AuthorizationObjects) Export
 	
@@ -2502,7 +2516,7 @@ Procedure AfterChangeExternalUserAuthorizationObject(AuthorizationObjects) Expor
 	
 EndProcedure
 
-// Copies rights from one user to another.
+// Copies rights of one user to another.
 Procedure OnCopyRightsToNewUser(Source, Receiver) Export
 	
 	If TransactionActive()
@@ -2510,12 +2524,12 @@ Procedure OnCopyRightsToNewUser(Source, Receiver) Export
 		
 		Block = New DataLock;
 		Block.Add("Catalog.AccessGroups");
-		// 
-		// 
-		// 
+		// ACC:1320-off - No.499, No.783.1.3. It is acceptable to set a lock in transactions external to the infobase.
+		// Intended to prevent deadlocks: the query below sets an implicit lock, which is upgraded to
+		// an exclusive lock, leading to a deadlock in some cases.
 		// 
 		Block.Lock();
-		// 
+		// ACC:1320-on.
 	EndIf;
 	
 	SimplifiedInterface = SimplifiedAccessRightsSetupInterface();
@@ -2582,7 +2596,7 @@ Procedure OnCopyRightsToNewUser(Source, Receiver) Export
 	
 EndProcedure
 
-// 
+// Event handlers of the ReportsOptions subsystem.
 
 // See ReportsOptionsOverridable.CustomizeReportsOptions.
 Procedure OnSetUpReportsOptions(Settings) Export
@@ -2604,7 +2618,7 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	
 EndProcedure
 
-// 
+// Event handlers of the "ReportsDistribution" subsystem.
 
 // See ReportMailingOverridable.DetermineReportsToExclude
 Procedure WhenDefiningExcludedReports(ReportsToExclude) Export
@@ -2613,14 +2627,14 @@ Procedure WhenDefiningExcludedReports(ReportsToExclude) Export
 	
 EndProcedure
 
-// 
+// AccountingAudit subsystem event handlers.
 
 // See SSLSubsystemsIntegration.OnDefineObjectsToExcludeFromCheck
 Procedure OnDefineObjectsToExcludeFromCheck(Objects) Export
 	OnAddRefsSearchExceptionsThatAllowDeletion(Objects);
 EndProcedure
 
-// 
+// AccessManagement subsystem event handlers.
 
 // See AccessManagementOverridable.OnFillListsWithAccessRestriction.
 Procedure OnFillListsWithAccessRestriction(Lists) Export
@@ -2630,7 +2644,7 @@ Procedure OnFillListsWithAccessRestriction(Lists) Export
 	
 EndProcedure
 
-// 
+// Events handlers of the SaaSTechnology library.
 
 // See ExportImportDataOverridable.OnRegisterDataExportHandlers
 Procedure OnRegisterDataExportHandlers(HandlersTable) Export
@@ -2661,7 +2675,7 @@ Procedure OnRegisterDataExportHandlers(HandlersTable) Export
 	
 EndProcedure
 
-// 
+// "Users" subsystem procedures and functions.
 
 Function QueryTextForAccessGroupsOnUserGroupsMembersChange() Export
 	
@@ -2711,9 +2725,9 @@ Function QueryTextForAccessGroupsOnUserGroupsMembersChange() Export
 	
 EndFunction
 
-// 
+// MonitoringCenter procedures and functions.
 
-// Returns the request text for collecting statistical information about the use of access group and role profiles.
+// Returns the query text to collect the statistic data on the use of access group and role profiles.
 //
 // Returns:
 //  String
@@ -2967,7 +2981,7 @@ Function RolesUsageQueryText() Export
 	
 EndFunction
 
-// 
+// Checks the availability of the "SetRights" common command.
 // 
 // Returns:
 //  Boolean
@@ -2983,13 +2997,13 @@ EndFunction
 // See ExportImportDataOverridable.OnRegisterDataExportHandlers.
 Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object, Artifacts, Cancel) Export
 	
-	// 
+	// Extension roles are assigned independently in the SaaS and on-premises versions.
 	If TypeOf(Object) = Type("CatalogObject.AccessGroupProfiles") Then
 		Catalogs.AccessGroupProfiles.DeleteExtensionsRoles(Object);
 	EndIf;
 	
-	// 
-	// 
+	// In SaaS, data area users don't use the right to open external reports and data processors.
+	// Therefore, the check runs only when migrating from on-prem to SaaS.
 	If Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -3012,8 +3026,8 @@ EndProcedure
 // See ExportImportDataOverridable.OnRegisterDataExportHandlers.
 Procedure BeforeExportRecordSet(Container, ObjectExportManager, Serializer, Object, Artifacts, Cancel) Export
 	
-	// 
-	// 
+	// In SaaS, data area users don't use the right to open external reports and data processors.
+	// Therefore, the check runs only when migrating from on-prem to SaaS.
 	If Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
@@ -3036,7 +3050,7 @@ EndProcedure
 //
 Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	
-	#Region UniversalRestriction
+#Region UniversalRestriction
 	If ParameterName = "AccessRestrictionParameters" Then
 		SessionParameters.AccessRestrictionParameters = New FixedStructure(New Structure);
 		SpecifiedParameters.Add("AccessRestrictionParameters");
@@ -3065,15 +3079,15 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	If ParameterName = "RecordLevelAccessRestrictionIsUniversal" Then
 		Return;
 	EndIf;
-	#EndRegion
+#EndRegion
 	
-	// 
+	// With access restrictions, the preprocessor requires all necessary session parameters to be initialized.
 	// 
 	LimitAccessAtRecordLevel = Constants.LimitAccessAtRecordLevel.Get();
 	InfobaseLockedForUpdate = ValueIsFilled(
 		InfobaseUpdateInternal.InfobaseLockedForUpdate(False));
 	
-	#Region UniversalRestriction
+#Region UniversalRestriction
 	If Not LimitAccessAtRecordLevel
 	 Or Not UniversalRestriction
 	 Or InfobaseLockedForUpdate Then
@@ -3105,7 +3119,7 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		SpecifiedParameters.Add("ListsWithUsersAccessKeysRestriction");
 		SpecifiedParameters.Add("ListsWithRestrictionByFields");
 	EndIf;
-	#EndRegion
+#EndRegion
 	
 	If Not LimitAccessAtRecordLevel
 	 Or UniversalRestriction
@@ -3149,12 +3163,12 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		Return;
 	EndIf;
 	
-	#Region UniversalRestriction
+#Region UniversalRestriction
 	If UniversalRestriction Then
 		ActiveAccessRestrictionParameters(Undefined, Undefined, False, True);
 		Return;
 	EndIf;
-	#EndRegion
+#EndRegion
 	
 	If Not LimitAccessAtRecordLevel Then
 		Return;
@@ -3183,7 +3197,7 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	
 	ValuesTypesAllAllowedWithoutExceptions = Query.Execute().Unload().UnloadColumn("ValuesType");
 	
-	// 
+	// Setting parameters AllAccessKindsExceptSpecialOnes and DisabledAccessKinds.
 	AllAccessKindsExceptSpecialOnes        = New Array;
 	DisabledAccessKinds = New Array;
 	
@@ -3216,8 +3230,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	
 	SpecifiedParameters.Add("DisabledAccessKinds");
 	
-	// 
-	// 
+	// Set parameters "AccessKindsWithoutGroupsForAccessValues",
+	// "AccessKindsWithSingleGroupForAccessValue", "AccessValuesTypesWithGroups".
 	SessionParameters.AccessKindsWithoutGroupsForAccessValues =
 		AllAccessKindsCombinations(AccessKindsProperties.NoGroupsForAccessValue);
 	SessionParameters.AccessKindsWithSingleGroupForAccessValue =
@@ -3233,8 +3247,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	SpecifiedParameters.Add("AccessKindsWithSingleGroupForAccessValue");
 	SpecifiedParameters.Add("AccessValuesTypesWithGroups");
 	
-	// 
-	// 
+	// Set parameters "TablesWithIndividualRightsSettings",
+	// "IDsOfTablesWithIndividualRightsSettings", "RightsSettingsOwnersTypes".
 	AvailableRights = RightsForObjectsRightsSettingsAvailable();
 	SeparateTables = AvailableRights.SeparateTables;
 	TablesWithIndividualRightsSettings = "";
@@ -3300,12 +3314,12 @@ Procedure UpdateSessionParameters() Export
 	
 EndProcedure
 
-// Checking the Administrators access group before recording.
+// Checking the Administrators access group before writing.
 Procedure CheckAdministratorsAccessGroupForIBUser(GroupUsers, ErrorDescription) Export
 	
 	Users.FindAmbiguousIBUsers(Undefined);
 	
-	// 
+	// Checking a blank list of infobase users in the Administrators access group.
 	SetPrivilegedMode(True);
 	ValidAdministratorFound = False;
 	
@@ -3456,10 +3470,10 @@ Function HasTableRestrictionByAccessKind(Table, AccessKind, AllAccessKinds) Expo
 		AllTableAccessKindsWithoutRestrictionsInAccessGroup = True;
 		For Each AccessKindUsageDetails In AccessKindsUse Do
 			If Not AccessKindUsageDetails.Value Then
-				Continue; // 
+				Continue; // Obsolete.
 			EndIf;
 			If SetAccessKinds.Get(AccessKindUsageDetails.Key) = Undefined Then
-				Continue; // 
+				Continue; // AllAllowedWithoutExceptions or there are no restrictions by access kind.
 			EndIf;
 			AllTableAccessKindsWithoutRestrictionsInAccessGroup = False;
 			Break;
@@ -3480,9 +3494,9 @@ EndFunction
 
 // Parameters:
 //  Objects            - See InfobaseUpdate.AddObjectPlannedForDeletion.Objects
-//   See InfobaseUpdate.AddObjectPlannedForDeletion.Object
+//  DimensionFullName - See InfobaseUpdate.AddObjectPlannedForDeletion.Object
 //  RequiredTypes      - TypeDescription
-//  
+//  SpecifiedTypes - TypeDescription
 //
 Procedure AddObjectPlannedForDeletion(Objects, RequiredTypes, MetadataDimensions)
 	
@@ -3505,15 +3519,15 @@ Procedure AddObjectPlannedForDeletion(Objects, RequiredTypes, MetadataDimensions
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event subscription handlers.
 
-// 
-// 
-//   
+// "OnReceiveDataFromMasterOrSlave" subscription handler:
+// - Checks the parent for changes and prepares access groups
+//   where access values should be updated considering the hierarchy.
 //
 Procedure UpdateAccessValuesGroupsBeforeWrite(Val Source, Cancel) Export
 	
-	// 
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
 	If StandardSubsystemsServer.IsMetadataObjectID(Source)
 	 Or Source.DataExchange.Load
 	   And Not Common.SeparatedDataUsageAvailable() Then
@@ -3554,7 +3568,7 @@ Procedure UpdateAccessValuesGroupsBeforeWrite(Val Source, Cancel) Export
 			Source.AdditionalProperties.Insert("AccessManagementOldValues", PreviousValues1);
 		EndIf;
 	EndIf;
-	// 
+	// ACC:75-on
 	
 	If Source.DataExchange.Load Then
 		Return;
@@ -3566,14 +3580,14 @@ Procedure UpdateAccessValuesGroupsBeforeWrite(Val Source, Cancel) Export
 	
 EndProcedure
 
-// 
-// 
-//   
-// 
+// "UpdateAccessValuesGroupsOnWrite" subscription handler:
+// - Calls a method that writes access value groups into the
+//   "AccessValuesGroups" information register for the given metadata objects.
+// - Updates access group values selected considering the hierarchy.
 //
 Procedure UpdateAccessValuesGroupsOnWrite(Source) Export
 	
-	// 
+	// ACC:75-off - "DataExchange.Import" check must follow the logging of changes.
 	If StandardSubsystemsServer.IsMetadataObjectID(Source)
 	 Or Source.DataExchange.Load
 	   And Not Common.SeparatedDataUsageAvailable() Then
@@ -3592,7 +3606,7 @@ Procedure UpdateAccessValuesGroupsOnWrite(Source) Export
 		SetPrivilegedMode(False);
 		SetSafeModeDisabled(False);
 	EndIf;
-	// 
+	// ACC:75-on
 	
 	If Source.DataExchange.Load Then
 		Return;
@@ -3608,9 +3622,9 @@ Procedure UpdateAccessValuesGroupsOnWrite(Source) Export
 	
 EndProcedure
 
-// The subscription handler updates the owner group settings Rights to the event before Recording:
-// - calls the method for writing the hierarchy of owners of object rights settings to the
-//   register of inheritance information for the required metadata objects.
+// The UpdateRightsSettingsOwnersGroups subscription handler responds to the BeforeWrite event by calling:
+// - a method for recording a hierarchy of the object right settings owner to
+//   the ObjectRightsSettingsInheritance information register for required metadata objects.
 //
 Procedure UpdateRightsSettingsOwnersGroups(Val Object, Cancel) Export
 	
@@ -3631,16 +3645,16 @@ Procedure UpdateRightsSettingsOwnersGroups(Val Object, Cancel) Export
 	
 EndProcedure
 
-// The write access Value set subscription handler for the Write event
-// calls the method for writing the object's access values to the data Register.Sets of access values.
-//  It is possible to use the "access Control" subsystem when
-// the specified subscription does not exist, if the access value sets are not applied.
+// The WriteAccessValuesSets subscription handler responds to the OnWrite event by
+// calling the method used for recording object access values to InformationRegister.AccessValuesSets.
+//  The AccessManagement subsystem can be used when
+// the specified subscription does not exist if access value sets are not applied.
 //
 Procedure RecordSetsOfWriteAccessValues(Val Object, Cancel) Export
 	
-	// 
-	// 
-	// 
+	// The check "DataExchange.Load" runs only when the "WriteAccessValuesSets" property is assigned a value.
+	// In this case, when writing the main object, to keep its RLS functional, its child object is written programmatically
+	// to update the internal part of the "AccessValuesSets" table.
 	// 
 	If Object.DataExchange.Load
 	   And Not Object.AdditionalProperties.Property("WriteAccessValuesSets") Then
@@ -3657,17 +3671,17 @@ Procedure RecordSetsOfWriteAccessValues(Val Object, Cancel) Export
 	
 EndProcedure
 
-// The write dependent access Value subscription handler of the Write event
-// causes dependent access value sets to be overwritten in the access Value set information register.
+// WriteDependentAccessValuesSets subscription handler
+// responds to the OnWrite event by overwriting dependent access value sets in the AccessValuesSets information register.
 //
-//  It is possible to use the "access Control" subsystem when
-// the specified subscription does not exist, if dependent sets of access values are not applied.
+//  The AccessManagement subsystem can be used when
+// the specified subscription does not exist if dependent access value sets are not applied.
 //
 Procedure WriteDependentSetsOfWriteAccessValues(Val Object, Cancel) Export
 	
-	// 
-	// 
-	// 
+	// The check "DataExchange.Load" runs only when the "WriteAccessValuesSets" property is assigned a value.
+	// In this case, when writing the main object, to keep its RLS functional, its child object is written programmatically
+	// to update the internal part of the "AccessValuesSets" table.
 	// 
 	If Object.DataExchange.Load
 	   And Not Object.AdditionalProperties.Property("WriteDependentAccessValuesSets") Then
@@ -3684,11 +3698,11 @@ Procedure WriteDependentSetsOfWriteAccessValues(Val Object, Cancel) Export
 	
 EndProcedure
 
-// The subscription handler
-// populate set of access values for table Parts * on the pre-Write event causes the access values of the table part of the access Set object to be filled in
-// when the #set of Values template is used to restrict access to the object itself.
-//  It is possible to use the access Control subsystem when
-// the specified subscription does not exist, if sets are not used for the specified purpose.
+// FillAccessValuesSetsForTabularSections* subscription handler for the BeforeWrite event
+// fills access values of the AccessValuesSets object tabular section
+// when the #ByValuesSets template is used to restrict access to the object.
+//  The AccessManagement subsystem can be used when
+// the specified subscription does not exist if the sets are not applied for the specified purpose.
 //
 // Parameters:
 //  Source        - CatalogObject
@@ -3698,21 +3712,21 @@ EndProcedure
 //                  - ChartOfCalculationTypesObject
 //                  - BusinessProcessObject
 //                  - TaskObject
-//                  - ExchangePlanObject -  a data object that is passed to the pre-Recording event subscription.
+//                  - ExchangePlanObject - a data object passed to the BeforeWrite event subscription.
 //
-//  Cancel           - Boolean -  parameter passed to the event subscription before Recording.
+//  Cancel           - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
-//  WriteMode     - Boolean -  parameter passed to the pre-Recording event subscription
-//                    when the Source parameter type is a document Object.
+//  WriteMode     - Boolean - a parameter passed to the BeforeWrite event subscription
+//                    when the type of the Source parameter is DocumentObject.
 //
-//  PostingMode - Boolean -  parameter passed to the pre-Recording event subscription
-//                    when the Source parameter type is a document Object.
+//  PostingMode - Boolean - a parameter passed to the BeforeWrite event subscription
+//                    when the type of the Source parameter is DocumentObject.
 //
 Procedure FillAccessValuesSetsForTabularSections(Source, Cancel = Undefined, WriteMode = Undefined, PostingMode = Undefined) Export
 	
-	// 
-	// 
-	// 
+	// The check "DataExchange.Load" runs only when the "WriteAccessValuesSets" property is assigned a value.
+	// In this case, when writing the main object, to keep its RLS functional, its child object is written programmatically
+	// to update the internal part of the "AccessValuesSets" table.
 	// 
 	If Source.DataExchange.Load
 	   And Not Source.AdditionalProperties.Property("WriteAccessValuesSets") Then
@@ -3745,9 +3759,9 @@ Procedure FillAccessValuesSetsForTabularSections(Source, Cancel = Undefined, Wri
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Scheduled job handlers.
 
-// Handler for a routine task for filling in data for access Restrictions.
+// DataFillingForAccessRestriction scheduled job handler.
 Procedure DataFillingForAccessRestrictionJobHandler() Export
 	
 	Common.OnStartExecuteScheduledJob(
@@ -3757,25 +3771,28 @@ Procedure DataFillingForAccessRestrictionJobHandler() Export
 	
 EndProcedure
 
-// Performs sequential filling in and updating of data required for the
-// Access management subsystem to operate in record-level access restriction mode.
+// Sequentially fills and updates the data required for the AccessManagement
+// subsystem in the access restriction mode at the record level.
 // 
-//  When the record-level access restriction mode is enabled, it fills in sets
-// of access values. Filling is performed in parts at each start, until all
-// sets of access values are filled in.
-//  If you disable the record-level access restriction mode, the sets of access values
-// (previously filled in) are deleted when objects are overwritten, not all at once.
-//  Regardless of the record-level access restriction mode, updates the cache details.
-//  After all updates and fillings are completed, disables the use of the scheduled task.
+//  Fills sets of access values when the access restriction mode is enabled.
+// The sets are filled in by portions during each run, until all
+// access value sets are filled in.
+//  When the restriction access mode at the record level is disabled,
+// the access value sets filled in earlier are removed upon rewriting the objects, not immediately.
+//  The procedure updates cache attributes at the record level regardless of the access restriction mode.
+//  Disables the scheduled job after all updates are completed and data is filled.
 //
-//  Information about the operation status is recorded in the log.
+//  The progress information is written to the event log.
 //
-//  It can be called programmatically, for example, when updating the information base.
-// There is also a Reference form for updating purposes.Access group.Updating access restriction data,
-// which can be used to interactively update access restriction data
-// when updating the information database.
+//  The procedure can be called from the application, for example, when updating the infobase.
+// For data update purposes, the Catalog.AccessGroups.UpdateDataRestrictionAccess form is available.
+// This form can be used for interactive update of access restriction data
+// when updating the infobase.
 //
 Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = False, HasChanges = Undefined) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"AccessManagementInternal.DataFillingForAccessRestriction");
 	
 	SetPrivilegedMode(True);
 	
@@ -3784,7 +3801,7 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 	
 	If Constants.LimitAccessAtRecordLevel.Get() And Not OnlyCacheAttributes Then
 		
-		// 
+		// Filling access value groups in the AccessValuesGroups information register.
 		For Each TableName In AccessValuesWithGroups.NamesOfTablesToUpdate Do
 			
 			While DataVolume < 10000 Do
@@ -3803,12 +3820,12 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 				
 				Query.Text = StrReplace(Query.Text, "Catalog.Users", TableName);
 				Query.Text = StrReplace(Query.Text, "&CurrentTable", TableName);
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				Values = Query.Execute().Unload().UnloadColumn("Ref");
 				If Not ValueIsFilled(Values) Then
 					Break;
 				EndIf;
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				InformationRegisters.AccessValuesGroups.UpdateAccessValuesGroups(Values, HasChanges);
 				DataVolume = DataVolume + Values.Count();
 				If Values.Count() < 1000 Then
@@ -3825,13 +3842,13 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 		EndDo;
 		
 		If DataVolume < 10000 Then
-			// 
+			// Update outdated records (if any).
 			InformationRegisters.AccessValuesGroups.UpdateRegisterData(HasChanges);
 		EndIf;
 		
 		If DataVolume < 10000 And Not AccessManagement.ProductiveOption() Then
 			
-			// 
+			// Filling the AccessValuesSets information register.
 			ObjectsTypes = AccessManagementInternalCached.ObjectsTypesInSubscriptionsToEvents(
 				"WriteAccessValuesSets");
 			
@@ -3851,12 +3868,12 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 					|WHERE
 					|	InformationRegisterAccessValuesSets.Object IS NULL ";
 					Query.Text = StrReplace(Query.Text, "&CurrentTable", Metadata.FindByType(Type).FullName());
-					// 
+					// @skip-check query-in-loop - Batch processing of data
 					Selection = Query.Execute().Select();
 					DataVolume = DataVolume + Selection.Count();
 					
 					While Selection.Next() Do
-						// 
+						// @skip-check query-in-loop - Batch processing of data
 						UpdateAccessValuesSets(Selection.Ref, HasChanges);
 					EndDo;
 				EndIf;
@@ -3864,7 +3881,7 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 		EndIf;
 	EndIf;
 	
-	// 
+	// Updating cache attributes in access value sets.
 	If DataVolume < 10000 And Not AccessManagement.ProductiveOption() Then
 		
 		AccessValuesTypes          = AccessKindsProperties.ByValuesTypes;
@@ -3982,10 +3999,10 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 	
 EndProcedure
 
-// Sets the use of a routine task for filling in access control data.
+// Determines usage of a scheduled job for filling access management data.
 //
 // Parameters:
-//   Use - Boolean -  True if the task needs to be enabled, otherwise False.
+//   Use - Boolean - If True, the job must be enabled. Otherwise, False.
 //
 Procedure SetDataFillingForAccessRestriction(Val Use) Export
 	
@@ -3995,13 +4012,13 @@ Procedure SetDataFillingForAccessRestriction(Val Use) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for access kind management.
 
-// Returns True if the access type is enabled by functional options for all sessions.
+// Returns True if the access kind is enabled by functional options for all sessions.
 //
 // Parameters:
-//  AccessKind - DefinedType.AccessValue -  empty link of the main type of access type.
-//             - String -  name of the access type.
+//  AccessKind - DefinedType.AccessValue - a blank reference of the main access kind value type.
+//             - String - Access kind name.
 //
 // Returns:
 //  Boolean
@@ -4045,8 +4062,8 @@ EndFunction
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - DefinedType.AccessValue -  empty link of the main type of access type.
-//   * Value - Boolean -  the value is True.
+//   * Key - DefinedType.AccessValue - a blank reference of the main access kind value type.
+//   * Value - Boolean - the True value.
 //
 Function UsedAccessKinds(ShouldIgnoreAccessRestriction = False) Export
 	
@@ -4087,11 +4104,11 @@ Function UsedAccessKinds(ShouldIgnoreAccessRestriction = False) Export
 	
 EndFunction
 
-// Returns properties of the access type or all access types.
+// Returns the properties of an access kind or all access kinds.
 //
 // Parameters:
-//  AccessKind - DefinedType.AccessValue -  empty link of the main type of access type.
-//             - String -  name of the access type.
+//  AccessKind - DefinedType.AccessValue - a blank reference of the main access kind value type.
+//             - String - Access kind name.
 //
 // Returns:
 //   Structure:
@@ -4119,9 +4136,9 @@ Function AccessKindProperties(AccessKind) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for access value set management.
 
-// Returns new sets to fill in the table part.
+// Returns new sets to be used to fill a tabular section.
 //
 // Parameters:
 //  Object - DefinedType.OwnerLimitedByAccessValuesSetsObject
@@ -4158,20 +4175,20 @@ Function GetAccessValuesSetsOfTabularSection(Object)
 	
 EndFunction
 
-// Updates the object's access value sets if they have changed.
-// Sets are updated in the table part (if used) and
-// in the data register of the access value Set.
+// Updates object access value sets if they are changed.
+// The sets are updated both in the tabular section (if used) and
+// in the AccessValuesSets information register.
 //
 // Parameters:
 //  ReferenceOrObject - AnyRef
-//                  - DefinedType.AccessValuesSetsOwnerObject - 
-//                    
+//                  - DefinedType.AccessValuesSetsOwnerObject - a reference or an object,
+//                    for which access value sets are populated.
 //
 //  HasChanges - Boolean
 //                - Undefined
 //  
-//  IBUpdate    - Boolean -  if True, then you need to write data
-//                            without performing unnecessary, redundant actions with the data.
+//  IBUpdate    - Boolean - if True, write data
+//                            without performing unnecessary and redundant actions with the data.
 //                            See InfobaseUpdate.WriteData.
 //
 Procedure UpdateAccessValuesSets(ReferenceOrObject, HasChanges = Undefined, IBUpdate = False) Export
@@ -4207,7 +4224,7 @@ Procedure UpdateAccessValuesSets(ReferenceOrObject, HasChanges = Undefined, IBUp
 	EndIf;
 	
 	If ObjectReference.Metadata().TabularSections.Find("AccessValuesSets") <> Undefined Then
-		// 
+		// Object update is required.
 		Table = GetAccessValuesSetsOfTabularSection(Object);
 		
 		If AccessValuesSetsOfTabularSectionChanged(ObjectReference, Table) Then
@@ -4222,26 +4239,26 @@ Procedure UpdateAccessValuesSets(ReferenceOrObject, HasChanges = Undefined, IBUp
 				InfobaseUpdate.WriteData(Object);
 			Else
 				Object.DataExchange.Load = True;
-				// 
-				// 
-				// 
+				// ACC:1327-off - No.783.1.4.1. It is acceptable to keep records without
+				// the preliminary managed object lock because this applies to RLS in SSL 2.x (obsolete),
+				// and it has never caused any issues.
 				Object.Write();
-				// 
+				// ACC:1327-on
 			EndIf;
 			HasChanges = True;
 		EndIf;
 	EndIf;
 	
-	// 
+	// Object update is not required, or it has already been updated.
 	WriteAccessValuesSets(Object, HasChanges, IBUpdate);
 	
 EndProcedure
 
-// Fills in auxiliary data that speeds up access restriction templates.
-//  Executed before writing to the access value Set register.
+// Fills auxiliary data that speeds up access restriction template operations.
+//  It is executed before writing to the AccessValuesSets register.
 //
 // Parameters:
-//  ObjectReference - AnyRef -  a reference to the object for which access value sets are filled in.
+//  ObjectReference - AnyRef - a reference to the object for which access value sets are filled in.
 //  Table        - ValueTable
 //  AddCacheAttributes - Boolean
 //
@@ -4259,12 +4276,12 @@ Procedure PrepareAccessValuesSetsForWrite(ObjectReference, Table, AddCacheAttrib
 		AccessValuesTypes          = AccessKindsProperties.ByValuesTypes;
 	EndIf;
 	
-	// 
+	// Normalizing Read, Update resources
 	SetNumber = -1;
 	For Each String In Table Do
 		
 		If AddCacheAttributes Then
-			// 
+			// Setting the Object dimension value.
 			String.Object = ObjectReference;
 			
 			AccessValueType = TypeOf(String.AccessValue);
@@ -4278,8 +4295,8 @@ Procedure PrepareAccessValuesSetsForWrite(ObjectReference, Table, AddCacheAttrib
 			
 		EndIf;
 		
-		// 
-		// 
+		// Clear flags for rights and related secondary data
+		// for all rows in each set except for the first row.
 		If SetNumber = String.SetNumber Then
 			String.Read    = False;
 			String.Update = False;
@@ -4291,12 +4308,12 @@ Procedure PrepareAccessValuesSetsForWrite(ObjectReference, Table, AddCacheAttrib
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for actions performed upon changing subsystem settings.
 
-// If necessary, it enables filling in data to restrict access and
-// updates some data immediately.
+// Enables data population for access restriction and
+// updates some data immediately if necessary.
 //
-// Called from the handler when Writing the constants restrict access to the level of Records.
+// The procedure is called from the OnWrite handler of the LimitAccessAtRecordLevel constant.
 //
 Procedure OnChangeAccessRestrictionAtRecordLevel(AccessRestrictionAtRecordLevelEnabled) Export
 	
@@ -4336,71 +4353,71 @@ Procedure OnChangeAccessRestrictionAtRecordLevel(AccessRestrictionAtRecordLevelE
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Management of AccessKinds and AccessValues tables in edit forms.
 
-// 
-// 
+// Fills the auxiliary data required for the form.
+// The data does not depend on the object content or filled for a new object.
 //
-// 
-// 
-// 
-// 
-// 
+// The form has to contain the attributes listed below.
+// Attributes marked with (&) are filled automatically, but they must be created in the form.
+// Attributes marked with a number sign (#) must be created in the form if
+// the CurrentAccessGroup attribute is to be created in the form (see below).
+// Attributes marked with the at sign (@) are created automatically.
 //
-//  
-//                         
+//  CurrentAccessGroup - an optional attribute,
+//                         it is not used unless created in the form.
 //
-//  
-//    
-//    
-//    
-//    
-//    
-//    
-//    
+//  AccessKinds - a table with the following fields
+//    #AccessGroup - CatalogRef.AccessGroups,
+//    AccessKind - DefinedType.AccessValue,
+//    PresetAccessKind - Boolean (for the profile only),
+//    AllAllowed - Boolean,
+//    &AccessKindPresentation - String - a setting presentation,
+//    &AllAllowedPresentation - String - a setting presentation,
+//    @IsInUse - Boolean.
 //
-//  
-//    
-//    
-//    
-//    
+//  AccessValues - a table with the following fields
+//    #AccessGroup - CatalogRef.AccessGroups,
+//    &AccessKind - DefinedType.AccessValue,
+//    AccessValue - DefinedType.AccessValue,
+//    &RowNumberByKind - Number.
 //
+//  &UseExternalUsers - Boolean - an attribute will be created if it is not in the form.
+//  &AccessKindLabel - String - a presentation of the current access kind in the form.
+//  @IsAccessGroupsProfile - Boolean.
+//  @CurrentAccessKind - DefinedType.AccessValue.
+//  @CurrentTypesOfValuesToSelect - ValueList.
+//  @CurrentTypeOfValuesToSelect - DefinedType.AccessValue.
+//  @TablesStorageAttributeName - String.
+//  @AccessKindUsers - DefinedType.AccessValue.
+//  @AccessKindExternalUsers - DefinedType.AccessValue.
 //  
-//  
-//  
-//  
-//  
-//  
-//  
-//  
-//  
-//  
-//  
-//    
-//    
-//    
+//  @AllAccessKinds - a table with the following fields
+//    @Ref - DefinedType.AccessValue,
+//    @Presentation - String,
+//    @IsInUse - Boolean.
 //
-//  
-//    
-//    
+//  @PresentationsAllAllowed - a table with the following fields
+//    @Name - String,
+//    @Presentation - String.
 //
-//  
-//    
-//    
-//    
-//    
-//    
+//  @AllTypesOfValuesToSelect - a table with the following fields
+//    @AccessKind - DefinedType.AccessValue,
+//    @ValuesType - DefinedType.AccessValue,
+//    @TypePresentation - String,
+//    @TableName - String,
+//    @ItemsHierarchy - Boolean.
 //
 // Parameters:
 //  Form      - See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
 //
-//  ThisProfile - Boolean -  indicates that access types can
-//               be configured, including the settings view containing 4 values instead of 2.
+//  ThisProfile - Boolean - indicates that access kinds can be set up,
+//               also settings presentation contains 4 values, not 2.
 //
-//  TablesStorageAttributeName - String - 
-//               
-//               
-//               
+//  TablesStorageAttributeName - String - Might contain, for example, an "Object" row with
+//               the "AccessKinds" and "AccessValues" tables (see below).
+//               If a blank row is specified,
+//               the tables are considered to be stored in the form attributes.
 //
 Procedure OnCreateAtServerAllowedValuesEditForm(Form, ThisProfile = False, TablesStorageAttributeName = "Object") Export
 	
@@ -4411,7 +4428,7 @@ Procedure OnCreateAtServerAllowedValuesEditForm(Form, ThisProfile = False, Table
 	
 	AccessKindsProperties = AccessKindsProperties();
 	
-	// 
+	// Filling access value types of all access kinds.
 	For Each AccessKindProperties In AccessKindsProperties.Array Do
 		For Each Type In AccessKindProperties.TypesOfValuesToSelect Do
 			TypesArray = New Array;
@@ -4453,15 +4470,15 @@ Procedure OnCreateAtServerAllowedValuesEditForm(Form, ThisProfile = False, Table
 	
 	RefreshUnusedAccessKindsRepresentation(Form, True);
 	
-	// 
+	// Parameter settings of access value selection.
 	ChoiceParameters = New Array;
 	ChoiceParameters.Add(New ChoiceParameter("IsAccessValueSelection", True));
 	Form.Items.AccessValuesAccessValue.ChoiceParameters = New FixedArray(ChoiceParameters);
 	
 EndProcedure
 
-// When read again, it fills in or updates the auxiliary data
-// required for the form to work, which depends on the object content.
+// When rereading data, it fills or updates
+// required auxiliary data that depends on the object content.
 //
 Procedure OnRereadAtServerAllowedValuesEditForm(Form, CurrentObject) Export
 	
@@ -4474,9 +4491,9 @@ Procedure OnRereadAtServerAllowedValuesEditForm(Form, CurrentObject) Export
 	
 EndProcedure
 
-// Deletes unnecessary access values before writing.
-// Extra access values may appear if you replace or delete the access type
-// that you entered access values for.
+// Deletes unused access values before writing.
+// Unused access values are sometimes created when you replace or delete an access kind
+// with filled access values.
 //
 Procedure BeforeWriteAtServerAllowedValuesEditForm(Form, CurrentObject) Export
 	
@@ -4485,7 +4502,7 @@ Procedure BeforeWriteAtServerAllowedValuesEditForm(Form, CurrentObject) Export
 	
 EndProcedure
 
-// Updates the properties of access types.
+// Updates access kind properties.
 Procedure AfterWriteAtServerAllowedValuesEditForm(Form, CurrentObject, WriteParameters) Export
 	
 	DeleteNonExistentAccessKindsAndValues(Form, CurrentObject);
@@ -4495,7 +4512,7 @@ Procedure AfterWriteAtServerAllowedValuesEditForm(Form, CurrentObject, WritePara
 	
 EndProcedure
 
-// Hides or shows unused access types.
+// Hides or shows unused access kinds.
 Procedure RefreshUnusedAccessKindsRepresentation(Form, OnCreateAtServer = False) Export
 	
 	Items = Form.Items;
@@ -4530,7 +4547,7 @@ Procedure RefreshUnusedAccessKindsRepresentation(Form, OnCreateAtServer = False)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Universal procedures and functions.
 
 // For internal use only.
 Procedure SetFilterCriterionInQuery(Val Query, Val Values, Val ValuesParameterName, Val ParameterNameFilterConditionsFieldName) Export
@@ -4587,53 +4604,53 @@ Procedure SetFilterCriterionInQuery(Val Query, Val Values, Val ValuesParameterNa
 	
 EndProcedure
 
-// Updates a set of records in the database
-// if the records in the set differ from the records in the database.
+// Updates a record set in the database
+// if the set records do not match the database records.
 //
 // Parameters:
 //  Data - Structure:
-//    * RecordSet           - InformationRegisterRecordSet -  empty or read with or without the specified selection.
-//                             - InformationRegisterManager -  the Manager of the register to generate a set of records.
+//    * RecordSet           - InformationRegisterRecordSet - a blank or read RecordSet with or without set filter.
+//                             - InformationRegisterManager - register manager to create a record set.
 //
-//    * NewRecords            - ValueTable -  format of the register.
+//    * NewRecords            - ValueTable - in a register format.
 //
-//    * ComparisonFields          - String -  contains a list of fields whose values are used to calculate
-//                               the difference between records in the set. For example, "Measure1, Measure2, Resource1",
-//                               and the measurement datum is not included in the list.
+//    * ComparisonFields          - String - contains a list of fields whose values are required to calculate
+//                               record set differences, for example, Dimension1, Dimension2, Source1.
+//                               The ChangeDate attribute is not included in the list.
 //
-//    * FilterField             - Undefined -  the entire register is recorded, or
-//                                              the selection is already set in the recordset.
-//                               String - name of the field to be selected for.
+//    * FilterField             - Undefined - an entire registry is written or
+//                                              the filter is already set in a record set.
+//                               String - a field name, for which the filter is to be set.
 //
-//    * FilterValue         - Filter -  the value that will be set as selection
-//                               by selection field, if the selection field is set.
+//    * FilterValue         - Filter - a value that will be set as a filter
+//                               by a filter field if the filter field is set.
 //
-//    * RecordSetRead   - Boolean -  if True, then the non-specified set of records already contains
-//                               read records the data lock on these records is set and
-//                               the transaction is open.
+//    * RecordSetRead   - Boolean - if True, then not specified record set already contains
+//                               the read records. Data lock of these records is set and
+//                               transaction is open.
 //
-//    * IsCheckOnly         - Boolean -  if True, then do not perform the recording,
-//                               but only identify the need for recording and set
-//                               the property there is a Change.
+//    * IsCheckOnly         - Boolean - if True, do not write,
+//                               only find out if writing is required and set
+//                               the HasChanges property.
 //
 //    * AdditionalProperties - Structure
-//                             - Undefined - 
-//                               
-//                               
+//                             - Undefined - if Structure, all structure parameters will be added
+//                               to the AdditionalProperties property
+//                               of the <Register*>RecordSet objects.
 //
-//    * IBUpdate           - Boolean -  if True, then you need to write data
-//                               without performing unnecessary, redundant actions with the data.
+//    * IBUpdate           - Boolean - if True, write data
+//                               without performing unnecessary and redundant actions with the data.
 //                               See InfobaseUpdate.WriteData.
-//                               If the property is not inserted, the value is calculated by " Or " using the functions
-//                               The update of the information database and this
-//                               call handler for Updating the General update module of the information Database are performed.
+//                               If the property is not inserted, the value is calculated by Or using the following functions:
+//                               InfobaseUpdateInProgress and IsCallFromUpdateHandler
+//                               of the InfobaseUpdate common module.
 //
-//  HasChanges         - Boolean -  the return value. If a record was made,
-//                          the Truth is set, otherwise it does not change.
+//  HasChanges         - Boolean - a return value. If recorded,
+//                          True is set, otherwise, it does not change.
 //
-//  ModifiedRecords      - Undefined -  no action, otherwise
-//                          it returns a table of values in case format with a field
-//                          for string Modifiing of the Number type (-1 entry deleted, 1 entry added).
+//  ModifiedRecords      - Undefined - no actions, otherwise,
+//                          it returns a value table in the register format with the RowChangeKind field
+//                          of the Number type (-1 the record is deleted, 1 the record is added).
 //
 Procedure UpdateRecordSet(Val Data, HasChanges = Undefined, ModifiedRecords = Undefined) Export
 	
@@ -4794,61 +4811,61 @@ Procedure UpdateRecordSet(Val Data, HasChanges = Undefined, ModifiedRecords = Un
 	
 EndProcedure
 
-// Updates register strings with multiple values selection for one or
-// two register dimensions, checks for changes,
-// and does not overwrite if there are no changes.
+// Updates register rows with a multiple-value filter for one or
+// two register dimensions. Checks for changes;
+// if no changes are found, no data is overwritten.
 //
 // Parameters:
 //  Data - Structure:
-//    * RegisterManager          - InformationRegisterManager -  the Manager of the register to generate a set of records.
+//    * RegisterManager          - InformationRegisterManager - register manager to create a record set.
 //
-//    * NewRecords               - ValueTable -  format of the register.
+//    * NewRecords               - ValueTable - in a register format.
 //
-//    * ComparisonFields             - String -  contains a list of fields whose values are used to
-//                                  calculate the difference between records in the set, for example, " Dimension1, Dimension2,
-//                                  Resource1", and props Dutasteride not included in the list.
+//    * ComparisonFields             - String - contains a list of fields whose values are required to calculate
+//                                  record set differences, for example, Dimension1, Dimension2,
+//                                  Source1. The ChangeDate attribute is not included in the list.
 //
-//    * FirstDimensionName       - Undefined -  there is no selection by dimension.
-//                                - String       - 
-//                                                 
+//    * FirstDimensionName       - Undefined - there is no filter by dimension.
+//                                - String       - contains the first dimension name, for which
+//                                                 multiple values are set.
 //                                
-//    * FirstDimensionValues  - Undefined -  there is no selection by dimension, similarly,
-//                                                 Name of the first dimension = Undefined.
-//                                - AnyRef  - 
-//                                                 
-//                                - Array       - 
-//                                                 
-//                                                 
+//    * FirstDimensionValues  - Undefined - there is no filter by dimension, similar to
+//                                                 FirstDimensionName = Undefined.
+//                                - AnyRef  - contains one register filter value for
+//                                                 the records being updated.
+//                                - Array       - contains a register filter value array for
+//                                                 the records being updated. If the array is blank,
+//                                                 no action is required.
 //
 //    * SecondDimensionName       - Undefined
-//                                - String - 
+//                                - String - similar to FirstDimensionName.
 //    * SecondDimensionValues  - Undefined
 //                                - AnyRef
-//                                - Array - 
+//                                - Array - similar to FirstDimensionValues.
 //    * ThirdDimensionName      - Undefined
-//                                - String - 
+//                                - String - similar to FirstDimensionName.
 //    * ThirdDimensionValues - Undefined
 //                                - AnyRef
-//                                - Array - 
+//                                - Array - similar to FirstDimensionValues.
 //
-//    * IsCheckOnly            - Boolean -  if True, then do not perform the recording,
-//                                  but only identify the need for recording and set
-//                                  the property there is a Change.
+//    * IsCheckOnly            - Boolean - if True, do not write,
+//                                  only find out if writing is required and set
+//                                  the HasChanges property.
 //
 //    * AdditionalProperties    - Undefined
-//                                - Structure - 
-//                                  
-//                                  
+//                                - Structure - if Structure, all structure parameters will be added
+//                                  to the AdditionalProperties property
+//                                  of the <Register*>RecordSet objects.
 //
-//    * IBUpdate              - Boolean -  if True, then you need to write data
-//                                  without performing unnecessary, redundant actions with the data.
+//    * IBUpdate              - Boolean - if True, write data
+//                                  without performing unnecessary and redundant actions with the data.
 //                                  See InfobaseUpdate.WriteData.
-//                                  If the property is not inserted, the value is calculated by " Or " using the functions
-//                                  The update of the information database and this
-//                                  call handler for Updating the General update module of the information Database are performed.
+//                                  If the property is not inserted, the value is calculated by Or using the following functions:
+//                                  InfobaseUpdateInProgress and IsCallFromUpdateHandler
+//                                  of the InfobaseUpdate common module.
 //
-//  HasChanges             - Boolean -  the return value. If a record was made,
-//                              the Truth is set, otherwise it does not change.
+//  HasChanges             - Boolean - a return value. If recorded,
+//                              True is set, otherwise, it does not change.
 //
 Procedure UpdateRecordSets(Val Data, HasChanges)
 	
@@ -4872,7 +4889,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 	
 	FillParameters_(Data, AllParameters, "RegisterManager, NewRecords");
 	
-	// 
+	// Preprocessing parameters.
 	
 	If Not DimensionParametersGroupProcessed(Data.FirstDimensionName, Data.FirstDimensionValues) Then
 		HasChanges = True;
@@ -4889,7 +4906,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 	
 	OrderDimensionsParametersGroups(Data);
 	
-	// 
+	// Checking and updating data.
 	Data.Insert("RecordSet",       Data.RegisterManager.CreateRecordSet());
 	Data.Insert("RegisterMetadata", Metadata.FindByType(TypeOf(Data.RecordSet)));
 	Data.Insert("FullRegisterName",  Data.RegisterMetadata.FullName());
@@ -4932,7 +4949,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 					If Data.ThirdDimensionName = Undefined Then
 						RecordByMultipleSets = False;
 					Else
-						// 
+						// @skip-check query-in-loop - Batch processing of data
 						RecordByMultipleSets = RecordByMultipleSets(Data,
 							Filter, Data.SecondDimensionName, Data.SecondDimensionValues);
 					EndIf;
@@ -4942,25 +4959,25 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 							Filter.Insert(Data.SecondDimensionName, SecondValue);
 							SetFilter(Data.RecordSet.Filter[Data.SecondDimensionName], SecondValue);
 							
-							// 
+							// Updating by three dimensions.
 							RefreshNewSetRecordsByVariousNewRecords(Data, Filter, HasChanges);
 						EndDo;
 						Data.RecordSet.Filter[Data.SecondDimensionName].Use = False;
 					Else
-						// 
+						// Updating by two dimensions.
 						Data.Insert("CountByValues", CountByFirstDimensionValues);
 						RefreshNewSetRecordsByVariousNewRecords(Data, Filter, HasChanges);
 					EndIf;
 				EndDo;
 			Else
-				// 
+				// Updating by one dimension.
 				ReadCountForReading(Data);
 				RefreshNewSetRecordsByVariousNewRecords(Data, New Structure, HasChanges);
 			EndIf;
 		EndIf;
 	Else
 		If Data.FirstDimensionName = Undefined Then
-			// 
+			// Update all records.
 			
 			CurrentData = New Structure("RecordSet, NewRecords, ComparisonFields,
 				|IsCheckOnly, AdditionalProperties, IBUpdate");
@@ -4968,7 +4985,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 			UpdateRecordSet(CurrentData, HasChanges);
 			
 		ElsIf Data.SecondDimensionName = Undefined Then
-			// 
+			// Updating by one dimension.
 			Filter = New Structure(Data.FirstDimensionName);
 			For Each Value In Data.FirstDimensionValues Do
 				
@@ -4990,7 +5007,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 			EndDo;
 			
 		ElsIf Data.ThirdDimensionName = Undefined Then
-			// 
+			// Updating by two dimensions.
 			FieldList = Data.FirstDimensionName + ", " + Data.SecondDimensionName;
 			Data.NewRecords.Indexes.Add(FieldList);
 			Filter = New Structure(FieldList);
@@ -5008,7 +5025,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 					HasChanges);
 			EndDo;
 		Else
-			// 
+			// Updating by three dimensions.
 			FieldList = Data.FirstDimensionName + ", " + Data.SecondDimensionName + ", " + Data.ThirdDimensionName;
 			Data.NewRecords.Indexes.Add(FieldList);
 			Filter = New Structure(FieldList);
@@ -5035,49 +5052,49 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 	
 EndProcedure
 
-// Updates the information register based on the data in the table of string Change values.
+// Updates an information register by data in the RowsChanges value table.
 //
 // Parameters:
 //  Data - Structure:
 //
-//  * RegisterManager       - InformationRegisterManager -  the Manager of the register to generate a set of records.
+//  * RegisterManager       - InformationRegisterManager - register manager to create a record set.
 //
-//  * EditStringContent  - ValueTable - 
-//                             :
-//                               
-//                               
+//  * EditStringContent  - ValueTable - containing the register fields and
+//                             the RowChangeKind field (Number):
+//                               1 means that a row must be added.
+//                               1 means that a row must be deleted.
 //
-//  * FixedFilter     - Structure -  contains the dimension name in the key and
-//                             the selection value in the value. It can be specified when
-//                             there are more than 3 dimensions and it is known in advance that there will be a single value for dimensions over 3
-//                             . The dimensions specified in
-//                             the fixed selection are not used when generating
-//                             record sets for updating.
+//  * FixedFilter     - Structure - containing a dimension name in the key and a filter
+//                             value in the value. It can be used when there are
+//                             more than 3 dimensions and it is known in advance that the dimensions above 3
+//                             will have a single value. Dimensions specified
+//                             in a fixed filter are not used when generating record
+//                             sets for updating.
 //
-//  * FilterDimensions        - String -  comma-separated dimensions
-//                             to use when generating record sets
-//                             for updating (no more than 3). 
-//                             The dimensions that are not specified will be converted to a fixed selection
-//                             if all the values for them match.
+//  * FilterDimensions        - String - a string of comma-separated dimensions
+//                             that must be used when generating record sets
+//                             for updating (no more than 3). Any unspecified
+//                             dimensions will be converted to a fixed filter
+//                             if all their values match.
 //
-//  * IsCheckOnly         - Boolean -  if True, then do not perform the recording,
-//                             but only identify the need for recording and set
-//                             the property there is a Change.
+//  * IsCheckOnly         - Boolean - if True, do not write,
+//                             only find out if writing is required and set
+//                             the HasChanges property.
 //
 //  * AdditionalProperties - Undefined
-//                           - Structure - 
-//                             
-//                             
+//                           - Structure - if Structure, all structure parameters will be added
+//                             to the AdditionalProperties property
+//                             of the <Register*>RecordSet objects.
 //
-//  * IBUpdate           - Boolean -  if True, then you need to write data
-//                             without performing unnecessary, redundant actions with the data.
+//  * IBUpdate           - Boolean - if True, write data
+//                             without performing unnecessary and redundant actions with the data.
 //                             See InfobaseUpdate.WriteData.
-//                             If the property is not inserted, the value is calculated by " Or " using the functions
-//                             The update of the information database and this
-//                             call handler for Updating the General update module of the information Database are performed.
+//                             If the property is not inserted, the value is calculated by Or using the following functions:
+//                             InfobaseUpdateInProgress and IsCallFromUpdateHandler
+//                             of the InfobaseUpdate common module.
 //
-//  HasChanges         - Boolean -  the return value. If a record was made,
-//                          the Truth is set, otherwise it does not change.
+//  HasChanges         - Boolean - a return value. If recorded,
+//                          True is set, otherwise, it does not change.
 //
 Procedure UpdateInformationRegister(Val Data, HasChanges = Undefined) Export
 	
@@ -5169,12 +5186,12 @@ Procedure UpdateInformationRegister(Val Data, HasChanges = Undefined) Export
 	
 EndProcedure
 
-// Returns an empty reference of the metadata object of the reference type.
+// Returns a blank reference of a metadata object of a reference type.
 //
 // Parameters:
 //  MetadataObjectDetails - MetadataObject,
-//                            - Type - 
-//                            - String -  full name of the metadata object.
+//                            - Type - — used to find a metadata object,
+//                            - String - Full name of a metadata object.
 // Returns:
 //  AnyRef
 //
@@ -5223,26 +5240,26 @@ Function MetadataObjectEmptyRef(MetadataObjectDetails) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Other procedures and functions
 
-// Creates a query to select the differences between register strings in the specified data area
-// (based on selections in the select Field parameter).
+// Creates a query to find differences between the register rows in the specified data area
+// (based on filters in the FieldsAndFilter parameter).
 //
 // Parameters:
 //  NewDataSelectionQueryText - String
 //
-//  FieldsAndFilter - Array of Structure -  with the properties of "field Name", parameter name of the selection Condition.
+//  FieldsAndFilter - Array of Structure - with the "FieldName", FilterCriterionParameterName properties.
 //
-//  FullRegisterName - String       -  the search query is generated automatically.
-//                    - Undefined - 
+//  FullRegisterName - String       - a query for old data is generated automatically.
+//                    - Undefined - a query for old data is received from the next parameter.
 //
-//  TemporaryTablesQueriesText - String -  query temporary tables, if required.
+//  TemporaryTablesQueriesText - String - a temporary table query if required.
 //
-//  OldDataSelectionQueryText - String       -  request old ones, taking into account non-standard selections.
-//                           - Undefined - 
+//  OldDataSelectionQueryText - String       - a query for old data, with nonstandard filters.
+//                           - Undefined - used when a full register name is defined.
 //
 // Returns:
-//  String - 
+//  String - Query text.
 //
 Function ChangesSelectionQueryText(NewDataSelectionQueryText,
                                     FieldsAndFilter,
@@ -5250,7 +5267,7 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
                                     TemporaryTablesQueriesText = Undefined,
                                     OldDataSelectionQueryText     = Undefined) Export
 	
-	// 
+	// Preparing the old data query text.
 	If FullRegisterName <> Undefined Then
 		OldDataSelectionQueryText =
 		"SELECT
@@ -5265,14 +5282,14 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
 	SelectedFields = "";
 	FilterConditions = "TRUE";
 	For Each FieldDetails In FieldsAndFilter Do
-		// 
+		// Aggregate the selected fields.
 		SelectedFields = SelectedFields + StrReplace(
 			"
 			|	OldData.Field,",
 			"Field",
 			KeyAndValue(FieldDetails).Key);
 			
-		// 
+		// Aggregate the filter conditions.
 		If ValueIsFilled(KeyAndValue(FieldDetails).Value) Then
 			FilterConditions = FilterConditions + StrReplace(
 				"
@@ -5322,7 +5339,7 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
 	NewDataSelectionQueryText = StrReplace(
 		NewDataSelectionQueryText,  "&RowChangeKindFieldSubstitution", "1 AS LineChangeType");
 	
-	// 
+	// Preparing a text of change selection query.
 	QueryText =
 	"SELECT
 	|	&SelectedFields,
@@ -5346,14 +5363,14 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
 	SelectedFields = "";
 	GroupFields = "";
 	For Each FieldDetails In FieldsAndFilter Do
-		// 
+		// Aggregate the selected fields.
 		SelectedFields = SelectedFields + StrReplace(
 			"
 			|	AllRows.Field,",
 			"Field",
 			KeyAndValue(FieldDetails).Key);
 		
-		// 
+		// Aggregate the join fields.
 		GroupFields = GroupFields + StrReplace(
 			"
 			|	AllRows.Field,",
@@ -5379,12 +5396,12 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Infobase update.
 
-// Fills in the split data handler that depends on changes to the undivided data.
+// Fills in separated data handler that depends on shared data change.
 //
 // Parameters:
-//   Parameters - Structure - :
+//   Parameters - Structure - parameters of the update handler:
 //     * SeparatedHandlers - See InfobaseUpdate.NewUpdateHandlerTable
 // 
 Procedure FillSeparatedDataHandlers(Parameters = Undefined) Export
@@ -5401,34 +5418,34 @@ EndProcedure
 
 // Updates auxiliary data that partially depends on the configuration.
 //
-// Updated if there are configuration changes recorded in
-// the access restriction settings when updating the database to the current configuration version.
+// Updated when there are configuration changes recorded in access restriction
+// parameters when updating the infobase to the current configuration version.
 //
 Procedure UpdateAuxiliaryRegisterDataByConfigurationChanges(Parameters = Undefined) Export
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RolesRights.
 	InformationRegisters.AccessGroupsTables.UpdateRegisterDataByConfigurationChanges();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessKindsProperties.
 	InformationRegisters.UsedAccessKinds.UpdateRegisterData();
 	UpdateGroupsAndSetsOfAccessValuesWhenGroupTypesAndValuesChange();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable.
 	InformationRegisters.ObjectsRightsSettings.UpdateAuxiliaryRegisterDataByConfigurationChanges1();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.SuppliedProfilesDescription.
 	Catalogs.AccessGroupProfiles.UpdateSuppliedProfilesByConfigurationChanges();
 	Catalogs.AccessGroupProfiles.UpdateNonSuppliedProfilesOnConfigurationChanges();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessGroupPredefinedProfiles.
 	Catalogs.AccessGroups.MarkForDeletionSelectedProfilesAccessGroups();
 	
-	// 
+	// Parameter StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion.
 	InformationRegisters.AccessRestrictionParameters.ScheduleAccessUpdateByConfigurationChanges();
 	
 EndProcedure
 
-// Updates the settings and enables the scheduled task.
+// Updates settings and enables a scheduled job.
 Procedure EnableDataFillingForAccessRestriction() Export
 	
 	Use = Constants.LimitAccessAtRecordLevel.Get();
@@ -5459,7 +5476,7 @@ Procedure EnableDataFillingForAccessRestriction() Export
 	
 EndProcedure
 
-// Updates the profile data "interactively openingexternal accounts and processing".
+// Updates data of the InteractiveOpenExtReportsAndDataProcessors profile.
 Procedure UpdateProfileDataOpenExternalReportsAndDataProcessors() Export
 	
 	ProfileUUID = New UUID(
@@ -5486,7 +5503,7 @@ Procedure UpdateProfileDataOpenExternalReportsAndDataProcessors() Export
 			If SuppliedProfileReference <> Undefined Then
 				MarkForDeletionRef = True;
 			Else
-				// 
+				// Assign a default master data record ID.
 				BeginTransaction();
 				Try
 					Block.Lock();
@@ -5545,7 +5562,7 @@ Procedure UpdateAuxiliaryAccessGroupsData(Parameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
 // Returns:
 //   See InformationRegisters.RolesRights.RolesRightsTable
@@ -5585,8 +5602,8 @@ Procedure UpdateAccessGroupsTablesForEnabledExtensions(ExtensionsRolesRights = U
 		EndIf;
 	EndIf;
 	
-	// 
-	// 
+	// Populate rights in extension roles that change the access rights on
+	// configuration objects and extension objects.
 	SetNewExtenstionsRolesRights = False;
 	If ValueIsFilled(SessionParameters.AttachedExtensions) Then
 		ExtensionsRolesRightsStorage = StandardSubsystemsServer.ExtensionParameter(
@@ -5609,7 +5626,7 @@ Procedure UpdateAccessGroupsTablesForEnabledExtensions(ExtensionsRolesRights = U
 		ExtensionsRolesRights = BlankExtensionsRolesRights;
 	EndIf;
 	
-	// 
+	// Checking whether it is required to update the AccessGroupsTables register.
 	ParameterName = "StandardSubsystems.AccessManagement.AccessGroupTablesUpdateParameters";
 	ParametersOfUpdate = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
 	
@@ -5634,7 +5651,7 @@ Procedure UpdateAccessGroupsTablesForEnabledExtensions(ExtensionsRolesRights = U
 	EndIf;
 	
 	If LastExtensionsRolesRights = Undefined Then
-		// 
+		// Since the latest extension role rights are unavailable, update the entire register.
 		ObjectsWithUpdateRightsChanges = Undefined;
 	Else
 		CurrentObjectsWithRightsChanges = InformationRegisters.RolesRights.ChangedMetadataObjects(
@@ -5657,6 +5674,11 @@ Procedure UpdateAccessGroupsTablesForEnabledExtensions(ExtensionsRolesRights = U
 	LockItem = Block.Add("InformationRegister.ExtensionVersionParameters");
 	LockItem.SetValue("ExtensionsVersion", Catalogs.ExtensionsVersions.EmptyRef());
 	LockItem.SetValue("ParameterName", ParameterName);
+	
+	If Not TransactionActive() And Common.FileInfobase() Then
+		// Preliminary caching in the file infobase outside of transaction to avoid lock conflicts.
+		AccessManagementInternalCached.ProfileAdministrator();
+	EndIf;
 	
 	BeginTransaction();
 	Try
@@ -5685,7 +5707,7 @@ Procedure UpdateAccessGroupsTablesForEnabledExtensions(ExtensionsRolesRights = U
 	
 EndProcedure
 
-// For the procedure, update the table group available for connected Extensions.
+// For the UpdateAccessGroupsTablesForEnabledExtensions procedure.
 // 
 // Parameters:
 //  ExtensionsRolesRights       - See InformationRegisters.RolesRights.RolesRightsTable
@@ -5715,7 +5737,7 @@ Function IsExtensionsRolesRights(ExtensionsRolesRights, BlankExtensionsRolesRigh
 	
 EndFunction
 
-// For the procedure, update the table group available for connected Extensions.
+// For the UpdateAccessGroupsTablesForEnabledExtensions procedure.
 // 
 // Parameters:
 //  NewExtensionsRolesRights  - See InformationRegisters.RolesRights.RolesRightsTable
@@ -5756,11 +5778,11 @@ Procedure OnChangeAccessValuesSets(Val ObjectReference, IBUpdate = False)
 	For Each DependentObjectRef In RefsToDependentObjects Do
 		
 		If DependentObjectRef.Metadata().TabularSections.Find("AccessValuesSets") = Undefined Then
-			// 
-			// 
+			// No object change is required.
+			// @skip-check query-in-loop - Batch-wise data processing
 			WriteAccessValuesSets(DependentObjectRef, , IBUpdate);
 		Else
-			// 
+			// Object change is required.
 			Object = DependentObjectRef.GetObject();
 			Table = GetAccessValuesSetsOfTabularSection(Object);
 			If Not AccessValuesSetsOfTabularSectionChanged(DependentObjectRef, Table) Then
@@ -5778,11 +5800,11 @@ Procedure OnChangeAccessValuesSets(Val ObjectReference, IBUpdate = False)
 					InfobaseUpdate.WriteData(Object);
 				Else
 					Object.DataExchange.Load = True;
-					// 
-					// 
-					// 
+					// ACC:1327-off - No.783.1.4.1. It is acceptable to keep records without
+					// the preliminary managed object lock because this applies to RLS in SSL 2.x (obsolete),
+					// and it has never caused any issues.
 					Object.Write();
-					// 
+					// ACC:1327-off.
 				EndIf;
 				UnlockDataForEdit(DependentObjectRef);
 			Except
@@ -5862,7 +5884,7 @@ EndFunction
 
 Function OpenExternalReportsAndDataProcessorsAccessGroup(ProfileProperties)
 	
-	// 
+	// Search by ID.
 	UUID = New UUID("f6929bcb-532f-11e6-a20f-5404a6a6895d");
 	Ref = Catalogs.AccessGroups.GetRef(UUID);
 	RefExists = (Common.ObjectAttributeValue(Ref, "Ref") <> Undefined);
@@ -5870,13 +5892,13 @@ Function OpenExternalReportsAndDataProcessorsAccessGroup(ProfileProperties)
 		Return Ref;
 	EndIf;
 	
-	// 
+	// Search by profile.
 	ProfileGroups = ProfileGroups(ProfileProperties.Ref, Undefined);
 	If ProfileGroups.Count() > 0 Then
 		Return ProfileGroups[0];
 	EndIf;
 	
-	// 
+	// Create a group.
 	AccessGroupObject = Catalogs.AccessGroups.CreateItem();
 	AccessGroupObject.SetNewObjectRef(Ref);
 	AccessGroupObject.Description = ProfileProperties.Description;
@@ -5885,7 +5907,7 @@ Function OpenExternalReportsAndDataProcessorsAccessGroup(ProfileProperties)
 		NStr("en = 'Grants the right to open external reports and data processors from the ""File—Open"" menu.';",
 			Common.DefaultLanguageCode());
 	
-	AccessGroupObject.Write(); // 
+	AccessGroupObject.Write(); // It is important that the created group belongs to the subordinate node.
 	
 	Return AccessGroupObject.Ref;
 	
@@ -5918,7 +5940,7 @@ Function ProfileGroups(ProfileRef, DeletionMark)
 	
 EndFunction
 
-// For the function allowed values for the dynamic disk, there is a limit on how much Access is available.
+// For AllowedDynamicListValues and HasRestrictionByAccessKind functions.
 Function AccessGroupsRequestText()
 	
 	Return
@@ -5949,7 +5971,7 @@ Function AccessGroupsRequestText()
 	
 EndFunction
 
-// For procedures update Recordset, update recordset, and update recordregister.
+// For the UpdateRecordSet, UpdateRecordSets, and UpdateInformationRegister procedures.
 Procedure FillParameters_(InputParameters, Val AllParameters, Val RequiredParameters2 = "")
 	
 	If TypeOf(InputParameters) = Type("Structure") Then
@@ -5991,8 +6013,8 @@ Procedure FillParameters_(InputParameters, Val AllParameters, Val RequiredParame
 	
 EndProcedure
 
-// For procedures that are sent to the Main, sent to the Subordinate,
-// Prepolycondensation, Prepolycondensation.
+// For the OnSendDataToMaster, OnSendDataToSubordinate,
+// OnReceiveDataFromMaster, OnReceiveDataFromSlave procedures.
 //
 Function AccessManagementSubsystemObjectOnlyToCreateInitialImage(DataElement)
 	
@@ -6017,19 +6039,19 @@ Function AccessManagementSubsystemObjectOnlyToCreateInitialImage(DataElement)
 	
 EndFunction
 
-// For the procedures of obtaining the above-mentioned Head, obtaining the above-mentioned Head
+// Intended for procedures "OnReceiveDataFromMaster", "OnReceiveDataFromSlave".
 Procedure OnSendData(DataElement, ItemSend, Subordinate1, InitialImageCreating)
 	
-	If InitialImageCreating Then // 
-		// 
-		// 
+	If InitialImageCreating Then // Sending to a child node.
+		// Partial object changes upon an initial image creation are not supported.
+		// See the data processor in "OnSetUpSubordinateDIBNode".
 		//
-		// 
+		// Extension roles and admins are assigned independently in each of the DIB nodes.
 		// 
 		Return;
 	EndIf;
 	
-	// 
+	// Standard data processor cannot be overridden.
 	If ItemSend = DataItemSend.Delete
 	 Or ItemSend = DataItemSend.Ignore Then
 		Return;
@@ -6046,8 +6068,8 @@ Procedure OnSendData(DataElement, ItemSend, Subordinate1, InitialImageCreating)
 	
 	ElementType = TypeOf(DataElement);
 	
-	// 
-	// 
+	// The profile and access group for opening external reports and data processors
+	// are unavailable in the server but available from a standalone workstation.
 	If Common.IsStandaloneWorkplace()
 	   And (    ElementType = Type("CatalogObject.AccessGroupProfiles")
 	        And IsProfileOpenExternalReportsAndDataProcessors(DataElement)
@@ -6058,17 +6080,17 @@ Procedure OnSendData(DataElement, ItemSend, Subordinate1, InitialImageCreating)
 		ItemSend = DataItemSend.Ignore;
 	EndIf;
 	
-	// 
+	// Extension roles are assigned independently in all DIB nodes.
 	If ElementType = Type("CatalogObject.AccessGroupProfiles") Then
 		Catalogs.AccessGroupProfiles.DeleteExtensionsRoles(DataElement);
 	EndIf;
 	
 EndProcedure
 
-// For the procedures of obtaining the above-mentioned Head, obtaining the above-mentioned Head
+// Intended for procedures "OnReceiveDataFromMaster", "OnReceiveDataFromSlave".
 Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 	
-	// 
+	// Standard data processor cannot be overridden.
 	If ItemReceive = DataItemReceive.Ignore Then
 		Return;
 	EndIf;
@@ -6090,8 +6112,8 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 		 Or ElementType = Type("InformationRegisterRecordSet.ObjectRightsSettingsInheritance")
 		 Or ElementType = Type("InformationRegisterRecordSet.ObjectsRightsSettings")
 		 Or ElementType = Type("InformationRegisterRecordSet.UsedAccessKinds") Then
-			// 
-			// 
+			// Data import from the SWP is skipped. To keep data integrity in the nodes,
+			// the current data is sent back to the SWP.
 			ItemReceive = DataItemReceive.Ignore;
 			SendBack = True;
 			Return;
@@ -6100,8 +6122,8 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 	ElsIf FromSubordinate Then
 		If ElementType = Type("ConstantValueManager.LimitAccessAtRecordLevel")
 		 Or ElementType = Type("ConstantValueManager.LimitAccessAtRecordLevelUniversally") Then
-			// 
-			// 
+			// Data import from the child node is skipped. To keep data integrity in the nodes,
+			// the current data is sent back to the SWP.
 			SendBack = True;
 			ItemReceive = DataItemReceive.Ignore;
 			Return;
@@ -6115,19 +6137,19 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 		InformationRegisters.UsedAccessKinds.RegisterChangeUponDataImport(DataElement);
 		
 	ElsIf ElementType = Type("CatalogObject.AccessGroupProfiles") Then
-		// 
+		// Extension roles are assigned independently in all DIB nodes.
 		Catalogs.AccessGroupProfiles.RestoreExtensionsRolesComponents(DataElement);
-		// 
+		// Register a modified profile to update auxiliary data.
 		Catalogs.AccessGroupProfiles.RegisterChangeUponDataImport(DataElement);
 		
 	ElsIf ElementType = Type("CatalogObject.AccessGroups") Then
-		// 
+		// Administrators are assigned independently in all DIB nodes.
 		Catalogs.AccessGroups.RestoreAdministratorsAccessGroupMembers(DataElement);
-		// 
+		// Register a modified access group to update auxiliary data.
 		Catalogs.AccessGroups.RegisterChangeUponDataImport(DataElement);
 		
 	ElsIf Metadata.DefinedTypes.AccessValueObject.Type.ContainsType(ElementType) Then
-		// 
+		// Register modified access values to update auxiliary data after importing.
 		RegisterAccessValuesModifiedUponDataImport(DataElement);
 	EndIf;
 	
@@ -6139,22 +6161,22 @@ Procedure OnDataGet(DataElement, ItemReceive, SendBack, FromSubordinate)
 	RefType = TypeOf(DataElement.Ref);
 	
 	If RefType = Type("CatalogRef.AccessGroupProfiles") Then
-		// 
+		// Register a modified profile to update auxiliary data following the data import.
 		Catalogs.AccessGroupProfiles.RegisterChangeUponDataImport(DataElement);
 		
 	ElsIf RefType = Type("CatalogRef.AccessGroups") Then
-		// 
+		// Register a modified access group to update auxiliary data following the data import.
 		Catalogs.AccessGroups.RegisterChangeUponDataImport(DataElement);
 	EndIf;
 	
-	// 
+	// Register modified access values to update auxiliary data after importing.
 	If AccessManagementInternalCached.RefsTypesFromAccessValueObject().ContainsType(RefType) Then
 		RegisterAccessValuesModifiedUponDataImport(DataElement);
 	EndIf;
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnReceiveDataFromMasterOrSlave".
 Procedure RegisterAccessValuesModifiedUponDataImport(DataElement)
 	
 	SetPrivilegedMode(True);
@@ -6192,7 +6214,7 @@ Procedure RegisterAccessValuesModifiedUponDataImport(DataElement)
 	
 EndProcedure
 
-// For procedures after receiving Data, after updating the information Database.
+// Intended for procedures "AfterReceiveData" and "AfterUpdateInfobase".
 Procedure UpdateAuxiliaryDataOfItemsModifiedUponDataImport()
 	
 	InformationRegisters.ExtensionVersionParameters.LockForChangeInFileIB();
@@ -6206,7 +6228,7 @@ Procedure UpdateAuxiliaryDataOfItemsModifiedUponDataImport()
 	
 EndProcedure
 
-// 
+// For the UpdateAuxiliaryDataOfItemsModifiedUponDataImport procedure.
 Procedure ProcessChangeInAccessValuesRegisteredUponDataImport()
 	
 	RegistrationCleanup = New Array;
@@ -6221,7 +6243,7 @@ Procedure ProcessChangeInAccessValuesRegisteredUponDataImport()
 	
 EndProcedure
 
-// 
+// For the ProcessChangeInAccessValuesRegisteredUponDataImport procedure.
 Procedure ProcessRegisteredChangeInAccessValues(RefsKindName, RegistrationCleanup)
 	
 	AccessValues = UsersInternal.RegisteredRefs(RefsKindName);
@@ -6240,7 +6262,7 @@ Procedure ProcessRegisteredChangeInAccessValues(RefsKindName, RegistrationCleanu
 	
 EndProcedure
 
-// 
+// For the ProcessChangeInAccessValuesRegisteredUponDataImport procedure.
 Procedure ProcessRegisteredChangeInAccessValuesHierarchy(RefsKindName, RegistrationCleanup)
 	
 	AccessGroups = UsersInternal.RegisteredRefs(RefsKindName);
@@ -6259,7 +6281,7 @@ Procedure ProcessRegisteredChangeInAccessValuesHierarchy(RefsKindName, Registrat
 	
 EndProcedure
 
-// 
+// For the AddUserToAccessGroup procedure.
 Function ProcessUserLinkToAccessGroup(User, SuppliedProfile, Enable = Undefined)
 	
 	If TypeOf(User) <> Type("CatalogRef.Users")
@@ -6441,35 +6463,35 @@ Function ProcessUserLinkToAccessGroup(User, SuppliedProfile, Enable = Undefined)
 	
 EndFunction
 
-// 
+// For procedure WriteAccessValuesSetsOnWrite.
 
-// Overwrites the access value sets of the object being checked
-// in the data Register.Access value sets using the procedure
-// Access control.Fill in the set of access values ().
+// Overwrites access value sets of the object being checked
+// in InformationRegister.AccessValuesSets using the
+// AccessManagement.FillAccessValuesSets() procedure.
 //
-// the Procedure is called from the service management.Write a set of access values (),
-// but can be called from anywhere, for example,
-// when you enable record-level access restrictions.
+// Procedure is called from AccessManagementInternal.WriteAccessValuesSets()
+// but it can be called from anywhere, for example,
+// when you enable access restrictions at the record level.
 //
-// Calls the application developer procedure
-// Managementdefinable access.When changing the access value set (),
-// which is used to overwrite dependent sets of access values.
+// Calls the applied developer procedure
+// AccessManagementOverridable.OnChangeAccessValuesSets()
+// used to rewrite dependent access value sets.
 //
 // Parameters:
 //  Object       - AnyRef
 //               - DefinedType.AccessValuesSetsOwnerObject -
-//                 
-//                 
-//  IBUpdate - Boolean -  if True, then you need to write data 
-//                 without performing unnecessary, redundant actions with the data.
+//                 The client call can pass only a reference, while an object is required.
+//                 The object can be obtained by reference.
+//  IBUpdate - Boolean - if True, write data 
+//                 without performing unnecessary and redundant actions with the data.
 //                 See InfobaseUpdate.WriteData.
 //
 Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = False)
 	
 	SetPrivilegedMode(True);
 	
-	// 
-	// 
+	// If the "Object" parameter was passed from the client to the server,
+	// only its reference was passed. Obtain the object itself.
 	Object = ?(Object = Object.Ref, Object.GetObject(), Object);
 	ObjectReference = Object.Ref;
 	ValueTypeObject = TypeOf(Object);
@@ -6525,7 +6547,7 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 					"FillAccessValuesSetsForTabularSections");
 				Raise ErrorText;
 			EndIf;
-			// 
+			// The object with already filled AccessValuesSets tabular section is written.
 			Table = Object.AccessValuesSets.Unload();
 		EndIf;
 		
@@ -6560,59 +6582,59 @@ Procedure WriteAccessValuesSets(Val Object, HasChanges = Undefined, IBUpdate = F
 		
 		Query.SetParameter("ObjectReference", ObjectReference);
 		
-		// 
-		// 
-		// 
+		// ACC:1328-off - No.648.1.1. It is acceptable to read records without
+		// a preliminary managed object lock because this applies to RLS in SSL 2.x (obsolete),
+		// and it has never caused any issues.
 		If Not Query.Execute().IsEmpty() Then
-		// 
+		// ACC:1328-on.
 			
-			// 
-			// 
+			// Clear up the obsolete set.
+			// The scheduled job will write a new set after RLS is enabled.
 			// 
 			RecordSet = InformationRegisters.AccessValuesSets.CreateRecordSet();
 			RecordSet.Filter.Object.Set(ObjectReference);
 			RecordSet.Write();
 			HasChanges = True;
 			
-			// 
+			// Clearing obsolete dependent sets.
 			OnChangeAccessValuesSets(ObjectReference, IBUpdate);
 		EndIf;
 	EndIf;
 	
 EndProcedure
 
-// 
+// For procedure WriteDependentAccessValuesSetsOnWrite.
 
-// Overwrites the access value sets of dependent objects.
+// Overwrites access value sets of dependent objects.
 //
-//  The procedure is called from the service management.ЗаписатьЗависимыеНаборыЗначенийДоступа(),
-// the composition of the subscription types is complementary (without crossing) the composition of the subscription types of Zamestnavatelu,
-// the types for which to write sets in a register information Naberezhnochelninskaya
-// not required, but the sets themselves are part of other sets, such as sets of some files
-// from the directory "Files" can be part of some business process "Job" created
-// on the basis of files, the file record in the register is not required.
+//  Procedure is called from AccessManagementInternal.WriteDependentAccessValuesSets()
+// The subscription type content complements (without overlapping) the WriteAccessValuesSets subscription type content
+// with types that
+// do not require recording sets to the AccessValuesSets information register but the sets themselves belong to other sets. Example: a set of files
+// from the Files catalog might belong to several Job business processes created
+// based on files. Recording the file sets to the register is not required.
 //
-// Calls the application developer procedure
-// Managementdefinable access.When changing the access value (),
-// which is used to overwrite dependent sets of access values,
-// that is, recursion is organized.
+// Calls the applied developer procedure
+// AccessManagementOverridable.OnChangeAccessValuesSets()
+// used for overwriting dependent value sets,
+// thus creating a recursion.
 //
 // Parameters:
 //  Object       - AnyRef
 //               - DefinedType.AccessValuesSetsOwnerObject -
-//                 
-//                 
+//                 The client call can pass only a reference, while an object is required.
+//                 The object can be obtained by reference.
 //
-//  IBUpdate - Boolean -  if True, then you need to write data 
-//                 without performing unnecessary, redundant actions with the data.
+//  IBUpdate - Boolean - if True, write data 
+//                 without performing unnecessary and redundant actions with the data.
 //                 See InfobaseUpdate.WriteData.
 //
 Procedure WriteDependentAccessValuesSets(Val Object, IBUpdate = False)
 	
 	SetPrivilegedMode(True);
 	
-	// 
-	// 
+	// If the "Object" parameter was passed from the client to the server,
+	// only its reference was passed. Obtain the object itself.
 	Object = ?(Object = Object.Ref, Object.GetObject(), Object);
 	ObjectReference = Object.Ref;
 	ValueTypeObject = TypeOf(Object);
@@ -6634,10 +6656,10 @@ Procedure WriteDependentAccessValuesSets(Val Object, IBUpdate = False)
 	
 EndProcedure
 
-// 
-// 
+// Intended for procedures "FillSeparatedDataHandlers" and
+// "UpdateAuxiliaryRegisterDataByConfigurationChanges".
 
-// Checks whether there have been changes to undivided data for any data area.
+// Checks whether shared data was changed for any data area.
 Function HasChangesOfAccessRestrictionParameters()
 	
 	SetPrivilegedMode(True);
@@ -6666,14 +6688,14 @@ Function HasChangesOfAccessRestrictionParameters()
 	
 EndFunction
 
-// 
+// For procedure UpdateUsersRoles.
 
-// 
+// For testing purposes.
 //
 // Parameters:
 //  AdditionalRoles - Map of KeyAndValue:
-//    * Key     - String - 
-//    * Value - Boolean -  Truth.
+//    * Key     - String - Name of the role that can be assigned to Administrator.
+//    * Value - Boolean - True.
 //
 Procedure OnPrepareAdminAdditionalRoles(AdditionalRoles)
 	Return;
@@ -6929,7 +6951,7 @@ Function CurrentUsersProperties(UsersArray)
 	
 EndFunction
 
-// 
+// For function CurrentUsersProperties.
 Procedure CheckActualityofNewUserRolesInSession(RoleIDs)
 	
 	ParameterName = "StandardSubsystems.AccessManagement.RoleIDs";
@@ -6981,7 +7003,7 @@ Procedure CheckActualityofNewUserRolesInSession(RoleIDs)
 	
 EndProcedure
 
-// 
+// Intended for function "CurrentUsersProperties".
 Procedure AddRolesNames(AdministratorRoles, FullRoleNames, RoleIDs)
 	
 	For Each KeyAndValue In AdministratorRoles Do
@@ -7000,7 +7022,7 @@ Procedure AddRolesNames(AdministratorRoles, FullRoleNames, RoleIDs)
 	
 EndProcedure
 
-// 
+// Intended for function "CurrentUsersProperties".
 Procedure AddIDsOfRoles(FullRoleNames, RoleIDs, RolesNames)
 	
 	AdditionalRolesIDs =
@@ -7018,7 +7040,7 @@ Procedure AddIDsOfRoles(FullRoleNames, RoleIDs, RolesNames)
 	
 EndProcedure
 
-// 
+// Intended for function "CurrentUsersProperties".
 Procedure AddIDsOfRolesWithoutMetadataObjects(WithoutMetadataObjects, RoleIDs)
 	
 	RolesKeys = Catalogs.MetadataObjectIDs.RolesKeys(WithoutMetadataObjects);
@@ -7031,7 +7053,7 @@ Procedure AddIDsOfRolesWithoutMetadataObjects(WithoutMetadataObjects, RoleIDs)
 	
 EndProcedure
 
-// 
+// Intended for function "CurrentUsersProperties".
 Procedure FillRolesIDs(AdministratorRoles, RoleIDs, RolesNames = Undefined)
 	
 	AdminNewRoles = New Map;
@@ -7080,7 +7102,7 @@ EndFunction
 //                  - CatalogRef.ExternalUsers
 //   * RoleRef   - CatalogRef.MetadataObjectIDs
 //                  - CatalogRef.ExtensionObjectIDs
-//   * Role         - String -  role name.
+//   * Role         - String - Role name.
 //
 Function NewInvalidRoles(NewUsersRoles)
 	
@@ -7137,7 +7159,7 @@ Procedure RegisterInvalidRoles(InvalidRoles)
 	
 EndProcedure
 
-// 
+// Intended for procedure "UpdateData".
 Procedure FillUnfoundRolesNames(InvalidRoles)
 	
 	Filter = New Structure("IsUnfoundRole", True);
@@ -7263,15 +7285,15 @@ Procedure ClearUseMainRolesForAllUsersCheckBoxForAllExtensions()
 		EndIf;
 		Catalogs.ExtensionsVersions.DisableSecurityWarnings(Extension);
 		Catalogs.ExtensionsVersions.DisableMainRolesUsageForAllUsers(Extension);
-		// 
-		// 
-		// 
+		// ACC:280-off - No.499.3.4. It's acceptable to skip the exception handling as
+		// this operation is not a stopper and will be completed upon a role update.
+		// Writing extensions is not a transaction, so it won't cause transactional errors.
 		Try
 			Extension.Write();
 		Except
-			// 
+			// Processing is not required.
 		EndTry;
-		// 
+		// ACC:280-on
 	EndDo;
 	
 EndProcedure
@@ -7329,7 +7351,7 @@ Function ProfilesOfUsersWithRoles(InvalidRoles)
 	
 EndFunction
 
-// For the procedure, update the user role.
+// This method is required by UpdateIBUsersRoles procedure.
 Procedure WriteUserOnRolesUpdate(UserRef, IBUser,
 			HadFullRights, HadLogonRights, ServiceUserPassword)
 	
@@ -7400,7 +7422,7 @@ Procedure WriteUserOnRolesUpdate(UserRef, IBUser,
 	
 EndProcedure
 
-// 
+// For procedure ChangesSelectionQueryText.
 
 Function KeyAndValue(Structure)
 	
@@ -7412,7 +7434,7 @@ Function KeyAndValue(Structure)
 	
 EndFunction
 
-// 
+// For the UpdateRecordSet and UpdateNewSetRecordsByVariousNewRecords procedures.
 
 Procedure WriteObjectOrRecordSet(Data, ObjectOrRecordSet)
 	
@@ -7424,7 +7446,7 @@ Procedure WriteObjectOrRecordSet(Data, ObjectOrRecordSet)
 	
 EndProcedure
 
-// 
+// For the UpdateRecordSet and UpdateRecordSets procedures.
 
 Function DimensionParametersGroupProcessed(DimensionName, RegisterDimensionValues)
 	
@@ -7541,7 +7563,7 @@ EndProcedure
 
 Procedure RefreshNewSetRecordsByVariousNewRecords(Val Data, Val Filter, HasChanges)
 	
-	// 
+	// Getting a number of records to be read.
 	
 	If Filter.Count() = 0 Then
 		CurrentNewRecords = Data.NewRecords.Copy(); // ValueTable
@@ -7576,11 +7598,11 @@ Procedure RefreshNewSetRecordsByVariousNewRecords(Val Data, Val Filter, HasChang
 			FoundRows = NewSetRecords.FindRows(FilterByRecordKey);
 			If String.LineChangeType = -1 Then
 				If FoundRows.Count() > 0 Then
-					// 
+					// Delete the old row.
 					NewSetRecords.Delete(FoundRows[0]);
 				EndIf;
 			Else
-				// 
+				// Adding a new or updating an old row.
 				If FoundRows.Count() = 0 Then
 					RowToFill = NewSetRecords.Add();
 				Else
@@ -7590,13 +7612,13 @@ Procedure RefreshNewSetRecordsByVariousNewRecords(Val Data, Val Filter, HasChang
 				FoundRecords = CurrentNewRecords.FindRows(NewRecordFilter);
 				If FoundRecords.Count() = 1 Then
 					NewRecord = FoundRecords[0];
-				Else // 
+				Else // Error in the NewRecords parameter.
 					ExceptionOnRecordSearchError(Data);
 				EndIf;
 				FillPropertyValues(RowToFill, NewRecord);
 			EndIf;
 		EndDo;
-		// 
+		// Changing a record set to make it different from the new set records.
 		If Data.RecordSet.Count() = NewSetRecords.Count() Then
 			Data.RecordSet.Add();
 		EndIf;
@@ -7609,7 +7631,7 @@ Procedure RefreshNewSetRecordsByVariousNewRecords(Val Data, Val Filter, HasChang
 		
 		UpdateRecordSet(CurrentData, HasChanges);
 	Else
-		// 
+		// Row-by-row update.
 		SetAdditionalProperties(Data.SetForSingleRecord, Data.AdditionalProperties);
 		For Each String In RecordsKeys Do
 			Data.SetForSingleRecord.Clear();
@@ -7620,12 +7642,12 @@ Procedure RefreshNewSetRecordsByVariousNewRecords(Val Data, Val Filter, HasChang
 			EndDo;
 			LockRecordSetArea(Data.SetForSingleRecord, Data.FullRegisterName);
 			If String.LineChangeType > -1 Then
-				// 
+				// Adding a new row or updating the existing row.
 				FillPropertyValues(NewRecordFilter, FilterByRecordKey);
 				FoundRecords = CurrentNewRecords.FindRows(NewRecordFilter);
 				If FoundRecords.Count() = 1 Then
 					NewRecord = FoundRecords[0];
-				Else // 
+				Else // Error in the NewRecords parameter.
 					ExceptionOnRecordSearchError(Data);
 				EndIf;
 				FillPropertyValues(Data.SetForSingleRecord.Add(), NewRecord);
@@ -7640,11 +7662,11 @@ Procedure RefreshNewSetRecordsByVariousNewRecords(Val Data, Val Filter, HasChang
 	
 EndProcedure
 
-// For the procedure, update the new recordset with different new Records.
+// For the UpdateNewSetRecordsByVariousNewRecords procedure.
 Function UpdateEntireRecordSet(CountForReading, RecordsKeys)
 	
 	If CountForReading > 10000 Then
-		Return False; // 
+		Return False; // Record set is too big.
 	EndIf;
 	
 	CountOfItemsToDelete = RecordsKeys.FindRows(
@@ -7657,7 +7679,7 @@ Function UpdateEntireRecordSet(CountForReading, RecordsKeys)
 		+ CountOfItemsToAdd;
 	
 	If ForWriteCount > 10000 Then
-		Return False; // 
+		Return False; // Record set is too big.
 	EndIf;
 	
 	ItemsToChangeCount = RecordsKeys.Count()
@@ -7667,14 +7689,14 @@ Function UpdateEntireRecordSet(CountForReading, RecordsKeys)
 		- (CountOfItemsToDelete + ItemsToChangeCount);
 	
 	FullyRewriteCosts =
-	//                
+	//                Operations:   |Read|Delete|Insert|
 	      CountOfItemsToDelete   * ( 0.05  +  0.1          )
 	    + ItemsToChangeCount  * ( 0.05  +  0.1   +  1   )
 	    + CountOfItemsToAdd * (                   1   )
 	    + NotChangedCount  * ( 0.05  +  0.1   +  1   );
 	
 	CostsToRewriteOneRecord =
-	//                
+	//                Operation:   |Delete|Insert|
 	      CountOfItemsToDelete   * (   0.5          )
 	    + ItemsToChangeCount  * (   0.5  +  1.2  )
 	    + CountOfItemsToAdd * (   0.5  +  1.2  );
@@ -7812,11 +7834,11 @@ Function RecordByMultipleSets(Data, Filter, FieldName, ValueOfField)
 	
 	QueriesResults = Query.ExecuteBatch();
 	
-	// 
+	// Total number of items without filter.
 	CountOfAllItems = QueriesResults[0].Unload()[0].Count;
 	Data.Insert("CountForReading", CountOfAllItems);
 	
-	// 
+	// Number of filtered items to be updated.
 	CountOfItemsToUpdate = QueriesResults[1].Unload()[0].Count;
 	
 	CountOfItemsToAdd = Data.NewRecords.FindRows(FilterOfItemsToAdd).Count();
@@ -7829,7 +7851,7 @@ Function RecordByMultipleSets(Data, Filter, FieldName, ValueOfField)
 		CountOfItemsToUpdate = CountOfItemsToDelete;
 	EndIf;
 	
-	// 
+	// Number of items to be read by filter values.
 	CountByValues = QueriesResults[2].Unload();
 	CountByValues.Indexes.Add(FieldName);
 	Data.Insert("CountByValues", CountByValues);
@@ -7875,7 +7897,7 @@ Procedure SetAdditionalProperties(RecordSet, AdditionalProperties)
 	
 EndProcedure
 
-// 
+// For procedure UpdateInformationRegister.
 
 Function TableColumnValues(Table, ColumnName)
 	
@@ -7887,7 +7909,7 @@ Function TableColumnValues(Table, ColumnName)
 	
 EndFunction
 
-// 
+// Management of AccessKinds and AccessValues tables in edit forms.
 
 Procedure AddAuxiliaryDataAttributesToForm(Form, TablesStorageAttributeName)
 	
@@ -7896,11 +7918,11 @@ Procedure AddAuxiliaryDataAttributesToForm(Form, TablesStorageAttributeName)
 	
 	PathToObject = ?(ValueIsFilled(TablesStorageAttributeName), TablesStorageAttributeName + ".", "");
 	
-	// 
+	// Adding attributes to the AccessKinds table.
 	AttributesToBeAdded.Add(New FormAttribute(
 		"Used", New TypeDescription("Boolean"), PathToObject + "AccessKinds"));
 	
-	// 
+	// Add individual attributes.
 	AttributesToBeAdded.Add(New FormAttribute(
 		"CurrentAccessKind", AccessValuesTypesDetails));
 	
@@ -7927,7 +7949,7 @@ Procedure AddAuxiliaryDataAttributesToForm(Form, TablesStorageAttributeName)
 	AttributesToBeAdded.Add(New FormAttribute(
 		"AccessKindExternalUsers", AccessValuesTypesDetails));
 	
-	// 
+	// Add the AllAccessKinds table.
 	AttributesToBeAdded.Add(New FormAttribute(
 		"AllAccessKinds", New TypeDescription("ValueTable")));
 	
@@ -7940,7 +7962,7 @@ Procedure AddAuxiliaryDataAttributesToForm(Form, TablesStorageAttributeName)
 	AttributesToBeAdded.Add(New FormAttribute(
 		"Used", New TypeDescription("Boolean"), "AllAccessKinds"));
 	
-	// 
+	// Add the PresentationsAllAllowed table.
 	AttributesToBeAdded.Add(New FormAttribute(
 		"PresentationsAllAllowed", New TypeDescription("ValueTable")));
 	
@@ -7950,7 +7972,7 @@ Procedure AddAuxiliaryDataAttributesToForm(Form, TablesStorageAttributeName)
 	AttributesToBeAdded.Add(New FormAttribute(
 		"Presentation", New TypeDescription("String"), "PresentationsAllAllowed"));
 	
-	// 
+	// Add the AllTypesOfValuesToSelect table.
 	AttributesToBeAdded.Add(New FormAttribute(
 		"AllTypesOfValuesToSelect", New TypeDescription("ValueTable")));
 	
@@ -7983,7 +8005,7 @@ Procedure FillTableAllAccessKindsInForm(Form)
 		String = AllAccessKinds.Add();
 		String.Ref        = AccessKindProperties.Ref;
 		String.Used  = UsedAccessKinds.Get(String.Ref) <> Undefined;
-		// 
+		// Make sure the presentations are unique.
 		Presentation = AccessKindPresentation(AccessKindProperties);
 		Filter = New Structure("Presentation", Presentation);
 		While AllAccessKinds.FindRows(Filter).Count() > 0 Do
@@ -8036,7 +8058,7 @@ Procedure ApplyTableAccessKindsInForm(Form)
 	
 	Parameters = AllowedValuesEditFormParameters(Form);
 	
-	// 
+	// Appearance of representation of unused access kinds.
 	ConditionalAppearanceItem = Form.ConditionalAppearance.Items.Add();
 	
 	AppearanceColorItem = ConditionalAppearanceItem.Appearance.Items.Find("TextColor");
@@ -8070,7 +8092,7 @@ Procedure CheckoutTableAccessValuesForm(Form)
 	Parameters = AllowedValuesEditFormParameters(Form);
 	EmptyAccessValueReferences = EmptyAccessValueReferences();
 	
-	// 
+	// Appearance of empty access value references.
 	For Each String In EmptyAccessValueReferences Do
 		ConditionalAppearanceItem = Form.ConditionalAppearance.Items.Add();
 		
@@ -8177,12 +8199,12 @@ Function EmptyAccessValueReferences() Export
 	
 EndFunction
 
-// For the procedure for setting the session Parameters.
+// For the SessionParametersSetting procedure.
 
 Function AllAccessKindsCombinations(UnorderedNamesArray)
 	
-	// 
-	// 
+	// Limit the combination maximum length to avoid overloading
+	// the session parameters and RLS template preprocessor.
 	MaxCombinationLength = 4;
 	
 	List = New ValueList;
@@ -8197,7 +8219,7 @@ Function AllAccessKindsCombinations(UnorderedNamesArray)
 	RowTotal = New Array;
 	TotalRow = New Array;
 	
-	// 
+	// Full list is always supported.
 	For Each Name In NamesArray Do
 		TotalRow.Add(Name);
 	EndDo;
@@ -8231,7 +8253,7 @@ Function AllAccessKindsCombinations(UnorderedNamesArray)
 		
 		While CombinationLength > 0 Do
 			While True Do
-				// 
+				// Adding a combination from the current items.
 				TotalRow = New Array;
 				TotalRow.Add(FirstName);
 				For IndexOf = 0 To CombinationLength-1 Do
@@ -8239,12 +8261,12 @@ Function AllAccessKindsCombinations(UnorderedNamesArray)
 				EndDo;
 				TotalRow.Add(LatestName);
 				RowTotal.Add(TotalRow);
-				// 
+				// Increasing a position in the combination.
 				IndexOf = CombinationLength-1;
 				While IndexOf >= 0 Do
 					If NamesPositionsInCombination[IndexOf] < CountOfNamesInCombination - (CombinationLength - (IndexOf+1)) Then
 						NamesPositionsInCombination[IndexOf] = NamesPositionsInCombination[IndexOf] + 1;
-						// 
+						// Filling senior positions with initial values.
 						For SeniorPositionIndex = IndexOf+1 To CombinationLength-1 Do
 							NamesPositionsInCombination[SeniorPositionIndex] =
 								NamesPositionsInCombination[IndexOf] + SeniorPositionIndex - IndexOf;
@@ -8295,9 +8317,9 @@ Function RowsGroupsInLine(RowsGroups)
 	
 EndFunction
 
-// 
+// For the UpdateAccessValuesSets, OnChangeAccessValuesSets procedures.
 
-// Checks that the sets in the table part are different from the new sets.
+// Checks whether sets in a tabular section differ from the new sets.
 Function AccessValuesSetsOfTabularSectionChanged(ObjectReference, NewSets)
 	
 	OldSets = Common.ObjectAttributeValue(
@@ -8327,7 +8349,7 @@ Function AccessValuesSetsOfTabularSectionChanged(ObjectReference, NewSets)
 	
 EndFunction
 
-// For the function resolvedvalues of the dynamic Disk.
+// This method is required by AllowedDynamicListValues.
 Procedure AddQueryToPackage(PackageText, QueryText)
 	
 	Separator =
@@ -8341,7 +8363,7 @@ Procedure AddQueryToPackage(PackageText, QueryText)
 	
 EndProcedure
 
-// For the function resolvedvalues of the dynamic Disk.
+// This method is required by AllowedDynamicListValues.
 Procedure UnionQueryWithQuery(QueryText, QueryTextToAdd)
 	
 	Combiner =
@@ -8355,9 +8377,9 @@ Procedure UnionQueryWithQuery(QueryText, QueryTextToAdd)
 	
 EndProcedure
 
-// 
+// Updating access kind properties.
 
-// 
+// For functions 
 // 
 //
 // Returns:
@@ -8371,7 +8393,7 @@ EndProcedure
 // 
 Function FilledSessionAccessTypes()
 	
-	// 
+	// 1. Populate the data specified during integration.
 	
 	AccessKinds = New ValueTable;
 	AccessKinds.Columns.Add("Name",                    New TypeDescription("String"));
@@ -8388,8 +8410,8 @@ Function FilledSessionAccessTypes()
 	
 EndFunction
 
-// 
-// 
+// For the FilledAccessKinds function and
+// the AddExtraAccessKindTypes procedure of the AccessManagement common module.
 //
 // Returns:
 //  ValueTable:
@@ -8408,8 +8430,8 @@ Function NewAdditionalAccessKindTypesTable() Export
 	
 EndFunction
 
-// 
-// 
+// For procedures OnFillAllExtensionParameters an
+// UpdateAuxiliaryRegisterDataByConfigurationChanges.
 //
 Procedure UpdateGroupsAndSetsOfAccessValuesWhenGroupTypesAndValuesChange()
 	
@@ -8453,8 +8475,8 @@ Procedure UpdateGroupsAndSetsOfAccessValuesWhenGroupTypesAndValuesChange()
 	
 EndProcedure
 
-// 
-// 
+// See "AccessManagementOverridable.OnFillAccessKinds".
+// See also filling in function "CheckedSessionAccessKindsProperties".
 //
 // Returns:
 //   FixedStructure:
@@ -8532,11 +8554,11 @@ Function AccessKindsProperties() Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Intended for procedure "AccessManagementInternalCached.SessionAccessKindsPropertiesDetails".
+// Returns properties of access kinds filled when embedding the "AccessManagementOverridable.OnFillAccessKinds" procedure
+// and other handlers with the same name for this event.
 //
-// 
+// Also see "AccessControlOverridable.OnFillAccessKinds".
 //
 // Parameters:
 //  HashAmounts - See NewHashSumAccessTypeProperties
@@ -8548,13 +8570,13 @@ Function CheckedSessionAccessViewProperties(HashAmounts) Export
 	
 	AccessKinds = FilledSessionAccessTypes();
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
+	// 1. Check the following:
+	// - Access value type is not specified for 2 access kinds.
+	// - Access value types "Users" and "UserGroups" are used only for the "Users" access kind.
+	// - Access value types "ExternalUsers" and "ExternalUsersGroups" are used only for access kind "ExternalUsers".
+	// - Names of the following access kinds are not specified: "Object", "Condition", "RightsSettings", "ReadRight1", "EditRight".
+	// - Value group type mismatches the value type.
+	// - 2. Prepare access kind property collections required for app functioning.
 	//
 	// 
 	
@@ -8600,20 +8622,20 @@ Function CheckedSessionAccessViewProperties(HashAmounts) Export
 			Raise ErrorText;
 		EndIf;
 		
-		// 
+		// Checking for duplicate value types and group types.
 		ValidateType(AccessKind, AccessKind.ValuesType,      AllValuesTypes,      Parameters);
 		ValidateType(AccessKind, AccessKind.ValuesGroupsType, AllValuesGroupsTypes, Parameters, True);
-		// 
+		// Checking for intersection of value types and group types.
 		ValidateType(AccessKind, AccessKind.ValuesType,      AllValuesGroupsTypes, Parameters,       , True);
 		ValidateType(AccessKind, AccessKind.ValuesGroupsType, AllValuesTypes,      Parameters, True, True);
 		
 		TableAdditionalTypes = AccessKind.AdditionalTypes; // See NewAdditionalAccessKindTypesTable
 		
 		For Each String In TableAdditionalTypes Do
-			// 
+			// Checking for duplicate value types and group types.
 			ValidateType(AccessKind, String.ValuesType,      AllValuesTypes,      Parameters);
 			ValidateType(AccessKind, String.ValuesGroupsType, AllValuesGroupsTypes, Parameters, True);
-			// 
+			// Checking for intersection of value types and group types.
 			ValidateType(AccessKind, String.ValuesType,      AllValuesGroupsTypes, Parameters,       , True);
 			ValidateType(AccessKind, String.ValuesGroupsType, AllValuesTypes,      Parameters, True, True);
 		EndDo;
@@ -8726,7 +8748,7 @@ Function CheckedSessionAccessViewProperties(HashAmounts) Export
 	
 	CheckSubscriptionTypesUpdateAccessValuesGroups(AccessValuesWithGroups);
 	
-	// 
+	// Final data commitment.
 	
 	AccessValuesWithGroups.NamesOfTablesToUpdate =
 		New FixedArray(AccessValuesWithGroups.NamesOfTablesToUpdate);
@@ -8790,7 +8812,7 @@ Function CheckedSessionAccessViewProperties(HashAmounts) Export
 	
 EndFunction
 
-// For the access view Property function.
+// For the AccessKindsProperties function.
 //
 // Returns:
 //   See AccessKindProperties
@@ -8810,7 +8832,7 @@ Function NewAccessKindProperties(AccessKind, ValueTypeBlankRef)
 	
 EndFunction
 
-// For the access view Property function.
+// For the AccessKindsProperties function.
 //
 // Returns:
 //   Structure:
@@ -8842,7 +8864,7 @@ Function AccessValuesWithGroups()
 	
 EndFunction
 
-// For the access view Property function.
+// For the AccessKindsProperties function.
 //
 // Returns:
 //   FixedStructure:
@@ -8861,7 +8883,7 @@ Function AdditionalAccessKindType(String)
 	
 EndFunction
 
-// For the access view Property function.
+// For the AccessKindsProperties function.
 Procedure FillAccessValuesWithGroups(String, AccessValuesWithGroups, Properties, TypesOfValuesToSelect)
 	
 	If Properties.Name = "Users" Then
@@ -8908,7 +8930,7 @@ Procedure FillAccessValuesWithGroups(String, AccessValuesWithGroups, Properties,
 	
 EndProcedure
 
-// For the access view Property function and the procedure, fill in the access values with Groups.
+// For the AccessKindsProperties function and the FillAccessValuesWithGroups procedure.
 Procedure AddSubscriptionTypesUpdateAccessValuesGroups(RefType, ObjectType,
 			ValuesTypeMetadata, AccessValuesWithGroups, Properties, MetadataOfValuesGroupsType)
 	
@@ -8934,7 +8956,7 @@ Procedure AddSubscriptionTypesUpdateAccessValuesGroups(RefType, ObjectType,
 	
 EndProcedure
 
-// For the access view Property function.
+// For the AccessKindsProperties function.
 Procedure CheckSubscriptionTypesUpdateAccessValuesGroups(AccessValuesWithGroups)
 	
 	CurrentSubscriptionTypes = AccessManagementInternalCached.TableFieldTypes(
@@ -8974,7 +8996,7 @@ Procedure CheckSubscriptionTypesUpdateAccessValuesGroups(AccessValuesWithGroups)
 	
 EndProcedure
 
-// For the access view Property function.
+// For the AccessKindsProperties function.
 Procedure ValidateType(AccessKind, Type, AllTypes, Parameters, CheckGroupsTypes = False, IntersectionCheck = False)
 	
 	If Type = Type("Undefined") Then
@@ -8987,7 +9009,7 @@ Procedure ValidateType(AccessKind, Type, AllTypes, Parameters, CheckGroupsTypes 
 		Raise ErrorText;
 	EndIf;
 	
-	// 
+	// Checking whether a reference type is specified.
 	If Not Common.IsReference(Type) Then
 		If CheckGroupsTypes Then
 			ErrorDescription =
@@ -9003,7 +9025,7 @@ Procedure ValidateType(AccessKind, Type, AllTypes, Parameters, CheckGroupsTypes 
 		Raise ErrorText;
 	EndIf;
 	
-	// 
+	// Checking for duplication and intersection of value types and value groups.
 	ForSameAccessKindNoError = False;
 	
 	If CheckGroupsTypes Then
@@ -9039,7 +9061,7 @@ Procedure ValidateType(AccessKind, Type, AllTypes, Parameters, CheckGroupsTypes 
 		AllTypes.Insert(Type, AccessKind.Name);
 	EndIf;
 	
-	// 
+	// Check the content of type collections.
 	ErrorDescription = "";
 	If Parameters.DefinedAccessValuesTypes.Get(Type) = Undefined Then
 		If CheckGroupsTypes Then
@@ -9094,7 +9116,7 @@ Function AccessKindPresentation(AccessKindProperties) Export
 	
 EndFunction
 
-// For the procedure, fill in the access values with Groups.
+// For the FillAccessValuesWithGroups procedure.
 Procedure AddToArray(Array, Value)
 	
 	If Array.Find(Value) = Undefined Then
@@ -9103,9 +9125,9 @@ Procedure AddToArray(Array, Value)
 	
 EndProcedure
 
-// 
-// 
-// 
+// Intended for functions "AccessManagementInternalCached.SessionAccessKindsPropertiesDetails",
+// "AccessKindsProperties" and procedures "UpdateAccessKindsPropertiesDetails",
+// "UpdateAccessValuesGroupsAndSetsOnChangeInGroupTypesAndValues".
 //
 // Parameters:
 //  Value - Undefined
@@ -9130,7 +9152,7 @@ Function NewHashSumAccessTypeProperties(Value = Undefined) Export
 	
 EndFunction
 
-// 
+// Intended for procedure "CheckedSessionAccessKindsProperties".
 Function HashSumGroupTypesFromAccessValues(AccessKindsProperties)
 	
 	Data = New Array;
@@ -9150,7 +9172,7 @@ Function HashSumGroupTypesFromAccessValues(AccessKindsProperties)
 	
 EndFunction
 
-// 
+// Intended for function "AccessValuesAndGroupsTypesHash".
 Function TypeDescriptionFromMatchKeys(Data)
 	
 	Types = New Array;
@@ -9235,37 +9257,37 @@ Function AccessGroupsUsingAccessValuesHierarchy(AccessKindValueType)
 	
 EndFunction
 
-// Returns a table of values containing the type of access restrictions for each right
-// of metadata objects.
-//  If there is no entry by right, then there are no restrictions by right.
-//  The table contains only the types of access specified by the developer,
-// based on their application in the restriction texts.
-//  To get all types of access, including those used in
-// access value sets
-// , the current state of the access Value set information register can be used.
+// Returns the value table containing an access restriction kind for each
+// metadata object right.
+//  If no record is returned for a right, no restrictions exist for this right.
+//  The table contains only the access kinds specified by the developer
+//  based on their usage in restriction texts.
+//  To receive all access kinds including the ones used in access value sets,
+// the current state
+// of the AccessValuesSets information register can be used.
 //
 // Parameters:
-//  ForCheck - Boolean -  return a text description of rights restrictions filled
-//                         in in redefined modules without checking.
+//  ForCheck - Boolean - return text description of right restrictions filled
+//                         in overridable modules without checking.
 //
 // Returns:
 //  ValueTable:
-//   * ForExternalUsers - Boolean - 
-//                                 
-//                                 
-//   * FullName      - String -  full name of the table.
+//   * ForExternalUsers - Boolean - If False, restrict the access for internal users.
+//                                 If True, restrict the access for external users.
+//                                 This column is applicable only to universal restrictions.
+//   * FullName      - String - a full table name.
 //   * Table        - CatalogRef.MetadataObjectIDs
-//                    - CatalogRef.ExtensionObjectIDs - 
-//   * AccessKind     - AnyRef - 
-//                              
-//   * Right          - String - 
-//                    - Undefined - 
-//   * ObjectTable - AnyRef - 
-//                      
-//                    - Undefined - 
-//                      
+//                    - CatalogRef.ExtensionObjectIDs - Table ID.
+//   * AccessKind     - AnyRef - Empty Ref to the main access kind value type.
+//                              Empty Ref to the access right settings owner.
+//   * Right          - String - Read, Update.
+//                    - Undefined - for the Object access kind.
+//   * ObjectTable - AnyRef - Empty reference of the metadata object used to restrict access with access value sets.
+//                      For example, Catalog.FilesFolders.
+//                    - Undefined - If AccessKind is not Undefined.
+//                      This column is applicable only to standard restrictions.
 //
-//  
+//  String - If ForCheck is True, then same as restrictions in the overridden module.
 //
 Function PermanentMetadataObjectsRightsRestrictionsKinds(ForCheck = False) Export
 	
@@ -9315,7 +9337,7 @@ Function PermanentMetadataObjectsRightsRestrictionsKinds(ForCheck = False) Expor
 		String.Table = NameIdentifiers.Get(String.FullName);
 	EndDo;
 	
-	// 
+	// Adding object access kinds defined not only using access value sets.
 	If Not UniversalRestriction Then
 		Query = New Query;
 		Query.Text =
@@ -9358,7 +9380,7 @@ Function PermanentMetadataObjectsRightsRestrictionsKinds(ForCheck = False) Expor
 	
 EndFunction
 
-// 
+// For the CurrentDataSourcesForPeriodClosingCheck function.
 Function LeadingTableAccessKinds(Context, StringAccessTypeObject)
 	
 	TableID = Common.MetadataObjectID(
@@ -9415,7 +9437,7 @@ Function LeadingTableAccessKinds(Context, StringAccessTypeObject)
 	
 EndFunction
 
-// 
+// For the LeadingTableAccessKinds function.
 Procedure AddAccessTypeHostTable(AccessKinds, AccessKind)
 	
 	If AccessKinds.Find(AccessKind) = Undefined Then
@@ -9424,7 +9446,7 @@ Procedure AddAccessTypeHostTable(AccessKinds, AccessKind)
 	
 EndProcedure
 
-// 
+// For the CurrentDataSourcesForPeriodClosingCheck function.
 Procedure AddViewsRestrictionsRights(AccessRestrictionKinds, RightsRestrictions, AccessKindsByNames,
 			UniversalRestriction, ForExternalUsers = Undefined)
 	
@@ -9622,7 +9644,7 @@ Function ValuesTypesOfAccessKindsAndRightsSettingsOwners() Export
 	
 EndFunction
 
-// For the function type of value viewdetailmentsof the owner of the settings of the Rights.
+// For the ValuesTypesOfAccessKindsAndRightsSettingsOwners function.
 Function AccessKindsValuesTypes()
 	
 	AccessKindsProperties = AccessKindsProperties();
@@ -9647,30 +9669,30 @@ Function AccessKindsValuesTypes()
 	
 EndFunction
 
-// 
-// 
+// See AccessManagementOverridable.OnFillAvailableRightsForObjectsRightsSettings.
+// Also, see function values in InformationRegisters.ObjectsRightsSettings.
 //
 // Returns:
 //   Structure:
 //     * ByTypes - FixedMap of KeyAndValue:
-//         ** Key - Type -  the type of reference or object from the definable Type.Vladimirenergosbyt
+//         ** Key - Type - Type of the reference or object from "DefinedType.RightsSettingsOwners"
 //         ** Value - FixedMap of KeyAndValue:
-//             *** Key - String -  name of the possible right
+//             *** Key - String - a possible right name
 //             *** Value - See InformationRegisters.ObjectsRightsSettings.AvailableRightProperties
 //     * ByRefsTypes - FixedMap of KeyAndValue:
-//         ** Key - Type - 
+//         ** Key - Type - Type of the reference or object from "DefinedType.RightsSettingsOwners"
 //         ** Value - FixedArray of See InformationRegisters.ObjectsRightsSettings.AvailableRightProperties
 //     * ByFullNames - FixedMap of KeyAndValue:
-//         ** Key - String - 
+//         ** Key - String - Rights owner (table's full name).
 //         ** Value - See InformationRegisters.ObjectsRightsSettings.AvailableRightProperties
 //     * OwnersTypes - FixedArray of DefinedType.RightsSettingsOwner
 //     * SeparateTables - FixedMap of KeyAndValue:
 //         ** Key - CatalogRef.MetadataObjectIDs
-//                - CatalogRef.ExtensionObjectIDs - 
-//         ** Value - String -  full name of the table
+//                - CatalogRef.ExtensionObjectIDs - Table id
+//         ** Value - String - a full table name.
 //     * HierarchicalTables - FixedMap of KeyAndValue:
-//         ** Key - Type -  the type of reference or object from the definable Type.Vladimirenergosbyt
-//         ** Value - Boolean -  Truth.
+//         ** Key - Type - Type of the reference or object from "DefinedType.RightsSettingsOwners"
+//         ** Value - Boolean - True.
 // 
 Function RightsForObjectsRightsSettingsAvailable() Export
 	
@@ -9678,8 +9700,8 @@ Function RightsForObjectsRightsSettingsAvailable() Export
 	
 EndFunction
 
-// 
-// 
+// See AccessManagementOverridable.OnFillSuppliedAccessGroupProfiles.
+// See also population in function Catalogs.AccessGroupProfiles.???
 //
 // Returns:
 //   FixedStructure:
@@ -9704,21 +9726,21 @@ Function SuppliedProfiles() Export
 	
 EndFunction
 
-// 
+// See filling in function "Catalogs.AccessGroupProfiles.PreparedSessionExtensionsStandardRoles".
 //
 // Returns:
 //  FixedStructure:
-//   * CommonRights                       - FixedArray of String - 
-//   * FullAccess                      - FixedArray of String - 
-//   * BasicAccess                     - FixedArray of String - 
-//   * BasicAccessExternalUsers - FixedArray of String - 
-//   * SystemAdministrator             - FixedArray of String - 
+//   * CommonRights                       - FixedArray of String - Role names <ExtentionPrefix>CommonRights.
+//   * FullAccess                      - FixedArray of String - Role names <ExtentionPrefix>FullAccess.
+//   * BasicAccess                     - FixedArray of String - Role names <ExtentionPrefix>BasicAccess.
+//   * BasicAccessExternalUsers - FixedArray of String - Role names <ExtentionPrefix>BasicAccessExternalUsers.
+//   * SystemAdministrator             - FixedArray of String - Role names <ExtentionPrefix>SystemAdministrator.
 //   * All                              - FixedMap of KeyAndValue:
-//       ** Key     - String - 
-//       ** Value - String - 
+//       ** Key     - String - Extension role name (from the ones mentioned above).
+//       ** Value - String - Role type name (structure property name).
 //   * AdditionalAdministratorRoles - FixedMap of KeyAndValue:
-//       ** Key     - String - 
-//       ** Value - Boolean -  Truth.
+//       ** Key     - String - Name of the extension roles that can be assigned to Administrator.
+//       ** Value - Boolean - True.
 //
 Function StandardExtensionRoles() Export
 	
@@ -9729,12 +9751,12 @@ EndFunction
 #Region UniversalRestriction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event subscription handlers.
 
-// The subscription handler verifies access by Writing* checks access to the old version of the object, checks
-// for changes in the fields of objects in additional tables attached in list access restrictions.
-// If changes are found, then the need to update access keys
-// for lists that have additional tables attached in access restrictions is registered.
+// The CheckAccessBeforeWrite* subscription handler checks access to the old object version and checks
+// object field changes of the additional tables attached in access restrictions of the lists.
+// If changes are found, need to update access keys
+// for the lists, which have additional tables attached in the access restrictions, is registered.
 //
 // Parameters:
 //  Source        - CatalogObject
@@ -9744,61 +9766,61 @@ EndFunction
 //                  - ChartOfCalculationTypesObject
 //                  - BusinessProcessObject
 //                  - TaskObject
-//                  - ExchangePlanObject -  a data object that is passed to the pre-Recording event subscription.
+//                  - ExchangePlanObject - a data object passed to the BeforeWrite event subscription.
 //
-//  Cancel           - Boolean -  parameter passed to the event subscription before Recording.
+//  Cancel           - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
-//  WriteMode     - DocumentWriteMode -  parameter passed to the pre-Recording event subscription
-//                    when the Source is a document Object.
+//  WriteMode     - DocumentWriteMode - a parameter passed to the BeforeWrite event subscription
+//                    when Source is DocumentObject.
 //
-//  PostingMode - DocumentPostingMode -  parameter passed to the pre-Recording event subscription
-//                    when the Source is a document Object.
+//  PostingMode - DocumentPostingMode - a parameter passed to the BeforeWrite event subscription
+//                    when Source is DocumentObject.
 //
 Procedure ShouldCheckAccessBeforeWrite(Source, Cancel, WriteMode = Undefined, PostingMode = Undefined) Export
 	
-	// 
+	// DataExchange.Import is processed inside the procedure in a non-standard way (considering rights check).
 	CheckAccessBeforeWriteSource(Source, Cancel, False, False);
 	
 EndProcedure
 
-// The subscription handler checks access to a Recordset recordset * checks access to the old version of the recordset,
-// checks for changes in the fields of recordsets of additional tables attached in list access restrictions.
-// If changes are found, then the need to update access keys
-// for lists that have additional tables attached in access restrictions is registered.
+// The CheckAccessBeforeWriteRecordsSet* subscription handler checks access to the old record set version,
+// and checks changes of record set fields of the additional tables attached in access restrictions of the lists.
+// If changes are found, need to update access keys
+// for the lists, which have additional tables attached in access restrictions, is registered.
 //
 // Parameters:
 //  Source        - InformationRegisterRecordSet
 //                  - AccumulationRegisterRecordSet
 //                  - AccountingRegisterRecordSet
 //                  - CalculationRegisterRecordSet
-//                  - RecalculationRecordSet - 
-//                                             
+//                  - RecalculationRecordSet - a record set passed to the BeforeWrite
+//                                             event subscription.
 //
-//  Cancel           - Boolean -  parameter passed to the event subscription before Recording.
-//  Replacing       - Boolean -  parameter passed to the event subscription before Recording.
+//  Cancel           - Boolean - a parameter passed to the BeforeWrite event subscription.
+//  Replacing       - Boolean - a parameter passed to the BeforeWrite event subscription.
 //
-//  WriteOnly    - Boolean -  parameter passed to the pre-Record event subscription,
-//                    when the Source is the register of record Counts.
+//  WriteOnly    - Boolean - a parameter passed to the BeforeWrite event subscription
+//                    when the Source is CalculationRegisterRecordSet.
 //
-//  WriteActualActionPeriod - Boolean -  parameter passed to the pre-Record event subscription,
-//                    when the Source is the register of record Counts.
+//  WriteActualActionPeriod - Boolean - a parameter passed to the BeforeWrite event subscription
+//                    when the Source is CalculationRegisterRecordSet.
 //
-//  WriteRecalculations - Boolean -  parameter passed to the pre-Record event subscription,
-//                    when the Source is the register of record Counts.
+//  WriteRecalculations - Boolean - a parameter passed to the BeforeWrite event subscription
+//                    when the Source is CalculationRegisterRecordSet.
 //
 Procedure CheckAccessBeforeWriteRecordsSet(Source, Cancel, Replacing,
 				WriteOnly = Undefined,
 				WriteActualActionPeriod = Undefined,
 				WriteRecalculations = Undefined) Export
 	
-	// 
+	// DataExchange.Import is processed inside the procedure in a non-standard way (considering rights check).
 	CheckAccessBeforeWriteSource(Source, Cancel, True, Replacing);
 	
 EndProcedure
 
-// The subscription handler Verifiedrecording* checks whether the access key
-// of the new version of the object is outdated. Updates the outdated access key and, in this case,
-// checks the rights to Read and Change the new version of the object.
+// The CheckAccessOnWrite* subscription handler checks whether the access key
+// of the new object version is up-to-date. Updates the obsolete access key and
+// checks the Read and Update rights of the new object version.
 //
 // Parameters:
 //  Source        - CatalogObject
@@ -9808,55 +9830,55 @@ EndProcedure
 //                  - ChartOfCalculationTypesObject
 //                  - BusinessProcessObject
 //                  - TaskObject
-//                  - ExchangePlanObject - 
+//                  - ExchangePlanObject - a data object passed to the OnWrite event subscription.
 //
-//  Cancel           - Boolean -  parameter passed to the subscription for the Recording event.
+//  Cancel           - Boolean - a parameter passed to the OnWrite event subscription.
 //
 Procedure CheckAccessOnWrite(Source, Cancel) Export
 	
-	// 
+	// DataExchange.Import is processed inside the procedure in a non-standard way (considering rights check).
 	CheckAccessOnWriteSource(Source, Cancel, False, False);
 	
 EndProcedure
 
-// The subscription handler verifies access to A recordset* checks whether the access keys
-// of the new version of the recordset are outdated. Updates outdated access keys and, in this case,
-// checks the Read and Change permissions of the new version of the recordset.
+// The CheckAccessOnWriteRecordsSet* subscription handler checks whether the access keys
+// of the new record set version are up-to-date. Updates the obsolete access keys and
+// checks the Read and Update rights of the new record set version.
 //
 // Parameters:
 //  Source        - InformationRegisterRecordSet
 //                  - AccumulationRegisterRecordSet
 //                  - AccountingRegisterRecordSet
 //                  - CalculationRegisterRecordSet
-//                  - RecalculationRecordSet - 
-//                                             
+//                  - RecalculationRecordSet - a record set passed to the OnWrite
+//                                             event subscription.
 //
-//  Cancel           - Boolean -  parameter passed to the subscription for the Recording event.
-//  Replacing       - Boolean -  parameter passed to the subscription for the Recording event.
+//  Cancel           - Boolean - a parameter passed to the OnWrite event subscription.
+//  Replacing       - Boolean - a parameter passed to the OnWrite event subscription.
 //
-//  WriteOnly    - Boolean -  the parameter passed to the event subscription of Priapism,
-//                    when the Source is Registrationservice.
+//  WriteOnly    - Boolean - a parameter passed to the OnWrite event subscription
+//                    when the Source is CalculationRegisterRecordSet.
 //
-//  WriteActualActionPeriod - Boolean -  the parameter passed to the event subscription of Priapism,
-//                    when the Source is Registrationservice.
+//  WriteActualActionPeriod - Boolean - a parameter passed to the OnWrite event subscription
+//                    when the Source is CalculationRegisterRecordSet.
 //
-//  WriteRecalculations - Boolean -  the parameter passed to the event subscription of Priapism,
-//                    when the Source is Registrationservice.
+//  WriteRecalculations - Boolean - a parameter passed to the OnWrite event subscription
+//                    when the Source is CalculationRegisterRecordSet.
 //
 Procedure CheckAccessOnWriteRecordsSet(Source, Cancel, Replacing,
 				WriteOnly = Undefined,
 				WriteActualActionPeriod = Undefined,
 				WriteRecalculations = Undefined) Export
 	
-	// 
+	// DataExchange.Import is processed inside the procedure in a non-standard way (considering rights check).
 	CheckAccessOnWriteSource(Source, Cancel, True, Replacing);
 	
 EndProcedure
 
-// The subscription handler checks access before Deleting * checks
-// for changes to the fields of objects in additional tables attached in list access restrictions.
-// If changes are found, then the need to update access keys
-// for lists that have additional tables attached in access restrictions is registered.
+// The CheckAccessBeforeDelete* subscription handler checks
+// object field changes of the additional tables attached in access restrictions of the lists.
+// If changes are found, need to update access keys
+// for the lists, which have additional tables attached in the access restrictions, is registered.
 //
 // Parameters:
 //  Source - CatalogObject
@@ -9866,19 +9888,19 @@ EndProcedure
 //           - ChartOfCalculationTypesObject
 //           - BusinessProcessObject
 //           - TaskObject
-//           - ExchangePlanObject - 
+//           - ExchangePlanObject - a data object passed to the BeforeDelete event subscription.
 //
-//  Cancel    - Boolean -  parameter passed to the event subscription before Deletion.
+//  Cancel    - Boolean - a parameter passed to the BeforeDelete event subscription.
 //
 Procedure CheckAccessBeforeDelete(Source, Cancel) Export
 	
-	// 
+	// DataExchange.Import is processed inside the procedure in a non-standard way (considering rights check).
 	CheckAccessBeforeDeleteSource(Source, Cancel);
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Universal access restriction.
 
 // Parameters:
 //  DataDetails - See AccessManagement.EditionAllowed.DataDetails
@@ -9887,7 +9909,7 @@ EndProcedure
 //  CheckOldVersionOnly - Boolean
 //  User   - CatalogRef.Users
 //                 - CatalogRef.ExternalUsers
-//                 - Undefined - 
+//                 - Undefined - — to check for the current user.
 //
 // Returns:
 //  Boolean
@@ -10155,7 +10177,7 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 			
 			If TypeOf(DataDetails) = TypeOf(RecordSet) Then
 				RecordSet = DataDetails;
-			Else // 
+			Else // RecordKey.
 				For Each FilterElement In RecordSet.Filter Do
 					FilterElement.Value = DataDetails[FilterElement.Name];
 					FilterElement.Use = True;
@@ -10224,7 +10246,7 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 	
 EndFunction
 
-// Access is Allowed for the function.
+// For the AccessAllowed function.
 Function ReadAllowed(FullName, MetadataObject, DataDetails, RaiseException1)
 	
 	Query = New Query;
@@ -10251,7 +10273,7 @@ Function ReadAllowed(FullName, MetadataObject, DataDetails, RaiseException1)
 		
 		If TypeOf(DataDetails) = TypeOf(RecordSet) Then
 			RecordSet = DataDetails;
-		Else // 
+		Else // RecordKey.
 			For Each FilterElement In RecordSet.Filter Do
 				FilterElement.Value = DataDetails[FilterElement.Name];
 				FilterElement.Use = True;
@@ -10293,7 +10315,7 @@ Function ReadAllowed(FullName, MetadataObject, DataDetails, RaiseException1)
 	
 EndFunction
 
-// Required as the initial maximum date when planning the initial access update.
+// It is required as a maximum start date when scheduling an initial access update.
 //
 // Returns:
 //  Date
@@ -10304,14 +10326,14 @@ Function MaxDate() Export
 	
 EndFunction
 
-// Required as the initial maximum date when planning to continue updating access.
+// It is required as a maximum start date when scheduling to continue an access update.
 Function MaxDateOnContinue()
 	
 	Return '39990101000000';
 	
 EndFunction
 
-// For Nastroikite.
+// For the ImplementationSettings function.
 Function XMLFullName(FullName, TablesTypesByNames)
 	
 	NameContent = StrSplit(FullName, ".", False);
@@ -10321,7 +10343,7 @@ Function XMLFullName(FullName, TablesTypesByNames)
 	
 EndFunction
 
-// For the procedure, add a type of requirementdefinable Type.
+// For the AddTypesRequiredInDefinedType procedure.
 Function RefTypeName1(FullName, TablesTypesByNames)
 	
 	NameContent = StrSplit(FullName, ".", False);
@@ -10341,7 +10363,7 @@ Function RefTypeName1(FullName, TablesTypesByNames)
 	
 EndFunction
 
-// For Nastroikite.
+// For the ImplementationSettings function.
 Function XMLRefTypeName(FullName, TablesTypesByNames)
 	
 	NameContent = StrSplit(FullName, ".", False);
@@ -10355,7 +10377,7 @@ Function XMLRefTypeName(FullName, TablesTypesByNames)
 	
 EndFunction
 
-// For the AddType function, the requirementdefinable Type.
+// For the AddTypesRequiredInDefinedType function.
 Function ObjectTypeOrRecordSetName(FullName, TablesTypesByNames)
 	
 	NameContent = StrSplit(FullName, ".", False);
@@ -10382,7 +10404,7 @@ Function ObjectTypeOrRecordSetName(FullName, TablesTypesByNames)
 	
 EndFunction
 
-// For Nastroikite.
+// For the ImplementationSettings function.
 Function ObjectTypeOrXMLRecordSetName(FullName, TablesTypesByNames)
 	
 	NameContent = StrSplit(FullName, ".", False);
@@ -10400,7 +10422,7 @@ Function ObjectTypeOrXMLRecordSetName(FullName, TablesTypesByNames)
 	
 EndFunction
 
-// For Nastroikite.
+// For the ImplementationSettings function.
 Procedure AddObjectToOwners(XMLObjectTypeName, AccessKeysValuesOwners)
 	
 	If StrStartsWith(XMLObjectTypeName, "DocumentObject.") Then
@@ -10418,7 +10440,7 @@ Procedure AddObjectToOwners(XMLObjectTypeName, AccessKeysValuesOwners)
 	
 EndProcedure
 
-// For Nastroikite.
+// For the ImplementationSettings function.
 Procedure AddRestrictionsInRoles(XMLFullName, FullName, RestrictionsInRoles, RestrictionsProperties, Context)
 	
 	Properties = RestrictionsProperties.Get(FullName);
@@ -10469,7 +10491,7 @@ Procedure AddRestrictionsInRoles(XMLFullName, FullName, RestrictionsInRoles, Res
 	
 EndProcedure
 
-// For the procedure, add restrictions on Roles.
+// For the AddRestrictionsInRoles procedure.
 Procedure AddDimensionTypes(KeysRegisterName, BasicFields, SourceRegisterName, Context)
 	
 	If BasicFields.All.Count() = 0 Then
@@ -10514,7 +10536,7 @@ Procedure AddDimensionTypes(KeysRegisterName, BasicFields, SourceRegisterName, C
 	
 EndProcedure
 
-// For the Customizationneeding function and procedure, add measurement Types.
+// For the DeploymentSettings function and AddDimensionTypes procedure.
 Function KeysRegisterDimensionsTypes(KeysRegistersDimensionsTypes, KeysRegisterName)
 	
 	DimensionsTypes = KeysRegistersDimensionsTypes.Get(KeysRegisterName);
@@ -10531,7 +10553,7 @@ Function KeysRegisterDimensionsTypes(KeysRegistersDimensionsTypes, KeysRegisterN
 	
 EndFunction
 
-// 
+// For function LimitAccessAtRecordLevelUniversally.
 Function ConstantFirstAccessUpdateCompleted()
 	
 	Return Not ScriptVariantRussian()
@@ -10541,7 +10563,7 @@ EndFunction
 
 #Region CheckAccessOnChange
 
-// 
+// For procedures "CheckAccessBeforeWriteSource" etc.
 Procedure PreliminaryLockBeforeNewRecordToFileInfobase()
 	
 	PreliminaryLockBeforeWriteExistingObjectInFileInfobase();
@@ -10576,7 +10598,7 @@ Procedure PreliminaryLockBeforeNewRecordToFileInfobase()
 	
 EndProcedure
 
-// 
+// Intended for procedure "CheckAccessBeforeWriteSource" and others.
 Procedure PreliminaryLockBeforeWriteExistingObjectInFileInfobase()
 	
 	If ThisIsABackgroundAccessUpdateSession() Then
@@ -10590,7 +10612,7 @@ Procedure PreliminaryLockBeforeWriteExistingObjectInFileInfobase()
 	
 EndProcedure
 
-// For pre-Recording event subscription handlers.
+// For the BeforeWrite event subscription handlers.
 Procedure CheckAccessBeforeWriteSource(Source, Cancel, IsRecordSet, Replacing)
 	
 	If SkipAccessCheck(Cancel, Source) Then
@@ -10629,7 +10651,7 @@ Procedure CheckAccessBeforeWriteSource(Source, Cancel, IsRecordSet, Replacing)
 	
 EndProcedure
 
-// For handlers of subscriptions to the Recording event.
+// For the OnWrite event subscription handlers.
 Procedure CheckAccessOnWriteSource(Source, Cancel, IsRecordSet, Replacing)
 	
 	If SkipAccessCheck(Cancel, Source) Then
@@ -10640,14 +10662,14 @@ Procedure CheckAccessOnWriteSource(Source, Cancel, IsRecordSet, Replacing)
 		Or AccessManagementInternalCached.IsUserWithUnlimitedAccess()
 		Or Not AccessManagement.ProductiveOption();
 	
-	// 
+	// Checking access to a new version.
 	CheckAccessToSource(Source, False, IsRecordSet, Replacing, IsFullUser);
 	
 	ScheduleUpdateOfDependentObsoleteAccessKeys(Source, IsRecordSet, False);
 	
 EndProcedure
 
-// For pre-Delete event subscription handlers.
+// For the BeforeDelete event subscription handlers.
 Procedure CheckAccessBeforeDeleteSource(Source, Cancel)
 	
 	If SkipAccessCheck(Cancel, Source) Then
@@ -10663,7 +10685,7 @@ Procedure CheckAccessBeforeDeleteSource(Source, Cancel)
 EndProcedure
 
 
-// For the procedures check access to the source Record, check access to the source Record.
+// For the CheckAccessBeforeWriteSource and CheckAccessOnWriteSource procedures.
 Function SkipAccessCheck(Cancel, Source)
 	
 	If StandardSubsystemsServer.IsMetadataObjectID(Source) Then
@@ -10712,7 +10734,7 @@ Function SkipAccessCheck(Cancel, Source)
 	
 EndFunction
 
-// For the procedure, check whether the source is available before Recording.
+// For the CheckAccessBeforeWriteSource procedure.
 Procedure RememberDataAffectingDependentAccessKeys(Source, IsRecordSet, Replacing)
 	
 	FullName = Source.Metadata().FullName();
@@ -10744,7 +10766,7 @@ Procedure RememberDataAffectingDependentAccessKeys(Source, IsRecordSet, Replacin
 	
 EndProcedure
 
-// For procedures, remember the data that affects the access key, and check the access of the records.
+// For the RememberDataAffectingDependentAccessKeys and CheckAccessToRecordSet procedures.
 Function FilterByRecordSetDimensions(RecordSet, Query, NewCombinationsQuery = Undefined)
 	
 	FilterByDimensions = "";
@@ -10772,7 +10794,7 @@ Function FilterByRecordSetDimensions(RecordSet, Query, NewCombinationsQuery = Un
 	
 EndFunction
 
-// For the procedure, check whether the source is available before Recording.
+// For the CheckAccessBeforeWriteSource procedure.
 Procedure SetAllowedAccessKeyForNewObject(Source, IsFullUser)
 	
 	If IsFullUser Then
@@ -10800,7 +10822,7 @@ Procedure SetAllowedAccessKeyForNewObject(Source, IsFullUser)
 	
 EndProcedure
 
-// For the procedures check access to the source Record, check access to the source Record.
+// For the CheckAccessBeforeWriteSource and CheckAccessOnWriteSource procedures.
 Procedure CheckAccessToSource(Source, BeforeWrite, IsRecordSet, Replacing, IsFullUser)
 	
 	If BeforeWrite And IsFullUser Then
@@ -10844,7 +10866,7 @@ Procedure CheckAccessToSource(Source, BeforeWrite, IsRecordSet, Replacing, IsFul
 	
 EndProcedure
 
-// For the procedure, check access to the Source.
+// For the CheckAccessToSource procedure.
 //
 // Returns:
 //   See CalculatedRestrictionParameters
@@ -10855,7 +10877,7 @@ Function RectrictionParametersOnAccessCheck(Source, FullName, TransactionID)
 	
 EndFunction
 
-// For the procedure, check access to the Source.
+// For the CheckAccessToSource procedure.
 Procedure CheckAccessToObject(Source, BeforeWrite, IsFullUser,
 			TransactionID, RestrictionParameters, RestrictionParametersAdditional)
 	
@@ -10902,7 +10924,7 @@ Procedure CheckAccessToObject(Source, BeforeWrite, IsFullUser,
 	EndIf;
 	
 	If Not AccessCheckQueryResult(Query, Source).IsEmpty() Then
-		Return; // 
+		Return; // Access is allowed.
 	EndIf;
 	
 	If AdditionCheck Then
@@ -10927,7 +10949,7 @@ Procedure CheckAccessToObject(Source, BeforeWrite, IsFullUser,
 	
 EndProcedure
 
-// For the procedure check access to the Object and function, access is Allowed.
+// For the CheckAccessToObject procedure and the AccessAllowed function.
 Procedure ClarifyInsertRight(Query, IsNew, RestrictionParameters, AdditionCheck)
 	
 	AdditionCheck = IsNew And Not RestrictionParameters.UsesRestrictionByOwner;
@@ -10940,7 +10962,7 @@ Procedure ClarifyInsertRight(Query, IsNew, RestrictionParameters, AdditionCheck)
 	
 EndProcedure
 
-// For the procedure check access to the Object.
+// For the CheckAccessToObject procedure.
 Procedure UpdateObjectAccessKeyOnWrite(Source, IsNew, TransactionID,
 			RestrictionParameters, AccessKeyUpdated = False)
 	
@@ -10961,14 +10983,14 @@ Procedure UpdateObjectAccessKeyOnWrite(Source, IsNew, TransactionID,
 	
 EndProcedure
 
-// For procedures check access to an Object, check access to a set of Records.
+// For the CheckAccessToObject and the CheckAccessToRecordSet procedures.
 Function AccessCheckQueryResult(Query, Source)
 	
 	Return Query.Execute();
 	
 EndFunction
 
-// For the procedure, check access to the Source.
+// For the CheckAccessToSource procedure.
 Procedure CheckAccessToRecordSet(Source, BeforeWrite, Replacing, IsFullUser,
 			TransactionID, RestrictionParameters, RestrictionParametersAdditional)
 	
@@ -11001,7 +11023,7 @@ Procedure CheckAccessToRecordSet(Source, BeforeWrite, Replacing, IsFullUser,
 	SetAllowedSetsInQueryParameters(Query);
 	
 	If AccessCheckQueryResult(Query, Source).IsEmpty() Then
-		Return; // 
+		Return; // Access is allowed.
 	EndIf;
 	
 	If RestrictionParameters.RightToWriteRestrictionDisabled Then
@@ -11019,7 +11041,7 @@ Procedure CheckAccessToRecordSet(Source, BeforeWrite, Replacing, IsFullUser,
 	
 EndProcedure
 
-// For the procedure check access to a set of Records and for the function access is Allowed.
+// For the CheckAccessToRecordSet procedure and the AccessAllowed function.
 Procedure UpdateRecordSetAccessKeys(Source, BeforeWrite, Replacing,
 			TransactionID, RestrictionParameters, FilterByDimensions, Query)
 	
@@ -11062,7 +11084,7 @@ Procedure UpdateRecordSetAccessKeys(Source, BeforeWrite, Replacing,
 	
 EndProcedure
 
-// For the procedure, check whether the source is available before Recording.
+// For the CheckAccessBeforeWriteSource procedure.
 Procedure WriteAccessKeysOfNewBasicFieldsCombinationsValuesBeforeWrite(Source, IsFullUser)
 	
 	If IsFullUser Or Source.Count() = 0 Then
@@ -11095,8 +11117,8 @@ Procedure WriteAccessKeysOfNewBasicFieldsCombinationsValuesBeforeWrite(Source, I
 	
 EndProcedure
 
-// For procedures, check the availability of a set of Records,
-// Record the keys of the available combinations of values of the selected fields before recording.
+// For the CheckAccessToRecordSet and
+// WriteAccessKeysOfNewBasicFieldsCombinationsValuesBeforeWrite procedures.
 //
 Function BasicFieldsValuesCombinations(Source, FilterByDimensions, RestrictionParameters)
 	
@@ -11115,8 +11137,8 @@ Function BasicFieldsValuesCombinations(Source, FilterByDimensions, RestrictionPa
 	
 EndFunction
 
-// For procedures, check the availability of a set of Records,
-// Record the keys of the available combinations of values of the selected fields before recording.
+// For the CheckAccessToRecordSet and
+// WriteAccessKeysOfNewBasicFieldsCombinationsValuesBeforeWrite procedures.
 //
 Procedure UpdateAccessKeysOfNewBasicFieldsCombinationsValues(NewCombinationsQuery,
 			FilterByDimensions, Source, RestrictionParameters)
@@ -11133,7 +11155,7 @@ Procedure UpdateAccessKeysOfNewBasicFieldsCombinationsValues(NewCombinationsQuer
 	
 EndProcedure
 
-// For the procedure, update the key of the available combinations of the values of the reference Fields.
+// For the UpdateAccessKeysOfNewBasicFieldsCombinationsValues procedure.
 Function DataItemsOfNewBasicFieldsCombinationsValues(NewCombinationsQuery,
 			FilterByDimensions, Source, RestrictionParameters)
 	
@@ -11178,7 +11200,7 @@ Function DataItemsOfNewBasicFieldsCombinationsValues(NewCombinationsQuery,
 	
 EndFunction
 
-// For procedures check access to an Object, check access to a set of Records.
+// For the CheckAccessToObject and the CheckAccessToRecordSet procedures.
 Procedure ReportAccessError(Data, OldVersion, HasReadRight, HasUpdateRight, IsNew)
 	
 	If OldVersion Then
@@ -11217,7 +11239,7 @@ Procedure ReportAccessError(Data, OldVersion, HasReadRight, HasUpdateRight, IsNe
 	
 EndProcedure
 
-// For the procedure, report an access Error.
+// For the ReportAccessError procedure.
 Function DataPresentation(Data)
 	
 	If TypeOf(Data) = Type("String") Then
@@ -11274,7 +11296,7 @@ Function DataPresentation(Data)
 	
 EndFunction
 
-// For the procedure check access to the Object and the update form access to manual Management.
+// For the CheckAccessToObject procedure and the AccessUpdateManualControl form.
 //
 // Returns:
 //  Boolean
@@ -11310,7 +11332,7 @@ Function SourceAccessKeyObsolete(ObjectReference, RestrictionParameters, Source 
 	
 EndFunction
 
-// For the procedures check access to the Object, check access to the recordset, and update form access to manual Management.
+// For the CheckAccessToObject and CheckAccessToRecordSet procedures, and the AccessUpdateManualControl form.
 Procedure UpdateAccessKeysOfDataItemsOnWrite(DataItemsDetails, RestrictionParameters,
 			TransactionID, UpdateRightsToKeys = False, HasRightsChanges = False, Source = Undefined) Export
 	
@@ -11354,7 +11376,7 @@ Procedure UpdateAccessKeysOfDataItemsOnWrite(DataItemsDetails, RestrictionParame
 	
 EndProcedure
 
-// For the access Value group information register.
+// For the AccessValuesGroups information register.
 Procedure ScheduleUpdateOfDependentListsByValuesWithGroups(ValuesWithChangesByTypes) Export
 	
 	If Not LimitAccessAtRecordLevelUniversally() Then
@@ -11386,7 +11408,7 @@ Procedure ScheduleUpdateOfDependentListsByValuesWithGroups(ValuesWithChangesByTy
 	
 EndProcedure
 
-// For the procedure, plan to update independent lists with group Values.
+// For the ScheduleUpdateOfDependentListsByValuesWithGroups procedure.
 Procedure AddListsForUsersKindUpdate(ListsToUpdate, ByValuesWithGroups, UsersKindName)
 	
 	FullNames = ByValuesWithGroups[UsersKindName];
@@ -11405,8 +11427,8 @@ Procedure AddListsForUsersKindUpdate(ListsToUpdate, ByValuesWithGroups, UsersKin
 	
 EndProcedure
 
-// For procedures, schedule updates to dependentstare access Keys, record access keys for Objects,
-// Plan to update independent lists with group values.
+// For the ScheduleUpdateOfDependentObsoleteAccessKeys, WriteObjectsAccessKeys,
+// ScheduleUpdateOfDependentListsByValuesWithGroups procedures.
 //
 Procedure ScheduleUpdateOfObsoleteAccessKeys(ListsToUpdate, TransactionID,
 			LongDesc, LeadingObject = Undefined, IsUpdateContinuation = False)
@@ -11500,7 +11522,7 @@ Procedure ScheduleUpdateOfObsoleteAccessKeys(ListsToUpdate, TransactionID,
 	
 EndProcedure
 
-// For the procedure check access to record Source, check access to pre-delete Source.
+// For the CheckAccessOnWriteSource, CheckAccessBeforeDeleteSource procedure.
 Procedure ScheduleUpdateOfDependentObsoleteAccessKeys(Source, IsRecordSet, Delete)
 	
 	SetSafeModeDisabled(True);
@@ -11563,7 +11585,7 @@ Procedure ScheduleUpdateOfDependentObsoleteAccessKeys(Source, IsRecordSet, Delet
 			QueryResult = ?(QueryResults = Undefined, Undefined, QueryResults[IndexOf]);
 			ChangesByFieldsValues.ChangedTable = FullName + "." + TabularSectionDetails.Name;
 			NewValues = NewTabularSectionValues(Source, TabularSectionDetails, Delete);
-			// 
+			// @skip-check query-in-loop - The query branch is not triggered in this option
 			ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues(QueryResult,
 				NewValues, TabularSectionDetails.FieldsSets, PlanningParameters);
 			IndexOf = IndexOf + 1;
@@ -11580,11 +11602,11 @@ EndProcedure
 //     * ByFieldsValues - Structure:
 //         ** LongDesc          - AnyRef
 //                              - Filter
-//         ** ChangedTable - String -  full name of the list
+//         ** ChangedTable - String - a full list name
 //         ** ChangesContent   - See TableChangesContent
 //     * ByAccessKeys      - CatalogRef.AccessKeys
-//     * ByValuesWithGroups - DefinedType.AccessValue -  only the values of the access groups.
-//     * AccordingToTheRightsCalculationCache - String -  name of the data for the rights calculation cache.
+//     * ByValuesWithGroups - DefinedType.AccessValue - the access values with groups only.
+//     * AccordingToTheRightsCalculationCache - String - a data description for the right calculation cash.
 //
 Function LeadingObjectDetails()
 	
@@ -11592,7 +11614,7 @@ Function LeadingObjectDetails()
 	
 EndFunction
 
-// For the procedure, schedule an update of the dependent old access Keys.
+// For the ScheduleUpdateOfDependentObsoleteAccessKeys procedure.
 Function NewTabularSectionValues(Source, TabularSectionDetails, Delete)
 	
 	Fields = New Array(TabularSectionDetails.AllFields);
@@ -11623,7 +11645,7 @@ Function NewTabularSectionValues(Source, TabularSectionDetails, Delete)
 	
 EndFunction
 
-// For the procedure, schedule an update of the dependent old access Keys.
+// For the ScheduleUpdateOfDependentObsoleteAccessKeys procedure.
 Procedure ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues(QueryResult,
 			Source, FieldsSetsByUsersKinds, PlanningParameters)
 	
@@ -11657,7 +11679,7 @@ Procedure ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues(QueryResult,
 					CurrentChangesContent.GroupBy(DependentTablesDetails.Key);
 				EndIf;
 				PlanningParameters.LeadingObject.ByFieldsValues.ChangesContent = CurrentChangesContent;
-				// 
+				// @skip-check query-in-loop - The query branch is not triggered in this option
 				ScheduleAccessUpdate(DependentTablesDetails.Value, PlanningParameters);
 			EndDo;
 		EndDo;
@@ -11665,7 +11687,7 @@ Procedure ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues(QueryResult,
 	
 EndProcedure
 
-// For the procedure, schedule an update of the dependent old keys to access the field Values.
+// For the ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues procedure.
 //
 // Returns:
 //   ValueTable
@@ -11768,7 +11790,7 @@ Procedure LockRegistersSchedulingUpdateAccessKeysInFileIB(IsLockError = False,
 	
 EndProcedure
 
-// To call the access group directory Manager and module.
+// For call and manager module of the AccessGroups catalog.
 Procedure ScheduleAccessUpdateOnChangeAccessGroupMembers(AccessGroups,
 			ChangedMembersTypes, OnImport = False) Export
 	
@@ -11815,8 +11837,8 @@ Procedure ScheduleAccessUpdateOnChangeAccessGroupMembers(AccessGroups,
 	
 EndProcedure
 
-// For the procedure after updating the user group composition And
-// the access group directory Manager module.
+// For the AfterUpdateUserGroupsCompositions procedure and
+// the manager module of the AccessGroups catalog.
 //
 Procedure ScheduleAccessUpdateOnIndirectChangeOfAccessGroupMembers(ChangedMembers,
 			OnImport = False, AfterSetIBUser = False)
@@ -11896,7 +11918,7 @@ Procedure ScheduleAccessUpdateOnIndirectChangeOfAccessGroupMembers(ChangedMember
 	
 EndProcedure
 
-// To call the access Group table register Manager from the module.
+// For calling the AccessGroupsTables register from manager module.
 Procedure ScheduleAccessUpdateOnChangeAccessGroupsTables(Tables) Export
 	
 	LongDesc = "ScheduleAccessUpdateOnChangeAccessGroupsTables";
@@ -11907,7 +11929,7 @@ Procedure ScheduleAccessUpdateOnChangeAccessGroupsTables(Tables) Export
 	
 EndProcedure
 
-// To call the Access Group Profile from the object module and the directory manager module.
+// For calling the AccessGroupProfiles catalog from the object module and manager module.
 Procedure ScheduleAccessUpdatesWhenProfileRolesChange(LongDesc, ModifiedRoles) Export
 	
 	ScheduleAnUpdateOfTheRightsCalculationCache(LongDesc, "RolesOfAccessGroupProfiles");
@@ -11920,7 +11942,7 @@ Procedure ScheduleAccessUpdatesWhenProfileRolesChange(LongDesc, ModifiedRoles) E
 	
 EndProcedure
 
-// To call from the object module and the Access Group directory manager module.
+// For calling the AccessGroups catalog from the object module and manager module.
 Procedure ScheduleAnAccessUpdateWhenTheAccessGroupProfileChanges(LongDesc, ModifiedRoles, ProfileChanged) Export
 	
 	If ProfileChanged Then
@@ -11935,8 +11957,8 @@ Procedure ScheduleAnAccessUpdateWhenTheAccessGroupProfileChanges(LongDesc, Modif
 	
 EndProcedure
 
-// For procedures, plan to renew access to change the profile and
-// Plan to update the access to change the Access group profile.
+// For the ScheduleAccessUpdateOnChangeProfileRoles and
+//  ScheduleAccessUpdateOnChangeAccessGroupProfile procedures.
 //
 Procedure ScheduleAccessUpdatesWhenRolesChange(LongDesc, ModifiedRoles)
 	
@@ -11984,7 +12006,7 @@ Procedure ScheduleAccessUpdatesWhenRolesChange(LongDesc, ModifiedRoles)
 	
 EndProcedure
 
-// For the procedure, schedule an update of the access to the change of the controls.
+// For the ScheduleAccessUpdateOnChangeRoles procedure.
 Procedure AddListsOfTheLeadingRoleToUpdateTheRights(Lists, ListsOfTheLeadingRole, AddedLists)
 	
 	If Not ValueIsFilled(ListsOfTheLeadingRole) Then
@@ -12001,7 +12023,7 @@ Procedure AddListsOfTheLeadingRoleToUpdateTheRights(Lists, ListsOfTheLeadingRole
 
 EndProcedure
 
-// To call the access Group value register Manager from the module.
+// For calling the AccessGroupsValues register from the manager module.
 Procedure ScheduleAccessUpdateOnChangeAllowedValues(AccessGroupsAndValuesTypes) Export
 	
 	LongDesc = "ScheduleAccessUpdateOnChangeAllowedValues";
@@ -12037,7 +12059,7 @@ Procedure ScheduleAccessUpdateOnChangeAllowedValues(AccessGroupsAndValuesTypes) 
 	
 EndProcedure
 
-// For the procedure schedule access Renewal, schedule access restriction parameters Update.
+// For the ScheduleAccessUpdate, ScheduleAccessRestrictionParametersUpdate procedure.
 Function InternalID(FullName)
 	
 	Query = New Query;
@@ -12062,10 +12084,10 @@ Function InternalID(FullName)
 	
 EndFunction
 
-// For procedures, schedule access updates, Access group changes, and Access group changes,
-// Schedule an update to accessesforcesvennomenationparticipationgroup accesses,
-// Schedule an update to accessoryapplication of the accessoryitableclassgroup,
-// Schedule the update of accesses for changing the resolved values.
+// For the ScheduleAccessUpdateOnChangeAccessGroupMembers,
+// ScheduleAccessUpdateOnIndirectChangeOfAccessGroupMembers,
+// ScheduleAccessUpdateOnChangeAccessGroupsTables,
+// ScheduleAccessUpdateOnChangeAllowedValues.
 //
 Procedure ScheduleAccessKeysUsersUpdate(ListsDetails, LongDesc, ForUsers,
 				ForExternalUsers, OnChangeAccessGroupMembers = False, LeadingObject = Undefined)
@@ -12139,7 +12161,7 @@ Procedure ScheduleAccessKeysUsersUpdate(ListsDetails, LongDesc, ForUsers,
 	
 EndProcedure
 
-// For the procedure, schedule an update of the user's access Key.
+// For the ScheduleAccessKeysUsersUpdate procedure.
 Function UsersAccessKeysUpdateRequired(Context, ForExternalUsers)
 	
 	ActiveParameters = ActiveAccessRestrictionParameters(Context.TransactionID, Undefined, False);
@@ -12189,8 +12211,8 @@ Function UsersAccessKeysUpdateRequired(Context, ForExternalUsers)
 	
 EndFunction
 
-// For the procedure, schedule an access update for the change of access group Participants and
-// modules of the Manager and the access group reference object.
+// For the ScheduleAccessUpdateOnIndirectChangeOfAccessGroupMembers procedure, and
+// manager modules, and the AccessGroups catalog object.
 //
 Procedure ScheduleAccessGroupsSetsUpdate(LongDesc, ForUsers = True, ForExternalUsers = True) Export
 	
@@ -12209,7 +12231,7 @@ Procedure ScheduleAccessGroupsSetsUpdate(LongDesc, ForUsers = True, ForExternalU
 	CurrentDate = CurrentSessionDate();
 	MaxDate = MaxDate();
 	
-	// 
+	// Update only by changes (not a full update).
 	JobParameters = New Structure;
 	SetDataKeyKind(JobParameters, "NewSingleUserSets");
 	JobParametersStorage = New ValueStorage(JobParameters);
@@ -12254,10 +12276,10 @@ Procedure ScheduleAccessGroupsSetsUpdate(LongDesc, ForUsers = True, ForExternalU
 	
 EndProcedure
 
-// For procedures, schedule access updates, Access group changes, and Access group changes,
-// Schedule an update to accessesforcesvennomenationparticipationgroup accesses,
-// Schedule an update to accessoryapplication of the accessoryitableclassgroup,
-// Schedule the update of accesses for changing the resolved values.
+// For the ScheduleAccessUpdateOnChangeAccessGroupMembers,
+// ScheduleAccessUpdateOnIndirectChangeOfAccessGroupMembers,
+// ScheduleAccessUpdateOnChangeAccessGroupsTables,
+// ScheduleAccessUpdateOnChangeAllowedValues.
 //
 Procedure ScheduleAnUpdateOfTheRightsCalculationCache(LongDesc, NameOfTheChangedData)
 	
@@ -12270,8 +12292,8 @@ Procedure ScheduleAnUpdateOfTheRightsCalculationCache(LongDesc, NameOfTheChanged
 	
 EndProcedure
 
-// For the procedures, prepare
-// a renewal plan, schedule an update of the inventory count and the versioned functions for the inventory count.
+// For the PrepareUpdatePlan, ScheduleRightsCalculationCacheUpdate procedures
+// and the DataVersionForRightsCalculationCache function.
 //
 Function ListForPlanningTheUpdateOfTheRightsCalculationCache()
 	
@@ -12308,7 +12330,7 @@ Function NewVersionOfTheDataForTheRightsCalculationCache(Version = Undefined) Ex
 	
 EndFunction
 
-// For the procedure, process the plan of the update of the account.
+// For the ProcessRightsCalculationCacheUpdatePlan procedure.
 Function NameOfTheDataVersionParameterForTheRightsCalculationCache()
 	
 	Return "StandardSubsystems.AccessManagement.DataVersionForTheRightsCalculationCache";
@@ -12319,33 +12341,33 @@ EndFunction
 
 #Region AccessUpdate
 
-// Starts a background access update task instead of a routine task.
+// Starts an access update background job instead of a scheduled job.
 //
 // Parameters:
-//  IsManualStart - Boolean -  if passed False, the name will start with "Autorun",
-//                              otherwise, the name will start with "start manually",
-//                              the access update lock will be lifted if it was set,
-//                              and the execution will continue until it is fully completed.
-//  ThisIsARestart    - Boolean -  if True, then the current session of the background job will not be
-//                              considered an incomplete performer.
+//  IsManualStart - Boolean - if False is passed, the description will begin with "Autorun",
+//                              otherwise, it will begin with "Manual run".
+//                              Access update lock will be removed,
+//                              execution will continue until the full completion.
+//  ThisIsARestart    - Boolean - if True, the current session of background job will not
+//                              be considered incomplete.
 //
 // Returns:
-//  - Undefined - 
+//  - Undefined - an access update is not required or prohibited.
 //  - Structure:
-//   * AlreadyRunning - Boolean -  if the update is already in progress.
+//   * AlreadyRunning - Boolean - if the update is already running.
 //
-//   * BackgroundJobIdentifier - Undefined -  if the update is not running or
-//                                      is not running in the background task.
-//                                  - UUID -  ID of the background task.
+//   * BackgroundJobIdentifier - Undefined - f the update is not running or
+//                                      running not in a background job.
+//                                  - UUID - a background job ID.
 //
-//   * SessionProperties - Undefined -  if there was no launch or the background task was just added to the queue.
-//                    - Structure - :
-//                        ** ComputerName - String -  properties of the session information Database object of the same name.
-//                        ** SessionNumber   - Number  -  properties of the session information Database object of the same name.
-//                        ** SessionStarted  - String -  properties of the session information Database object of the same name.
+//   * SessionProperties - Undefined - if a background job never started or was just added to the queue.
+//                    - Structure - Contains session properties if the update is already running.:
+//                        ** ComputerName - String - the InfobaseSession object property of the same name.
+//                        ** SessionNumber   - Number  - the InfobaseSession object property of the same name.
+//                        ** SessionStarted  - String - the InfobaseSession object property of the same name.
 //
-//   * WarningText - Undefined -  if there was no startup or a new background task was started.
-//                         - String - 
+//   * WarningText - Undefined - if a background job never started or a new background job was started.
+//                         - String - a description showing that access update is already started.
 //
 Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = False) Export
 	
@@ -12389,8 +12411,8 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 		Result.AlreadyRunning = False;
 		If Common.FileInfobase() Then
 			Try
-				// 
-				// 
+				// For file infobases, a background job with database extensions is executed
+				// with the same version of the dynamic configuration generation.
 				StandardSubsystemsServer.CheckApplicationVersionDynamicUpdate();
 			Except
 				Result.WarningText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
@@ -12453,7 +12475,7 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 	
 EndFunction
 
-// Cancel an access update that is running in the background task.
+// Cancel access update that is running in the background job.
 Procedure CancelAccessUpdateAtRecordLevel() Export
 	
 	Performer = AccessUpdateAssignee(LastAccessUpdate());
@@ -12497,21 +12519,21 @@ Procedure CancelAccessUpdateAtRecordLevel() Export
 	
 EndProcedure
 
-// For the procedure, set access Update.
+// For the SetAccessUpdate procedure.
 Procedure EnableAccessUpdateScheduledJob() Export
 	
 	ChangeAccessUpdateScheduledJob(True);
 	
 EndProcedure
 
-// For the procedure, set access Update.
+// For the SetAccessUpdate procedure.
 Procedure DisableAccessUpdateScheduledJob() Export
 	
 	ChangeAccessUpdateScheduledJob(False);
 	
 EndProcedure
 
-// For the procedure, set access Update.
+// For the SetAccessUpdate procedure.
 Procedure ChangeAccessUpdateScheduledJob(EnableJob)
 	
 	Filter = New Structure("Metadata", Metadata.ScheduledJobs.AccessUpdateOnRecordsLevel);
@@ -12571,14 +12593,14 @@ Procedure ChangeAccessUpdateScheduledJob(EnableJob)
 	
 EndProcedure
 
-// Enables or disables prohibiting access updates when running
-// a routine task or when running programmatically.
+// Enables or disables the prohibition of updating access during startup
+// using a scheduled job or during application startup.
 //
-// When you call the procedure for
-// updating accessedlevel Records with the Update flag, the ban is ignored.
+// When calling the AccessUpdateOnRecordsLevel procedure
+// with the UpdateAll flag, the prohibition is ignored.
 // 
-// When you call the procedure run
-// updateapproachablelevel Records with the flag this is Runninghand, the ban is lifted automatically.
+// When calling the StartAccessUpdateAtRecordLevel procedure
+// with the IsManualStart flag, the prohibition is removed automatically.
 //
 Procedure DenyAccessUpdate(Use, CancelUpdate = False) Export
 	
@@ -12624,7 +12646,7 @@ Procedure DenyAccessUpdate(Use, CancelUpdate = False) Export
 	
 EndProcedure
 
-// For the procedures cancel access updatedlevel Records, set access updatedlevel.
+// For the CancelAccessUpdateAtRecordLevel, DenyAccessUpdate procedures.
 Function BackgroundJobCompletionWaitSeconds()
 	
 	If Common.FileInfobase() Then
@@ -12635,14 +12657,14 @@ Function BackgroundJobCompletionWaitSeconds()
 	
 EndFunction
 
-// Handler for a routine task for updating access to the record Levels.
+// AccessUpdateOnRecordsLevel scheduled job handler.
 Procedure AccessUpdateOnRecordsLevel(UpdateAll = False, RaiseExceptiopnInsteadErrorRegistration = False) Export
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// The scheduled job must run right after the access update is scheduled.
+	// After the first batch is processed (around 2 minutes), you can pause it.
+	// The pause here means a restart in 15 seconds.
+	// Unlike regular scheduled jobs, this job shuts off itself.
+	// After the update is finished, the job stops until the next update is scheduled.
 	// 
 	// 
 	
@@ -12653,7 +12675,7 @@ Procedure AccessUpdateOnRecordsLevel(UpdateAll = False, RaiseExceptiopnInsteadEr
 	
 EndProcedure
 
-// Performs an access update, if scheduled.
+// Updates access if it is scheduled.
 Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll,
 			RaiseExceptiopnInsteadErrorRegistration, SecondsNotMore, AfterIBUpdate = False)
 	
@@ -12878,7 +12900,7 @@ EndProcedure
 //     * BackgroundJob               - BackgroundJob
 //     * SessionNumber                  - Number
 //     * SessionStarted                 - Date
-//     * Id                - String -  session view
+//     * Id                - String - session presentation
 //
 Function MainSessionDetails()
 	
@@ -12886,7 +12908,7 @@ Function MainSessionDetails()
 	
 EndFunction
 
-// For the function run updatedattainablelevel Records.
+// For the StartAccessUpdateAtRecordLevel function.
 Function AccessUpdateScheduled()
 	
 	Query = New Query;
@@ -12907,9 +12929,9 @@ Function AccessUpdateScheduled()
 	
 EndFunction
 
-// For the function start updatingdetailablelevel Records and
-// procedures for updating accesslevel Records, cancel updatingdetailablelevel Records and
-// the form for updating accesslevel Records.
+// For the StartAccessUpdateAtRecordLevel function,
+// the AccessUpdateOnRecordsLevel and CancelAccessUpdateAtRecordLevel procedures,
+// and the AccessUpdateOnRecordsLevel form.
 //
 // Returns:
 //  Structure:
@@ -12973,8 +12995,8 @@ Function LastAccessUpdate(CurrentValue = Undefined) Export
 	
 EndFunction
 
-// For procedures, perform an update to access the level of records,
-// Set the access refreshment and set the load balance of the disk.
+// For the ExecuteAccessUpdateAtRecordLevel,
+// DenyAccessUpdate and SetDiskLoadBalancing procedures.
 // 
 Procedure InstallTheLatestAccessUpdate(Properties, HasExternalTransaction)
 	
@@ -12988,7 +13010,7 @@ Procedure InstallTheLatestAccessUpdate(Properties, HasExternalTransaction)
 	
 EndProcedure
 
-// For the constant, the limit is available at the level of the recorduniversal.
+// For the LimitAccessAtRecordLevelUniversally constant.
 Procedure ClearLastAccessUpdate() Export
 	
 	Properties = LastAccessUpdate(Null);
@@ -13001,9 +13023,9 @@ Procedure ClearLastAccessUpdate() Export
 	
 EndProcedure
 
-// For the function start updatingdetailablelevel Records and
-// procedures for updating accesslevel Records, cancel updatingdetailablelevel Records and
-// the form for updating accesslevel Records.
+// For the StartAccessUpdateAtRecordLevel function,
+// the AccessUpdateOnRecordsLevel and CancelAccessUpdateAtRecordLevel procedures,
+// and the AccessUpdateOnRecordsLevel form.
 //
 // Parameters:
 //  LastAccessUpdate - See LastAccessUpdate
@@ -13052,14 +13074,14 @@ Function AccessUpdateAssignee(LastAccessUpdate, IDOfJobToExclude = Undefined) Ex
 	
 EndFunction
 
-// For the procedure for updating the access level of Records, the access update Executor.
+// For the AccessUpdateOnRecordsLevel and AccessUpdateAssignee procedures.
 Function ArbitrarySessionID()
 	
 	Return New UUID("ba4730f7-0493-402d-b5d3-8052c80fb125");
 	
 EndFunction
 
-// For procedures for updating access to record Levels, add the update access Task.
+// For AccessUpdateOnRecordsLevel, AddAccessUpdateJobs procedures.
 Procedure CheckUpdateActiveAccessRestrictionParameters(OnStart = False)
 	
 	SetSafeModeDisabled(True);
@@ -13116,11 +13138,14 @@ Procedure CheckUpdateActiveAccessRestrictionParameters(OnStart = False)
 	   And IsAccessRestrictionParametersUpdateScheduled(AccessRestrictionParametersRelevanceDate) Then
 		
 		If Common.FileInfobase() Then
-			// 
-			Common.SubsystemExists("StandardSubsystems.AccessManagement"); // 
+			// Preliminary caching in the file infobase outside of transaction to avoid lock conflicts.
+			Common.SubsystemExists("StandardSubsystems.AccessManagement"); // StandardSubsystemsCached.SubsystemsNames
 			AccessManagementInternalCached.ConstantLimitAccessAtRecordLevel();
 			AccessManagementInternalCached.ConstantLimitAccessAtRecordLevelUniversally();
+			AccessManagementInternalCached.ProfileAdministrator();
+			AccessManagementInternalCached.AdministratorsAccessGroup();
 			AccessKindsProperties();
+			RightsForObjectsRightsSettingsAvailable();
 		EndIf;
 		
 		If AccessKindsUsageChanged Then
@@ -13176,7 +13201,7 @@ Procedure CheckUpdateActiveAccessRestrictionParameters(OnStart = False)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Deleting obsolete parameters of access restriction.
 	Query = New Query;
 	Query.SetParameter("CurrentVersion",   SessionParameters.AccessRestrictionParameters.Version);
 	Query.SetParameter("ExpirationDate", CurrentSessionDate() - 2 * 24 * 60 *60);
@@ -13194,16 +13219,16 @@ Procedure CheckUpdateActiveAccessRestrictionParameters(OnStart = False)
 	|	Version DESC,
 	|	CreationDate DESC";
 	
-	//  
-	// 
-	// 
-	// 
-	// 
-	// 
+	// ACC:1328-off - No.648.1.1. It is acceptable to read without setting a managed shared lock
+	// since it's intended for cleaning and any session can clean it.
+	// If a shared lock is set, it will be upgraded to
+	// an exclusive lock resulting in a deadlock (which is unacceptable).
+	// If an exclusive lock is set for a table, this results in performance degradation during the
+	// startup if session parameters are provided from restrictions parameters (which is unacceptable).
 	// 
 	// 
 	QueryResult = Query.Execute();
-	// 
+	// ACC:1328-on.
 	If QueryResult.IsEmpty() Then
 		Return;
 	EndIf;
@@ -13225,7 +13250,7 @@ Procedure CheckUpdateActiveAccessRestrictionParameters(OnStart = False)
 	
 EndProcedure
 
-// For the procedure, check whether the current access limit parameters are Updated.
+// Intended for procedure "CheckUpdateActiveAccessRestrictionParameters".
 Function IsAccessRestrictionParametersUpdateScheduled(UpdateDate)
 	
 	Id = InternalID("InformationRegister.AccessRestrictionParameters");
@@ -13259,7 +13284,7 @@ Function IsAccessRestrictionParametersUpdateScheduled(UpdateDate)
 	
 EndFunction
 
-// For the procedure, check whether the current access limit parameters are Updated.
+// For the CheckUpdateActiveAccessRestrictionParameters procedure.
 Procedure ReduceVersionNumbersOfAccessRestrictionParameters()
 	
 	Block = New DataLock;
@@ -13287,7 +13312,7 @@ Procedure ReduceVersionNumbersOfAccessRestrictionParameters()
 	
 EndProcedure
 
-// For the procedure, check whether the current access limit parameters are Updated.
+// For the CheckUpdateActiveAccessRestrictionParameters procedure.
 Function AccessKindsUsageChanged(ActiveParameters)
 	
 	If ActiveParameters.ExternalUsersEnabled
@@ -13312,8 +13337,8 @@ Function AccessKindsUsageChanged(ActiveParameters)
 	
 EndFunction
 
-// For procedures to update accesslevel Records, perform access Update,
-// Cancel The Update Of Accesslevel Records, End The Update Of Access.
+// For the AccessUpdateOnRecordsLevel, RunAccessUpdate,
+// CancelAccessUpdateAtRecordLevel, CompleteAccessUpdate procedures.
 //
 Procedure CompleteAccessUpdateThreads(CancelUpdate = False)
 	
@@ -13338,15 +13363,15 @@ Procedure CompleteAccessUpdateThreads(CancelUpdate = False)
 	
 EndProcedure
 
-// For procedures to process completed Tasks, complete the access update Flow.
+// For the ProcessCompletedJob, CompleteAccessUpdateThreads procedures.
 Function CancelUpdateAtRecordLevelID()
 	
 	Return New UUID("06cc4b5f-a2f9-4622-bef0-df4870ab5dd5");
 	
 EndFunction
 
-// For procedures to update accesslevel Records, perform access Update,
-// Cancel The Update Of Accesslevel Records, End The Update Of Access.
+// For the AccessUpdateOnRecordsLevel, RunAccessUpdate,
+// CancelAccessUpdateAtRecordLevel, CompleteAccessUpdate procedures.
 //
 Procedure CancelAccessUpdateThreadsBackgroundJobs(WaitSeconds = 5)
 	
@@ -13368,18 +13393,18 @@ Procedure CancelAccessUpdateThreadsBackgroundJobs(WaitSeconds = 5)
 	
 EndProcedure
 
-// Updates the key data access based on the entries in the register of information
-// Update access keys for data and user access keys based on records
-// in the user access key information register.
+// Updates access keys to data based on the records of the DataAccessKeysUpdate information register
+// and user access keys based on the records
+// of the UsersAccessKeysUpdate information register.
 //
-// The data portion for each table is updated, starting with the most recent data.
-// The procedure must be called again until processing is complete,
-// and the routine task is disabled.
+// Data batch for each table is updated starting from the most recent data.
+// The procedure must be called again until the data processor is completed,
+// while the scheduled job is stopped.
 //
-// The procedure is designed to work in a single instance, that is, without parallel
-// operation (call from the routine task updatedattainable record Levels).
-// Parallelism is provided by the procedure itself by running up to two background tasks
-// for each list, but no more than the value of the constant number of update access Threads.
+// The procedure is designed to function in a single copy without parallel
+// operation (call from the AccessUpdateAtRecordLevel scheduled job procedure).
+// Parallel operation is ensured by the procedure itself by running up to two background jobs
+// for each list, but not more than the AccessUpdateThreadsCount constant value.
 //
 Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 				RefreshEnabledCanceled, CompletionErrorText, SecondsNotMore, FullCompletionDate)
@@ -13446,7 +13471,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 		Context.ProcessingCompleted = True;
 		
 		FillThreadsCount(Context);
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		ProcessExecutedJobs(Context);
 		
 		If Context.RefreshEnabledCanceled Or Context.SessionRestartRequired Then
@@ -13492,7 +13517,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 			For Each Job In JobsForStartup Do
 				
 				While LockedThreads.Count() >= Context.ThreadsCount Do
-					// 
+					// @skip-check query-in-loop - Batch processing of data
 					ProcessExecutedJobs(Context);
 					
 					If Context.RefreshEnabledCanceled Or Context.SessionRestartRequired Then
@@ -13506,7 +13531,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 							AbortPass = True;
 							Break;
 						EndIf;
-						// 
+						// @skip-check query-in-loop - Batch processing of data
 						WaitForThreadToUnlock(Context, True);
 						If Not Context.FirstPass
 						   And CurrentUniversalDateInMilliseconds() > PassAbortionMoment Then
@@ -13519,7 +13544,7 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 					Break;
 				EndIf;
 				If LockedThreads.Count() < Context.ThreadsCount Then
-					// 
+					// @skip-check query-in-loop - Batch processing of data
 					StartListAccessUpdate(Job, Context);
 					If ValueIsFilled(Context.CompletionErrorText)
 					 Or Context.RefreshEnabledCanceled
@@ -13531,10 +13556,10 @@ Procedure ExecuteAccessUpdate(Val UpdateAll, MainSessionDetails,
 			If Not Context.HasStartedJob
 			   And (LockedThreads.Count() >= Context.ThreadsCount
 			      Or Not Context.HasDeferredJobs) Then
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				WaitForThreadToUnlock(Context, True);
 			EndIf;
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			ProcessExecutedJobs(Context);
 			Context.FirstPass = False;
 		EndDo;
@@ -13590,7 +13615,7 @@ Function AccessUpdateNewContext()
 	
 EndFunction
 
-// For the procedure, perform an update of the available level Records.
+// For the RunAccessUpdateAtRecordLevel procedure.
 Procedure ScheduleObsoleteItemsProcessing(PlanningErrorText,
 			LastObsoleteItemsProcessingPlanning)
 	
@@ -13616,7 +13641,7 @@ Procedure ScheduleObsoleteItemsProcessing(PlanningErrorText,
 	
 EndProcedure
 
-// 
+// Intended for procedure "StartListAccessUpdate".
 Function MaxMillisecondsToGetBatches(Context)
 	
 	If Not ValueIsFilled(Context.MaxSecondsCountOfQuickDataItemsBatchReceipt) Then
@@ -13636,7 +13661,7 @@ Function MaxMillisecondsToGetBatches(Context)
 	
 EndFunction
 
-// For the procedure, fill in the number of Streams and the update form for access to level Records.
+// For the FillThreadsCount procedure and the AccessUpdateOnRecordsLevel form.
 //
 // Returns:
 //  Boolean
@@ -13648,7 +13673,7 @@ Function DiskLoadBalancingAvailable() Export
 	
 EndFunction
 
-// For the procedure, fill in the number of Streams and the update form for access to level Records.
+// For the FillThreadsCount procedure and the AccessUpdateOnRecordsLevel form.
 //
 // Returns:
 //  Boolean
@@ -13661,7 +13686,7 @@ Function DiskLoadBalancing() Export
 	
 EndFunction
 
-// For the update form, access the level of Records.
+// For the AccessUpdateOnRecordsLevel form.
 Procedure SetDiskLoadBalancing(Use) Export
 	
 	DataLock = New DataLock;
@@ -13686,7 +13711,7 @@ Procedure SetDiskLoadBalancing(Use) Export
 	
 EndProcedure
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 // Returns:
 //  ValueTable:
 //   * HasSpotJob - Boolean
@@ -13776,7 +13801,7 @@ Function UpdateJobsTable()
 	
 EndFunction
 
-// For the procedure, add the update access Task.
+// For the AddAccessUpdateJobs procedure.
 Function JobsKeysTable()
 	
 	IDsTypes = New Array;
@@ -13794,7 +13819,7 @@ Function JobsKeysTable()
 	
 EndFunction
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 //
 // Returns:
 //  Structure:
@@ -13823,7 +13848,7 @@ Function NewThread()
 	
 EndFunction
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 //
 // Returns:
 //   Structure:
@@ -13873,7 +13898,7 @@ Function CommonUpdateParametersDetails(Context = Undefined)
 	
 EndFunction
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 Function JobsQueryText()
 	
 	Return
@@ -13950,7 +13975,7 @@ Function JobsQueryText()
 	
 EndFunction
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 Procedure FillThreadsCount(Context)
 	
 	If Context.UpdateInThisSession Then
@@ -13988,7 +14013,7 @@ Procedure FillThreadsCount(Context)
 	
 EndProcedure
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 Procedure AddAccessUpdateJobs(QueryResults, Context)
 	
 	If Context.Property("Cache") Then
@@ -14049,7 +14074,7 @@ Procedure AddAccessUpdateJobs(QueryResults, Context)
 		Rows = Jobs.FindRows(Filter);
 		If Rows.Count() = 0 Then
 			Job = Jobs.Add();
-			Job.DependencyLevel = -1; // 
+			Job.DependencyLevel = -1; // Blank.
 			If String.ListID <> Undefined
 			   And Cache.MetadataObjectsByIDs.Get(String.ListID) = Undefined Then
 				ListsIDs.Add(String.ListID);
@@ -14099,7 +14124,7 @@ Procedure AddAccessUpdateJobs(QueryResults, Context)
 	
 EndProcedure
 
-// 
+// Intended for function "AddAccessUpdateJobs".
 // 
 // Returns:
 //  Structure:
@@ -14111,8 +14136,8 @@ Function NewCacheContext()
 	
 EndFunction
 
-// For the add access update Tasks, update task Properties, and
-// start access update List functions.
+// For the AddAccessUpdateJobs and UpdateJobProperties procedures and
+// the StartListAccessUpdate function.
 //
 Procedure UpdateIsObsoleteItemsDataProcessorProperty(Job, DependencyLevelOnChangeUpdateRequired = True)
 	
@@ -14127,7 +14152,7 @@ Procedure UpdateIsObsoleteItemsDataProcessorProperty(Job, DependencyLevelOnChang
 	
 EndProcedure
 
-// For the procedure, fill in the General update Parameters.
+// For the FillCommonUpdateParameters procedure.
 Function IsAccessGroupsSetsCompositionUpdate(Job, Context)
 	
 	Return Job.ListID = Context.AccessGroupsSetsCatalogID
@@ -14135,7 +14160,7 @@ Function IsAccessGroupsSetsCompositionUpdate(Job, Context)
 	
 EndFunction
 
-// For the procedure, add the update access Task.
+// For the AddAccessUpdateJobs procedure.
 Procedure FillJobsDependencyLevels(Context, LeadingListsProperties)
 	
 	Jobs = Context.Jobs;
@@ -14195,7 +14220,7 @@ Procedure FillJobsDependencyLevels(Context, LeadingListsProperties)
 	
 EndProcedure
 
-// For procedures, fill in the dependency level of Tasks, update the dependency Level.
+// For the FillJobsDependencyLevels, UpdateDependencyLevel procedures.
 Procedure SetDependencyLevelByLeadingLists(Job, Jobs, LeadingListsByDependentOnes)
 	
 	Job.DependencyLevel = 0;
@@ -14226,7 +14251,7 @@ Procedure SetDependencyLevelByLeadingLists(Job, Jobs, LeadingListsByDependentOne
 	
 EndProcedure
 
-// For the procedure, fill in the General update Parameters.
+// For the FillCommonUpdateParameters procedure.
 Procedure UpdateDependencyLevel(JobProperties, Jobs, LeadingListsByDependentOnes)
 	
 	If Not ValueIsFilled(JobProperties.DependentLists) Then
@@ -14247,7 +14272,7 @@ Procedure UpdateDependencyLevel(JobProperties, Jobs, LeadingListsByDependentOnes
 	
 EndProcedure
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 Procedure FillCommonUpdateParameters(Context)
 	
 	Jobs = Context.Jobs;
@@ -14360,10 +14385,10 @@ Procedure FillCommonUpdateParameters(Context)
 	EndDo;
 	
 	If CommonUpdateParameters.InitialUpdate Then
-		// 
-		CommonUpdateParameters.StartDate = BegOfDay(CurrentSessionDate()) - 7 * (60 * 60 * 24); // 
+		// Update start.
+		CommonUpdateParameters.StartDate = BegOfDay(CurrentSessionDate()) - 7 * (60 * 60 * 24); // 7 days.
 	Else
-		// 
+		// Continue update.
 		MaximumPeriod = MaxGettingBatchesByQueryPeriod();
 		
 		If MaximumPeriod = "Week" Then
@@ -14414,13 +14439,13 @@ Procedure FillCommonUpdateParameters(Context)
 			
 		ElsIf Job = AccessGroupsSetsCatalogJob
 		      Or Job.IsRightsUpdate
-		      Or Job.LatestUpdatedItemDate = MaxDateOnContinue Then // 
+		      Or Job.LatestUpdatedItemDate = MaxDateOnContinue Then // A list without a period.
 			
 			Job.Run = True;
 		Else
 			Run = Not UpdatePeriodToDataPeriod(CommonUpdateParameters.StartDate,
 				Job.LatestUpdatedItemDate);
-			Job.Ignore = Not Run; // 
+			Job.Ignore = Not Run; // Do not run as the worker thread will have a return.
 			Job.Run = Run And Not HasListWithoutPeriod;
 		EndIf;
 		
@@ -14506,20 +14531,20 @@ Procedure FillCommonUpdateParameters(Context)
 	
 EndProcedure
 
-// For the procedures add access update Task, run access update List,
-// Perform an update to access the list.
+// For the AddAccessUpdateJob, StartListAccessUpdate,
+// UpdateListAccess procedures.
 //
 Function UpdatePeriodToDataPeriod(StartDate, LatestUpdatedItemDate)
 	
-	// 
-	// 
+	// StartDate - For example, "01.01.2012" while the end date is "31.12.2012" and "LatestUpdatedItemDate" is "03.01.2013".
+	// In this case, the data to be updated is older than the update period.
 	// 
 	Return ValueIsFilled(LatestUpdatedItemDate)
 		  And StartDate > LatestUpdatedItemDate;
 	
 EndFunction
 
-// For the procedure, perform an access Update.
+// Intended for procedure "ExecuteAccessUpdate".
 Procedure ProcessJobsWithErrors(Context)
 	
 	Filter = New Structure("ThereWasMistake", True);
@@ -14542,7 +14567,7 @@ Procedure ProcessJobsWithErrors(Context)
 	
 EndProcedure
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 Procedure UpdateTheListOfUsedVersionsOfTemplateParameters(Context)
 	
 	If Not Context.ProcessingCompleted
@@ -14593,7 +14618,7 @@ Procedure UpdateTheListOfUsedVersionsOfTemplateParameters(Context)
 	
 EndProcedure
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 Procedure CompleteAccessUpdate(Context)
 	
 	If Not Context.RefreshEnabledCanceled And Not Context.SessionRestartRequired Then
@@ -14603,9 +14628,9 @@ Procedure CompleteAccessUpdate(Context)
 			WaitBoundary = CurrentSessionDate() + 15;
 		EndIf;
 		While Context.LockedThreads.Count() > 0 Do
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			WaitForThreadToUnlock(Context);
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			ProcessExecutedJobs(Context);
 			If CurrentSessionDate() > WaitBoundary Then
 				Break;
@@ -14639,7 +14664,7 @@ Procedure CompleteAccessUpdate(Context)
 	
 EndProcedure
 
-// For the procedure, update the set of used versionsparameters of templates.
+// For the UpdateUsedTemplatesParametersVersionsComposition procedure.
 Function OneAccessOptionIsUsed(AdditionalContext)
 	
 	SeveralOptionsAreUsed = False;
@@ -14655,7 +14680,7 @@ Function OneAccessOptionIsUsed(AdditionalContext)
 	
 EndFunction
 
-// For the procedure, complete the access Update.
+// For the EndAccessUpdate procedure.
 Procedure DisableScheduledJobIfNoNewJobs(Context)
 	
 	Query = New Query;
@@ -14740,7 +14765,7 @@ Procedure DisableScheduledJobIfNoNewJobs(Context)
 	
 EndProcedure
 
-// For the procedure, disable the regulatory taskslinetnew Tasks.
+// For the DisableScheduledJobIfNoNewJobs procedure.
 //
 // Parameters:
 //  QueryResult  - QueryResult
@@ -14759,7 +14784,7 @@ Procedure SetUnavailableLists(QueryResult, UnavailableLists)
 	
 EndProcedure
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 Function StartListAccessUpdate(Job, Context)
 	
 	Indicators = Context.Indicators;
@@ -14774,7 +14799,7 @@ Function StartListAccessUpdate(Job, Context)
 	EndIf;
 	
 	If Job.LockedThreads.Count() > 0 And Context.FirstPass Then
-		Return True; // 
+		Return True; // Already started.
 	EndIf;
 	
 	If CommonJobBeingExecuted(Job)
@@ -14938,7 +14963,7 @@ Function StartListAccessUpdate(Job, Context)
 	
 EndFunction
 
-// For the run update access List function and the process task Results procedure.
+// For the StartListAccessUpdate function and the ProcessJobResult procedure.
 Function CommonJobBeingExecuted(Job)
 	
 	For Each LockedThreadDetails In Job.LockedThreads Do
@@ -14951,15 +14976,15 @@ Function CommonJobBeingExecuted(Job)
 	
 EndFunction
 
-// For the function start update access List and the procedure cancel background tasksof access update Streams.
+// For the StartListAccessUpdate function and the CancelBackgroundAccessUpdateThreadsJobs procedure.
 Function AccessUpdateThreadMethodName()
 	
 	Return "AccessManagementInternal.UpdateListAccessInBackground";
 	
 EndFunction
 
-// For procedures, set Access update, run access update at the recordlevel,
-// Cancel the update of the access level of the records and the executor function of the update of the access.
+// For the SetAccessUpdate, StartAccessUpdateAtRecordLevel,
+// CancelAccessUpdateAtRecordLevel procedures and the AccessUpdateAssignee function.
 // 
 Function NameOfTheAccessUpdateTaskMethod()
 	
@@ -14967,7 +14992,7 @@ Function NameOfTheAccessUpdateTaskMethod()
 	
 EndFunction
 
-// For the procedure perform access Update, complete access Update.
+// For the RunAccessUpdate, EndAccessUpdate procedure.
 Procedure WaitForThreadToUnlock(Context, WaitForJobToComplete = False)
 	
 	If Context.UpdateInThisSession Then
@@ -15030,7 +15055,7 @@ Procedure WaitForThreadToUnlock(Context, WaitForJobToComplete = False)
 		 Or Context.LockedThreads.Count() = 0 Then
 			Break;
 		EndIf;
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		If Not Query.Execute().IsEmpty() Then
 			Break;
 		EndIf;
@@ -15043,7 +15068,7 @@ Procedure WaitForThreadToUnlock(Context, WaitForJobToComplete = False)
 	
 EndProcedure
 
-// For procedures, wait for the flow to be Released, process completed Tasks.
+// For the WaitForThreadToUnlock and ProcessExecutedJobs procedures.
 Function ThreadsIDs(LockedThreads)
 	
 	ThreadsIDs = New Array;
@@ -15056,7 +15081,7 @@ Function ThreadsIDs(LockedThreads)
 	
 EndFunction
 
-// For procedures, wait for the stream to be Released, delete the stopped Streams.
+// For the WaitForThreadToUnlock and DeleteStoppedThreads procedures.
 Procedure UpdateBackgroundJobProperties(Stream, Context)
 	
 	BackgroundJob = BackgroundJobs.FindByUUID(Stream.ThreadID);
@@ -15073,7 +15098,7 @@ Procedure UpdateBackgroundJobProperties(Stream, Context)
 	
 EndProcedure
 
-// For the procedure processfulfilled Tasks.
+// Intended for procedure "ProcessCompletedJobs".
 Procedure CancelThreadBackgroundJob(Stream, Context)
 	
 	UpdateBackgroundJobProperties(Stream, Context);
@@ -15099,7 +15124,7 @@ Procedure CancelThreadBackgroundJob(Stream, Context)
 	
 EndProcedure
 
-// For the procedure perform access Update, process the result of the Task.
+// For the ExecuteAccessUpdate and ProcessJobResult procedure.
 Procedure ProcessExecutedJobs(Context, LockedThreads = Undefined)
 	
 	If Context.UpdateInThisSession Then
@@ -15296,7 +15321,7 @@ Function IsLongRunningJobToGetBatches(Job)
 	
 EndFunction
 
-// For procedures to process completed Tasks, perform an update of access to the list of tests for the Replay.
+// For the ProcessCompletedJobs, RunListAccessUpdateWithRetryAttempts procedures.
 Function AccessUpdateCanceled()
 	
 	Query = New Query;
@@ -15313,7 +15338,7 @@ Function AccessUpdateCanceled()
 	
 EndFunction
 
-// For the procedure processfulfilled Tasks.
+// For the ProcessCompletedJobs procedure.
 Procedure ProcessCompletedJobResult(Stream, ResultDetails, Context, QueryDelay)
 	
 	If Not Stream.CancelJob
@@ -15355,7 +15380,7 @@ Procedure ProcessCompletedJobResult(Stream, ResultDetails, Context, QueryDelay)
 	
 EndProcedure
 
-// For procedures that process the result of a completed Task, delete the Stream.
+// For the ProcessCompletedJobResult and DeleteThread procedures.
 Procedure UnlockThread(Stream, Context, CompletedOn = Undefined)
 	
 	InsertPosition = 0;
@@ -15387,7 +15412,7 @@ Procedure UnlockThread(Stream, Context, CompletedOn = Undefined)
 	
 EndProcedure
 
-// For procedures, start updating the access List, process the result of a completed Task, and release the Thread.
+// For the StartListAccessUpdate, ProcessCompletedJobResult, UnlockThread procedures.
 Procedure RemoveBeingProcessedFlagForBatch(ThreadOrResult, Job)
 	
 	BatchFromSet = Undefined;
@@ -15413,7 +15438,7 @@ Procedure RemoveBeingProcessedFlagForBatch(ThreadOrResult, Job)
 	
 EndProcedure
 
-// For the procedure process the result of a completed Task, complete the update of Access.
+// For the ProcessCompletedJobResult, CompleteAccessUpdate procedures.
 Procedure DeleteThread(Stream, Context)
 	
 	RecordSet = ServiceRecordSet(InformationRegisters.UsersAccessKeysCurrentJobs);
@@ -15431,7 +15456,7 @@ Procedure DeleteThread(Stream, Context)
 	
 EndProcedure
 
-// For the procedure process the result of a completed Task, complete the update of Access.
+// For the ProcessCompletedJobResult, CompleteAccessUpdate procedures.
 Procedure DeleteStoppedThreads(Context, ThreadsDetails)
 	
 	If TypeOf(ThreadsDetails) = Type("Map") Then
@@ -15472,7 +15497,7 @@ Procedure DeleteStoppedThreads(Context, ThreadsDetails)
 	
 EndProcedure
 
-// For the procedure processfulfilled Tasks.
+// For the ProcessCompletedJobs procedure.
 Procedure DeleteNotUsedFreeThreads(Context)
 	
 	Count = Context.FreeThreads.Count();
@@ -15494,7 +15519,7 @@ Procedure DeleteNotUsedFreeThreads(Context)
 	
 EndProcedure
 
-// For procedures, add tasks to update Access and process task Results.
+// For the AddAccessUpdateJobs and ProcessJobResult procedures.
 Procedure CancelJob(Job)
 	
 	Job.BatchesSet = New Array;
@@ -15507,7 +15532,7 @@ Procedure CancelJob(Job)
 	
 EndProcedure
 
-// For procedures, start updating the access List, process the result of a completed Task.
+// For the StartListAccessUpdate and ProcessCompletedJobResult procedures.
 Procedure ProcessJobResult(Context, Result, Job)
 	
 	If Result.Property("NoJobs") Or Result.Property("UpdateRestart") Then
@@ -15613,7 +15638,7 @@ Procedure ProcessJobResult(Context, Result, Job)
 	
 EndProcedure
 
-// For Operatingvoltage.
+// For the ProcessJobResult procedure.
 Procedure UpdateJobProperties(Job, NewLastUpdatedItem)
 	
 	If NewLastUpdatedItem.DataKey = Null Then
@@ -15633,7 +15658,7 @@ Procedure UpdateJobProperties(Job, NewLastUpdatedItem)
 	
 EndProcedure
 
-// For the function run update access List.
+// For the StartListAccessUpdate function.
 Procedure UpdateListAccessInBackground(ParentSessionDetails) Export
 	
 	SetSafeModeDisabled(True);
@@ -15699,7 +15724,7 @@ Procedure UpdateListAccessInBackground(ParentSessionDetails) Export
 	
 EndProcedure
 
-// For the procedure, perform an update of access to the Discavphone.
+// For the RunListAccessUpdateInBackground procedure.
 Function PerformingThreadStarted(Context)
 	
 	CurrentSession = GetCurrentInfoBaseSession();
@@ -15742,7 +15767,7 @@ Function PerformingThreadStarted(Context)
 	SetRecord.IsStart = False;
 	Context.Insert("SetRecord", SetRecord);
 	
-	// 
+	// Waiting for startup flag.
 	WaitBoundary = CurrentUniversalDateInMilliseconds() + 1000;
 	While True Do
 		If Not Query.Execute().IsEmpty() Then
@@ -15761,7 +15786,7 @@ Function PerformingThreadStarted(Context)
 	
 EndFunction
 
-// For the procedure, perform an update of access to the Discavphone.
+// For the RunListAccessUpdateInBackground procedure.
 Function ContinueWaitForNewJob(Context)
 	
 	If CurrentUniversalDateInMilliseconds() > Context.ParentSessionCheckBoundary Then
@@ -15797,7 +15822,7 @@ Function ContinueWaitForNewJob(Context)
 	
 EndFunction
 
-// For the function continue waiting for a new Task.
+// For the ContinueWaitForNewJob function.
 Function SessionExists(SessionDetails)
 	
 	If ValueIsFilled(SessionDetails.BackgroundJobIdentifier) Then
@@ -15825,7 +15850,7 @@ Function SessionExists(SessionDetails)
 	
 EndFunction
 
-// For the procedure, perform an update of access to the Discavphone.
+// For the RunListAccessUpdateInBackground procedure.
 Procedure WriteResultOfListAccessUpdateInBackground(Result, InitialParameters, Context)
 	
 	BeginTransaction();
@@ -15851,7 +15876,7 @@ Procedure WriteResultOfListAccessUpdateInBackground(Result, InitialParameters, C
 	
 EndProcedure
 
-// For the procedure, perform an update of access to the Discavphone.
+// For the RunListAccessUpdateInBackground procedure.
 Function LeadingThreadUpdateIndicators(Context)
 	
 	If Not RegisterAccessUpdateIndicators() Then
@@ -15860,7 +15885,7 @@ Function LeadingThreadUpdateIndicators(Context)
 	
 	Indicators = New Structure;
 	
-	// 
+	// Variables.
 	Indicators.Insert("WorkStartInMilliseconds", CurrentUniversalDateInMilliseconds());
 	Indicators.Insert("JobAssignmentStart");
 	
@@ -15881,7 +15906,7 @@ Function LeadingThreadUpdateIndicators(Context)
 		Indicators.Insert("ThreadsExceedingExecutionTimeCount", 0);
 		Indicators.Insert("ThreadsWithNonStandardCompletionCount", 0);
 		
-		// 
+		// Variables.
 		Indicators.Insert("JobProcessingStart", 0);
 	EndIf;
 	
@@ -15889,7 +15914,7 @@ Function LeadingThreadUpdateIndicators(Context)
 	
 EndFunction
 
-// For the procedure, perform an update of access to the Discavphone.
+// For the RunListAccessUpdateInBackground procedure.
 Function ActiveThreadUpdateIndicators()
 	
 	If Not RegisterAccessUpdateIndicators() Then
@@ -15908,28 +15933,28 @@ Function ActiveThreadUpdateIndicators()
 	
 EndFunction
 
-// For the functions of the control flow update Exponent, and the executing flow update Exponent.
+// For the ControlThreadUpdateFunctions, ExecutingThreadUpdateFunctions functions.
 Procedure AddJobsExecutionIndicators(Indicators)
 	
-	// 
+	// Variables.
 	Indicators.Insert("JobWithGetBatches", True);
 	Indicators.Insert("StartFirstAttemptToExecuteJob", 0);
 	Indicators.Insert("JobExecutionStart", 0);
 	
-	// 
+	// Common indicators.
 	Indicators.Insert("CountOfJobsWithRetriesDueToErrors", 0);
 	Indicators.Insert("JobsExecutionTimeWithRetriesDueToErrors", 0);
 	Indicators.Insert("CountOfJobsRetriesDueToErrors", 0);
 	Indicators.Insert("MaxJobRetriesOnErrorCount", 0);
 	Indicators.Insert("ErrorsTextOnRetryAttempts", "");
 	
-	// 
+	// Getting batches or processing a small batch.
 	Indicators.Insert("CompletedJobsWithGetBatchesCount", 0);
 	Indicators.Insert("JobsWithGettingBatchesExecutionTime", 0);
 	Indicators.Insert("JobsWithGettingBatchesMinExecutionTime", 0);
 	Indicators.Insert("JobsWithGettingBatchesMaxExecutionTime", 0);
 	
-	// 
+	// Batch data processors only.
 	Indicators.Insert("CompletedJobsWithoutGettingBatchesCount", 0);
 	Indicators.Insert("JobsWithoutGettingBatchesExecutionTime", 0);
 	Indicators.Insert("JobsWithoutGettingBatchesMinExecutionTime", 0);
@@ -15937,7 +15962,7 @@ Procedure AddJobsExecutionIndicators(Indicators)
 	
 EndProcedure
 
-// For the function run update access List.
+// For the StartListAccessUpdate function.
 Procedure RemoveJobsIssueIndicators(Indicators)
 	
 	JobIssueTime = CurrentUniversalDateInMilliseconds() - Indicators.JobAssignmentStart;
@@ -15958,7 +15983,7 @@ Procedure RemoveJobsIssueIndicators(Indicators)
 	
 EndProcedure
 
-// For the function run update access List.
+// For the StartListAccessUpdate function.
 Procedure RemoveJobResultProcessingIndicators(Indicators)
 	
 	JobProcessingTime = CurrentUniversalDateInMilliseconds() - Indicators.JobProcessingStart;
@@ -15979,7 +16004,7 @@ Procedure RemoveJobResultProcessingIndicators(Indicators)
 	
 EndProcedure
 
-// For the procedure, perform an update of access to the Discavphone.
+// For the RunListAccessUpdateInBackground procedure.
 Procedure RemoveJobExecutionIndicators(Indicators)
 	
 	JobExecutionTime = CurrentUniversalDateInMilliseconds() - Indicators.JobExecutionStart;
@@ -16022,7 +16047,7 @@ Procedure RemoveJobExecutionIndicators(Indicators)
 	
 EndProcedure
 
-// For the procedure, perform an update of access to the Discavphone.
+// For the RunListAccessUpdateInBackground procedure.
 Procedure RemoveJobExecutionErrorsIndicators(Indicators, ErrorsText, ErrorsCount);
 	
 	If ErrorsCount = 0 Then
@@ -16045,10 +16070,10 @@ Procedure RemoveJobExecutionErrorsIndicators(Indicators, ErrorsText, ErrorsCount
 	
 EndProcedure
 
-// For procedures to register the main stream's update Pointsreferences,
-// Register the updatesreferencesexternal links,
-// Add valuesreferencesexternal links,
-// Add the value of the indicators to complete the tasks.
+// For the RegisterMainThreadUpdateFunctions,
+// RegisterActiveThreadUpdateIndicators,
+// AddSessionOperationIndicatorsValues,
+// AddJobsCompletionFunctionsValues procedures.
 //
 Function SecondsFormat(SecondsCount1)
 	
@@ -16060,9 +16085,9 @@ Function SecondsFormat(SecondsCount1)
 	
 EndFunction
 
-// For procedures to register the main stream's update Pointsreferences,
-// Register the updatesreferencesexternal links,
-// Add the value of the indicators to complete the tasks.
+// For the RegisterMainThreadUpdateFunctions,
+// RegisterActiveThreadUpdateIndicators,
+// AddJobsCompletionFunctionsValues procedures.
 //
 Function CountFormat(CountNumber)
 	
@@ -16070,7 +16095,7 @@ Function CountFormat(CountNumber)
 	
 EndFunction
 
-// For the procedure, complete the access Update.
+// For the EndAccessUpdate procedure.
 Procedure RegisterMainThreadUpdateIndicators(Context)
 	
 	Indicators = Context.Indicators;
@@ -16129,7 +16154,7 @@ Procedure RegisterMainThreadUpdateIndicators(Context)
 		
 EndProcedure
 
-// For the procedure, perform an update of access to the Discavphone.
+// For the RunListAccessUpdateInBackground procedure.
 Procedure RegisterActiveThreadUpdateIndicators(Context)
 	
 	Indicators = Context.Indicators;
@@ -16162,8 +16187,8 @@ Procedure RegisterActiveThreadUpdateIndicators(Context)
 		
 EndProcedure
 
-// For the procedures register for updating the management stream And
-// Register the update indicator for the executing stream.
+// For the RegisterControlThreadUpdateFunctions and
+// RegisterExecutingThreadUpdateFunctions procedures.
 //
 Procedure AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetails)
 	
@@ -16180,8 +16205,8 @@ Procedure AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetail
 	
 EndProcedure
 
-// For the procedures register for updating the management stream And
-// Register the update indicator for the executing stream.
+// For the RegisterControlThreadUpdateFunctions and
+// RegisterExecutingThreadUpdateFunctions procedures.
 //
 Procedure AddJobsExecutionIndicatorsValues(Comment, Indicators)
 	
@@ -16243,7 +16268,7 @@ Procedure AddJobsExecutionIndicatorsValues(Comment, Indicators)
 	
 EndProcedure
 
-// For procedures to update accesslevel Records, process task Results, and register an access update Error.
+// For the AccessUpdateAtRecordLevel, ProcessJobResult, RegisterAccessUpdateError procedures.
 Procedure AddCompletionErrorText(CompletionErrorText, ErrorText)
 	
 	If Not ValueIsFilled(ErrorText) Then
@@ -16261,8 +16286,8 @@ Procedure AddCompletionErrorText(CompletionErrorText, ErrorText)
 	
 EndProcedure
 
-// For procedures to update the callback Property, cancel the callback flow, and process completed Calls,
-// Delete The Stopped Streams, Perform An Update To Access The Discavphone.
+// For the UpdateBackgroundJobProperties, CancelThreadBackgroundJob, ProcessCompletedJobs,
+// DeleteStoppedThreads, RunListAccessUpdateInBackground procedures.
 //
 Function UpdateErrorTextWithContext(ErrorInfo, CommonUpdateParameters, ErrorToFix1 = False)
 	
@@ -16299,7 +16324,7 @@ Function UpdateErrorTextWithContext(ErrorInfo, CommonUpdateParameters, ErrorToFi
 				ErrorPresentation);
 		EndIf;
 		
-	Else // 
+	Else // UsersAccessKeysUpdate.
 		
 		If CommonUpdateParameters.ForExternalUsers Then
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -16329,9 +16354,9 @@ Function UpdateErrorTextWithContext(ErrorInfo, CommonUpdateParameters, ErrorToFi
 	
 EndFunction
 
-// For procedures to update access to level Recordings, complete background Tasks,
-// Process The Resultfulfilled Tasks, Update The Properties Of The New Tasks,
-// Perform an update of access to the iPhone.
+// For the AccessUpdateOnRecordsLevel, CompleteBackgroundJobs,
+// ProcessCompletedJobResult, UpdateBackgroundJobProperties,
+// UpdateListAccessInBackground procedures.
 //
 Procedure RegisterAccessUpdateError(ErrorText, Context)
 	
@@ -16350,7 +16375,7 @@ Procedure RegisterAccessUpdateError(ErrorText, Context)
 	
 EndProcedure
 
-// For the run update access List function and the run update access list procedure on the Phone.
+// For the StartListAccessUpdate function and the RunListAccessUpdateInBackground procedure.
 Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 	
 	Indicators = Context.Indicators;
@@ -16392,7 +16417,7 @@ Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 			ExecutionAttempt = ExecutionAttempt + 1;
 			If ExecutionAttempt < 9 And Not ValueIsFilled(ErrorTextRestartRequired) Then
 				For Counter = 1 To ExecutionAttempt Do
-					// 
+					// @skip-check query-in-loop - Batch processing of data
 					If AccessUpdateCanceled() Then
 						Break;
 					EndIf;
@@ -16405,7 +16430,7 @@ Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 						EndDo;
 					EndIf;
 				EndDo;
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				If Not AccessUpdateCanceled() Then
 					Continue;
 				EndIf;
@@ -16426,7 +16451,7 @@ Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 	
 EndProcedure
 
-// For the procedure, perform an update of the access list of the experiment of the Replay.
+// For the RunListAccessUpdateWithRetryAttempts procedure.
 Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	
 	If Not CommonUpdateParameters.Property("Cache") Then
@@ -16446,8 +16471,8 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	EndIf;
 	
 	If MetadataObject = Undefined Then
-		// 
-		// 
+		// Cannot update if the configuration extension is disabled
+		// but objects cannot be deregistered for update.
 		CommonUpdateParameters.Insert("NoJobs", "MetadataObjectDisabled");
 		Return;
 	EndIf;
@@ -16462,7 +16487,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	
 	ParametersOfUpdate = ParametersOfUpdate(CommonUpdateParameters, MetadataObject);
 	
-	// 
+	// Processing a batch prepared earlier.
 	If CommonUpdateParameters.Property("BatchFromSet") Then
 		BatchFromSet = CommonUpdateParameters.BatchFromSet; // See BatchFromSet
 		BatchItems = BatchFromSet.Items.Get();
@@ -16483,7 +16508,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		Return;
 	EndIf;
 	
-	// 
+	// Preparing a processing plan for data items.
 	PreparationCompleted = False;
 	ParametersOfUpdate.Insert("UpdateRestart", False);
 	
@@ -16492,7 +16517,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		ParametersOfUpdate.Insert("HasJobs", True);
 		ParametersOfUpdate.Insert("SpotJob", Undefined);
 		ParametersOfUpdate.Insert("LastUpdatedItem", InitialItem(ParametersOfUpdate));
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted);
 	EndDo;
 	
@@ -16582,7 +16607,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		Return;
 	EndIf;
 	
-	// 
+	// Single thread update of some access group sets.
 	If Not IsRightsUpdate
 	   And IsCatalogAccessGroupsSets(ParametersOfUpdate)
 	   And ParametersOfUpdate.LastUpdatedItem.DataKey = Undefined Then
@@ -16604,7 +16629,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Requesting items for processing.
 	SelectedAllItems = False;
 	
 	If CommonUpdateParameters.GetBatches > 0 Then
@@ -16629,7 +16654,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		Return;
 	EndIf;
 	
-	// 
+	// Process data items.
 	ParametersOfUpdate.Insert("NewLastUpdatedItem",
 		InitialItem(ParametersOfUpdate, , True));
 	
@@ -16639,13 +16664,13 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		UpdateItemsBatch(Items, ParametersOfUpdate);
 	EndIf;
 	
-	// 
+	// Clarifying new last item.
 	If Items = Undefined And SelectedAllItems Then
 		SetLastBlankItem(ParametersOfUpdate.NewLastUpdatedItem,
 			ParametersOfUpdate);
 	EndIf;
 	
-	// 
+	// Writing new last item.
 	WriteLastUpdatedItem(CommonUpdateParameters,
 		ParametersOfUpdate.NewLastUpdatedItem);
 	
@@ -16657,7 +16682,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	CommonUpdateParameters.Insert("NewLastUpdatedItem",
 		ParametersOfUpdate.NewLastUpdatedItem);
 	
-	// 
+	// Preparing the rest of items to continue update.
 	If Items <> Undefined Then
 		CommonUpdateParameters.Insert("BatchesSet",
 			ItemsBatchesSet(ParametersOfUpdate, Items, SelectedAllItems));
@@ -16676,7 +16701,7 @@ Function IsCatalogAccessGroupsSets(ParametersOfUpdate)
 	
 EndFunction
 
-// To do this, perform the update access List.
+// For the RunListAccessUpdate procedure.
 //
 // Returns:
 //   Structure:
@@ -16691,17 +16716,17 @@ EndFunction
 //     * AccessGroupsSetsCatalogID - CatalogRef.MetadataObjectIDs
 //     * ProcessingTimeBoundary  - Date
 //     
-//    
+//    Properties if "IsCatalogAccessGroupsSets".
 //     * ListWithDate    - Boolean
 //     * ListWithPeriod - Boolean
 //     * IsReferenceType - Boolean
 //     * BlankAccessGroupsSet - CatalogRef.SetsOfAccessGroups
 //   
-//    
+//    Properties if not "IsCatalogAccessGroupsSets".
 //     * TransactionID - UUID
-//     * DependentListsByAccessKeys - Array of String - 
+//     * DependentListsByAccessKeys - Array of String - Lists' full names.
 //     
-//    
+//    Properties to be added on runtime:
 //     * HasRightsChanges - Boolean
 //     * UpdateRightsToKeys - Boolean
 //     * LastUpdatedItem - See InitialItem
@@ -16728,7 +16753,7 @@ EndFunction
 //     * RightsByRightsSettingsOwners         - See NewRightsByRightSetupOwners
 //     * InMemoryObjectsModel - See InMemoryObjectsModel
 //   
-//    
+//    A copy of properties from "RestrictionParametersByRestrictionStructure":
 //     * List                  - String
 //     * ForExternalUsers - Boolean
 //     * Version                  - String
@@ -16763,7 +16788,7 @@ EndFunction
 //     * RightCalculationStructureUpdate    - See RightCalculationStructure
 //     * Context                          - See ParametersContextByRestrictionStructure
 //
-//    
+//    Properties added in procedure "AddQueryTextsToRestrictionParameters":
 //     * ReadEditRightsCheckQueryText - String
 //     * ReadRightsCheckQueryText - String
 //     * OwnerObjectFieldInRightsValidationQuery - String
@@ -16824,7 +16849,7 @@ Function ParametersOfUpdate(CommonUpdateParameters, MetadataObject)
 	
 EndFunction
 
-// To do this, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure AddRestrictionParameters(ParametersOfUpdate)
 	
 	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
@@ -16864,7 +16889,7 @@ Procedure AddRestrictionParameters(ParametersOfUpdate)
 	
 EndProcedure
 
-// For the procedures, perform the update of the access List, prepare the update Plan.
+// For the ExecuteListAccessUpdate and PrepareUpdatePlan procedures.
 // 
 // Returns:
 //  Structure:
@@ -16920,7 +16945,7 @@ Function InitialItem(ParametersOfUpdate, DataKeyKind = Undefined,
 	
 EndFunction
 
-// To do this, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted)
 	
 	ListID     = ParametersOfUpdate.ListID;
@@ -17159,7 +17184,7 @@ Procedure PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted)
 	
 EndProcedure
 
-// For the procedure, prepare a renewal Plan.
+// For the PrepareUpdatePlan procedure.
 Procedure ClearDownloadedRecords(UpdatePlan, Upload0)
 	
 	UpdatePlan.Clear();
@@ -17170,7 +17195,7 @@ Procedure ClearDownloadedRecords(UpdatePlan, Upload0)
 	
 EndProcedure
 
-// For the procedure, prepare a renewal Plan.
+// For the PrepareUpdatePlan procedure.
 Procedure ProcessAPlanForUpdatingTheRightsCalculationCache(Upload0, NewVersionOfTheDataForTheCache = Undefined)
 	
 	VersionOfTheDataForTheCache = NewVersionOfTheDataForTheRightsCalculationCache();
@@ -17214,7 +17239,7 @@ Procedure ProcessAPlanForUpdatingTheRightsCalculationCache(Upload0, NewVersionOf
 	
 EndProcedure
 
-// For the procedure, process the plan of the update of the account.
+// For the ProcessRightsCalculationCacheUpdatePlan procedure.
 Procedure ProcessTheTaskOfUpdatingTheRightsCalculationCache(VersionOfTheDataForTheCache, NameOfTheChangedData, UniqueKey)
 	
 	If TypeOf(NameOfTheChangedData) <> Type("String")
@@ -17239,7 +17264,7 @@ Procedure ProcessTheTaskOfUpdatingTheRightsCalculationCache(VersionOfTheDataForT
 	
 EndProcedure
 
-// For the procedure, process the plan of the update of the account.
+// For the ProcessRightsCalculationCacheUpdatePlan procedure.
 Function NewVersionOfTheDataForTheCache(CurrentValue, VersionOfTheDataForTheCache, ToWrite = True)
 	
 	NewValue = NewVersionOfTheDataForTheRightsCalculationCache();
@@ -17271,7 +17296,7 @@ Function NewVersionOfTheDataForTheCache(CurrentValue, VersionOfTheDataForTheCach
 	
 EndFunction
 
-// For the Cache Calculation function for user views.
+// For the RightsCalculationCacheForUsersKind function.
 Function DataVersionForTheRightsCalculationCache()
 	
 	IDOfThePlanningList = Common.MetadataObjectID(
@@ -17307,7 +17332,7 @@ Function DataVersionForTheRightsCalculationCache()
 	
 EndFunction
 
-// For the procedure, prepare the update Plan, record the last updated Element.
+// For the PrepareUpdatePlan, WriteLastUpdatedItem procedure.
 // 
 // Returns:
 //  Structure:
@@ -17366,7 +17391,7 @@ Function JobParametersToSave(IsRightsUpdate, ParametersOfUpdate, JobParameters =
 	
 EndFunction
 
-// For the procedure, prepare a renewal Plan.
+// For the PrepareUpdatePlan procedure.
 Procedure AddLeadingObjectToSpotJob(SpotJob, SpotJobToSave,
 			UpdateRestart)
 	
@@ -17448,7 +17473,7 @@ Procedure AddLeadingObjectToSpotJob(SpotJob, SpotJobToSave,
 	
 EndProcedure
 
-// For the procedure, prepare a renewal Plan.
+// For the PrepareUpdatePlan procedure.
 Function HasDataKeyProperties(JobParameters)
 	
 	If TypeOf(JobParameters) <> Type("Structure")
@@ -17463,9 +17488,9 @@ Function HasDataKeyProperties(JobParameters)
 	
 EndFunction
 
-// For the procedures perform update access to the List, update the list of Elements,
-// Set the query text and parameters for the last updated data element, update the set of access Group and
-// functions for the update Element, last Element, data Key, set of access group for the Update.
+// For the RunListAccessUpdate, UpdateItemsBatch,
+// SetQueryTextAndLastDataItemUpdateParameters, UpdateAccessGroupsSets procedures and
+// the ItemsToUpdate, LastItem, DataKey, AccessGroupsSetsToUpdate functions.
 //
 Function IsObsoleteItemsDataProcessor(ParametersOfUpdate)
 	
@@ -17476,8 +17501,8 @@ Function IsObsoleteItemsDataProcessor(ParametersOfUpdate)
 	
 EndFunction
 
-// For functions with savedparameters, there is a property of keyed Data, and
-// procedures to update the property of this processing of old Elements, set the keyed Data.
+// For the JobParametersToSave, HasDataKeyProperties functions and
+// the UpdatePropertyIsObsoleteItemsDataProcessor, SetDataKeyKind procedures.
 //
 Function DataKeyKindOrder(DataKeyKind)
 	
@@ -17505,8 +17530,8 @@ Function DataKeyKindOrder(DataKeyKind)
 	
 EndFunction
 
-// For procedures schedule access Renewals, schedule access group Renewals,
-// Specify the last element and the first Element functions.
+// For the ScheduleAccessUpdate, ScheduleAccessGroupsSetsUpdate,
+// ClarifyEmptyLastItem procedures and the InitialItem function.
 //
 Procedure SetDataKeyKind(Item, DataKeyKind)
 	
@@ -17521,7 +17546,7 @@ Procedure SetDataKeyKind(Item, DataKeyKind)
 	
 EndProcedure
 
-// For the procedure, prepare a renewal Plan.
+// For the PrepareUpdatePlan procedure.
 Function PreparedSpotJob(IsRightsUpdate, SpotJobToSave, UpdateRestart)
 	
 	SpotJob = New Structure;
@@ -17599,7 +17624,7 @@ Function PreparedSpotJob(IsRightsUpdate, SpotJobToSave, UpdateRestart)
 	
 EndFunction
 
-// To do this, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Function ItemsInBatchCount(ParametersOfUpdate)
 	
 	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
@@ -17612,7 +17637,7 @@ Function ItemsInBatchCount(ParametersOfUpdate)
 	
 EndFunction
 
-// To do this, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Function ItemsInQueryCount(IsRightsUpdate)
 	
 	If IsRightsUpdate Then
@@ -17623,7 +17648,7 @@ Function ItemsInQueryCount(IsRightsUpdate)
 	
 EndFunction
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure UpdateItemsBatch(Items, ParametersOfUpdate, IsSpotJob = False)
 	
 	ParametersOfUpdate.Insert("ProcessedItemsCount", 0);
@@ -17666,10 +17691,10 @@ Procedure UpdateItemsBatch(Items, ParametersOfUpdate, IsSpotJob = False)
 	
 EndProcedure
 
-// For procedures, update the access groupset, delete the oldelement of the data List,
-// Record Access Keys For Objects, Record Access Keys For Registers,
-// Update The Rightportionclick Access List, Delete Theportionclick Access List,
-// Delete the current portion of the key access list.
+// For the UpdateAccessGroupsSets, DeleteObsoleteListDataItems,
+// WriteObjectsAccessKeys, WriteRegistersAccessKeys,
+// UpdateListAccessKeysBatchRights, DeleteListAccessKeysBatch,
+// DeleteCurrentListAccessKeysBatch procedures.
 //
 Function ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsOnStepCount = 1)
 	
@@ -17689,7 +17714,7 @@ Function ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsOnStepCo
 	
 EndFunction
 
-// For the procedures perform update access to the List, check complete update to the Options.
+// For the RunListAccessUpdate, CheckCompleteUpdateByBatches procedures.
 Procedure WriteLastUpdatedItem(CommonUpdateParameters, LastUpdatedItem)
 	
 	IsRightsUpdate       = CommonUpdateParameters.IsRightsUpdate;
@@ -17755,7 +17780,7 @@ Procedure WriteLastUpdatedItem(CommonUpdateParameters, LastUpdatedItem)
 	
 EndProcedure
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 	
 	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
@@ -17777,8 +17802,8 @@ Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 			Query.SetParameter("LastAccessKey", LastAccessKey);
 			
 			If ParametersOfUpdate.DoNotWriteAccessKeys Then
-				// 
-				// 
+				// Intended for the "ThisIsClearingSelectedKeys" mode in the procedure "ProcessObsoleteListAccessKeys".
+				// Switching to the "ObsoleteItems" step is performed in the "ClarifyLastUpdatedItem" procedure.
 				Query.Text =
 				"SELECT TOP 995
 				|	AccessKeys.Ref AS Ref
@@ -17795,7 +17820,7 @@ Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 				
 			ElsIf IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
 				If ParametersOfUpdate.WithAccessKeyEntryForDependentListsWithoutKeys Then
-					// 
+					// Intended for the "IsSelectedKeysCleanUp" mode in procedure "ProcessObsoleteListAccessKeys".
 					Query.Text =
 					"SELECT TOP 995
 					|	AccessKeys.Ref AS Ref
@@ -17848,31 +17873,31 @@ Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 	
 EndFunction
 
-// 
-// 
-// 
-// 
+// Intended for function "ItemsForUpdate" and procedures
+// "SetQueryTextAndLastUpdatedDataItemParameters",
+// "DoProcessObsoleteData", and
+// "AddQueryTextOfObsoleteDataItems".
 //
 Function EmptyQueryFlag()
 	Return "NoItems";
 EndFunction
 
-// 
+// Intended for function "ItemsForUpdate" and procedure "SetLastBlankItem".
 // 
 //
 Function IterativeQueryFlag()
 	Return "*";
 EndFunction
 
-// For the update Element function.
+// Intended for function "ItemsToUpdate".
 Function IterativeSelectionOfItemsToUpdate(Query, ParametersOfUpdate, CountInQuery,
 			SelectedAllItems, RequestedItemsCount)
 	
-	ItemCount = 500; // 
+	ItemCount = 500; // The initial number of data items in the range.
 	QueryTextForRange       = ParametersOfUpdate.QueryTextForDataItemsRange;
 	QueryTextForDataItems = ParametersOfUpdate.DataItemWithObsoleteKeysQueryText;
 	
-	// 
+	// Prepare a request for obtaining the first boundary of the range.
 	If ParametersOfUpdate.ListWithDate Then
 		Query.SetParameter("RangeEndDate", Query.Parameters.EndDate);
 		QueryTextForRange = StrReplace(QueryTextForRange,
@@ -17899,7 +17924,7 @@ Function IterativeSelectionOfItemsToUpdate(Query, ParametersOfUpdate, CountInQue
 	Items = Undefined;
 	
 	While True Do
-		// 
+		// Obtain the next boundary.
 		Query.Text = StrReplace(QueryTextForRange, "993", Format(ItemCount, "NG="));
 		RangeQueryCurrentText = Query.Text;
 		Upload0 = Query.Execute().Unload();
@@ -17914,14 +17939,14 @@ Function IterativeSelectionOfItemsToUpdate(Query, ParametersOfUpdate, CountInQue
 			Query.SetParameter(Column.Name, Upload0[0][Column.Name]);
 		EndDo;
 		
-		// 
+		// Get the items with obsolete keys from the range.
 		Query.Text = StrReplace(QueryTextForDataItems, "993", Format(ItemCount, "NG="));
 		
 		StartMoment = CurrentUniversalDateInMilliseconds();
 		CurElements = Query.Execute().Unload();
 		RequestTime = CurrentUniversalDateInMilliseconds() - StartMoment;
 		
-		// 
+		// Recount items within the range.
 		If RequestTime < 1000 Then
 			ItemCount = ItemCount * Int((1050 - RequestTime) / 50);
 		ElsIf RequestTime > 2000 Then
@@ -17935,7 +17960,7 @@ Function IterativeSelectionOfItemsToUpdate(Query, ParametersOfUpdate, CountInQue
 			ItemCount = 500;
 		EndIf;
 		
-		// 
+		// Check the current range for permanency.
 		Query.Text = RangeQueryCurrentText;
 		Upload0 = Query.Execute().Unload();
 		IsRangeChanged = False;
@@ -17972,7 +17997,7 @@ Function IterativeSelectionOfItemsToUpdate(Query, ParametersOfUpdate, CountInQue
 			Break;
 		EndIf;
 		
-		// 
+		// Prepare a request for obtaining the next boundary of the range.
 		QueryTextForRange       = ParametersOfUpdate.QueryTextForDataItemsRange;
 		QueryTextForDataItems = ParametersOfUpdate.DataItemWithObsoleteKeysQueryText;
 		
@@ -17999,7 +18024,7 @@ Function IterativeSelectionOfItemsToUpdate(Query, ParametersOfUpdate, CountInQue
 	
 	CountInQuery = Null;
 	
-	// 
+	// Prepare the processed item in order to move the cursor.
 	Items = CurElements;
 	Item = Items.Add();
 	
@@ -18020,7 +18045,7 @@ Function IterativeSelectionOfItemsToUpdate(Query, ParametersOfUpdate, CountInQue
 	
 EndFunction
 
-// For query execution procedures.
+// For the query execution procedures.
 Procedure SetQueryPlanClarification(QueryText, UniquePlan = False)
 	
 	If AccessManagementInternalCached.QueryPlanClarificationRequired() Then
@@ -18043,7 +18068,7 @@ Procedure SetQueryPlanClarification(QueryText, UniquePlan = False)
 	
 EndProcedure
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Function SpotJobItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 	
 	If IsCatalogAccessGroupsSets(ParametersOfUpdate)
@@ -18155,7 +18180,7 @@ Function SpotJobItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItem
 	
 EndFunction
 
-// For the function elementpoint task for Updating.
+// For the SpotJobItemsForUpdate function.
 Function AddSpotJobQueries(JobKind, Query, PackageQueries, DataQueries, ParametersOfUpdate)
 	
 	Data = SpotJobTable();
@@ -18213,13 +18238,13 @@ Function SpotJobTable()
 	
 EndFunction
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure RestartUpdateAtNotCompletedSpotUpdate(ParametersOfUpdate)
 	
 	ParametersOfUpdate.UpdateRestart = True;
 	ParametersOfUpdate.LastUpdatedItem = InitialItem(ParametersOfUpdate);
 	
-	// 
+	// Register indirect planning of access update.
 	PlanningParameters = AccessUpdatePlanningParameters(False);
 	PlanningParameters.AllowedAccessKeys  =    ParametersOfUpdate.IsRightsUpdate;
 	PlanningParameters.ForUsers         = Not ParametersOfUpdate.ForExternalUsers;
@@ -18234,7 +18259,7 @@ Procedure RestartUpdateAtNotCompletedSpotUpdate(ParametersOfUpdate)
 	
 EndProcedure
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Function ItemsBatchesSet(ParametersOfUpdate, Items, SelectedAllItems, PortionSize = Undefined)
 	
 	BatchesSet = New Array;
@@ -18320,7 +18345,7 @@ Function BatchFromSet()
 	
 EndFunction
 
-// For procedures, perform an update of the access List, update a set of elements, or a set of elements.
+// For the ExecuteListAccessUpdate, UpdateItemsBatch, and ItemsBatchesSet procedures.
 Function LastItem(Items, ParametersOfUpdate, LastProcessedItem = False)
 	
 	LastItemNumber = ?(LastProcessedItem,
@@ -18357,7 +18382,7 @@ Function LastItem(Items, ParametersOfUpdate, LastProcessedItem = False)
 	
 EndFunction
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure ClarifyLastUpdatedItem(ParametersOfUpdate)
 	
 	If ParametersOfUpdate.List = "Catalog.SetsOfAccessGroups"
@@ -18378,14 +18403,14 @@ Procedure ClarifyLastUpdatedItem(ParametersOfUpdate)
 	
 EndProcedure
 
-// For procedures, perform an update of the access List, a set of Portionelements.
+// For the RunListAccessUpdate, UpdateItemsBatch procedures.
 Procedure SetLastBlankItem(Item, ParametersOfUpdate, ItemDate = '00010101')
 	
 	ItemDate = '00010101';
 	Item = InitialItem(ParametersOfUpdate, , True);
 	Item.DataKey = Null;
 	
-	// 
+	// Clarifying new last item.
 	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
 		If ParametersOfUpdate.IsRightsUpdate Then
 			Return;
@@ -18493,7 +18518,7 @@ Procedure SetLastBlankItem(Item, ParametersOfUpdate, ItemDate = '00010101')
 	
 EndProcedure
 
-// 
+// Intended for procedures "ClarifyLastUpdatedItem" and "SetLastBlankItem".
 Procedure DoProcessObsoleteData(Item, ParametersOfUpdate, FinalDataKeyKind = Undefined)
 	
 	NewItem = Undefined;
@@ -18519,7 +18544,7 @@ Procedure DoProcessObsoleteData(Item, ParametersOfUpdate, FinalDataKeyKind = Und
 	
 EndProcedure
 
-// For the procedure, specify the last element.
+// For the ClarifyBlankLastItem procedure.
 Procedure SetNextPeriodItem(ParametersOfUpdate, Item, ItemDate,
 			CurrentPeriodStartDate = Undefined)
 	
@@ -18544,7 +18569,7 @@ Procedure SetNextPeriodItem(ParametersOfUpdate, Item, ItemDate,
 	
 EndProcedure
 
-// For the update Element function.
+// For the ItemsToUpdate function.
 Procedure SetQueryTextAndLastUpdatedDataItemParameters(Query, ParametersOfUpdate)
 	
 	If IsObsoleteItemsDataProcessor(ParametersOfUpdate) Then
@@ -18556,7 +18581,7 @@ Procedure SetQueryTextAndLastUpdatedDataItemParameters(Query, ParametersOfUpdate
 			Query.Text = ParametersOfUpdate.QueryTextForInvalidDataItemsInCommonRegister;
 		EndIf;
 	Else
-		// 
+		// QueryTextForDataItemsRange, DataItemWithObsoleteKeysQueryText.
 		Query.Text = IterativeQueryFlag();
 		If Not ValueIsFilled(ParametersOfUpdate.FieldsComposition) Then
 			Query.SetParameter("List", ParametersOfUpdate.ListID);
@@ -18615,8 +18640,8 @@ Procedure SetQueryTextAndLastUpdatedDataItemParameters(Query, ParametersOfUpdate
 	
 EndProcedure
 
-// For the last Element procedures, set the parameters for the last updated Element and
-// the textquery function for the number of remaining elements in the Register.
+// For the LastItem and SetLastUpdatedItemParameters procedures and
+// the RemainingRegisterItemsCountQueryText function.
 //
 // Returns:
 //   Structure:
@@ -18669,7 +18694,7 @@ Function DataKey(ParametersOfUpdate, InitialDataKey = Undefined)
 	
 EndFunction
 
-// For the update Element procedure.
+// For the ItemsForUpdate procedure.
 Function AccessGroupsSetsForUpdate(ParametersOfUpdate, CountInQuery)
 	
 	LastUpdatedItem = ParametersOfUpdate.LastUpdatedItem;
@@ -18836,7 +18861,7 @@ Function AccessGroupsSetsForUpdate(ParametersOfUpdate, CountInQuery)
 	
 EndFunction
 
-// For the procedure, update the selection of Elements.
+// For the UpdateItemsBatch procedure.
 Procedure UpdateAccessGroupsSets(DataItems, ParametersOfUpdate)
 	
 	DataKeyKind = ParametersOfUpdate.LastUpdatedItem.DataKeyKind;
@@ -18865,7 +18890,7 @@ Procedure UpdateAccessGroupsSets(DataItems, ParametersOfUpdate)
 	
 EndProcedure
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure ClearBlankAccessGroupsSetRights(ParametersOfUpdate)
 	
 	If ParametersOfUpdate.ForExternalUsers Then
@@ -18921,7 +18946,7 @@ Procedure ClearBlankAccessGroupsSetRights(ParametersOfUpdate)
 	
 EndProcedure
 
-// For the procedure, update the access Groupset.
+// For the UpdateAccessGroupsSets procedure.
 Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, ParametersOfUpdate, IsNewSets = False)
 	
 	If IsNewSets Then
@@ -18931,16 +18956,16 @@ Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, ParametersOfUpdate, 
 	
 	For Each DataElement In DataItems Do
 		If DataElement.IsAccessGroupsSet Then
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"AccessGroupSetsAccessKeys", "AccessGroups", "AccessGroupsSet");
 			
 		ElsIf Not ParametersOfUpdate.ForExternalUsers Then
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"UsersAccessKeys", "UserGroups", "User");
 		Else
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"ExternalUsersAccessKeys", "ExternalUsersGroups", "ExternalUser");
 		EndIf;
@@ -18973,7 +18998,7 @@ Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, ParametersOfUpdate, 
 	
 EndProcedure
 
-// For the procedure, update the set of groups with the old Rules.
+// For the UpdateGroupsSetsWithObsoleteParameters procedure.
 Procedure UpdateGroupsSetsAccessKeys(ParametersOfUpdate, AccessGroupsSet, RightsRegisterName,
 				GroupsCatalogName, GroupsSetFieldName)
 	
@@ -19235,7 +19260,7 @@ Procedure UpdateGroupsSetsAccessKeys(ParametersOfUpdate, AccessGroupsSet, Rights
 			BeginTransaction();
 			Try
 				Block.Lock();
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				Selection = Query.Execute().Select();
 				
 				DeletionCompleted = False;
@@ -19264,7 +19289,7 @@ Procedure UpdateGroupsSetsAccessKeys(ParametersOfUpdate, AccessGroupsSet, Rights
 	
 EndProcedure
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure EliminateSetsDuplicatesFromOneUserInCatalog(ParametersOfUpdate)
 	
 	Query = New Query;
@@ -19320,7 +19345,7 @@ Procedure EliminateSetsDuplicatesFromOneUserInCatalog(ParametersOfUpdate)
 	
 EndProcedure
 
-// For the procedure, update the access Groupset.
+// For the UpdateAccessGroupsSets procedure.
 Procedure UpdateSetsOfOneUserInCatalog(DataItems, ParametersOfUpdate)
 	
 	If ParametersOfUpdate.ForExternalUsers Then
@@ -19373,7 +19398,7 @@ Procedure UpdateSetsOfOneUserInCatalog(DataItems, ParametersOfUpdate)
 	
 EndProcedure
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure FillBlankGroupsSetsHashes(ParametersOfUpdate)
 	
 	Query = New Query;
@@ -19417,7 +19442,7 @@ Procedure FillBlankGroupsSetsHashes(ParametersOfUpdate)
 	
 EndProcedure
 
-// For the setgroup function available for Updating.
+// For the AccessGroupsSetsToUpdate function.
 Function OneUserSetsToUpdateAssignedAccessGroupsSets(ParametersOfUpdate,
 			CountInQuery)
 	
@@ -19525,7 +19550,7 @@ Function OneUserSetsToUpdateAssignedAccessGroupsSets(ParametersOfUpdate,
 	
 EndFunction
 
-// For the setgroup function available for Updating.
+// For the AccessGroupsSetsToUpdate function.
 Function OneUserSetsToUpdateAssignedUsersGroupsSets(ParametersOfUpdate,
 			CountInQuery)
 	
@@ -19579,8 +19604,8 @@ Function OneUserSetsToUpdateAssignedUsersGroupsSets(ParametersOfUpdate,
 	
 EndFunction
 
-// For the functions of a set of user-defined setsfor updating assigned setsgroup Access,
-// Sets of one-time users to update designated sets of user groups.
+// For the SetsOfOneUserToUpdateAssignedAccessGroupsSets,
+// SetsOfOneUserToUpdateAssignedUsersGroupsSets functions.
 //
 Function OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 			GroupsQueryText, NewGroupsSetsQueryText, SetFieldName, GroupsCatalogName)
@@ -19839,7 +19864,7 @@ Function OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 	
 EndFunction
 
-// For the procedure, update the selection of Elements.
+// For the UpdateItemsBatch procedure.
 Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 			ParametersOfUpdate, IsAssignedAccessGroupsSetsUpdate)
 	
@@ -19870,7 +19895,7 @@ Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 		If String.GroupsSet = Undefined Then
 			GroupsSet = NewGroupsSets.Get(String.GroupsID);
 			If GroupsSet = Undefined Then
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				String.GroupsSet = NewGroupsSet(String.SetGroups,
 					ParametersOfUpdate.ForExternalUsers,
 					SetItemsType,
@@ -19914,7 +19939,7 @@ Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 	
 EndProcedure
 
-// For the procedure, update the groupset in the reference.
+// For the UpdateGroupsSetsInCatalog procedure.
 Procedure FillGroupsNumbers(GroupsNumbers, NumberPartsNames, MaxGroupNumberInNumberPart)
 	
 	GroupCount = GroupsNumbers.Count();
@@ -19944,7 +19969,7 @@ Procedure FillGroupsNumbers(GroupsNumbers, NumberPartsNames, MaxGroupNumberInNum
 	
 EndProcedure
 
-// For the procedure, update the groupset in the reference.
+// For the UpdateGroupsSetsInCatalog procedure.
 Function NewGroupsSet(SetGroups, ForExternalUsers, SetItemsType,
 			SetFieldName, GroupsItemsPresentation, NewGroupSet)
 	
@@ -20001,7 +20026,7 @@ Function NewGroupsSet(SetGroups, ForExternalUsers, SetItemsType,
 	
 EndFunction
 
-// For Novynar and procedures Zapolnyayuscheysya.
+// For the NewGroupsSet function and the FillBlankGroupsSetsHashes procedure.
 Procedure FillGroupsSetHash(Object)
 	
 	Object.Groups.Sort("Group", New CompareValues);
@@ -20014,7 +20039,7 @@ Procedure FillGroupsSetHash(Object)
 	
 EndProcedure
 
-// For Novynar.
+// For the NewGroupsSet function.
 Function SetGroupsByNumbers(GroupsNumbers, NumberPartsNames, NumberParts)
 	
 	SetGroups = New Array;
@@ -20042,7 +20067,7 @@ Function SetGroupsByNumbers(GroupsNumbers, NumberPartsNames, NumberParts)
 	
 EndFunction
 
-// For Novynar.
+// For the NewGroupsSet function.
 Function GroupsSetExists(Object)
 	
 	Query = New Query;
@@ -20088,7 +20113,7 @@ Function GroupsSetExists(Object)
 	
 EndFunction
 
-// For the procedure, update the access Groupset.
+// For the UpdateAccessGroupsSets procedure.
 Procedure UpdateGroupsSetsAllowedForUsersInCatalog(DataItems, ParametersOfUpdate)
 	
 	Block = New DataLock;
@@ -20129,7 +20154,7 @@ Procedure UpdateGroupsSetsAllowedForUsersInCatalog(DataItems, ParametersOfUpdate
 	
 EndProcedure
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure ClearNonExistentAccessGroupsSetsRights(ParametersOfUpdate)
 	
 	If ParametersOfUpdate.ForExternalUsers Then
@@ -20167,28 +20192,28 @@ Procedure ClearNonExistentAccessGroupsSetsRights(ParametersOfUpdate)
 	
 	Selection = QueryResults[0].Select();
 	While Selection.Next() Do
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"AccessGroupSetsAccessKeys", "AccessGroupsSet");
 	EndDo;
 	
 	Selection = QueryResults[1].Select();
 	While Selection.Next() Do
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"UsersAccessKeys", "User");
 	EndDo;
 	
 	Selection = QueryResults[2].Select();
 	While Selection.Next() Do
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"ExternalUsersAccessKeys", "ExternalUser");
 	EndDo;
 	
 EndProcedure
 
-// For the setgroup function available for Updating.
+// For the AccessGroupsSetsToUpdate function.
 Function ObsoleteAccessGroupsSetsInCatalog(ParametersOfUpdate, CountInQuery)
 	
 	Query = New Query;
@@ -20297,14 +20322,14 @@ Function ObsoleteAccessGroupsSetsInCatalog(ParametersOfUpdate, CountInQuery)
 	
 EndFunction
 
-// For deprecated functions, the group is available in the Reference, the element is for Updating.
+// For the ObsoleteAccessGroupsSetsInCatalog, ItemsToUpdate functions.
 Function ExpirationDate()
 	
 	Return CurrentSessionDate() - HoursOfNotUsedItemsBecomingObsoleteCount() * 60 * 60;
 	
 EndFunction
 
-// For the procedure, update the selection of Elements.
+// For the UpdateItemsBatch procedure.
 Procedure ProcessObsoleteSetsInCatalog(DataItems, ParametersOfUpdate)
 	
 	Block = New DataLock;
@@ -20336,11 +20361,11 @@ Procedure ProcessObsoleteSetsInCatalog(DataItems, ParametersOfUpdate)
 		EndTry;
 		
 		If Not String.Used And String.Delete Then
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			DeleteRegisterRecordsForSet(String.CurrentRef, "AccessGroupSetsAccessKeys",  "AccessGroupsSet");
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			DeleteRegisterRecordsForSet(String.CurrentRef, "UsersAccessKeys",        "User");
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			DeleteRegisterRecordsForSet(String.CurrentRef, "ExternalUsersAccessKeys", "ExternalUser");
 			
 			BeginTransaction();
@@ -20364,7 +20389,7 @@ Procedure ProcessObsoleteSetsInCatalog(DataItems, ParametersOfUpdate)
 	
 EndProcedure
 
-// For the procedure, remove the old part of the screen in the reference Book.
+// For the DeleteObsoleteSetsInCatalog procedure.
 Procedure DeleteRegisterRecordsForSet(Set, InformationRegisterName, SetFieldName)
 	
 	Query = New Query;
@@ -20414,14 +20439,14 @@ Procedure DeleteRegisterRecordsForSet(Set, InformationRegisterName, SetFieldName
 	
 EndProcedure
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure UpdateRightsToAllowedAccessKey(HasChanges = False)
 	
 	UpdateAccessGroupsOfAllowedAccessKey( , HasChanges);
 	
 EndProcedure
 
-// For the procedure, update the rightresolved access Key.
+// For the UpdateRightsToAllowedAccessKey procedure.
 Procedure UpdateAccessGroupsOfAllowedAccessKey(AccessGroups = Undefined, HasChanges = False) Export
 	
 	SetPrivilegedMode(True);
@@ -20430,7 +20455,7 @@ Procedure UpdateAccessGroupsOfAllowedAccessKey(AccessGroups = Undefined, HasChan
 	
 	Block = New DataLock;
 	
-	// 
+	// Access group update in the AccessGroupsAccessKeys register.
 	GroupsQuery = New Query;
 	GroupsQuery.SetParameter("AccessKey", AllowedAccessKey);
 	GroupsQuery.SetParameter("ProfileAdministrator", AccessManagement.ProfileAdministrator());
@@ -20444,7 +20469,7 @@ Procedure UpdateAccessGroupsOfAllowedAccessKey(AccessGroups = Undefined, HasChan
 	GroupsRecordSet = ServiceRecordSet(InformationRegisters.AccessGroupsAccessKeys);
 	GroupsRecordSet.Filter.AccessKey.Set(AllowedAccessKey);
 	
-	// 
+	// Updating access group sets in the AccessGroupSetsAccessKeys register.
 	RightsRequestForAccessGroups = New Query;
 	RightsRequestForAccessGroups.SetParameter("AccessKey", AllowedAccessKey);
 	RightsRequestForAccessGroups.SetParameter("AllowedBlankSet", AllowedBlankSet);
@@ -20484,7 +20509,7 @@ Procedure UpdateAccessGroupsOfAllowedAccessKey(AccessGroups = Undefined, HasChan
 	
 EndProcedure
 
-// For the update group procedure, the access key is Resolved.
+// For the UpdateAllowedAccessKeyGroups procedure.
 Function SelectionQueryTextOfAllowedKeyAccessGroupsDifferences()
 	
 	QueryText =
@@ -20546,10 +20571,10 @@ Function SelectionQueryTextOfAllowedKeyAccessGroupsDifferences()
 	
 EndFunction
 
-// For the procedure, update the selection of Elements.
+// For the UpdateItemsBatch procedure.
 Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 	
-	PortionSize = 100; // 
+	PortionSize = 100; // Delete 100 items at a time.
 	DataItemsBatch = Undefined;
 	ItemCount = DataItems.Count();
 	
@@ -20592,7 +20617,7 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 				Block.Lock();
 				LockSet = True;
 				If IsVerificationRequired Then
-					// 
+					// @skip-check query-in-loop - Batch processing of data
 					Upload0 = Query.Execute().Unload();
 				EndIf;
 				For Each String In DataItemsBatch Do
@@ -20702,7 +20727,7 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 			Block.Lock();
 			LockSet = True;
 			If IsVerificationRequired Then
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				Upload0 = Query.Execute().Unload();
 				If DimensionsFilter = Undefined Then
 					DimensionsToCheckNames = New Array;
@@ -20781,7 +20806,7 @@ Procedure DeleteObsoleteListDataItems(DataItems, ParametersOfUpdate)
 	
 EndProcedure
 
-// For the procedure, perform the update access List.
+// For the RunListAccessUpdate procedure.
 Procedure DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister()
 	
 	Query = New Query;
@@ -20812,7 +20837,7 @@ Procedure DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister()
 			Continue;
 		EndIf;
 		Query.SetParameter("Type", Selection.RefType);
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		Objects = Query.Execute().Unload().UnloadColumn("Object");
 		For Each Object In Objects Do
 			RecordSet.Filter.Object.Set(Object);
@@ -20839,10 +20864,10 @@ Procedure DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister()
 	
 EndProcedure
 
-// For the procedure, update the selection of Elements.
+// For the UpdateItemsBatch procedure.
 Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, ParametersOfUpdate)
 	
-	PortionSize = 100; // 
+	PortionSize = 100; // Import 100 items at a time.
 	
 	If ParametersOfUpdate.IsReferenceType Then
 		IsExistingCombinationsProcessing = False;
@@ -20908,7 +20933,7 @@ Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, ParametersOfUpdate)
 		EndIf;
 		
 		If DataItemsBatch.Count() > 0 Then
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdate);
 		EndIf;
 		
@@ -20919,7 +20944,7 @@ Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, ParametersOfUpdate)
 	
 EndProcedure
 
-// For the function update the element of the given list with the old keys.
+// For the UpdateListDataItemsWithObsoleteKeys function.
 Function IncorrectCombinationOfBasicFieldsValues(DataElement, ParametersOfUpdate)
 	
 	Number = 1;
@@ -20940,7 +20965,7 @@ Function IncorrectCombinationOfBasicFieldsValues(DataElement, ParametersOfUpdate
 	
 EndFunction
 
-// For the function update the element of the given list with the old keys.
+// Intended for function "UpdateListDataItemsWithObsoleteKeys".
 Function IsInvalidCombinationOfBasicFieldValues(DataElement, ParametersOfUpdate)
 	
 	FieldsTypes = AccessManagementInternalCached.RegisterBasicFieldsTypes(
@@ -20960,7 +20985,7 @@ Function IsInvalidCombinationOfBasicFieldValues(DataElement, ParametersOfUpdate)
 	
 EndFunction
 
-// Access is Allowed for the function.
+// For the AccessAllowed function.
 Function InMemoryObjectsModel(DataDetails, RestrictionParameters)
 	
 	If TypeOf(DataDetails) = Type("Array") Then
@@ -21014,7 +21039,7 @@ Function InMemoryObjectsModel(DataDetails, RestrictionParameters)
 	
 EndFunction
 
-// For the function update elementdated list with old Keys, update the access key of elementdated record.
+// For the UpdateListDataItemsWithObsoleteKeys and UpdateAccessKeysOfDataItemsOnWrite function.
 Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdate)
 	
 	IsReferenceType     = ParametersOfUpdate.IsReferenceType;
@@ -21092,7 +21117,7 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdat
 	EndDo;
 	Context.Insert("ObjectsAccessKeysDetails", ObjectsAccessKeysDetails);
 	
-	// 
+	// Receiving data of existing access keys by hash of required access keys.
 	KeysValuesQuery = New Query;
 	KeysValuesQuery.Text = ParametersOfUpdate.ValueFromAccessKeysInUseForComparisonQueryText;
 	KeysValuesQuery.SetParameter("Hashes",   RequiredAccessKeysHash);
@@ -21115,7 +21140,7 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdat
 		EndIf;
 	EndDo;
 	
-	// 
+	// Creating missing access keys.
 	NewKeysDetails = New Array;
 	For Each KeyDetails In RequiredAccessKeys Do
 		If KeyDetails.AccessKey <> Undefined Then
@@ -21133,7 +21158,7 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdat
 		EndDo;
 	EndIf;
 	
-	// 
+	// Updating access keys of data items.
 	If IsReferenceType Then
 		If ParametersOfUpdate.Property("InMemoryObjectsModel") Then
 			KeyFieldName1 = ?(ParametersOfUpdate.ForExternalUsers,
@@ -21151,7 +21176,7 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdat
 		WriteRegistersAccessKeys(ParametersOfUpdate, Context);
 	EndIf;
 	
-	// 
+	// Forced manual update of rights.
 	If ParametersOfUpdate.Property("UpdateRightsToKeys")
 	   And ParametersOfUpdate.UpdateRightsToKeys Then
 		
@@ -21169,7 +21194,7 @@ Procedure UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdat
 	
 EndProcedure
 
-// For the procedure, update the access key for the list's data elements.
+// For the UpdateAccessKeysOfListDataItemsBatch procedure.
 Procedure UpdateAccessKeysRights(KeysDetails, ParametersOfUpdate, IsNewKeys = False, Context = Undefined)
 	
 	If ParametersOfUpdate.Property("ProcessedItemsCount") Then
@@ -21239,7 +21264,7 @@ EndProcedure
 // Returns:
 //  ValueTable:
 //    * Ref      - CatalogRef.AccessKeys
-//    * LineNumber - Number -  line number of the table part
+//    * LineNumber - Number - Table row number.
 //
 Function KeyTableValues()
 	
@@ -21247,7 +21272,7 @@ Function KeyTableValues()
 	
 EndFunction
 
-// For the procedure, update the access key for the list's data elements.
+// For the UpdateAccessKeysOfListDataItemsBatch procedure.
 Function StringForAccessKeyHash(ValuesKeysDetails, KeyTables)
 	
 	If ValuesKeysDetails = Undefined Then
@@ -21260,7 +21285,7 @@ Function StringForAccessKeyHash(ValuesKeysDetails, KeyTables)
 	TablesNames   = ValuesKeysDetails.TablesNames;
 	
 	If TablesNames.Count() <> KeyTables.Count() Then
-		// 
+		// The access key uses tabular sections and some blank ones.
 		For IndexOf = 0 To KeyTables.Count() - 1 Do
 			
 			If IndexOf >= TablesNames.Count()
@@ -21276,7 +21301,7 @@ Function StringForAccessKeyHash(ValuesKeysDetails, KeyTables)
 	
 EndFunction
 
-// For the procedure, update the access key for a selection of data Elements.
+// For the UpdateAccessKeysOfDataItemsBatch procedure.
 Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 	
 	WriteOnlyChangedOnes = WriteOnlyChangedDataItemsAccessKeys();
@@ -21403,13 +21428,13 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 			ParametersOfUpdate.Property("IsBackgroundAccessUpdate"));
 		AfterPlanUpdate(ParametersOfUpdate);
 		
-		// 
-		// 
-		// 
+		// ACC:330-off - No.783.1.3. It's acceptable to make the call following "CommitTransaction"
+		// as it routinely calls an empty procedure (therefore, exceptions cannot be thrown).
+		// During performance analysis, the consequences are not critical and handled.
 		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
 		AfterCommitTransaction(ParametersOfUpdate);
-		// 
+		// ACC:330-on
 	Except
 		RollbackTransaction();
 		Raise;
@@ -21422,7 +21447,7 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 	
 EndProcedure
 
-// For the procedure, update the access key for a selection of data Elements.
+// For the UpdateAccessKeysOfDataItemsBatch procedure.
 Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 	
 	If Not ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName) Then
@@ -21538,13 +21563,13 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 		EndDo;
 		AfterWriteRows(ParametersOfUpdate, ObjectsAccessKeysDetails.Count());
 		
-		// 
-		// 
-		// 
+		// ACC:330-off - No.783.1.3. It's acceptable to make the call following "CommitTransaction"
+		// as it routinely calls an empty procedure (therefore, exceptions cannot be thrown).
+		// During performance analysis, the consequences are not critical and handled.
 		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
 		AfterCommitTransaction(ParametersOfUpdate);
-		// 
+		// ACC:330-on
 	Except
 		RollbackTransaction();
 		Raise;
@@ -21557,7 +21582,7 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 	
 EndProcedure
 
-// For the function update the element of the given list with the old keys.
+// For the UpdateListDataItemsWithObsoleteKeys function.
 Procedure DeleteIncorrectBasicFieldsValuesCombinations(DataItemsBatch, ParametersOfUpdate)
 	
 	If Not ValueIsFilled(ParametersOfUpdate.SeparateKeysRegisterName) Then
@@ -21609,7 +21634,7 @@ Procedure DeleteIncorrectBasicFieldsValuesCombinations(DataItemsBatch, Parameter
 	
 EndProcedure
 
-// For the procedure, update the access key for a selection of data Elements.
+// For the UpdateAccessKeysOfDataItemsBatch procedure.
 Function ObjectsRowsValuesKeys(QueryResults, IndexOf, KeyTables, TablesRowsValues = Undefined)
 	
 	ObjectsRowsValuesKeys = New Map;
@@ -21654,13 +21679,13 @@ Function ObjectsRowsValuesKeys(QueryResults, IndexOf, KeyTables, TablesRowsValue
 	
 EndFunction
 
-// For the key-value function of string Objects, etc.
+// For the ObjectsRowsValuesKeys function and other.
 Function DataStringForHashing(Data)
 	
-	// 
-	// 
-	// 
-	// 
+	// Returns a data string to be hashed. For example, string presentations of database references considering their types
+	// by internal IDs, which guarantees checksum immutability when the names of tables and attributes change.
+	// Therefore, it ensures the conformity between the data checksum and the database data itself.
+	// Intended to avoid massive re-creation of access keys that would trigger the update of users and access groups.
 	// 
 	//
 	// 
@@ -21670,7 +21695,7 @@ Function DataStringForHashing(Data)
 	
 EndFunction
 
-// For the procedure, update the access key for a selection of data Elements.
+// For the UpdateAccessKeysOfDataItemsBatch procedure.
 Procedure CheckAccessKeyValueType(KeyDetails, AllowedValuesTypes, ParametersOfUpdate)
 	
 	TablesColumnsValues = KeyDetails.TablesColumnsValues;
@@ -21695,7 +21720,7 @@ Procedure CheckAccessKeyValueType(KeyDetails, AllowedValuesTypes, ParametersOfUp
 	
 EndProcedure
 
-// For the procedure, update the access key for a selection of data Elements.
+// For the UpdateAccessKeysOfDataItemsBatch procedure.
 Procedure PrepareNewAccessKey(KeyDetails, NewKeysDetails, ParametersOfUpdate)
 	
 	NewRef = Catalogs.AccessKeys.GetRef();
@@ -21743,7 +21768,7 @@ Procedure PrepareNewAccessKey(KeyDetails, NewKeysDetails, ParametersOfUpdate)
 	
 EndProcedure
 
-// For procedures, update the item selection, update the access rights Key.
+// For the UpdateItemsBatch and UpdateRightsToAccessKeys procedures.
 Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, ParametersOfUpdate, IsNewKeys = False)
 	
 	If Not ParametersOfUpdate.Property("Cache") Then
@@ -21862,7 +21887,7 @@ Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, ParametersOfUpdat
 		AccessKey = ValuesRow.Ref;
 		
 		RightsToKey = RightsToListAccessKey(KeyTablesValues, ParametersOfUpdate);
-		// 
+		// @skip-check query-in-loop - Batch processing of data
 		UpdateRightsToListAccessKey(AccessKey, RightsToKey,
 			?(IsNewKeys, AccessKeysDetails, Undefined), ParametersOfUpdate);
 		
@@ -21875,7 +21900,7 @@ EndProcedure
 
 // Returns:
 //  Structure of KeyAndValue:
-//   * Key - String - 
+//   * Key - String - Key table name
 //   * Value - ValueTree
 //
 Function KeysTableNewVals()
@@ -21884,7 +21909,7 @@ EndFunction
 
 // Returns:
 //  Structure of KeyAndValue:
-//   * Key - String - 
+//   * Key - String - Key table name
 //   * Value - See TableOfKeyNewValues
 //
 Function NewValuesOfKeyTables()
@@ -21900,7 +21925,7 @@ Function TableOfKeyNewValues()
 	Return New ValueTable;
 EndFunction
 
-// For the procedure, update the selection of Elements.
+// For the UpdateItemsBatch procedure.
 Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 	
 	Query = New Query;
@@ -21964,7 +21989,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 		Ref = ValuesRow.Ref;
 		If Not ThisIsClearingSelectedKeys And String.Used Then
 			KeyUsageQuery.SetParameter("Ref", Ref);
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			If Not KeyUsageQuery.Execute().IsEmpty() Then
 				If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 					Break;
@@ -22009,7 +22034,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 			EndIf;
 			If DeleteKey Then
 				Query.SetParameter("AccessKey", Ref);
-				// 
+				// @skip-check query-in-loop - Batch processing of data
 				QueryResults = Query.ExecuteBatch();
 				If Not QueryResults[0].IsEmpty() Then
 					KeyAccessGroupsRecordSet.Filter.AccessKey.Set(Ref);
@@ -22048,14 +22073,14 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 	
 EndProcedure
 
-// For the procedure, update the rightportionkey of the access List.
+// For the UpdateRightsOfListAccessKeysBatch procedure.
 //
 // Returns:
 //  Structure:
 //   * ListAccessGroupPermissions - Map of KeyAndValue:
 //      ** Key - CatalogRef.MetadataObjectIDs
-//              - CatalogRef.ExtensionObjectIDs - 
-//      ** Value - 
+//              - CatalogRef.ExtensionObjectIDs - List id
+//      ** Value - See "ListAccessGroupsRights"
 //   
 //   * AccessGroupsValues                  - See AccessGroupsNewValues
 //   * AccessGroupsMembers                 - See AccessGroupsNewMembers
@@ -22117,7 +22142,7 @@ Function CacheForCalculatingRightsForTheUserType(ForExternalUsers) Export
 	
 EndFunction
 
-// For the Cache Calculation function for user views.
+// For the RightsCalculationCacheForUsersKind function.
 Procedure ResetTheRightsCalculationCache(Cache, Property, NewMap = False)
 	
 	Cache.ForUsers[Property]        = ?(NewMap, New Map, Undefined);
@@ -22125,8 +22150,8 @@ Procedure ResetTheRightsCalculationCache(Cache, Property, NewMap = False)
 	
 EndProcedure
 
-// For procedures, fill in the right group of the access list and
-// Fill out the Access List group members.
+// For the FillListAccessGroupsRights and
+// FillListAccessGroupsMembers procedures.
 //
 Function TheTextOfTheProfileAssignmentRequest()
 	
@@ -22171,7 +22196,7 @@ Function ListAccessGroupNewRights(Rights)
 	Return Rights;
 EndFunction
 
-// For the procedure, update the rightportionkey of the access List.
+// For the UpdateRightsOfListAccessKeysBatch procedure.
 Procedure FillInTheRightsOfTheListAccessGroups(ParametersOfUpdate, Cache)
 	
 	ListID = ParametersOfUpdate.ListID;
@@ -22229,7 +22254,7 @@ Function NewUsersInUserGroups()
 	Return New Map;
 EndFunction
 
-// For the procedure, update the rightportionkey of the access List.
+// For the UpdateRightsOfListAccessKeysBatch procedure.
 Procedure FillUsersGroupsUsers(ParametersOfUpdate, Cache)
 	
 	ParametersOfUpdate.Insert("UserGroupsUsers", NewUsersInUserGroups());
@@ -22290,7 +22315,7 @@ Function NewUserGroupsAsAccessVals()
 	Return New Map;
 EndFunction
 
-// For the procedure, update the rightportionkey of the access List.
+// For the UpdateRightsOfListAccessKeysBatch procedure.
 Procedure FillInUserGroupsAsAccessValues(ParametersOfUpdate, Cache)
 	
 	ParametersOfUpdate.Insert("UserGroupsAsAccessValues",
@@ -22362,7 +22387,7 @@ Function AccessGroupsNewUsersGroups()
 	Return New Map;
 EndFunction
 
-// For the procedure, update the rightportionkey of the access List.
+// For the UpdateRightsOfListAccessKeysBatch procedure.
 Procedure FillInTheListOfAccessGroupMembers(ParametersOfUpdate, Cache)
 	
 	ParametersOfUpdate.Insert("AccessGroupsMembers",           AccessGroupsNewMembers());
@@ -22452,8 +22477,8 @@ Procedure FillInTheListOfAccessGroupMembers(ParametersOfUpdate, Cache)
 	
 EndProcedure
 
-// For the procedures, fill in the usergroup of usersand
-// Fill in the User group as the access value.
+// For the FillUsersGroupsUsers and
+//  FillUsersGroupAsAccessValues procedures.
 //
 Procedure FillInTheUsersOfTheGroups(UserGroupsUsers, QueryResult)
 	
@@ -22470,7 +22495,7 @@ EndProcedure
 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - Type - 
+//   * Key - Type - Access value type
 //   * Value - Structure:
 //      ** AllAllowed - Boolean
 //      ** Values - Map of KeyAndValue:
@@ -22490,7 +22515,7 @@ Function AccessGroupsNewValues()
 	Return New Map;
 EndFunction
 
-// For the procedure, update the rightportionkey of the access List.
+// For the UpdateRightsOfListAccessKeysBatch procedure.
 Procedure FillAccessGroupsValuesToCalculateRights(ParametersOfUpdate, Cache)
 	
 	If Cache.AccessGroupsValues <> Undefined Then
@@ -22582,7 +22607,7 @@ Function ProfilesNewAccessGroups()
 	Return New ValueTable;
 EndFunction
 
-// For the procedure, update the rightportionkey of the access List.
+// For the UpdateRightsOfListAccessKeysBatch procedure.
 Procedure FillInTheRolesAndAccessGroupsOfProfiles(ParametersOfUpdate, Cache)
 	
 	ParametersOfUpdate.Insert("RolesOfAccessGroupProfiles", NewRolesOfAccessGroupProfiles());
@@ -22688,7 +22713,7 @@ EndProcedure
 //      ** RestrictionDisabled - Boolean
 //      ** ByAccessGroups - FixedMap of KeyAndValue:
 //          *** Key - CatalogRef.AccessGroups
-//          *** Value - Boolean - 
+//          *** Value - Boolean - "Update" right
 //
 Function NewRightsForListsOfMasterAccessKeys()
 	Return New Map;
@@ -22701,7 +22726,7 @@ EndFunction
 //      ** Key - CatalogRef.AccessGroups
 //              - CatalogRef.UserGroups
 //              - CatalogRef.ExternalUsersGroups
-//      ** Value - Boolean - 
+//      ** Value - Boolean - "Update" right
 //
 Function NewRightsToMasterAccessKeys()
 	Return New Map;
@@ -22710,19 +22735,19 @@ EndFunction
 // Returns:
 //  FixedMap of KeyAndValue:
 //   * Key - CatalogRef.MetadataObjectIDs
-//          - CatalogRef.ExtensionObjectIDs - 
-//          - Type - 
+//          - CatalogRef.ExtensionObjectIDs - List id
+//          - Type - Type of list values
 //   * Value - FixedMap of KeyAndValue:
 //      ** Key - CatalogRef.AccessGroups
 //              - CatalogRef.UserGroups
 //              - CatalogRef.ExternalUsersGroups
-//      ** Value - Boolean - 
+//      ** Value - Boolean - "Update" right
 //
 Function NewRightsToMasterLists()
 	Return New Map;
 EndFunction
 
-// For the procedure, update the rightportionkey of the access List.
+// For the UpdateRightsOfListAccessKeysBatch procedure.
 Procedure FillRightsToLeadingAccessKeysAndLeadingLists(QueryResults, TableNumber, ParametersOfUpdate)
 	
 	RightsToLeadingAccessKeysLists = NewRightsForListsOfMasterAccessKeys();
@@ -22829,13 +22854,13 @@ EndProcedure
 //              - CatalogRef.UserGroups
 //              - CatalogRef.ExternalUsers
 //              - CatalogRef.ExternalUsersGroups
-//      ** Value - Boolean - 
+//      ** Value - Boolean - "Update" right
 //
 Function NewRightsByRightSetupOwners()
 	Return New Map;
 EndFunction
 
-// For the procedure, update the rightportionkey of the access List.
+// For the UpdateRightsOfListAccessKeysBatch procedure.
 Procedure FillRightsByRightsSettingsOwners(QueryResults, TableNumber, ParametersOfUpdate)
 	
 	RightsByRightsSettingsOwners = NewRightsByRightSetupOwners();
@@ -22877,14 +22902,14 @@ EndProcedure
 //   * RoleRightsFunctionsAccessRights - Map
 //   * MetadataObjectsFunctionsAccessRights - Map
 //   * ProfileRightsFunctionsAccessRights - Map
-//   * RolesOfAccessGroupProfiles - 
-//   * ProfilesAccessGroups - 
-//   * AccessGroup - CatalogRef.AccessGroups - 
+//   * RolesOfAccessGroupProfiles - See "AccessGroupsProfilesRoles"
+//   * ProfilesAccessGroups - See "ProfilesAccessGroups"
+//   * AccessGroup - CatalogRef.AccessGroups - Current value
 //   * AccessGroupValues - See AccessGroupNewValues
 //   * RequiredKeyTablesDetails - Array of Structure:
 //      ** TablesAttributes    - Map of KeyAndValue:
-//          *** Key     - String - 
-//          *** Value - Array of String - 
+//          *** Key     - String - Key table name
+//          *** Value - Array of String - Name of a key table attribute
 //      ** TablesValues     - See CurrentKeyTablesValues
 //      ** TablesRowsIndexes - Map
 //   * CurrentKeyTableRows - See NewValuesOfKeyTables
@@ -22893,7 +22918,7 @@ Function RightsCalculationNewContext()
 	Return New Structure;
 EndFunction
 
-// For the procedure, update the right key to access the List.
+// For the UpdateRightsToListAccessKeys procedure.
 Function RightsToListAccessKey(KeyTablesValues, ParametersOfUpdate)
 	
 	RightsToKey = New Structure("ForGroups, ForUsers", New Map, New Map);
@@ -23028,7 +23053,7 @@ Function RightsToListAccessKey(KeyTablesValues, ParametersOfUpdate)
 		RightsToKey.ForGroups.Insert(ParametersOfUpdate.BlankAccessGroup,
 			New Structure("RightUpdate, AddRight", True, True));
 		
-	Else // 
+	Else // ReadAllowedForAllAccessGroups.
 		CurrentRightsToKey = RightsToKey;
 		RightsToKey = New Structure("ForGroups, ForUsers", New Map, New Map);
 		If Not WithoutWriteReadRight Or ChangeAllowedForAllAccessGroups Then
@@ -23052,7 +23077,7 @@ Function RightsToListAccessKey(KeyTablesValues, ParametersOfUpdate)
 	
 EndFunction
 
-// For the access rights procedure of the subscription.
+// For the RightsToListAccessKey procedure.
 Procedure AddUsersRightsToAccessKey(RightsToKey, ReadRight, RightUpdate, AddRight, Context)
 	
 	If TypeOf(RightUpdate) = Type("Map") And RightUpdate.Count() = 0 Then
@@ -23098,7 +23123,7 @@ Function NewRights(RightUpdate, AddRight)
 	
 EndFunction
 
-// For the procedure, add the user rights access Key.
+// For the AddUsersRightsToAccessKey procedure.
 Procedure AddRightsToAccessKeyToUsers(RightsToAccessKeyForUsers,
 				UsersContent, RightUpdate, AddRight, WithoutWriteReadRight)
 	
@@ -23134,7 +23159,7 @@ Procedure AddRightsToAccessKeyToUsers(RightsToAccessKeyForUsers,
 	
 EndProcedure
 
-// For the rights functions, the access key of the List and the calculated Condition.
+// For the RightsToListAccessKey and CalculatedCondition functions.
 Function CalculatedConditionForRows(Context, Condition, AttributesNode = Undefined, ForAnyRow = True, RootNode = True)
 	
 	If AttributesNode = Undefined Then
@@ -23247,7 +23272,7 @@ Function CalculatedConditionForRows(Context, Condition, AttributesNode = Undefin
 	
 EndFunction
 
-// For the function calculatedconditions for Strings.
+// For the CalculatedConditionForRows function.
 Procedure AddCurrentResult(Result, CurrentResult, ForAnyRow, Context)
 	
 	If ForAnyRow Then
@@ -23294,7 +23319,7 @@ Procedure AddCurrentResult(Result, CurrentResult, ForAnyRow, Context)
 	
 EndProcedure
 
-// For the procedure, add the current Result and set the return Result.
+// For the AddCurrentResult and SetReverseResult procedures.
 Function GroupsUsers(UsersAndGroups, Context)
 	
 	GroupsUsers = New Map;
@@ -23317,7 +23342,7 @@ Function GroupsUsers(UsersAndGroups, Context)
 	
 EndFunction
 
-// For the function calculated Condition.
+// For the CalculatedCondition function.
 Procedure SetReverseResult(Result, Context)
 	
 	ExceptionsList = Result;
@@ -23375,11 +23400,11 @@ Procedure SetReverseResult(Result, Context)
 	
 EndProcedure
 
-// For the function calculatedconditions for Strings.
+// For the CalculatedConditionForRows function.
 //
 // Returns:
 //  Structure of KeyAndValue:
-//   * Key - String - 
+//   * Key - String - Key table name
 //   * Value - See KeyTableValues
 //
 Function CurrentKeyTablesValues(Context, RequiredKeyTabularSectionsAttributes)
@@ -23426,10 +23451,10 @@ Function CurrentKeyTablesValues(Context, RequiredKeyTabularSectionsAttributes)
 	
 EndFunction
 
-// For the function calculatedconditions for Strings.
+// For the CalculatedConditionForRows function.
 Function CalculatedCondition(Context, Condition, RootNode = False)
 	
-	// 
+	// Checked types are already considered.
 	
 	If Condition.Node = "Field" Then
 		Value = Context.CurrentKeyTableRows[Condition.Table][Condition.Attribute];
@@ -23753,7 +23778,7 @@ Function CalculatedCondition(Context, Condition, RootNode = False)
 				Result = "False";
 			EndIf;
 			
-		Else // 
+		Else // Checking rights to the list.
 			RightsToLeadingList = Context.RightsToLeadingLists.Get(Value);
 			If RightsToLeadingList = Undefined Then
 				RightsToLeadingList = Context.RightsToLeadingLists.Get(TypeOf(Value));
@@ -23795,7 +23820,7 @@ Function CalculatedCondition(Context, Condition, RootNode = False)
 	
 EndFunction
 
-// For the function calculated Condition.
+// For the CalculatedCondition function.
 Function ValueSpecifiedInUsersGroup(User, Context)
 	
 	SpecifiedUsersGroups = Context.AccessGroupValues.Get(Context.UserGroupType);
@@ -23817,7 +23842,7 @@ Function ValueSpecifiedInUsersGroup(User, Context)
 	
 EndFunction
 
-// For the function calculated Condition.
+// For the CalculatedCondition function.
 Procedure FillResultForUser(Result, User, Context)
 	
 	Result = "False";
@@ -23847,7 +23872,7 @@ Procedure FillResultForUser(Result, User, Context)
 	
 EndProcedure
 
-// For the function calculated Condition.
+// For the CalculatedCondition function.
 Procedure FillResultForUserGroup(Result, UsersGroup, Context)
 	
 	Result = "False";
@@ -23893,7 +23918,7 @@ Procedure FillResultForUserGroup(Result, UsersGroup, Context)
 	
 EndProcedure
 
-// For the function calculated Condition.
+// For the CalculatedCondition function.
 Function ThereIsAnAccessRightInTheRolesOfTheAccessGroupProfile(Condition, Context)
 	
 	FullName = Condition.FullMetadataObjectName;
@@ -23955,7 +23980,7 @@ Function ThereIsAnAccessRightInTheRolesOfTheAccessGroupProfile(Condition, Contex
 	
 EndFunction
 
-// For the function calculated Condition.
+// For the CalculatedCondition function.
 Function ThereIsARoleInTheAccessGroupProfile(Condition, Context)
 	
 	TableRow = Context.ProfilesAccessGroups.Find(Context.AccessGroup, "AccessGroup");
@@ -23969,7 +23994,7 @@ Function ThereIsARoleInTheAccessGroupProfile(Condition, Context)
 	
 EndFunction
 
-// For the procedure, update the rightportionkey of the access List.
+// For the UpdateRightsOfListAccessKeysBatch procedure.
 Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, ParametersOfUpdate)
 	
 	If ParametersOfUpdate.CalculateUserRights Then
@@ -24128,13 +24153,13 @@ Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, Pa
 			EndIf;
 		EndIf;
 		
-		// 
-		// 
-		// 
+		// ACC:330-off - No.783.1.3. It's acceptable to make the call following "CommitTransaction"
+		// as it routinely calls an empty procedure (therefore, exceptions cannot be thrown).
+		// During performance analysis, the consequences are not critical and handled.
 		BeforeCommitTransaction(ParametersOfUpdate);
 		CommitTransaction();
 		AfterCommitTransaction(ParametersOfUpdate);
-		// 
+		// ACC:330-on
 	Except
 		RollbackTransaction();
 		Raise;
@@ -24146,7 +24171,7 @@ Procedure UpdateRightsToListAccessKey(AccessKey, RightsToKey, NewKeysDetails, Pa
 	
 EndProcedure
 
-// For the procedures update the right access key of the List, update the access group of the resolved access Key.
+// For the UpdateRightsToListAccessKey and UpdateAccessGroupsOfAllowedAccessKey procedures.
 Function DifferencesSelectionOfDerivedRightsQueryTextForAccessGroups()
 	
 	QueryText =
@@ -24215,7 +24240,7 @@ Function DifferencesSelectionOfDerivedRightsQueryTextForAccessGroups()
 	
 EndFunction
 
-// For the procedures, update the accessoryproof of the List.
+// For the UpdateRightsToListAccessKey procedures.
 Function DifferencesSelectionOfDerivedRightsQueryTextForUsers()
 	
 	QueryText =
@@ -24287,7 +24312,7 @@ Function DifferencesSelectionOfDerivedRightsQueryTextForUsers()
 	
 EndFunction
 
-// For the procedures, update the accessoryproof of the List.
+// For the UpdateRightsToListAccessKey procedures.
 Function DifferencesSelectionOfDerivedRightsQueryTextForExternalUsers()
 	
 	QueryText =
@@ -24359,7 +24384,7 @@ Function DifferencesSelectionOfDerivedRightsQueryTextForExternalUsers()
 	
 EndFunction
 
-// For the procedure, update the rightcleach access List.
+// For the UpdateRightsToListAccessKey procedure.
 Function NewAccessKeyAlreadyExists(NewKeysDetails, NewKeyDetails, ParametersOfUpdate)
 	
 	KeysExistenceQuery = NewKeysDetails.KeysExistenceQuery;
@@ -24402,7 +24427,7 @@ Function NewAccessKeyAlreadyExists(NewKeysDetails, NewKeyDetails, ParametersOfUp
 	
 EndFunction
 
-// For the procedure, update the rightcleach access List.
+// For the UpdateRightsToListAccessKey procedure.
 Procedure UpdateInitialGroupsRightsToAccessKey(QueryResult, RecordSet, RightsOwnerFieldName,
 			 AccessKey, RightsToKey, ParametersOfUpdate, HasChanges)
 	
@@ -24459,7 +24484,7 @@ Procedure UpdateInitialGroupsRightsToAccessKey(QueryResult, RecordSet, RightsOwn
 	
 EndProcedure
 
-// For the procedure, update the rightcleach access List.
+// For the UpdateRightsToListAccessKey procedure.
 Procedure UpdateInitialUsersRightsToAccessKey(QueryResult, RecordSet,
 			RightsOwnerFieldName, AccessKey, RightsToKey, HasRightsChanges, ParametersOfUpdate)
 	
@@ -24504,7 +24529,7 @@ Procedure UpdateInitialUsersRightsToAccessKey(QueryResult, RecordSet,
 	
 EndProcedure
 
-// For the procedure, update the rightcleach access List.
+// For the UpdateRightsToListAccessKey procedure.
 Procedure UpdateDerivedRightsToAccessKey(QueryResult, RecordSet, RightsOwnerFieldName,
 			AccessKey, HasChanges = False, ParametersOfUpdate = Undefined)
 	
@@ -24532,7 +24557,7 @@ Procedure UpdateDerivedRightsToAccessKey(QueryResult, RecordSet, RightsOwnerFiel
 	
 EndProcedure
 
-// Creates a service element of the directory that does not participate in event subscriptions.
+// Creates a catalog service item that does not subscribe to events.
 Function ServiceItem(CatalogManager, Ref = Undefined)
 	
 	If Ref = Undefined Then
@@ -24553,7 +24578,7 @@ Function ServiceItem(CatalogManager, Ref = Undefined)
 	
 EndFunction
 
-// Creates a set of service register entries that does not participate in event subscriptions.
+// Creates a record set of a service register that does subscribe to events.
 Function ServiceRecordSet(RegisterManager)
 	
 	RecordSet = RegisterManager.CreateRecordSet();
@@ -24566,7 +24591,7 @@ Function ServiceRecordSet(RegisterManager)
 	
 EndFunction
 
-// Creates a value manager for a service constant that does not participate in event subscriptions.
+// Creates an internal constant value manager that does not subscribe to events.
 Function ServiceValueManager(ManagerOfConstant)
 	
 	ValueManager = ManagerOfConstant.CreateValueManager();
@@ -24579,7 +24604,7 @@ Function ServiceValueManager(ManagerOfConstant)
 	
 EndFunction
 
-// For the procedure, register the update access Plan.
+// For the RegisterAccessUpdatePlanning procedure.
 Procedure RegisterAccessUpdatePlanningInLog(Lists, PlanningParameters)
 	
 	CommentForLog = NStr("en = 'Source';", Common.DefaultLanguageCode())
@@ -24668,7 +24693,7 @@ Procedure RegisterAccessUpdatePlanningInLog(Lists, PlanningParameters)
 	
 EndProcedure
 
-// For the procedure, register a plan for updating access to the Log.
+// For the RegisterAccessUpdatePlanningInLog procedure.
 Function LeadingObjectPointerDetails(Pointer, PlanningParameters)
 	
 	If PlanningParameters.Property("LeadingObjectsRefTypes") Then
@@ -24702,7 +24727,7 @@ Function LeadingObjectPointerDetails(Pointer, PlanningParameters)
 	
 EndFunction
 
-// To call from access update scheduling locations.
+// To call from access update planning locations.
 Procedure RegisterAccessUpdatePlanning(ListsByIDs, PlanningParameters, AllLists = False)
 	
 	If Not RegisterAccessUpdatePlanningIndicators() Then
@@ -24731,7 +24756,7 @@ Procedure RegisterAccessUpdatePlanning(ListsByIDs, PlanningParameters, AllLists 
 	
 EndProcedure
 
-// For the procedure, register the update access Plan.
+// For the RegisterAccessUpdatePlanning procedure.
 Function FullListName(ListDetails)
 	
 	If TypeOf(ListDetails) = Type("CatalogRef.MetadataObjectIDs")
@@ -24750,12 +24775,12 @@ Function FullListName(ListDetails)
 	
 EndFunction
 
-// For the access Control procedure.Disable updating the access key.
+// For the AccessManagement.DisableAccessKeysUpdate procedure.
 //
 // Parameters:
 //   Lists - Array
 //   AddedLists - Map
-//   UnavailableLists - Array -  the return value.
+//   UnavailableLists - Array - a return value.
 //
 Procedure AddDependentLists(Lists, AddedLists, UnavailableLists) Export
 	
@@ -24835,7 +24860,7 @@ EndFunction
 
 Function MaxWaitSecondsCountOfWaitingForOneJobInThreadToBeProcessed() Export
 	
-	Return 900; // 
+	Return 900; // 15 minutes (for example, excessively long SQL request).
 	
 EndFunction
 
@@ -24859,7 +24884,7 @@ EndFunction
 
 Function MaxGettingBatchesByQueryPeriod()
 	
-	Return "Year"; // 
+	Return "Year"; // Year, Quarter, Month, Week.
 	
 EndFunction
 
@@ -24871,7 +24896,7 @@ EndFunction
 
 Function MaxSecondsCountOfQuickDataItemsBatchReceipt()
 	
-	Return 15; // 
+	Return 15; // 0 - Disable storage load balancing.
 	
 EndFunction
 
@@ -25027,19 +25052,19 @@ EndProcedure
 
 #Region AccessRestrictionParametersMainPart
 
-// The main function that returns the parameters necessary for registering
-// the need to update access keys to data elements.
+// The main function that returns the parameters required for registering
+// necessity to update access keys to data items.
 //
 // Parameters:
-//  FullName               - String -  full name of the list
+//  FullName               - String - a full list name
 //  TransactionID - UUID
-//  RepeatedCall          - Boolean -  only when called from the same function
+//  RepeatedCall          - Boolean - when calling from the function itself only
 //
 // Returns:
 //  Structure:
 //   * DependentLists      - Map of KeyAndValue:
-//      ** Key     - String - 
-//      ** Value - Boolean -  Truth.
+//      ** Key     - String - List's full name.
+//      ** Value - Boolean - True.
 //   * ByFieldsValues     - See LeadingListByFieldsValues
 //   * ByAccessKeys      - See LeadingListByAccessKeysOrValuesWithGroups
 //   * ByValuesWithGroups - See LeadingListByAccessKeysOrValuesWithGroups
@@ -25090,14 +25115,14 @@ EndFunction
 // Returns:
 //  Structure:
 //   * LeadingListsChecked - Map of KeyAndValue:
-//       ** Key     - String -  full name of the list
+//       ** Key     - String - a full list name
 //       ** Value - See AccessManagementInternal.ListPropertiesAsLeadingOne
 //   * ListsRestrictions - Map of KeyAndValue:
-//       ** Key     - String -  full name of the list
+//       ** Key     - String - a full list name
 //       ** Value - See AccessManagementInternal.CalculatedRestrictionParameters
 //   * TransactionIDs - Map of KeyAndValue:
-//       ** Key     - UUID -  an arbitrary UID.
-//       ** Value - Boolean -  the value is True.
+//       ** Key     - UUID - an arbitrary UID.
+//       ** Value - Boolean - the True value.
 //   * TypesRestrictionsPermissionsForUsers        - Undefined
 //                                                - String
 //   * TypesRestrictionsPermissionsForExternalUsers - Undefined
@@ -25116,8 +25141,8 @@ Function RestrictionParametersNewCache() Export
 	
 EndFunction
 
-// For the function Propertiespiscareer and procedures, fill in the constraint Parameters,
-// Update The Transactionidentifiers, Set The Version Of Parameters.
+// For the ListPropertiesAsLeadingOne function, the FillRestrictionParameters,
+// UpdateTransactionIDs, and SetParameterVersion procedures.
 //
 Function RestrictionParametersCache()
 	
@@ -25138,7 +25163,7 @@ Procedure ResetRestrictionParametersCache()
 	
 EndProcedure
 
-// For the function Propertiespiskakveduschego.
+// For the ListPropertiesAsLeadingOne function.
 Procedure FillPreviousValuesQueryTextToCheckLeadingListFieldsChanges(FullName, Properties, Cancel)
 	
 	Properties.Delete("DependentLists");
@@ -25221,7 +25246,7 @@ Procedure FillPreviousValuesQueryTextToCheckLeadingListFieldsChanges(FullName, P
 	
 EndProcedure
 
-// For the procedure, fill in the text of the request for the old value to check and change the field of the current List.
+// For the FillPreviousValuesQueryTextToCheckLeadingListFieldsChanges procedure.
 Procedure FillCurrentTableSelectionFields(QueryText, FullName, FieldsDetails,
 			MetadataTables, Cancel, IsTabularSection = False)
 	
@@ -25257,7 +25282,7 @@ Procedure FillCurrentTableSelectionFields(QueryText, FullName, FieldsDetails,
 	
 EndProcedure
 
-// For the procedure, fill in the field to select the current Table.
+// For the FillCurrentTableSelectionFields procedure.
 Function FieldExists(Collection, FieldName)
 	
 	If TypeOf(Collection) = Type("MetadataObjectCollection") Then
@@ -25275,7 +25300,7 @@ Function FieldExists(Collection, FieldName)
 	
 EndFunction
 
-// The main function that returns the parameters required for checking permissions at the time of writing data elements.
+// The main function that returns the parameters required for checking rights upon recording data items.
 //
 // Returns:
 //   See RestrictionParametersByRestrictionStructure
@@ -25308,7 +25333,7 @@ Function RestrictionParameters(FullName, TransactionID = Undefined, ForExternalU
 	
 EndFunction
 
-// For the functions of the property of the Lister, the constraint Parameters.
+// For the ListPropertiesAsLeadingOne and RestrictionParameters functions.
 Procedure FillRestrictionParameters(FullName, TransactionID, Parameters,
 			CommonContext = Undefined, RepeatedCall = False)
 	
@@ -25357,8 +25382,8 @@ Procedure FillRestrictionParameters(FullName, TransactionID, Parameters,
 	
 EndProcedure
 
-// For the procedure fill in the constraint and function Parameters
-// Stored Access Limit Parameters, Access Limit Errors.
+// For the FillRestrictionParameters procedure,
+// the StoredAccessRestrictionParameters, and AccessRestrictionsErrors functions.
 //
 // Returns:
 //  Structure:
@@ -25412,7 +25437,7 @@ Function CommonContextOfRestrictionParametersCalculation(FullName = Undefined,
 	
 EndFunction
 
-// For General context functions, the restriction And use of accessibility viewparameters are Changed.
+// For the RestrictionParametersCalculationCommonContext and AccessKindsUsageChanged functions.
 //
 // Parameters:
 //  AccessKindsProperties - See AccessKindsProperties
@@ -25425,16 +25450,16 @@ EndFunction
 //   Structure:
 //     * ForIB - Map of KeyAndValue:
 //         ** Key - Type
-//         ** Value - Boolean - True
+//         ** Value - Boolean - True.
 //     * ByTables - Map of KeyAndValue:
-//         ** Key - String -  full name of the metadata object
+//         ** Key - String - a full name of a metadata object
 //         ** Value - Map of KeyAndValue:
 //              *** Key - Type
-//              *** Value - Boolean - True
-//     * HashSum - String -  Checksum of usage settings for the IB and by tables.
-//     * FullTableName - String - 
-//                                   
-//                        - Undefined - 
+//              *** Value - Boolean - True.
+//     * HashSum - String - the checksum of the ForIB and ByTables usage settings.
+//     * FullTableName - String - Full name of the table.
+//                                   Applicable when only one table has a value in the ByTables property.
+//                        - Undefined - In case "ByTables" is empty ("AllAccessKindsUsed" is set to "True").
 //
 Function UsedValuesTypes(AccessKindsProperties, FullName = Undefined, AllAccessKindsUsed = Undefined, HashAmountOnly = False)
 	
@@ -25544,13 +25569,13 @@ Function UsedValuesTypes(AccessKindsProperties, FullName = Undefined, AllAccessK
 	
 EndFunction
 
-// For the procedure, add the list limit Parameters.
+// For the AddListRestrictionParameters procedure.
 //
 // Returns:
 //  Structure:
 //   * Version - String
 //   * LeadingLists - Map of KeyAndValue:
-//       ** Key     - String -  full name of the list
+//       ** Key     - String - a full list name
 //       ** Value - See ListPropertiesAsLeadingOne
 //   * ForUsers        - See RestrictionParametersByRestrictionStructure
 //   * ForExternalUsers - See RestrictionParametersByRestrictionStructure
@@ -25559,7 +25584,7 @@ Function CalculatedRestrictionParameters(FullName, CommonContext, ActiveParamete
 	
 	RestrictionDetails = DataRestrictionDetails(CommonContext, FullName);
 	
-	// 
+	// For users.
 	RestrictionStructureForUsers = CalculatedRestrictionStructure(FullName,
 		RestrictionDetails.Text, RestrictionDetails.TextInManagerModule, False);
 	
@@ -25570,7 +25595,7 @@ Function CalculatedRestrictionParameters(FullName, CommonContext, ActiveParamete
 	ResultForUsers = RestrictionParametersByRestrictionStructure(FullName,
 		RestrictionStructureForUsers, False, CommonContext, AdditionalContext);
 	
-	// 
+	// For external users.
 	RestrictionStructureForExternalUsers = CalculatedRestrictionStructure(FullName,
 		RestrictionDetails.TextForExternalUsers1, RestrictionDetails.TextInManagerModule, True);
 	
@@ -25581,7 +25606,7 @@ Function CalculatedRestrictionParameters(FullName, CommonContext, ActiveParamete
 	ResultForExternalUsers = RestrictionParametersByRestrictionStructure(FullName,
 		RestrictionStructureForExternalUsers, True, CommonContext, AdditionalContext);
 	
-	// 
+	// Filling in parameters based on parameters of both user types.
 	Version = CommonVersion(CommonContext, FullName, ResultForUsers.Version, ResultForExternalUsers.Version);
 	SetAccessKeysRecordProperties(ResultForUsers);
 	SetAccessKeysRecordProperties(ResultForExternalUsers);
@@ -25592,7 +25617,7 @@ Function CalculatedRestrictionParameters(FullName, CommonContext, ActiveParamete
 	ResultForUsers.Insert(       "DoNotWriteAccessKeysForUsersAndExternalUsers", WithoutKeysRecord);
 	ResultForExternalUsers.Insert("DoNotWriteAccessKeysForUsersAndExternalUsers", WithoutKeysRecord);
 	
-	// 
+	// Generate query texts.
 	AddQueryTextsToRestrictionParameters(ResultForUsers);
 	AddQueryTextsToRestrictionParameters(ResultForExternalUsers);
 	
@@ -25610,7 +25635,7 @@ Function CalculatedRestrictionParameters(FullName, CommonContext, ActiveParamete
 	
 EndFunction
 
-// For the access limit Error function.
+// For the AccessRestrictionErrors function.
 Function AccessRestrictionError(CommonContext, FullName)
 	
 	ErrorTextForUsers = "";
@@ -25626,7 +25651,7 @@ Function AccessRestrictionError(CommonContext, FullName)
 		Return RestrictionDetails;
 	EndIf;
 	
-	// 
+	// For users.
 	RestrictionStructureForUsers = CalculatedRestrictionStructure(FullName,
 		RestrictionDetails.Text, RestrictionDetails.TextInManagerModule, False, True);
 	
@@ -25675,7 +25700,7 @@ Function AccessRestrictionError(CommonContext, FullName)
 		EndIf;
 	EndIf;
 	
-	// 
+	// For external users.
 	RestrictionStructureForExternalUsers = CalculatedRestrictionStructure(FullName,
 		RestrictionDetails.TextForExternalUsers1, RestrictionDetails.TextInManagerModule, True, True);
 	
@@ -25729,7 +25754,7 @@ Function AccessRestrictionError(CommonContext, FullName)
 	
 EndFunction
 
-// For the function resultprovertition of access Limits.
+// For the AccessRestrictionCheckResult function.
 Function ObjectAccessRestrictionCheckResult(FullName, AdditionalParameters)
 	
 	Parameters = New Structure;
@@ -25882,7 +25907,7 @@ Function ObjectAccessRestrictionCheckResult(FullName, AdditionalParameters)
 	
 EndFunction
 
-// For the function resultproversion of the object's access limit
+// For the ObjectAccessRestrictionCheckResult function
 Procedure SetALimitOnTheOwnerUsed(Result, FullName, AdditionalContext)
 	
 	Properties = AdditionalContext.ListRestrictionsProperties.Get(FullName);
@@ -25895,7 +25920,7 @@ Procedure SetALimitOnTheOwnerUsed(Result, FullName, AdditionalContext)
 	
 EndProcedure
 
-// For the function resultprovertition of object access Limits.
+// For the ObjectAccessRestrictionCheckResult function.
 Procedure SetImplementationSettings(ImplementationSettings, Data, TablesTypesByNames)
 	
 	AddTypesReguiredInDefinedType(ImplementationSettings, TablesTypesByNames, True,
@@ -25966,7 +25991,7 @@ Procedure SetImplementationSettings(ImplementationSettings, Data, TablesTypesByN
 	
 EndProcedure
 
-// For the procedure, set the alert Settings.
+// For the SetImplementationSettings procedure.
 Procedure AddTypesReguiredInDefinedType(ImplementationSettings, TablesTypesByNames, RefsTypes, TypesNames, TypeToDefineName)
 	
 	ImplementationSettings.Insert(TypeToDefineName, "");
@@ -25979,7 +26004,7 @@ Procedure AddTypesReguiredInDefinedType(ImplementationSettings, TablesTypesByNam
 	
 EndProcedure
 
-// For procedures, set Customizationneeds, add a type of requirementdefinable Type.
+// For the SetImplementationSettings and AddTypesRequiredInDefinedType procedures.
 Function TypesListFromArray(TypesNames, RefsTypes, TablesTypesByNames, TypeDescription)
 	
 	TypesList = "";
@@ -26009,7 +26034,7 @@ Function TypesListFromArray(TypesNames, RefsTypes, TablesTypesByNames, TypeDescr
 	
 EndFunction
 
-// For the function resultprovertition of object access Limits.
+// For the ObjectAccessRestrictionCheckResult function.
 Function RestrictionCheckResultStructureForUsersKind()
 	
 	Properties = New Structure;
@@ -26027,7 +26052,7 @@ Function RestrictionCheckResultStructureForUsersKind()
 	
 EndFunction
 
-// For the function resultprovertition of object access Limits.
+// For the ObjectAccessRestrictionCheckResult function.
 Procedure CheckRestrictionForUsersKind(Context, Result, ForExternalUsers, AdditionalContext)
 	
 	RestrictionText = ?(ForExternalUsers, Context.CommonResult.ForExternalUsers,
@@ -26114,7 +26139,7 @@ Procedure CheckRestrictionForUsersKind(Context, Result, ForExternalUsers, Additi
 	
 EndProcedure
 
-// For functions, stored access limit Parameters, calculated limit Parameters.
+// For the StoredAccessRestrictionParameters and CalculatedRestrictionParameters functions.
 Function CommonVersion(CommonContext, FullName, VersionForUsers, VersionForExternalUsers)
 	
 	If CommonContext.ListsWithRestriction.Get(FullName) = Undefined Then
@@ -26128,7 +26153,7 @@ Function CommonVersion(CommonContext, FullName, VersionForUsers, VersionForExter
 	
 EndFunction
 
-// For the function, the constraint parameters are Calculated.
+// For the CalculatedRestrictionParameters function.
 Procedure SetAccessKeysRecordProperties(Result)
 	
 	WithoutKeysRecord = False;
@@ -26155,7 +26180,7 @@ Procedure SetAccessKeysRecordProperties(Result)
 	
 EndProcedure
 
-// For functions, calculated constraint Parameters, stored access restriction Parameters.
+// For the CalculatedRestrictionParameters and StoredAccessRestrictionParameters functions.
 //
 // Returns:
 //   Structure:
@@ -26191,9 +26216,9 @@ Function DataRestrictionDetails(CommonContext, FullName, WithoutCallingException
 	EndIf;
 	
 	If IsDocumentJournal(FullName) Or IsFilesCatalog Then
-		// 
-		// 
-		// 
+		// Unless otherwise is required, document journals are restricted by
+		// the owning document without writing access keys.
+		// By default, the same applies to file catalogs and file versions.
 		Restriction.ByOwnerWithoutSavingAccessKeys = True;
 		Restriction.ByOwnerWithoutSavingAccessKeysForExternalUsers = True;
 	EndIf;
@@ -26314,7 +26339,7 @@ Function DataRestrictionDetails(CommonContext, FullName, WithoutCallingException
 	
 EndFunction
 
-// For the data constraint Descriptionfunction.
+// For the DataRestrictionDetails function.
 Function IsDocumentJournal(FullName)
 	
 	Return StrStartsWith(Upper(FullName), Upper("ЖурналДокументов.")) // @Non-NLS
@@ -26322,7 +26347,7 @@ Function IsDocumentJournal(FullName)
 	
 EndFunction
 
-// For functions, the constraint parameters and constraint parametersfor Users are Calculated.
+// For the CalculatedRestrictionParameters and RestrictionParametersForUsersKind functions.
 //
 // Returns:
 //   See RestrictionStructure
@@ -26350,8 +26375,8 @@ Function CalculatedRestrictionStructure(FullName, RestrictionText, TextInManager
 	
 EndFunction
 
-// For the functions of the properties of the Lister, the parameters of the Constraint, and the procedures for setting the parameters of the Session,
-// Fill In The Constraint Parameters, Add The Constraint Parameters Of The List.
+// For the ListPropertiesAsLeadingOne and RestrictionParameters functions, and the SessionParametersSetting,
+// FillRestrictionParameters, and AddListRestrictionParameters procedures.
 //
 // Returns:
 //   See NewStoredWriteParametersStructure
@@ -26405,7 +26430,7 @@ Function ActiveAccessRestrictionParameters(TransactionID, CommonContext,
 		Return CurrentParameters.Parameters;
 	EndIf;
 	
-	// 
+	// Parameters in the database differ from the parameters in memory.
 	If ValueIsFilled(VersionDetails.Version) Then
 		ParametersVersion = ParametersVersion(VersionDetails.Version,
 			SetSessionParametersForTemplates, SettingParametersForAccesRightsReport);
@@ -26421,7 +26446,7 @@ Function ActiveAccessRestrictionParameters(TransactionID, CommonContext,
 	
 EndFunction
 
-// For the access Rights report.
+// For the AccessRights report.
 //
 // Returns:
 //  Structure:
@@ -26445,7 +26470,7 @@ Function AllRightsRestrictionsKindsForAccessRightsReport()
 	
 EndFunction
 
-// For the new version function of the access restriction Parameters.
+// This method is required by the NewVersionOfAccessRestrictionParameters function.
 Function RecordingAccessRestrictionParametersInTheCurrentSession()
 	
 	SetPrivilegedMode(True);
@@ -26456,7 +26481,7 @@ Function RecordingAccessRestrictionParametersInTheCurrentSession()
 	
 EndFunction
 
-// For functions, the current access restriction Parameters, the new version of the access restriction Parameters.
+// For the ActiveAccessRestrictionParameters and NewAccessRestrictionParametersVersion functions.
 //
 // Returns:
 //  Structure:
@@ -26499,7 +26524,7 @@ Function LastVersionDetails(ReadVersionsOfTemplateParameters = False)
 	
 EndFunction
 
-// For the function in effect, the access restriction Parameters.
+// For the ActiveAccessRestrictionParameters function.
 Function ParametersVersion(Version, SetSessionParametersForTemplates, SettingParametersForAccesRightsReport)
 	
 	Query = New Query;
@@ -26551,7 +26576,7 @@ Function ParametersVersion(Version, SetSessionParametersForTemplates, SettingPar
 	
 EndFunction
 
-// For the function in effect, the access restriction Parameters.
+// For the ActiveAccessRestrictionParameters function.
 //
 // Returns:
 //   See StoredAccessRestrictionParameters
@@ -26727,8 +26752,8 @@ Function NewAccessRestrictionParametersVersion(CommonContext, HasChanges = False
 	
 EndFunction
 
-// For the functions of the new version of the parameters of the access limit and
-// Valid Access restriction parameters.
+// For the ActiveAccessRestrictionParameters and
+// NewAccessRestrictionParametersVersion functions.
 //
 Function TheTasksForRecordingTheNewVersionOfTheAccessRestrictionParametersHaveBeenCompleted()
 	
@@ -26748,8 +26773,8 @@ Function TheTasksForRecordingTheNewVersionOfTheAccessRestrictionParametersHaveBe
 	
 EndFunction
 
-// For the functions of the new version of the parameters of the access limit and
-// The task of writing the new version and the parameters of the access restriction is completed.
+// For the NewAccessRestrictionParametersVersion and
+//  NewAccessRestrictionParametersVersionWriteJobsCompleted functions.
 //
 Function NameOfTheProcedureForSettingTheRecordOfTheNewVersionOfTheAccessRestrictionParameters()
 	
@@ -26759,9 +26784,9 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   
-//   
-//   
+//   Warning - String
+//   Error - String
+//   AccessRestrictionTextsVersion - String
 //
 Function NewParametersMismatchInfoForLogging()
 	
@@ -26774,8 +26799,11 @@ Function NewParametersMismatchInfoForLogging()
 	
 EndFunction
 
-// For the new version function of the access restriction Parameters.
+// This method is required by the NewVersionOfAccessRestrictionParameters function.
 Procedure WriteANewVersionOfTheAccessRestrictionParametersInTheBackground(ResultAddress, StorageParametersSet) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"AccessManagementInternal.WriteANewVersionOfTheAccessRestrictionParametersInTheBackground");
 	
 	Result = New Structure;
 	Result.Insert("VersionDetails", New Structure);
@@ -26806,8 +26834,8 @@ Procedure WriteANewVersionOfTheAccessRestrictionParametersInTheBackground(Result
 	
 EndProcedure
 
-// For the function of the new version of the parameters of the access constraint and
-// the procedure, write the new version of the parameters of the access constraint in the background.
+// For the NewAccessRestrictionParametersVersion function and
+// the WriteNewAccessRestrictionParametersVersionInBackground procedure.
 //
 Function AccessID()
 	
@@ -26815,8 +26843,8 @@ Function AccessID()
 	
 EndFunction
 
-// For the function of the new version of the parameters of the access constraint and
-// the procedure, write the new version of the parameters of the access constraint in the background.
+// For the NewAccessRestrictionParametersVersion function and
+// the WriteNewAccessRestrictionParametersVersionInBackground procedure.
 // 
 Function DescriptionOfTheNewVersionOfAccessRestrictionParameters(Parameters, WithoutRecording = False, IsLockError = False)
 	
@@ -26961,7 +26989,7 @@ Function NewInformationRegisterTableAccessRestrictionParameters()
 	
 EndFunction
 
-// For the function of the description of the newVersion and the parameters of the access restriction.
+// This method is required by the AccessRestrictionParametersNewVersionDetails function.
 Procedure ScheduleAccessUpdatesWhenSettingsChange(OldVersion, Parameters)
 	
 	UnavailableLists = New Array;
@@ -27010,8 +27038,8 @@ Procedure ScheduleAccessUpdatesWhenSettingsChange(OldVersion, Parameters)
 	
 EndProcedure
 
-// For the procedure, update the Access group table for the connected extensions and
-// the New Version function for the access restriction parameters.
+// For the UpdateAccessGroupsTablesForEnabledExtensions procedure and
+// the NewAccessRestrictionParametersVersion function.
 //
 Procedure CheckWhetherTheMetadataIsUpToDate() Export
 	
@@ -27051,7 +27079,7 @@ Procedure CheckWhetherTheMetadataIsUpToDate() Export
 	
 EndProcedure
 
-// 
+// For procedure CheckMetadataRelevance.
 Function ThisBackgroundJobSession()
 	
 	If CurrentRunMode() <> Undefined Then
@@ -27063,7 +27091,7 @@ Function ThisBackgroundJobSession()
 	
 EndFunction
 
-// For the procedure, set the access update
+// For the SetAccessUpdate procedure
 Function ThisIsABackgroundAccessUpdateSession()
 	
 	SetPrivilegedMode(True);
@@ -27071,7 +27099,7 @@ Function ThisIsABackgroundAccessUpdateSession()
 	
 EndFunction
 
-// 
+// Intended for procedures "ExecuteAccessUpdateAtRecordLevel" and "UpdateListAccessInBackground".
 Procedure SetThisIsABackgroundAccessUpdateSession()
 	
 	If CurrentRunMode() <> Undefined Then
@@ -27091,7 +27119,7 @@ Procedure SetThisIsABackgroundAccessUpdateSession()
 	
 EndProcedure
 
-// For the new version function of the access restriction Parameters.
+// Intended for function "NewVersionOfAccessRestrictionParameters".
 Procedure DoLogParametersMismatch(Record, Comment, IsError = False)
 	
 	If Not ValueIsFilled(Comment) Then
@@ -27122,7 +27150,7 @@ Procedure DoLogParametersMismatch(Record, Comment, IsError = False)
 	
 EndProcedure
 
-// For the new version function of the access restriction Parameters.
+// This method is required by the NewVersionOfAccessRestrictionParameters function.
 Procedure RegisterAccessRestrictionParametersVersionString(Record, VersionStrings)
 	
 	Content = New Array;
@@ -27175,7 +27203,7 @@ Procedure RegisterAccessRestrictionParametersVersionString(Record, VersionString
 	
 EndProcedure
 
-// For the new version function of the access restriction Parameters.
+// This method is required by the NewVersionOfAccessRestrictionParameters function.
 Function ListsWithVersionsChange(Version, NewListsRestrictionsVersions, UnavailableLists,
 			OldCacheStructureVersion)
 	
@@ -27253,7 +27281,7 @@ Function ListsWithVersionsChange(Version, NewListsRestrictionsVersions, Unavaila
 	
 EndFunction
 
-// For the list of Changesversions function and for the add dependable Subscriptions procedure.
+// For the ListsWithVersionsChange function and for the AddDependentLists procedure.
 Function AllIDsWithSimilarFullNames(FullNames)
 	
 	Query = New Query;
@@ -27298,15 +27326,15 @@ Function AllIDsWithSimilarFullNames(FullNames)
 	
 EndFunction
 
-// For the procedure, stored access restriction Parameters.
+// For the StoredAccessRestrictionParameters procedure.
 //
 // Returns:
 //   String
 //
 Function CacheStructureVersion() Export
 	
-	// 
-	// 
+	// Increase the number if the cache parameters are modified.
+	// (This also applies when template versions change.)
 	Return "27.2" + TranslationVersion();
 	
 EndFunction
@@ -27321,8 +27349,8 @@ Function TranslationVersion()
 	
 EndFunction
 
-// For procedures for setting session Parameters, specify the version of the access restriction Templates, and
-// for the structure function of the stored template Parameters.
+// For the SessionParametersSetting and ClarifyAccessRestrictionTemplatesVersions procedures, and
+//  the StoredTemplatesParametersStructure function.
 //
 // Returns:
 //   String
@@ -27339,8 +27367,8 @@ Function AccessRestrictionTemplatesVersions()
 	
 EndFunction
 
-// For procedures, set the parameter reversion, fill in the parameters for templates, and
-// function the new structure of the stored Parameter reversion for templates.
+// For the SetParametersVersion and FillParametersForTemplates procedures
+// and the NewStoredTemplatesParametersVersionsStructure function.
 // 
 //
 // Returns:
@@ -27348,13 +27376,13 @@ EndFunction
 //
 Function VersionOfTheTemplateParameterVersionStructure()
 	
-	// 
+	// Increase the number when modifying the parameter "TemplatesParametersVersions".
 	// 
 	Return "1";
 	
 EndFunction
 
-// For the function in effect, the access restriction Parameters.
+// For the ActiveAccessRestrictionParameters function.
 Procedure UpdateTransactionIDs(TransactionID)
 	
 	Cache = RestrictionParametersCache();
@@ -27372,7 +27400,7 @@ Procedure UpdateTransactionIDs(TransactionID)
 	
 EndProcedure
 
-// For the function in effect, the access restriction Parameters.
+// For the ActiveAccessRestrictionParameters function.
 Procedure SetParametersVersion(ParametersVersion, TransactionID, CommonContext,
 			SetSessionParametersForTemplates = False, RepeatedCall = False)
 	
@@ -27488,7 +27516,7 @@ Procedure SetParametersVersion(ParametersVersion, TransactionID, CommonContext,
 	
 EndProcedure
 
-// For the procedure, set the version of Parameters.
+// For the SetParametersVersion procedure.
 //
 // Returns:
 //   FixedStructure:
@@ -27542,7 +27570,7 @@ Function SessionAccessRestrictionParameters(ParametersVersion, ForWritingObjects
 	
 EndFunction
 
-// For the procedure, set the version of Parameters.
+// For the SetParametersVersion procedure.
 Procedure ClarifyAccessRestrictionTemplatesVersions(TemplatesVersions)
 	
 	If TemplatesVersions = AccessRestrictionTemplatesVersions() Then
@@ -27554,8 +27582,8 @@ Procedure ClarifyAccessRestrictionTemplatesVersions(TemplatesVersions)
 	
 EndProcedure
 
-// For the procedure set the parameter Versionscheck access to the Object,
-// Check access to the recordset and the access function is Allowed.
+// For the SetParametersVersion, CheckAccessToObject,
+// CheckAccessToRecordSet procedures, and the AccessAllowed function.
 //
 Procedure UpdateAllowedSetsInSessionParameters(SetSessionParametersForTemplates = False,
 			SettingAccessRestrictionParameters = False)
@@ -27594,13 +27622,13 @@ Procedure UpdateAllowedSetsInSessionParameters(SetSessionParametersForTemplates 
 	
 EndProcedure
 
-// For the procedure, update the resolved parameters of the session and
-// Set the allowed input parameters of the query.
+// For the UpdateAllowedSetsInSessionParameters and
+//  SetAllowedSetsInQueryParameters procedures.
 //
 // Parameters:
 //  User   - CatalogRef.Users
 //                 - CatalogRef.ExternalUsers
-//                 - Undefined - 
+//                 - Undefined - a current user.
 //
 // Returns:
 //  Structure:
@@ -27652,7 +27680,7 @@ Function AllowedRequestParameterSets(Val User = Undefined)
 	
 EndFunction
 
-// For the procedure, update the resolved introparameters of the Session.
+// For the UpdateAllowedSetsInSessionParameters procedure.
 Procedure ConsiderRightsSettingsOnBuildQueryExecutionPlan(Content)
 	
 	If Not AccessManagementInternalCached.QueryPlanClarificationRequired() Then
@@ -27665,7 +27693,7 @@ Procedure ConsiderRightsSettingsOnBuildQueryExecutionPlan(Content)
 	
 EndProcedure
 
-// For the procedure for learning to set up a plan for completing a query.
+// For the ConsiderRightsSettingsOnBuildQueryExecutionPlan procedure.
 Function RightsSettingsHashsumDetails(AccessGroupsSet, Char = "")
 	
 	DataHashing = New DataHashing(HashFunction.CRC32);
@@ -27684,7 +27712,7 @@ Function RightsSettingsHashsumDetails(AccessGroupsSet, Char = "")
 	
 EndFunction
 
-// For a function, access is Allowed and the procedures check access to an Object, check access to a set of Records.
+// For the AccessAllowed, and the CheckAccessToObject and CheckAccessToRecordSet procedures.
 Procedure SetAllowedSetsInQueryParameters(Query, Val User = Undefined)
 	
 	If User = Undefined Then
@@ -27702,7 +27730,7 @@ Procedure SetAllowedSetsInQueryParameters(Query, Val User = Undefined)
 	
 EndProcedure
 
-// For the new version function of the access restriction Parameters.
+// This method is required by the NewVersionOfAccessRestrictionParameters function.
 //
 // Parameters:
 //  CommonContext            - See CommonContextOfRestrictionParametersCalculation
@@ -27711,17 +27739,17 @@ EndProcedure
 // Returns:
 //  Structure:
 //    * CreationDate                            - Date
-//    * ForWritingObjectsAndCheckingRights          - ValueStorage - 
-//    * ForAccessRightsReport                - ValueStorage - 
+//    * ForWritingObjectsAndCheckingRights          - ValueStorage - Contains the "NewStoredWriteParametersStructure" type
+//    * ForAccessRightsReport                - ValueStorage - Contains the "NewStoredReportParametersStructure" type
 //    * PersistentParametersHashSum            - String
-//    * ForTemplatesInUsersSessions        - ValueStorage - 
-//    * ForTemplatesInExternalUsersSessions - ValueStorage - 
-//    * TemplatesParametersVersions                - ValueStorage - 
-//    * TemplatesParametersHashSum              - String -  It is filled in when writing after updating
-//         the parameter versionparameters of templates and filling in the property of
-//         the list of constraints to the fields of parameters for the templates of the user sessions, for the templates of the user sessions of the external users.
-//    * HashSum                                - String -  filled in on write,
-//         calculated from the hash sums of the hash sum of the constant parameters and the hash sum of the parameters of the templates.
+//    * ForTemplatesInUsersSessions        - ValueStorage - Contains the "NewStoredTemplatesParametersStructure" type
+//    * ForTemplatesInExternalUsersSessions - ValueStorage - Contains the "NewStoredTemplatesParametersStructure" type
+//    * TemplatesParametersVersions                - ValueStorage - Contains the "NewStoredTemplatesParametersVersionsStructure" type
+//    * TemplatesParametersHashSum              - String - filled in while writing after update of
+//         the TemplatesParametersVersions parameter and filling the ListsWithRestrictionByFields property of
+//         the ForTemplatesInUsersSessions, ForTemplatesInExternalUsersSessions parameters.
+//    * HashSum                                - String - filled in while writing,
+//         calculated from the PersistentParametersHashSum and TemplatesParametersHashSum hash sums.
 //
 Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersions = Undefined)
 	
@@ -27785,7 +27813,7 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 		ListsWithoutIntegration = Undefined;
 	EndIf;
 	
-	// 
+	// Populate for users.
 	ContextForUsers = New Structure;
 	ContextForUsers.Insert("ForExternalUsers",  False);
 	ContextForUsers.Insert("CreationDate",             CreationDate);
@@ -27803,7 +27831,7 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 	
 	AddStoredRestrictionParametersForUsersKind(ContextForUsers);
 	
-	// 
+	// Filling for external users.
 	ContextForExternalUsers = New Structure;
 	ContextForExternalUsers.Insert("ForExternalUsers",  True);
 	ContextForExternalUsers.Insert("CreationDate",             CreationDate);
@@ -27826,7 +27854,7 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 		CommonContext.InfoForLogging.AccessRestrictionTextsVersion = AccessRestrictionTextsVersion;
 	EndIf;
 	
-	// 
+	// Filling in general and separate parts of leading lists for users and external users.
 	LeadingLists = New Map;
 	For Each LeadingListsDetails In ContextForUsers.LeadingLists Do
 		AddLeadingLists(LeadingLists,
@@ -27851,12 +27879,12 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 		EndIf;
 	EndDo;
 	
-	// 
+	// Populate main roles for internal users and external users.
 	LeadingRoles = New Map;
 	AddLeadingRoles(LeadingRoles, "ForUsers", ContextForUsers);
 	AddLeadingRoles(LeadingRoles, "ForExternalUsers", ContextForExternalUsers);
 	
-	// 
+	// Calculation of access restriction versions.
 	ListsRestrictionsVersions = New Map;
 	Versions = New ValueList;
 	Versions.Add(CacheStructureVersion());
@@ -27875,7 +27903,7 @@ Function StoredAccessRestrictionParameters(CommonContext, ListsRestrictionsVersi
 		CommonContext.StoredParametersVersionStrings.AllVersionsAsString = VersionsAsString;
 	EndIf;
 	
-	// 
+	// Preparing additional context to calculate restriction parameters of a separate list.
 	ForUsers = NewStoredAdditionalContext();
 	FillPropertyValues(ForUsers, ContextForUsers.AdditionalContext);
 	ForExternalUsers = NewStoredAdditionalContext();
@@ -27967,28 +27995,28 @@ Function NewListsVersionsStrings()
 	
 EndFunction
 
-// For functions, calculated constraint Parameters and stored access restriction Parameters.
+// For the CalculatedRestrictionParameters and StoredAccessRestrictionParameters functions.
 //
 // Returns:
 //   Structure:
 //     * RestrictionsDetails1 - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
+//         ** Key     - String - a full list name
 //         ** Value - See BriefRestrictionDetails
 //     * ListRestrictionsProperties - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
+//         ** Key     - String - a full list name
 //         ** Value - See NewListRestrictionProperties
 //     * ListsWithRestrictionByOwner - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean -  value to the Owner, except Undefined.
+//         ** Key     - String - a full file name
+//         ** Value - Boolean - the ByOwner value, except for Undefined.
 //     * ListsWithDisabledRestriction - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean - True
+//         ** Key     - String - a full list name
+//         ** Value - Boolean - True.
 //     * ListsWithReadRestrictionDisabled - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean - True
+//         ** Key     - String - a full list name
+//         ** Value - Boolean - True.
 //     * ListsWithKeysRecordForDependentListsWithoutKeys - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean - True
+//         ** Key     - String - a full file name
+//         ** Value - Boolean - True.
 //     * BasicAccessOptions - See NewBasicAccessOptions
 //
 Function NewAdditionalContext()
@@ -28006,22 +28034,22 @@ Function NewAdditionalContext()
 	
 EndFunction
 
-// For functions, calculated constraint Parameters and stored access restriction Parameters.
+// For the CalculatedRestrictionParameters and StoredAccessRestrictionParameters functions.
 //
 // Returns:
 //   Structure:
 //     * ListRestrictionsProperties - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
+//         ** Key     - String - a full list name
 //         ** Value - See NewListRestrictionProperties
 //     * ListsWithDisabledRestriction - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean - True
+//         ** Key     - String - a full list name
+//         ** Value - Boolean - True.
 //     * ListsWithReadRestrictionDisabled - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean - True
+//         ** Key     - String - a full list name
+//         ** Value - Boolean - True.
 //     * ListsWithKeysRecordForDependentListsWithoutKeys - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean - True
+//         ** Key     - String - a full list name
+//         ** Value - Boolean - True.
 //     * BasicAccessOptions - See NewBasicAccessOptions
 //
 Function NewStoredAdditionalContext()
@@ -28037,7 +28065,7 @@ Function NewStoredAdditionalContext()
 	
 EndFunction
 
-// For functions, calculated constraint Parameters and stored access restriction Parameters.
+// For the CalculatedRestrictionParameters and StoredAccessRestrictionParameters functions.
 Procedure AddAdditionalContext(FullName, AdditionalContext,
 				RestrictionDetails, ForExternalUsers)
 	
@@ -28073,10 +28101,10 @@ Function BriefRestrictionDetails()
 	
 EndFunction
 
-// For the function stored access limit Parameters.
+// For the StoredAccessRestrictionParameters function.
 Procedure AddStoredRestrictionParametersForUsersKind(Context)
 	
-	// 
+	// Prepare parameters considering dependencies by access keys only.
 	PropertiesTable = ListsPropertiesToCalculateStoredParameters();
 	PropertiesTable = New ValueTable;
 	PropertiesTable.Columns.Add("FullName", New TypeDescription("String"));
@@ -28166,7 +28194,7 @@ Procedure AddStoredRestrictionParametersForUsersKind(Context)
 	For Each String In Rows Do
 		SetDependentListsLevel(String, ListsWithRestriction, New Array, MaxLevel);
 	EndDo;
-	// 
+	// Processing dependent lists being leading for themselves (looped on themselves).
 	Rows = PropertiesTable.FindRows(New Structure("Processed", False));
 	For Each String In Rows Do
 		SetDependentListsLevel(String, ListsWithRestriction, New Array, MaxLevel);
@@ -28177,7 +28205,7 @@ Procedure AddStoredRestrictionParametersForUsersKind(Context)
 		SetOptimizationByOwnerField(String, ListsWithRestriction, Context);
 	EndDo;
 	
-	// 
+	// Shortening dependencies by access keys of dependent objects.
 	ListsWithKeysRecordForDependentListsWithoutKeys = New Map;
 	Filter = New Structure("HasDependantListsWithoutAccessKeysRecords", True);
 	Rows = PropertiesTable.FindRows(Filter);
@@ -28254,7 +28282,7 @@ Procedure AddStoredRestrictionParametersForUsersKind(Context)
 		EndDo;
 	EndDo;
 	
-	// 
+	// Filling in stored list properties.
 	For Each ListProperties In PropertiesTable Do
 		FullName = ListProperties.FullName;
 		
@@ -28352,7 +28380,7 @@ Function ListsPropertiesToCalculateStoredParameters()
 	
 EndFunction
 
-// For the stored procedure, the restriction parameters are set for user Views.
+// For the StoredRestrictionParametersForUsersKind procedure.
 //
 // Returns:
 //   See RestrictionParametersByRestrictionStructure
@@ -28376,7 +28404,7 @@ Function RestrictionParametersForUsersKind(FullName, Context)
 	
 EndFunction
 
-// For the procedure, add the stored restriction parameters for user Views.
+// For the AddStoredRestrictionParametersForUsersKind procedure.
 Procedure SetDependentListsLevel(LeadingListProperties1, ListsProperties, PreviousLeadingLists,
 			MaxLevel)
 	
@@ -28427,7 +28455,7 @@ Procedure SetDependentListsLevel(LeadingListProperties1, ListsProperties, Previo
 	
 EndProcedure
 
-// For the procedure, add the stored restriction parameters for user Views.
+// For the AddStoredRestrictionParametersForUsersKind procedure.
 Procedure SetOptimizationByOwnerField(DependentListProperties, ListsProperties, Context)
 	
 	DependentListProperties.RestrictionByOwnerPossible =
@@ -28481,7 +28509,7 @@ Procedure SetOptimizationByOwnerField(DependentListProperties, ListsProperties, 
 	
 EndProcedure
 
-// 
+// Intended for procedure "SetOptimizationByOwnerField".
 Procedure SetToTrueHasDependentListsWithoutAccessKeysRecords(LeadingListProperties1, DependentListProperties)
 	
 	LeadingListProperties1.HasDependantListsWithoutAccessKeysRecords = True;
@@ -28489,7 +28517,7 @@ Procedure SetToTrueHasDependentListsWithoutAccessKeysRecords(LeadingListProperti
 	
 EndProcedure
 
-// For the procedure, add the stored restriction parameters for user Views.
+// Intended for procedure "AddStoredRestrictionParametersForUsersKind".
 Procedure FillListsWithoutIntegration(ListsWithoutIntegration, ListProperties)
 	
 	If ListsWithoutIntegration = Undefined Then
@@ -28535,7 +28563,7 @@ Procedure FillListsWithoutIntegration(ListsWithoutIntegration, ListProperties)
 	
 EndProcedure
 
-// 
+// Intended for function "FillListsWithoutImplementation".
 Function IsObsoleteMetadataObject(FullName)
 	
 	NameParts = StrSplit(FullName, ".", False);
@@ -28547,7 +28575,7 @@ Function IsObsoleteMetadataObject(FullName)
 	
 EndFunction
 
-// For the procedure, add the stored restriction parameters for user Views.
+// For the AddStoredRestrictionParametersForUsersKind procedure.
 Procedure SetRestrictionProperty(FullName, PropertyName, PropertyValue, Context)
 	
 	Properties = ListRestrictionProperties(FullName, Context.AdditionalContext, True);
@@ -28556,7 +28584,7 @@ Procedure SetRestrictionProperty(FullName, PropertyName, PropertyValue, Context)
 	
 EndProcedure
 
-// For procedures, set the property Restrictions, fill in the request to check and correct the Change.
+// For the SetRestrictionProperty and FillReadUpdateRightCheckQueries procedures.
 Function ListRestrictionProperties(FullName, Context, AddToCollection = False)
 	
 	Properties = Context.ListRestrictionsProperties.Get(FullName);
@@ -28579,7 +28607,7 @@ EndFunction
 //     * BasicFields                     - See NewBasicFieldsDetails
 //     * SeparateKeysRegisterName     - String
 //     * CalculateUserRights  - Boolean
-//     * UsedAccessValuesTypes - ValueStorage - 
+//     * UsedAccessValuesTypes - ValueStorage - Contains Array of Type
 //     * TemplateRestrictionsWithUserAccessKeys              - Boolean
 //     * TemplateRestrictionsWithUserAccessKeysAndAccessGroups - Boolean
 //
@@ -28599,7 +28627,7 @@ Function NewListRestrictionProperties()
 	
 EndFunction
 
-// For the function stored access limit Parameters.
+// Intended for function "StoredAccessRestrictionParameters".
 //
 // Parameters:
 //  ListsWithoutIntegration - Map
@@ -28663,7 +28691,7 @@ Procedure FillParametersMismatchForLogging(ListsWithoutIntegration, InfoForLoggi
 	
 EndProcedure
 
-// 
+// Intended for procedure "FillParametersMismatchForLogging".
 Function ParametersMismatchDetails(ListsWithoutIntegration)
 
 	Lists = New ValueList;
@@ -28718,7 +28746,7 @@ Function ParametersMismatchDetails(ListsWithoutIntegration)
 	
 EndFunction
 
-// For the function stored access limit Parameters.
+// For the StoredAccessRestrictionParameters function.
 Procedure AddLeadingRoles(LeadingRoles, UsersKindPropertyName, UserViewContext)
 	
 	For Each DescriptionOfTheLeadingRole In UserViewContext.LeadingRoles Do
@@ -28734,7 +28762,7 @@ Procedure AddLeadingRoles(LeadingRoles, UsersKindPropertyName, UserViewContext)
 	
 EndProcedure
 
-// For the function stored access limit Parameters.
+// For the StoredAccessRestrictionParameters function.
 Procedure AddLeadingLists(LeadingLists, UsersKindPropertyName, DependentList,
 			LeadingListsOfDependentList)
 	
@@ -28793,8 +28821,8 @@ EndFunction
 
 // Returns:
 //   Structure:
-//     * ForUsers        - Array of String -  full list names
-//     * ForExternalUsers - Array of String -  full list names
+//     * ForUsers        - Array of String - full list names
+//     * ForExternalUsers - Array of String - full list names
 //
 Function LeadingListByAccessKeysOrValuesWithGroups()
 	
@@ -28802,18 +28830,18 @@ Function LeadingListByAccessKeysOrValuesWithGroups()
 	
 EndFunction
 
-// For the procedure, add the following Notes.
+// For the AddLeadingLists procedure.
 //
 // Returns:
 //   Structure:
 //     * AllFields       - Array
 //     * AllFieldsTypes - Map of KeyAndValue:
-//        ** Key - String -  field name.
-//        ** Value - ValueStorage - 
+//        ** Key - String - Field name.
+//        ** Value - ValueStorage - Contains the "TypeDescription" type (field type).
 //     * FieldsSets   - Structure:
 //         ** ForUsers - Boolean
 //         ** ForExternalUsers - Boolean
-//     * Name - String -  name of the table part (only fields in the table part have it)
+//     * Name - String - a tabular section name (only tabular section fields have it)
 //
 Function LeadingListFieldsDetails()
 	
@@ -28826,7 +28854,7 @@ Function LeadingListFieldsDetails()
 	
 EndFunction
 
-// For the procedure, add the following Notes.
+// For the AddLeadingLists procedure.
 Procedure AddLeadingListsByDependencyKind(LeadingLists, UsersKindPropertyName,
 			DependentList, LeadingListsOfDependentList, DependencyKind)
 	
@@ -28852,14 +28880,14 @@ Procedure AddLeadingListsByDependencyKind(LeadingLists, UsersKindPropertyName,
 	
 EndProcedure
 
-// For the procedure, add the following Notes.
+// For the AddLeadingLists procedure.
 //
 // Returns:
 //   Structure:
 //     * DependentLists      - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
+//         ** Key     - String - a full list name
 //         ** Value - Boolean - True
-//     * ByFieldsValues     - Structure -  similar to see The leading list of Field designationsreferences
+//     * ByFieldsValues     - Structure - similar to LeadingListByFieldsValues
 //     * ByAccessKeys      - See LeadingListByAccessKeysOrValuesWithGroups
 //     * ByValuesWithGroups - See LeadingListByAccessKeysOrValuesWithGroups
 //
@@ -28879,7 +28907,7 @@ Function CurrentLeadingListProperties(LeadingLists, FullName)
 	
 EndFunction
 
-// For the procedure, add the following Notes.
+// For the AddLeadingLists procedure.
 Procedure AddLeadingListFields(CurrentFields, FieldsDetails, FilterFieldsDetails, DependentList,
 			UsersKindPropertyName)
 	
@@ -28921,7 +28949,7 @@ Procedure AddLeadingListFields(CurrentFields, FieldsDetails, FilterFieldsDetails
 	
 EndProcedure
 
-// For the procedure, add the stored restriction parameters for user Views.
+// For the AddStoredRestrictionParametersForUsersKind procedure.
 Procedure SetTemplatesParameters(ListProperties, Context)
 	
 	Parameters = ListProperties.Parameters;
@@ -29009,7 +29037,7 @@ Procedure SetTemplatesParameters(ListProperties, Context)
 	
 EndProcedure
 
-// For the procedure, configure the parameters of the templates.
+// For the SetTemplatesParameters procedure.
 //
 // Parameters:
 //  FullName - String
@@ -29054,7 +29082,7 @@ Function TheKeyOfTheTable(FullName, TypeCollectionName = Undefined, TablesTypesB
 	
 EndFunction
 
-// For the procedure for describing the newVersion and the parameters of the access restriction.
+// For the AccessRestrictionParametersNewVersionDetails procedure.
 Procedure FillInTheParametersForTemplates(Record, WriteParameters, VersionDetails)
 	
 	If TypeOf(VersionDetails.CreationDate) = Type("Date") Then
@@ -29156,7 +29184,7 @@ Procedure FillInTheParametersForTemplates(Record, WriteParameters, VersionDetail
 	
 EndProcedure
 
-// For the procedure, fill in the parameters for the templates.
+// For the FillParametersForTemplates procedure.
 //
 // Returns:
 //  Structure:
@@ -29169,10 +29197,10 @@ EndProcedure
 //      ** BasicAccessOptions  - See NewBasicAccessOptions
 //   * NewVersionsOfListFields - See TheNewVersionOfTheTemplateParameters
 //   * CurrentListConstraintProperties - Map of KeyAndValue:
-//      ** Key     - String -  full name of the list
+//      ** Key     - String - a full list name
 //      ** Value - See NewListRestrictionProperties
 //   * NewListConstraintProperties - Map of KeyAndValue:
-//      ** Key     - String -  full name of the list
+//      ** Key     - String - a full list name
 //      ** Value - See NewListRestrictionProperties
 //
 Function NewStructureForFillingInTemplateParameters()
@@ -29181,12 +29209,12 @@ Function NewStructureForFillingInTemplateParameters()
 	
 EndFunction
 
-// For the procedure, fill in the parameters for the templates.
+// For the FillParametersForTemplates procedure.
 // 
 // Parameters:
 //  Parameters - See NewStructureForFillingInTemplateParameters
-//  StorageForTemplatesInSessions - ValueStorage -  updated value
-//  ListsWithRestrictionByFields - String -  returned value
+//  StorageForTemplatesInSessions - ValueStorage - a value being updated
+//  ListsWithRestrictionByFields - String - a return value
 //
 Procedure FillInTheParametersForTemplatesForTheUserView(Parameters,
 			StorageForTemplatesInSessions, ListsWithRestrictionByFields)
@@ -29337,7 +29365,7 @@ Procedure FillInTheParametersForTemplatesForTheUserView(Parameters,
 	
 EndProcedure
 
-// For the procedure, fill in the parameters for the templates for the user views.
+// For the FillParametersForTemplatesForUsersKind procedure.
 Procedure UpdateTheUseOfListFieldVersions(CurrentVersionsOfTheListFields, MainVersionChanged,
 			PossiblyUnusedVersionsOfListFields, Parameters)
 	
@@ -29384,7 +29412,7 @@ Procedure UpdateTheUseOfListFieldVersions(CurrentVersionsOfTheListFields, MainVe
 	
 EndProcedure
 
-// For the procedure, fill in the parameters for the templates for the user views.
+// For the FillParametersForTemplatesForUsersKind procedure.
 Procedure AddListConstraintFields(ListsWithRestrictionByFields, CurrentVersionsOfTheListFields)
 	
 	NewVersion = CurrentVersionsOfTheListFields[0];
@@ -29443,7 +29471,7 @@ Procedure AddListConstraintFields(ListsWithRestrictionByFields, CurrentVersionsO
 	
 EndProcedure
 
-// For the procedure, fill in the parameters for the templates for the user views.
+// For the FillParametersForTemplatesForUsersKind procedure.
 Function DatabaseAccessOptions(Parameters)
 	
 	If Not ValueIsFilled(Parameters.NewVersionsOfListFields) Then
@@ -29536,7 +29564,7 @@ Function DatabaseAccessOptions(Parameters)
 	
 EndFunction
 
-// For the procedure, fill in the parameters for the templates for the user views.
+// For the FillParametersForTemplatesForUsersKind procedure.
 Procedure DisableTheUseOfVersionsOtherThanTheMainOneForUpdatedLists(
 			PossiblyUnusedVersionsOfListFields, Parameters)
 	
@@ -29618,7 +29646,7 @@ Procedure DisableTheUseOfVersionsOtherThanTheMainOneForUpdatedLists(
 	
 EndProcedure
 
-// For the procedure, fill in the parameters for the templates for the user views.
+// For the FillParametersForTemplatesForUsersKind procedure.
 Procedure AddExistingVersionsOfListFields(CurrentVersionsOfTheListFields, NewVersion,
 			DatabaseAccessOptions, Parameters)
 	
@@ -29642,9 +29670,9 @@ Procedure AddExistingVersionsOfListFields(CurrentVersionsOfTheListFields, NewVer
 	   And (    AccessOptions[0] < 2
 	      Or AccessOptions[0] - Int(AccessOptions[0] / 64) * 64 = RequiredAccessOption) Then
 		
-		// 
-		// 
-		// 
+		// Migration from the configuration versions that don't have the "AccessOption" or
+		// restoration following either the cleanup of the "AccessRestrictionParameters" register
+		// or changing the number in the "TemplatesParametersVersionsStructureVersion" function.
 		If Not ValueIsFilled(Parameters.OldCreationDate) Then
 			ConnectionFields = NewVersion.ConnectionFields;
 			TemplateFields    = NewVersion.ConnectionFields;
@@ -29662,8 +29690,8 @@ Procedure AddExistingVersionsOfListFields(CurrentVersionsOfTheListFields, NewVer
 		
 		CurrentVersionsOfTheListFields.Add(PreviousVersion);
 	Else
-		// 
-		// 
+		// Multiple versions cannot be mapped to a single field set
+		// and cannot be used for new field sets.
 		For Each AccessOption In AccessOptions Do
 			UnknownVersion = NewVersionOfTemplateParameters();
 			UnknownVersion.CreationDate   = Parameters.OldCreationDate;
@@ -29677,24 +29705,24 @@ Procedure AddExistingVersionsOfListFields(CurrentVersionsOfTheListFields, NewVer
 	
 EndProcedure
 
-// For procedures, update the use of the version of the field of the list and add the field of the limit of the list.
+// For the UpdateListFieldsVersionsUsage and AddListRestrictionFields procedures.
 Function MaximumNumberOfConnectionOptions()
 	
-	// 
+	// When changing, synchronously change the access restriction template ForRegister.
 	Return 3;
 	
 EndFunction
 
-// For procedures, fill in the parameters for templates for user views.
+// For the FillParametersForTemplatesForUsersKind procedure.
 Function MaximumNumberOfVersionsInTheAccessOption()
 	
 	Return 16;
 	
 EndFunction
 
-// 
-// 
-// 
+// Intended for procedures "SetParametersVersion", "FillParametersForTemplates",
+// "UpdateAccessGroupsTablesForEnabledExtensions", and
+// function "ListsWithVersionsChange".
 //
 Function ValueFromStorage(ValueStorage)
 	
@@ -29708,7 +29736,7 @@ Function ValueFromStorage(ValueStorage)
 	
 EndFunction
 
-// For the procedure set the parameter Version, and for the function stored parameters access Limits.
+// For the SetParametersVersion procedure and the StoredAccessRestrictionParameters function.
 //
 // Returns:
 //  FixedStructure:
@@ -29753,19 +29781,19 @@ Function StoredWriteParametersStructure(Values)
 	
 EndFunction
 
-// For structure functions, stored record Parameters and stored access limit Parameters.
+// For the StoredWriteParametersStructure and StoredAccessRestrictionParameters functions.
 //
 // Returns:
 //  Structure:
 //    * CacheStructureVersion         - See CacheStructureVersion
 //    * ListsRestrictionsVersions    - Map of KeyAndValue:
-//        ** Key     - String -  full name of the list
-//        ** Value - String -  General version of the list constraint 
-//                               the first line is the hash sum of the version properties for users and via Characters.PS
-//                               the second line is the hash sum of the version properties for external users.
+//        ** Key     - String - a full list name
+//        ** Value - String - the common version of list restriction 
+//                               first line — the hash sum of the version properties for users and through Chars.LF
+//                               second line — the hash sum of the version properties for external users.
 //    
 //    * LeadingLists - Map of KeyAndValue:
-//        ** Key     - String -  full name of the list
+//        ** Key     - String - a full list name
 //        ** Value - See ListPropertiesAsLeadingOne
 //    
 //    * AdditionalContext - Structure:
@@ -29773,11 +29801,11 @@ EndFunction
 //        ** ForExternalUsers - See NewStoredAdditionalContext
 //    
 //    * ListsWithDate - Map of KeyAndValue:
-//        ** Key     - String -  full name of the list
-//        ** Value - Boolean - True
+//        ** Key     - String - a full list name
+//        ** Value - Boolean - True.
 //    * ExternalUsersEnabled - Boolean
 //    * AccessRestrictionEnabled  - Boolean
-//    * UsedValuesTypes    - ValueStorage -  see the function using the value types.
+//    * UsedValuesTypes    - ValueStorage - see the UsedValuesTypes function.
 //    * AccessRestrictionTextsVersion - String
 //
 Function NewStoredWriteParametersStructure() Export
@@ -29798,7 +29826,7 @@ Function NewStoredWriteParametersStructure() Export
 	
 EndFunction
 
-// For the procedure, set the version of Parameters.
+// For the SetParametersVersion procedure.
 //
 // Returns:
 //  FixedStructure:
@@ -29826,8 +29854,8 @@ Function StoredTemplatesParametersStructure(Values)
 	
 EndFunction
 
-// For the functions of structureparameters of Templates, structureparameters of record, and
-// Stored access limit parameters.
+// For the StoredTemplatesParametersStructure, StoredWriteParametersStructure and
+// StoredAccessRestrictionParameters functions.
 //
 // Returns:
 //  Structure:
@@ -29846,7 +29874,7 @@ Function NewStoredTemplatesParametersStructure()
 	
 EndFunction
 
-// For the procedure, set the version of Parameters.
+// For the SetParametersVersion procedure.
 //
 // Returns:
 //   FixedStructure:
@@ -29879,8 +29907,8 @@ Function TemplatesParametersStructure(Values)
 	
 EndFunction
 
-// For functions of the pattern Structureparameters, stored access limit Parameters, and
-// New structure of stored template parameters.
+// For the TemplateParametersStructure, StoredAccessRestrictionParameters and
+// NewStoredTemplatesParametersStructure functions.
 //
 // Returns:
 //   Structure:
@@ -29901,7 +29929,7 @@ Function NewTemplatesParametersStructure()
 	
 EndFunction
 
-// For procedures, set the parameter reversion and fill in the parameters for the templates.
+// For the SetParametersVersion and FillParametersForTemplates procedures.
 //
 // Returns:
 //   See NewStructureOfStoredVersionsOfTemplateParameters
@@ -29936,8 +29964,8 @@ Function StructureOfStoredVersionsOfTemplateParameters(Values)
 	
 EndFunction
 
-// For functions, the stored parameters limit access, the structure of the stored versions of the template parameters, and
-// the procedure fill in the parameters for the templates.
+// For the StoredAccessRestrictionParameters, StoredTemplatesParametersVersionsStructure functions and
+// the FillParametersForTemplates procedure.
 //
 // Returns:
 //  Structure:
@@ -29968,12 +29996,12 @@ Function NewStructureOfStoredVersionsOfTemplateParameters()
 	
 EndFunction
 
-// For the functions stored parameters of access restrictionand
-// New structureexampled versions of Template parameters.
+// For the StoredAccessRestrictionParameters and
+// NewStoredTemplatesParametersVersionsStructure functions.
 //
 // Returns:
 //   Map of KeyAndValue:
-//     * Key  - String -  full name of the register.
+//     * Key  - String - a full register name.
 //     * Value - Array of See NewVersionOfTemplateParameters
 //
 Function TheNewVersionOfTheTemplateParameters()
@@ -29982,17 +30010,17 @@ Function TheNewVersionOfTheTemplateParameters()
 	
 EndFunction
 
-// For Newyearcelebrations and procedures Gastrotypographicalassemblage.
+// For the NewTemplatesParametersVersions function and the SetTemplatesParameters procedure.
 //
 // Returns:
 //  Structure:
-//   * CreationDate   - Date   -  the moment when the new version was added.
-//   * List         - String -  full name of the metadata object.
-//   * ConnectionFields - String -  a list of fields used in the connection.
-//   * TemplateFields    - String -  the list of fields specified in the template #for the register.
-//   * Used   - Boolean -  indicates that the version is used in the templates.
-//   * AccessOption - Number  -  the value of the Access option field in the Access key registers for the registers,
-//                               Access key to the registry*.
+//   * CreationDate   - Date   - date and time the new version was added.
+//   * List         - String - Full name of a metadata object.
+//   * ConnectionFields - String - the list of fields used in join.
+//   * TemplateFields    - String - the list of fields specified in the #ForRegister template.
+//   * Used   - Boolean - indicates whether the version is used in templates.
+//   * AccessOption - Number  - the AccessOption field value in the AccessKeysForRegisters,
+//                               AccessKeysToRegister* registers.
 //
 Function NewVersionOfTemplateParameters()
 	
@@ -30008,11 +30036,11 @@ Function NewVersionOfTemplateParameters()
 	
 EndFunction
 
-// For the function of the new structure of the stored versions of the template parameters.
+// For the NewStoredTemplatesParametersVersionsStructure function.
 //
 // Returns:
 //   Map of KeyAndValue:
-//     * Key     - String -  full name of the register.
+//     * Key     - String - a full register name.
 //     * Value - Array of See NewAccessOptionUsed
 //
 Function NewBasicAccessOptions()
@@ -30021,14 +30049,14 @@ Function NewBasicAccessOptions()
 	
 EndFunction
 
-// For the function, fill in the parameters for the templates for the users ' views.
+// For the FillParametersForTemplatesForUsersKind function.
 //
 // Returns:
 //  Structure:
-//    * AccessOption - Number -  the value of the Access option field
-//                               in the registers key Access to Registry, key access to Registry*,
-//                               starting with the main access option.
-//    * ConnectionFields - String -  the names of the connection fields for the access option are separated by commas.
+//    * AccessOption - Number - the AccessOption field value
+//                               in the AccessKeysForRegisters, AccessKeysToRegister* registers
+//                               starting from the main access option.
+//    * ConnectionFields - String - join field names for the access option separated by commas.
 //
 Function NewAccessOptionUsed()
 	
@@ -30036,7 +30064,7 @@ Function NewAccessOptionUsed()
 	
 EndFunction
 
-// For the procedure, set the version of Parameters.
+// For the SetParametersVersion procedure.
 //
 // Returns:
 //   FixedStructure:
@@ -30064,7 +30092,7 @@ Function StoredReportParametersStructure(Values)
 	
 EndFunction
 
-// For structure functions, stored report Parameters and stored access limit Parameters.
+// For the StoredReportParametersStructure and StoredAccessRestrictionParameters functions.
 //
 // Returns:
 //   Structure:
@@ -30083,7 +30111,7 @@ Function NewStoredReportParametersStructure()
 	
 EndFunction
 
-// For the function stored access limit Parameters.
+// For the StoredAccessRestrictionParameters function.
 Function KindsRestrictionsPermissionsString(AccessRestrictionKinds)
 	
 	List = New ValueList;
@@ -30101,77 +30129,77 @@ EndFunction
 
 #Region AccessRestrictionParametersForListSeparately
 
-// The main function of the scope that returns access restriction parameters
-// for the type of list users without taking into account the dependence on other lists,
-// both by access keys and by the availability of access types Users and external Users.
+// The main area function, which returns access restriction parameters
+// for the list user type, without considering dependencies on other lists
+// both by access keys and by presence of the Users and ExternalUsers access kinds.
 //
 // Returns:
 //   Structure:
-//     * List                  - String -  full name of the metadata object table.
-//     * ForExternalUsers - Boolean -  the type of users that the parameters are intended for.
-//     * Version                  - String -  hash-sum of access restriction parameters for tracking their changes.
+//     * List                  - String - a full name of the metadata object table.
+//     * ForExternalUsers - Boolean - user type, for which the parameters are intended.
+//     * Version                  - String - hash of access restriction parameters to track their changes.
 //     * LeadingLists           - See NewLeadingLists
-//     * AccessDenied          - Boolean -  True if the restriction text is "WHERE FALSE"
-//                                          and is not specified for external users.
-//     * RestrictionDisabled    - Boolean -  True if the restriction text is omitted or specified,
-//                                          but the restriction is disabled due to disabling the use
-//                                          of the access types involved in it.
-//     * RightToWriteRestrictionDisabled - Boolean -  True if the read restriction text is omitted or specified,
-//                                             but the restriction is disabled due to disabling the use
-//                                             of the access types involved in it.
+//     * AccessDenied          - Boolean - True if the restriction text is "WHERE FALSE",
+//                                          and it is also not specified for external users.
+//     * RestrictionDisabled    - Boolean - True if the restriction text is not specified or it is specified
+//                                          but the restriction is disabled because of disabling the use
+//                                          of access kinds involved in it.
+//     * RightToWriteRestrictionDisabled - Boolean - True if a reading restriction text is not specified or it is specified
+//                                             but the restriction is disabled because of disabling the use
+//                                             of access kinds involved in it.
 //                                              
-//    Owner field, when it is possible to restrict only the owner object.
+//    Owner field, when restriction is possible only by the owner object.
 //     * OwnerField - See NewOwnerField
 //                                             
-//     * RestrictionByOwnerRequired    - Boolean -  optimization flag specified by the developer
+//     * RestrictionByOwnerRequired    - Boolean - the optimization flag specified by the developer
 //                                                     next to the restriction text.
-//     * UsesRestrictionByOwner - Boolean -  indicates whether optimization is used,
+//     * UsesRestrictionByOwner - Boolean - flag of using optimization
 //                                                     calculated on the second pass of the graph.
-//     * CalculateUserRights     - Boolean -  flag for calculating access key permissions for users,
+//     * CalculateUserRights     - Boolean - flag of calculation of rights to access keys for users,
 //                                                     not for access groups, calculated on the second pass of the graph.
-//                                                     It only makes sense when the attribute
-//                                                     Uses The Owner's Constraint = False.
-//     * HasDependantListsWithoutAccessKeysRecords - Boolean -  indicates that the master list should record
-//                                                     keys for dependent lists that do not record
-//                                                     their own keys. The attribute is calculated on the second pass of the graph.
-//     * ShouldSkipObjectAccessKeysUpdate - Boolean - 
+//                                                     Makes sense only when flag
+//                                                     UsesRestrictionByOwner = False.
+//     * HasDependantListsWithoutAccessKeysRecords - Boolean - Shows that the leading list must write
+//                                                     keys for dependent lists that do not write
+//                                                     their own keys.
+//     * ShouldSkipObjectAccessKeysUpdate - Boolean - If set to "True", the object-access key link is not written as the list type
+//                                                     is not specified in the "AccessKeysValuesOwner" type collection.
 //                                                     
+//     * ShouldSkipAllBasicFieldValueCombinationsUpdate - Boolean - If set to "True", the row-key link is not written if the base field type
+//                                                     is not specified in the "RegisterAccessKeysRegisterField" type collection
+//                                                     or in the type of the related field in a separate keys register.
 //                                                     
-//     * ShouldSkipAllBasicFieldValueCombinationsUpdate - Boolean - 
-//                                                     
-//                                                     
-//                                                     
-//     * ReadingAllowedForAllUsers - Boolean -  attribute calculated on the second pass of the graph.
-//                                                     When there is a dependablediscription of the access Key = True,
-//                                                     then it shows the presence of Read rights in one of the roles
-//                                                     Basic rights* or basic rights of external Users*.
-//     * EditionAllowedForAllUsers - Boolean -  attribute calculated on the second pass of the graph.
-//                                                     When there is a dependablediscription of the access Key = True,
-//                                                     then it shows that you have the right to Change in one of the roles
-//                                                     Basic rights* or basic rights of external Users*.
-//     * HasMasterAccessKeys                - Boolean -  indicates whether there are leading access keys in the restriction.
-//     * HasHeadRightsLists              - Boolean -  indicates whether there are leading lists of rights in the restriction.
-//     * ThereIsAFunctionAccessRightOrRoleAvailable - Boolean -  a sign of the presence of the listed functions in the restriction.
-//     * RightsSettingsOwnersTypes        - FixedMap - 
-//                                                     
-//     * RightSettingsTableID  - CatalogRef.MetadataObjectIDs -  ID
-//                                             of the list, if it uses separate rights settings
-//                                             or an empty ID.
-//     * HasRightsSettingsOwners         - Boolean -  indicates whether there is a restriction on the owner of the rights settings.
-//     * UsedAccessValuesTypes   - Array of Type -  description of the types of access values
-//                                                           that are used in access restrictions.
-//     * AllRightsRestrictionsKinds            - Map -  all types of rights restrictions without regard to usage.
+//     * ReadingAllowedForAllUsers - Boolean - Flag calculated on the second pass of the graph.
+//                                                     When HasDependantListsWithoutAccessKeysRecords = True,
+//                                                     it indicates that the Read right is available in one of the
+//                                                     BasicAccess* or BasicAccessExternalUsers* roles.
+//     * EditionAllowedForAllUsers - Boolean - Flag calculated on the second pass of the graph.
+//                                                     When HasDependantListsWithoutAccessKeysRecords = True,
+//                                                     it indicates that the Update right is available in one of the
+//                                                     BasicAccess* or BasicAccessExternalUsers* roles.
+//     * HasMasterAccessKeys                - Boolean - shows that there are leading access keys in the restriction.
+//     * HasHeadRightsLists              - Boolean - shows that there are leading lists by rights in the restriction.
+//     * ThereIsAFunctionAccessRightOrRoleAvailable - Boolean - indicates whether there are listed functions in the restriction.
+//     * RightsSettingsOwnersTypes        - FixedMap - Types of right settings owners used
+//                                                     to calculate access key rights. See 'ByRefsTypes".
+//     * RightSettingsTableID  - CatalogRef.MetadataObjectIDs - list
+//                                             ID if separate right settings or
+//                                             a blank ID are used for it.
+//     * HasRightsSettingsOwners         - Boolean - shows if there are restrictions by right settings owner.
+//     * UsedAccessValuesTypes   - Array of Type - description of access value types
+//                                                           used in access restriction.
+//     * AllRightsRestrictionsKinds            - Map - all access restriction kinds not considering usage.
 //     * ObjectTablesFields                 - Array of See NewObjectTableFields
-//     * SeparateKeysRegisterName       - String -  for the register.
+//     * SeparateKeysRegisterName       - String - for registers.
 //     * BasicFields                       - See NewBasicFieldsDetails
-//     * AccessOption                    - Number -  basic access option see also the new Basic Access option.
-//     * FieldsComposition                       - Number  -  a number that describes the details used in the key.
-//     * HasReadRestriction             - Boolean -  set if the read limit is different from "WHERE TRUE".
-//     * HasLimitChanges          - Boolean -  set if the change constraint differs from "WHERE TRUE".
-//     * HasUsersRestriction    - Boolean -  set if the values of User
-//                                                 or user Group or external User
-//                                                 or external user Group for functions are checked
-//                                                 The value is resolved or it is an authorized User.
+//     * AccessOption                    - Number - the main access option see also NewMainAccessOptions.
+//     * FieldsComposition                       - Number  - a number describing attributes used in the key.
+//     * HasReadRestriction             - Boolean - it is set if the read restriction differs from "WHERE TRUE".
+//     * HasLimitChanges          - Boolean - it is set if the change restriction differs from "WHERE TRUE".
+//     * HasUsersRestriction    - Boolean - It is set if User
+//                                                 or UsersGroup or ExternalUser
+//                                                 or ExternalUsersGroup values are checked for the ValueAllowed
+//                                                 or IsAuthorizedUser functions.
 //     * ReadRightCalculationStructure       - See RightCalculationStructure
 //     * RightCalculationStructureUpdate    - See RightCalculationStructure
 //     * Context                          - See ParametersContextByRestrictionStructure
@@ -30280,10 +30308,10 @@ Function RestrictionParametersByRestrictionStructure(List, RestrictionStructure,
 	AddVersionProperty(Context, Context, "IsReferenceType");
 	AddVersionProperty(Context, Context, "ListWithDate");
 	
-	// 
+	// Only reference objects require table fields.
 	Context.Insert("ObjectTablesFields", NewObjectTablesFieldsDescription(Result));
 	
-	// 
+	// Basic fields are not required for reference data types (always "Ref").
 	FillNewBasicFieldsDetails(Result, Context);
 	
 	Context.Insert("WithoutMetadataObject", MetadataObject = Undefined);
@@ -30382,7 +30410,7 @@ Function RestrictionParametersByRestrictionStructure(List, RestrictionStructure,
 	
 	If Result.Context.FieldsProperties.Count() = 0
 	   And (Not Result.IsReferenceType
-	      Or Not Result.ThereIsAFunctionAccessRightOrRoleAvailable) Then // 
+	      Or Not Result.ThereIsAFunctionAccessRightOrRoleAvailable) Then // Restriction disabled.
 		
 		If Result.HasDependantListsWithoutAccessKeysRecords Then
 			ConfigureCreationOfAccessKeyForDependentListsWithoutKeys(Result);
@@ -30441,16 +30469,16 @@ Function RestrictionParametersByRestrictionStructure(List, RestrictionStructure,
 	
 EndFunction
 
-// Lists with fields that affect access restrictions.
+// Lists with fields, on which access restriction depends.
 //
 // Returns:
 //   Structure:
-//     * ByFieldsValues     - Map -  lists with fields that affect access restrictions
-//                                             (for registering update tasks).
-//     * ByAccessKeys      - Map -  lists of access keys that restrict access
-//                                             (for setting session parameters and registering update tasks).
-//     * ByValuesWithGroups - Map -  lists of access values with groups that
-//                                             restrict access depends on (for registering update tasks).
+//     * ByFieldsValues     - Map - lists with fields, on which access restriction depends
+//                                             (for registering update jobs).
+//     * ByAccessKeys      - Map - lists, on whose access keys access restriction depends
+//                                             (for setting session parameters and registering update jobs).
+//     * ByValuesWithGroups - Map - lists of access values with groups, on which
+//                                             access restriction depends (for registering update jobs).
 //
 Function NewLeadingLists()
 	
@@ -30475,7 +30503,7 @@ EndFunction
 //     * VersionProperties          - Array of String
 //     * ObjectTablesFields       - See NewObjectTablesFieldsDescription
 //     * BasicFields             - See NewBasicFieldsDetails
-//     * AccessOption          - Number -  basic access option see also the new Basic Access option.
+//     * AccessOption          - Number - the main access option see also NewMainAccessOptions.
 //     * UsesRestrictionByOwner        - Boolean
 //     * CalculateUserRights            - Boolean
 //     * HasDependantListsWithoutAccessKeysRecords - Boolean
@@ -30506,11 +30534,11 @@ EndFunction
 //         ** Key     - See NodeDetails
 //         ** Value - See FieldProperties
 //     * FieldsGroups - Map of KeyAndValue:
-//         ** Key     - String -  name of the field group (Header?, tabular Part?)
+//         ** Key     - String - a field group name (Header?, TabularSection?)
 //         ** Value - Array of See FieldProperties
 //     * ObjectTabularSectionsAliases - Map of KeyAndValue:
-//         ** Key     - Number  -  number of the table part of the key
-//         ** Value - String -  table alias
+//         ** Key     - Number  - the number of a tabular key part
+//         ** Value - String - a table alias
 //     * AdditionalTablesGroups - See AdditionalTablesGroups
 //     * KeyTabularSectionsCount - Number
 //     * AdditionalTablesMergeConditionsFields - Array of Structure:
@@ -30518,14 +30546,14 @@ EndFunction
 //         ** ConditionTableAlias - String
 //     * NameOfRight - String
 //     * RequiredKeyTabularSectionsAttributes - Map of KeyAndValue:
-//         ** Key     - String -  name of the key table (groupname of the access key Field)
-//         ** Value - Array of String -  name of the key table details (requisitagroup name of the access key Field)
+//         ** Key     - String - a key table name (AccessKeyFieldsGroupName)
+//         ** Value - Array of String - a key table attribute name (AccessKeyFieldsGroupAttributeName)
 //     * VersionPropertiesRightCalculationStructure - Array of String
 //     * LeadingRoles - Map of KeyAndValue:
-//         ** Key     - String -  role name
-//         ** Value - Boolean - 
+//         ** Key     - String - Role name.
+//         ** Value - Boolean - Set to True.
 //     
-//   :
+//   Properties copied from CommonContext:
 //     * AccessKindsProperties         - See AccessKindsProperties
 //     * UserTypes             - Array of Type
 //     * RightsSettingsOwnersTypes   - FixedMap
@@ -30534,25 +30562,25 @@ EndFunction
 //     * ListsWithRestriction          - See AccessManagementInternalCached.ListsWithRestriction
 //     * ExternalUsersEnabled  - Boolean
 //      
-//   :
+//   Properties copied from AdditionalContext:
 //     * RestrictionsDetails1 - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
+//         ** Key     - String - a full list name
 //         ** Value - See BriefRestrictionDetails
 //     * ListRestrictionsProperties - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
+//         ** Key     - String - a full list name
 //         ** Value - See NewListRestrictionProperties
 //     * ListsWithRestrictionByOwner - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean -  value to the Owner, except Undefined.
+//         ** Key     - String - a full list name
+//         ** Value - Boolean - the ByOwner value, except for Undefined.
 //     * ListsWithDisabledRestriction - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean - True
+//         ** Key     - String - a full list name
+//         ** Value - Boolean - True.
 //     * ListsWithReadRestrictionDisabled - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean - True
+//         ** Key     - String - a full list name
+//         ** Value - Boolean - True.
 //     * ListsWithKeysRecordForDependentListsWithoutKeys - Map of KeyAndValue:
-//         ** Key     - String -  full name of the list
-//         ** Value - Boolean - True
+//         ** Key     - String - a full list name
+//         ** Value - Boolean - True.
 //
 Function ParametersContextByRestrictionStructure()
 	
@@ -30560,55 +30588,55 @@ Function ParametersContextByRestrictionStructure()
 	
 EndFunction
 
-// The constraint structure that is reduced to the format for placing values in access keys.
+// A restriction structure adjusted to the format of placing values in access keys.
 //
 // Returns:
 //   Structure:
-//     * Node - String - 
-//         
+//     * Node - String - A stub for the previous line (to define the type in EDT).
+//         Property of the Selection node (otherwise, can be Undefined).
 //         
 //         
 //         
 //
 //    
-//     * Table   - String -  access key table (Header?, table Part?).
-//     * Attribute  - String -  name of the access key table prop (Prop?).
-//     * CheckHasNull - Boolean -  True (optional property).
+//     * Table   - String - an access key table (Header?, TabularSection?).
+//     * Attribute  - String - the name of the access key table attribute (Attribute?).
+//     * CheckHasNull - Boolean - True (an optional property).
 //
-//    Properties of the Constant node.
+//    The Constant node properties.
 //     * Value - Boolean
 //                - Number
 //                - String
-//                - Undefined - 
-//                     
+//                - Undefined - False, True, an arbitrary
+//                     integer number up to 16 digits or an arbitrary string up to 150 characters.
 //
-//    
+//    Properties of the AND, OR nodes.
 //     * Arguments - Array of See RightCalculationStructure
 //
-//    Node properties are Not.
+//    Properties of the Not node.
 //     * Argument - See RightCalculationStructure
 //
-//     * Node - String - 
+//     * Node - String - A stub for the previous line (to define the type in EDT).
 //
-//    
+//    Property of the Selection node (otherwise, can be Undefined).
 //     * Else - See RightCalculationStructure
 //     * When - Array of Structure:
 //         ** Condition  - See RightCalculationStructure
 //         ** Value - See RightCalculationStructure
 //      
-//     * Node - String -  stub to the previous line (for defining the type in EDT)
+//     * Node - String - A stub for the previous line (to define the type in EDT).
 //     
-//    Node properties value Resolved, this is an authorized User,
-//                   Changeobjectstate, Essentiallyidentical,
-//                   Readespiscare Resolved, Changeespiscare Resolved.
+//    Property of the Selection node (otherwise, can be Undefined).
+//                   
+//                   
 //     * Field - See RightCalculationStructure
 //     * ComparisonClarifications - Map of KeyAndValue:
 //         ** Key     - String
-//                     - Type - 
-//                             
-//         ** Value - String -  the result is "False", "True".
+//                     - Type - — a value to be clarified is "Undefined", "Null", or "BlankRef",
+//                             "Disabled", Type (Reference, Number, Date, Boolean).
+//         ** Value - String - result "False", "True".
 //
-//    Properties of nodes for all Strings, for one of the Strings.
+//    Properties of the ForAllLines, ForOneOfLines nodes.
 //     * Argument - See RightCalculationStructure
 //
 Function RightCalculationStructure()
@@ -30617,7 +30645,7 @@ Function RightCalculationStructure()
 	
 EndFunction
 
-// For the procedure, the constraint parameterstructure Constraints.
+// For the RestrictionParametersByRestrictionStructure procedure.
 Procedure ConfigureCreationOfAccessKeyForDependentListsWithoutKeys(Result)
 	
 	If Not Result.IsReferenceType Then
@@ -30653,7 +30681,7 @@ Procedure ConfigureCreationOfAccessKeyForDependentListsWithoutKeys(Result)
 	
 EndProcedure
 
-// For the procedure, the constraint parameterstructure Constraints.
+// For the RestrictionParametersByRestrictionStructure procedure.
 Function RightAllowedForAllUsers(NameOfRight, MetadataObject, ForExternalUsers)
 	
 	If MetadataObject = Undefined Then
@@ -30673,7 +30701,7 @@ Function RightAllowedForAllUsers(NameOfRight, MetadataObject, ForExternalUsers)
 	
 EndFunction
 
-// For the procedure, the constraint parameterstructure Constraints.
+// For the RestrictionParametersByRestrictionStructure procedure.
 Procedure AddTheVersionPropertyLeadingRoles(Context)
 	
 	If Not ValueIsFilled(Context.LeadingRoles) Then
@@ -30690,7 +30718,7 @@ Procedure AddTheVersionPropertyLeadingRoles(Context)
 	
 EndProcedure
 
-// For the procedure, delete the field of the unused access View and the group function of additional Tables.
+// For the DeleteNotUsedAccessKindsFields procedure and AdditionalTablesGroups function.
 Procedure AddVersionProperties(Context, Structure, FieldsNames = "") Export
 	
 	If ValueIsFilled(FieldsNames) Then
@@ -30712,14 +30740,14 @@ Procedure AddVersionProperties(Context, Structure, FieldsNames = "") Export
 	
 EndProcedure
 
-// For the procedure, the constraint parameterstructure Constraints.
+// For the RestrictionParametersByRestrictionStructure procedure.
 Procedure AddVersionProperty(Context, Structure, FieldName)
 	
 	AddVersionItem(Context, FieldName, Structure[FieldName]);
 	
 EndProcedure
 
-// Treatment of Dubovitskaya, Dobavitsya.
+// For the AddVersionProperties and AddVersionProperty procedures.
 Procedure AddVersionItem(Context, FieldName, Value) Export
 	
 	If TypeOf(Value) = Type("String") Then
@@ -30752,7 +30780,7 @@ Procedure AddVersionItem(Context, FieldName, Value) Export
 	
 EndProcedure
 
-// For the function parameters of the constraint structureof the Constraint and the update form, the manual control is Available.
+// For the RestrictionParametersByRestrictionStructure function and the AccessUpdateManualControl form.
 //
 // Returns:
 //  Boolean
@@ -30777,10 +30805,10 @@ EndFunction
 //  Structure:
 //    * FullTableName - String
 //    * TabularSection   - String
-//    * Fields             - Array of String -  with the Link field
-//    * FieldList      - String -  without the Link field
-//    * TableWithFields   - ValueStorage -  with a value Table object
-//                         with typed fields (including the Link field).
+//    * Fields             - Array of String - with the Reference field.
+//    * FieldList      - String - without the Reference field.
+//    * TableWithFields   - ValueStorage - with the ValueTable object
+//                          with the typed fields (including the Reference field).
 //
 Function NewObjectTableFields()
 	
@@ -30799,22 +30827,22 @@ EndFunction
 //  Structure:
 //    * Result - Array of See NewObjectTableFields
 //    * Content - Structure:
-//        ** Key - String -  full name of the object table.
+//        ** Key - String - a full name of an object table.
 //        ** Value - Structure:
-//             *** Key - String -  field name.
+//             *** Key - String - Field name.
 //             *** Value - Structure:
-//                   **** Type - TypeDescription -  field types.
-//                   **** Use - Boolean -  using the field.
+//                   **** Type - TypeDescription - field types.
+//                   **** Use - Boolean - the field use.
 //    * ByFIeldProperties - Map of KeyAndValue:
 //        ** Key     - See NewFieldProperties
 //        ** Value - Structure:
-//             *** Table - String -  full name of the object table.
-//             *** Field    - String -  field name.
+//             *** Table - String - a full name of an object table.
+//             *** Field    - String - Field name.
 //    * ByAdditionalTables - Map of KeyAndValue:
-//        ** Key     - String -  additional table
+//        ** Key     - String - an additional table
 //        ** Value - Structure:
-//             *** Key - String -  full name of the object table.
-//             *** Value - Array of String -  field name.
+//             *** Key - String - a full name of an object table.
+//             *** Value - Array of String - Field name.
 //
 Function NewObjectTablesFieldsDescription(Result)
 	
@@ -30822,7 +30850,7 @@ Function NewObjectTablesFieldsDescription(Result)
 	
 EndFunction
 
-// For the function, the parameters of the constraint structureof the Constraint.
+// For the RestrictionParametersByRestrictionStructure function.
 //
 // Parameters:
 //  Result - See RestrictionParametersByRestrictionStructure
@@ -30863,7 +30891,7 @@ Procedure FillNewBasicFieldsDetails(Result, Context)
 		AccessManagementInternalCached.MaxBasicRegisterFieldsCount();
 	
 	If BasicFields.MaxCount > BasicFields.MaxQuantity Then
-		// 
+		// Increasing the quantity of basic fields in a separate register.
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The number of basic fields in the %1 information register
 			           |exceeds the limit: %2.';"),
@@ -30886,24 +30914,24 @@ EndProcedure
 // Returns:
 //  Structure:
 //    * All                             - Array
-//    * AllItemsTypes                        - Array of ValueStorage - 
+//    * AllItemsTypes                        - Array of ValueStorage - Contains the "TypeDescription" type
 //    * UsedItems                    - Array
-//    * UsedItemsTypes                - Array of ValueStorage - 
+//    * UsedItemsTypes                - Array of ValueStorage - Contains the "TypeDescription" type
 //    * MaxCount          - Number
 //    * MaxQuantity - Number
 //
 //    * List                          - ValueList
 //    * TypesByFieldNames - Map of KeyAndValue:
-//        ** Key     - String -  name of the reference field
-//        ** Value - TypeDescription -  types of reference field
+//        ** Key     - String - the basic field name
+//        ** Value - TypeDescription - the basic field types
 //    * ByFIeldProperties - Map of KeyAndValue:
 //        ** Key     - See NewFieldProperties
-//        ** Value - String -  name of the reference field
+//        ** Value - String - the basic field name
 //    * ByAdditionalTables - Map of KeyAndValue:
-//        ** Key     - String -  additional table
-//        ** Value - Array of String -  names of reference fields
-//    * MissingTypes - Array of String - 
-//    * FieldsOfMissingTypes - Array of String - 
+//        ** Key     - String - an additional table
+//        ** Value - Array of String - basic field names
+//    * MissingTypes - Array of String - Full type names
+//    * FieldsOfMissingTypes - Array of String - Names of key register fields
 //
 Function NewBasicFieldsDetails()
 	
@@ -30919,7 +30947,7 @@ Function NewBasicFieldsDetails()
 	
 EndFunction
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 //
 // Parameters:
 //  Context  - See ParametersContextByRestrictionStructure
@@ -30935,7 +30963,7 @@ Function ThisIsAnAbsoluteRestriction(Context, Result)
 	
 EndFunction
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 //
 // Parameters:
 //  Context  - See ParametersContextByRestrictionStructure
@@ -30962,7 +30990,7 @@ Procedure FillHasRestrictionByRights(Context, Result, AfterSimplification)
 	
 EndProcedure
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 //
 // Parameters:
 //  Result - See RestrictionParametersByRestrictionStructure
@@ -31138,7 +31166,7 @@ Procedure FillInTheRestrictionOnTheObjectOwnerBeforeSimplifying(Result, Context)
 	
 EndProcedure
 
-// For the procedure, fill in the restriction of the object of the owner of the extension.
+// For the FillRestrictionByOwnerObjectBeforeSimplification procedure.
 Function PossibleRestrictionOnTheObjectOwner(Condition, ThisIsALimitationOfTheChange, Context)
 	
 	If Not ValueIsFilled(Condition) Then
@@ -31213,7 +31241,7 @@ Function PossibleRestrictionOnTheObjectOwner(Condition, ThisIsALimitationOfTheCh
 	
 EndFunction
 
-// For the function, a possible restriction of the object to the owner.
+// For the PossibleRestrictionByOwnerObject function.
 Function APossibleRestrictionOnTheOwnerObjectHasBeenProcessed(Condition,
 				ThisIsALimitationOfTheChange, RestrictionFound, Context)
 	
@@ -31235,7 +31263,7 @@ Function APossibleRestrictionOnTheOwnerObjectHasBeenProcessed(Condition,
 	
 EndFunction
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 //
 // Parameters:
 //  Result - See RestrictionParametersByRestrictionStructure
@@ -31351,7 +31379,7 @@ Function NewOwnerField()
 	
 EndFunction
 
-// For the function fill in the limit for the object Owner and the procedure set up the optimization for the field Owner.
+// For the FillRestrictionByOwnerObject function and the SetOptimizationByOwnerField procedure.
 Function ErrorTextWithTitle(ErrorText, Context)
 	
 	ErrorsDescription = ErrorsDescription();
@@ -31370,7 +31398,7 @@ Function ErrorTextWithTitle(ErrorText, Context)
 	
 EndFunction
 
-// For the procedure, fill in the restriction of the object to the Owner.
+// For the FillRestrictionByOwnerObject procedure.
 Function FunctionWithoutClarificationOfTypesWithFieldWithoutAttachments(Restriction)
 	
 	If Restriction.Types.Count() <> 0
@@ -31386,7 +31414,7 @@ Function FunctionWithoutClarificationOfTypesWithFieldWithoutAttachments(Restrict
 	
 EndFunction
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 //
 // Parameters:
 //  Result - See RestrictionParametersByRestrictionStructure
@@ -31434,7 +31462,7 @@ Procedure FillHasLeadingKeysAndListsAndRightsSettingsOwners(Result, Context)
 	
 EndProcedure
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 //
 // Parameters:
 //  Result - See RestrictionParametersByRestrictionStructure
@@ -31483,7 +31511,7 @@ Procedure DeleteNotUsedAccessKindsFields(Result, Context)
 	
 EndProcedure
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 //
 // Parameters:
 //  Result - See RestrictionParametersByRestrictionStructure
@@ -31520,7 +31548,7 @@ Procedure FillHasRestrictionByUsersAccessKind(Result, Context)
 	
 EndProcedure
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 //
 // Parameters:
 //  Result - See RestrictionParametersByRestrictionStructure
@@ -31543,17 +31571,17 @@ Procedure FillHasReadRestriction(Result, Context)
 	
 EndProcedure
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 //
 // Parameters:
 //  Context - See ParametersContextByRestrictionStructure
 //
 Procedure FillFieldsAndAdditionalTablesGroups(Context)
 	
-	// 
-	// 
-	// 
-	// 
+	// Fields of the header (start off the header, a grouping by an empty alias unless the table has a name).
+	// Fields of each table (start off the table, a grouping by the table name).
+	// Fields of the related additional tables (start off the additional table instance,
+	// a grouping by alias, but if a table refers to another table in the join, then a group of tables is created).
 	
 	LastHeaderAttributeNumberWithSeveralAccessValuesGroups = 0;
 	LastObjectTabularSectionNumber = 0;
@@ -31709,16 +31737,16 @@ Procedure FillFieldsAndAdditionalTablesGroups(Context)
 	Context.Insert("AdditionalTablesGroups",       AdditionalTablesGroups);
 	Context.Insert("KeyTabularSectionsCount",   KeyTabularSectionsCount);
 	
-	// 
+	// Calculate the FieldsComposition number.
 	
-	// 
-	// 
-	// 
+	// Header and tables:    T4  T3  T2  T1    H.
+	// Binary format:           0000 0000 0000 0000 0000.
+	// Hexadecimal format:    x0   x0   x0   x0   x0.
 	//
-	// 
-	// 
-	// 
-	// 
+	// Example: H0=1, T1=1.
+	// Binary format:           0000 0000 0000 0001 0001.
+	// Hexadecimal format:    x0   x0   x0   x1   x1.
+	// Number = 1*16^0 + 1*16^1 = 1 + 16 = 17.
 	
 	FieldsComposition = LastHeaderAttributeNumber;
 	
@@ -31732,7 +31760,7 @@ Procedure FillFieldsAndAdditionalTablesGroups(Context)
 	
 EndProcedure
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 //
 // Parameters:
 //   CalculationCondition - See RightCalculationStructure
@@ -31907,11 +31935,11 @@ Procedure FillRightCalculationStructure(CalculationCondition, Condition, Context
 	
 EndProcedure
 
-// For the procedure, fill in the invoice structure.
+// For the FillRightCalculationStructure procedure.
 Procedure CalculationConditionField(CalculationCondition, FieldProperties, Context)
 	
 	If Context.FieldsProperties.Find(FieldProperties) = Undefined Then
-		CalculationCondition = Null; // 
+		CalculationCondition = Null; // Field is deleted due to not used access value types.
 	Else
 		CalculationCondition = New Structure("Node", "Field");
 		CalculationCondition.Insert("Table",  FieldProperties.AccessKeyFieldsGroupName);
@@ -31936,7 +31964,7 @@ Procedure CalculationConditionField(CalculationCondition, FieldProperties, Conte
 	
 EndProcedure
 
-// For the procedure, fill in the invoice structure.
+// For the FillRightCalculationStructure procedure.
 Procedure AddDependencyOnRoles(Context, CalculationCondition)
 	
 	If CalculationCondition.Property("NameOfRole") Then
@@ -31957,7 +31985,7 @@ Procedure AddDependencyOnRoles(Context, CalculationCondition)
 	
 EndProcedure
 
-// For procedures, fill in the structure of the invoice Order, conditionaccount Field.
+// For the FillRightCalculationStructure and CalculationConditionField procedures.
 Procedure AddCalculationStructureVersionProperty(Context, Name, Value);
 	
 	If TypeOf(Value) = Type("Map") Then
@@ -31977,7 +32005,7 @@ Procedure AddCalculationStructureVersionProperty(Context, Name, Value);
 	
 EndProcedure
 
-// For the procedure, fill in a group of fields and additional Tables.
+// For the FillFieldsAndAdditionalTablesGroups procedure.
 Function Power16(Power)
 	
 	Power16 = 1;
@@ -31990,7 +32018,7 @@ Function Power16(Power)
 	
 EndFunction
 
-// For the function fill in a group of fields and additional Tables.
+// For the FillFieldsAndAdditionalTablesGroups function.
 // 
 // Parameters:
 //  Context - See ParametersContextByRestrictionStructure
@@ -31998,17 +32026,17 @@ EndFunction
 // Returns:
 //  Structure:
 //    * NumbersByAliases - Map of KeyAndValue:
-//        ** Key     - String -  alias of the additional table
-//        ** Value - Number  -  number of the additional table group
+//        ** Key     - String - an additional table alias
+//        ** Value - Number  - the group number of additional tables
 //         
 //    * TablesByGroups - Map of KeyAndValue:
-//        ** Key     - Number -  number of the additional table group
+//        ** Key     - Number - the group number of additional tables
 //        ** Value - Array of See NewConnectionDetails
 //        
 //    * TablesWithFiledsAliases - Map of KeyAndValue:
-//        ** Key     - String -  alias of an additional table
-//                               with access key fields (other than connection fields).
-//        ** Value - Boolean -  Truth.
+//        ** Key     - String - an additional table alias
+//                               with access key fields (except for the join fields).
+//        ** Value - Boolean - True.
 //
 Function AdditionalTablesGroups(Context)
 	
@@ -32148,7 +32176,7 @@ Function AdditionalTablesGroups(Context)
 	
 EndFunction
 
-// For the additional table Group function.
+// For the AdditionalTablesGroups function.
 Function ConnectionConditionText(AdditionalTable, Context,
 			Condition = Null, Field = Undefined, Alias = Undefined)
 	
@@ -32156,7 +32184,7 @@ Function ConnectionConditionText(AdditionalTable, Context,
 		Condition = AdditionalTable.ConnectionCondition;
 	EndIf;
 	
-	// 
+	// Possible nodes: "Field", ''Value", "Constant", "AND", "=".
 	
 	If Condition.Node = "Field" Then
 		Context.AdditionalTablesMergeConditionsFields.Add(New Structure(
@@ -32244,7 +32272,7 @@ Function NewConnectionConditionField()
 	
 EndFunction
 
-// For the functions of Svoistva, Textilveredelung.
+// For the FieldProperties and ConnectionConditionText functions.
 Procedure AddObjectTableField(Context, FieldNode, FieldProperties = Undefined, AdditionalTable = Undefined, TabularSection = "")
 	
 	If Not Context.IsReferenceType Then
@@ -32305,7 +32333,7 @@ Procedure AddObjectTableField(Context, FieldNode, FieldProperties = Undefined, A
 	
 EndProcedure
 
-// For the functions of Svoistva, Textilveredelung.
+// For the FieldProperties and ConnectionConditionText functions.
 Procedure AddBasicField(Context, FieldNode, FieldProperties = Undefined, AdditionalTable = Undefined)
 	
 	If Not FieldNode.Property("DefaultOrder") Then
@@ -32368,7 +32396,7 @@ Procedure AddBasicField(Context, FieldNode, FieldProperties = Undefined, Additio
 	
 EndProcedure
 
-// For procedures, delete fields of unused access Views, groups, and additional Tables.
+// For the DeleteNotUsedAccessKindsFields and AdditionalTablesGroups procedures.
 Procedure SetUsingOfObjectTableField(Context, FieldProperties = Undefined, AdditionalTable = Undefined)
 	
 	If Not Context.IsReferenceType Then
@@ -32396,7 +32424,7 @@ Procedure SetUsingOfObjectTableField(Context, FieldProperties = Undefined, Addit
 	
 EndProcedure
 
-// For procedures, delete fields of unused access Views, groups, and additional Tables.
+// For the DeleteNotUsedAccessKindsFields and AdditionalTablesGroups procedures.
 Procedure SetBasicFieldUse(Context, FieldProperties = Undefined, AdditionalTable = Undefined)
 	
 	BasicFields = Context.BasicFields;
@@ -32417,7 +32445,7 @@ Procedure SetBasicFieldUse(Context, FieldProperties = Undefined, AdditionalTable
 	
 EndProcedure
 
-// For the procedure, fill in a group of fields and additional Tables.
+// For the FillFieldsAndAdditionalTablesGroups procedure.
 //
 // Parameters:
 //  Context - See ParametersContextByRestrictionStructure
@@ -32497,7 +32525,7 @@ Procedure FinishPreparingObjectTablesFields(Context)
 	
 EndProcedure
 
-// For the procedure, fill in a group of fields and additional Tables.
+// For the FillFieldsAndAdditionalTablesGroups procedure.
 //
 // Parameters:
 //  Context - See ParametersContextByRestrictionStructure
@@ -32526,7 +32554,7 @@ Procedure CompleteBasicFieldsPreparation(Context)
 	
 EndProcedure
 
-// For functions of the connection Textcondition, field Properties.
+// For the ConnectionConditionText and FieldProperties functions.
 Function FieldNameExpandingBasicFieldsByTypes(Alias, FieldNode)
 	
 	If Not FieldNode.Property("DefaultOrder")
@@ -32537,7 +32565,7 @@ Function FieldNameExpandingBasicFieldsByTypes(Alias, FieldNode)
 	
 	NumberOfTables = FieldNode.NextFieldTables[0].Count();
 	
-	If NumberOfTables >= 70 Then // 
+	If NumberOfTables >= 70 Then // 1C:Enterprise limitations.
 		Return Alias + "." + FieldNode.Name;
 	EndIf;
 	
@@ -32561,18 +32589,18 @@ Function FieldNameExpandingBasicFieldsByTypes(Alias, FieldNode)
 	
 EndFunction
 
-// For the function parameters of access Restriction.
+// For the AccessRestrictionParameters function.
 Procedure FillFieldProperties(Context)
 	
-	// 
-	// 
+	// 1. For arguments (fields) of comparison nodes ( = , <>, In, IsNull),
+	// the comparison result is calculated and stored in the key.
 	
-	// 
-	// 
-	// 
+	// 2. For Boolean values, the following values are saved:
+	// - Enums.AdditionalAccessValues.TrueValue
+	// - Emuns.AdditionalAccessValues.FalseValue
 	
-	// 
-	//    
+	// 3. For Number, Date, and String values, the result of comparison with "True"
+	//    is saved, as specified in step 2.
 	
 	Context.BasicFields.Insert("List", New ValueList);
 	Context.BasicFields.Insert("TypesByFieldNames", New Map);
@@ -32688,7 +32716,7 @@ Procedure FillFieldProperties(Context)
 	
 EndProcedure
 
-// For the procedure, fill in the properties of the Fields.
+// For the FillFieldsProperties procedure.
 Function SimplifiedRestrictionCondition(Val Condition, Context, ConditionRoot = False, AddRemainingFields = True)
 	
 	If Not ValueIsFilled(Condition) Then
@@ -32881,7 +32909,7 @@ Function SimplifiedRestrictionCondition(Val Condition, Context, ConditionRoot = 
 	
 EndFunction
 
-// For the simplified constraint Condition function.
+// For the SimplifiedRestrictionCondition function.
 Procedure ProcessSimplifiedSelectionValue(Condition,
 			AllSelectionValuesTrue, AllSelectionValuesFalse, AllSelectionValuesAreEmpty)
 	
@@ -32904,7 +32932,7 @@ Procedure ProcessSimplifiedSelectionValue(Condition,
 	
 EndProcedure
 
-// For the simplified constraint Condition function.
+// For the SimplifiedRestrictionCondition function.
 Function FunctionResultValueAllowed(Condition, FinalFieldTypes, Context)
 
 	AccessKindsPropertiesByTypes = Context.AccessKindsProperties.ByGroupsAndValuesTypes;
@@ -32967,7 +32995,7 @@ Function FunctionResultValueAllowed(Condition, FinalFieldTypes, Context)
 	
 EndFunction
 
-// For the Result function, the value is resolved and the procedures are added to the properties of the field types.
+// For the FunctionResultValueAllowed function and the AddFieldTypesProperties procedure.
 Function TheTypeOfAccessValuesUsed(Context, ValuesType)
 	
 	If Context.UsedValuesTypes.FullTableName = Undefined Then
@@ -32995,7 +33023,7 @@ Function TheTypeOfAccessValuesUsed(Context, ValuesType)
 	
 EndFunction
 
-// For the simplified constraint Condition function.
+// For the SimplifiedRestrictionCondition function.
 Function FunctionResultObjectRightAllowed(Condition, FinalFieldTypes, Context)
 
 	If Context.AccessRestrictionEnabled Then
@@ -33037,7 +33065,7 @@ Function FunctionResultObjectRightAllowed(Condition, FinalFieldTypes, Context)
 	
 EndFunction
 
-// For the procedure, fill in the properties of the Fields.
+// For the FillFieldsProperties procedure.
 Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 	
 	For Each Field In ProcessedSimilarFields Do
@@ -33046,8 +33074,8 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 		   And Field.MultipleValuesGroups <> FieldProperties.MultipleValuesGroups Then
 			Continue;
 		EndIf;
-		// 
-		// 
+		// It's impossible to identify the value type using "Null" or empty key reference.
+		// Therefore, saving an access key is not compatible with the other options.
 		For Each Type In FieldProperties.AccessKeySavingTypes Do
 			If Field.ValueSavingTypes.Find(Type)        <> Undefined
 			 Or Field.ValueGroupSavingTypes.Find(Type)   <> Undefined
@@ -33071,8 +33099,8 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 		If Not Compatible1 Then
 			Continue;
 		EndIf;
-		// 
-		// 
+		// It's impossible to identify the value type using "Null" instead of the value group.
+		// Therefore, saving a value group is not compatible with the other options.
 		For Each Type In FieldProperties.ValueGroupSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type)        <> Undefined
 			 Or Field.TypeSavingTypes.Find(Type)           <> Undefined
@@ -33091,8 +33119,8 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 				Break;
 			EndIf;
 		EndDo;
-		// 
-		// 
+		// Instead of basic types, save the values as "ValidType" or "ProhibitedType".
+		// Therefore, saving a prohibited basic type is not compatible with the other options.
 		For Each Type In FieldProperties.ProhibitedTypeSavingTypes Do
 			If Not IsSimpleType(Type) Then
 				Continue;
@@ -33116,7 +33144,7 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 		If Not Compatible1 Then
 			Continue;
 		EndIf;
-		// 
+		// Merging clarifications of special values.
 		Field.HasAdjustmentNull =
 			Field.HasAdjustmentNull Or FieldProperties.HasAdjustmentNull;
 		Field.HasAdjustmentUndefined =
@@ -33127,14 +33155,14 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 			Field.HasRightsSettingsOwnerType Or FieldProperties.HasRightsSettingsOwnerType;
 		Field.HasAuthorizedUserCheck =
 			Field.HasAuthorizedUserCheck Or FieldProperties.HasAuthorizedUserCheck;
-		// 
+		// Merging types of saving of a blank reference.
 		For Each Type In FieldProperties.EmptyRefSavingTypes Do
 			If Field.EmptyRefSavingTypes.Find(Type) <> Undefined Then
 				Continue;
 			EndIf;
 			Field.EmptyRefSavingTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging types of saving of the ValidType value.
 		For Each Type In FieldProperties.AllowedTypeSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type)        <> Undefined
 			 Or Field.TypeSavingTypes.Find(Type)           <> Undefined
@@ -33149,7 +33177,7 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 			EndIf;
 			Field.AllowedTypeSavingTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging types of saving of the ProhibitedType value.
 		For Each Type In FieldProperties.ProhibitedTypeSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type)        <> Undefined
 			 Or Field.TypeSavingTypes.Find(Type)           <> Undefined
@@ -33164,7 +33192,7 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 			EndIf;
 			Field.ProhibitedTypeSavingTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging types of saving of a value type.
 		For Each Type In FieldProperties.TypeSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type) <> Undefined
 			 Or Field.TypeSavingTypes.Find(Type)    <> Undefined Then
@@ -33180,7 +33208,7 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 			EndIf;
 			Field.TypeSavingTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging types of saving a value.
 		For Each Type In FieldProperties.ValueSavingTypes Do
 			If Field.ValueSavingTypes.Find(Type) <> Undefined Then
 				Continue;
@@ -33199,14 +33227,14 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 			EndIf;
 			Field.ValueSavingTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging not used types of access values.
 		For Each Type In FieldProperties.UnusedAccessValueTypes Do
 			If Field.UnusedAccessValueTypes.Find(Type) <> Undefined Then
 				Continue;
 			EndIf;
 			Field.UnusedAccessValueTypes.Add(Type);
 		EndDo;
-		// 
+		// Merging used access value types.
 		For Each Type In FieldProperties.UsedAccessValuesTypes Do
 			If Field.UsedAccessValuesTypes.Find(Type) <> Undefined Then
 				Continue;
@@ -33224,14 +33252,14 @@ Function ProcessedCombinedField(ProcessedSimilarFields, FieldProperties)
 	
 EndFunction
 
-// For the procedure, fill in the properties of the Fields.
+// For the FillFieldsProperties procedure.
 Procedure ClarifyComparisonFieldProperties(Properties, FieldDetails, Context)
 	
 	Context.AccessKeyFieldsProperties.Insert(FieldDetails.Field, Properties);
 	
 	Parent = FieldDetails.Parents[0];
 	
-	Nodes = ",ValueType,=,<>,In,IsNull,"; // 
+	Nodes = ",ValueType,=,<>,In,IsNull,"; // Key stores the comparison result.
 	If StrFind(Nodes, "," + Parent.Node + ",") = 0 Then
 		Return;
 	EndIf;
@@ -33285,7 +33313,7 @@ Procedure ClarifyComparisonFieldProperties(Properties, FieldDetails, Context)
 		Properties.FieldNameForQuery = Properties.FieldNameForQuery + "
 		|	IN (" + ValueList + ")";
 	
-	Else // 
+	Else // Parent.Node = "IsNull".
 		Properties.FieldNameForQuery = Properties.FieldNameForQuery + " IS NULL";
 		Properties.Insert("CheckHasNull");
 	EndIf;
@@ -33294,7 +33322,7 @@ Procedure ClarifyComparisonFieldProperties(Properties, FieldDetails, Context)
 	
 EndProcedure
 
-// For the procedure, fill in the properties of the Fields.
+// For the FillFieldsProperties procedure.
 Function WhenConditionFieldsSet(InitialFieldProperties, FieldDetails, Context)
 	
 	Parent = FieldDetails.Parents[0];
@@ -33307,8 +33335,8 @@ Function WhenConditionFieldsSet(InitialFieldProperties, FieldDetails, Context)
 		Return FieldsSet;
 	EndIf;
 	
-	// 
-	// 
+	// For "SELECT <Field> WHEN <Value>", the result of the comparison
+	// "<Field> = <Value>" is saved to the key.
 	
 	For Each WhenDetails In Parent.When Do
 		FixedProperties = New FixedStructure(InitialFieldProperties);
@@ -33330,7 +33358,7 @@ Function WhenConditionFieldsSet(InitialFieldProperties, FieldDetails, Context)
 	
 EndFunction
 
-// For field Property functions, specify the field property of the Comparison, set the field conditions When.
+// For FieldProperties, ClarifyComparisonFieldProperties, and WhenConditionFieldsSet functions.
 Function NoNullValue(FieldProperties)
 	
 	Return StrOccurrenceCount(FieldProperties.FieldNameForQuery, ".") = 1
@@ -33339,7 +33367,7 @@ Function NoNullValue(FieldProperties)
 	
 EndFunction
 
-// For the procedure, fill in the properties of the Fields.
+// For the FillFieldsProperties procedure.
 //
 // Parameters:
 //   Properties     - See FieldProperties
@@ -33515,7 +33543,7 @@ Procedure AddFieldTypesProperties(Properties, FieldDetails, Context)
 			Properties.UsedAccessValuesTypes.Add(AccessKindProperties.ValuesType);
 			
 			If AccessKindsProperties.ByValuesTypes.Get(Type) = Undefined Then
-				// 
+				// Group type of access values.
 				If Context.List = Metadata.FindByType(Type).FullName()
 				 Or Context.UserTypes.Find(Type) <> Undefined Then
 					
@@ -33593,7 +33621,7 @@ Procedure AddFieldTypesProperties(Properties, FieldDetails, Context)
 		Return;
 	EndIf;
 	
-	// 
+	// Only Field nodes are available to receive the Boolean value.
 	Properties.ValueSavingTypes.Add(Type("Boolean"));
 	
 	If Properties.EndFieldType.Types().Count() = 1
@@ -33605,7 +33633,7 @@ Procedure AddFieldTypesProperties(Properties, FieldDetails, Context)
 	
 EndProcedure
 
-// For field Property functions, add the properties of the field Types.
+// For the FieldsProperties and AddFieldTypesProperties functions.
 Function TypeNameInQueryLanguage(Type, MetadataObject = Undefined)
 	
 	MetadataObject = Metadata.FindByType(Type);
@@ -33617,7 +33645,7 @@ Function TypeNameInQueryLanguage(Type, MetadataObject = Undefined)
 	
 EndFunction
 
-// For the procedure Dobasefinalization.
+// For the AddFieldTypesProperties procedure.
 Procedure AddRightsRestrictionKind(RestrictionKind, FieldProperties, Context, ByObject = False)
 	
 	If FieldProperties.Read Then
@@ -33629,7 +33657,7 @@ Procedure AddRightsRestrictionKind(RestrictionKind, FieldProperties, Context, By
 	
 EndProcedure
 
-// For the procedure, fill in the properties of the Fields.
+// For the FillFieldsProperties procedure.
 //
 // Parameters:
 //  FieldNode - See NodeDetails
@@ -33678,7 +33706,7 @@ Function FieldProperties(FieldNode, Context, FieldProperties = Undefined)
 	
 	If IsRootNode Then
 		FieldProperties = Properties;
-		// 
+		// The IsNull() function can have only a field inside, it cannot have the Express() function.
 		If ValueIsFilled(FieldNode.Cast) Then
 			Types = New Array;
 			Types.Add(RefTypeByFullMetadataName(FieldNode.Cast));
@@ -33717,7 +33745,7 @@ Function FieldProperties(FieldNode, Context, FieldProperties = Undefined)
 					FieldNameForQuery = TableAlias + "." + FieldNode.Name;
 				EndIf;
 			EndIf;
-		Else // 
+		Else // The first part of the field name is a tabular section name.
 			TabularSection = FieldNode.FieldTypes[0];
 			TableAlias = "CurrentList" + TabularSection;
 			NameParts = StrSplit(FieldNode.Name, ".");
@@ -33728,7 +33756,7 @@ Function FieldProperties(FieldNode, Context, FieldProperties = Undefined)
 		TypesString = FieldNode.TypesString;
 	EndIf;
 	
-	// 
+	// The IsNull() function can have only a field inside, it cannot have the Express() function.
 	If ValueIsFilled(FieldNode.IsNull) Then
 		FieldNameForQuery = "ISNULL(" + FieldNameForQuery + ", " // @query-part-1
 			+ ValueOrConstantNodeExpression(FieldNode.IsNull) + ")";
@@ -33752,7 +33780,7 @@ Function FieldProperties(FieldNode, Context, FieldProperties = Undefined)
 		Properties.Insert("FieldContainsNull");
 	EndIf;
 	
-	// 
+	// To calculate leading lists.
 	Properties.Insert("TabularSection",    TabularSection);
 	Properties.Insert("AttachmentProperties",  AttachmentProperties);
 	Properties.Insert("FieldNode",          FieldNode);
@@ -33766,7 +33794,7 @@ Function FieldProperties(FieldNode, Context, FieldProperties = Undefined)
 EndFunction
 
 
-// For the function, the parameters of the constraint structureof the Constraint.
+// For the RestrictionParametersByRestrictionStructure function.
 //
 // Returns:
 //   Structure:
@@ -33779,7 +33807,7 @@ Function LeadingListsDetailsByFieldsValues()
 	
 EndFunction
 
-// For functions of groups of additional Tables.
+// For the AdditionalTablesGroups functions.
 Procedure AddLeadingListsByFieldsValues(Context, FieldNode, AttachmentProperties = Undefined,
 			TablesGroup = Undefined, ConditionTableAlias = Undefined)
 	
@@ -33840,7 +33868,7 @@ Procedure AddLeadingListsByFieldsValues(Context, FieldNode, AttachmentProperties
 	
 EndProcedure
 
-// For the procedure, add the following list of field Values.
+// For the AddLeadingListsByFieldsValues procedure.
 Procedure AddLeadingListFieldByFieldsValues(Context, Table, Field, FieldType, AdditionalContext,
 			IsMainTable = False, IsReferenceTableType = Undefined)
 	
@@ -33943,7 +33971,7 @@ Procedure AddLeadingListFieldByFieldsValues(Context, Table, Field, FieldType, Ad
 	
 EndProcedure
 
-// To do this, add a field-leading list of field Values.
+// For the AddLeadingListFieldByFieldsValues procedure.
 Procedure InsertLeadingListFieldByFieldsValues(FieldsDetails, TabularSection, Field, FieldType)
 	
 	If ValueIsFilled(TabularSection) Then
@@ -33964,7 +33992,7 @@ Procedure InsertLeadingListFieldByFieldsValues(FieldsDetails, TabularSection, Fi
 	
 EndProcedure
 
-// For the function, the parameters of the constraint structureof the Constraint.
+// For the RestrictionParametersByRestrictionStructure function.
 //
 // Returns:
 //   Structure:
@@ -33985,7 +34013,7 @@ Function LeadingListsDetailsByFieldsRef()
 	
 EndFunction
 
-// For the procedure Dobasefinalization.
+// For the AddFieldTypesProperties procedure.
 Procedure AddLeadingListByFieldRef(LeadingLists, LeadingList, FieldNode, FieldProperties, Context)
 	
 	NameContent = StrSplit(LeadingList, ".");
@@ -34021,7 +34049,7 @@ Procedure AddLeadingListByFieldRef(LeadingLists, LeadingList, FieldNode, FieldPr
 	
 EndProcedure
 
-// For the additional table Group function.
+// For the AdditionalTablesGroups function.
 Procedure FillFiltersByLeadingListFieldsValues(LeadingList, LongDesc, Groups, Context)
 	
 	FiltersConnections = New Array;
@@ -34042,7 +34070,7 @@ Procedure FillFiltersByLeadingListFieldsValues(LeadingList, LongDesc, Groups, Co
 	
 EndProcedure
 
-// For the additional table Group function.
+// For the AdditionalTablesGroups function.
 Procedure FillLeadingListsFiltersByFieldRef(LeadingLists, Groups, Context)
 	
 	FiltersConnections = New Map;
@@ -34054,7 +34082,7 @@ Procedure FillLeadingListsFiltersByFieldRef(LeadingLists, Groups, Context)
 	
 EndProcedure
 
-// For the procedure, fill in the selection value of the field of the leading List.
+// For the FillFiltersByLeadingListFieldsValues procedure.
 Function FilterConnectionTextByFieldsValues(Condition, Groups, Context)
 	
 	If Context.IsReferenceType Then
@@ -34241,8 +34269,8 @@ Function FilterConnectionTextByFieldsValues(Condition, Groups, Context)
 EndFunction
 
 
-// For procedures, add a reference Field, add a measurement Type, add a property of a field Type,
-// Addprovercupotypes and function properties of the Field.
+// For the AddBasicField, AddDimensionTypes, AddFieldTypesProperties, and
+// AddCheckByTypes procedures and the FieldProperties function.
 //
 Function IsSimpleType(Type)
 	
@@ -34255,7 +34283,7 @@ Function IsSimpleType(Type)
 	
 EndFunction
 
-// For the function Dobasefinalization.
+// For the AddFieldTypesProperties function.
 Function CheckingType(Node, FullName)
 	
 	If Node.Types.Count() = 0 Then
@@ -34275,7 +34303,7 @@ Function CheckingType(Node, FullName)
 	
 EndFunction
 
-// For the function Dobasefinalization.
+// For the AddFieldTypesProperties function.
 Function TypeClarified(Node, TypeNameInQueryLanguage)
 	
 	TypeClarified = False;
@@ -34290,7 +34318,7 @@ Function TypeClarified(Node, TypeNameInQueryLanguage)
 	
 EndFunction
 
-// For the function Dobasefinalization.
+// For the AddFieldTypesProperties function.
 Function TypeClarification(Node, TypeNameInQueryLanguage)
 	
 	Refinement = "";
@@ -34305,7 +34333,7 @@ Function TypeClarification(Node, TypeNameInQueryLanguage)
 	
 EndFunction
 
-// For the field Property function.
+// For the FieldProperties function.
 Function ValueOrConstantNodeValueType(Node)
 	
 	If Node.Node = "Value" Then
@@ -34316,8 +34344,8 @@ Function ValueOrConstantNodeValueType(Node)
 	
 EndFunction
 
-// For the textcondition functions, field Properties, set of field conditionings, And
-// the procedure to Refine the matching Properties.
+// For the ConnectionConditionText, FieldProperties, and WhenConditionFieldsSet functions and
+// the ClarifyComparisonFieldProperties procedure.
 //
 Function ValueOrConstantNodeExpression(Node)
 	
@@ -34340,7 +34368,7 @@ Function ValueOrConstantNodeExpression(Node)
 	
 EndFunction
 
-// For the function type of value, node value, or Constant.
+// For the ValueOrConstantNodeValueType function.
 Function RefTypeByFullPredefinedItemName(FullPredefinedItemName)
 	
 	NameParts = StrSplit(FullPredefinedItemName, ".");
@@ -34352,7 +34380,7 @@ Function RefTypeByFullPredefinedItemName(FullPredefinedItemName)
 	
 EndFunction
 
-// For functions of the property of a Field, the link type is field-specific.
+// For the FieldProperties and RefTypeByFullPredefinedItemName functions.
 Function RefTypeByFullMetadataName(FullName)
 	
 	If IsRussianVersionOfMetadataObjectKind(FullName) Then
@@ -34365,7 +34393,7 @@ Function RefTypeByFullMetadataName(FullName)
 	
 EndFunction
 
-// For the Table Key function.
+// For the TableKey function.
 Function RecordKeyTypeByFullMetadataName(FullName)
 	
 	If IsRussianVersionOfMetadataObjectKind(FullName) Then
@@ -34378,7 +34406,7 @@ Function RecordKeyTypeByFullMetadataName(FullName)
 	
 EndFunction
 
-// For the Table Key function.
+// For the TableKey function.
 Function RecordsetTypeByFullMetadataName(FullName)
 	
 	If IsRussianVersionOfMetadataObjectKind(FullName) Then
@@ -34391,7 +34419,7 @@ Function RecordsetTypeByFullMetadataName(FullName)
 	
 EndFunction
 
-// For the Table Key function.
+// For the TableKey function.
 Function ObjectManagerTypeByFullMetadataName(FullName)
 	
 	If IsRussianVersionOfMetadataObjectKind(FullName) Then
@@ -34404,8 +34432,8 @@ Function ObjectManagerTypeByFullMetadataName(FullName)
 	
 EndFunction
 
-// For functions, the link type is full-length data, the key type is full-length data, and the key type is full-length data.,
-// The type of the set of records of the full-length data, the type of the manager of the object of the full-length data.
+// For the RefTypeByFullMetadataName, RecordKeyTypeByFullMetadataName,
+// RecordSetTypeByFullMetadataName, ObjectManagerTypeByFullMetadataName functions.
 //
 Function IsRussianVersionOfMetadataObjectKind(FullName)
 	
@@ -34431,27 +34459,27 @@ Function KeyTableNewAttributes()
 	Return New Map;
 EndFunction
 
-// The main function of the scope, which is the second part
-// of the constraint Parametersconstruction function, but is
-// not used when preparing stored access restriction parameters,
-// but is used when calling the constraint Parametersfunction.
+// The main function of the area, which is the second part
+// of the RestrictionParametersByRestrictionStructure function.
+// It is not used when preparing stored access restriction parameters,
+// but is used when calling the RestrictionParameters function.
 //
 Procedure AddQueryTextsToRestrictionParameters(Result)
 	
 	Context = Result.Context;
 	Result.Delete("Context");
 	
-	// 
+	// Checking the Read and Update object rights or a record set in the database.
 	Result.Insert("ReadEditRightsCheckQueryText");
-	// 
+	// Checking the Read object right or a record set in the database.
 	Result.Insert("ReadRightsCheckQueryText");
-	// 
+	// Text of extracting the owner from an object reference.
 	Result.Insert("OwnerObjectFieldInRightsValidationQuery");
 	
 	AddDateQueryTextOfNextDataItem(Result, Context); 
 	
 	If Result.DoNotWriteAccessKeys Then
-		// 
+		// Query of objects or record filters to delete or set blank keys.
 		Result.Insert("ObsoleteDataItemsQueryText");
 		Result.Insert("ObsoleteDataItemsCheckQueryText");
 		Result.Insert("QueryTextForInvalidDataItems");
@@ -34459,63 +34487,63 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 		AddQueryTextOfObsoleteDataItems(Result, Context);
 		
 		If Result.UsesRestrictionByOwner Then
-			// 
+			// Generating right checking queries.
 			FillReadUpdateRightsCheckQueries(Result, Context);
 		EndIf;
 		
 		Return;
 	EndIf;
 	
-	// 
+	// Names of used key tables.
 	Result.Insert("KeyTables");
-	// 
+	// Names of used key table attributes.
 	Result.Insert("KeyTablesAttributes");
 	
-	// 
+	// Request the object or the record set to calculate the range of the required size.
 	Result.Insert("QueryTextForDataItemsRange");
-	// 
+	// Query of objects or record filters whose access keys are obsolete.
 	Result.Insert("DataItemWithObsoleteKeysQueryText");
-	// 
+	// Request of validation of the object's access key.
 	Result.Insert("QueryTextToCheckObjectAccessKey");
-	// 
+	// Query of record filters that are missing in the register of register access keys upon background update.
 	Result.Insert("DataItemsWithoutAccessKeysQueryText");
-	// 
+	// Query of record filters that are missing in the register of register access keys upon recording a new set.
 	Result.Insert("NewBasicFieldsValuesCombinationsQueryTextForExistingRecords");
 	Result.Insert("NewBasicFieldsValuesCombinationsQueryTextForNewRecords");
-	// 
-	// 
+	// Obtain objects or record filters whose access keys have expired
+	// on master object changes (for targeted jobs).
 	Result.Insert("DetailsOfObsoleteAccessKeysForLeadingObjects", New Map);
-	// 
+	// Query of non-existent objects or record filters that are out of use.
 	Result.Insert("ObsoleteDataItemsQueryText");
 	Result.Insert("ObsoleteDataItemsCheckQueryText");
 	Result.Insert("QueryTextForInvalidDataItems");
 	Result.Insert("QueryTextForInvalidDataItemsInCommonRegister");
 	
-	// 
+	// Query of current access keys of register record filters before writing calculated access keys.
 	Result.Insert("CurrentRegisterAccessKeysQueryText");
 	
-	// 
+	// Query of object values or record filters.
 	Result.Insert("DataItemValueForAccessKeysQueryText");
-	// 
+	// Request the memory for object values.
 	Result.Insert("TextOfQueryForInMemoryObjectsValuesForAccessKeys");
-	// 
+	// Query of values from used access keys to compare them with values from objects or record filters.
 	Result.Insert("ValueFromAccessKeysInUseForComparisonQueryText");
-	// 
-	// 
+	// Obtain values from all access keys to compare them with values
+	// from objects or record filters before writing a new key.
 	Result.Insert("ValueFromAllAccessKeysForComparisonQueryText");
-	// 
+	// Query of checking if access key exists before writing a new key.
 	Result.Insert("KeysForComparisonExistenceQueryText");
 	
-	// 
+	// Query of access keys to update users and access groups, for which they are allowed.
 	Result.Insert("AccessKeysQueryTextToUpdateRights");
-	// 
+	// Query of access keys by leading keys to update users and access groups, for which they are allowed.
 	Result.Insert("KeysQueryTextByLeadingKeysToUpdateRights");
-	// 
+	// Query of values from access keys to calculate users and access groups, for which they are allowed.
 	Result.Insert("ValueFromAccessKeysForRightsCalculationQueryText");
-	// 
+	// Query of not used access keys to set date of not using or deletion.
 	Result.Insert("ObsoleteAccessKeysQueryText");
 	
-	Context.Insert("SeparateRegister", True); // 
+	Context.Insert("SeparateRegister", True); // Clarifying a key register for non-reference types.
 	
 	Context.Insert("KeyTables",                                       New Array);
 	Context.Insert("KeyTablesAttributes",                               KeyTableNewAttributes());
@@ -34532,7 +34560,7 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	Context.Insert("PartsOfFilterConditionByLeadingAccessKeys",           New Array);
 	Context.Insert("DetailsOfValidationRequestsOnLeadingObjects",          New Map);
 	
-	// 
+	// Generating a query of data items with obsolete keys.
 	FillTemplatesOfCheckQueryParts(Context);
 	FillMainTableUsedFields(Context);
 	
@@ -34545,7 +34573,7 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	EndDo;
 	ComposeCheckQueryParts(Result, Context);
 	
-	// 
+	// Generating queries of values from data items and keys.
 	For HeaderNumber = 0 To 2 Do
 		AddKeyHeaderFilling(Context, HeaderNumber);
 	EndDo;
@@ -34561,12 +34589,12 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	
 	AddQueryTextOfObsoleteDataItems(Result, Context);
 	
-	// 
+	// Generating right checking queries.
 	FillReadUpdateRightsCheckQueries(Result, Context);
 	
 EndProcedure
 
-// For the procedure, the constraint parameterstructure Constraints.
+// Intended for procedure "RestrictionParametersByRestrictionStructure".
 Procedure FillBasicFieldsMissingTypes(Result, Context)
 	
 	If Context.IsReferenceType Or Context.UsesRestrictionByOwner Then
@@ -34621,7 +34649,7 @@ Procedure FillBasicFieldsMissingTypes(Result, Context)
 	
 EndProcedure
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure AddDateQueryTextOfNextDataItem(Result, Context)
 	
 	If Not Result.ListWithDate And Not Result.ListWithPeriod Then
@@ -34661,7 +34689,7 @@ Procedure AddDateQueryTextOfNextDataItem(Result, Context)
 	
 EndProcedure
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 	
 	If Result.IsReferenceType Then
@@ -34794,11 +34822,11 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 		2 + MaxBasicFieldsCount * 2);
 	
 	For Number = 1 To MaxBasicFieldsCount Do
-		// 
+		// Fields for selection.
 		BasicFilterFields = BasicFilterFields + StrTemplate(",
 		|	AccessKeysForRegisters.Field%1 AS Field%1", Number); // @query-part-1
 		
-		// 
+		// Fields for filter.
 		If Number = MaxBasicFieldsCount Then
 			Filter = "AccessKeysForRegisters.Field%1 > &Field%1"; // @query-part-1
 		Else
@@ -34808,7 +34836,7 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 		BasicFieldsForFilter = BasicFieldsForFilter + TextWithIndent("
 		|AND " + StrTemplate(Filter, Number), Left(TabsString, 2 + Number * 2)); // @query-part-1
 		
-		// 
+		// Fields for ordering.
 		BasicFieldsForOrdering = BasicFieldsForOrdering
 			+ ?(BasicFieldsForOrdering = "", "", ", ") + StrTemplate("Field%1", Number);
 	EndDo;
@@ -34816,7 +34844,7 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 		+ AccessManagementInternalCached.CharacterString(")", MaxBasicFieldsCount);
 	
 	If ValueIsFilled(Result.SeparateKeysRegisterName) Then
-		// 
+		// Request to clear the common register.
 		QueryText = // QueryTextForInvalidDataItemsInCommonRegister
 		"SELECT TOP 995
 		|	&BasicFilterFields,
@@ -34877,13 +34905,13 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 	FirstFieldCheckCondition = "";
 	BasicFieldsForOrderingOnCheck = "";
 	For Each BasicFieldName In BasicFields.UsedItems Do
-		// 
+		// Fields for selection.
 		BasicFilterFieldsOnCheck = BasicFilterFieldsOnCheck + StrTemplate(",
 		|	AccessKeysForRegisters.Field%1 AS Field%1", Number); // @query-part-1
 		BasicFieldsForSelectingFromList = BasicFieldsForSelectingFromList + ?(BasicFieldsForSelectingFromList = "", "", ",
 		|	") + StrTemplate("CurrentList.%1", BasicFieldName);
 		
-		// 
+		// Fields for filter.
 		If Number = BasicFieldsUsedCount Then
 			Filter = "AccessKeysForRegisters.Field%1 > &Field%1"; // @query-part-1
 		Else
@@ -34893,16 +34921,16 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 		BasicFieldsForFilteringOnCheck = BasicFieldsForFilteringOnCheck + TextWithIndent(?(Number = 1, "", "
 		|AND ") + StrTemplate(Filter, Number), Left(TabsString, Number * 2)); // @query-part-1
 		
-		// 
+		// Fields to compare.
 		BasicFieldsToMap = BasicFieldsToMap + ?(BasicFieldsToMap = "", "", "
 		|AND ") + StrTemplate("(CurrentList.%2 = AccessKeysForRegisters.Field%1)", Number, BasicFieldName); // @query-part-1
 		
-		// 
+		// The check condition for the first field.
 		If FirstFieldCheckCondition = "" Then
 			FirstFieldCheckCondition = StrTemplate("CurrentList.%1 IS NULL", BasicFieldName); // @query-part-1
 		EndIf;
 		
-		// 
+		// Fields for ordering.
 		BasicFieldsForOrderingOnCheck = BasicFieldsForOrderingOnCheck
 			+ ?(BasicFieldsForOrderingOnCheck = "", "", ", ") + StrTemplate("Field%1", Number);
 		
@@ -35050,7 +35078,7 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 	
 EndProcedure
 
-// For the procedure, add query texts to the constraint Parameters.
+// Intended for procedure "AddQueriesTextsToRestrictionParameters".
 Procedure FillMainTableUsedFields(Context)
 	
 	If Not ValueIsFilled(Context.ObjectTablesFields.Result) Then
@@ -35082,7 +35110,7 @@ Procedure FillMainTableUsedFields(Context)
 	
 EndProcedure
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure FillTemplatesOfCheckQueryParts(Context)
 	
 	If Context.IsReferenceType Then
@@ -35093,7 +35121,7 @@ Procedure FillTemplatesOfCheckQueryParts(Context)
 	
 EndProcedure
 
-// For the procedure, fill in the templates of the part of the test Request.
+// For the FillTemplatesOfCheckQueryParts procedure.
 Procedure FillTemplatesOfObjectCheckQueryParts(Context)
 	
 	Context.Insert("QueryTextForDataItemsRange");
@@ -35350,7 +35378,7 @@ Procedure FillTemplatesOfObjectCheckQueryParts(Context)
 	|				WHERE
 	|					TabularSection?.Ref = CurrentList.CurrentAccessKey))"; // @query-part-1
 	
-	// 
+	// Requests for the selective check.
 	Context.SpotCheckQueryText =
 	"SELECT DISTINCT
 	|	CurrentList.Ref AS CurrentRef
@@ -35440,7 +35468,7 @@ Procedure FillTemplatesOfObjectCheckQueryParts(Context)
 	
 EndProcedure
 
-// For the procedure, fill in the templates of the part of the test Request.
+// For the FillTemplatesOfCheckQueryParts procedure.
 Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	
 	BasicFields = Context.BasicFields;
@@ -35451,7 +35479,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	ShouldAddFilterByFirstField = FieldsToUseCount > 1
 		And BasicFields.UsedItemsTypes[0].Get().Types().Count() = 1;
 	
-	// 
+	// For a new combination query.
 	BasicFieldsForSelection = "";
 	BasicFieldsConnectionCondition = "";
 	BasicFieldsForGroupingOrOrdering = "";
@@ -35460,29 +35488,29 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	"CurrentRegister.%2 >= &Field%1
 	|	AND ", 1, BasicFields.UsedItems[0]));
 	
-	// 
+	// To request current access keys.
 	FilterCriterion = "";
 	FilterFields = "";
 	
 	If Not ValueIsFilled(Context.SeparateKeysRegisterName) Then
 		Context.SeparateRegister = False;
-		// 
+		// For a new combination query.
 		BasicFieldsConnectionCondition  = "(AccessKeysForRegisters.Register = &RegisterID)";
-		// 
+		// To request current access keys.
 		FilterCriterion                 = "CurrentList.Register = &RegisterID";
-		// 
+		// Intended for requesting a combination containing obsolete keys.
 		FilterFields                    = "CurrentList.Register = &RegisterID";
 	EndIf;
 	
-	// 
+	// For a new combination query.
 	BasicFieldsConnectionCondition = BasicFieldsConnectionCondition + ?(BasicFieldsConnectionCondition = "", "", "
 	|			AND ") + "(AccessKeysForRegisters.AccessOption = &AccessOption)"; // @query-part-1
 	
-	// 
+	// To request current access keys.
 	FilterCriterion = FilterCriterion + ?(FilterCriterion = "", "", "
 	|	AND ") + "CurrentList.AccessOption = &AccessOption"; // @query-part-1
 	
-	// 
+	// Intended for requesting a combination containing obsolete keys.
 	FilterFields = FilterFields + ?(FilterFields = "", "", "
 	|	AND ") + "CurrentList.AccessOption = &AccessOption"; // @query-part-1
 	
@@ -35498,7 +35526,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	For Each BasicFieldName In BasicFields.UsedItems Do
 		Number = Number + 1;
 		
-		// 
+		// For a new combination query.
 		BasicFieldsForSelection = BasicFieldsForSelection + ?(BasicFieldsForSelection = "", "", ",
 		|	") + StrTemplate("CurrentRegister.%2 AS Field%1", Number, BasicFieldName); // @query-part-3
 		
@@ -35519,11 +35547,11 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 		BasicFieldsForFilter1 = BasicFieldsForFilter1 + Filter;
 		BasicFieldsForFilter2 = BasicFieldsForFilter2 + Filter;
 		
-		// 
+		// To request current access keys.
 		FilterCriterion = FilterCriterion + ?(FilterCriterion = "", "", "
 		|	AND ") + StrTemplate("CurrentList.Field%1 = &Field%1", Number) + "_%1"; // @query-part-1
 		
-		// 
+		// Intended for requesting a combination containing obsolete keys.
 		BasicFields.ForSelection = BasicFields.ForSelection + ?(BasicFields.ForSelection = "", "", ",
 		|	") + StrTemplate("CurrentList.Field%1 AS Field%1", Number); // @query-part-3
 		
@@ -35564,7 +35592,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	FilterFields2 = FilterFields1 + "
 		|	AND " + FilterFields2; // @query-part-1
 	
-	// 
+	// Requests for combinations containing obsolete keys.
 	QueryText = // @query-part-2 @query-part-3
 	"SELECT TOP 1
 	|	&FieldsForRangeSelection
@@ -35652,7 +35680,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 		|	CurrentList."));
 	Context.Insert("QueryTextToCheckTabularSection", QueryText);
 	
-	// 
+	// Requests for the selective check.
 	QueryText = // SpotCheckQueryText
 	"SELECT DISTINCT
 	|	&BasicFieldsForSelection
@@ -35721,7 +35749,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	QueryTemplate = StrReplace(QueryTemplate, "&BasicFieldsForSelection", BasicFields.ForSelection);
 	AddCheckQueriesByLeadingLists(QueryTemplate, Context);
 	
-	// 
+	// Requests for new combinations of field values.
 	If Context.ListWithPeriod Then
 		QueryText = // NewCombinationsQueryText
 		"SELECT TOP 995
@@ -35777,7 +35805,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	EndIf;
 	Context.Insert("NewCombinationsQueryText", QueryText);
 	
-	// 
+	// Request the up-to-date access keys.
 	QueryText = // CurrentAccessKeysQueryText
 	"SELECT TOP 2
 	|	CurrentList.AccessKey AS AccessKey
@@ -35790,7 +35818,7 @@ Procedure FillTemplatesOfRegisterCheckQueryParts(Context)
 	
 EndProcedure
 
-// For procedures, fill in the templates of the object's requestcheck, and fill in the templates of the register's requestcheck.
+// For the FillObjectCheckQueryPartsTemplates and FillRegisterCheckQueryPartsTemplates procedures.
 Procedure AddCheckQueriesByLeadingLists(QueryTemplate, Context)
 	
 	QueriesDetails = New Map;
@@ -35818,7 +35846,7 @@ Procedure AddCheckQueriesByLeadingLists(QueryTemplate, Context)
 	
 EndProcedure
 
-// For the procedure, add a checkquery to the leading Lists.
+// For the AddCheckQueriesByLeadingLists procedure.
 Function CheckQueriesByLeadingListsDetails(FiltersConnections, FieldsTypes,
 			LeadingTable, QueryTemplate, Context)
 	
@@ -35857,7 +35885,7 @@ Function CheckQueriesByLeadingListsDetails(FiltersConnections, FieldsTypes,
 	
 EndFunction
 
-// For the procedure, add a checkquery to the leading Lists.
+// For the AddCheckQueriesByLeadingLists procedure.
 Procedure AddCheckQueriesByLeadingListsRefField(LaedingListKind, QueryTemplate, Context)
 	
 	Properties = ?(LaedingListKind = "ByAccessKeys",
@@ -35896,7 +35924,7 @@ Procedure AddCheckQueriesByLeadingListsRefField(LaedingListKind, QueryTemplate, 
 	
 EndProcedure
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure ComposeCheckQueryParts(Result, Context)
 	
 	InsertCommonParametersIntoQuery(Context.QueryTextForDataItemsRange, Context);
@@ -35960,7 +35988,7 @@ Procedure ComposeCheckQueryParts(Result, Context)
 	
 EndProcedure
 
-// 
+// Intended for procedure "ComposeCheckQueryParts".
 Procedure AddQuerySegment(QueryParts, CheckConditionPart, Context,
 			TextForHeader, TextForTabularSection)
 	
@@ -35984,7 +36012,7 @@ Procedure AddQuerySegment(QueryParts, CheckConditionPart, Context,
 	
 EndProcedure
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure ComposeFillQueryParts(Result, Context)
 	
 	QueryText = StrConcat(Context.PartsOfValuesFromObjectsQuery,
@@ -36033,7 +36061,7 @@ Procedure ComposeFillQueryParts(Result, Context)
 	
 EndProcedure
 
-// For the procedure, collect the parts of the query Completion.
+// For the ComposeFillQueriesParts procedure.
 Procedure AddQueryPartOfLeadingKeysRightsSelection(Context)
 	
 	If Context.ConditionPartsToSelectLeadingAccessKeysRights.Count() = 0 Then
@@ -36161,7 +36189,7 @@ Procedure AddQueryPartOfLeadingKeysRightsSelection(Context)
 	
 EndProcedure
 
-// For the procedure, collect the parts of the query Completion.
+// For the ComposeFillQueriesParts procedure.
 Procedure AddQueryPartOfLeadingListsRightsSelection(Context)
 	
 	If Context.ConditionPartsToSelectLeadingListsRights.Count() = 0 Then
@@ -36210,7 +36238,7 @@ Procedure AddQueryPartOfLeadingListsRightsSelection(Context)
 	
 EndProcedure
 
-// For the procedure, collect the parts of the query Completion.
+// For the ComposeFillQueriesParts procedure.
 Procedure AddQueryPartOfRightsSelectionByRightsSettingsOwners(Context)
 	
 	If Context.ConditionPartsToSelectRightsByRightsSettingsOwners.Count() = 0 Then
@@ -36434,7 +36462,7 @@ Procedure AddQueryPartOfRightsSelectionByRightsSettingsOwners(Context)
 	
 EndProcedure
 
-// For the procedure, collect the parts of the query Completion.
+// For the ComposeFillQueriesParts procedure.
 Function AccessKeysQueryTextToUpdateRights(Context)
 	
 	QueryText =
@@ -36457,7 +36485,7 @@ Function AccessKeysQueryTextToUpdateRights(Context)
 	
 EndFunction
 
-// For the procedure, collect the parts of the query Completion.
+// For the ComposeFillQueriesParts procedure.
 Function KeysQueryTextByLeadingKeysToUpdateRights(Context)
 	
 	If Context.PartsOfFilterConditionByLeadingAccessKeys.Count() = 0 Then
@@ -36493,7 +36521,7 @@ Function KeysQueryTextByLeadingKeysToUpdateRights(Context)
 	
 EndFunction
 
-// For the procedure, collect the parts of the query Completion.
+// For the ComposeFillQueriesParts procedure.
 Function ObsoleteAccessKeysQueryText(Context)
 	
 	If Context.IsReferenceType Then
@@ -36568,7 +36596,7 @@ Function ObsoleteAccessKeysQueryText(Context)
 	
 EndFunction
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure FillReadUpdateRightsCheckQueries(Result, Context)
 	
 	If Context.TypeCollectionName = "DocumentJournals" Then
@@ -36893,7 +36921,7 @@ Procedure FillReadUpdateRightsCheckQueries(Result, Context)
 	
 EndProcedure
 
-// For the procedure, fill in the requestcheckreferences and Changes.
+// For the FillReadUpdateRightsCheckQueries procedure.
 Function ConditionFromQueryWithCheckByRightsSettingsOwners()
 	
 	Rows = StrSplit(QueryTextWithCheckByRightsSettingsOwners(), Chars.LF, "");
@@ -36905,7 +36933,7 @@ Function ConditionFromQueryWithCheckByRightsSettingsOwners()
 	
 EndFunction
 
-// For the procedure, fill in the requestcheckreferences and Changes.
+// For the FillReadUpdateRightsCheckQueries procedure.
 Function QueryTextWithCheckByRightsSettingsOwners()
 	
 	Return
@@ -36945,7 +36973,7 @@ Function QueryTextWithCheckByRightsSettingsOwners()
 	
 EndFunction
 
-// For the procedure, fill in the requestcheckreferences and Changes.
+// For the FillReadUpdateRightsCheckQueries procedure.
 Procedure ClarifyKeysRegisterAndConnectionCondition(QueryText, Result, Context, AddSelectionFields = False)
 	
 	If ValueIsFilled(Result.SeparateKeysRegisterName) Then
@@ -37040,7 +37068,7 @@ Procedure ClarifyKeysRegisterAndConnectionCondition(QueryText, Result, Context, 
 	
 EndProcedure
 
-// For Sabbaticalhomes.
+// For the ComposeQueriesParts function.
 Procedure InsertCommonParametersIntoQuery(QueryText, Context)
 	
 	If Context.ForExternalUsers Then
@@ -37082,7 +37110,7 @@ Procedure InsertCommonParametersIntoQuery(QueryText, Context)
 	
 EndProcedure
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure AddKeyHeaderCheck(Context, HeaderNumber)
 	
 	GroupOfFields = Context.FieldsGroups.Get(StrTemplate("Header%1", HeaderNumber));
@@ -37123,7 +37151,7 @@ Procedure AddKeyHeaderCheck(Context, HeaderNumber)
 	
 EndProcedure
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure AddKeyTabularSectionCheck(Context, KeyTabularSectionNumber)
 	
 	TablesByGroups  = Context.AdditionalTablesGroups.TablesByGroups;
@@ -37167,7 +37195,7 @@ Procedure AddKeyTabularSectionCheck(Context, KeyTabularSectionNumber)
 		EndDo;
 	EndIf;
 	
-	// 
+	// Direct connection (checking if required records are in the key).
 	Joins = Joins + "
 	|LEFT JOIN Catalog.AccessKeys.TabularSection? AS TabularSection?
 	|ON (TabularSection?.Ref = CurrentList.CurrentAccessKey)"; // @query-part
@@ -37187,7 +37215,7 @@ Procedure AddKeyTabularSectionCheck(Context, KeyTabularSectionNumber)
 	
 EndProcedure
 
-// For procedures Dobavitsya, ДобавитьПроверкуТабличнойЧастиКлюча.
+// Intended for procedures "AddKeyHeaderCheck" and "AddKeyTabularSectionCheck".
 //
 // Returns:
 //  Structure:
@@ -37208,7 +37236,7 @@ Function CheckConditionPart(Joins, Condition, AdditionalFields, KeyTabularSectio
 	
 EndFunction
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	
 	If Not Context.IsReferenceType And HeaderNumber = 0 Then
@@ -37248,7 +37276,7 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	ConnectionsAndFields = ConnectionsAndFieldsByTables(GroupOfFields, False,
 		HeaderNumber, True).Get("CurrentList");
 	
-	// 
+	// Selecting values from objects to search and create access keys.
 	If Context.IsReferenceType Then
 		QueryText =
 		"SELECT
@@ -37284,7 +37312,7 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	Context.PartsOfValuesFromObjectsQuery.Add(QueryText);
 	Context.PartsOfQueryForInMemoryObjectsValues.Add(QueryText);
 	
-	// 
+	// Selecting values from access keys to compare with the required key values.
 	If HeaderNumber = 0 Then
 		QueryText = 
 		"SELECT
@@ -37329,7 +37357,7 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	QueryText = StrReplace(QueryText, "Header?", StrTemplate("Header%1", HeaderNumber));
 	Context.PartsOfValuesFromObjectsQueryToCompare.Add(QueryText);
 	
-	// 
+	// Checking if access key exists before writing a new key.
 	If HeaderNumber = 0 Then
 		QueryText =
 		"SELECT
@@ -37345,10 +37373,10 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 		Context.QueryPartsOfKeysExistenceToMap.Add(QueryText);
 	EndIf;
 	
-	// 
+	// Query of access keys by leading keys to update users and access groups, for which they are allowed.
 	AddFilterConditionByLeadingAccessKeys(Context, GroupOfFields, HeaderNumber);
 	
-	// 
+	// Selecting values from access keys to calculate users and access groups, to which they are allowed.
 	If HeaderNumber = 0 Then
 		QueryText =
 		"SELECT
@@ -37401,21 +37429,21 @@ Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	QueryText = StrReplace(QueryText, "Header?", StrTemplate("Header%1", HeaderNumber));
 	Context.PartsOfValuesFromKeysQueryToCalculateRights.Add(QueryText);
 	
-	// 
+	// The filter condition of leading access key rights.
 	AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNumber, "ForLeadingKeys");
 	
-	// 
+	// The filter condition of leading list rights.
 	AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNumber, "ForLeadingLists");
 	
-	// 
+	// The filter condition of rights by right setting owners.
 	AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNumber, "ForRightSettingsOwners");
 	
 EndProcedure
 
-// For the procedure, add a placeholder for the key.
+// For the AddKeyHeaderFilling procedure.
 Procedure AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNumber, ConditionAssignment)
 	
-	// 
+	// The selection condition of leading access key rights.
 	For Each FieldProperties In GroupOfFields Do
 		If ConditionAssignment = "ForLeadingKeys"
 		   And FieldProperties.AccessKeySavingTypes.Count() = 0
@@ -37485,14 +37513,14 @@ Procedure AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNum
 	
 EndProcedure
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure AddKeysChoiceWithoutFieldsInHeader(Context)
 	
 	If Context.FieldsGroups.Get("Header0") <> Undefined Then
 		Return;
 	EndIf;
 	
-	// 
+	// Selecting values from access keys to compare with the required key values.
 	QueryText =
 	"SELECT
 	|	AccessKeys.Ref AS CurrentRef
@@ -37511,7 +37539,7 @@ Procedure AddKeysChoiceWithoutFieldsInHeader(Context)
 	
 	Context.PartsOfValuesFromObjectsQueryToCompare.Add(QueryText);
 	
-	// 
+	// Checking if access key exists before writing a new key.
 	QueryText =
 	"SELECT
 	|	TRUE AS TrueValue
@@ -37525,7 +37553,7 @@ Procedure AddKeysChoiceWithoutFieldsInHeader(Context)
 	|	AND &QueryPlanClarification";
 	Context.QueryPartsOfKeysExistenceToMap.Add(QueryText);
 	
-	// 
+	// Selecting values from access keys to calculate users and access groups, to which they are allowed.
 	QueryText =
 	"SELECT
 	|	AccessKeys.Ref AS Ref
@@ -37539,7 +37567,7 @@ Procedure AddKeysChoiceWithoutFieldsInHeader(Context)
 	
 EndProcedure
 
-// For the procedure, add query texts to the constraint Parameters.
+// For the AddQueriesTextsToRestrictionParameters procedure.
 Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	
 	TablesByGroups  = Context.AdditionalTablesGroups.TablesByGroups;
@@ -37553,7 +37581,7 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	
 	ConnectionsAndFieldsByTables = ConnectionsAndFieldsByTables(GroupOfFields, True, , True);
 	
-	// 
+	// Selecting values from objects to search and create access keys.
 	If AdditionalTablesGroup = Undefined Then
 		ObjectTabularSectionAlias = Context.ObjectTabularSectionsAliases.Get(KeyTabularSectionNumber);
 		If ObjectTabularSectionAlias = Undefined Then
@@ -37667,8 +37695,8 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 			QueryText = StrReplace(QueryText, " #Joins", TextWithIndent(Joins, "		"));
 			
 			If ConnectionsInMemory <> ConnectionsInDatabase Then
-				// 
-				// 
+				// ACC:96-off - No.434. Using JOIN is acceptable as the rows should be unique and
+				// the dataset is small.
 				InMemoryQueryText =
 				"SELECT DISTINCT
 				|	CurrentList.Ref AS CurrentRef,&SelectionFields
@@ -37689,8 +37717,8 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 				|ORDER BY
 				|	CurrentRef,&OrderingFields
 				|TOTALS BY
-				|	CurrentRef"; // 
-				// 
+				|	CurrentRef"; // @query-part-1
+				// ACC:96-on.
 				InMemoryQueryText = StrReplace(InMemoryQueryText, ",&SelectionFields", TextWithIndent(SelectionFields, "	"));
 				InMemoryQueryText = StrReplace(InMemoryQueryText, ",&OrderingFields", OrderingFields); 
 				InMemoryQueryText = StrReplace(InMemoryQueryText, " #ConnectionsInDatabase",
@@ -37720,10 +37748,10 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	Context.PartsOfQueryForInMemoryObjectsValues.Add(
 		?(ValueIsFilled(InMemoryQueryText), InMemoryQueryText, QueryText));
 	
-	// 
+	// Query of access keys by leading keys to update users and access groups, for which they are allowed.
 	AddFilterConditionByLeadingAccessKeys(Context, GroupOfFields, , KeyTabularSectionNumber);
 	
-	// 
+	// Selecting values from access keys to compare with the required key values.
 	QueryText =
 	"SELECT
 	|	TabularSection?.Ref AS CurrentRef,&Attributes
@@ -37747,7 +37775,7 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	QueryText = StrReplace(QueryText, "TabularSection?", StrTemplate("TabularSection%1", KeyTabularSectionNumber));
 	Context.PartsOfValuesFromObjectsQueryToCompare.Add(QueryText);
 	
-	// 
+	// Selecting values from access keys to calculate users and access groups, to which they are allowed.
 	QueryText =
 	"SELECT
 	|	KeysBatch.Ref AS Ref,&Attributes
@@ -37766,21 +37794,21 @@ Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	QueryText = StrReplace(QueryText, "TabularSection?", StrTemplate("TabularSection%1", KeyTabularSectionNumber));
 	Context.PartsOfValuesFromKeysQueryToCalculateRights.Add(QueryText);
 	
-	// 
+	// The filter condition of leading access key rights.
 	AddRightsFilterConditionForKeyTabularSection(Context,
 		GroupOfFields, KeyTabularSectionNumber, "ForLeadingKeys");
 	
-	// 
+	// The filter condition of leading list rights.
 	AddRightsFilterConditionForKeyTabularSection(Context,
 		GroupOfFields, KeyTabularSectionNumber, "ForLeadingLists");
 	
-	// 
+	// The filter condition of rights by right setting owners.
 	AddRightsFilterConditionForKeyTabularSection(Context,
 		GroupOfFields, KeyTabularSectionNumber, "ForRightSettingsOwners");
 	
 EndProcedure
 
-// For the procedure, add a placeholder for the table part of the Key.
+// For the AddKeyTabularSectionFilling procedure.
 Procedure AddRightsFilterConditionForKeyTabularSection(Context, GroupOfFields,
 			KeyTabularSectionNumber, ConditionAssignment)
 	
@@ -37848,7 +37876,7 @@ Procedure AddRightsFilterConditionForKeyTabularSection(Context, GroupOfFields,
 	
 EndProcedure
 
-// For procedures, add a placeholder for the key, add a placeholder for the table part of the Key.
+// For the AddKeyHeaderFilling and AddKeyTabularSectionFilling procedures.
 Procedure AddKeyTableDetails(KeyTableName, GroupOfFields, Context)
 	
 	KeyTableFields = New Array;
@@ -37862,7 +37890,7 @@ Procedure AddKeyTableDetails(KeyTableName, GroupOfFields, Context)
 	
 EndProcedure
 
-// For the add fill-in procedure, add fill-in of the Tab key part.
+// For the AddKeyHeaderFilling and AddKeyTabularSectionFilling procedure.
 Procedure AddFilterConditionByLeadingAccessKeys(Context, GroupOfFields, HeaderNumber = 0, KeyTabularSectionNumber = 0)
 	
 	FilterCriterion = "";
@@ -37906,7 +37934,7 @@ Procedure AddFilterConditionByLeadingAccessKeys(Context, GroupOfFields, HeaderNu
 	
 EndProcedure
 
-// For procedures Dobavitsya, ДобавитьПроверкуТабличнойЧастиКлюча.
+// For the AddKeyHeaderCheck and AddKeyTabularSectionCheck procedures.
 Function ConnectionsAndFieldsByTables(GroupOfFields, KeyTabularSection, HeaderNumber = 0, ForValuesSelection = False)
 	
 	ConnectionsAndFieldsByTables = New Map;
@@ -38001,7 +38029,7 @@ Function ConnectionsAndFieldsByTables(GroupOfFields, KeyTabularSection, HeaderNu
 	
 EndFunction
 
-// For a function to Sedimentological.
+// For the ConnectionsAndFieldsByTables function.
 Function FieldComparison(FieldProperties)
 	
 	FieldTypesCount = FieldProperties.EndFieldType.Types().Count();
@@ -38016,7 +38044,7 @@ Function FieldComparison(FieldProperties)
 	WithoutClarificationUndefined = Not FieldProperties.HasAdjustmentUndefined Or WithoutUndefinedValue;
 	WithoutClarificationNull         = Not FieldProperties.HasAdjustmentNull         Or NoNullValue;
 	
-	// 
+	// Saving access keys only.
 	If FieldProperties.EmptyRefSavingTypes.Count() = 0
 	   And WithoutClarificationUndefined
 	   And WithoutClarificationNull
@@ -38026,7 +38054,7 @@ Function FieldComparison(FieldProperties)
 		|						VALUE(Enum.AdditionalAccessValues.Null)))"; // @query-part-1
 	EndIf;
 	
-	// 
+	// Saving access value groups only.
 	If FieldProperties.EmptyRefSavingTypes.Count() = 0
 	   And WithoutClarificationUndefined
 	   And WithoutClarificationNull
@@ -38047,7 +38075,7 @@ Function FieldComparison(FieldProperties)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Saving values only.
 	If Not HasSimpleType(FieldProperties.EndFieldType)
 	   And FieldTypesCount = 1
 	   And FieldProperties.ValueSavingTypes.Count() = FieldTypesCount Then
@@ -38062,7 +38090,7 @@ Function FieldComparison(FieldProperties)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Saving a reference type.
 	If WithoutClarificationNull
 	   And FieldTypesCount = 1
 	   And FieldProperties.TypeSavingTypes.Count() = FieldTypesCount
@@ -38079,7 +38107,7 @@ Function FieldComparison(FieldProperties)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Saving one simple type.
 	If WithoutClarificationNull
 	   And FieldTypesCount = 1
 	   And FieldProperties.SimpleTypeSavingTypes.Count() = 1 Then
@@ -38093,7 +38121,7 @@ Function FieldComparison(FieldProperties)
 		|AND (Header?.Value? = VALUE(Enum.AdditionalAccessValues.ProhibitedType))"; // @query-part-1
 	EndIf;
 	
-	// 
+	// Saving the ValidType value only.
 	If FieldProperties.AllowedTypeSavingTypes.Count() = FieldTypesCount Then
 		Return "
 		|AND (Header?.Value? = VALUE(Enum.AdditionalAccessValues.ValidType))"; // @query-part-1
@@ -38216,7 +38244,7 @@ Function FieldComparison(FieldProperties)
 	
 EndFunction
 
-// For the field Comparison function.
+// For the FieldComparison function.
 Procedure AddCheckByTypes(ChecksByTypes, InitialTypes, Validation, AdditionalProperty = "", SkipBoolean = False)
 	
 	Types = New Array;
@@ -38242,7 +38270,7 @@ Procedure AddCheckByTypes(ChecksByTypes, InitialTypes, Validation, AdditionalPro
 	
 EndProcedure
 
-// For the function Addproverkushapkiklyuch.
+// For the AddKeyHeaderCheck function.
 Procedure FillAliasByAttributeNumber(Joins, Field, AttributeNumber, Alias)
 	
 	AliasWithNumber = StrReplace(Alias, "?", AttributeNumber);
@@ -38252,14 +38280,14 @@ Procedure FillAliasByAttributeNumber(Joins, Field, AttributeNumber, Alias)
 	
 EndProcedure
 
-// For the functions of Dobavitsya, Sravneniya.
+// For the AddKeyHeaderCheck and FieldComparison functions.
 Function TextWithIndent(Text, Indent)
 	
 	Return StrReplace(Text, Chars.LF, Chars.LF + Indent);
 	
 EndFunction
 
-// For the compare Field function, add the reference Field.
+// For the FieldComparison and AddBasicField functions.
 Function HasSimpleType(TypeDescription)
 	
 	Return TypeDescription.ContainsType(Type("Boolean"))
@@ -38277,7 +38305,7 @@ EndFunction
 
 #Region TransformRestrictionsTextsIntoStructures
 
-// See also Access Management.Disassembled constraint.
+// See also AccessManagement.ParsedRestriction.
 //
 // Returns:
 //  Structure:
@@ -38309,7 +38337,7 @@ EndFunction
 
 // Returns:
 //   Structure:
-//     * MainTable        - String -  a table that is restricted.
+//     * MainTable        - String - the table being restricted.
 //     * RestrictionText       - String
 //     * LanguageSyntax         - See LanguageSyntax
 //     * TablesFields             - See NewTablesFields
@@ -38326,7 +38354,7 @@ EndFunction
 
 // Returns:
 //   Structure:
-//     * MainTable        - String -  a table that is restricted.
+//     * MainTable        - String - the table being restricted.
 //     * RestrictionText       - String
 //     * LanguageSyntax         - See LanguageSyntax
 //     * TablesFields             - See NewTablesFields
@@ -38348,7 +38376,7 @@ EndFunction
 
 // Returns:
 //   Map of KeyAndValue:
-//     * Key     - String -  name of the collection of metadata objects, such as Directories.
+//     * Key     - String - a name of the metadata object collection, for example, Catalogs.
 //     * Value - See NewCollectionComponents
 //
 Function NewTablesFields()
@@ -38359,7 +38387,7 @@ EndFunction
 
 // Returns:
 //   Map of KeyAndValue:
-//     * Key     - String -  the name of the table (object metadata) to upper case.
+//     * Key     - String - a table (metadata object) name in uppercase.
 //     * Value - See NewTableProperties
 //
 Function NewCollectionComponents()
@@ -38370,19 +38398,19 @@ EndFunction
 
 // Returns:
 //   Structure:
-//     * TableExists - Boolean -  False (to fill in True, if it exists).
+//     * TableExists - Boolean - False (True to fill in, if exists).
 //     * IsMainTable - Boolean
 //     * Sources - Array
 //     * FirstField - Undefined
 //     * Fields - Map of KeyAndValue:
-//         ** Key     - String -  the name of the property in uppercase, including dots,
-//                                for example, " OWNER.ORGANIZATION", " PRODUCTS.NOMENCLATURE".
+//         ** Key     - String - an attribute name in uppercase, including dot-separated,
+//                                for example, OWNER.COMPANY, GOODS.PRODUCTS.
 //         ** Value - See NewFieldProperties
 //     * Predefined - Map of KeyAndValue:
-//         ** Key     - String -  name of the predefined element.
+//         ** Key     - String - a predefined item name.
 //         ** Value - See NewPredefinedOptionProperties
 //     * Extensions - Map of KeyAndValue:
-//         ** Key - String -  name of the third table name, for example, the name of the table part.
+//         ** Key - String - a name of the third table name, for example, a tabular section name.
 //         ** Value - See NewExtensionProperties
 //
 Function NewTableProperties()
@@ -38393,31 +38421,31 @@ EndFunction
 
 // Returns:
 //   Structure:
-//     * FieldWithError - Number -  0 (to fill in if the field contains an error,
-//          if 1, then an error in the name of the first part of the field,
-//          if 2, then an error in the name of the second part of the field, i.e. after the first dot).
-//     * ErrorKind - String -  "Not Found", "Tabular Part Of The Field",
-//          "Tabular Part Of The Message".
-//     * Collection - String -  empty string (to be filled in if the first part
-//           of the field exists, i.e. the part of the field up to the first point). Options: "Details",
-//           "Tablecreate", "Standartizaciisa", "Standartneftegaz",
-//           "Measurements", "Resources", "Graphs", "Priznayutsya, Prizmaticheskoj",
-//           "Requisitionists", "SPETSIALNAYA". Special fields are
-//           "Value" - tables have " Constant.* ",
-//           "Logger" and "Period" - for tables " Sequence.* ",
-//           "Object of calculation", "type of Calculation" in the tables " register of Calculation.<Name>.<Recalculation name>".
-//           Fields after the first dot can only apply to collections: "Banking Details",
-//           "Standard Requirements", "Accounting Attributes", "Forwarding Details". 
-//           You don't need to Refine the collection for these parts of the field name.
+//     * FieldWithError - Number - 0 (for filling, if the field has an error.
+//          If 1, then there is an error in the name of the first part of the field.
+//          If 2, then an error is in the name of the second part of the field, i.e. after the first dot).
+//     * ErrorKind - String - NotFound, TabularSectionWithoutField,
+//          TabularSectionAfterDot.
+//     * Collection - String - a blank row (for filling, if the first part
+//           of the field exists, i.e. a field part before the first dot). Options: Attributes,
+//           TabularSections, StandardAttributes, StandardTabularSections,
+//           Dimensions, Resources, Graphs, AccountingFlags, ExtDimensionAccountingFlags,
+//           AddressingAttributes, SpecialFields. Special fields are
+//           Value - for the Constant.* tables,
+//           Recorder and Period - for the Sequence.* tables,
+//           RecalculationObject, CalculationType for the CalculationRegister.<Name>.<RecalculationName> tables.
+//           Fields after the first dot can be related only to the following collections: Attributes,
+//           StandardAttributes, AccountingFlags, and AddressingAttributes. You do not need to specify a collection
+//           for these parts of the field name.
 //     * ContainsTypes - Map of KeyAndValue:
-//         ** Key - String -  full name of the reference table in uppercase.
+//         ** Key - String - a full name of the reference table in uppercase.
 //         ** Value - Structure:
-//              *** TypeName     - String -  the name of the type whose presence we need to check.
-//              *** ContainsType - Boolean -  False (to fill in True
+//              *** TypeName     - String - a type name whose presence you need to check.
+//              *** ContainsType - Boolean - False (True for filling in,
 //                                         if the field of the last field has a type).
 //     * FirstSource - Structure:
-//         ** Key     - ValueTableRow -  string-source of the first field.
-//         ** Value - String - Table
+//         ** Key     - ValueTableRow - a string source of the first field.
+//         ** Value - String - a table
 //
 Function NewFieldProperties()
 	
@@ -38427,7 +38455,7 @@ EndFunction
 
 // Returns:
 //   Structure:
-//     * NameExists - Boolean -  False (for filling in True, if there is a predefined one).
+//     * NameExists - Boolean - False (True to fill in, if there is a predefined item).
 //     * Sources - Array
 //
 Function NewPredefinedOptionProperties()
@@ -38438,12 +38466,12 @@ EndFunction
 
 // Returns:
 //   Structure:
-//     * TableExists - Boolean -  False (to fill in True, if it exists).
+//     * TableExists - Boolean - False (True to fill in, if exists).
 //     * Sources - Array
 //     * FirstField - Undefined
 //     * Fields - Map of KeyAndValue:
-//         ** Key     - String -  the name of the property in uppercase, including dots,
-//                                for example, " OWNER.ORGANIZATION", " PRODUCTS.NOMENCLATURE".
+//         ** Key     - String - an attribute name in uppercase, including dot-separated,
+//                                for example, OWNER.COMPANY, GOODS.PRODUCTS.
 //         ** Value - See NewFieldProperties
 //
 Function NewExtensionProperties()
@@ -38453,7 +38481,7 @@ Function NewExtensionProperties()
 EndFunction
 
 
-// See also Managing access.Constraint structurereferences
+// See also AccessManagement.RestrictionStructure
 //
 // Parameters:
 //  ParsedRestriction - See ParsedRestriction
@@ -38462,7 +38490,7 @@ EndFunction
 //   Structure:
 //     * ErrorsDescription           - See ErrorsDescription
 //     * AdditionalTables    - Array of See NewConnectionDetails
-//     * MainTableAlias - String -  filled in if additional tables are specified.
+//     * MainTableAlias - String - filled in if additional tables are specified.
 //     * ReadRestriction        - See NodeDetails
 //     * UpdateRestriction     - See NodeDetails
 //
@@ -38473,7 +38501,7 @@ Function RestrictionStructure(ParsedRestriction) Export
 	MarkIncorrectFieldsTablesAndFieldsTypesNames(ParsedRestriction.TablesFields,
 		InternalData);
 	
-	// 
+	// Populate the found errors.
 	ErrorsDescription = ErrorsDescription();
 	
 	Table = InternalData.CharsetsTable;
@@ -38507,7 +38535,7 @@ Function RestrictionStructure(ParsedRestriction) Export
 	RestrictionStructure.Insert("ReadRestriction",        RestrictionParts.ReadRestriction);
 	RestrictionStructure.Insert("UpdateRestriction",     RestrictionParts.UpdateRestriction);
 	
-	// 
+	// Additional information for internal use.
 	TableTypeName = StrSplit(InternalData.MainTable, ".")[0];
 	TablesTypeProperties = InternalData.LanguageSyntax.TablesTypes.ByNames.Get(Upper(TableTypeName));
 	
@@ -38554,10 +38582,10 @@ EndFunction
 
 // Returns:
 //  Structure:
-//    * LineNumber    - Number  -  number of the line in the restriction text where the error was found.
-//    * PositionInRow - Number  -  the position in the constraint text line where the error was found.
-//    * ErrorText    - String -  error description.
-//    * ErrorString   - String -  the string of the restriction text where the error was found.
+//    * LineNumber    - Number  - the number of the restriction text string where an error was found.
+//    * PositionInRow - Number  - the position in the restriction text string where an error was found.
+//    * ErrorText    - String - Error details.
+//    * ErrorString   - String - the restriction text string where an error was found.
 //
 Function ErrorProperties()
 	
@@ -38565,17 +38593,17 @@ Function ErrorProperties()
 	
 EndFunction
 
-// Generates the full text of access restriction description errors with an extension
-// that can be specified as the text for calling an exception.
+// Generates a full text of errors in access restriction description with an addition
+// that can be specified as a text to call an exception.
 //
 // Parameters:
-//  FullName               - String    -  full name of the list table.
-//  ErrorsDescription          - Structure -  the value returned by the constraint Struct function.
-//  ForExternalUsers - Boolean    -  if passed True, then the error text will contain
-//                                        the restriction assignment for external users.
+//  FullName               - String    - a full name of a list table.
+//  ErrorsDescription          - Structure - a value returned by the RestrictionStructure function.
+//  ForExternalUsers - Boolean    - if True is passed, an error text will contain
+//                                        the restriction purpose for external users.
 //
 // Returns:
-//  String - 
+//  String - a text to call an exception.
 //
 Function ErrorsTextToCallException(FullName, ErrorsDescription, ForExternalUsers, InManagerModule)
 	
@@ -38662,7 +38690,7 @@ Function ErrorsTextToCallException(FullName, ErrorsDescription, ForExternalUsers
 	
 EndFunction
 
-// For the structure Constraint function.
+// For the RestrictionStructure function.
 Procedure AddError(String, ErrorsDescription, InternalData, RowNumberLength)
 	
 	PositionInText = String.Position;
@@ -38706,7 +38734,7 @@ Procedure AddError(String, ErrorsDescription, InternalData, RowNumberLength)
 	
 EndProcedure
 
-// For the structure Constraint function.
+// For the RestrictionStructure function.
 Function NumberedRestrictionTextWithErrorsMarks(RestrictionText, Errors, RowNumberLength)
 	
 	RowsCount = StrLineCount(RestrictionText);
@@ -38740,7 +38768,7 @@ Function NumberedRestrictionTextWithErrorsMarks(RestrictionText, Errors, RowNumb
 	
 EndFunction
 
-// For the structure Constraint function.
+// For the RestrictionStructure function.
 Function AllowedTemplatesDetails()
 	
 	If ScriptVariantRussian() Then
@@ -38803,7 +38831,7 @@ Function AllowedTemplatesDetails()
 	
 EndFunction
 
-// For the procedure, add an Error.
+// For the AddError procedure.
 Function PositionCoordinatesInText(Text, PositionInText)
 	
 	Result = New Structure;
@@ -38829,30 +38857,30 @@ EndFunction
 
 #Region LexicalAnalysis
 
-// For the function parsed Constraint.
-// Decomposes text into a table of character sets in which:
-// - no indentation characters (spaces, tabs, line feeds);
-// - characters of arbitrary strings and numbers are highlighted;
-// - identified key words and operations;
-// - checked the format of names and numbers;
-// - added errors with descriptions.
+// For the ParsedRestriction function.
+// Splits the text in a table of character sets, in which:
+// - There are no indent characters (spaces, tabs, line breaks).
+// - Characters of arbitrary strings and numbers are highlighted.
+// - Keywords and operations are defined.
+// - Format of names and numbers is checked.
+// - Errors with description are added.
 // 
 // Parameters:
-//  Restriction text-String - text of access restriction.
+//  RestrictionText - String - an access restriction text.
 //
 // Returns:
 //  ValueTable:
-//    * Chars       - String -  a character, a pair of characters, or a word.
-//    * Position       - Number  -  position of characters in the restriction text.
-//    * Kind           - String -  "Key-Word", "Operation", "Name", "Separator",
-//                               "Number", "Custom String", "Invalid Character", "End".
-//    * Type           - String -  type for types "Kuchevasova" and "Operation".
-//    * Priority     - Number  -  the priority for the types of "Kuchevasova" and "Operation".
-//    * Refinement     - Number  -  numeric value for the "Number" type.
-//                    - String - 
-//    * IsReserve     - Boolean -  if True, then this is a reserved operation or keyword.
-//    * ErrorPosition - Number  -  the position of the error in the constraint text, if the error text is not empty.
-//    * ErrorText   - String -  error text, if an error is found.
+//    * Chars       - String - a character, a pair of characters, or a word.
+//    * Position       - Number  - a position of characters in the restriction text.
+//    * Kind           - String - "KeyWord", "Operation", "Name", "Separator",
+//                               "Number", "ArbitraryString", "ProhibitedChar", "End".
+//    * Type           - String - a type for the "KeyWord" and "Operation" kinds.
+//    * Priority     - Number  - a priority for the "KeyWord" and "Operation" kinds.
+//    * Refinement     - Number  - a numeric value for the "Number" kind.
+//                    - String - a name for the "KeyWord" kind, a string of characters for the "ArbitraryString" kind.
+//    * IsReserve     - Boolean - if True, this is a reserved operation or a keyword.
+//    * ErrorPosition - Number  - an error position in a restriction text if the error text is not blank.
+//    * ErrorText   - String - an error text if an error occurs.
 //
 Function CharsetsTable(InternalData)
 	
@@ -38878,7 +38906,7 @@ Function CharsetsTable(InternalData)
 	LanguageSyntax = InternalData.LanguageSyntax;
 	LanguageChars = LanguageSyntax.LanguageChars;
 	
-	CharsetKind = ""; // 
+	CharsetKind = ""; // Word, ArbitraryString, Operation.
 	CharsetPosition = 0;
 	Charset = New Array;
 	TableRow = Undefined;
@@ -38886,12 +38914,12 @@ Function CharsetsTable(InternalData)
 	For CharacterNumber = 1 To RestrictionTextLength Do
 		Char = Mid(RestrictionText, CharacterNumber, 1);
 		CharType = LanguageChars.Get(Char);
-		// 
+		// Processing word characters first as they are the most common.
 		If CharType = "WordChar" And CharsetKind = "Word" Then
 			Charset.Add(Char);
 			Continue;
 		EndIf;
-		// 
+		// Processing an arbitrary string of characters.
 		If CharsetKind = "ArbitraryLine" Then
 			If CharType = "LineLimiter" Then
 				If Mid(RestrictionText, CharacterNumber + 1, 1) <> Char Then
@@ -38908,14 +38936,14 @@ Function CharsetsTable(InternalData)
 			Continue;
 		EndIf;
 		If CharsetKind = "Word" Then
-			// 
-			// 
+			// The situation when "CharType" is "WordChar" was covered at the beginning of the cycle.
+			// For other characters, the word is considered finished and should be added to the tree.
 			CharsetKind = "";
 			AddWordToCharsetsTable(CharsetsTable,
 				Charset, CharsetPosition, LanguageSyntax);
 			Charset = New Array;
 		EndIf;
-		// 
+		// Processing a set of composite separators.
 		If CharsetKind = "Operation" Then
 			If CharType = "OperationChar" Then
 				Charset.Add(Char);
@@ -38926,7 +38954,7 @@ Function CharsetsTable(InternalData)
 				Charset, CharsetPosition, LanguageSyntax);
 			Charset = New Array;
 		EndIf;
-		// 
+		// Processing the first character of character sets.
 		If CharsetKind = "" Then
 			If CharType = "WordChar" Then
 				CharsetKind = "Word";
@@ -38949,7 +38977,7 @@ Function CharsetsTable(InternalData)
 				Continue;
 			EndIf;
 		EndIf;
-		// 
+		// Process individual characters.
 		If CharType = "Indent" Then
 			Continue;
 		EndIf;
@@ -38986,14 +39014,14 @@ Function CharsetsTable(InternalData)
 	
 	LastRow = CharsetsTable.Add();
 	LastRow.Position = StrLen(RestrictionText) + 1;
-	LastRow.Kind = "End"; // 
+	LastRow.Kind = "End"; // To set the lack of description error text.
 	CharsetsTable.Indexes.Add("Kind, Refinement");
 	
 	Return CharsetsTable;
 	
 EndFunction
 
-// For the table of character Sets function.
+// For the CharsetsTable function.
 Procedure AddWordToCharsetsTable(Table,
 			Charset, CharsetPosition, LanguageSyntax)
 	
@@ -39018,7 +39046,7 @@ Procedure AddWordToCharsetsTable(Table,
 		Return;
 	EndIf;
 	
-	// 
+	// The word is a name or a number.
 	NumbersChars = LanguageSyntax.NumbersChars;
 	
 	If Charset[0] = "." Then
@@ -39071,7 +39099,7 @@ Procedure AddWordToCharsetsTable(Table,
 	
 EndProcedure
 
-// For the table of character Sets function.
+// For the CharsetsTable function.
 Procedure AddOperationToCharsetsTable(Table,
 			Charset, CharsetPosition, LanguageSyntax)
 	
@@ -39097,7 +39125,7 @@ Procedure AddOperationToCharsetsTable(Table,
 	
 EndProcedure
 
-// For the function parsed Constraint and indirectly for many others.
+// For the ParsedRestriction function and for many other functions indirectly.
 //
 // Returns:
 //  FixedStructure:
@@ -39120,12 +39148,12 @@ Function LanguageSyntax() Export
 	
 EndFunction
 
-// For the syntax Language function.
+// For the LanguageSyntax function.
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String - Char
-//    * Value - String -  type of symbol
+//    * Key - String - a char
+//    * Value - String - a char kind
 //
 Function LanguageChars()
 	
@@ -39171,7 +39199,7 @@ Function LanguageChars()
 	LanguageChars.Insert("<", "OperationChar");
 	LanguageChars.Insert(">", "OperationChar");
 	
-	// 
+	// Not supported.
 	LanguageChars.Insert("+", "OperationChar");
 	LanguageChars.Insert("-", "OperationChar");
 	LanguageChars.Insert("*", "OperationChar");
@@ -39181,12 +39209,12 @@ Function LanguageChars()
 	
 EndFunction
 
-// For the syntax Language function.
+// For the LanguageSyntax function.
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String - Char
-//    * Value - Boolean - True
+//    * Key - String - a char
+//    * Value - Boolean - True.
 //
 Function NumbersChars()
 	
@@ -39200,11 +39228,11 @@ Function NumbersChars()
 	
 EndFunction
 
-// For the syntax Language function.
+// For the LanguageSyntax function.
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String -  the word in Russian and English languages.
+//    * Key - String - the word's English and Russian translation.
 //    * Value - See WordProperties
 //
 Function LanguageWords()
@@ -39312,7 +39340,7 @@ Function LanguageWords()
 	AddLanguageWord(Words, "Булево",       // @Non-NLS
 	                                          "Boolean",   "TypeName");
 	
-	// 
+	// Not supported, reserved words.
 	AddLanguageWord(Words, "Выбрать",             // @Non-NLS
 	                                                 "Select",          "NotDefined",   , , True);
 	AddLanguageWord(Words, "Первые",              // @Non-NLS
@@ -39380,11 +39408,11 @@ Function LanguageWords()
 	
 EndFunction
 
-// For the syntax Language function.
+// For the LanguageSyntax function.
 // 
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String -  the word in Russian and English languages.
+//    * Key - String - the word's English and Russian translation.
 //    * Value - See WordProperties
 //
 Function LanguageOperations()
@@ -39394,7 +39422,7 @@ Function LanguageOperations()
 	AddLanguageWord(LanguageOperations, "=",  "=",  "Connector", , 4);
 	AddLanguageWord(LanguageOperations, "<>", "<>", "Connector", , 4);
 	
-	// 
+	// Unsupported, reserved operations.
 	AddLanguageWord(LanguageOperations, "<",  "<",  "Connector", , 4, True);
 	AddLanguageWord(LanguageOperations, "<=", "<=", "Connector", , 4, True);
 	AddLanguageWord(LanguageOperations, ">",  ">",  "Connector", , 4, True);
@@ -39408,7 +39436,7 @@ Function LanguageOperations()
 	
 EndFunction
 
-// For functions of the word Language and operation Language.
+// For the LanguageWords and LanguageOperations functions.
 Procedure AddLanguageWord(Words, LanguageRussian, LanguageEnglish, WordType,
 			Uppercase = True, Priority = 0, IsReserve = False)
 	
@@ -39420,14 +39448,14 @@ Procedure AddLanguageWord(Words, LanguageRussian, LanguageEnglish, WordType,
 	
 EndProcedure
 
-// For the procedure add a language Word.
+// For the AddLanguageWord procedure.
 //
 // Returns:
 //  FixedStructure:
-//    * Id  - String -  language word in the configuration language (Russian or English).
-//    * LanguageRussian    - String -  the word of the language in Russian.
-//    * LanguageEnglish - String -  word of the language in English.
-//    * Type            - String -  name of the word type.
+//    * Id  - String - the word in the configuration language (English or Russian).
+//    * LanguageRussian    - String - the word in Russian.
+//    * LanguageEnglish - String - the word in English.
+//    * Type            - String - a word type name.
 //    * Uppercase - Boolean
 //    * Priority      - Number
 //    * IsReserve      - Boolean
@@ -39447,15 +39475,15 @@ Function WordProperties(LanguageRussian, LanguageEnglish, WordType, Uppercase, P
 	
 EndFunction
 
-// For the syntax Language function.
+// For the LanguageSyntax function.
 //
 // Returns:
 //   Structure:
 //     * ByNames - Map of KeyAndValue:
-//         ** Key - String -  name of the table type in Russian and English.
+//         ** Key - String - a table type name in English and Russian.
 //         ** Value - See TablesTypeProperties
 //     * ByCollections - Map of KeyAndValue:
-//         ** Key - String -  name of the collection in the configuration language (Russian or English).
+//         ** Key - String - the collection name in the configuration language (English or Russian).
 //         ** Value - See TablesTypeProperties
 //
 Function TablesTypes()
@@ -39464,7 +39492,7 @@ Function TablesTypes()
 	TablesTypes.Insert("ByNames",     New Map);
 	TablesTypes.Insert("ByCollections", New Map);
 	
-	// 
+	// Setting table type names.
 	AddTablesType(TablesTypes, "ПланОбмена",             // @Non-NLS
 	                                                        "ExchangePlan",               "ExchangePlans");
 	AddTablesType(TablesTypes, "КритерийОтбора",         // @Non-NLS
@@ -39502,7 +39530,7 @@ Function TablesTypes()
 	AddTablesType(TablesTypes, "Задача",                 // @Non-NLS
 	                                                        "Task",                       "Tasks");
 	
-	// 
+	// Setting main properties of the main table types.
 	TablesTypesNames = "ExchangePlan,Catalog,Document,ChartOfCharacteristicTypes,ChartOfAccounts,ChartOfCalculationTypes,BusinessProcess,Task";
 	SetTablesTypeProperty(TablesTypes, TablesTypesNames, "IsReferenceType", True);
 	SetTablesTypeProperty(TablesTypes, TablesTypesNames, "HasLimit", True);
@@ -39522,7 +39550,7 @@ Function TablesTypes()
 	AddTablesTypeExtension(TablesTypes, TablesTypesNames, "Изменения", // @Non-NLS
 	                                                                        "Changes", "Prohibited");
 	
-	// 
+	// Setting main register properties.
 	TablesTypesNames = "InformationRegister,CalculationRegister";
 	SetTablesTypeProperty(TablesTypes,     TablesTypesNames, "CommonAttributes",       "Allowed2");
 	AddTablesTypeFieldsCollection(TablesTypes, TablesTypesNames, "Resources",              "Allowed2");
@@ -39542,7 +39570,7 @@ Function TablesTypes()
 	AddTablesTypeExtension(TablesTypes, TablesTypesNames, "Изменения", // @Non-NLS
 	                                                                        "Changes", "Prohibited");
 	
-	// 
+	// Setting some of the earlier mentioned properties for other table types.
 	SetTablesTypeProperty(TablesTypes,     "Sequence", "HasLimit", True);
 	AddTablesTypeFieldsCollection(TablesTypes, "Sequence", "Dimensions", "Allowed2");
 	
@@ -39569,7 +39597,7 @@ Function TablesTypes()
 	                                                                             "Points",
 	                                                                             "Prohibited");
 	
-	// 
+	// Setting special properties.
 	SetTablesTypeProperty(TablesTypes, "ChartOfAccounts", "ExtDimensionAccountingFlags", "Allowed2");
 	
 	AddTablesTypeFieldsCollection(TablesTypes, "DocumentJournal", "Columns",              "Allowed2");
@@ -39582,7 +39610,7 @@ Function TablesTypes()
 	TablesTypesNames = "Catalog,Enum,ChartOfCharacteristicTypes,ChartOfAccounts,ChartOfCalculationTypes";
 	SetTablesTypeProperty(TablesTypes, TablesTypesNames, "HasPredefined", True);
 	
-	// 
+	// Clarifying standard fields of table types.
 	TablesTypesNames = "Document,InformationRegister,AccumulationRegister,AccountingRegister";
 	AddTablesTypeField(TablesTypes, TablesTypesNames, "МоментВремени", // @Non-NLS
 	                                                                      "PointInTime", "Illegal");
@@ -39611,7 +39639,7 @@ Function TablesTypes()
 	
 EndFunction
 
-// For the table Types function.
+// For the TablesTypes function.
 Procedure AddTablesType(TablesTypes, LanguageRussian, LanguageEnglish, CollectionName)
 	
 	TablesTypeProperties = TablesTypeProperties(LanguageRussian, LanguageEnglish, CollectionName);
@@ -39625,50 +39653,50 @@ Procedure AddTablesType(TablesTypes, LanguageRussian, LanguageEnglish, Collectio
 	
 EndProcedure
 
-// For the procedure add a language Word.
+// For the AddLanguageWord procedure.
 //
 // Returns:
 //  FixedStructure:
-//    * CollectionName             - String -  name of the collection in the configuration language (Russian or English).
-//    * LanguageRussian              - String -  name of the table type in Russian.
-//    * LanguageEnglish           - String -  name of the table type in English.
+//    * CollectionName             - String - the collection name in the configuration language (English or Russian).
+//    * LanguageRussian              - String - a table type name in Russian.
+//    * LanguageEnglish           - String - a table type name in English.
 //    * IsReferenceType          - Boolean
 //    * HasLimit          - Boolean
 //    * HasPredefined     - Boolean
 //    * FieldsCollections           - Map of KeyAndValue:
-//        ** Key - String -  name of the field collection in the configuration language (Russian or English).
+//        ** Key - String - the field collection name in the configuration language (English or Russian).
 //        ** Value - String - 
-//             "Allowed" - can be used without restrictions.
-//             "Not allowed" - cannot be used to restrict access to the 1C platform:Companies.
+//             "Allowed" — can be used with no restrictions.
+//             "NotAllowed" — cannot be used in 1C:Enterprise platform access restriction.
 //
 //    * TabularPartCollections - Map of KeyAndValue:
-//        ** Key - String -  name of the table parts collection in the configuration language (Russian or English).
+//        ** Key - String - the tabular section collection name in the configuration language (English or Russian).
 //        ** Value - String - 
-//             "Allowed" - can be used without restrictions.
-//             "Not allowed" - cannot be used to restrict access to the 1C platform:Companies.
+//             "Allowed" — can be used with no restrictions.
+//             "NotAllowed" — cannot be used in 1C:Enterprise platform access restriction.
 //
 //    * CommonAttributes           - String -
-//        "Allowed" - can be used without restrictions.
-//        "Not allowed" - cannot be used to restrict access to the 1C platform:Companies.
-//        "Missing" - does not exist for the metadata object.
+//        "Allowed" — can be used with no restrictions.
+//        "NotAllowed" — cannot be used in 1C:Enterprise platform access restriction.
+//        "Missing" — do not exist for metadata objects.
 //
 //    * ExtDimensionAccountingFlags    - String -
-//        "Allowed" - can be used without restrictions.
-//        "Not allowed" - cannot be used to restrict access to the 1C platform:Companies.
-//        "Missing" - does not exist for the metadata object.
+//        "Allowed" — can be used with no restrictions.
+//        "NotAllowed" — cannot be used in 1C:Enterprise platform access restriction.
+//        "Missing" — do not exist for metadata objects.
 //
 //    * FieldsClarification           - Map of KeyAndValue:
-//        ** Key     - String -  name of the table field in Russian and English.
+//        ** Key     - String - a table field name in English and Russian.
 //        ** Value - See FieldClarification
 //
 //    * TablesClarification          - Map of KeyAndValue:
-//        ** Key     - String -  name of the table extension in Russian and English.
+//        ** Key     - String - a table extension name in English and Russian.
 //        ** Value - See TablesClarification
 //
 //    * Use            - String -
-//        "Allowed" - can be used without restrictions.
-//        "Unacceptable" - cannot be used to restrict access to the 1C platform:Companies.
-//        "Forbidden" - it is forbidden to attach as an additional table in the BSP access restriction.
+//        "Allowed" — can be used with no restrictions.
+//        "NotAllowed" — cannot be used in 1C:Enterprise platform access restriction.
+//        "Prohibited" — it is prohibited to connect as an additional table in the SSL access restriction.
 //
 Function TablesTypeProperties(LanguageRussian, LanguageEnglish, CollectionName)
 	
@@ -39691,7 +39719,7 @@ Function TablesTypeProperties(LanguageRussian, LanguageEnglish, CollectionName)
 	
 EndFunction
 
-// For the table Types function.
+// For the TablesTypes function.
 Procedure SetTablesTypeProperty(TablesTypes, TablesTypesNames, Property, Value)
 	
 	For Each TableTypeName In StrSplit(TablesTypesNames, ",", False) Do
@@ -39701,7 +39729,7 @@ Procedure SetTablesTypeProperty(TablesTypes, TablesTypesNames, Property, Value)
 	
 EndProcedure
 
-// For the table Types function.
+// For the TablesTypes function.
 Procedure AddTablesTypeFieldsCollection(TablesTypes, TablesTypesNames, CollectionName, Use)
 	
 	For Each TableTypeName In StrSplit(TablesTypesNames, ",", False) Do
@@ -39711,7 +39739,7 @@ Procedure AddTablesTypeFieldsCollection(TablesTypes, TablesTypesNames, Collectio
 	
 EndProcedure
 
-// For the table Types function.
+// For the TablesTypes function.
 Procedure AddTablesTypeTabularSectionsCollection(TablesTypes, TablesTypesNames, CollectionName, Use)
 	
 	For Each TableTypeName In StrSplit(TablesTypesNames, ",", False) Do
@@ -39721,7 +39749,7 @@ Procedure AddTablesTypeTabularSectionsCollection(TablesTypes, TablesTypesNames, 
 	
 EndProcedure
 
-// For the table Types function.
+// For the TablesTypes function.
 Procedure AddTablesTypeField(TablesTypes, TablesTypesNames, LanguageRussian, LanguageEnglish, Use)
 	
 	For Each TableTypeName In StrSplit(TablesTypesNames, ",", False) Do
@@ -39734,16 +39762,16 @@ Procedure AddTablesTypeField(TablesTypes, TablesTypesNames, LanguageRussian, Lan
 	
 EndProcedure
 
-// For the procedure, add a flight of Tables.
+// For the AddTablesTypeField procedure.
 //
 // Returns:
 //  Structure:
-//    * LanguageRussian    - String -  name of the table field in Russian.
-//    * LanguageEnglish - String -  name of the table field in English.
+//    * LanguageRussian    - String - a table field name in Russian.
+//    * LanguageEnglish - String - a table field name in English.
 //    * Use  - String -
-//        "Allowed" - can be used without restrictions.
-//        "Unacceptable" - cannot be used to restrict access to the 1C platform:Companies.
-//        "Forbidden" - it is forbidden to use the BSP in restricting access.
+//        "Allowed" — can be used with no restrictions.
+//        "NotAllowed" — cannot be used in 1C:Enterprise platform access restriction.
+//        "Prohibited" — it is prohibited to use in the SSL access restriction.
 //
 Function FieldClarification(LanguageRussian, LanguageEnglish, Use)
 	
@@ -39756,7 +39784,7 @@ Function FieldClarification(LanguageRussian, LanguageEnglish, Use)
 	
 EndFunction
 
-// For the table Types function.
+// For the TablesTypes function.
 Procedure AddTablesTypeExtension(TablesTypes, TablesTypesNames, LanguageRussian, LanguageEnglish, Use)
 	
 	For Each TableTypeName In StrSplit(TablesTypesNames, ",", False) Do
@@ -39769,16 +39797,16 @@ Procedure AddTablesTypeExtension(TablesTypes, TablesTypesNames, LanguageRussian,
 	
 EndProcedure
 
-// For the procedure, add a flight of Tables.
+// For the AddTablesTypeField procedure.
 //
 // Returns:
 //  Structure:
-//    * LanguageRussian    - String -  name of the table extension in Russian.
-//    * LanguageEnglish - String -  name of the table extension in English.
+//    * LanguageRussian    - String - a table extension name in Russian.
+//    * LanguageEnglish - String - a table extension name in English.
 //    * Use  - String -
-//        "Allowed" - can be used without restrictions.
-//        "Unacceptable" - cannot be used to restrict access to the 1C platform:Companies.
-//        "Forbidden" - it is forbidden to use the BSP in restricting access.
+//        "Allowed" — can be used with no restrictions.
+//        "NotAllowed" — cannot be used in 1C:Enterprise platform access restriction.
+//        "Prohibited" — it is prohibited to use in the SSL access restriction.
 //
 Function TablesClarification(LanguageRussian, LanguageEnglish, Use)
 	
@@ -39795,7 +39823,7 @@ EndFunction
 
 #Region Parsing
 
-// For the function parsed Constraint.
+// For the ParsedRestriction function.
 //
 // Parameters:
 //   InternalData - See NewInternalData
@@ -39824,7 +39852,7 @@ Function RestrictionParts(InternalData)
 	CharsetsTable.Columns.Add("Rows", New TypeDescription("Array"));
 	CharsetsTable.Columns.Add("EndString");
 	
-	// 
+	// Separating a restriction into main parts.
 	Rows = CharsetsTable.FindRows(New Structure("Chars, Kind", ";", "Separator"));
 	
 	SeparatorRowsIndexes = New Array;
@@ -39869,7 +39897,7 @@ Function RestrictionParts(InternalData)
 	
 	AddDefaultAliases(InternalData);
 	
-	// 
+	// Part 1 analysis.
 	PartProperties1 = PartsProperties[0];
 	
 	If PartProperties1.Name = "" Then
@@ -39901,7 +39929,7 @@ Function RestrictionParts(InternalData)
 		Return RestrictionParts;
 	EndIf;
 	
-	// 
+	// Part 2 analysis.
 	PartProperties2 = PartsProperties[1];
 	
 	If PartProperties1.Name = "AllowReadUpdate" Then
@@ -39918,7 +39946,7 @@ Function RestrictionParts(InternalData)
 				NStr("en = 'Keyword ""%1"" is not found
 				           |at the beginning of the second part of the restriction text.';"),
 				"AllowUpdateIfReadingAllowed"));
-		Else // 
+		Else // Part1Properties.Name = "AttachAdditionalTables".
 			SetPartBeginningError(PartProperties2, InsertKeywordsIntoString(InternalData,
 				NStr("en = 'Neither ""%1"" nor ""%2""
 				           |keywords are found at the beginning of the second part of the restriction text.';"),
@@ -39952,7 +39980,7 @@ Function RestrictionParts(InternalData)
 		Return RestrictionParts;
 	EndIf;
 	
-	// 
+	// Part 3 analysis.
 	PartProperties3 = PartsProperties[2];
 	
 	If PartProperties2.Name = "AllowReadUpdate" Then
@@ -39984,12 +40012,12 @@ Function RestrictionParts(InternalData)
 	
 EndFunction
 
-// 
-//   See CharsetsTable
-//           
-//   See CharsetsTable
-//  
-//               See CharsetsTable
+// Procedure:
+//  Parent - ValueTableRow from See CharsetsTable
+//           - Structure
+//  String - ValueTableRow from See CharsetsTable
+//  Context - Structure:
+//              * Table - See CharsetsTable
 //
 Procedure RowAdd(Parent, String, Context)
 	
@@ -40002,7 +40030,7 @@ Procedure RowAdd(Parent, String, Context)
 EndProcedure
 
 // Parameters:
-//  RowDescription - Number - 
+//  RowDescription - Number - Value table index.
 //                 - ValueTableRow of See CharsetsTable
 //                 - Structure - See AdditionalString1
 //  Context - Structure:
@@ -40056,26 +40084,28 @@ EndFunction
 //   Structure:
 //     * Source - ValueTableRow of See CharsetsTable
 //     
-//     * Node - String -  one of the lines "Field", "Value", "Constant",
-//         "And", "Or", "Is not", "=", "<>", " In", "isnull", "Type", "Value Type", "Selection",
-//         "Value Resolved",      "This
-//         is an authorized user", "readingobject is allowed", "Change of the object is allowed", "readingpisclosed", "Change
-//         ofpisclosed",
-//         "For every line",           "For One line",
-//         "Access rights",           "Role is available."
+//     * Node - String - one of the lines "Field", "Value", "Constant",
+//         "And", "Or", "Not", "=", "<>", "In" "IsNull", "Type", "ValueType", "Choice",
+//         "ValueAllowed", "IsAuthorizedUser"
+//         "ReadObjectAllowed", "EditObjectAllowed",
+//         "ReadListAllowed", "EditListAllowed",
+//         "ForAllLines", "ForOneOfLines",
+//         "AccessRight", 'RoleAvailable'.
 //     
-//     Properties of the Field node.
-//      * Name       - String - 
-//      * Table   - String -  the table name of this field (or an empty string for the main table).
-//      * Alias - String -  the name of the alias of the attached table in this field (or an empty string for the main table),
-//                      for example, "add-in register" for the "main Company"field.
-//      * Cast  - String - :
-//                     
-//      * Attachment  - Structure -  node Field containing the nested EXPRESS action (with or without IsNull).
-//                  - Undefined - 
-//      * IsNull  - Structure -  a value or Constant node, for example, to describe an expression
-//                      like " IsNull(Owner, Value (Reference.Files.Empty link))".
-//                  - Undefined - 
+//     Field node properties.
+//      * Name       - String - A stub to the previous line (for defining the type in EDT).
+//                             Properties of the "=" and "<>" nodes. FirstArgument -"Field" node,
+//                             SecondArgument - Nodes "Value", "Constant"; "Field" node for join condition only).
+//      * Table   - String - a table name of this field (or a blank row for the main table).
+//      * Alias - String - an attached table alias name (or a blank row for the main table),
+//                      for example, "SettingInformationRegister" for the "MainCompany" field.
+//      * Cast  - String - a table name (if used), for example, to describe a field as:
+//                     CAST(CAST(Owner AS Catalog.Files).FileOwner AS Catalog.Companies).Ref".
+//      * Attachment  - Structure - the Field node that contains the CAST nested action (with or without IsNull).
+//                  - Undefined - there is no nested field.
+//      * IsNull  - Structure - the Value Or Constant node, for example, to describe an expression of the following type:
+//                      "IsNULL(Owner, Value(Catalog.Files.BlankRef))".
+//                  - Undefined - if IsNull is not used (including when the Attachment property is filled in).
 //      * NameSource      - ValueTableRow
 //                         - Undefined
 //      * CastSource - ValueTableRow
@@ -40083,49 +40113,51 @@ EndFunction
 //      * IsNullSource - ValueTableRow
 //                         - Undefined
 //
-//     The properties of the nodes, the Value and Type.
-//      * Name - String - 
-//                                               
-//                       
+//     Properties of the Value and Type nodes.
+//      * Name - String - A stub to the previous line (for defining the type in EDT).
+//                                               Properties of the "=" and "<>" nodes. FirstArgument -"Field" node,
+//                       SecondArgument - Nodes "Value", "Constant"; "Field" node for join condition only).
 //
 //     
 //      * Value - Boolean
 //                 - Number
 //                 - String
-//                 - Undefined - 
-//                     
+//                 - Undefined - False, True, an arbitrary
+//                     integer number up to 16 digits or an arbitrary string up to 150 characters.
 //
-//     
+//     Properties of the AND, OR nodes (any node except for Value or Constant).
 //      * Arguments - Array of See NodeDetails
 //
-//     Properties of a node (any node other than the Value of the Constant).
+//     Properties of the Not node (any node except for Value or Constant).
 //       * Argument - See NodeDetails
 //       
-//       * Name - String - 
+//       * Name - String - A stub to the previous line (for defining the type in EDT).
 //
-//     
-//                           
+//     Properties of the "=" and "<>" nodes. FirstArgument -"Field" node,
+//                           SecondArgument - Nodes "Value", "Constant"; "Field" node for join condition only).
 //       * FirstArgument - See NodeDetails
 //       * SecondArgument - See NodeDetails
 //       
-//       * Name - String - 
+//       * Name - String - A stub to the previous line (for defining the type in EDT).
 //
-//     
+//     Properties of the "=" and "<>" nodes. FirstArgument -"Field" node,
+//                        SecondArgument - Nodes "Value", "Constant"; "Field" node for join condition only).
 //       * SearchFor  - See NodeDetails
 //       * Values - Array of See NodeDetails
 //
-//     Node properties are Null (node Field is an expression of the form " <Field> THERE IS NULL").
+//     Properties of the IsNull node (the Field node - an expression of the "<Field> IS NULL" kind).
 //       * Argument - See NodeDetails 
 //
-//       * Name - String - 
+//       * Name - String - A stub to the previous line (for defining the type in EDT).
 //       
-//     
+//     Properties of the "=" and "<>" nodes. FirstArgument -"Field" node,
+//                        SecondArgument - Nodes "Value", "Constant"; "Field" node for join condition only).
 //       * Argument - See NodeDetails
 //
-//       * Name - String - 
+//       * Name - String - A stub to the previous line (for defining the type in EDT).
 //       
-//     
-//               
+//     Properties of the "=" and "<>" nodes. FirstArgument -"Field" node,
+//               SecondArgument - Nodes "Value", "Constant"; "Field" node for join condition only).
 //                    
 //                    
 //               
@@ -40140,22 +40172,22 @@ EndFunction
 //           ** Value - See NodeDetails
 //       * Else - See NodeDetails
 //
-//       * Name - String -  stub to the previous line (for defining the type in EDT)
+//       * Name - String - A stub to the previous line (for defining the type in EDT).
 //       
-//     Node properties value Resolved, this is an authorized User,
-//                    Changeobjectstate, Essentiallyidentical,
-//                    Readespiscare Resolved, Changeespiscare Resolved.
-//              In the Field property, the field node.
+//     Properties of the "=" and "<>" nodes. FirstArgument -"Field" node,
+//                    SecondArgument - Nodes "Value", "Constant"; "Field" node for join condition only).
+//                    
+//              
 //       * Field - See NodeDetails
-//       * Types - Array of String -  full name of the table
-//       * CheckTypesExceptListed - Boolean -  if True, all types of the Field property
-//                                                except those specified in the Types property.
+//       * Types - Array of String - a full table name.
+//       * CheckTypesExceptListed - Boolean - if True, all types of the Field property,
+//                                                except for those specified in the Types property.
 //       * ComparisonClarifications - Map of KeyAndValue:
-//           ** Key     - String -  the specified value is "Undefined", "Null", "empty link",
-//                                  <full table name>, "Number", "String", "date", "Boolean".
-//           ** Value - String -  the result is "False", "True".
+//           ** Key     - String - a clarified value is Undefined, Null, or BlankRef,
+//                                  <a full table name>, "Number", "String", "Date", and "Boolean".
+//           ** Value - String - result "False", "True".
 //
-//     Properties of nodes for all Strings, for one string (any node).
+//     Properties of the ForAllLines, ForOneOfLines nodes (any node).
 //       * Argument - See NodeDetails.
 //
 Function NodeDetails()
@@ -40164,7 +40196,7 @@ Function NodeDetails()
 	
 EndFunction
 
-// For the partial Constraint function.
+// For the RestrictionParts function.
 Procedure SetRestrictionPart(RestrictionParts, PartProperties)
 	
 	If PartProperties.Name = "AllowReadUpdate"
@@ -40176,7 +40208,7 @@ Procedure SetRestrictionPart(RestrictionParts, PartProperties)
 		
 		PropertyName = "UpdateRestriction";
 		
-	Else // 
+	Else // AttachAdditionalTables.
 		
 		PropertyName = "AdditionalTables";
 		RestrictionParts.MainTableAlias = PartProperties.MainTableAlias;
@@ -40186,7 +40218,7 @@ Procedure SetRestrictionPart(RestrictionParts, PartProperties)
 	
 EndProcedure
 
-// For the partial Constraint function, parse additional Tables, parse constraint Conditions.
+// For the RestrictionParts function and the ParseAdditionalTables and ParseRestrictionCondition procedures.
 // Parameters:
 //  PartProperties - See NewPartProperties
 //  ErrorText - String
@@ -40204,12 +40236,12 @@ Procedure SetPartBeginningError(PartProperties, ErrorText)
 	
 	RowWithError.ErrorText = ErrorText;
 	
-	// 
+	// Description of the first keyword options of parts is required.
 	RowWithError.ErrorPosition = -1;
 	
 EndProcedure
 
-// For the procedure, disassemble the Connection.
+// For the ParseConnection procedure.
 //  Parameters:
 //   Rows - Array of ValueTableRow: See CharsetsTable
 //   RowIndex - Number
@@ -40221,7 +40253,7 @@ Procedure SetErrorInsidePart(Rows, RowIndex, ErrorText)
 		RowWithError = Rows[RowIndex];
 	Else
 		RowWithError = Rows[RowIndex - 1];
-		// 
+		// An error in the end of the word.
 		RowWithError.ErrorPosition = StrLen(RowWithError.Chars);
 	EndIf;
 	
@@ -40229,7 +40261,7 @@ Procedure SetErrorInsidePart(Rows, RowIndex, ErrorText)
 	
 EndProcedure
 
-// For the function of Virginiawisconsinwyoming, ВыраженияВыборКогдаТогдаВоВложениях.
+// For the ExpressionsInParenthesesInAttachments and ExpressionsWhenThenSelectionInAttachments function.
 Procedure SetErrorInRow(String, ErrorText, InWordEnd = False, WordNumber = 1)
 	
 	If ValueIsFilled(String.ErrorText) Then
@@ -40250,7 +40282,7 @@ Procedure SetErrorInRow(String, ErrorText, InWordEnd = False, WordNumber = 1)
 	
 EndProcedure
 
-// For the partial Constraint function.
+// For the RestrictionParts function.
 Procedure ParseRestrictionPart(PartProperties, InternalData)
 	
 	If PartProperties.Name = "AttachAdditionalTables" Then
@@ -40264,7 +40296,7 @@ Procedure ParseRestrictionPart(PartProperties, InternalData)
 	
 EndProcedure
 
-// For the procedure, parse the constraint Part.
+// For the ParseRestrictionPart procedure.
 Procedure ParseAdditionalTables(PartProperties, InternalData)
 	
 	PartRows = PartProperties.Rows; // Array of ValueTableRow: See CharsetsTable
@@ -40307,7 +40339,7 @@ Procedure ParseAdditionalTables(PartProperties, InternalData)
 	
 	SetAlias(PartRows[3], PartProperties.MainTableAlias, InternalData);
 	
-	// 
+	// Dividing description into groups of left connections.
 	Joins = New Array;
 	CurrentConnection = New Array; // Array of ValueTableRow: See CharsetsTable
 	
@@ -40346,22 +40378,22 @@ Procedure ParseAdditionalTables(PartProperties, InternalData)
 		New Map(New FixedMap(InternalData.Aliases)));
 	
 	For Each Join In Joins Do
-		// 
+		// Parse conditions using all features. Then, throw errors on prohibited features.
 		// 
 		ParseConnection(Join, PartProperties, InternalData);
 	EndDo;
 	
-	// 
+	// Continue parsing after filling in the aliases of all additional tables.
 	For Each IConnectionShort In PartProperties.Content Do
 		InternalData.AvailableAliases.Insert(Upper(IConnectionShort.Alias), True);
-		// 
-		// 
+		// Only simple conditions are allowed:
+		// Field1 = Field2 [AND Field3 = Field4] [AND Field5 = Constant].
 		ParseConnectionConditionFieldsAndMarkProhibitions(IConnectionShort, InternalData);
 	EndDo;
 	
 EndProcedure
 
-// For the procedure, parse additional Tables.
+// For the ParseAdditionalTables procedure.
 //
 // Parameters:
 //    Join - Array of ValueTableRow: See CharsetsTable
@@ -40444,10 +40476,10 @@ Procedure ParseConnection(Join, PartProperties, InternalData)
 	
 EndProcedure
 
-// For the procedure, parse additional Tables.
+// For the ParseAdditionalTables procedure.
 Procedure ParseConnectionConditionFieldsAndMarkProhibitions(IConnectionShort, InternalData)
 	
-	// 
+	// Marking incorrect operation arguments and prohibited features.
 	CommonNodes = New Map(AccessManagementInternalCached.NodesToCheckAvailability(
 		"Field,Value,Constant,And,=", False));
 	
@@ -40471,15 +40503,15 @@ Procedure ParseConnectionConditionFieldsAndMarkProhibitions(IConnectionShort, In
 	
 EndProcedure
 
-// For procedures parse connection Conditions, parse constraint Conditions.
+// For the ParseConnectionCondition and ParseRestrictionCondition procedures.
 //
 // Parameters:
-//  List - String -  comma-separated list of node names.
-//  IsExceptionsList - Boolean -  if True, add nodes other than the specified ones.
+//  List - String - a list of node names separated by commas.
+//  IsExceptionsList - Boolean - if True, add nodes except for the specified ones.
 //
 // Returns:
 //  FixedMap of KeyAndValue:
-//    * Key - String -  host name
+//    * Key - String - a node name
 //    * Value - Boolean
 //               - Structure:
 //       ** Cast - Boolean
@@ -40532,7 +40564,7 @@ Function NodesToCheckAvailability(List, IsExceptionsList) Export
 	
 EndFunction
 
-// For procedures parse connection Conditions, parse constraint Conditions.
+// For the ParseConnectionCondition and ParseRestrictionCondition procedures.
 //
 // Parameters:
 //  Condition       - See NodeDetails
@@ -40601,7 +40633,7 @@ Procedure MarkIncorrectArgumentsAndProhibitedNodes(Condition, AvailableNodes, Co
 	      Or Condition.Node = "ForAllRows"
 	      Or Condition.Node = "ForAtLeastOneRow" Then
 		
-		// 
+		// Validate the parameter.
 		If Condition.Node = "IsNull"
 		   And (    Condition.Argument = Undefined
 		      Or Condition.Argument.Node <> "Field" ) Then
@@ -40712,7 +40744,7 @@ Procedure MarkIncorrectArgumentsAndProhibitedNodes(Condition, AvailableNodes, Co
 		MarkIncorrectArgumentsAndProhibitedNodes(Condition.Field, AvailableNodes, Context);
 		MarkTypesRepetitionsAmongThoseToCheckAndClarify(Condition, Context);
 		
-		// 
+		// Add types whose presence should be checked in the fields.
 		Field = Condition.Field; // See NodeDetails
 		Clarifications = New Map;
 		For Each ComparisonClarification In Condition.ComparisonClarifications Do
@@ -40725,7 +40757,7 @@ Procedure MarkIncorrectArgumentsAndProhibitedNodes(Condition, AvailableNodes, Co
 				ComparisonClarification.Key.Chars, ComparisonClarification.Key);
 		EndDo;
 		
-		// 
+		// Delete type sources.
 		Condition.ComparisonClarifications = Clarifications;
 		
 		Types = New Array;
@@ -40749,7 +40781,7 @@ Function NewAccessKeyField()
 	
 EndFunction
 
-// For the procedure, mark the incorrect argumentsapproved Nodes.
+// For the MarkIncorrectArgumentsAndProhibitedNodes procedure.
 Procedure SelectFieldAlias(FieldNode, Context)
 	
 	If FieldNode.Attachment <> Undefined Then
@@ -40794,7 +40826,7 @@ Procedure SelectFieldAlias(FieldNode, Context)
 	
 EndProcedure
 
-// For procedures parse connection Conditions, parse constraint Conditions.
+// For the ParseConnectionCondition and ParseRestrictionCondition procedures.
 Procedure DeleteSourceProperty(Condition)
 	
 	If TypeOf(Condition) = Type("ValueTableRow") Then
@@ -40841,7 +40873,7 @@ Procedure DeleteSourceProperty(Condition)
 	
 EndProcedure
 
-// For the procedure, mark the incorrect argumentsapproved Nodes.
+// For the MarkIncorrectArgumentsAndProhibitedNodes procedure.
 Procedure SetNodeProhibitedError(String, Context)
 	
 	If String.Type = "Function" Then
@@ -40883,7 +40915,7 @@ Procedure SetNodeProhibitedError(String, Context)
 	
 EndProcedure
 
-// For the procedure, mark the incorrect argumentsapproved Nodes.
+// For the MarkIncorrectArgumentsAndProhibitedNodes procedure.
 Procedure MarkTypesRepetitionsAmongThoseToCheckAndClarify(Node, Context)
 	
 	TypesInList = New Map;
@@ -40931,7 +40963,7 @@ Procedure MarkTypesRepetitionsAmongThoseToCheckAndClarify(Node, Context)
 	
 EndProcedure
 
-// For the procedure, parse the constraint Part.
+// For the ParseRestrictionPart procedure.
 //
 // Parameters:
 //  PartProperties - See NewPartProperties
@@ -40962,7 +40994,7 @@ Procedure ParseRestrictionCondition(PartProperties, InternalData)
 	
 	ParseCondition(Condition, PartProperties.Content, InternalData);
 	
-	// 
+	// Marking incorrect parameters of operations and unsupported functionality.
 	CommonNodes = AccessManagementInternalCached.NodesToCheckAvailability("", True);
 	
 	NodesWhen = AccessManagementInternalCached.NodesToCheckAvailability(
@@ -40997,7 +41029,7 @@ Procedure ParseRestrictionCondition(PartProperties, InternalData)
 	
 EndProcedure
 
-// For partial Constraint procedures, parse the constraint Conditions.
+// For the RestrictionParts and ParseRestrictionCondition procedures.
 Procedure AddDefaultAliases(Context);
 	
 	If Context.Aliases.Count() > 0 Then
@@ -41009,7 +41041,7 @@ Procedure AddDefaultAliases(Context);
 	
 EndProcedure
 
-// For procedures parse connection Conditions, parse constraint Conditions.
+// For the ParseConnectionCondition and ParseRestrictionCondition procedures.
 //
 // Parameters:
 //  Condition          - Array of ValueTableRow
@@ -41034,7 +41066,7 @@ Procedure ParseCondition(Condition, Content, InternalData)
 	
 EndProcedure
 
-// For the procedure, parse the Condition.
+// For the ParseCondition procedure.
 Procedure UnionNestedLogicalOperations(Content)
 	
 	If Content = Undefined Then
@@ -41065,7 +41097,7 @@ Procedure UnionNestedLogicalOperations(Content)
 EndProcedure
 
 
-// For procedures, parse the Condition, parse the Function, and parse the Selection.
+// For the ParseCondition, ParseFunction, and ParseChoice procedures.
 //
 // Parameters:
 //    Condition - Array of See TableRow.RowDescription
@@ -41139,7 +41171,7 @@ Procedure ParseExpression(Condition, Content, CurrentContext, NestedExpression =
 		EndIf;
 		
 		If Context.LongDesc = Undefined Then
-			// 
+			// An error that stops further parsing (preventing from false starts) occurred.
 			Break;
 		EndIf;
 	EndDo;
@@ -41159,13 +41191,13 @@ Procedure ParseExpression(Condition, Content, CurrentContext, NestedExpression =
 	
 EndProcedure
 
-// For the procedures parse Expression,
-// parse firstparameter of a check Function, parse functionparameter of a value, parse Selection, and
-// for the function descriptionnull function field.
+// For the ParseExpression, ParseFirstCheckingFunctionParameter,
+// ParseValueTypeFunctionParameters, ParseChoice procedures and
+// the FieldNodeDetailsFromIsNullFunction function.
 //
 Function FieldNodeOrConstantNodeDetails(String)
 	
-	// 
+	// <Field name>, <Number>, <Arbitrary string>, True, False, Undefined.
 	
 	If String.Kind = "Name" Then
 		NewDetails = FieldNodeDetails(String);
@@ -41182,10 +41214,10 @@ Function FieldNodeOrConstantNodeDetails(String)
 			ElsIf String.Refinement = "False" Then
 				NewDetails.Value = False;
 				
-			Else // 
+			Else // String.Kind = "Undefined".
 				NewDetails.Value = Undefined;
 			EndIf;
-		Else // 
+		Else // ArbitraryString or Number.
 			NewDetails.Value = String.Refinement;
 		EndIf;
 	EndIf;
@@ -41194,7 +41226,7 @@ Function FieldNodeOrConstantNodeDetails(String)
 	
 EndFunction
 
-// For functions, the description of the node field or node Constant, the description of the node field function, The description of the node field function is Null.
+// For the FieldNodeOrConstantNodeDetails, FieldNodeDetailsFromExpressFunction, and FieldNodeDetailsFromIsNullFunction functions.
 Function FieldNodeDetails(String)
 	
 	NodeProperties = "Source, Node, Name, Table, Alias, Cast, Attachment, IsNull";
@@ -41208,11 +41240,11 @@ Function FieldNodeDetails(String)
 	
 EndFunction
 
-// For the procedure, parse the Expression.
+// For the ParseExpression procedure.
 Procedure ParseConnector(Context, IsOperation = False)
 	
-	// 
-	// 
+	// "And", "Or", "As", "Not", "Only", "Is" and any of the operators: "=", "<>", etc.
+	// The "In" keyword is parsed in the "ParseConnectorIn" procedure.
 	
 	String = Context.String; // ValueTableRow of See CharsetsTable
 	
@@ -41230,15 +41262,15 @@ Procedure ParseConnector(Context, IsOperation = False)
 		NewDetails.Node = "IsNull";
 		NewDetails.Insert("Argument", Undefined);
 		AddConnector(Context, NewDetails, NewDetails.Argument);
-		// 
-		// 
+		// The parameters are validated in the procedure
+		// "MarkIncorrectArgumentsAndProhibitedNodes".
 		
 	ElsIf String.Kind = "Operation" Then
 		NewDetails.Insert("FirstArgument", Undefined);
 		NewDetails.Insert("SecondArgument", Undefined);
 		AddConnector(Context, NewDetails, NewDetails.FirstArgument);
-		// 
-		// 
+		// The arguments are validated in the procedure
+		// "MarkIncorrectArgumentsAndProhibitedNodes".
 		
 	ElsIf String.Refinement = "As"
 	      Or String.Refinement = "Not"
@@ -41255,7 +41287,7 @@ Procedure ParseConnector(Context, IsOperation = False)
 	
 EndProcedure
 
-// For the procedure, parse the Expression.
+// For the ParseExpression procedure.
 Procedure ParseConnectorIn(Context)
 	
 	String = Context.String;
@@ -41265,7 +41297,7 @@ Procedure ParseConnectorIn(Context)
 	NewDetails.Insert("Values", New Array);
 	
 	ParametersContent = CommaSeparatedParameters(String, Context);
-	// 
+	// The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 	
 	For Each ParameterDetails In ParametersContent Do
 		ParameterDescriptionLines = ParameterDetails.Rows; // Array of ValueTableRow: See CharsetsTable
@@ -41289,7 +41321,7 @@ Procedure ParseConnectorIn(Context)
 	
 EndProcedure
 
-// For the procedure, disassemble the connector.
+// For the ParseConnectorIn procedure.
 Procedure ParseConnectorValueIn(Context, Substring, NewDetails)
 	
 	String = Context.String;
@@ -41329,7 +41361,7 @@ Procedure ParseConnectorValueIn(Context, Substring, NewDetails)
 	
 EndProcedure
 
-// For the procedure, parse the value of the connector.
+// For the ParseConnectorValueIn procedure.
 Function NewContext(Context, String = null, LongDesc = null)
 	
 	FixedContext = New FixedStructure(Context);
@@ -41347,10 +41379,10 @@ Function NewContext(Context, String = null, LongDesc = null)
 	
 EndFunction
 
-// For the procedures disassemble the Connector, disassemble the connector, and insert the connector in the priority Account.
+// For the ParseConnector, ParseConnectorIn, and InsertConnectorConsideringPriority procedures.
 Procedure AddConnector(Context, NewDetails, FirstArgument);
 	
-	// 
+	// Logical operators ("AND", "OR", "IN", "HAS") or comparison operators ("=", "<", ">").
 	
 	LongDesc = Context.LongDesc; // See NodeDetails
 	
@@ -41383,9 +41415,9 @@ Procedure AddConnector(Context, NewDetails, FirstArgument);
 		
 	ElsIf StrFind(",Field,Value,Constant,In,IsNull,Case,", "," + LongDesc.Node + ",") > 0
 	      Or LongDesc.Source.Type = "Function" Then
-		// 
-		// 
-		// 
+		// The second argument of the "In" operation is parsed in the "ParseConnectorIn" procedure.
+		// The second argument "Null" of the "Is" operation is parsed in the "FunctionsWithExpressionsInParentheses" function.
+		// Other nodes don't have second arguments.
 		InsertConnectorConsideringPriority(Context, Undefined, NewDetails, FirstArgument);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -41395,7 +41427,7 @@ Procedure AddConnector(Context, NewDetails, FirstArgument);
 	
 EndProcedure
 
-// For the procedure, add a Connector.
+// For the AddConnector procedure.
 Procedure ProcessMissingArgumentAfterConnector(Context, SecondArgument, LogicalOperation = True)
 	
 	LongDesc = Context.LongDesc; // See NodeDetails
@@ -41410,7 +41442,7 @@ Procedure ProcessMissingArgumentAfterConnector(Context, SecondArgument, LogicalO
 	
 EndProcedure
 
-// For procedures, add a Connector, process a missed logical Operation.
+// For the AddConnector and ProcessMissingLogicalOperation procedures.
 Procedure InsertConnectorConsideringPriority(Context,
 			DetailsLastArgument, NewDetails, NewDetailsFirstArgument)
 	
@@ -41420,7 +41452,7 @@ Procedure InsertConnectorConsideringPriority(Context,
 	If DetailsLastArgument <> Undefined
 	   And Context.String.Priority >= LongDesc.Source.Priority Then
 		
-		// 
+		// Replacing the current node argument with the connector (case "A Or B And ...").
 		NewDetailsFirstArgument = DetailsLastArgument;
 		DetailsLastArgument = NewDetails;
 		
@@ -41430,13 +41462,13 @@ Procedure InsertConnectorConsideringPriority(Context,
 	EndIf;
 	
 	If Attachments.Count() = 0 Then
-		// 
+		// Nesting the current node as the first connector argument (case "A And B Or ...").
 		NewDetailsFirstArgument = Context.LongDesc;
 		Context.LongDesc = NewDetails;
 		Return;
 	EndIf;
 	
-	// 
+	// Nesting the previous node as the first connector argument (case "A And Not B Or ...").
 	Context.LongDesc = Attachments[0];
 	Attachments.Delete(0);
 	
@@ -41444,10 +41476,10 @@ Procedure InsertConnectorConsideringPriority(Context,
 	
 EndProcedure
 
-// For the procedure, parse the Expression.
+// For the ParseExpression procedure.
 Procedure ParseOperator(Context)
 	
-	// 
+	// The Not operator.
 	
 	NewDetails = New Structure("Source, Node, Argument",
 		Context.String, Context.String.Refinement);
@@ -41459,7 +41491,7 @@ Procedure ParseOperator(Context)
 	
 EndProcedure
 
-// For procedures, parse Expression, parse connectionvalue.
+// For the ParseExpression and ParseConnectorValueIn procedures.
 Procedure ParseFunction(Context)
 	
 	String = Context.String;
@@ -41513,7 +41545,7 @@ Procedure ParseFunction(Context)
 	
 EndProcedure
 
-// For the procedure, parse the Function.
+// For the ParseFunction procedure.
 Procedure ParseCheckingFunctionParameters(Context, NewDetails)
 	
 	String = Context.String;
@@ -41526,7 +41558,7 @@ Procedure ParseCheckingFunctionParameters(Context, NewDetails)
 	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
-		Return; // 
+		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 	EndIf;
 	
 	ParseFirstCheckingFunctionParameter(Context, ParametersContent[0], NewDetails);
@@ -41538,7 +41570,7 @@ Procedure ParseCheckingFunctionParameters(Context, NewDetails)
 	
 EndProcedure
 
-// For the procedure, parse the parameters of the verification Function.
+// For the ParseCheckingFunctionParameters procedure.
 //
 // Parameters:
 //  FirstParameter - Structure:
@@ -41628,7 +41660,7 @@ Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetail
 	ParametersContent = CommaSeparatedParameters(FirstParameter.Rows[2], Context);
 	
 	If ParametersContent.Count() = 0 Then
-		Return; // 
+		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 	EndIf;
 	
 	For Each Parameter In ParametersContent Do
@@ -41645,7 +41677,7 @@ Procedure ParseFirstCheckingFunctionParameter(Context, FirstParameter, NewDetail
 	
 EndProcedure
 
-// For the procedure, parse the parameters of the verification Function.
+// For the ParseCheckingFunctionParameters procedure.
 // 
 // Parameters:
 //  Parameter - Structure:
@@ -41725,7 +41757,7 @@ Procedure ParseAdditionalCheckingFunctionParameter(Context, Parameter, NewDetail
 	
 EndProcedure
 
-// For the procedure, parse the Function.
+// For the ParseFunction procedure.
 Procedure ParseValueFunctionOrTypeFunctionParameters(String, NewDetails, IsValueFunction, Context)
 	
 	NewDetails.Insert("Name", Undefined);
@@ -41733,7 +41765,7 @@ Procedure ParseValueFunctionOrTypeFunctionParameters(String, NewDetails, IsValue
 	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
-		Return; // 
+		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 	EndIf;
 	
 	Parameter = ParametersContent[0];
@@ -41773,7 +41805,7 @@ Procedure ParseValueFunctionOrTypeFunctionParameters(String, NewDetails, IsValue
 	
 EndProcedure
 
-// For the procedure, parse the Function.
+// For the ParseFunction procedure.
 Procedure ParseFunctionParametersTheRoleIsAvailable(String, NewDetails, Context)
 	
 	NewDetails.Insert("NameOfRole", Undefined);
@@ -41781,7 +41813,7 @@ Procedure ParseFunctionParametersTheRoleIsAvailable(String, NewDetails, Context)
 	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
-		Return; // 
+		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 	EndIf;
 	
 	Parameter = ParametersContent[0];
@@ -41806,7 +41838,7 @@ Procedure ParseFunctionParametersTheRoleIsAvailable(String, NewDetails, Context)
 	
 EndProcedure
 
-// For the procedure, parse the Function.
+// For the ParseFunction procedure.
 Procedure ParseTheParametersOfTheAccessRightFunction(String, NewDetails, Context)
 	
 	NewDetails.Insert("NameOfRight", Undefined);
@@ -41815,7 +41847,7 @@ Procedure ParseTheParametersOfTheAccessRightFunction(String, NewDetails, Context
 	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
-		Return; // 
+		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 	EndIf;
 	
 	FirstParameter = ParametersContent[0];
@@ -41863,7 +41895,7 @@ Procedure ParseTheParametersOfTheAccessRightFunction(String, NewDetails, Context
 	
 EndProcedure
 
-// For the procedure, parse the Function.
+// For the ParseFunction procedure.
 Procedure ParseValueTypeFunctionParameters(Context, NewDetails)
 	
 	String = Context.String;
@@ -41872,7 +41904,7 @@ Procedure ParseValueTypeFunctionParameters(Context, NewDetails)
 	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
-		Return; // 
+		Return; // The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 	EndIf;
 	
 	Parameter = ParametersContent[0];
@@ -41924,7 +41956,7 @@ Procedure ParseValueTypeFunctionParameters(Context, NewDetails)
 	
 EndProcedure
 
-// For procedures, parse the Function, parse the firstparameter of the verification Function, parse the functionparameter of the Value.
+// For the ParseFunction, ParseFirstCheckingFunctionParameter, and ParseValueTypeFunctionParameters procedures.
 Function FieldNodeDetailsFromExpressFunction(String, Context)
 	
 	NewDetails = FieldNodeDetails(String);
@@ -41943,7 +41975,7 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
-		// 
+		// The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 		Return NewDetails;
 	EndIf;
 	
@@ -42024,9 +42056,9 @@ Function FieldNodeDetailsFromExpressFunction(String, Context)
 	
 EndFunction
 
-// For the procedures parse Function,
-// parse the firstparameter of the check Function, parse the functionparameter of the value, and
-// for the function descriptor of the node of the function field.
+// For the ParseExpression, ParseFirstCheckingFunctionParameter,
+// ParseValueTypeFunctionParameters and
+// the FieldNodeDetailsFromExpressFunction function.
 //
 Function FieldNodeDetailsFromIsNullFunction(String, Context)
 	
@@ -42036,7 +42068,7 @@ Function FieldNodeDetailsFromIsNullFunction(String, Context)
 	ParametersContent = CommaSeparatedParameters(String, Context);
 	
 	If ParametersContent.Count() = 0 Then
-		// 
+		// The parameter missing error is already set in the FunctionsWithExpressionsInParentheses function.
 		Return NewDetails;
 	EndIf;
 	
@@ -42100,9 +42132,9 @@ Function FieldNodeDetailsFromIsNullFunction(String, Context)
 	
 EndFunction
 
-// For the procedures parseconnect, Parseparameterscheckfunction,
-// parseparametersfunctionvalue Orfunctiontype, Parseparametersfunctionvalue, and
-// for the functions Descriptionofpoleoffunctiontype, Descriptionofpoleoffunctionstnull.
+// For the ParseConnectorIn, ParseCheckingFunctionParameters,
+// ParseValueFunctionOrTypeFunctionParameters, and ParseValueTypeFunctionParameters procedures and
+// the FieldNodeDetailsFromExpressFunction and FieldNodeDetailsFromIsNullFunction functions.
 //
 // Parameters:
 //  RowDescription - See TableRow.RowDescription
@@ -42162,7 +42194,7 @@ Function CommaSeparatedParameters(RowDescription, Context)
 	
 EndFunction
 
-// For the procedure, parse the Expression.
+// For the ParseExpression procedure.
 // 
 // Parameters:
 //    Context - Structure:
@@ -42264,27 +42296,27 @@ Procedure ParseChoice(Context)
 	
 EndProcedure
 
-// For the procedure, parse the Expression.
+// For the ParseExpression procedure.
 Procedure ParseErrorKeyword(Context)
 	
 	String = Context.String;
 	Context.LongDesc = Undefined;
 	
 	If String.Type = "NotDefined" Then
-		// 
+		// The error is already set for the reserved words.
 		Return;
 	EndIf;
 	
 	If String.Type = "ComparisonValue" Then
 		If String.Refinement = "Disabled" Then
-			// 
+			// "Disabled".
 			SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The ""%1"" value is allowed only as a value to be clarified
 				           |in the parameters of the ""%2"" function.';"),
 				String.Chars,
 				KeywordRegardingLanguage("ValueAllowed", Context)));
 		Else
-			// 
+			// "BlankRef" or "Null".
 			SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'The ""%1"" value is allowed only as a value to be clarified
 				           |in the parameters of functions that check permissions.';"),
@@ -42292,7 +42324,7 @@ Procedure ParseErrorKeyword(Context)
 		EndIf;
 		
 	ElsIf String.Type = "TypeName" Then
-		// 
+		// "Number", "String", "Date", "Boolean".
 		SetErrorInRow(String, InsertKeywordsIntoString(Context,
 			NStr("en = 'A name of the ""%1"" type is allowed only as a parameter of the ""%2"" function
 			           |or as a value to be clarified in the parameters of functions that check permissions.';"),
@@ -42305,11 +42337,11 @@ Procedure ParseErrorKeyword(Context)
 	
 EndProcedure
 
-// For procedures parse Expression, parse Operator, parse Function, parse Selection.
+// For the ParseExpression, ParseOperator, ParseFunction, and ParseChoice procedures.
 Procedure AddArgumentFunctionChoiceOperator(Context, DetailsToAdd)
 	
-	// 
-	// 
+	// Current node: Any.
+	// Details to add: "Field", "Value", "Constant", "Not", "Selection", any function.
 	
 	LongDesc = Context.LongDesc; // See NodeDetails
 	
@@ -42337,17 +42369,17 @@ Procedure AddArgumentFunctionChoiceOperator(Context, DetailsToAdd)
 		
 		If Not ValueIsFilled(LongDesc.SecondArgument) Then
 			LongDesc.SecondArgument = DetailsToAdd;
-			// 
-			// 
+			// The arguments are validated in the procedure
+			// "MarkIncorrectArgumentsAndProhibitedNodes".
 		Else
 			ProcessMissingLogicalOperation(Context, LongDesc.SecondArgument, DetailsToAdd);
 		EndIf;
 		
 	ElsIf StrFind(",Field,Value,Constant,In,IsNull,Case,", "," + LongDesc.Node + ",") > 0
 	      Or LongDesc.Source.Type = "Function" Then
-		// 
-		// 
-		// 
+		// The second argument of the "In" operation is parsed in the "ParseConnectorIn" procedure.
+		// The second argument "Null" of the "Is" operation is parsed in the "FunctionsWithExpressionsInParentheses" function.
+		// Other nodes don't have second arguments.
 		ProcessMissingLogicalOperation(Context, Undefined, DetailsToAdd);
 	Else
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -42357,12 +42389,12 @@ Procedure AddArgumentFunctionChoiceOperator(Context, DetailsToAdd)
 	
 EndProcedure
 
-// For the procedure add the Argumentfunctionselectoperator
+// For the AddArgumentFunctionChoiceOperator procedure
 Procedure ProcessMissingLogicalOperation(Context, DetailsLastArgument, DetailsToAdd)
 	
 	SetErrorInRow(Context.String, NStr("en = 'A logical operation is missing.';"));
 	
-	// 
+	// Recovery.
 	AdditionalString1 = AdditionalString1(Context.String, "And", Context);
 	
 	NewDetails = New Structure("Source, Node, Arguments", AdditionalString1, "And", New Array);
@@ -42380,7 +42412,7 @@ Procedure ProcessMissingLogicalOperation(Context, DetailsLastArgument, DetailsTo
 	
 EndProcedure
 
-// For the procedure, parse the Condition.
+// For the ParseCondition procedure.
 //
 // Returns:
 //  Array of ValueTableRow
@@ -42422,7 +42454,7 @@ Function ExpressionsInParenthesesInAttachments(Rows, Context)
 	
 EndFunction
 
-// For the procedure, parse the Condition.
+// For the ParseCondition procedure.
 //
 // Parameters:
 //    Rows - Array of ValueTableRow: See CharsetsTable
@@ -42451,7 +42483,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			EndIf;
 		ElsIf String.Refinement = "Case" Then
 			If Attachments.Count() = 1 Then
-				// 
+				// Standard processing after the condition.
 			Else
 				If CurrentAttachment.Refinement = "Case" Then
 					SetErrorInRow(CurrentAttachment, InsertKeywordsIntoString(Context,
@@ -42470,7 +42502,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Case", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "Case" Then
-				// 
+				// Standard processing after the condition.
 				
 			ElsIf CurrentAttachment.Refinement = "When" Then
 				SetErrorInRow(CurrentAttachment, InsertKeywordsIntoString(Context,
@@ -42480,7 +42512,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			ElsIf CurrentAttachment.Refinement = "Then" Then
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				
-			Else // 
+			Else // CurrentAttachment.Clarification = "Else"
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
 					NStr("en = 'The ""%1"" keyword must precede the ""%2"" keyword.';"), "When,Else"));
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
@@ -42500,14 +42532,14 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "When", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "When" Then
-				// 
+				// Standard processing after the condition.
 				
 			ElsIf CurrentAttachment.Refinement = "Then" Then
 				SetErrorInRow(CurrentAttachment, InsertKeywordsIntoString(Context,
 					NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.';"), "Then,When"), True);
 				RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "When", Context);
 				
-			Else // 
+			Else // CurrentAttachment.Clarification = "Else"
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
 					NStr("en = 'The ""%1"" keyword must precede the ""%2"" keyword.';"), "Then,Else"));
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
@@ -42535,16 +42567,16 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Then", Context);
 				
 			ElsIf CurrentAttachment.Refinement = "Then" Then
-				// 
+				// Standard processing after the condition.
 				
-			Else // 
+			Else // CurrentAttachment.Clarification = "Else"
 				SetErrorInRow(String, InsertKeywordsIntoString(Context,
 					NStr("en = 'Repeated keyword: ""%1"".';"), "Else"));
 			EndIf;
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			AddAttachment(String, Attachments, CurrentAttachment, Context);
 			
-		Else // 
+		Else // String.Clarification = "End"
 			
 			If Attachments.Count() = 1 Then
 				SetErrorInRow(String, StringFunctionsClientServer.SubstituteParametersToString(
@@ -42568,8 +42600,8 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 				DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 				RestoreChoiceStructure(String, Attachments, CurrentAttachment, "Else", Context);
 				
-			Else // 
-				// 
+			Else // CurrentAttachment.Refinement = "Else".
+				// Standard handling following the condition.
 			EndIf;
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
@@ -42596,7 +42628,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 			DeleteLastAttachment(Attachments, CurrentAttachment, Context);
 			RestoreChoiceStructure(CurrentAttachment, Attachments, CurrentAttachment, "Else", Context);
 			
-		Else // 
+		Else // CurrentAttachment.Clarification = "Else"
 			ErrorText = InsertKeywordsIntoString(Context,
 				NStr("en = 'The ""%2"" keyword is missing after the ""%1"" keyword.';"), "Else,End");
 		EndIf;
@@ -42609,7 +42641,7 @@ Function ExpressionsSelectionWhenThenInAttachments(Rows, Context)
 	
 EndFunction
 
-// For the procedure, parse the Condition.
+// For the ParseCondition procedure.
 //
 // Parameters:
 //    Rows - Array of See TableRow.RowDescription
@@ -42711,7 +42743,7 @@ Function FunctionsWithExpressionsInParentheses(Rows, InternalData)
 	
 EndFunction
 
-// For the functions Expressivescapingexplosions, Expressiveselectioncompathonexplosions.
+// For the ExpressionsInParenthesesInAttachments and ExpressionsWhenThenSelectionInAttachments functions.
 Procedure AddAttachment(String, Attachments, CurrentAttachment, Context)
 	
 	RowAdd(CurrentAttachment, String, Context);
@@ -42720,7 +42752,7 @@ Procedure AddAttachment(String, Attachments, CurrentAttachment, Context)
 	
 EndProcedure
 
-// For the functions Expressivescapingexplosions, Expressiveselectioncompathonexplosions.
+// For the ExpressionsInParenthesesInAttachments and ExpressionsWhenThenSelectionInAttachments functions.
 Procedure DeleteLastAttachment(Attachments, CurrentAttachment, Context, EndString = Undefined)
 	
 	If EndString = Undefined Then
@@ -42742,7 +42774,7 @@ Procedure DeleteLastAttachment(Attachments, CurrentAttachment, Context, EndStrin
 	
 EndProcedure
 
-// For the function of ВыраженияВыборКогдаТогдаВоВложениях.
+// For the ExpressionsWhenThenSelectionInAttachments function.
 Procedure RestoreChoiceStructure(String, Attachments, CurrentAttachment, MissingWordsList, Context)
 	
 	MissingWords = StrSplit(MissingWordsList, ",", False);
@@ -42764,8 +42796,8 @@ Procedure RestoreChoiceStructure(String, Attachments, CurrentAttachment, Missing
 	
 EndProcedure
 
-// For procedures to process a missed logical Operation, expressions of Selecteddatoadextensions,
-// Restore the selection structure and for the function parameters separated by Commas.
+// For the ProcessMissingLogicalOperation, ExpressionsWhenThenSelectionInAttachments,
+// RestoreChoiceStructure procedures, and the CommaSeparatedParameters function.
 //
 // Returns:
 //   Structure:
@@ -42774,8 +42806,8 @@ EndProcedure
 //   * Type - String
 //   * Priority - Number
 //   * Refinement - String
-//   * Rows - Array of Number - 
-//   * EndString - Number - 
+//   * Rows - Array of Number - Row indexes in the "CharsetsTable" table.
+//   * EndString - Number - Row index in the "CharsetsTable" table.
 //   * ErrorPosition - Number
 //   * ErrorText - String
 //
@@ -42805,7 +42837,7 @@ Function AdditionalString1(String, Refinement = "", Context = Undefined)
 	
 EndFunction
 
-// For procedures, parse additional Tables, parse condition Constraints.
+// For the ParseAdditionalTables and ParseRestrictionCondition procedures.
 //
 // Parameters:
 //    PartRows - Array of ValueTableRow: See CharsetsTable
@@ -42824,10 +42856,10 @@ Procedure ChangeKeywordTypeListToName(PartRows, RowToExclude = Undefined)
 	
 EndProcedure
 
-// For procedures, parse additional Tables, parse Join.
+// For the ParseAdditionalTables and ParseCondition procedures.
 //
 // Parameters:
-//     See CharsetsTable
+//    PartRows - Array of ValueTableRow: See CharsetsTable
 //
 Procedure SetAlias(PartRow, IConnectionShort, InternalData)
 	
@@ -42860,10 +42892,10 @@ Procedure SetAlias(PartRow, IConnectionShort, InternalData)
 	
 EndProcedure
 
-// For the procedure, disassemble the Connection.
+// For the ParseConnection procedure.
 //
 // Parameters:
-//     See CharsetsTable
+//    PartRows - Array of ValueTableRow: See CharsetsTable
 //
 Procedure SetTableName(PartRow, IConnectionShort, InternalData)
 	
@@ -42896,7 +42928,7 @@ Procedure SetTableName(PartRow, IConnectionShort, InternalData)
 	
 EndProcedure
 
-// For the procedure set table Names.
+// For the SetTableName procedure.
 Procedure AddRequiredTableAsDataSource(Context, Table, Source)
 	
 	If ValueIsFilled(Source.ErrorText) Then
@@ -42943,8 +42975,8 @@ Procedure AddRequiredTableAsDataSource(Context, Table, Source)
 	
 EndProcedure
 
-// For procedures, select all the pseudo-Fields, parse the first parameter of the verification Function, parse the additional parameter of the verification Function, parse the parameter of the function value, or the
-// function Type.
+// For the SelectFieldAlias, ParseFirstCheckingFunctionParameter,
+// ParseAdditionalCheckingFunctionParameter, and ParseValueFunctionOrTypeFunctionParameters procedures.
 //
 Procedure AddRequiredTableAsReferenceType(Context, Table, Source)
 	
@@ -42977,7 +43009,7 @@ Procedure AddRequiredTableAsReferenceType(Context, Table, Source)
 	
 EndProcedure
 
-// For the procedure, parse the parameters functionvalue or Functiontype.
+// For the ParseValueFunctionOrTypeFunctionParameters procedure.
 Procedure AddRequiredPredefinedItem(Context, FullPredefinedItemName, Source)
 	
 	If ValueIsFilled(Source.ErrorText) Then
@@ -43032,7 +43064,7 @@ Procedure AddRequiredPredefinedItem(Context, FullPredefinedItemName, Source)
 	
 EndProcedure
 
-// For the procedure, parse the parameters of the function is not available.
+// For the ParseRoleAvailableFunctionParameters procedure.
 Procedure CheckTheRoleName(NameOfRole, Source)
 	
 	If ValueIsFilled(Source.ErrorText) Then
@@ -43092,7 +43124,7 @@ Procedure CheckTheNameOfTheMetadataObjectRight(NameOfRight, SourceOfLaw, ObjectN
 	
 EndProcedure
 
-// For the procedure, check the right of the Data object
+// For the CheckMetadataObjectRightName procedure.
 Function MetadataObjectByFullNameForCheckingTheRight(FullName, StandardAttributeName = Undefined)
 	
 	MetadataObject = Common.MetadataObjectByFullName(FullName);
@@ -43163,8 +43195,8 @@ Function MetadataObjectByFullNameForCheckingTheRight(FullName, StandardAttribute
 	
 EndFunction
 
-// For procedures, mark the incorrect argumentsapproved Nodes, select all the pseudo-Fields,
-// Add the type of user access viewsexternal usersreferencesexternal links.
+// For the MarkIncorrectArgumentsAndProhibitedNodes, SelectFieldAlias,
+// and AddUsersAndExternalUsersAccessKindsTypesToCheckAbsence procedures.
 //
 Procedure AddRequiredTableField(Context, Table, FieldName, Source,
 			FieldType = "", FieldTypeSource = Undefined, FieldNode = Undefined)
@@ -43248,8 +43280,8 @@ Procedure AddRequiredTableField(Context, Table, FieldName, Source,
 	
 EndProcedure
 
-// For procedures, add the required tableau as a data Source, add the required tableau as a reference Type,
-// Add A Requirementdetermined Element, Add A Requirementreferences.
+// For the AddRequiredTableAsDataSource, AddRequiredTableAsReferenceType,
+// AddRequiredPredefinedItem, and AddRequiredTableField procedures.
 //
 Function TableNameProperties(Context, FullName)
 	
@@ -43274,8 +43306,8 @@ Function TableNameProperties(Context, FullName)
 	
 EndFunction
 
-// For procedures, add the required tableau as a data Source, add the required tableau as a reference Type,
-// Add A Requirementdetermined Element, Add A Requirementreferences.
+// For the AddRequiredTableAsDataSource, AddRequiredTableAsReferenceType,
+// AddRequiredPredefinedItem, and AddRequiredTableField procedures.
 //
 Function RequiredTableProperties(Context, NameProperties, WithoutExtension = False)
 	
@@ -43322,8 +43354,8 @@ Function RequiredTableProperties(Context, NameProperties, WithoutExtension = Fal
 	
 EndFunction
 
-// For procedures and functions, partial Constraints,
-// parse additional Tables, parse Join, parse constraint Conditions, and expressions of Selectdateextensions.
+// For the RestrictionParts, ParseAdditionalTables, ParseConnection,
+// ParseRestrictionCondition, and ExpressionsWhenThenSelectionInAttachments procedures and functions.
 //
 Function InsertKeywordsIntoString(Context, String, WordsList, ParameterOne = "", ParameterTwo = "", ParameterThree = "")
 	
@@ -43347,7 +43379,7 @@ Function InsertKeywordsIntoString(Context, String, WordsList, ParameterOne = "",
 	
 EndFunction
 
-// For procedures, parse additional Tables, parse join, and parse condition Constraints.
+// For the ParseAdditionalTables, ParseConnection, and ParseRestrictionCondition procedures.
 Function KeywordRegardingLanguage(WordID, Context)
 	
 	WordProperties = Context.LanguageSyntax.LanguageWords.Get(Upper(WordID));
@@ -43370,8 +43402,8 @@ EndFunction
 
 #Region TablesNamesAndTablesFieldsAnalysis
 
-// Verification of tables, table fields and field types found in the analysis of the text limitations.
-// A similar procedure is implemented in the DSS.
+// Checking tables, table fields, and field types found when parsing the restriction text.
+// The same procedure is implemented in ASDS.
 //
 // Parameters:
 //  ParsedRestriction - See ParsedRestriction
@@ -43414,7 +43446,7 @@ Procedure CheckFieldTablesAndFieldsTypes(ParsedRestriction)
 	
 EndProcedure
 
-// For procedures, check the table of fields and fields, check the following field Section.
+// For the CheckFieldTablesAndFieldsTypes and CheckNextPointSeparatedField procedures.
 Procedure CheckTableField(FieldDetails, Context, IndexOf = 0, InitialCall = True)
 	
 	NameContent  = FieldDetails.NameContent;
@@ -43474,7 +43506,7 @@ Procedure CheckTableField(FieldDetails, Context, IndexOf = 0, InitialCall = True
 	
 EndProcedure
 
-// For procedures, check the flight Tables and check the extension Tables.
+// For the CheckTableField and CheckTableExtensions procedures.
 Procedure CheckNextPointSeparatedField(FieldDetails, IndexOf, CurrentFieldProperties, Context)
 	
 	AddFieldTypesAdditional(FieldDetails, IndexOf, CurrentFieldProperties, Context);
@@ -43489,7 +43521,7 @@ Procedure CheckNextPointSeparatedField(FieldDetails, IndexOf, CurrentFieldProper
 	FieldFound = False;
 	
 	If FieldDetails.Property("NextFieldTables") Then
-		//  
+		// See procedure AddFieldTypesAdditional.
 		If FieldDetails.NextFieldTables.Count() < IndexOf + 1 Then
 			NextFieldTables = New Array;
 			FieldDetails.NextFieldTables.Add(NextFieldTables);
@@ -43505,7 +43537,7 @@ Procedure CheckNextPointSeparatedField(FieldDetails, IndexOf, CurrentFieldProper
 		FieldProperties.FieldWithError = 0;
 		FieldProperties.ErrorKind = "";
 		
-		// 
+		// Save the current context.
 		CurrentTableMetadata  = Context.MetadataTables;
 		CurrentTablesTypeProperties = Context.TablesTypeProperties;
 		
@@ -43517,14 +43549,14 @@ Procedure CheckNextPointSeparatedField(FieldDetails, IndexOf, CurrentFieldProper
 		CurrentIndex = IndexOf;
 		CheckTableField(FieldDetails, Context, CurrentIndex, False);
 		
-		// 
+		// Restore the current context.
 		Context.MetadataTables  = CurrentTableMetadata;
 		Context.TablesTypeProperties = CurrentTablesTypeProperties;
 		
 		If FieldProperties.FieldWithError = 0 Then
 			FieldFound = True;
 			If NextFieldTables <> Undefined Then
-				//  
+				// See procedure AddFieldTypesAdditional.
 				NextFieldTables.Add(FullName);
 			EndIf;
 		ElsIf FieldProperties.ErrorKind <> "NotFound4" Then
@@ -43539,7 +43571,7 @@ Procedure CheckNextPointSeparatedField(FieldDetails, IndexOf, CurrentFieldProper
 	
 EndProcedure
 
-// For the procedure, check the flight Tables.
+// For the CheckTableField procedure.
 Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsFirstField)
 	
 	Result = New Structure;
@@ -43615,7 +43647,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 			
 			Result.Collection = "SpecialFields";
 			Result.Type = MetadataTables.Type;
-			Result.Insert("DefaultOrder", "001"); //  
+			Result.Insert("DefaultOrder", "001"); // See procedure "AddMainFieldOrder".
 			Return Result;
 		EndIf;
 		
@@ -43626,7 +43658,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 		
 			Result.Collection = "SpecialFields";
 			Result.Type = New TypeDescription("Date");
-			Result.Insert("DefaultOrder", "001"); //  
+			Result.Insert("DefaultOrder", "001"); // See procedure "AddMainFieldOrder".
 			Return Result;
 		EndIf;
 		
@@ -43639,7 +43671,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 			For Each DocumentMetadata In MetadataSequences.Documents Do
 				Result.Type = New TypeDescription(Result.Type, "DocumentRef." + DocumentMetadata.Name);
 			EndDo;
-			Result.Insert("DefaultOrder", "002"); //  
+			Result.Insert("DefaultOrder", "002"); // See procedure "AddMainFieldOrder".
 			Return Result;
 		EndIf;
 	EndIf;
@@ -43648,7 +43680,7 @@ Function FieldOrTabularSectionProperties(FieldOrTabularSectionName, Context, IsF
 	
 EndFunction
 
-// For procedures, check the extension Tables, check the flight Tables.
+// For the CheckTableExtensions and CheckTableField procedures.
 Function TabularSectionFieldProperties(TabularSectionFieldName, TabularSectionMetadata, CollectionName, MetadataTables)
 	
 	Result = New Structure;
@@ -43686,7 +43718,7 @@ Function TabularSectionFieldProperties(TabularSectionFieldName, TabularSectionMe
 	
 EndFunction
 
-// For procedures, check the extension Tables, check the flight Tables.
+// For the CheckTableExtensions and CheckTableField procedures.
 Function RecalculationFieldProperties(RecalculationFieldName, RecalculationMetadata, MetadataTables)
 	
 	Result = New Structure;
@@ -43723,7 +43755,7 @@ Function RecalculationFieldProperties(RecalculationFieldName, RecalculationMetad
 		Result.Type = FieldMetadata.RegisterDimension.Type;
 		Result.Collection = "SpecialFields";
 		Number = 200 + RegisterMetadata.Dimensions.IndexOf(FieldMetadata) + 1;
-		Result.Insert("DefaultOrder", Number); //  
+		Result.Insert("DefaultOrder", Number); // See procedure "AddMainFieldOrder".
 		Return Result;
 	EndIf;
 	
@@ -43731,12 +43763,12 @@ Function RecalculationFieldProperties(RecalculationFieldName, RecalculationMetad
 	
 EndFunction
 
-// For the procedure, check the flight Tables.
+// For the CheckTableField procedure.
 Procedure AddFieldTypesAdditional(FieldDetails, IndexOf, CurrentFieldProperties, Context)
 	
-	// 
+	// Additionally collecting types to use in service procedures.
 	
-	// 
+	// Expanding properties of the Field node to use in service procedures.
 	If IndexOf = 0 Or IndexOf = 1 And CurrentFieldProperties.Property("TabularSectionName") Then
 		If FieldDetails.NameContent.Count() > 1 Then
 			FieldDetails.Insert("NextFieldTables", New Array);
@@ -43774,7 +43806,7 @@ Procedure AddFieldTypesAdditional(FieldDetails, IndexOf, CurrentFieldProperties,
 			CurrentFieldProperties.Type.Types());
 	EndDo;
 	
-	// 
+	// Add field types as String to check changes in internal procedures.
 	FullFieldName1 = Context.TablesTypeProperties.LanguageRussian + "." + Upper(Context.MetadataTables.Name);
 	
 	If CurrentFieldProperties.Property("TabularSectionName") Then
@@ -43797,7 +43829,7 @@ Procedure AddFieldTypesAdditional(FieldDetails, IndexOf, CurrentFieldProperties,
 	
 EndProcedure
 
-// For the procedure, check the flight Tables.
+// For the CheckTableField procedure.
 Procedure FillFieldTypesAsStringAdditional(FieldDetails)
 	
 	If FieldDetails.AllFieldsTypes.Count() > 1 Then
@@ -43815,11 +43847,11 @@ Procedure FillFieldTypesAsStringAdditional(FieldDetails)
 	
 EndProcedure
 
-// For the procedure, add the type of field Additionally.
+// For the AddFieldTypesAdditional procedure.
 Procedure AddMainFieldOrder(CurrentFieldProperties, Context)
 	
 	If CurrentFieldProperties.Collection = "SpecialFields" Then
-		Return; // 
+		Return; // It is set in the FieldOrTabularSectionProperties function.
 	EndIf;
 	
 	MetadataTables = Context.MetadataTables; // MetadataObjectInformationRegister
@@ -43852,7 +43884,7 @@ Procedure AddMainFieldOrder(CurrentFieldProperties, Context)
 	
 EndProcedure
 
-// For the procedure, add the type of field Additionally.
+// For the AddFieldTypesAdditional procedure.
 Procedure SetFieldContainsNull(FieldNode, CurrentFieldProperties, Context)
 	
 	If Context.TablesTypeProperties.CollectionName <> "Catalogs"
@@ -43889,7 +43921,7 @@ Procedure SetFieldContainsNull(FieldNode, CurrentFieldProperties, Context)
 	
 EndProcedure
 
-// For the procedure, check the table of fields and Fields.
+// For the CheckFieldTablesAndFieldsTypes procedure.
 Procedure CheckTableExtensions(TableFields, Context)
 	
 	TablesTypeProperties = Context.TablesTypeProperties;
@@ -43959,7 +43991,7 @@ Procedure CheckTableExtensions(TableFields, Context)
 	
 EndProcedure
 
-// For procedures, check the tables of fields and Fields and check the extensions of the Tables.
+// For the CheckFieldTablesAndFieldsTypes and CheckTableExtensions procedures.
 Procedure CheckFieldTypes(FieldDetails, Context)
 	
 	FieldTypesDetails = FieldDetails.FieldType;
@@ -43976,7 +44008,7 @@ Procedure CheckFieldTypes(FieldDetails, Context)
 	
 EndProcedure
 
-// For the procedure, check the table of fields and Fields.
+// For the CheckFieldTablesAndFieldsTypes procedure.
 //
 // Parameters:
 //    TableFields - See NewCollectionComponents
@@ -44021,7 +44053,7 @@ Procedure CheckPredefinedTableValues(TableFields, Context)
 EndProcedure
 
 
-// For the structure Constraint function.
+// For the RestrictionStructure function.
 Procedure MarkIncorrectFieldsTablesAndFieldsTypesNames(TablesFields, Context)
 	
 	For Each TablesType In TablesFields Do
@@ -44096,7 +44128,7 @@ Procedure MarkIncorrectFieldsTablesAndFieldsTypesNames(TablesFields, Context)
 	
 EndProcedure
 
-// For the procedure, mark the incorrect table names of the fields and field Types.
+// For the MarkIncorrectFieldsTablesAndFieldsTypesNames procedure.
 Procedure MarkIncorrectFieldAndFieldTypes(FieldDetails, Context)
 	
 	FieldProperties = FieldDetails.Value;
@@ -44176,7 +44208,7 @@ Procedure MarkIncorrectFieldAndFieldTypes(FieldDetails, Context)
 	
 EndProcedure
 
-// For the procedure, mark the incorrect table names of the fields and field Types.
+// For the MarkIncorrectFieldsTablesAndFieldsTypesNames procedure.
 Procedure SetErrorInFieldNameString(Context, String, ErrorTemplate, FieldWithError,
 			InsertName = False, Table = Null, EOF = False)
 	
@@ -44296,7 +44328,7 @@ EndProcedure
 Procedure RefreshProgressBar(Context)
 	
 	ProgressUpdateStartDate = CurrentSessionDate();
-	TimeConsumingOperations.ReportProgress(0); // 
+	TimeConsumingOperations.ReportProgress(0); // Update progress.
 	
 	ListsRows   = Context.StoredData.ListsRows;
 	ListsProperties = Context.StoredData.ListsProperties;
@@ -45170,7 +45202,7 @@ Procedure UpdateItemsAndAccessKeysCount(Context)
 	
 EndProcedure
 
-// 
+// Intended for procedure "UpdateItemsAndAccessKeysCount".
 Procedure UpdateCount(QueryResult, IsLastUpdated,
 			RemainingCount, Count, RemainingPortion, ProcessedPortion)
 	
@@ -45203,7 +45235,7 @@ Function ExecuteQueriesPackageByParts(QueryDetails)
 	QueriesBatchTexts = New Array;
 	For Each QueryText In QueryDetails.QueryPackageTexts Do
 		If QueriesBatchTexts.Count() = 200 Then
-			// 
+			// @skip-check query-in-loop - Batch processing of data
 			AddQueryResults(QueriesPackageResults, QueriesBatchTexts, QueryDetails);
 			QueriesBatchTexts = New Array;
 		EndIf;
@@ -45480,7 +45512,7 @@ Procedure FillSharesRefTypeItemsCount(ItemsCountShares, Item, TableName)
 			ItemsCountShares.Processed2 = 0.6;
 			ItemsCountShares.Left1   = 0.3;
 			
-		Else // 
+		Else // ObsoleteItems.
 			ItemsCountShares.Processed2 = 0.9;
 			ItemsCountShares.Left1   = 0.1;
 		EndIf;
@@ -45490,7 +45522,7 @@ Procedure FillSharesRefTypeItemsCount(ItemsCountShares, Item, TableName)
 	If Item.DataKeyKind = "ItemsWithObsoleteKeys" Then
 		ItemsCountShares.Processed2 = 0.0;
 		ItemsCountShares.Left1   = 0.9;
-	Else // 
+	Else // ObsoleteItems.
 		ItemsCountShares.Processed2 = 0.9;
 		ItemsCountShares.Left1   = 0.1;
 	EndIf;
@@ -45647,7 +45679,7 @@ Procedure FillRegisterItemsCountShares(ItemsCountShares, Item, RestrictionProper
 			ItemsCountShares.Left1   = 0.1;
 		EndIf;
 		
-	Else // 
+	Else // InvalidItems or InvalidItemsInCommonRegister.
 		ItemsCountShares.Processed2 = 0.99;
 		ItemsCountShares.Left1   = 0.01;
 	EndIf;
@@ -45759,7 +45791,7 @@ Procedure FillAccessKeysCountShares(AccessKeysCountShares, Item)
 	If Item.DataKeyKind = "ItemsWithObsoleteRights" Then
 		AccessKeysCountShares.Processed2 = 0.0;
 		AccessKeysCountShares.Left1   = 0.9;
-	Else // 
+	Else // ObsoleteItems.
 		AccessKeysCountShares.Processed2 = 0.9;
 		AccessKeysCountShares.Left1   = 0.1;
 	EndIf;
@@ -45787,10 +45819,10 @@ EndFunction
 
 Function CurrentDateAtServer() Export
 	
-	// 
-	// 
+	// ACC:143-off - No.643.2.1. "CurrentDate" is required instead of "CurrentSessionDate"
+	// as the current date is used for logging.
 	Return CurrentDate();
-	// 
+	// ACC:143-on
 	
 EndFunction
 

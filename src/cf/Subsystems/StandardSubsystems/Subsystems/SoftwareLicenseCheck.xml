@@ -3,7 +3,12 @@
 	<Subsystem uuid="e8b4cb2d-1180-4101-954a-4cb5464f198c">
 		<Properties>
 			<Name>SoftwareLicenseCheck</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Licensed update verification</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 			<IncludeHelpInContents>false</IncludeHelpInContents>
 			<IncludeInCommandInterface>false</IncludeInCommandInterface>

@@ -1,34 +1,37 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// 
-// 
-// 
-// 
-// 
+// Adds a message to the Event log.
+// If "WriteEvents" is set to "True", the message is written immediately through a server call.
+// If "WriteEvents" is set to "False" (the default value), the message is queued.
+// The queue will be written to the log either within 60 seconds,
+// or when this procedure is called with "WriteEvents" set to "True",
+// or then the "WriteEventsToEventLog" procedure is called.
 //
 //  Parameters: 
-//   EventName          - String -  event name for the log;
-//   LevelPresentation - String -  description of the event level, which will be used to determine the event level when recording on
-//                                  the server;
-//                                  For Example: "Error", "Warning".
-//                                  Match the names of the log Level enumeration elements.
-//   Comment         - String -  comment for a log event;
-//   EventDate         - Date   -  the exact date when the event described in the message occurred. Will be added to the beginning
+//   EventName          - String - an event name for the event log;
+//   LevelPresentation - String - description of the event level that determines the event level when writing the event data on
+//                                  server;
+//                                  For example: "Error", "Warning".
+//                                  Corresponded to the names of the EventLogLevel enumeration items.
+//   Comment         - String - the comment to the log event;
+//   EventDate         - Date   - the exact occurrence date of the event described in the message. This date will be added to the beginning
 //                                  of the comment;
-//   WriteEvents     - Boolean -  write all previously accumulated messages to the log (accessing the
-//                                  server).
+//   WriteEvents     - Boolean - write all accumulated events to the event log, through
+//                                  a server call.
 //
 // Example:
-//  Journalrecipient.Add a message to logregistration (event Logregistration (), "Warning",
-//     NSTR ("ru = 'Unable to connect to the Internet to check for updates.'"));
+//  EventLogClient.AddMessageForEventLog(EventLogEvent(), "Warning",
+//     NStr("en = 'Cannot establish Internet connection to check for updates."));
 //
 Procedure AddMessageForEventLog(Val EventName, Val LevelPresentation = "Information", 
 	Val Comment = "", Val EventDate = "", Val WriteEvents = False) Export
@@ -66,24 +69,24 @@ Procedure AddMessageForEventLog(Val EventName, Val LevelPresentation = "Informat
 	
 EndProcedure
 
-// Opens the registration log form with the selection set.
+// Opens the event log form with the set filter.
 //
 // Parameters:
 //  Filter - Structure:
 //     * User              - String
-//                                 - ValueList - 
-//                                                    
+//                                 - ValueList - the name of infobase user, or the list of names of infobase
+//                                                    users.
 //     * EventLogEvent - String
-//                                 - Array - 
-//     * StartDate                - Date           -  start of the interval of displayed events.
-//     * EndDate             - Date           -  end of the interval of displayed events.
-//     * Data                    - Arbitrary   -  any type of data.
-//     * Session                     - ValueList -  list of selected sessions.
+//                                 - Array - the ID of the event.
+//     * StartDate                - Date           - the start date of the interval of displayed events.
+//     * EndDate             - Date           - the end date of the interval of displayed events.
+//     * Data                    - Arbitrary   - data of any type.
+//     * Session                     - ValueList - the list of selected sessions.
 //     * Level                   - String
-//                                 - Array - 
-//                                            
-//     * ApplicationName             - Array         -  an array of application identifiers.
-//  Owner - ClientApplicationForm -  the form that opens the registration log.
+//                                 - Array - presentation of importance level
+//                                            of the log event.
+//     * ApplicationName             - Array         - array of the application IDs.
+//  Owner - ClientApplicationForm - the form used to open the event log.
 //
 Procedure OpenEventLog(Val Filter = Undefined, Owner = Undefined) Export
 	
@@ -91,8 +94,8 @@ Procedure OpenEventLog(Val Filter = Undefined, Owner = Undefined) Export
 	
 EndProcedure
 
-// 
-// 
+// Writes the message queue to the Event log through a server call.
+// The messages are queued by the procedure "AddMessageForEventLog".
 //
 Procedure WriteEventsToEventLog() Export
 	
@@ -113,10 +116,10 @@ EndProcedure
 
 #Region Internal
 
-// Opens a form for viewing additional event data.
+// Opens the form for viewing additional event data.
 //
 // Parameters:
-//  CurrentData - ValueTableRow -  log line.
+//  CurrentData - ValueTableRow - an event log row.
 //
 Procedure OpenDataForViewing(CurrentData) Export
 	
@@ -131,7 +134,7 @@ Procedure OpenDataForViewing(CurrentData) Export
 		WarningText = NStr("en = 'The event log record is linked to data that cannot be displayed.
 									|%1';");
 		If CurrentData.Event = "_$Data$_.Delete" Then 
-			// 
+			// This is a deletion event.
 			WarningText =
 					StringFunctionsClientServer.SubstituteParametersToString(WarningText, NStr("en = 'The data was deleted from the infobase';"));
 		Else
@@ -143,7 +146,7 @@ Procedure OpenDataForViewing(CurrentData) Export
 	
 EndProcedure
 
-// Opens the log processing event view form
+// Opens the event view form of the "Event log" data processor
 // to display detailed data for the selected event.
 //
 // Parameters:
@@ -160,17 +163,17 @@ Procedure ViewCurrentEventInNewWindow(Data) Export
 	
 EndProcedure
 
-// Requests a period limit from the user 
-// and includes it in the log selection.
+// Prompts the user for the period restriction 
+// and includes it in the event log filter.
 //
 // Parameters:
-//  DateInterval - StandardPeriod -  selection date interval.
+//  DateInterval - StandardPeriod - the filter date interval.
 //  EventLogFilter - Structure
 //  HandlerNotifications - NotifyDescription
 //
 Procedure SetPeriodForViewing(DateInterval, EventLogFilter, HandlerNotifications = Undefined) Export
 	
-	// 
+	// Get the current period.
 	StartDate    = Undefined;
 	EndDate = Undefined;
 	EventLogFilter.Property("StartDate", StartDate);
@@ -186,7 +189,7 @@ Procedure SetPeriodForViewing(DateInterval, EventLogFilter, HandlerNotifications
 		DateInterval.EndDate = EndDate;
 	EndIf;
 	
-	// 
+	// Edit the current period.
 	Dialog = New StandardPeriodEditDialog;
 	Dialog.Period = DateInterval;
 	
@@ -200,14 +203,14 @@ Procedure SetPeriodForViewing(DateInterval, EventLogFilter, HandlerNotifications
 	
 EndProcedure
 
-// Processes the selection of an individual event in the event table.
+// Handles selection of a single event in the event table.
 //
 // Parameters:
 //  Parameters - Structure:
-//     * CurrentData - ValueTableRow -  log line.
-//     * Field - FormField -  field of the value table.
+//     * CurrentData - ValueTableRow - an event log row.
+//     * Field - FormField - value table field.
 //     * DateInterval - StandardPeriod
-//     * EventLogFilter - Filter -  selection of the registration log.
+//     * EventLogFilter - Filter - the event log filter.
 //     * NotificationHandlerForSettingDateInterval - NotifyDescription
 //
 Procedure EventsChoice(Parameters) Export
@@ -240,16 +243,16 @@ Procedure EventsChoice(Parameters) Export
 	
 EndProcedure
 
-// Fills in the selection according to the value in the current event column.
+// Fills the filter according to the value in the current event column.
 //
 // Parameters:
 //  CurrentData - ValueTableRow
-//  CurrentItemName - String - 
+//  CurrentItemName - String - Name of the current item in the value table.
 //  EventLogFilter - Structure
 //  ExcludeColumns - Array
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the filter is set, False otherwise.
 //
 Function SetFilterByValueInCurrentColumn(CurrentData, CurrentItemName,
 			EventLogFilter, ExcludeColumns) Export
@@ -289,9 +292,9 @@ Function SetFilterByValueInCurrentColumn(CurrentData, CurrentItemName,
 	FilterValue = CurrentData[FilterColumnName];
 	Presentation  = CurrentData[PresentationColumnName];
 	
-	// 
+	// Filtering by a blanked string is not allowed.
 	If TypeOf(FilterValue) = Type("String") And IsBlankString(FilterValue) Then
-		// 
+		// The default user has a blank name, it is allowed to filter by this user.
 		If PresentationColumnName <> "UserName" Then 
 			Return False;
 		EndIf;
@@ -400,7 +403,7 @@ Procedure SetPeriodForViewingCompletion(Result, AdditionalParameters) Export
 	
 	If Result <> Undefined Then
 		
-		// 
+		// Update the current period.
 		DateInterval = Result;
 		If DateInterval.StartDate = '00010101000000' Then
 			EventLogFilter.Delete("StartDate");

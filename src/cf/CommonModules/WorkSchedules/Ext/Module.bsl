@@ -1,27 +1,29 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Returns the date, which differ by the specified date Datat on the number of days
-// included in the specified schedule Graficart.
+// Returns dates that differ from the specified date DateFrom by the number of days
+// included in the specified schedule WorkScheduleCalendar.
 //
 // Parameters:
-//  WorkScheduleCalendar	- CatalogRef.Calendars -  the schedule that you want to use.
-//  DateFrom			- Date -  the date from which to calculate the number of days.
-//  DaysArray		- Array -  the number of days (Number) to increase the start date by.
-//  CalculateNextDateFromPrevious	- Boolean -  whether to calculate the next date from the previous one, 
-//											           or all dates are calculated from the passed date.
-//  RaiseException1 - Boolean -  if True, an exception is thrown if the graph is empty.
+//  WorkScheduleCalendar	- CatalogRef.Calendars - schedule to be used.
+//  DateFrom			- Date - a date starting from which the number of days is to be calculated.
+//  DaysArray		- Array - a number of days by which the start date is to be increased.
+//  CalculateNextDateFromPrevious	- Boolean - shows whether the following date is to be calculated 
+//											           from the previous one or all dates are calculated from the passed date.
+//  RaiseException1 - Boolean - if True, an exception is thrown if the schedule is not filled in.
 //
 // Returns:
-//  Array, Undefined - 
-//	                       
+//  Array, Undefined - Dates incremented by the number of days from WorkSchedule.
+//	                       If WorkSchedule is empty and RaiseException = False, return Undefined.
 //
 Function DatesBySchedule(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray, 
 	Val CalculateNextDateFromPrevious = False, RaiseException1 = True) Export
@@ -45,7 +47,7 @@ Function DatesBySchedule(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray,
 		|ORDER BY
 		|	Date";
 
-	// 
+	// Limit the selection by the maximum shift value to avoid oversized day selection.
 	QuerySchema = New QuerySchema();
 	QuerySchema.SetQueryText(Query.Text);
 	QuerySchema.QueryBatch[0].Operators[0].RetrievedRecordsCount = ShiftDays.Maximum;
@@ -87,18 +89,18 @@ Function DatesBySchedule(Val WorkScheduleCalendar, Val DateFrom, Val DaysArray,
 	
 EndFunction
 
-// Returns a date that differs from the specified Datestate by the number of days
-// included in the specified work Schedule.
+// Returns a date that differs from the specified date DateFrom by the number of days
+// included in the specified schedule WorkScheduleCalendar.
 //
 // Parameters:
-//  WorkScheduleCalendar	- CatalogRef.Calendars -  the schedule that you want to use.
-//  DateFrom			- Date -  the date from which to calculate the number of days.
-//  DaysCount	- Number -  the number of days to increase the start date of Dataot.
-//  RaiseException1 - Boolean -  if True, an exception is thrown if the graph is empty.
+//  WorkScheduleCalendar	- CatalogRef.Calendars - schedule to be used.
+//  DateFrom			- Date - a date starting from which the number of days is to be calculated.
+//  DaysCount	- Number - number of days by which the start date DateFrom is to be increased.
+//  RaiseException1 - Boolean - if True, an exception is thrown if the schedule is not filled in.
 //
 // Returns:
-//  Date, Undefined - 
-//	                     
+//  Date, Undefined - Date incremented by the number of days from WorkSchedule.
+//	                     If WorkSchedule is empty and RaiseException = False, return Undefined.
 //
 Function DateAccordingToSchedule(Val WorkScheduleCalendar, Val DateFrom, Val DaysCount, RaiseException1 = True) Export
 	
@@ -117,21 +119,21 @@ Function DateAccordingToSchedule(Val WorkScheduleCalendar, Val DateFrom, Val Day
 	
 EndFunction
 
-// 
-//  
+// The constructor of parameters for getting dates nearest to the dates included in the schedule.
+//  See NearestWorkDates.
 // 
 // Returns:
 //  Structure:
-//   * GetPrevious - Boolean - :
-//       
-//       
-//       
-//   * IgnoreUnfilledSchedule - Boolean - 
-//       
-//       :
-//   * RaiseException1 - Boolean -  calling an exception if the schedule is not filled in
-//       if True, throw an exception if the graph is empty.
-//       if False, the dates that failed to determine the nearest date will simply be skipped.
+//   * GetPrevious - Boolean - Method that gets the closest date::
+//       If True, workdays preceding the ones passed in the InitialDates parameter are defined.
+//       If False, the nearest workdays following the start dates are defined.
+//       By default, False:
+//   * IgnoreUnfilledSchedule - Boolean - if True, a map returns in any way.
+//       Initial dates whose values are missing because of unfilled schedule will not be included.
+//       False - a default value:
+//   * RaiseException1 - Boolean - raising an exception if the schedule is not filled in
+//       If True, raise an exception if the schedule is not filled in.
+//       If False, dates whose nearest date is not identified will be ignored.
 //       The default value is True.
 //
 Function NearestDatesByScheduleReceivingParameters() Export
@@ -145,17 +147,17 @@ Function NearestDatesByScheduleReceivingParameters() Export
 	Return Parameters;
 EndFunction
 
-// Defines for each date the date closest to the day included in the schedule.
+// Defines a date of the nearest workday included in the schedule for each date.
 //
 // Parameters:
 //  WorkScheduleCalendar		 - CatalogRef.Calendars
-//  InitialDates		 - Array of Date -  dates to find the nearest ones for.
+//  InitialDates		 - Array of Date - dates to which the nearest ones must be detected.
 //  ReceivingParameters	 - See NearestDatesByScheduleReceivingParameters.
 // 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - Date -  the starting date.
-//   * Value - Date -  the nearest date included in the schedule.
+//   * Key - Date - start date.
+//   * Value - Date - the date nearest to it and included in the schedule.
 //
 Function NearestDatesIncludedInSchedule(WorkScheduleCalendar, InitialDates, ReceivingParameters = Undefined) Export
 	
@@ -255,26 +257,26 @@ Function NearestDatesIncludedInSchedule(WorkScheduleCalendar, InitialDates, Rece
 	
 EndFunction
 
-// Creates work schedules for dates included in the specified schedules for the specified period.
-// If the schedule for a pre-holiday day is not set, it is determined as if this day would be a working day.
+// Generates work schedules for dates included in the specified schedules for the specified period.
+// If the schedule for a pre-holiday day is not set, it is defined as if this day is a workday.
 //
 // Parameters:
-//  Schedules       - Array -  array of elements of the reference Link type.Calendars for which schedules are created.
-//  StartDate    - Date   -  the start date of the period for which you want to generate.
-//  EndDate - Date   -  end date of the period.
+//  Schedules       - Array - an array of items of the CatalogRef.Calendars type, for which schedules are created.
+//  StartDate    - Date   - a start date of the period, for which schedules are to be created.
+//  EndDate - Date   - a period end date.
 //
 // Returns:
 //   ValueTable:
-//    * WorkScheduleCalendar    - CatalogRef.Calendars -  work schedule.
-//    * ScheduleDate     - Date -  date in the work schedule work Schedule.
-//    * BeginTime     - Date -  start time on the Datagraphics day.
-//    * EndTime  - Date -  the end time of the work day Datagraphic.
+//    * WorkScheduleCalendar    - CatalogRef.Calendars - work schedule.
+//    * ScheduleDate     - Date - a date in the WorkScheduleCalendar work schedule.
+//    * BeginTime     - Date - work start time on the ScheduleDate day.
+//    * EndTime  - Date - work end time on the ScheduleDate day.
 //
 Function WorkSchedulesForPeriod(Schedules, StartDate, EndDate) Export
 	
 	TempTablesManager = New TempTablesManager;
 	
-	// 
+	// Create a temporary schedule table.
 	CreateTTWorkSchedulesForPeriod(TempTablesManager, Schedules, StartDate, EndDate);
 	
 	QueryText = 
@@ -293,14 +295,14 @@ Function WorkSchedulesForPeriod(Schedules, StartDate, EndDate) Export
 	
 EndFunction
 
-// Creates a temporary table in the work Schedule Manager with columns corresponding to the return value
-// of the work schedule function Period.
+// Creates temporary table TTWorkSchedules in the manager. The table contains columns matching the return
+// value of the WorkSchedulesForPeriod function.
 //
 // Parameters:
-//  TempTablesManager - TempTablesManager -  the Manager where the temporary table will be created.
-//  Schedules       - Array -  array of elements of the reference Link type.Calendars for which schedules are created.
-//  StartDate    - Date   -  the start date of the period for which you want to generate.
-//  EndDate - Date   -  end date of the period.
+//  TempTablesManager - TempTablesManager - manager, in which the temporary table is created.
+//  Schedules       - Array - an array of items of the CatalogRef.Calendars type, for which schedules are created.
+//  StartDate    - Date   - a start date of the period, for which schedules are to be created.
+//  EndDate - Date   - a period end date.
 //
 Procedure CreateTTWorkSchedulesForPeriod(TempTablesManager, Schedules, StartDate, EndDate) Export
 	
@@ -454,14 +456,14 @@ Procedure CreateTTWorkSchedulesForPeriod(TempTablesManager, Schedules, StartDate
 	|	DaysIncludedInSchedule.WorkScheduleCalendar,
 	|	DaysIncludedInSchedule.ScheduleDate";
 	
-	// 
-	// 
+	// The formula for calculating the number in an arbitrary-length cycle for a schedule day:
+	// NumberOfDay = DayCountFromStartDay % CycleLength
 	
-	// 
-	// 
+	// The modulo formula:
+	// Dividend – Int(Dividend / Divisor) * Divisor
 	
-	// 
-	// 
+	// To get the integral part, the following behavior is used:
+	// If the rule is "a fractional part of 0.5 is rounded up", and the result exceeds the original number, reduce it by 1.
 	
 	Query = New Query(QueryText);
 	Query.TempTablesManager = TempTablesManager;
@@ -476,13 +478,13 @@ EndProcedure
 
 #Region Internal
 
-// Updates work schedules based on the data from the production calendars 
-// that they are based on.
+// Uses business calendar data to update 
+// work schedules.
 //
 // Parameters:
-//  - 
-//    
-//    
+//  - UpdateConditions - ValueTable:
+//    - BusinessCalendarCode - Code of the modified business calendar.
+//    - Year - Year whose data must be updated.
 //
 Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Export
 	
@@ -490,11 +492,11 @@ Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Expo
 	
 EndProcedure
 
-// Adds the work schedule reference 
-// to the list of blocked objects, so that the schedules are not available for user changes while the production calendars are updated.
+// Adds work schedule catalog to the list of locked items 
+// to make schedules unavailable for changing by user while updating business calendars.
 //
 // Parameters:
-//  ObjectsToLock - Array of String -  names of metadata for blocked objects.
+//  ObjectsToLock - Array of String - metadata names of objects to be blocked.
 //
 Procedure FillObjectsToBlockDependentOnBusinessCalendars(ObjectsToLock) Export
 	
@@ -502,10 +504,10 @@ Procedure FillObjectsToBlockDependentOnBusinessCalendars(ObjectsToLock) Export
 	
 EndProcedure
 
-// Adds the calendar schedule register to the list of objects to change.
+// Adds the register of calendar schedules to the list of objects to be changed.
 //
 // Parameters:
-//  ObjectsToChange - Array of String -  names of metadata for the objects being modified.
+//  ObjectsToChange - Array of String - metadata names of objects to be changed.
 //
 Procedure FillObjectsToChangeDependentOnBusinessCalendars(ObjectsToChange) Export
 	
@@ -516,14 +518,14 @@ EndProcedure
 // Defines the number of days included in the schedule for the specified period.
 //
 // Parameters:
-//   WorkScheduleCalendar	- CatalogRef.Calendars - 
-//   StartDate		- Date -  start date of the period.
-//   EndDate	- Date -  end date of the period.
-//   RaiseException1 - Boolean -  if True, throw an exception if the graph is empty.
+//   WorkScheduleCalendar	- CatalogRef.Calendars - Schedule to be used for day calculation.
+//   StartDate		- Date - a period start date.
+//   EndDate	- Date - a period end date.
+//   RaiseException1 - Boolean - if True, throw an exception if the schedule is not filled in.
 //
 // Returns:
-//   Number		- 
-//	              
+//   Number		- Days between the start date and end date.
+//	              If schedule WorkSchedule is not specified and RaiseException = False, returns Undefined.
 //
 Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate, RaiseException1 = True) Export
 	
@@ -540,14 +542,14 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	ScheduleDates = New Array;
 	ScheduleDates.Add(StartDate);
 	If Year(StartDate) <> Year(EndDate) And EndOfDay(StartDate) <> EndOfYear(StartDate) Then
-		// 
+		// If the dates are from different years, add the year borders.
 		For YearNumber = Year(StartDate) To Year(EndDate) - 1 Do
 			ScheduleDates.Add(Date(YearNumber, 12, 31));
 		EndDo;
 	EndIf;
 	ScheduleDates.Add(EndDate);
 	
-	// 
+	// Generate a query text of the temporary table containing the specified dates.
 	QueryText = "";
 	For Each ScheduleDate In ScheduleDates Do
 		If IsBlankString(QueryText) Then
@@ -564,7 +566,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 			|	DATETIME(2020,01,01)";
 		EndIf;
 		QueryText = QueryText + StrReplace(
-			UnionTemplate, "2020,01,01", Format(ScheduleDate, """DF='yyyy,MM,d'")); // 
+			UnionTemplate, "2020,01,01", Format(ScheduleDate, """DF='yyyy,MM,d'")); // ACC:1367 Format data for technical purposes. Hidden from users.
 	EndDo;
 	
 	TempTablesManager = New TempTablesManager;
@@ -573,7 +575,7 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	Query.TempTablesManager = TempTablesManager;
 	Query.Execute();
 	
-	// 
+	// Prepare temporary tables with initial data.
 	Query.SetParameter("WorkScheduleCalendar", WorkScheduleCalendar);
 	Query.Text =
 	"SELECT DISTINCT
@@ -650,10 +652,10 @@ Function DateDiffByCalendar(Val WorkScheduleCalendar, Val StartDate, Val EndDate
 	
 	Selection = Result.Select();
 	
-	//  
-	// 
-	//  
-	// 
+	// Get a selection where each original date has the number of days in the schedule from the year start. 
+	// From the first date's value, subtract all other values to get the negative number of all days in the schedule.
+	// If the first day is a weekday and the next one is a day off, the number of matching days is equal, 
+	// and you need to adjust the result by adding 1 day to it.
 	//  
 	//  
 	// 
@@ -687,7 +689,7 @@ Function ConsiderNonWorkDaysFlagSettingProcedureName() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -742,7 +744,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// 
+	// BothForUsersAndExternalUsers.
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.ReadWorkSchedules.Name);
 	

@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
+	// Only users with full access rights can create and disable standalone workstations.
 	If Not Users.IsFullUser() Then
 		
 		Raise NStr("en = 'Insufficient rights for standalone mode setup.';");
@@ -265,10 +267,10 @@ EndProcedure
 &AtClient
 Function GetCurrentRowIndex()
 	
-	// 
+	// Function return value.
 	RowIndex = Undefined;
 	
-	// 
+	// Positioning the mouse pointer upon the monitor update
 	CurrentData = Items.StandaloneWorkstationsList.CurrentData;
 	
 	If CurrentData <> Undefined Then
@@ -285,7 +287,7 @@ Procedure ExecuteCursorPositioning(RowIndex)
 	
 	If RowIndex <> Undefined Then
 		
-		// 
+		// Checking the mouse pointer position once new data is received
 		If StandaloneWorkstationsList.Count() <> 0 Then
 			
 			If RowIndex > StandaloneWorkstationsList.Count() - 1 Then
@@ -294,14 +296,14 @@ Procedure ExecuteCursorPositioning(RowIndex)
 				
 			EndIf;
 			
-			// 
+			// Place the mouse pointer.
 			Items.StandaloneWorkstationsList.CurrentRow = StandaloneWorkstationsList[RowIndex].GetID();
 			
 		EndIf;
 		
 	EndIf;
 	
-	// 
+	// If setting the current row by TableName value failed, the first row is set as the current one
 	If Items.StandaloneWorkstationsList.CurrentRow = Undefined
 		And StandaloneWorkstationsList.Count() <> 0 Then
 		
@@ -318,7 +320,7 @@ Procedure UpdateStandaloneModeMonitor()
 	
 	UpdateStandaloneModeMonitorAtServer();
 	
-	// 
+	// Positioning the mouse pointer.
 	ExecuteCursorPositioning(RowIndex);
 	
 EndProcedure

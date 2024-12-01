@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns the details of an object that is not recommended to edit
-// by processing a batch update of account details.
+// Returns the object attributes that are not recommended to be edited
+// using a bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String
@@ -35,7 +37,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -58,14 +60,14 @@ EndProcedure
 
 #Region Internal
 
-// Applies the rules of processing messages.
+// Applies email processing rules.
 //
 // Parameters:
 //  ExportingParameters  - Structure:
-//    * ForEmailsInFolder     - CatalogRef.EmailMessageFolders -  emails that are in this folder will be processed.
-//    * IncludingSubordinates - Boolean -  a sign that emails in subordinate folders should be processed.
-//    * RulesTable      - ValueTable -  a table of rules to be applied.
-//  StorageAddress - String -  message about the result of applying the rules.
+//    * ForEmailsInFolder     - CatalogRef.EmailMessageFolders - mail messages in this folder will be processed.
+//    * IncludingSubordinates - Boolean - shows that emails in subordinate folders must be processed.
+//    * RulesTable      - ValueTable - a table of rules that must be applied.
+//  StorageAddress - String - a message about the rule application result.
 //
 Procedure ApplyRules(ExportingParameters, StorageAddress) Export
 	
@@ -164,7 +166,7 @@ Procedure ApplyRules(ExportingParameters, StorageAddress) Export
 				QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 			EndDo;
 			
-			// 
+			// @skip-check query-in-loop - Batch processing of email messages by user accounts.
 			EmailResult = QueryRule.Execute();
 		
 		Except

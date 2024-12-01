@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -98,9 +100,9 @@ EndProcedure
 Procedure CustomizeHeaderFont(Command)
 	
 	FontChooseDialog = New FontChooseDialog;
-	#If Not WebClient Then
+#If Not WebClient Then
 	FontChooseDialog.Font = FontHeader;
-	#EndIf
+#EndIf
 	
 	NotifyDescription = New NotifyDescription("HeaderFontSettingCompletion", ThisObject);
 	
@@ -112,9 +114,9 @@ EndProcedure
 Procedure CustomizeFooterFont(Command)
 	
 	FontChooseDialog = New FontChooseDialog;
-	#If Not WebClient Then
+#If Not WebClient Then
 	FontChooseDialog.Font = FontFooter;
-	#EndIf
+#EndIf
 	
 	NotifyDescription = New NotifyDescription("FooterFontSettingCompletion", ThisObject);
 	
@@ -275,7 +277,7 @@ Procedure UpdateSettings2()
 	EndIf;
 EndProcedure
 
-// Sets the last saved General settings.
+// Sets the last saved common settings.
 //
 &AtServer
 Procedure CustomizeStandardSettingsServer()

@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Sets the types of interaction items, such as orders, vacancies, and so on.
-// Used if at least one interaction item is defined in the configuration. 
+// Specifies interaction subject types, for example, orders, vacancies and so on.
+// It is used if at least one interaction subject is determined in the configuration. 
 //
 // Parameters:
-//  SubjectsTypes  - Array -  interaction items (String),
-//                            for example, " document Link.Customer's order", etc.
+//  SubjectsTypes  - Array - interaction subjects (String),
+//                            for example, "DocumentRef.CustomerOrder" and so on.
 //
 Procedure OnDeterminePossibleSubjects(SubjectsTypes) Export
 	
@@ -21,31 +23,31 @@ Procedure OnDeterminePossibleSubjects(SubjectsTypes) Export
 	
 EndProcedure
 
-// Sets descriptions of possible types of contacts and interactions, for example: partners, contact persons, and so on.
-// Used if the configuration defines at least one type of interaction contacts
-// other than the users directory. 
+// Sets details of possible interaction contact types, for example: partners, contact persons and so on.
+// It is used if at least one interaction contact type apart from the Users catalog is determined
+// in the configuration. 
 //
 // Parameters:
-//  ContactsTypes - Array - :
-//     * Type                               - Type    -  type of contact link.
-//     * Name                               - String -  name of the contact type as defined in the metadata.
-//     * Presentation                     - String -  representation of the contact type to display to the user.
-//     * Hierarchical                     - Boolean -  indicates whether the directory is hierarchical.
-//     * HasOwner                      - Boolean -  indicates that the contact has an owner.
-//     * OwnerName                      - String -  name of the contact owner, as defined in the metadata.
-//     * SearchByDomain                    - Boolean -  indicates that contacts of this type will be selected
-//                                                    by matching the domain, and not by the full email address.
-//     * Link                             - String -  describes the possible connection of this contact with another contact,
-//                                                    if the current contact is a detail of another contact.
-//                                                    Described by the following line " table Name.Requestname".
-//     * ContactPresentationAttributeName - String -  name of the contact details that the contact view will be received from
-//                                                    . If not specified,
-//                                                    the standard name is used.
-//     * InteractiveCreationPossibility - Boolean - 
-//                                                    
-//     * NewContactFormName            - String -  full name of the form for creating a new contact.
-//                                                    For Example, " Directory.Partners.Form.Assistant Manager".
-//                                                    If not filled in, the default element form opens.
+//  ContactsTypes - Array - contains interaction contact type details (Structure) and their properties:
+//     * Type                               - Type    - a contact reference type.
+//     * Name                               - String - a contact type name as it is defined in metadata.
+//     * Presentation                     - String - a contact type presentation to be displayed to a user.
+//     * Hierarchical                     - Boolean - indicates that this catalog is hierarchical.
+//     * HasOwner                      - Boolean - indicates that the contact has an owner.
+//     * OwnerName                      - String - a contact owner name as it is defined in metadata.
+//     * SearchByDomain                    - Boolean - indicates that contacts of this type will be picked
+//                                                    by the domain map and not by the full email address.
+//     * Link                             - String - describes a possible link of this contact with some other contact
+//                                                    when the current contact is an attribute of other contact.
+//                                                    It is described with the "TableName.AttributeName" string.
+//     * ContactPresentationAttributeName - String - a contact attribute name, from which a contact presentation
+//                                                    will be received. If it is not specified, the standard
+//                                                    Description attribute is used.
+//     * InteractiveCreationPossibility - Boolean - indicates that a contact can be created interactively from interaction
+//                                                    documents.
+//     * NewContactFormName            - String - a full form name to create a new contact.
+//                                                    For example, "Catalog.Partners.Form.NewContactWizard".
+//                                                    If it is not filled in, a default item form is opened.
 //
 Procedure OnDeterminePossibleContacts(ContactsTypes) Export
 

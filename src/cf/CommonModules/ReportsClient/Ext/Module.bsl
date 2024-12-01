@@ -1,21 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Starts the report generation process in the report form.
-//  After the formation is completed, the completion Handler is called.
+// Starts a report generation process in the report form.
+//  When the generation is completed, CompletionHandler is called.
 //
 // Parameters:
-//   ReportForm - ClientApplicationForm -  report form.
-//   CompletionHandler - NotifyDescription -  handler that will be called after the report is generated.
-//     In the 1st parameter of the procedure specified in the
-//     completion Handler, the parameter is passed: Reportformed (Boolean) - indicates that the report was successfully generated.
+//   ReportForm - ClientApplicationForm - Report form.
+//   CompletionHandler - NotifyDescription - Handler to be called once the report is generated.
+//     To the first parameter of the procedure, specified in CompletionHandler,
+//     the following parameter is passed: ReportGenerated (Boolean) - indicates that a report was generated successfully.
 //
 Procedure GenerateReport(ReportForm, CompletionHandler = Undefined) Export
 	If TypeOf(CompletionHandler) = Type("NotifyDescription") Then
@@ -29,7 +31,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Method of working with DCS from the report option.
 
 Function ValueTypeRestrictedByLinkByType(Settings, UserSettings, SettingItem, SettingItemDetails, ValueType = Undefined) Export 
 	If SettingItemDetails = Undefined Then 
@@ -98,7 +100,7 @@ Function ValueTypeRestrictedByLinkByType(Settings, UserSettings, SettingItem, Se
 	Return New TypeDescription(ValueType,, RemovedTypes);
 EndFunction
 
-// Searches for the configuration item in the data layout field.
+// Searches a setup item by the data composition field.
 // 
 // Parameters:
 //   Settings - DataCompositionSettings
@@ -158,8 +160,8 @@ Procedure FindFilterItemByField(Field, FilterItems1, UserSettings, SettingItem)
 	EndDo;
 EndProcedure
 
-// Returns a complete description of the configuration element, including the custom configuration element, the available
-// data layout selection field, the index, and the data layout settings themselves that the current element is subject to.
+// Returns full setup item details including a custom setting item, an available field
+// of data composition filter, data composition index and settings to which the current item is subordinate.
 // 
 // Parameters:
 //   SettingsComposer - DataCompositionSettingsComposer
@@ -223,17 +225,17 @@ Function SettingItemInfo(SettingsComposer, Id) Export
 	Return InformationRecords;
 EndFunction
 
-// Defines the values of the element group Usage type, depending on the type of comparison (priority) or the original value.
+// Defines the FoldersAndItemsUse type value depending on the comparison type (preferably) or the source value.
 //
 // Parameters:
 //  Condition - DataCompositionComparisonType
-//          - Undefined - 
-//  
-//                   - FoldersAndItems - 
-//                     
+//          - Undefined - Current comparison kind value.
+//  SourceValue - FoldersAndItemsUse
+//                   - FoldersAndItems - Current value of the
+//                     ChoiceFoldersAndItems property.
 //
 // Returns:
-//   FoldersAndItemsUse - 
+//   FoldersAndItemsUse - Member of the FoldersAndItemsUse enumeration.
 //
 Function ValueOfFoldersAndItemsUseType(SourceValue, Condition = Undefined) Export
 	If Condition <> Undefined Then 
@@ -266,11 +268,11 @@ EndFunction
 
 #Region ReportPeriod
 
-// This brings up a dialog editing the default period.
+// Calls a dialog box for editing a standard period.
 //
 // Parameters:
-//  Form - ClientApplicationForm -  report form or report settings form.
-//  CommandName - String -  name of the period selection command that contains the path to the period value.
+//  Form - ClientApplicationForm - Report form or a report settings form.
+//  CommandName - String - Period choice command name that contains a period value path.
 //  Var_PeriodVariant - Undefined
 //                 - EnumRef.PeriodOptions
 //
@@ -315,11 +317,11 @@ Procedure SelectPeriod(Form, CommandName, Var_PeriodVariant = Undefined) Export
 	EndIf;
 EndProcedure
 
-// Performs a period shift backward or forward.
+// Shifts a period back or forward.
 //
 // Parameters:
-//  Form - ClientApplicationForm -  report form or report settings form.
-//  CommandName - String -  name of the period selection command that contains the path to the period value.
+//  Form - ClientApplicationForm - Report form or a report settings form.
+//  CommandName - String - Period choice command name that contains a period value path.
 //
 Procedure ShiftThePeriod(Form, CommandName) Export
 	If StrFind(Lower(CommandName), "back") > 0 Then 
@@ -374,12 +376,12 @@ Procedure ShiftThePeriod(Form, CommandName) Export
 	ReportsClientServer.NotifyOfSettingsChange(Form);
 EndProcedure
 
-// Handler for editing the standard period.
+// Handler for editing a standard period.
 //
 // Parameters:
 //  SelectionResult - Structure:
-//                  - StandardPeriod - 
-//  Context - Structure -  contains the report form (settings) and the path to the period value.
+//                  - StandardPeriod - Value returned by the dialog box.
+//  Context - Structure - Contains a report form (settings form) and a period value path.
 //
 Procedure SelectPeriodCompletion(SelectionResult, Context) Export 
 	If SelectionResult = Undefined Then 
@@ -410,7 +412,7 @@ Procedure SelectPeriodCompletion(SelectionResult, Context) Export
 	ReportsClientServer.NotifyOfSettingsChange(Form);
 EndProcedure
 
-// Initializes the value of the period setting element.
+// Initializes value of the period setting item.
 // 
 // Parameters:
 //   Form - ClientApplicationForm
@@ -439,7 +441,7 @@ Procedure SetPeriod(Form, Val Path) Export
 	
 	If TypeOf(UserSettingItem) = Type("DataCompositionSettingsParameterValue") Then 
 		UserSettingItem.Value = Period;
-	Else // 
+	Else // Filter element.
 		UserSettingItem.RightValue = Period;
 	EndIf;
 	
@@ -529,10 +531,10 @@ Function SelectionValueCache(SettingsComposer, FilterElement) Export
 	Return FilterValue;
 EndFunction
 
-// Specifies the full path to the data layout element.
+// Defines a full path to a data composition item.
 //
 // Parameters:
-//   Settings - DataCompositionSettings -  the root node of the settings from which the full path is built.
+//   Settings - DataCompositionSettings - Root settings node that is used as a start for a full path.
 //   SettingsItem - DataCompositionSettings
 //                   - DataCompositionNestedObjectSettings
 //                   - DataCompositionTable
@@ -545,8 +547,8 @@ EndFunction
 //                   - DataCompositionFilterItemGroup
 //
 // Returns:
-//   String - 
-//   
+//   String - Full path of the item. Can be used in the FindItemByFullPath() function.
+//   Undefined if failed to build the path.
 //
 Function FullPathToSettingsItem(Val Settings, Val SettingsItem) Export
 	Result = New Array;
@@ -740,10 +742,16 @@ Procedure StartSelectUsers(Form, FormItem, AvailableTypes, Val MarkedValues,
 			EndDo;
 			UserTypesList.SortByPresentation();
 		EndIf;
-		Form.ShowChooseFromMenu(
-			New NotifyDescription("SelectUsersAfterSelectionType", ThisObject, Context),
-			UserTypesList,
-			FormItem);
+		If UserTypesList.Count() > 10 Then
+			OpenForm("CommonForm.InputValuesInListWithCheckBoxes",
+				FollowUpHandler.AdditionalParameters.OpeningParameters,
+				Form,,,, ChoiceHandler);
+		Else
+			Form.ShowChooseFromMenu(
+				New NotifyDescription("SelectUsersAfterSelectionType", ThisObject, Context),
+				UserTypesList,
+				FormItem);
+		EndIf;
 	EndIf;
 	
 EndProcedure
@@ -794,7 +802,9 @@ Procedure SelectUsersAfterSelectionType(SelectedElement, Context) Export
 	EndIf;
 	
 	List = New ValueList;
-	List.LoadValues(Context.MarkedValues.UnloadValues());
+	If Context.MarkedValues <> Undefined Then
+		List.LoadValues(Context.MarkedValues.UnloadValues());
+	EndIf;
 	CheckMarkedValues(List, Context.UsersTypes);
 	SelectedUsers = List.UnloadValues();
 	

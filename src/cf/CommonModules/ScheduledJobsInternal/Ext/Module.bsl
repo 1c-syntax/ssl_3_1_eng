@@ -1,23 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Checks whether the scheduled task is enabled for functional options.
+// Checks whether the scheduled job is enabled according to functional options.
 //
 // Parameters:
-//  Job - MetadataObjectScheduledJob -  routine task.
-//  JobDependencies - ValueTable -  table of dependencies of routine
-//    tasks, obtained by the method of routine Tasksservice.Regulationsadjustmentsreferencesfunctionsoptions.
-//    If not specified, it is obtained automatically.
+//  Job - MetadataObjectScheduledJob - a scheduled job.
+//  JobDependencies - ValueTable - table of scheduled
+//    jobs dependencies returned by the ScheduledJobsInternal.ScheduledJobsDependentOnFunctionalOptions method.
+//    If it is not specified, it is generated automatically.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the scheduled job is used.
 //
 Function ScheduledJobAvailableByFunctionalOptions(Job, JobDependencies = Undefined) Export
 	
@@ -69,35 +71,35 @@ Function ScheduledJobAvailableByFunctionalOptions(Job, JobDependencies = Undefin
 	
 EndFunction
 
-// Generates a table of dependencies of routine tasks on functional options.
+// Generates a table of dependencies of scheduled jobs on functional options.
 //
 // Returns:
 //  ValueTable:
-//    * ScheduledJob - MetadataObjectScheduledJob -  routine task.
-//    * FunctionalOption - MetadataObjectFunctionalOption -  functional option
-//        that the scheduled task depends on.
-//    * DependenceByT      - Boolean - 
-//        
-//        
-//        
-//        
-//        
+//    * ScheduledJob - MetadataObjectScheduledJob - a scheduled job.
+//    * FunctionalOption - MetadataObjectFunctionalOption - functional option
+//        the scheduled job depends on.
+//    * DependenceByT      - Boolean - if the scheduled job depends on more than
+//        one functional option and you want to enable it only
+//        when all functional options are enabled, specify True
+//        for each dependency.
+//        The default value is False - if one or more functional options are enabled,
+//        the scheduled job is also enabled.
 //    * EnableOnEnableFunctionalOption - Boolean
-//                                              - Undefined - 
-//        
-//        
-//        
+//                                              - Undefined - if False, the scheduled job
+//        will not be enabled if the functional option is enabled. The
+//        Undefined value corresponds to True.
+//        The default value is Undefined.
 //    * AvailableInSubordinateDIBNode - Boolean
-//                                  - Undefined - 
-//        
-//        
+//                                  - Undefined - True or Undefined if the scheduled
+//        job is available in the DIB node.
+//        The default value is Undefined.
 //    * AvailableSaaS      - Boolean
-//                                  - Undefined - 
-//        
-//        
-//    * UseExternalResources   - Boolean -  True if the scheduled task works
-//        with external resources (receiving mail, syncing data, etc.).
-//        by default, it is False.
+//                                  - Undefined - True or Undefined if the scheduled
+//        job is available in the SaaS.
+//        The default value is Undefined.
+//    * UseExternalResources   - Boolean - True if the scheduled job is operating
+//        with external resources (receiving emails, synchronizing data, etc.).
+//        The default value is False.
 //
 Function ScheduledJobsDependentOnFunctionalOptions() Export
 	
@@ -121,12 +123,12 @@ Function ScheduledJobsDependentOnFunctionalOptions() Export
 	
 EndFunction
 
-// Sets the flag for using scheduled tasks in the information database
-// , depending on the values of functional options.
+// Sets a flag of scheduled jobs usage in the infobase
+// depending on values of functional options.
 //
 // Parameters:
-//  EnableJobs - Boolean -  if True, disabled scheduled tasks will be enabled
-//                             when available by functional options. False by default.
+//  EnableJobs - Boolean - if True, disabled scheduled jobs will be enabled
+//                             when they become available according to functional options. The default value is False.
 //
 Procedure SetScheduledJobsUsageByFunctionalOptions(EnableJobs = False) Export
 	
@@ -177,7 +179,7 @@ Procedure SetScheduledJobsUsageByFunctionalOptions(EnableJobs = False) Export
 		EndDo;
 		
 		If Use = Undefined
-			Or (Use And Not EnableJobs) // 
+			Or (Use And Not EnableJobs) // Only disable scheduled jobs automatically on update.
 			Or (Not Use And Not DisableJob) Then
 			Continue;
 		EndIf;
@@ -192,13 +194,13 @@ Procedure SetScheduledJobsUsageByFunctionalOptions(EnableJobs = False) Export
 	
 EndProcedure
 
-// Returns a table of properties for background tasks.
-//  For the structure of the table, see the function empty tabletableproperties of background Tasks().
+// Returns a new background job property table.
+//  See the table structure in the EmptyBackgroundJobPropertyTable() function.
 // 
 // Parameters:
-//  Filter        - Structure - :
-//                 
-//                  
+//  Filter        - Structure - valid fields:
+//                 ID, Key, State, Beginning, End,
+//                 Description, MethodName, and ScheduledJob. 
 //
 // Returns:
 //   See NewBackgroundJobsProperties
@@ -219,7 +221,7 @@ Function BackgroundJobsProperties(Filter = Undefined) Export
 	
 	ScheduledJob = Undefined;
 	
-	// 
+	// Adding the history of background jobs received from the server.
 	If ValueIsFilled(Filter) And Filter.Property("ScheduledJobID") Then
 		If Filter.ScheduledJobID <> "" Then
 			ScheduledJob = ScheduledJobs.FindByUUID(
@@ -301,7 +303,7 @@ Function BackgroundJobsProperties(Filter = Undefined) Export
 	
 	Table.Sort("Begin Desc, End Desc");
 	
-	// 
+	// Filter background jobs.
 	If ValueIsFilled(Filter) Then
 		Begin    = Undefined;
 		End     = Undefined;
@@ -326,7 +328,7 @@ Function BackgroundJobsProperties(Filter = Undefined) Export
 		Else
 			Rows = Table;
 		EndIf;
-		// 
+		// Performing additional filter by period and state (if the filter is defined).
 		ItemNumber = Rows.Count() - 1;
 		While ItemNumber >= 0 Do
 			If Begin    <> Undefined And Begin > Rows[ItemNumber].Begin
@@ -336,7 +338,7 @@ Function BackgroundJobsProperties(Filter = Undefined) Export
 			EndIf;
 			ItemNumber = ItemNumber - 1;
 		EndDo;
-		// 
+		// Deleting unnecessary rows from the table.
 		If TypeOf(Rows) = Type("Array") Then
 			LineNumber = Table.Count() - 1;
 			While LineNumber >= 0 Do
@@ -353,14 +355,14 @@ Function BackgroundJobsProperties(Filter = Undefined) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event subscription handlers.
 
-// The procedure enables / disables routine tasks created in the is
-// when the functional option is changed.
+// The procedure enables or disables the scheduled jobs created in the infobase
+// on functional option change.
 //
 // Parameters:
-//  Source - ConstantValueManager -  constant for storing the FO value.
-//  Cancel    - Boolean -  failure to write a constant.
+//  Source - ConstantValueManager - constant stores the value of FO.
+//  Cancel    - Boolean - cancel while writing constant.
 //
 Procedure EnableScheduledJobOnChangeFunctionalOption(Source, Cancel) Export
 	
@@ -374,7 +376,7 @@ Procedure EnableScheduledJobOnChangeFunctionalOption(Source, Cancel) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See ExportImportDataOverridable.AfterImportData.
 Procedure AfterImportData(Container) Export
@@ -412,6 +414,27 @@ Procedure OnSetUpSubordinateDIBNode() Export
 	
 EndProcedure
 
+// See JobsQueueOverridable.OnDefineScheduledJobsUsage.
+Procedure OnDefineScheduledJobsUsage(UsageTable) Export
+	
+	DependentScheduledJobs = ScheduledJobsDependentOnFunctionalOptions();
+	
+	FilterParameters = New Structure;
+	FilterParameters.Insert("AvailableSaaS", False);
+	TasksOfDisabledServiceModel = DependentScheduledJobs.Copy(FilterParameters ,"ScheduledJob");
+	For Each TaskThatIsBeingDisabled In TasksOfDisabledServiceModel Do
+		ScheduledJob = TaskThatIsBeingDisabled.ScheduledJob; // MetadataObjectScheduledJob
+		If UsageTable.Find(ScheduledJob.Name, "ScheduledJob") <> Undefined Then
+			Continue;
+		EndIf;
+		
+		NewRow = UsageTable.Add();
+		NewRow.ScheduledJob = ScheduledJob.Name;
+		NewRow.Use       = False;
+	EndDo;
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -429,8 +452,8 @@ EndFunction
 //
 // Returns:
 //  Structure:
-//    * UnlockCommandPlacement - String -  determines the location of the command to remove
-//                                                     the lock on working with external resources.
+//    * UnlockCommandPlacement - String - determines unlock
+//                                                     command location for operations with external resources on infobase movement.
 //
 Function DefaultSettings()
 	
@@ -442,7 +465,7 @@ Function DefaultSettings()
 	
 EndFunction
 
-// Throws an exception if the user does not have administrative rights.
+// Throws an exception if the user does not have the administration right.
 Procedure RaiseIfNoAdministrationRights() Export
 	
 	If Common.DataSeparationEnabled()
@@ -485,7 +508,7 @@ Procedure GenerateScheduledJobsTable(Parameters, StorageAddress) Export
 	Table                           = Parameters.Table;
 	DisabledJobs                = Parameters.DisabledJobs;
 	
-	// 
+	// Updating the ScheduledJobs table and the ChoiceList list of the scheduled job for filter.
 	CurrentJobs = ScheduledJobs.GetScheduledJobs();
 	DisabledJobs.Clear();
 	
@@ -539,10 +562,10 @@ Procedure GenerateScheduledJobsTable(Parameters, StorageAddress) Export
 			
 			If IndexOf >= Table.Count() Or Table[IndexOf].Id <> Id Then
 				
-				// 
+				// Insert a new job.
 				ToUpdate = Table.Insert(IndexOf);
 				
-				// 
+				// Assign a UUID.
 				ToUpdate.Id = Id;
 			Else
 				ToUpdate = Table[IndexOf];
@@ -556,7 +579,7 @@ Procedure GenerateScheduledJobsTable(Parameters, StorageAddress) Export
 			IndexOf = IndexOf + 1;
 		EndDo;
 	
-		// 
+		// Delete excessive rows.
 		While IndexOf < Table.Count() Do
 			Table.Delete(IndexOf);
 		EndDo;
@@ -591,10 +614,10 @@ Procedure SetScheduledJobProperties(Receiver, JobSource)
 	
 	FillPropertyValues(Receiver, JobSource);
 	
-	// 
+	// Refine the description.
 	Receiver.Description = ScheduledJobPresentation(JobSource);
 	
-	// 
+	// Setting the Completion date and the Completion state by the last background procedure .
 	LastBackgroundJobProperties = LastBackgroundJobScheduledJobExecutionProperties(JobSource);
 	
 	Receiver.JobName = JobSource.Metadata.Name;
@@ -615,27 +638,27 @@ Procedure SetScheduledJobProperties(Receiver, JobSource)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for working with scheduled jobs.
 
-// It is intended for" manual " immediate execution of the routine task procedure
-// either in the client session (in the file is), or in the background task on the server (in the server is).
+// It is intended for "manual" immediate execution of the scheduled job procedure either in the client session (in the file infobase)
+// or in the background job on the server (in the server infobase).
 // It is used in any connection mode.
-// Manual start mode does not affect the scheduled task execution on the emergency
-// and main schedules, because the reference to the scheduled task is not specified for the background task.
-// The background Task type does not allow setting such a link, so
-// the same rule applies for file mode.
+// The "manual" run mode does not affect the scheduled job execution according to the emergency
+// and main schedules, as the background job has no reference to the scheduled job.
+// The BackgroundJob type does not allow such a reference, so the same rule is applied
+// to file mode.
 // 
 // Parameters:
 //  Job             - ScheduledJob
-//                      - String - 
+//                      - String - ScheduledJob UUID string.
 //
 // Returns:
 //  Structure:
 //    * StartedAt -   Undefined
-//                    -   Date - 
-//                        
-//                        
-//    * BackgroundJobIdentifier - String -  returns the ID of the running background task for the server is.
+//                    -   Date - for the file infobase, sets the passed time as the
+//                        scheduled job method start time.
+//                        For the server infobase returns the background job start time upon completion.
+//    * BackgroundJobIdentifier - String - for the server infobase, returns the running background job ID.
 //
 Function ExecuteScheduledJobManually(Val Job) Export
 	
@@ -660,7 +683,7 @@ Function ExecuteScheduledJobManually(Val Job) Export
 		EndIf;
 	Else
 		BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1';"), ScheduledJobPresentation(Job));
-		// 
+		// Long-running operations are not used because the scheduled job method is called.
 		BackgroundJob = ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(Job.Metadata.MethodName, Job.Parameters, String(Job.UUID), BackgroundJobDescription);
 		ExecutionParameters.BackgroundJobIdentifier = String(BackgroundJob.UUID);
 		ExecutionParameters.StartedAt = BackgroundJobs.FindByUUID(BackgroundJob.UUID).Begin;
@@ -684,13 +707,13 @@ Function ScheduledJobExecutionParameters()
 	
 EndFunction
 
-// Returns a view of the routine task,
-// this is in order of excluding blank details:
-// Name, Metadata.Synonym, Metadata. Name.
+// Returns the scheduled job presentation, 
+// according to the blank details exception order:
+// Description, Metadata.Synonym, and Metadata.Name.
 //
 // Parameters:
 //  Job      - ScheduledJob
-//               - String - 
+//               - String - if a string, a UUID string.
 //
 // Returns:
 //  String
@@ -727,21 +750,21 @@ Function ScheduledJobPresentation(Val Job) Export
 	
 EndFunction
 
-// Returns the text "<undefined>".
+// Returns the text "<not defined>".
 Function TextUndefined() Export
 	
 	Return NStr("en = '<not defined>';");
 	
 EndFunction
 
-// Returns a multi-line String containing Messages and error Descriptioninformation,
-// the last background task was found by the routine task ID
-// , and there are messages/errors.
+// Returns a multiline String containing Messages and ErrorDetailsDescription,
+// the last background job is found by the scheduled job ID
+// and there are messages/errors.
 //
 // Parameters:
 //  Job      - ScheduledJob
-//               - String - 
-//                 
+//               - String - ScheduledJob
+//                 UUID as a string.
 //
 // Returns:
 //  String
@@ -760,12 +783,12 @@ Function ScheduledJobMessagesAndErrorDescriptions(Val Job) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for working with background jobs.
 
-// Cancels a background task if possible, namely, if it is running on the server and is active.
+// Cancels the background job if possible, i.e. if it is running on the server and is active.
 //
 // Parameters:
-//  Id  - 
+//  Id  - UUID of the background job.
 // 
 Procedure CancelBackgroundJob(Id) Export
 	
@@ -803,14 +826,14 @@ Procedure FillBackgroundJobsPropertiesTableInBackground(Parameters, StorageAddre
 	
 EndProcedure
 
-// Returns the background Task properties based on a unique ID string.
+// Returns BackgroundJob properties by a UUID string.
 //
 // Parameters:
-//  Id - String - 
-//  PropertiesNames  - String -  if filled in, the structure with the specified properties is returned.
+//  Id - String - BackgroundJob UUID.
+//  PropertiesNames  - String - if filled, returns a structure with the specified properties.
 // 
 // Returns:
-//  ValueTableRow, Structure - 
+//  ValueTableRow, Structure - BackgroundJob properties.
 //
 Function GetBackgroundJobProperties(Id, PropertiesNames = "") Export
 	
@@ -835,12 +858,12 @@ Function GetBackgroundJobProperties(Id, PropertiesNames = "") Export
 	
 EndFunction
 
-// Returns the properties of the last background task that was executed when the scheduled task was executed, if any.
-// The procedure works in both file-server and client-server modes.
+// Returns the properties of the last background job executed with the scheduled job, if there is one.
+// The procedure works both in file mode and client/server mode.
 //
 // Parameters:
 //  ScheduledJob - ScheduledJob
-//                      - String - 
+//                      - String - a ScheduledJob UUID string.
 //
 // Returns:
 //  ValueTableRow:
@@ -882,11 +905,11 @@ Function LastBackgroundJobScheduledJobExecutionProperties(ScheduledJob)
 	
 EndFunction
 
-// Returns a multi-line String containing Messages and error Descriptioninformation,
-// if the background task was found by ID and there are messages/errors.
+// Returns a multiline String containing Messages and ErrorDetailsDescription
+// if the background job is found by the ID and there are messages/errors.
 //
 // Parameters:
-//  Task      - String-Unique identifier of the background Task by string.
+//  Job - String - a BackgroundJob UUID string.
 //
 // Returns:
 //  String
@@ -923,7 +946,7 @@ Function BackgroundJobMessagesAndErrorDescriptions(Id, BackgroundJobProperties =
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
 Procedure ChangeScheduledJobsUsageByFunctionalOptions(Source, Val Use)
 	
@@ -1027,7 +1050,7 @@ Procedure ChangeScheduledJobsUsageByFunctionalOptions(Source, Val Use)
 	
 EndProcedure
 
-// Returns a new table of background task properties.
+// Returns a new background job property table.
 //
 // Returns:
 //  ValueTable:

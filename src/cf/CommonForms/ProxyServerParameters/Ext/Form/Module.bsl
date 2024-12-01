@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -36,7 +38,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 		If UseProxy And Not UseSystemSettings Then
 			
-			// 
+			// Complete the forms with manual settings.
 			Server       = ProxyServerSetting.Get("Server");
 			User = ProxyServerSetting.Get("User");
 			Password       = ProxyServerSetting.Get("Password");
@@ -55,7 +57,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				AllProtocolsThroughSingleProxy = True;
 			Else
 			
-				// 
+				// If the settings contain additional proxy servers, read them from the settings.
 				// 				
 				ParameterValue = AdditionalProxy.Get("http");
 				If TypeOf(ParameterValue) = Type("Structure") Then
@@ -81,11 +83,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Proxy server options:
+	// 0 - Do not use proxy (default). Corresponds to "New InternetProxy(False))".
+	// 1 - Use the system proxy settings. Same as "New InternetProxy(True))".
+	// 2 - Use the custom proxy settings.
+	// This option allows for manual proxy configuration.
 	ProxyServerUseCase = ?(UseProxy, ?(UseSystemSettings = True, 1, 2), 0);
 	If ProxyServerUseCase = 0 Then
 		InitializeFormItems(ThisObject, EmptyProxyServerSettings());
@@ -161,11 +163,11 @@ Procedure ProxyServerUseCasesOnChange(Item)
 	UseSystemSettings = (ProxyServerUseCase = 1);
 	
 	ProxySettings = Undefined;
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Proxy server options:
+	// 0 - Do not use proxy (default). Corresponds to "New InternetProxy(False))".
+	// 1 - Use the system proxy settings. Same as "New InternetProxy(True))".
+	// 2 - Use the custom proxy settings.
+	// This option allows for manual proxy configuration.
 	If ProxyServerUseCase = 0 Then
 		ProxySettings = EmptyProxyServerSettings();
 	ElsIf ProxyServerUseCase = 1 Then
@@ -185,7 +187,7 @@ EndProcedure
 &AtClient
 Procedure AdditionalProxyServerParameters(Command)
 	
-	// 
+	// Configure parameters for additional settings.
 	FormParameters = New Structure;
 	FormParameters.Insert("ReadOnly", Not EditingAvailable);
 	
@@ -209,8 +211,8 @@ EndProcedure
 &AtClient
 Procedure OKButton(Command)
 	
-	// 
-	// 
+	// Saves the proxy server settings, closes the form,
+	// and returns the proxy parameters.
 	SaveProxyServerSettings();
 	
 EndProcedure
@@ -246,8 +248,8 @@ Procedure InitializeFormItems(Form, ProxySettings)
 		Form.ExceptionServers.LoadValues(ProxySettings.BypassProxyOnAddresses);
 		Form.UseOSAuthentication = ?(ProxySettings.UseOSAuthentication, 1, 0);
 		
-		// 
-		// 
+		// If settings for all protocols match the default proxy settings,
+		// assume that the same proxy is used for all the protocols.
 		Form.AllProtocolsThroughSingleProxy = (Form.Server = Form.HTTPServer
 			And Form.HTTPServer = Form.HTTPSServer
 			And Form.HTTPSServer = Form.FTPServer
@@ -264,8 +266,8 @@ EndProcedure
 &AtClientAtServerNoContext
 Procedure SetVisibilityAvailability(Form)
 	
-	// 
-	// 
+	// Toggle the availability of the proxy parameter editor group
+	// depending on the given proxy setup option.
 	Form.EditingAvailable = (Form.ProxyServerUseCase = 2);
 	
 	Form.Items.ServerAddressGroup.Enabled = Form.EditingAvailable;
@@ -274,9 +276,9 @@ Procedure SetVisibilityAvailability(Form)
 	
 EndProcedure
 
-// Saves proxy server settings in interactive mode as a
-// result of user actions that display messages to the user,
-// and then closes the form with the proxy server settings returned.
+// Saves proxy server settings interactively as
+// a result of user actions and reflects messages for users,
+// then closes the form and returns proxy server settings.
 //
 &AtClient
 Procedure SaveProxyServerSettings(CloseForm = True)
@@ -294,7 +296,7 @@ Procedure SaveProxyServerSettings(CloseForm = True)
 	ProxyServerSetting.Insert("UseOSAuthentication", Boolean(UseOSAuthentication));
 	
 	
-	// 
+	// Configure additional proxy server addresses.
 	
 	If Not AllProtocolsThroughSingleProxy Then
 		
@@ -332,7 +334,7 @@ Procedure SaveProxyServerSettings(CloseForm = True)
 	
 EndProcedure
 
-// Performs immediate saves the settings of the proxy server.
+// Saves proxy server settings.
 &AtServerNoContext
 Procedure WriteProxyServerSettingsToInfobase(ProxySettingAtClient, ProxyServerSetting)
 	
@@ -419,15 +421,15 @@ Function ProxyServerSystemSettingsAtServer()
 	
 EndFunction
 
-// Returns the normalized proxy server address, without spaces.
-// If there are spaces between significant characters, the address
-// is truncated to the first space.
+// Returns normalized proxy server address that contains no spaces.
+// If there are spaces between meaningful characters, then
+// ignore everything after the first space.
 //
 // Parameters:
-//  ProxyServerAddress - String -  the normalized address of the proxy server.
+//  ProxyServerAddress - String - proxy server address to normalize.
 //
 // Returns:
-//   String - 
+//   String - a normalized proxy server address.
 //
 &AtClientAtServerNoContext
 Function NormalizedProxyServerAddress(Val ProxyServerAddress)
@@ -435,8 +437,8 @@ Function NormalizedProxyServerAddress(Val ProxyServerAddress)
 	ProxyServerAddress = TrimAll(ProxyServerAddress);
 	SpacePosition = StrFind(ProxyServerAddress, " ");
 	If SpacePosition > 0 Then
-		// 
-		// 
+		// If the server address contains the whitespace characters,
+		// take the part before the first whitespace.
 		ProxyServerAddress = Left(ProxyServerAddress, SpacePosition - 1);
 	EndIf;
 	

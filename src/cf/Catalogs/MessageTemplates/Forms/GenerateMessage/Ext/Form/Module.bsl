@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -315,9 +317,9 @@ Function GenerateMessageAtServer(TempStorageAddress, SendOptions, MessageKind)
 EndFunction
 
 // Parameters:
-//  Result - Map - :
-//            - DialogReturnCode - 
-//            - Undefined - 
+//  Result - Map - if data was entered by the user:
+//            - DialogReturnCode - — if data input is canceled
+//            - Undefined - — if the window was closed
 //  SendOptions - See MessageTemplatesClientServer.SendOptionsConstructor
 //
 &AtClient
@@ -595,7 +597,7 @@ Procedure SetFormatSelection(Val SaveFormats = Undefined)
 	EndDo;
 	
 	If Not HasSelectedFormat Then
-		SelectedSaveFormats[0].Check = True; // 
+		SelectedSaveFormats[0].Check = True; // The default choice is the first in the list.
 	EndIf;
 	
 EndProcedure

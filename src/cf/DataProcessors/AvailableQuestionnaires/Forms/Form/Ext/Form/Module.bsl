@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -127,11 +129,11 @@ Procedure RespondentQuestionnairesTable()
 	
 EndProcedure
 
-// Generates a string representation for the questionnaire tree.
+// Generates a row presentation for the questionnaires tree.
 //
 // Parameters:
-//  TreeRow  - ValueTreeRow -  it is used to form 
-//                 a tree view of questionnaires and surveys.
+//  TreeRow  - ValueTreeRow - based on it, a presentation of questionnaires 
+//                 and surveys in the tree is generated.
 //
 &AtServer
 Function GetQuestionnaireTreeRowsPresentation(TreeRow)

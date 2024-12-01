@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Logic of external resource permissions setup wizard.
 //
 
 // For internal use.
@@ -123,7 +125,7 @@ EndProcedure
 //
 Procedure ExecuteRecoveryRequestProcessing(Val TempStorageAddress, Val StateTemporaryStorageAddress) Export
 	
-	BeginTransaction(); // 	
+	BeginTransaction(); // ACC:326 - Transactions open only for a rollback.	
 	Try
 		ClearPermissions(, False);
 		
@@ -154,7 +156,7 @@ Function ExecuteApplicabilityCheckRequestsProcessing() Export
 		Raise NStr("en = 'Transaction is active';");
 	EndIf;
 	
-	BeginTransaction(); // 
+	BeginTransaction(); // ACC:326 - Transactions open only for a rollback.
 	Try
 	
 		RequestsIDs = New Array;
@@ -226,19 +228,19 @@ Procedure CommitRequests(Val State) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Managing registers used for storing granted permissions on using external resources.
 // 
 //
 
-// Sets an exclusive managed lock on the tables of all registers used
-// to store the list of granted permissions.
+// Sets an exclusive managed lock for tables of all registers used
+// for storing a list of granted permissions.
 //
 // Parameters:
-//  ProgramModule - AnyRef -  a reference to a directory element corresponding to an external module
-//    that you want to clear information about previously granted permissions for. If the parameter value is not set
-//    , information about granted permissions for all external modules will be blocked.
-//   LockAttachmentModes - Boolean -  flag for additional blocking
-//    of external module connection modes.
+//  ProgramModule - AnyRef - a reference to the catalog item that corresponds to the external module whose information
+//    on previously granted permissions must be cleared. If the parameter value is not specified,
+//    information on granted permissions in all external modules will be blocked.
+//   LockAttachmentModes - Boolean - indicates that additional lock of
+//    external module attachment modes is required.
 //
 Procedure LockRegistersOfGrantedPermissions(Val ProgramModule = Undefined, Val LockAttachmentModes = True) Export
 	
@@ -268,14 +270,14 @@ Procedure LockRegistersOfGrantedPermissions(Val ProgramModule = Undefined, Val L
 	
 EndProcedure
 
-// Clears the registers of information that is used for storing the list of granted permissions in the is.
+// Clears information registers used for storing the list of granted permissions in the infobase.
 //
 // Parameters:
-//  ProgramModule - AnyRef -  a reference to a directory element that corresponds to an external module, information
-//    about previously granted permissions for which you want to clear. If the parameter value is not set
-//    , the information about the granted permissions for all external modules will be cleared.
-//   ClearAttachmentModes - Boolean -  flag for additional cleaning
-//    of external module connection modes.
+//  ProgramModule - AnyRef - a reference to the catalog item that corresponds to the external module whose information
+//    on previously granted permissions must be cleared. If the parameter value is not specified,
+//    information on granted permissions in all external modules will be cleared.
+//   ClearAttachmentModes - Boolean - indicates whether additional clearing of
+//    external module attachment modes is required.
 //
 Procedure ClearPermissions(Val ProgramModule = Undefined, Val ClearAttachmentModes = True) Export
 	
@@ -314,19 +316,19 @@ Procedure ClearPermissions(Val ProgramModule = Undefined, Val ClearAttachmentMod
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Processing permission tables.
 //
 
-// Returns the row in the permission table that corresponds to the selection.
-// If there are no rows in the table that match the selection, a new one can be added.
-// If there is more than one row in the table that matches the selection, an exception is thrown.
+// Returns a permission table row that meets the filter condition.
+// If the table does not contain rows meeting the filter condition, a new one can be added.
+// If the table contains more than one row meeting the filter condition, an exception is generated.
 //
 // Parameters:
 //  PermissionsTable - ValueTable:
 //    * ProgramModuleType - CatalogRef.MetadataObjectIDs
 //    * ModuleID - UUID
 //    * Operation - EnumRef.SecurityProfileAdministrativeOperations
-//    * Name - String -  name of the security profile.
+//    * Name - String - a security profile name.
 //  Filter - Structure
 //  AddIfAbsent - Boolean
 //

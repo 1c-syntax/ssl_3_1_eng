@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -36,20 +38,20 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.BusinessProcessesAndTasks
 
-// Get a structure with a description of the task completion form.
-// Called when opening the task completion form.
+// Gets a structure with description of a task execution form.
+// The function is called when opening the task execution form.
 //
 // Parameters:
-//   TaskRef                - TaskRef.PerformerTask - 
-//   BusinessProcessRoutePoint - BusinessProcessRoutePointRef.Job - 
+//   TaskRef                - TaskRef.PerformerTask - Task to be open.
+//   BusinessProcessRoutePoint - BusinessProcessRoutePointRef.Job - Current route point.
 //
 // Returns:
 //   Structure:
 //    * FormParameters - Structure:
 //      ** Key - TaskRef.PerformerTask
-//    * FormName - String - 
+//    * FormName - String - Form name to pass to the "OpenForm" context method
 //
 Function TaskExecutionForm(TaskRef, BusinessProcessRoutePoint) Export
 
@@ -65,16 +67,16 @@ Function TaskExecutionForm(TaskRef, BusinessProcessRoutePoint) Export
 
 EndFunction
 
-// Called when a task is redirected.
+// Runs when a task is forwarded.
 //
 // Parameters:
-//   TaskRef  - TaskRef.PerformerTask -  the forwarded task.
-//   NewTaskRef  - TaskRef.PerformerTask -  task for a new performer.
+//   TaskRef  - TaskRef.PerformerTask - a forwarded task.
+//   NewTaskRef  - TaskRef.PerformerTask - a task for a new assignee.
 //
 Procedure OnForwardTask(TaskRef, NewTaskRef) Export
 	
-	// 
-	// 
+	// ACC:1327-off - The business process was locked in the calling function
+	// "BusinessProcessesAndTasksServerCall.ForwardTasks".
 	TaskInfo = Common.ObjectAttributesValues(TaskRef, 
 		"Ref,BusinessProcess,ExecutionResult,CompletionDate,Performer");
 	BusinessProcessObject = TaskInfo.BusinessProcess.GetObject();
@@ -83,16 +85,16 @@ Procedure OnForwardTask(TaskRef, NewTaskRef) Export
 		+ BusinessProcessObject.ExecutionResult;
 	SetPrivilegedMode(True);
 	BusinessProcessObject.Write();
-	// 
+	// ACC:1327-on
 
 EndProcedure
 
-// Called when executing a task from the list form.
+// Runs when a task is started from a list form.
 //
 // Parameters:
-//   TaskRef  - TaskRef.PerformerTask -  task.
-//   BusinessProcessRef - BusinessProcessRef -  business the process by which the task of Segacasino.
-//   BusinessProcessRoutePoint - BusinessProcessRoutePointRef -  route point.
+//   TaskRef  - TaskRef.PerformerTask - Task.
+//   BusinessProcessRef - BusinessProcessRef - a business process for which the TaskRef task is generated.
+//   BusinessProcessRoutePoint - BusinessProcessRoutePointRef - Route point.
 //
 Procedure DefaultCompletionHandler(TaskRef, BusinessProcessRef, BusinessProcessRoutePoint) Export
 
@@ -102,7 +104,7 @@ Procedure DefaultCompletionHandler(TaskRef, BusinessProcessRef, BusinessProcessR
 		Return;
 	EndIf;
 	
-	// 
+	// Set default values for bulk task execution.
 	BeginTransaction();
 	Try
 		BusinessProcessesAndTasksServer.LockBusinessProcesses(BusinessProcessRef);
@@ -117,7 +119,7 @@ Procedure DefaultCompletionHandler(TaskRef, BusinessProcessRef, BusinessProcessR
 			JobObject.Completed2 = True;
 			JobObject.Accepted = True;
 		EndIf;
-		JobObject.Write(); // 
+		JobObject.Write(); // CAC:1327 The lock is set in the BusinessProcessesAndTasksServer.LockBusinessProcesses.
 
 		CommitTransaction();
 	Except
@@ -129,7 +131,7 @@ EndProcedure
 
 // End StandardSubsystems.BusinessProcessesAndTasks
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -168,9 +170,9 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
-// Defines a list of creation commands based on.
+// Defines the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
@@ -180,14 +182,14 @@ Procedure AddGenerationCommands(GenerationCommands, Parameters) Export
 
 EndProcedure
 
-// To use in the procedure add a create command Based on other object Manager modules.
-// Adds this object to the list of base creation commands.
+// Intended for use by the AddGenerationCommands procedure in other object manager modules.
+// Adds this object to the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
 //
 // Returns:
-//  ValueTableRow, Undefined - 
+//  ValueTableRow, Undefined - Details of the added command.
 //
 Function AddGenerateCommand(GenerationCommands) Export
 
@@ -218,9 +220,9 @@ EndFunction
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// OtherItems
+// Miscellaneous.
 
-// Sets the state of the task form elements.
+// Sets the state of the task form items.
 //
 // Parameters:
 //  Form - ClientApplicationForm:

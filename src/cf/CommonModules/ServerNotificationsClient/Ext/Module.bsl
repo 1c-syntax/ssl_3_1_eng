@@ -1,30 +1,32 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// 
-// 
+// Completion check of the intermittent wait for the handlers of
+// the BeforeRecurringClientDataSendToServer event.
 //
 // Parameters:
-//  CounterName   - String - 
-//  Timeout - Number - 
-//  FirstTime     - Boolean - 
-//  SessionDate    - Date - 
+//  CounterName   - String - For example, "StandardSubsystems.MonitoringCenter".
+//  Timeout - Number - Timeout before the counter triggers (in seconds).
+//  FirstTime     - Boolean - If set to True, returns True after initialization.
+//  SessionDate    - Date - The return value (in cases when a custom counter is required).
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the last count ended, and a new one started.
 //
 // Example:
-//	
-//	
-//		
-//	
+//	CounterName = "StandardSubsystems.MonitoringCenter";
+//	If Not ServerNotificationsClient.TimeoutExpired(CounterName) Then
+//		Return;
+//	EndIf;
 //
 Function TimeoutExpired(CounterName, Timeout = 1200, FirstTime = False, SessionDate = '00010101') Export
 	
@@ -50,25 +52,25 @@ Function TimeoutExpired(CounterName, Timeout = 1200, FirstTime = False, SessionD
 	
 EndFunction
 
-// 
-// 
-// 
+// Logs an error caught in the handlers of the events
+// BeforeRecurringClientDataSendToServer and
+// AfterRecurringReceiptOfClientDataOnServer.
 //
 // Parameters:
 //  ErrorInfo - ErrorInfo
 //
 // Example:
-//	
-//	
-//		
-//			
-//			
-//		
-//	
-//		
-//	
-//	
-//		
+//	StartMoment = CurrentUniversalDateInMilliseconds();
+//	Try
+//		If CommonClient.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+//			ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
+//			ModuleMonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer(Parameters);
+//		EndIf;
+//	Exception
+//		ServerNotificationsClient.HandleError(ErrorInformation());
+//	EndTry;
+//	ServerNotificationsClient.AddIndicator(StartMoment,
+//		"MonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer");
 //
 Procedure HandleError(ErrorInfo) Export
 	
@@ -80,26 +82,26 @@ Procedure HandleError(ErrorInfo) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Adds a performance indicator to the handlers of the event
+// BeforeRecurringClientDataSendToServer and
+// AfterRecurringReceiptOfClientDataOnServer.
 //
 // Parameters:
-//  StartMoment - Number - 
-//  ProcedureName - String - 
+//  StartMoment - Number - CurrentUniversalDateInMilliseconds before the procedure will be called.
+//  ProcedureName - String - Full name of the called procedure
 //
 // Example:
-//	
-//	
-//		
-//			
-//			
-//		
-//	
-//		
-//	
-//	
-//		
+//	StartMoment = CurrentUniversalDateInMilliseconds();
+//	Try
+//		If CommonClient.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+//			ModuleMonitoringCenterClientInternal = CommonClient.CommonModule("MonitoringCenterClientInternal");
+//			ModuleMonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer(Parameters);
+//		EndIf;
+//	Exception
+//		ServerNotificationsClient.HandleError(ErrorInformation());
+//	EndTry;
+//	ServerNotificationsClient.AddIndicator(StartMoment,
+//		"MonitoringCenterClientInternal.BeforeRecurringClientDataSendToServer");
 //
 Procedure AddIndicator(StartMoment, ProcedureName) Export
 	
@@ -110,8 +112,8 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
-// 
-// 
+// Returns the session's UUID obtained from
+// the session properties SessionStart and SessionNumber.
 //
 // Returns:
 //   See ServerNotifications.SessionKey
@@ -130,8 +132,8 @@ EndFunction
 
 // Parameters:
 //  Interval - Number
-//  ShouldReceiveImmediately - Boolean - 
-//                     
+//  ShouldReceiveImmediately - Boolean - If set to "True", the next check will make a server call
+//                     that returns the notification stack.
 //
 Procedure AttachServerNotificationReceiptCheckHandler(Interval = 1, ShouldReceiveImmediately = False) Export
 	
@@ -150,7 +152,7 @@ Procedure AttachServerNotificationReceiptCheckHandler(Interval = 1, ShouldReceiv
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See CommonClientOverridable.BeforeStart.
 Procedure BeforeStart(Parameters) Export
@@ -237,8 +239,10 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 		- ?(Second(CurrentSessionDate) < DataReceiptStatus.WaitingCountersDateAlignmentSecondsNumber, 60, 0);
 	
 	Interval = 60;
-	AreChatsActive = DataReceiptStatus.CollaborationSystemConnected
-		And DataReceiptStatus.IsNewPersonalMessageHandlerAttached
+	AreChatsActive =
+		(DataReceiptStatus.ClientNotificationsAreAvailable
+		  Or DataReceiptStatus.CollaborationSystemConnected
+			And DataReceiptStatus.IsNewPersonalMessageHandlerAttached)
 		And DataReceiptStatus.IsRecurringDataSendEnabled
 		And DataReceiptStatus.LastReceivedMessageDate + 60 > CurrentSessionDate;
 	
@@ -573,7 +577,7 @@ EndFunction
 //  Structure:
 //   * LastNotificationDate - Date
 //   * AdditionalParameters - Map
-//   * MessagesForEventLog - 
+//   * MessagesForEventLog - Undefined, ValueList
 //   * ShouldSendDataRecurrently - Boolean
 //   * ShouldRegisterIndicators - Boolean
 //
@@ -588,36 +592,37 @@ EndFunction
 
 // Returns:
 //  Structure:
-//   * IsCheckAllowed - Boolean - 
+//   * IsCheckAllowed - Boolean - Is set to True in the BeforeStart procedure.
 //   * ShouldRegisterIndicators - Boolean
 //   * ServiceAdministratorSession - Boolean
-//   * IsRecurringDataSendEnabled - Boolean - 
+//   * IsRecurringDataSendEnabled - Boolean - Is set to True in the AfterStart procedure.
 //   * RepeatedDateExportMinInterval - 
 //   * SessionKey - See ServerNotifications.SessionKey
 //   * IBUserID - UUID
 //   * StatusUpdateDate - Date
 //   * LastReceivedMessageDate - Date
-//   * MinimumPeriod - Number - 
+//   * MinimumPeriod - Number - Time interval in seconds.
 //   * LastNotificationDate - Date
 //   * Notifications - See CommonOverridable.OnAddServerNotifications.Notifications
-//   * ReceivedNotifications - Array of String - 
+//   * ReceivedNotifications - Array of String - UUID strings of the received messages.
+//   * ClientNotificationsAreAvailable - Boolean
 //   * CollaborationSystemConnected - Boolean
-//   * PersonalChatID - Undefined - 
-//                                    - CollaborationSystemConversationID - 
-//        
+//   * PersonalChatID - Undefined - Chat is unavailable.
+//                                    - CollaborationSystemConversationID - ID of the chat
+//        "ServerNotifications <Infobase user ID>".
 //
-//   * GlobalChatID - Undefined - 
-//                                   - CollaborationSystemConversationID - 
-//        
+//   * GlobalChatID - Undefined - Chat is unavailable.
+//                                   - CollaborationSystemConversationID - ID of the chat
+//        "ServerNotifications".
 //   * IsNewPersonalMessageHandlerAttached - Boolean
 //   * IsNewGlobalMessageHandlerAttached - Boolean
 //   * DateOfLastServerCall - Date
 //   * CurrentSessionDateToCheckWaitingCounter - Date
 //   * WaitingCountersDateAlignmentSecondsNumber - Number
 //   * WaitCounters - Map of KeyAndValue:
-//      ** Key - String - 
-//      ** Value - Date - 
-//   * ShouldReceiveImmediately - Boolean - 
+//      ** Key - String - Counter name
+//      ** Value - Date - Last time the counter triggered.
+//   * ShouldReceiveImmediately - Boolean - If set to "True", the server call is made unconditionally.
 //
 Function NewReceiptStatus()
 	
@@ -636,6 +641,8 @@ Function NewReceiptStatus()
 	State.Insert("LastNotificationDate", '00010101');
 	State.Insert("Notifications", New Map);
 	State.Insert("ReceivedNotifications", New Array);
+	State.Insert("ClientNotificationsAreAvailable",
+		ServerNotificationsInternalClientServer.ClientNotificationsAreAvailable());
 	State.Insert("CollaborationSystemConnected", False);
 	State.Insert("PersonalChatID", Undefined);
 	State.Insert("GlobalChatID", Undefined);
@@ -653,10 +660,19 @@ EndFunction
 
 Procedure AttachNewMessageHandler(DataReceiptStatus)
 	
+	Context = New Structure("DataReceiptStatus", DataReceiptStatus);
+	
+	If DataReceiptStatus.ClientNotificationsAreAvailable Then
+		ClientNotificationManager().AttachHandler(
+			ServerNotificationsInternalClientServer.KeyForServerSideNotifications(),
+			New NotifyDescription("WhenNewClientNotificationIsReceived", ThisObject, Context,
+				"IfThereIsErrorInReceivingNewClientNotification", ThisObject));
+		Return;
+	EndIf;
+	
 	If DataReceiptStatus.PersonalChatID <> Undefined
 	   And Not DataReceiptStatus.IsNewPersonalMessageHandlerAttached Then
 		
-		Context = New Structure("DataReceiptStatus", DataReceiptStatus);
 		Try
 			CollaborationSystem.BeginAttachNewMessagesHandler(
 				New NotifyDescription("AfterAttachingNewPersonalMessageHandler", ThisObject, Context,
@@ -673,7 +689,6 @@ Procedure AttachNewMessageHandler(DataReceiptStatus)
 	If DataReceiptStatus.GlobalChatID <> Undefined
 	   And Not DataReceiptStatus.IsNewGlobalMessageHandlerAttached Then
 		
-		Context = New Structure("DataReceiptStatus", DataReceiptStatus);
 		Try
 			CollaborationSystem.BeginAttachNewMessagesHandler(
 				New NotifyDescription("AfterAttachingNewGroupMessageHandler", ThisObject, Context,
@@ -792,6 +807,12 @@ Procedure OnReceiptNewInteractionSystemMessage(Message, Context)
 		Return;
 	EndTry;
 	
+	OnReceiptServerNotification(Data, DataReceiptStatus);
+	
+EndProcedure
+
+Procedure OnReceiptServerNotification(Data, DataReceiptStatus)
+	
 	If TypeOf(Data) <> Type("Structure")
 	 Or Not Data.Property("NameOfAlert") Then
 		Return;
@@ -844,6 +865,43 @@ Function IsNotificationReceived(DataReceiptStatus, ServerNotification)
 	EndIf;
 	
 	Return False;
+	
+EndFunction
+
+// Client notifications
+
+Procedure WhenNewClientNotificationIsReceived(Data, Context) Export
+	
+	DataReceiptStatus = Context.DataReceiptStatus;
+	
+	If Not DataReceiptStatus.IsCheckAllowed
+	 Or ApplicationParameters = Undefined Then
+		Return;
+	EndIf;
+	
+	DataReceiptStatus.LastReceivedMessageDate = CommonClient.SessionDate();
+	
+	OnReceiptServerNotification(Data, DataReceiptStatus);
+	
+EndProcedure
+
+Procedure IfThereIsErrorInReceivingNewClientNotification(ErrorInfo, StandardProcessing, Context) Export
+	
+	StandardProcessing = False;
+	
+	EventLogClient.AddMessageForEventLog(
+		NStr("en = 'Server notifications.Error obtaining new client notification';",
+			CommonClient.DefaultLanguageCode()),
+		"Error",
+		ErrorProcessing.DetailErrorDescription(ErrorInfo));
+	
+EndProcedure
+
+Function ClientNotificationManager()
+	
+	// ACC:488-off - Support of new 1C:Enterprise opportunities (the executable code is safe)
+	Return Eval("ClientNotifications")
+	// ACC:488-on
 	
 EndFunction
 

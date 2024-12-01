@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -31,7 +33,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FilesCleanupMode = FilesOperationsInternal.FilesCleanupMode();
 	ConfigureFilePurgeModes();
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -115,7 +117,7 @@ EndProcedure
 &AtClient
 Procedure MetadataObjectsTreeOnActivateRow(Item)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -325,7 +327,7 @@ Procedure ShouldUpdateInfo(Command)
 	WaitDeletableFilesInfoCalculationEnd();
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
@@ -333,8 +335,8 @@ Procedure Attachable_ExecuteCommand(Command)
 		SelectedOwners = New Array;
 		SelectedRows = Items.MetadataObjectsTree.SelectedRows;
 		For Each RowID In SelectedRows Do
-			ObjectTreeString = MetadataObjectsTree.FindByID(RowID);
-			AddFileOwner(SelectedOwners, ObjectTreeString);
+			ObjectTreeRow = MetadataObjectsTree.FindByID(RowID);
+			AddFileOwner(SelectedOwners, ObjectTreeRow);
 		EndDo;
 		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, SelectedOwners);
 	EndIf;
@@ -1025,7 +1027,7 @@ Procedure AddFileCleanupSettings()
 	ChoiceFormParameters.Insert("AdvancedPick", True);
 	ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Select settings items';"));
 	
-	// 
+	// Excluding already existing settings from the selection list.
 	ExistingSettings1 = TreeRow.GetItems();
 	FixedSettings = New DataCompositionSettings;
 	SettingItem = FixedSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
@@ -1076,17 +1078,17 @@ Procedure ConfigureFilePurgeModes()
 EndProcedure
 
 &AtClient
-Procedure AddFileOwner(SelectedOwners, ObjectTreeString)
-	If TypeOf(ObjectTreeString.FileOwner) = Type("CatalogRef.MetadataObjectIDs")
-	   Or TypeOf(ObjectTreeString.FileOwner) = Type("CatalogRef.ExtensionObjectIDs")
-	   Or ObjectTreeString.FileOwner = Undefined Then
-		SubordinateRows = ObjectTreeString.GetItems();
+Procedure AddFileOwner(SelectedOwners, ObjectTreeRow)
+	If TypeOf(ObjectTreeRow.FileOwner) = Type("CatalogRef.MetadataObjectIDs")
+	   Or TypeOf(ObjectTreeRow.FileOwner) = Type("CatalogRef.ExtensionObjectIDs")
+	   Or ObjectTreeRow.FileOwner = Undefined Then
+		SubordinateRows = ObjectTreeRow.GetItems();
 		For Each TreeRow In SubordinateRows Do
 			AddFileOwner(SelectedOwners, TreeRow);
 		EndDo;
 	Else
-		If SelectedOwners.Find(ObjectTreeString.FileOwner) = Undefined Then
-			SelectedOwners.Add(ObjectTreeString.FileOwner);
+		If SelectedOwners.Find(ObjectTreeRow.FileOwner) = Undefined Then
+			SelectedOwners.Add(ObjectTreeRow.FileOwner);
 		EndIf;
 	EndIf;
 EndProcedure

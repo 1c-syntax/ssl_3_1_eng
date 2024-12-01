@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.ReportsOptions
 
 // Parameters:
 //   Settings - See ReportsOptionsOverridable.CustomizeReportsOptions.Settings.
@@ -43,7 +45,7 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		           |IP address of the resource
 		           |Port';");
 	
-	// 
+	// Filters and parameters are not available for the report.
 	OptionSettings.SearchSettings.FilterParameterDescriptions = "#";
 	
 EndProcedure
@@ -225,13 +227,13 @@ Function RequestsForPermissionsToUseExternalResoursesPresentation(Val Administra
 	
 EndFunction
 
-// Creates a view of operations for managing permissions to use external resources.
+// Generates a presentation of external resource permission administration operations.
 //
 // Parameters:
-//  SpreadsheetDocument - SpreadsheetDocument -  to which the operations view will be output,
-//  Template - SpreadsheetDocument -  obtained from the report layout of Predstavleniyami,
-//  AdministrationOperations - ValueTable - see
-//                              Processing.Setting up the permission to use external resources.Operationsadministration in queries().
+//  SpreadsheetDocument - SpreadsheetDocument - in which an operation presentation will be displayed,
+//  Template - SpreadsheetDocument - received from the PermissionsPresentations report template,
+//  AdministrationOperations - ValueTable - See
+//                              DataProcessors.ExternalResourcePermissionSetup.AdministrationOperationsInRequests().
 //
 Procedure GenerateOperationsPresentation(SpreadsheetDocument, Val Template, Val AdministrationOperations)
 	
@@ -277,14 +279,14 @@ Procedure GenerateOperationsPresentation(SpreadsheetDocument, Val Template, Val 
 	
 EndProcedure
 
-// Generates a view of permissions.
+// Generates a permission presentation.
 //
 // Parameters:
-//  SpreadsheetDocument - SpreadsheetDocument -  document to display the operations view in,
-//  PermissionsSets - 
-//  
-//  AsRequired - Boolean -  flag for using terms like "the following resources are required "instead
-//                          of"the following resources will be provided" in the view.
+//  SpreadsheetDocument - SpreadsheetDocument - a document, in which an operation presentation will be displayed,
+//  PermissionsSets - (),
+//  Template - SpreadsheetDocument - a document received from the PermissionsPresentations report template,
+//  AsRequired - Boolean - indicates whether terms of "the following resources are required" kind are used in the presentation instead of
+//                          "the following resources will be granted."
 //
 Procedure GeneratePermissionsPresentation(Val SpreadsheetDocument, Val Template, Val PermissionsSets, Val AsRequired = False)
 	
@@ -417,8 +419,8 @@ EndFunction
 //
 // Returns:
 //   Structure:
-//                         * Nominative - 
-//                         * Genitive - 
+//                         * Nominative - a module kind synonym in the nominative case.
+//                         * Genitive - a module kind synonym in the genitive case.
 //
 Function ConfigurationModuleDictionary()
 	

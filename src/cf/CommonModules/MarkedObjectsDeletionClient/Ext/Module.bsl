@@ -1,29 +1,31 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 // Starts interactive deletion of marked objects.
 // 
 // Parameters:
-//   ObjectsToDelete - Array of AnyRef -  list of objects to delete.
+//   ObjectsToDelete - Array of AnyRef - the list of objects to be deleted.
 //   DeletionParameters - See InteractiveDeletionParameters
 // 		
 //   Owner - ClientApplicationForm
-//            - Undefined - 
-// 							   
-// 							   
-//   OnCloseNotifyDescription - NotifyDescription - 
-//								
-//								:
-//                              
-//                              
-//                              
+//            - Undefined - — the form from which deletion was started.
+// 							   If not specified, the detailed information on the deletion results
+// 							   will not be passed to the processing notification about closing.
+//   OnCloseNotifyDescription - NotifyDescription - If specified, then when the deletion is over, or the form is closed,
+//								the result is passed to the notification handler as Structure with the properties
+//								# Success - Boolean - "True" if all objects are deleted.:
+//                              # DeletedItemsCount1 - Number - Number of deleted objects.
+//                              # NotDeletedItemsCount - Number - Number of objects that couldn't be deleted.
+//                              # ResultAddress- String - Address in the temporary storage.
 //                              
 //
 Procedure StartMarkedObjectsDeletion(ObjectsToDelete, DeletionParameters = Undefined, Owner = Undefined,
@@ -43,17 +45,17 @@ Procedure StartMarkedObjectsDeletion(ObjectsToDelete, DeletionParameters = Undef
 		FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
 
-// Settings for interactive deletion.
+// Interactive deletion settings.
 // 
 // Returns:
 //   Structure:
-//   * Mode - String -  :
-//		 
-//					  
-//		
-//		
-//					   
-//					  
+//   * Mode - String -  the deletion method can take the following values:
+//		"Standard" — deleting objects with reference integrity control and saving 
+//					  multiple user operation.
+//		"Exclusive" — deleting objects with reference integrity control and setting exclusive mode.
+//		"Simplified" — deleting objects with reference integrity control carried out only in not marked
+//					  for deletion objects. In the marked for deletion objects, reference to the objects to delete 
+//					  will be cleared.
 //
 Function InteractiveDeletionParameters() Export
 	Parameters = New Structure;
@@ -63,13 +65,13 @@ EndFunction
 
 #Region FormsPublic
 
-// Opens the Delete marked workspace.
+// Opens the Deleting marked objects workplace.
 //  
 // Parameters:
 //   Form - ClientApplicationForm
 //   FormTable - FormTable
 //                - FormDataStructure
-//                - Undefined -  form table associated with a dynamic list
+//                - Undefined - the form table that relates to the dynamic list
 //
 Procedure GoToMarkedForDeletionItems(Form, FormTable = Undefined) Export
 	
@@ -84,12 +86,12 @@ Procedure GoToMarkedForDeletionItems(Form, FormTable = Undefined) Export
 	OpenForm("DataProcessor.MarkedObjectsDeletion.Form.DefaultForm", OpeningParameters, Form);
 EndProcedure
 
-// Changes the visibility of those marked for deletion and saves the user's settings.
+// Changes visibility of the objects marked for deletion and saves the user setting.
 // 
 // Parameters:
 //   Form - ClientApplicationForm
-//   FormTable - FormTable -  a form table associated with a dynamic list.
-//   FormButton - FormButton -  the form button associated with the Show marked for deletion command.
+//   FormTable - FormTable - the form table that relates to the dynamic list.
+//   FormButton - FormButton - a form button that relates to the Show objects marked for deletion command.
 //
 Procedure ShowObjectsMarkedForDeletion(Form, FormTable, FormButton) Export
 	CommonClientServer.CheckParameter("ShowObjectsMarkedForDeletion", "FormTable", FormTable, New TypeDescription("FormTable"));
@@ -97,13 +99,13 @@ Procedure ShowObjectsMarkedForDeletion(Form, FormTable, FormButton) Export
 	FormButton.Check = Not NewFilterValue;
 EndProcedure
 
-// Opens a form for changing the schedule of a scheduled task.
-// If the schedule is set, the scheduled task with the set schedule will be enabled. 
+// Opens the form to change the scheduled job schedule.
+// If the schedule is set, the scheduled job with a set schedule will be included. 
 // 
-// Not supported on the mobile platform.
+// Cannot run on mobile devices.
 // 
 // Parameters:
-//   ChangeNotification1 - NotifyDescription -  handler for changing the schedule of a scheduled task.
+//   ChangeNotification1 - NotifyDescription - a handler of the scheduled job schedule change.
 //
 Procedure StartChangeJobSchedule(ChangeNotification1 = Undefined) Export
 	ScheduledJobInfoDeletionOfMarkedObjects = MarkedObjectsDeletionInternalServerCall.ModeDeleteOnSchedule();
@@ -123,20 +125,20 @@ Procedure StartChangeJobSchedule(ChangeNotification1 = Undefined) Export
 	EndIf;
 EndProcedure
 
-// Handler for the Change event for the checkbox that switches the automatic object deletion mode.
+// The OnChange event handler for the flag that switches the automatic object deletion mode.
 // 
 // Parameters:
-//   AutomaticallyDeleteMarkedObjects  - Boolean -  the new value of the checkbox that you want to process.
-//   ChangeNotification1 - NotifyDescription -  if the value of auto-delete Placemarkedobjects = True, the procedure
-//   											  will be called after the scheduled task schedule is selected.
-//   											  If the value of debugautomatically delete marked Objects = False, the procedure will 
-//   											  be called immediately. 
+//   AutomaticallyDeleteMarkedObjects  - Boolean - a new flag value to be processed.
+//   ChangeNotification1 - NotifyDescription - if AutomaticallyDeleteMarkedObjectsCheckBoxValue = True, the procedure
+//   											  will be called after setting the scheduled job schedule.
+//   											  If AutomaticallyDeleteMarkedObjectsCheckBoxValue = False, the procedure will be 
+//   											  called immediately. 
 // 
 // Example:
-//	If The General Purpose Is A Client.Subsystems Exist ("Standard Subsystems.Deleting marked objects") Then
-//		МодульУдалениеПомеченныхОбъектовклиент = Observationnelle.General Module ("Deleting Marked Objectsclient");
-//		Module for removing marked client objects.When You Change The Placemark To Delete (Auto-Delete Marked Objects);
-//	Conicelli;
+//	If CommonClient.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion") Then
+//		ModuleMarkedObjectsDeletionClient = CommonClient.CommonModule("MarkedObjectsDeletionClient");
+//		ModuleMarkedObjectsDeletionClient.OnChangeCheckBoxDeleteOnSchedule(AutomaticallyDeleteMarkedObjects);
+//	EndIf;
 //
 Procedure OnChangeCheckBoxDeleteOnSchedule(AutomaticallyDeleteMarkedObjects, ChangeNotification1 = Undefined) Export
 	CurrentScheduledJobParameters = MarkedObjectsDeletionInternalServerCall.ModeDeleteOnSchedule();
@@ -148,25 +150,25 @@ Procedure OnChangeCheckBoxDeleteOnSchedule(AutomaticallyDeleteMarkedObjects, Cha
 		ExecuteNotifyProcessing(ChangeNotification1, Changes);
 	EndIf;
 	
-	// 
+	// Keep backward compatibility with version 3.1.2.
 	Notify("ModeChangedAutomaticallyDeleteMarkedObjects");
 EndProcedure
 
 #EndRegion
 
-// Event handler for the message Processing event for the form where you want to display the scheduled deletion check box.
+// The NotificationProcessing event handler for the form, on which the check box of scheduled deletion is to be displayed.
 //
 // Parameters:
-//   EventName - String -  name of the event that was received by the event handler on the form.
-//   AutomaticallyDeleteMarkedObjects - Boolean -  the prop that the value will be placed in.
+//   EventName - String - a name of an event that is got by an event handler on the form.
+//   AutomaticallyDeleteMarkedObjects - Boolean - an attribute that will store the flag value.
 // 
 // Example:
-//	If The General Purpose Is A Client.Subsystems Exist ("Standard Subsystems.Deleting marked objects") Then
-//		МодульУдалениеПомеченныхОбъектовклиент = Observationnelle.General Module ("Deleting Marked Objects")");
-//		Module for removing marked client objects.ОбработкаОповещенияИзмененияФлажкаудалятьпорасписанию(
-//			Masonite, 
-//			Auto-delete marked objects);
-//	Conicelli;
+//	If CommonClient.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion") Then
+//		ModuleMarkedObjectsDeletionClient = CommonClient.CommonModule("MarkedObjectsDeletionClient");
+//		ModuleMarkedObjectsDeletionClient.DeleteOnScheduleCheckBoxChangeNotificationProcessing(
+//			EventName, 
+//			AutomaticallyDeleteMarkedObjects);
+//	EndIf;
 //
 Procedure DeleteOnScheduleCheckBoxChangeNotificationProcessing(Val EventName,
 		AutomaticallyDeleteMarkedObjects) Export
@@ -181,10 +183,10 @@ EndProcedure
 
 #Region Internal
 
-// Handler for the connected command.
+// The attached command handler.
 //
 // Parameters:
-//   ReferencesArrray - Array of AnyRef -  links to the selected objects that the command is running on.
+//   ReferencesArrray - Array of AnyRef - references to the selected objects for which a command is being executed.
 //   CommandParameters - See AttachableCommandsClient.CommandExecuteParameters
 //
 Procedure RunAttachableCommandShowObjectsMarkedForDeletion(Val ReferencesArrray,
@@ -197,10 +199,10 @@ Procedure RunAttachableCommandShowObjectsMarkedForDeletion(Val ReferencesArrray,
 	EndIf;
 EndProcedure
 
-// Handler for the connected command.
+// The attached command handler.
 //
 // Parameters:
-//   ReferencesArrray - Array of AnyRef -  links to the selected objects that the command is running on.
+//   ReferencesArrray - Array of AnyRef - references to the selected objects for which a command is being executed.
 //   ExecutionParameters - See AttachableCommandsClient.CommandExecuteParameters
 //
 Procedure RunAttachableCommandGoToObjectsMarkedForDeletion(ReferencesArrray, ExecutionParameters) Export
@@ -244,13 +246,13 @@ Procedure ScheduledJobsAfterChangeSchedule(Schedule, ExecutionParameters) Export
 	EndIf;
 EndProcedure
 
-// Changes the visibility of those marked for deletion in the list
+// Changes visibility of the objects for deletion in the list
 // 
 // Parameters:
 //   Form - ClientApplicationForm
 //   FormTable - FormTable
 // Returns:
-//   Boolean - 
+//   Boolean - — a set filter value
 //
 Function ChangeObjectsMarkedForDeletionFilter(Form, FormTable)
 	

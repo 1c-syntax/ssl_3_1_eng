@@ -1,36 +1,38 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
 // Parameters:
-//   XDTOSetup - Boolean -  True if exchange via XDTO is configured.
+//   XDTOSetup - Boolean - True if the exchange via the XDTO is configured.
 // 
 // Returns:
-//   Structure - :
-//     * ExchangePlanName - String -  name of the exchange plan.
-//     * CorrespondentExchangePlanName - String -  name of the correspondent's exchange plan.
-//     * SettingID - String -  name of the configuration option as specified in the exchange plan Manager module.
-//     * ExchangeFormat - String -  name of the exchange format.
-//     * Description - String -  name of this app.
-//     * CorrespondentDescription - String -  name of the correspondent's application.
-//     * Prefix - String -  the prefix of this application.
-//     * CorrespondentPrefix - String -  prefix of the correspondent application.
-//     * SourceInfobaseID - String -  the ID of this application.
-//     * DestinationInfobaseID - String -  the application ID of the correspondent.
-//     * CorrespondentEndpoint - DefinedType.MessagesQueueEndpoint -  the point of the message exchange.
-//     * Peer - ExchangePlanRef -  the site plan of exchange.
-//     * CorrespondentDataArea - Number -  number of the correspondent's data area.
-//     * XDTOCorrespondentSettings - Structure - :
-//       ** SupportedVersions - Array of String -  (optional) a set of supported versions of the exchange format.
-//       ** SupportedObjects - ValueStorage -  table of supported format objects.
+//   Structure - Connection settings for configuring the exchange:
+//     * ExchangePlanName - String - an exchange plan name.
+//     * CorrespondentExchangePlanName - String - a peer exchange plan name.
+//     * SettingID - String - the setting option name as it is specified in the exchange plan manager module.
+//     * ExchangeFormat - String - an exchange format name.
+//     * Description - String - the description of this application.
+//     * PeerInfobaseName - String - the peer infobase application description.
+//     * Prefix - String - the prefix of this application.
+//     * CorrespondentPrefix - String - peer infobase application prefix.
+//     * SourceInfobaseID - String - the ID of this application.
+//     * DestinationInfobaseID - String - the peer infobase application ID.
+//     * CorrespondentEndpoint - DefinedType.MessagesQueueEndpoint - message exchange point.
+//     * Peer - ExchangePlanRef - an exchange plan node.
+//     * CorrespondentDataArea - Number - peer infobase data area number.
+//     * XDTOCorrespondentSettings - Structure - details of the exchange format settings of the XDTO correspondent:
+//       ** SupportedVersions - Array of String - (optional) the set of supported versions of the exchange format.
+//       ** SupportedObjects - ValueStorage - a table of supported format objects.
 // 
 Function ConnectionSettingsDetails(XDTOSetup) Export
 	
@@ -43,7 +45,7 @@ Function ConnectionSettingsDetails(XDTOSetup) Export
 	ConnectionSettings.Insert("ExchangeFormat", "");
 	
 	ConnectionSettings.Insert("Description",               "");
-	ConnectionSettings.Insert("CorrespondentDescription", "");
+	ConnectionSettings.Insert("PeerInfobaseName", "");
 	
 	ConnectionSettings.Insert("Prefix",               "");
 	ConnectionSettings.Insert("CorrespondentPrefix", "");
@@ -90,10 +92,10 @@ Procedure SetUpExchangeStep13011(Parameters, TempStorageAddress) Export
 	
 	BeginTransaction();
 	Try
-		// 
+		// Creating an exchange setting in the current infobase.
 		DataExchangeSaaS.CreateExchangeSetting_3_0_1_1(ConnectionSettings);
 		
-		// 
+		// Send a message to a peer infobase.
 		Message = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesManagementInterface.SetUpExchangeStep1Message());
 			
@@ -163,10 +165,10 @@ EndProcedure
 #Region ApplicationsList
 
 // Parameters:
-//   Settings - Structure -  description of the operation execution settings.
-//   HandlerParameters - Structure - :
-//     * AdditionalParameters - Structure -  custom additional parameters.
-//   ContinueWait - Boolean -  True if a long operation is running.
+//   Settings - Structure - operation execution setting details.
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   ContinueWait - Boolean - True if a long-running operation is running.
 //
 Procedure OnStartGetApplicationList(Settings, HandlerParameters, ContinueWait = True) Export
 	
@@ -182,11 +184,11 @@ Procedure OnStartGetApplicationList(Settings, HandlerParameters, ContinueWait = 
 	
 	BeginTransaction();
 	Try
-		// 
+		// Sending a message to SaaS.
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesDataExchangeAdministrationManagementInterface.GetDataSynchronizationSettingsMessage());
 			
-		// 
+		// ExchangeFormat - Mustn't filter as the whole table is needed, including the nodes with setup synchronization.
 		AdditionalProperties = New Structure("Mode");
 		FillPropertyValues(AdditionalProperties, Settings);
 		
@@ -223,9 +225,9 @@ Procedure OnStartGetApplicationList(Settings, HandlerParameters, ContinueWait = 
 EndProcedure
 
 // Parameters:
-//   HandlerParameters - Structure - :
-//     * AdditionalParameters - Structure -  custom additional parameters.
-//   ContinueWait - Boolean -  True if the long operation has not been completed yet.
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   ContinueWait - Boolean - True if a long-running operation is not completed yet.
 //
 Procedure OnWaitForGetApplicationList(HandlerParameters, ContinueWait = True) Export
 	
@@ -390,9 +392,9 @@ Procedure OnWaitForGetApplicationList(HandlerParameters, ContinueWait = True) Ex
 EndProcedure
 
 // Parameters:
-//   HandlerParameters - Structure - :
-//     * AdditionalParameters - Structure -  custom additional parameters.
-//   CompletionStatus - Structure -  description of the operation result.
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   CompletionStatus - Structure - operation execution result details.
 //
 Procedure OnCompleteGettingApplicationsList(HandlerParameters, CompletionStatus) Export
 	
@@ -425,10 +427,10 @@ EndProcedure
 #Region GetCommonDataOfCorrespondentNodes
 
 // Parameters:
-//   ConnectionSettings - Structure -  description of the operation execution settings.
-//   HandlerParameters - Structure - :
-//     * AdditionalParameters - Structure -  custom additional parameters.
-//   ContinueWait - Boolean -  True if a long operation is running.
+//   ConnectionSettings - Structure - operation execution setting details.
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   ContinueWait - Boolean - True if a long-running operation is running.
 //
 Procedure OnStartGetCommonDataFromCorrespondentNodes(ConnectionSettings, HandlerParameters, ContinueWait = True) Export
 	
@@ -448,7 +450,7 @@ Procedure OnStartGetCommonDataFromCorrespondentNodes(ConnectionSettings, Handler
 	
 	BeginTransaction();
 	Try
-		// 
+		// Send a message to a peer infobase.
 		Message = ModuleMessagesSaaS.NewMessage(
 			DataExchangeMessagesManagementInterface.GetCommonDataOfCorrespondentNodeMessage());
 		Message.Body.CorrespondentZone = CorrespondentDataArea;
@@ -492,9 +494,9 @@ Procedure OnWaitForGetCommonDataFromCorrespondentNodes(HandlerParameters, Contin
 EndProcedure
 
 // Parameters:
-//   HandlerParameters - Structure - :
-//     * AdditionalParameters - Structure -  custom additional parameters.
-//   CompletionStatus - Structure -  description of the operation result.
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   CompletionStatus - Structure - operation execution result details.
 //
 Procedure OnCompleteGetCommonDataFromCorrespondentNodes(HandlerParameters, CompletionStatus) Export
 	
@@ -513,7 +515,7 @@ Procedure OnCompleteGetCommonDataFromCorrespondentNodes(HandlerParameters, Compl
 		SetPrivilegedMode(True);
 		
 		Try
-			// 
+			// Peer infobase parameters.
 			CorrespondentData = InformationRegisters.SystemMessageExchangeSessions.GetSessionData(
 				HandlerParameters.OperationID).Get();
 				
@@ -521,7 +523,7 @@ Procedure OnCompleteGetCommonDataFromCorrespondentNodes(HandlerParameters, Compl
 				Result.ErrorMessage = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'DataExchange interface 3.0.1.1 is not supported.
 					|To set up the connection, update %1 or start the setup from it.';"),
-					ConnectionSettings.CorrespondentDescription);
+					ConnectionSettings.PeerInfobaseName);
 				Result.CorrespondentParametersReceived = False;
 			EndIf;
 			
@@ -547,10 +549,10 @@ EndProcedure
 #Region SaveConnectionSettings
 
 // Parameters:
-//   ConnectionSettings - Structure -  description of the operation execution settings.
-//   HandlerParameters - Structure - :
-//     * AdditionalParameters - Structure -  custom additional parameters.
-//   ContinueWait - Boolean -  True if a long operation is running.
+//   ConnectionSettings - Structure - operation execution setting details.
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   ContinueWait - Boolean - True if a long-running operation is running.
 //
 Procedure OnStartSaveConnectionSettings(ConnectionSettings, HandlerParameters, ContinueWait = True) Export
 	
@@ -590,9 +592,9 @@ Procedure OnStartSaveConnectionSettings(ConnectionSettings, HandlerParameters, C
 EndProcedure
 
 // Parameters:
-//   HandlerParameters - Structure - :
-//     * AdditionalParameters - Structure -  custom additional parameters.
-//   ContinueWait - Boolean -  True if the long operation has not been completed yet.
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   ContinueWait - Boolean - True if a long-running operation is not completed yet.
 //
 Procedure OnWaitForSaveConnectionSettings(HandlerParameters, ContinueWait = True) Export
 	
@@ -651,9 +653,9 @@ Procedure OnWaitForSaveConnectionSettings(HandlerParameters, ContinueWait = True
 EndProcedure
 
 // Parameters:
-//   HandlerParameters - Structure - :
-//     * AdditionalParameters - Structure -  custom additional parameters.
-//   CompletionStatus - Structure -  description of the operation result.
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
+//   CompletionStatus - Structure - operation execution result details.
 //
 Procedure OnCompleteConnectionSettingsSaving(HandlerParameters, CompletionStatus) Export
 	
@@ -670,7 +672,7 @@ Procedure OnCompleteConnectionSettingsSaving(HandlerParameters, CompletionStatus
 		Result.Insert("ErrorMessage",             "");
 		
 		If SessionHandlerParameters.Cancel Then
-			// 
+			// Deleting an exchange node in the current infobase.
 			If ValueIsFilled(HandlerParameters.AdditionalParameters.Peer) Then
 				DataExchangeServer.DeleteSynchronizationSetting(HandlerParameters.AdditionalParameters.Peer);
 			EndIf;
@@ -709,7 +711,7 @@ Procedure OnStartDeleteSynchronizationSettings(DeletionSettings, HandlerParamete
 	
 	BeginTransaction();
 	Try
-		// 
+		// Sending a message to the service manager.
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesDataExchangeAdministrationManagementInterface.DisableSynchronizationMessage());
 			
@@ -800,7 +802,7 @@ Procedure OnStartDisconnectingFromSM(Settings, HandlerParameters, ContinueWait) 
 	
 	BeginTransaction();
 	Try
-		// 
+		// Sending a message to the service manager.
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesDataExchangeAdministrationManagementInterface.MessageDisableSyncOverSM());
 			
@@ -1048,8 +1050,8 @@ EndProcedure
 #EndRegion
 
 // Parameters:
-//   HandlerParameters - Structure - :
-//     * AdditionalParameters - Structure -  custom additional parameters.
+//   HandlerParameters - Structure - secondary parameters:
+//     * AdditionalParameters - Structure - arbitrary additional parameters.
 //
 Procedure OnStartGetCodesOfDataAreasNodes(HandlerParameters)
 	
@@ -1140,7 +1142,7 @@ Procedure OnStartSaveExchangeSettingInServiceManager(ConnectionSettings, Handler
 	
 	BeginTransaction();
 	Try
-		// 
+		// Sending a message to the service manager, enabling synchronization.
 		Message = ModuleMessagesSaaS.NewMessage(
 			MessagesDataExchangeAdministrationManagementInterface.EnableSynchronizationMessage());
 			
@@ -1357,7 +1359,7 @@ Procedure DeleteUnnecessarySynchronizationSettingsRows(SynchronizationSettingsFr
 		
 		ConfiguredExchanges = SynchronizationSettingsFromServiceManager.Copy(New Structure("SynchronizationConfigured", True));
 		
-		// 
+		// Areas with configured synchronization over internal publications
 		Query = New Query;
 		Query.Text = "SELECT
 		               |	Settings.WSCorrespondentDataArea AS WSCorrespondentDataArea
@@ -1395,7 +1397,7 @@ Procedure DeleteUnnecessarySynchronizationSettingsRows(SynchronizationSettingsFr
 				Continue;
 			EndIf;
 			
-			// 
+			// Excluding a possibility of creating a new data synchronization using an obsolete exchange plan.
 			SettingFromServiceManager.DeleteSettingItem = Not SettingFromServiceManager.SynchronizationConfigured
 				And ValueIsFilled(SettingFromServiceManager.ExchangePlanNameToMigrateToNewExchange);
 			

@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// 
+// Handlers of conditional calls from SSL
 
-// Reads and sets the setting warning about continuous synchronization of the APM
+// Reads and sets a notification about long standalone workstation synchronization
 // Parameters:
-//     FlagValue1     - Boolean -  set the value of the flag
-//     SettingDetails - Structure -  takes a value to describe the setting
+//     FlagValue1     - Boolean - a flag value to be set
+//     SettingDetails - Structure - takes a value for the setting description.
 // For internal use.
 //
 Function LongSynchronizationQuestionSetupFlag(FlagValue1 = Undefined, SettingDetails = Undefined) Export
@@ -31,7 +33,7 @@ Function LongSynchronizationQuestionSetupFlag(FlagValue1 = Undefined, SettingDet
 		Return Common.CommonSettingsStorageLoad(SettingsDescription.ObjectKey, SettingsDescription.SettingsKey, True);
 	EndIf;
 	
-	// Record
+	// Write
 	Common.CommonSettingsStorageSave(SettingsDescription.ObjectKey, SettingsDescription.SettingsKey, FlagValue1, SettingsDescription);
 EndFunction
 
@@ -45,7 +47,7 @@ Function AccountPasswordRecoveryAddress() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// INTERNAL PROCEDURES AND FUNCTIONS USED IN SAAS
 
 // For internal use
 // 
@@ -285,15 +287,15 @@ Function GenerateStandaloneWorkstationPrefix(Val LastPrefix = "") Export
 	
 	If CharPosition = 0 Or IsBlankString(LastStandaloneWorkstationChar) Then
 		
-		Char = Left(AllowedChars, 1); // 
+		Char = Left(AllowedChars, 1); // Use the first character
 		
 	ElsIf CharPosition >= StrLen(AllowedChars) Then
 		
-		Char = Right(AllowedChars, 1); // 
+		Char = Right(AllowedChars, 1); // Use the last character
 		
 	Else
 		
-		Char = Mid(AllowedChars, CharPosition + 1, 1); // 
+		Char = Mid(AllowedChars, CharPosition + 1, 1); // Use the next character
 		
 	EndIf;
 	
@@ -326,7 +328,7 @@ Function DataTransferRestrictionsDetails(StandaloneWorkstation) Export
 		Return "";
 	EndIf;
 	
-	// 
+	// Data retrieved from cache cannot be modified. Therefore, copy the settings structure to populate it further.
 	NodeFiltersSetting = Common.CopyRecursive(SettingUpSelectionsOnTheDefaultNode, False);
 	
 	Attributes = New Array;
@@ -446,7 +448,7 @@ Function InstructionTextFromTemplate(Val TemplateName) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// INTERNAL PROCEDURES AND FUNCTIONS USED IN THE STANDALONE MODE
 
 // For internal use
 // 
@@ -512,7 +514,7 @@ Procedure PerformStandaloneWorkstationSetupOnFirstStart(DataImport = False) Expo
 	Else
 		DoImportParametersFromInitialImage();
 		
-		// 
+		// Importing rules as exchange rules are not migrated to DIB.
 		DataExchangeServer.UpdateDataExchangeRules();
 	EndIf;
 	
@@ -593,7 +595,7 @@ EndFunction
 
 // For internal use
 // 
-Function DefaultDataSynchronizationSchedule() Export // 
+Function DefaultDataSynchronizationSchedule() Export // Every hour.
 	
 	Months = New Array;
 	For Cnt = 1 To 12 Do
@@ -608,8 +610,8 @@ Function DefaultDataSynchronizationSchedule() Export //
 	Schedule = New JobSchedule;
 	Schedule.Months                   = Months;
 	Schedule.WeekDays                = WeekDays;
-	Schedule.RepeatPeriodInDay = 60*60; // 
-	Schedule.DaysRepeatPeriod        = 1; // 
+	Schedule.RepeatPeriodInDay = 60*60; // 60 minutes.
+	Schedule.DaysRepeatPeriod        = 1; // Every day.
 	
 	Return Schedule;
 EndFunction
@@ -632,22 +634,22 @@ EndFunction
 
 // For internal use
 // 
-Function SynchronizationWithServiceNotExecutedLongTime(Val Interval = 3600) Export // 
+Function SynchronizationWithServiceNotExecutedLongTime(Val Interval = 3600) Export // Default interval value is 1 hour
 	
 	Return True;
 	
 EndFunction
 
-// Determines whether changes can be made to the object
-// An object cannot be recorded in an Offline workplace if it simultaneously meets the following conditions:
-//	1. This is an Autonomous workplace.
-//	2. This is an undivided metadata object.
-//	3. This object is part of the offline work exchange plan.
-//	4. Not included in the list of exceptions.
+// Determines whether the object can be changed
+// An object cannot be written in a standalone workstation if all of the following conditions are met:
+//	1. This is standalone workstation.
+//	2. This is a shared metadata object.
+//	3. This object is included in the exchange plan of the standalone mode.
+//	4. The object does not belong to the exception list.
 //
 // Parameters:
-//   MetadataObject - MetadataObject -  metadata of the object being checked
-//   ReadOnly - Boolean -  if True, the object is viewable only.
+//   MetadataObject - MetadataObject - metadata of the object to be checked
+//   ReadOnly - Boolean - if True, the object is read-only.
 //
 Procedure DefineDataChangeCapability(MetadataObject, ReadOnly) Export
 	
@@ -915,8 +917,8 @@ EndProcedure
 Procedure SetRegistersTotalsUsage(Flagusage)
 	
 	SessionDate = CurrentSessionDate();
-	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // 
-	AccountingRegisterPeriod = EndOfMonth(SessionDate); // 
+	AccumulationRegisterPeriod  = EndOfMonth(AddMonth(SessionDate, -1)); // End of the last month.
+	AccountingRegisterPeriod = EndOfMonth(SessionDate); // End of the last month.
 	
 	KindBalance = Metadata.ObjectProperties.AccumulationRegisterType.Balance;
 	
@@ -982,7 +984,7 @@ EndFunction
 // 
 Function StandaloneWorkstationPrefixAllowedChars()
 	
-	Return NStr("en = 'ABCDEFGHIKLMNOPQRSTVXYZabcdefghiklmnopqrstvxyz';"); // 
+	Return NStr("en = 'ABCDEFGHIKLMNOPQRSTVXYZabcdefghiklmnopqrstvxyz';"); // 54 characters.
 	
 EndFunction
 
@@ -1014,7 +1016,7 @@ Procedure DoImportParametersFromInitialImage()
 		
 		ChangeSeparationUsage(False);
 		
-		// 
+		// Creating exchange plan nodes for standalone mode in the zero data area.
 		StandaloneWorkstationNode = ExchangePlans[StandaloneModeExchangePlan()].ThisNode().GetObject();
 		StandaloneWorkstationNode.Code          = Parameters.StandaloneWorkstationCode;
 		StandaloneWorkstationNode.Description = Parameters.StandaloneWorkstationDescription;
@@ -1036,7 +1038,7 @@ Procedure DoImportParametersFromInitialImage()
 		Raise;
 	EndTry;
 	
-	// 
+	// Assign the created node the master node.
 	ExchangePlans.SetMasterNode(MasterNodeRef);
 	StandardSubsystemsServer.SaveMasterNode();
 	
@@ -1059,10 +1061,10 @@ Procedure DoImportParametersFromInitialImage()
 			
 		EndIf;
 		
-		// 
+		// The constant value must be True to call the standalone workstation setup wizard.
 		Constants.SubordinateDIBNodeSetupCompleted.Set(True);
 		
-		// 
+		// Add a record to the exchange transport information register.
 		RecordStructure = New Structure;
 		RecordStructure.Insert("DefaultExchangeMessagesTransportKind", Enums.ExchangeMessagesTransportTypes.WS);
 		RecordStructure.Insert("WSUseLargeVolumeDataTransfer", True);
@@ -1071,7 +1073,7 @@ Procedure DoImportParametersFromInitialImage()
 		
 		InformationRegisters.DataExchangeTransportSettings.AddRecord(RecordStructure);
 		
-		// 
+		// Add a record to the information register of common infobase node settings.
 		RecordStructure = New Structure;
 		RecordStructure.Insert("InfobaseNode", ApplicationInSaaS());
 		RecordStructure.Insert("SettingCompleted", True);
@@ -1081,7 +1083,7 @@ Procedure DoImportParametersFromInitialImage()
 		EndIf;
 		DataExchangeInternal.AddRecordToInformationRegister(RecordStructure, "CommonInfobasesNodesSettings");
 		
-		// 
+		// Setting an initial image creation date as the date of the first successful synchronization.
 		RecordStructure = New Structure;
 		RecordStructure.Insert("InfobaseNode", ApplicationInSaaS());
 		RecordStructure.Insert("ActionOnExchange", Enums.ActionsOnExchange.DataExport);
@@ -1094,12 +1096,12 @@ Procedure DoImportParametersFromInitialImage()
 		RecordStructure.Insert("EndDate", Parameters.InitialImageCreationDate);
 		InformationRegisters.SuccessfulDataExchangesStates.AddRecord(RecordStructure);
 		
-		// 
-		// 
+		// Set the default sync schedule.
+		// Disable the schedule as the password is not set.
 		ScheduledJobsServer.SetScheduledJobUsage(Metadata.ScheduledJobs.DataSynchronizationWithWebApplication, False);
 		ScheduledJobsServer.SetJobSchedule(Metadata.ScheduledJobs.DataSynchronizationWithWebApplication, DefaultDataSynchronizationSchedule());
 		
-		// 
+		// Creating an infobase user and linking it to the Users catalog user.
 		Roles = New Array;
 		Roles.Add("SystemAdministrator");
 		Roles.Add("FullAccess");
@@ -1188,7 +1190,7 @@ Procedure ImportInitialImageData()
 		
 		InitialImageDataFile = New File(InitialImageDataFileName);
 		If Not InitialImageDataFile.Exists() Then
-			Return; // 
+			Return; // Initial image data was successfully imported earlier
 		EndIf;
 		
 		DataFileList = New Array();
@@ -1199,8 +1201,8 @@ Procedure ImportInitialImageData()
 	DataExchangeInternal.DisableAccessKeysUpdate(True, False);
 	SetRegistersTotalsUsage(False);
 	
-	//  
-	// 
+	// If accounting register records are imported before the chart of accounts, an invalid record error occurs. 
+	// Therefore, write accounting registers the last (first, add them to the array "SetsOfAccountingRegisters").
 	// 
 	// 
 	SetsOfAccountingRegisters = New Array;
@@ -1363,7 +1365,7 @@ EndFunction
 // 
 Function ReadDataToStructure(XMLReader)
 	
-	// 
+	// Function return value.
 	Result = New Structure;
 	
 	If XMLReader.NodeType <> XMLNodeType.StartElement Then
@@ -1394,20 +1396,20 @@ Function DataSynchronizationEventLogEvent()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Handlers of conditional calls of other subsystems
 
-// Checks the object for inclusion in the list of exceptions
+// The function checks whether a passed object is included in the exception list.
 Function MetadataObjectIsException(Val MetadataObject)
 	
-	// 
+	// Safe password storage.
 	If MetadataObject = Metadata.InformationRegisters.SafeDataStorage Then
 		Return True;
 	EndIf;
 	
-	// 
-	// 
-	// 
-	// 
+	// The catalog "MetadataObjectIDs" is the initial node object.
+	// In child nodes, most catalog attributes can be updated using the
+	// metadata property values strictly according to the master node (intended for exceptions).
+	// The "BeforeWrite" procedure in the object module controls the modification.
 	If MetadataObject = Metadata.Catalogs.MetadataObjectIDs Then
 		Return True;
 	EndIf;

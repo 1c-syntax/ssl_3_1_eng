@@ -1,34 +1,36 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 
-// Opens the window for selecting a template for generating an email or SMS message based on the template
-// for the item passed in the subject parameter.
+// Opens the template selection window for generating an email or a text message from template
+// for the subject passed in the MessageSubject parameter.
 //
 // Parameters:
 //  MessageSubject            - DefinedType.MessageTemplateSubject
-//                              - String - 
-//                                
-//                                
-//                                
-//  MessageKind                - String -  "Message" for email and "Messagesms" for SMS messages.
-//  OnCloseNotifyDescription - NotifyDescription - :
-//     * Result - Boolean -  if True, the message was created.
+//                              - String - a source object of data entered in the message.
+//                                For common templates, pass the Common value.
+//                                To pass a message subject as a string, specify a full metadata name.
+//                                For example, "Catalog.Counterparties".
+//  MessageKind                - String - Email for emails and SMSMessage for text messages.
+//  OnCloseNotifyDescription - NotifyDescription - a notification that is called once a message is generated. Contains:
+//     * Result - Boolean - if True, a message was created.
 //     * MessageParameters - Structure
-//                          - Undefined -  
-//  TemplateOwner             - DefinedType.MessageTemplateOwner -  the owner of the templates. If not specified, the
-//                                              template selection window displays all available templates for the specified
-//                                              subject of the message.
-//  MessageParameters          - Structure -    additional information for a message that 
-//                                             which is transferred in property of Parametrisable parameter Parametrisable
-//                                             procedure SaloneSatellite.When forming a message. 
+//                          - Undefined - a value that was passed in the MessageParameters parameter. 
+//  TemplateOwner             - DefinedType.MessageTemplateOwner - an owner of templates. If it is not specified, all available templates are displayed in the template selection
+//                                              window for the
+//                                              specified MessageSubject subject.
+//  MessageParameters          - Structure -  additional information to generate a message 
+//                                             that is passed to the MessageParameters property of the TemplateParameters parameter
+//                                             of the MessagesTemplatesOverridable.OnGenerateMessage procedure. 
 //
 Procedure GenerateMessage(MessageSubject, MessageKind, OnCloseNotifyDescription = Undefined, 
 	TemplateOwner = Undefined, MessageParameters = Undefined) Export
@@ -38,17 +40,17 @@ Procedure GenerateMessage(MessageSubject, MessageKind, OnCloseNotifyDescription 
 	
 EndProcedure
 
-// Opens a form for selecting a template.
+// Opens a form to select a template.
 //
 // Parameters:
-//  Notification - NotifyDescription - :
-//      * Result - CatalogRef.MessageTemplates -  selected template.
-//      * AdditionalParameters - Structure -  the value that was specified when creating the message Description object.
-//  MessageKind                - String -  "Message" for email and "Messagesms" for SMS messages.
+//  Notification - NotifyDescription - a notification to be called after a template is selected.:
+//      * Result - CatalogRef.MessageTemplates - a selected template.
+//      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
+//  MessageKind                - String - Email for emails and SMSMessage for text messages.
 //  TemplateSubject   - AnyRef
-//                   - String - 
-//  TemplateOwner  - DefinedType.MessageTemplateOwner -  the owner of the templates. If omitted, the template selection window
-//                                              displays all available templates for the specified message Subject.
+//                   - String - a reference to an object that is a subject, or its full name.
+//  TemplateOwner  - DefinedType.MessageTemplateOwner - an owner of templates. If it is not specified, all available templates are displayed
+//                                              in the template selection window for the specified MessageSubject subject.
 //
 Procedure SelectTemplate(Notification, MessageKind = "MailMessage", TemplateSubject = Undefined, TemplateOwner = Undefined) Export
 	
@@ -63,24 +65,24 @@ Procedure SelectTemplate(Notification, MessageKind = "MailMessage", TemplateSubj
 	
 EndProcedure
 
-// Shows the form of the message template.
+// Shows a message template form.
 //
 // Parameters:
 //  Value - CatalogRef.MessageTemplates
 //           - Structure
-//           - AnyRef - 
- //                    
- //                    
-//                      See MessageTemplatesClientServer.TemplateParametersDetails.
-//                     
-//                     
-//  OpeningParameters - Structure - :
-//    * Owner - Arbitrary -  a form or control of another form.
-//    * Uniqueness - Arbitrary -  the key whose value will be used to search for already open forms.
-//    * URL - String -  sets the navigation link returned by the form.
-//    * OnCloseNotifyDescription - NotifyDescription -  contains a description of the procedure that will be called after
+//           - AnyRef - If a reference to a template is passed,
+ //                    this template opens.
+ //                    If a structure is passed, a new template filled with the data from the structure opens.
+//                     For field details, See MessageTemplatesClientServer.TemplateParametersDetails.
+//                     . If a reference from the "DefinedType.MessageTemplateOwner" type collection is passed,
+//                     a template for a given owner opens.
+//  OpeningParameters - Structure - form opening parameters.:
+//    * Owner - Arbitrary - a form or another form control.
+//    * Uniqueness - Arbitrary - a key whose value will be used to search for already opened forms.
+//    * URL - String - sets a URL returned by the form.
+//    * OnCloseNotifyDescription - NotifyDescription - contains details of the procedure to be called after
 //                                                         the form is closed.
-//    * WindowOpeningMode - FormWindowOpeningMode -  specifies the mode for opening the managed form window.
+//    * WindowOpeningMode - FormWindowOpeningMode - Form window open mode.
 //
 Procedure ShowTemplateForm(Value, OpeningParameters = Undefined) Export
 	
@@ -102,21 +104,21 @@ Procedure ShowTemplateForm(Value, OpeningParameters = Undefined) Export
 		FormOpenParameters.OnCloseNotifyDescription, FormOpenParameters.WindowOpeningMode);
 EndProcedure
 
-// Returns parameters for opening the message template form.
+// Returns opening parameters of a message template form.
 //
 // Parameters:
-//  FillingData - Arbitrary - 
-//                                    :
-//                                    
+//  FillingData - Arbitrary - a value used for filling.
+//                                    The value of this parameter cannot be of the following types:
+//                                    Undefined, Null, Number, String, Date, Boolean, and Date.
 // 
 // Returns:
-//  Structure - :
-//   * Owner - Arbitrary -  a form or control of another form.
-//   * Uniqueness - Arbitrary -  the key whose value will be used to search for already open forms.
-//   * URL - String -  sets the navigation link returned by the form.
-//   * OnCloseNotifyDescription - NotifyDescription -  contains a description of the procedure that will be called after
+//  Structure - List of form open parameters.:
+//   * Owner - Arbitrary - a form or another form control.
+//   * Uniqueness - Arbitrary - a key whose value will be used to search for already opened forms.
+//   * URL - String - sets a URL returned by the form.
+//   * OnCloseNotifyDescription - NotifyDescription - contains details of the procedure to be called after
 //                                                       the form is closed.
-//   * WindowOpeningMode - FormWindowOpeningMode -  specifies the mode for opening the managed form window.
+//   * WindowOpeningMode - FormWindowOpeningMode - Form window open mode.
 //
 Function FormParameters(FillingData) Export
 	OpeningParameters = New Structure();
@@ -138,23 +140,23 @@ EndFunction
 
 #Region Internal
 
-// Opens the window for selecting a template for generating an email or SMS message for the specified subject
-// The subject of the message and returns the generated template.
+// Opens a template selection window to generate an email or a text message on the specified subject
+// MessageSubject and returns a generated template.
 //
 // Parameters:
 //  MessageSubject            - AnyRef
-//                              - String - 
-//                                
-//  MessageKind                - String -  "Message" for email and "Messagesms" for SMS messages.
-//  OnCloseNotifyDescription - NotifyDescription - :
-//     * Result - Structure -  if True, the message was created.
+//                              - String - a source object of data entered in the message.
+//                                For common templates, pass the Common value.
+//  MessageKind                - String - Email for emails and SMSMessage for text messages.
+//  OnCloseNotifyDescription - NotifyDescription - a notification that is called once a message is generated.:
+//     * Result - Structure - if True, a message was created.
 //     * MessageParameters - Structure
-//                          - Undefined -  
-//  TemplateOwner         - DefinedType.MessageTemplateOwner -  the owner of the templates. If omitted, the
-//                            template selection window displays all available templates for the specified message Subject.
-//  MessageParameters     - Structure -    additional information for a message that 
-//                                        which is transferred in property of Parametrisable parameter Parametrisable
-//                                        procedure SaloneSatellite.When forming a message. 
+//                          - Undefined - a value that was passed in the MessageParameters parameter. 
+//  TemplateOwner         - DefinedType.MessageTemplateOwner - an owner of templates. If it is not specified, all available templates are displayed
+//                            in the template selection window for the specified MessageSubject subject.
+//  MessageParameters     - Structure -  additional information to generate a message 
+//                                        that is passed to the MessageParameters property of the TemplateParameters parameter
+//                                        of the MessagesTemplatesOverridable.OnGenerateMessage procedure. 
 //
 Procedure PrepareMessageFromTemplate(MessageSubject, MessageKind, OnCloseNotifyDescription = Undefined, 
 	TemplateOwner = Undefined, MessageParameters = Undefined) Export

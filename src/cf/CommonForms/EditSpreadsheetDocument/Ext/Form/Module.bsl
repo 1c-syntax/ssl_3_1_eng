@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -28,7 +30,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 
 	SpreadsheetDocument.LanguageCode = Common.DefaultLanguageCode();
-	SpreadsheetDocument.Template = True;
 	
 	IdentifierOfTemplate = Parameters.TemplateMetadataObjectName;
 	RefTemplate = Parameters.Ref;
@@ -47,6 +48,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	IsPrintForm = Parameters.IsPrintForm;
 	IsTemplate = Not IsBlankString(IdentifierOfTemplate) Or IsPrintForm;
+	SpreadsheetDocument.Template = IsTemplate;
 	
 	Items.ButtonShowHideOriginal.Visible = IsTemplate;
 	Items.ButtonShowHideOriginalAllActions.Visible = IsTemplate;
@@ -301,7 +303,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// 
+// Document actions
 
 &AtClient
 Procedure WriteAndClose(Command)
@@ -374,7 +376,7 @@ Procedure ChangeFont(Command)
 	
 EndProcedure
 
-// 
+// Formatting
 
 &AtClient
 Procedure IncreaseFontSize(Command)
@@ -382,7 +384,7 @@ Procedure IncreaseFontSize(Command)
 	For Each Area In AreaListForChangingFont() Do
 		Size = Area.Font.Size;
 		Size = Size + IncreaseFontSizeChangeStep(Size);
-		Area.Font = New Font(Area.Font,,Size); // 
+		Area.Font = New Font(Area.Font,,Size); // ACC:1345 - Don't apply styles.
 	EndDo;
 	
 EndProcedure
@@ -396,7 +398,7 @@ Procedure DecreaseFontSize(Command)
 		If Size < 1 Then
 			Size = 1;
 		EndIf;
-		Area.Font = New Font(Area.Font,,Size); // 
+		Area.Font = New Font(Area.Font,,Size); // ACC:1345 - Don't apply styles.
 	EndDo;
 	
 EndProcedure
@@ -409,7 +411,7 @@ Procedure Strikeout(Command)
 		If ValueToSet = Undefined Then
 			ValueToSet = Not Area.Font.Strikeout = True;
 		EndIf;
-		Area.Font = New Font(Area.Font,,,,,,ValueToSet); // 
+		Area.Font = New Font(Area.Font,,,,,,ValueToSet); // ACC:1345 - Don't apply styles.
 	EndDo;
 	
 	UpdateCommandBarButtonMarks();
@@ -611,7 +613,7 @@ Procedure UpdateCommandBarButtonMarks();
 		Return;
 	EndIf;
 	
-	// Font
+	// Font.
 	Font = Area.Font;
 	Items.SpreadsheetDocumentBold.Check = Font <> Undefined And Font.Bold = True;
 	Items.SpreadsheetDocumentItalic.Check = Font <> Undefined And Font.Italic = True;
@@ -622,7 +624,7 @@ Procedure UpdateCommandBarButtonMarks();
 	Items.SpreadsheetUnderlineAllActions.Check = Items.SpreadsheetDocumentUnderline.Check;
 	Items.StrikethroughAllActions.Check = Font <> Undefined And Font.Strikeout = True;
 	
-	// 
+	// Horizontal orientation.
 	Items.SpreadsheetDocumentAlignLeft.Check = Area.HorizontalAlign = HorizontalAlign.Left;
 	Items.SpreadsheetDocumentAlignCenter.Check = Area.HorizontalAlign = HorizontalAlign.Center;
 	Items.SpreadsheetDocumentAlignRight.Check = Area.HorizontalAlign = HorizontalAlign.Right;
@@ -633,7 +635,7 @@ Procedure UpdateCommandBarButtonMarks();
 	Items.SpreadsheetAlignRightAllActions.Check = Items.SpreadsheetDocumentAlignRight.Check;
 	Items.SpreadsheetJustifyAllActions.Check = Items.SpreadsheetDocumentJustify.Check;
 	
-	// 
+	// Vertical orientation.
 	Items.AlignTop.Check = Area.VerticalAlign = VerticalAlign.Top;
 	Items.AlignMiddle.Check = Area.VerticalAlign = VerticalAlign.Center;
 	Items.AlignBottom.Check = Area.VerticalAlign = VerticalAlign.Bottom;
@@ -1317,7 +1319,7 @@ Procedure SpreadsheetDocumentDrag(Item, DragParameters, StandardProcessing, Area
 		
 		If StandardProcessing Then
 			StandardProcessing = False;
-			Area = SpreadsheetDocument.Area(Area.Top, Area.Left); // 
+			Area = SpreadsheetDocument.Area(Area.Top, Area.Left); // Get the area of the merged cells.
 			Area.Text = ?(ValueIsFilled(Area.Text), TrimR(Area.Text) + " ", "") + DragParameters.Value;
 		EndIf;
 	EndIf;
@@ -1334,7 +1336,7 @@ Procedure PlaceFigureInSpreadsheetDocument(SelectedField, StandardProcessing, Le
 		StandardProcessing = False;
 		
 		Drawing = SpreadsheetDocument.Drawings.Add(SpreadsheetDocumentDrawingType.Picture);
-		Drawing.Name = PickupRegionName(SelectedField.Name);
+		Drawing.Name = PickupRegionName(SpreadsheetDocument, SelectedField.Name);
 		Drawing.DetailsParameter = "[" + SelectedField.DataPath + "]";
 		Drawing.Picture = PictureLib["CompanySeal"];
 		Drawing.Place(Area);
@@ -1351,7 +1353,7 @@ Procedure PlaceFigureInSpreadsheetDocument(SelectedField, StandardProcessing, Le
 	If StrStartsWith(SelectedField.Name, "Signature") Then
 		StandardProcessing = False;
 		Drawing = SpreadsheetDocument.Drawings.Add(SpreadsheetDocumentDrawingType.Picture);
-		Drawing.Name = PickupRegionName(SelectedField.Name);
+		Drawing.Name = PickupRegionName(SpreadsheetDocument, SelectedField.Name);
 		Drawing.DetailsParameter = "[" + SelectedField.DataPath + "]";
 		Drawing.Picture = PictureLib["Signature"];
 		Drawing.Place(Area);
@@ -1372,7 +1374,7 @@ Procedure PlaceFigureInSpreadsheetDocument(SelectedField, StandardProcessing, Le
 		RowArea_.CreateFormatOfRows();
 		
 		StampArea = SpreadsheetDocument.Area(Area.Top, Area.Left, Area.Top + 6, Area.Left + 1);
-		StampArea.Name = PickupRegionName("DSStamp");
+		StampArea.Name = PickupRegionName(SpreadsheetDocument, "DSStamp");
 		
 		StampArea = SpreadsheetDocument.Area(Area.Top, Area.Left, Area.Top + 6, Area.Left);
 		StampArea.ColumnWidth = 10;
@@ -1387,7 +1389,7 @@ Procedure PlaceFigureInSpreadsheetDocument(SelectedField, StandardProcessing, Le
 		StandardProcessing = False;
 		
 		Drawing = SpreadsheetDocument.Drawings.Add(SpreadsheetDocumentDrawingType.Picture);
-		Drawing.Name = PickupRegionName(SelectedField.Name);
+		Drawing.Name = PickupRegionName(SpreadsheetDocument, SelectedField.Name);
 		Drawing.DetailsParameter = "[" + SelectedField.DataPath + "]";
 		Drawing.Place(Area);
 		Drawing.Height = 40;
@@ -1405,7 +1407,7 @@ Procedure PlaceFigureInSpreadsheetDocument(SelectedField, StandardProcessing, Le
 		StandardProcessing = False;
 		
 		Drawing = SpreadsheetDocument.Drawings.Add(SpreadsheetDocumentDrawingType.Picture);
-		Drawing.Name = PickupRegionName(SelectedField.Name);
+		Drawing.Name = PickupRegionName(SpreadsheetDocument, SelectedField.Name);
 		Drawing.DetailsParameter = "[" + SelectedField.DataPath + "]";
 		Drawing.Place(Area);
 		Drawing.Height = 25.93;
@@ -1426,7 +1428,7 @@ Procedure PlaceFigureInSpreadsheetDocument(SelectedField, StandardProcessing, Le
 		StandardProcessing = False;
 		
 		Drawing = SpreadsheetDocument.Drawings.Add(SpreadsheetDocumentDrawingType.Picture);
-		Drawing.Name = PickupRegionName("Drawing");
+		Drawing.Name = PickupRegionName(SpreadsheetDocument, "Drawing");
 		Drawing.DetailsParameter = "[" + SelectedField.DataPath + "]";
 		Drawing.Picture = PictureLib["PlaceForPicture"];
 		Drawing.Place(Area);
@@ -1866,7 +1868,7 @@ Procedure Attachable_ExpandTheCurrentFieldListItem()
 EndProcedure
 
 &AtClient
-Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // 
+Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - Called from FormulaConstructorClient.
 	
 	FillInTheListOfAvailableFields(FillParameters);
 	
@@ -1954,7 +1956,7 @@ Procedure Attachable_SearchStringClearing(Item, StandardProcessing)
 EndProcedure
 
 &AtServer
-Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters) // 
+Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters) // ACC:1412 - The parameters return to the client.
 	If Common.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormula = Common.CommonModule("FormulasConstructor");
 		ModuleConstructorFormula.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
@@ -1967,7 +1969,7 @@ Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export // 
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export // ACC:78 - Procedure is called from FormulaConstructorClient.StartSearchInFieldsList.
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		ModuleConstructorFormulaClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);
@@ -2215,6 +2217,8 @@ Function PrepareLayoutForRecording(SetLanguageCode = True, Cancel = False)
 		EndIf;
 	EndDo;
 	
+	RenameConditionalAreas(Template, ConditionalAreaPrefix());
+	
 	Return Template;
 	
 EndFunction
@@ -2383,6 +2387,8 @@ Function ReadLayout(BinaryData = Undefined)
 		EndIf;
 	EndDo;
 	
+	RenameConditionalAreas(Template, LocalizedPrefixOfConditionalDomain());
+	
 	Return Template;
 	
 EndFunction
@@ -2445,7 +2451,7 @@ Function CopySpreadsheetDocument(SpreadsheetDocument, LanguageCode)
 			EndIf;
 			
 			Cell = Result.Area(LineNumber, ColumnNumber, LineNumber, ColumnNumber);
-			FillPropertyValues(Cell, CellToCopy, , ?(HasRowsFormat, "RowsFormat", Undefined));
+			FillPropertyValues(Cell, CellToCopy, , ?(HasRowsFormat, "FormatOfRows", Undefined));
 			
 			If CellToCopy.FillType = SpreadsheetDocumentAreaFillType.Template Then
 				Cell.Text = CellToCopy.Text;
@@ -2630,7 +2636,7 @@ Procedure ExpandFieldList()
 		EndDo;
 	EndDo;
 	
-	// 
+	// Color of the fields that are not common for the selected objects.
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -2666,9 +2672,9 @@ Procedure Attachable_AvailableFieldsWhenLineIsActivated(Item)
 	If CommonClientServer.CompareVersions(PlatformVersion, "8.3.23.838") >= 0 Then
 		AttachIdleHandler("HighlightCellsWithSelectedField", 0.1, True);
 	Else
-		#If Not WebClient Then	
+#If Not WebClient Then	
 			AttachIdleHandler("HighlightCellsWithSelectedField", 0.1, True);	
-		#EndIf		
+#EndIf		
 	EndIf;
 	
 EndProcedure
@@ -2764,28 +2770,54 @@ Procedure WhenChangingSampleOnServer()
 	
 EndProcedure
 
-&AtServer
-Function PickupRegionName(AreaName)
+&AtClientAtServerNoContext
+Procedure RenameConditionalAreas(Template, Prefix)
+	
+	Areas = New Array;
+	
+	For Each Area In Template.Areas Do
+		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
+			And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
+			Areas.Add(Area);
+		EndIf;
+	EndDo;
+
+	For Each Area In Areas Do
+		PickupRegionName(Template, Prefix, Area);
+	EndDo;
+	
+EndProcedure
+
+&AtClientAtServerNoContext
+Function PickupRegionName(SpreadsheetDocument, Val Prefix, Area = Undefined)
 	
 	UsedNames = New Map;
 	
-	For Each Area In SpreadsheetDocument.Areas Do
-		UsedNames.Insert(Area.Name, True);
+	For Each Item In SpreadsheetDocument.Areas Do
+		If Area = Undefined Or Item.Name <> Area.Name Then
+			UsedNames.Insert(Item.Name, True);
+		EndIf;
 	EndDo;
 	
 	IndexOf = 1;
-	While UsedNames[AreaName(AreaName, IndexOf)] <> Undefined Do
+	While UsedNames[AreaName(Prefix, IndexOf)] <> Undefined Do
 		IndexOf = IndexOf + 1;
 	EndDo;
 	
-	Return AreaName(AreaName, IndexOf);
+	NewDomainName = AreaName(Prefix, IndexOf);
+	
+	If Area <> Undefined And Area.Name <> NewDomainName Then
+		Area.Name = NewDomainName;
+	EndIf;
+	
+	Return NewDomainName;
 	
 EndFunction
 
-&AtServer
+&AtClientAtServerNoContext
 Function AreaName(AreaName, IndexOf)
 	
-	Return AreaName + Format(IndexOf, "NG=0");
+	Return AreaName + Format(IndexOf, "NG=0;");
 	
 EndFunction
 
@@ -2842,10 +2874,10 @@ Procedure DeleteStampEP(Command)
 	For Each Area In Items.SpreadsheetDocument.GetSelectedAreas() Do
 		If StrStartsWith(Area.Name, "DSStamp") Then
 			Area.Name = "";
-			#If WebClient Then
-				// 
+#If WebClient Then
+				// It is required for the display update
 				Area.Protection = Area.Protection;
-			#EndIf
+#EndIf
 		EndIf;
 	EndDo;
 	
@@ -2989,11 +3021,25 @@ Procedure UpdateTextInCellsArea()
 		CurrentArea.DetailsParameter = CurrentValue;
 		
 		If ValueIsFilled(CurrentValue) Then
-			CurrentArea.Name = PickupRegionName("Condition_");
+			PickupRegionName(SpreadsheetDocument, LocalizedPrefixOfConditionalDomain(), CurrentArea);
 		EndIf;
 	EndIf;
 	
 EndProcedure
+
+&AtServerNoContext
+Function ConditionalAreaPrefix()
+	
+	Return "Condition" + "_";
+	
+EndFunction
+
+&AtClientAtServerNoContext
+Function LocalizedPrefixOfConditionalDomain()
+	
+	Return NStr("en = 'Условие';") + "_";
+	
+EndFunction
 
 &AtClient
 Procedure OnSelectingLayoutName(NewTemplateName, AdditionalParameters) Export

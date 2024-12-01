@@ -1,29 +1,31 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// The procedure updates the register data when the use of access types changes.
+// Updates register data after changing the access kind.
 //
 // Parameters:
 //  Tables       - CatalogRef.MetadataObjectIDs
 //                - CatalogRef.ExtensionObjectIDs
-//                - Array - 
-//                - Undefined - 
+//                - Array - values of the type specified above.
+//                - Undefined - without filter.
 //
 //  AccessValuesTypes - DefinedType.AccessValue
-//                      - Array - 
-//                      - Undefined - 
+//                      - Array - values of the type specified above.
+//                      - Undefined - without filter.
 //
-//  HasChanges - Boolean -  (return value) - if a record was made,
-//                  it is set to True, otherwise it is not changed.
+//  HasChanges - Boolean - (return value) - if recorded,
+//                  True is set, otherwise, it does not change.
 //
 Procedure UpdateRegisterData(Tables = Undefined, AccessValuesTypes = Undefined,
 			HasChanges = Undefined) Export
@@ -48,7 +50,7 @@ Procedure UpdateRegisterData(Tables = Undefined, AccessValuesTypes = Undefined,
 	|			AND (&ConditionForSelectingValueTypes1)
 	|			AND (&TableFilterCriterion1)";
 	
-	// 
+	// Preparing the selected fields with optional filter.
 	Fields = New Array;
 	Fields.Add(New Structure("Table",            "&TableFilterCriterion2"));
 	Fields.Add(New Structure("AccessValuesType", "&ConditionForSelectingValueTypes2"));

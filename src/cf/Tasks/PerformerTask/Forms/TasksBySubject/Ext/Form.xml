@@ -150,6 +150,9 @@
 				<ContextMenu name="ListSearchControlContextMenu" id="139"/>
 				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="140"/>
 			</SearchControlAddition>
+			<Events>
+				<Event name="OnActivateRow">ListOnActivateRow</Event>
+			</Events>
 			<ChildItems>
 				<ColumnGroup name="SeverityGroup" id="99">
 					<Title>
@@ -521,6 +524,9 @@
 						<CommandName>Form.Item.TasksTree.StandardCommand.OutputList</CommandName>
 						<ExtendedTooltip name="TasksTreeOutputListExtendedTooltip" id="86"/>
 					</Button>
+					<ButtonGroup name="FormCommands" id="150">
+						<ExtendedTooltip name="FormCommandsExtendedTooltip" id="151"/>
+					</ButtonGroup>
 				</ChildItems>
 			</AutoCommandBar>
 			<ExtendedTooltip name="TasksTreeExtendedTooltip" id="87"/>
@@ -550,6 +556,7 @@
 			</SearchControlAddition>
 			<Events>
 				<Event name="Selection">TasksTreeSelection</Event>
+				<Event name="OnActivateRow">TasksTreeOnActivateRow</Event>
 			</Events>
 			<ChildItems>
 				<PictureField name="TasksTreeImportance" id="28">

@@ -1,24 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// Creates a security profile administration request.
+// Creates a request for security profile administration.
 //
 // Parameters:
-//  ProgramModule - AnyRef -  a link that describes the software module
-//    that the security profile is intended to connect to,
+//  ProgramModule - AnyRef - a reference that describes a module that requires
+//    a security profile to be attached,
 //  Operation - EnumRef.SecurityProfileAdministrativeOperations
 //
 // Returns:
-//   UUID - 
+//   UUID - an ID of the created request.
 //
 Function PermissionAdministrationRequest(Val ProgramModule, Val Operation) Export
 	
@@ -61,27 +63,27 @@ EndFunction
 // Creates a request for permissions to use external resources.
 //
 // Parameters:
-//  ProgramModule - AnyRef -  a link that describes the software module
-//    that the security profile is intended to connect to,
-//  Owner - AnyRef -  a reference to an object in the information database that the requested
-//    permissions are logically associated with. For example, all permissions to access file storage volume directories are logically linked
-//    to the corresponding items in the file Storage directory, all permissions to access
-//    data exchange directories (or other resources, depending on the exchange transport used) are logically
-//    linked to the corresponding exchange plan nodes, and so on. If the permission is logically
-//    separate (for example, the granting of permission is regulated by the value of a constant with the Boolean type)
-//    , we recommend using a reference to the element of the reference list of object IDs.,
-//  ReplacementMode - Boolean -  defines the mode for replacing previously issued permissions for this owner. If
-//    the parameter is set to True, in addition to granting the requested permissions, the request will
-//    clear all permissions previously requested for the same owner.
-//  PermissionsToAdd - Array of XDTODataObject -  array of xdto Objects corresponding to the internal descriptions
-//    of the requested permissions to access external resources. It is assumed that all xdto Objects passed
-//    as a parameter are formed by calling functions in the safe mode.Permission*().
-//  PermissionsToDelete - Array of XDTODataObject -  array of xdto Objects that correspond to internal descriptions
-//    of revoked permissions to access external resources. It is assumed that all xdto Objects passed
-//    as a parameter are formed by calling functions in the safe mode.Permission*().
+//  ProgramModule - AnyRef - a reference that describes a module that requires
+//    a security profile to be attached,
+//  Owner - AnyRef - a reference to the infobase object the
+//    permissions being requested are logically connected with. For example, all permissions to access file storage volume directories are logically associated
+//    with relevant FileStorageVolumes catalog items, all permissions to access data exchange
+//    directories (or other resources according to the used exchange transport) are logically
+//    associated with relevant exchange plan nodes, and so on. If a permission is logically
+//    isolated (for example, if granting of a permission is controlled by the constant value with the Boolean type),
+//    it is recommended that you use a reference to the MetadataObjectIDs catalog item,
+//  ReplacementMode - Boolean - defines the replacement mode of permissions previously granted for this owner. If the
+//    value is True, in addition to granting the requested permissions,
+//    clearing all permissions that were previously requested for the owner are added to the request.
+//  PermissionsToAdd - Array of XDTODataObject - an array of XDTODataObjects that match internal details
+//    of external resource access permissions to be requested. It is assumed that all XDTODataObjects passed
+//    as parameters are generated using the SafeModeManager.Permission*() functions.
+//  PermissionsToDelete - Array of XDTODataObject - an array of XDTODataObjects that match internal details
+//    of external resource access permissions to be canceled. It is assumed that all XDTODataObjects passed
+//    as parameters are generated using the SafeModeManager.Permission*() functions.
 //
 // Returns:
-//   UUID - 
+//   UUID - an ID of the created request.
 //
 Function RequestToUsePermissions(Val ProgramModule, Val Owner, Val ReplacementMode, Val PermissionsToAdd, Val PermissionsToDelete) Export
 	
@@ -153,11 +155,11 @@ Function RequestToUsePermissions(Val ProgramModule, Val Owner, Val ReplacementMo
 	
 EndFunction
 
-// Creates and initializes the Manager for applying requests to use external resources.
+// Creates and initializes a manager for requests to use external resources.
 //
 // Parameters:
-//  RequestsIDs - Array of UUID -  IDs of requests
-//   that the Manager is being created to apply.
+//  RequestsIDs - Array of UUID - request IDs, for
+//   which a manager is created.
 //
 // Returns:
 //   DataProcessorObject.ExternalResourcesPermissionsSetup
@@ -249,7 +251,7 @@ Function PermissionsApplicationManager(Val RequestsIDs) Export
 	
 EndFunction
 
-// Checks whether you need to interactively request permissions to use external resources.
+// Checks whether an interactive request for permissions to use external resources is required.
 //
 // Returns:
 //   Boolean
@@ -264,7 +266,7 @@ Function RequestForPermissionsToUseExternalResourcesRequired()
 	
 EndFunction
 
-// Checks whether you can interactively request permissions to use external resources.
+// Checks whether permissions to use external resources can be requested interactively.
 //
 // Returns:
 //   Boolean
@@ -272,12 +274,12 @@ EndFunction
 Function CanRequestForPermissionsToUseExternalResources()
 	
 	If Common.FileInfobase(InfoBaseConnectionString()) Or Not GetFunctionalOption("UseSecurityProfiles") Then
-		// 
-		// 
+		// In file infobases and infobases with disabled security profiles, administrators (regardless of the privileged mode)
+		// and ordinary users (with the privileged mode) can write permission requests.
 		Return PrivilegedMode() Or Users.IsFullUser();
 	Else
-		// 
-		// 
+		// For client/server infobases with enabled security profiles, only the administrators
+		// can write permission requests regardless of the privileged mode.
 		If Not Users.IsFullUser() Then
 			Raise(NStr("en = 'Insufficient access rights to request permissions to use external resources.';"),
 				ErrorCategory.AccessViolation);
@@ -287,14 +289,14 @@ Function CanRequestForPermissionsToUseExternalResources()
 	
 EndFunction
 
-// Returns the name of the security profile for the information base or external module.
+// Returns a security profile name for the infobase or the external module.
 //
 // Parameters:
-//  Externalmodule-any Link - a link to a reference list element that is used
+//  ExternalModule - AnyRef - a reference to the catalog item used
 //    as an external module.
 //
 // Returns: 
-//   String -  name of the security profile.
+//   String - Security profile name.
 //
 Function SecurityProfileName(Val ProgramModule)
 	
@@ -310,14 +312,14 @@ Function SecurityProfileName(Val ProgramModule)
 	
 EndFunction
 
-// Generates the name of the security profile for the information base or external module.
+// Generates a security profile name for the infobase or the external module.
 //
 // Parameters:
-//   Externalmodule-any Link - a link to a reference list element that is used
+//   ExternalModule - AnyRef - a reference to the catalog item used
 //                                 as an external module.
 //
 // Returns: 
-//   String -  name of the security profile.
+//   String - Security profile name.
 //
 Function NewSecurityProfileName(Val ProgramModule)
 	
@@ -337,7 +339,7 @@ Function NewSecurityProfileName(Val ProgramModule)
 	
 EndFunction
 
-// Clears out-of-date requests to use external resources.
+// Clears irrelevant requests to use external resources.
 //
 Procedure ClearObsoleteRequests() Export
 	
@@ -356,8 +358,8 @@ Procedure ClearObsoleteRequests() Export
 				
 			Except
 				
-				// 
-				// 
+				// Do not handle exceptions. The expected exception:
+				// An attempt to delete the same register record in another session.
 				Continue;
 				
 			EndTry;
@@ -379,11 +381,11 @@ Procedure ClearObsoleteRequests() Export
 	
 EndProcedure
 
-// Creates "empty" substitution requests for all previously granted permissions.
+// Creates blank replacement requests for all previously granted permissions.
 //
 // Returns:
-//   Array of UUID - 
-//     
+//   Array of UUID - IDs of requests to replace all previously
+//     granted permissions.
 //
 Function ReplacementRequestsForAllGrantedPermissions() Export
 	
@@ -425,8 +427,8 @@ EndFunction
 // Serializes requests to use external resources.
 //
 // Parameters:
-//  IDs - Array of UUID -  ids of serializable
-//   requests.
+//  IDs - Array of UUID - IDs of
+//   requests to be serialized.
 //
 // Returns:
 //   String
@@ -452,7 +454,7 @@ EndFunction
 // Deserializes requests to use external resources.
 //
 // Parameters:
-//  XMLLine - String -  the result of the function write a query to the XML () String.
+//  XMLLine - String - a result of the WriteRequestsToXMLString() function.
 //
 Procedure ReadRequestsFromXMLString(Val XMLLine) Export
 	
@@ -477,10 +479,10 @@ Procedure ReadRequestsFromXMLString(Val XMLLine) Export
 	
 EndProcedure
 
-// Delete requests for the use of external resources.
+// Deletes requests to use external resources.
 //
 // Parameters:
-//  RequestsIDs - Array of UUID -  IDs of the requests to delete.
+//  RequestsIDs - Array of UUID - IDs of deleted requests.
 //
 Procedure DeleteRequests(Val RequestsIDs) Export
 	

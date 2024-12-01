@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -295,7 +297,7 @@ Procedure SaveAdministrationParameters()
 	
 	AdministrationParametersToSave = New Structure();
 	
-	// 
+	// Cluster administration parameters.
 	AdministrationParametersToSave.Insert("AttachmentType", AttachmentType);
 	AdministrationParametersToSave.Insert("ServerAgentAddress", ServerAgentAddress);
 	AdministrationParametersToSave.Insert("ServerAgentPort", ServerAgentPort);
@@ -305,7 +307,7 @@ Procedure SaveAdministrationParameters()
 	AdministrationParametersToSave.Insert("ClusterAdministratorName", ClusterAdministratorName);
 	AdministrationParametersToSave.Insert("ClusterAdministratorPassword", "");
 	
-	// 
+	// Infobase administration parameters.
 	AdministrationParametersToSave.Insert("NameInCluster", NameInCluster);
 	AdministrationParametersToSave.Insert("InfobaseAdministratorName", InfobaseUserName(IBAdministrator));
 	AdministrationParametersToSave.Insert("InfobaseAdministratorPassword", "");
@@ -355,21 +357,21 @@ Procedure ApplyPermissionsAtServer(StorageAddress)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Applying the requests for permissions to use external resources.
 //
 
-// Applies permission changes to security profiles in the server cluster according to the scenario.
+// Applies the security profile permission changes in server cluster by the scenario.
 //
 // Parameters:
-//  OperationKinds - Structure - :
-//                   * Key - String -  name of the enumeration value,
+//  OperationKinds - Structure - Describes values of the SecurityProfileAdministrativeOperations enumeration:
+//                   * Key - String - an enumeration value name,
 //                   * Value - EnumRef.SecurityProfileAdministrativeOperations,
-//  PermissionsApplyingScenario - Array of Structure - 
-//    
-//    :
-//                   * Operation - EnumRef.SecurityProfileAdministrativeOperations -  the operation, which
-//                      you want to run,
-//                   * Profile - String -  the name of the security profile,
+//  PermissionsApplyingScenario - Array of Structure - a scenario of applying changes in permissions to
+//    use security profiles in the server cluster. Array values are structures
+//    with the following fields:
+//                   * Operation - EnumRef.SecurityProfileAdministrativeOperations - an operation to
+//                      be executed,
+//                   * Profile - String - a security profile name,
 //                   * Permissions - See ClusterAdministration.SecurityProfileProperties
 //  ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //  InfobaseAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters

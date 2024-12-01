@@ -1,59 +1,61 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region UserNotification
 
-//  
-// 
+// ACC:142-off - 4 optional parameters intended for compatibility 
+// with the obsolete procedure "CommonClientServer.ReportToUser".
 
-// Generates and outputs a message that can be associated with a form control.
+// Generates and displays the message that can relate to a form item.
 //
 // See Common.MessageToUser
 //
 // Parameters:
-//  MessageToUserText - String -  message text.
-//  DataKey - AnyRef -  the object or key of the database record that this message refers to.
-//  Field - String - 
-//  DataPath - String -  data path (the path to the requisite shape).
-//  Cancel - Boolean -  the output parameter is always set to True.
+//  MessageToUserText - String - message text.
+//  DataKey - AnyRef - the infobase record key or object that message refers to.
+//  Field - String - a form attribute description.
+//  DataPath - String - a data path (a path to a form attribute).
+//  Cancel - Boolean - an output parameter. Always True.
 //
 // Example:
 //
-//  1. to display a message in the field of the managed form associated with the object's details:
-//  General Assignationclient.Inform the user(
-//   NSTR ("ru = 'Error message.'"), ,
-//   "Politikunterricht",
+//  1. Showing the message associated with the object attribute near the form field:
+//  CommonClient.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "FieldInFormAttributeObject",
 //   "Object");
 //
-//  Alternative use in the form of an object:
-//  General purpose Client.Inform the user(
-//   NSTR ("ru = 'Error message.'"), ,
-//   "Object.Politikunterricht");
+//  An alternative variant of using in the object form module:
+//  CommonClient.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "Object.FieldInFormAttributeObject");
 //
-//  2. To display the message next to the managed form, associated with the requisite forms:
-//  Observationnelle.Inform the user(
-//   NSTR ("ru = 'Error message.'"), ,
-//   "Markwesterby");
+//  2. Showing a message for the form attribute, next to the form field:
+//  CommonClient.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "FormAttributeName");
 //
-//  3. to display a message related to an object in the information database:
-//  General purpose Client.Inform the user(
-//   NSTR ("ru = 'Error message.'"), Object Of The Information Base, "Responsible",, Refusal);
+//  3. To display a message associated with an infobase object:
+//  CommonClient.MessageToUser(
+//   NStr("en = 'Error message.'"), InfobaseObject, "Responsible person",,Cancel);
 //
-//  4. to display the message by reference to the object of the information database:
-//  General purpose Client.Inform the user(
-//   NSTR ("ru = 'Error message.'") The Link, ,,,, Failure);
+//  4. To display a message from a link to an infobase object:
+//  CommonClient.MessageToUser(
+//   NStr("en = 'Error message.'"), Reference, , , Cancel);
 //
-//  Cases of incorrect use:
-//   1. Passing the key Data and path Data parameters simultaneously.
-//   2. Passing a different type of value in the key Data parameter.
-//   3. Installation without field installation (and/or datapath).
+//  Scenarios of incorrect using:
+//   1. Passing DataKey and DataPath parameters at the same time.
+//   2. Passing a value of an illegal type to the DataKey parameter.
+//   3. Specifying a reference without specifying a field (and/or a data path).
 //
 Procedure MessageToUser(Val MessageToUserText,	Val DataKey = Undefined,
 	Val Field = "", Val DataPath = "", Cancel = False) Export
@@ -65,37 +67,37 @@ Procedure MessageToUser(Val MessageToUserText,	Val DataKey = Undefined,
 	
 EndProcedure
 
-// 
+// ACC:142-on
 
 #EndRegion
 
 #Region InfobaseData
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common procedures and functions to manage infobase data.
 
-// Returns a reference to a predefined element by its full name.
-// Predefined elements can only be contained in the following objects:
-//   - directories;
-//   - plans of types of characteristics;
-//   - chart of accounts;
-//   - plans for calculation types.
-// After changing the composition of the predefined ones, run the method
-// Update the re-used values (), which will reset the Repeat cache in the current session.
+// Returns a reference to the predefined item by its full name.
+// Only the following objects can contain predefined objects:
+//   - catalogs;
+//   - charts of characteristic types;
+//   - charts of accounts;
+//   - charts of calculation types.
+// After changing the list of predefined items, it is recommended that you run
+// the UpdateCachedValues() method to clear the cache for Cached modules in the current session.
 //
 // See Common.PredefinedItem
 //
 // Parameters:
-//   FullPredefinedItemName - String - 
-//     
-//     :
-//       
-//       
-//       
+//   FullPredefinedItemName - String - full path to the predefined item including the name.
+//     The format is identical to the PredefinedValue() global context function.
+//     Example:
+//       "Catalog.ContactInformationKinds.UserEmail"
+//       "ChartOfAccounts.SelfFinancing.Materials"
+//       "ChartOfCalculationTypes.Accruals.SalaryPayments".
 //
 // Returns: 	
-//   AnyRef - 
-//   
+//   AnyRef - reference to the predefined item.
+//   Undefined - if the predefined item exists in metadata but not in the infobase.
 //
 Function PredefinedItem(FullPredefinedItemName) Export
 	
@@ -115,13 +117,13 @@ Function PredefinedItem(FullPredefinedItemName) Export
 	
 EndFunction
 
-// Returns the code of the main language of the information base, for example "ru".
-// On which automatically generated strings are programmatically written to the information database.
-// For example, when initially filling in the information database with data from the layout, auto-generating a comment
-// on a transaction, or determining the value of the EventName parameter of the log record method.
+// Returns the code of the default infobase language, for example, "en".
+// On which auto-generated rows are programmatically written in the infobase.
+// For example, when initially filling the infobase with template data, generating a posting comment automatically,
+// or determining the value of the EventName parameter of the EventLogRecord method.
 //
 // Returns:
-//  String - 
+//  String - language code.
 //
 Function DefaultLanguageCode() Export
 	
@@ -134,26 +136,26 @@ EndFunction
 #Region ConditionCalls
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for calling optional subsystems.
 
-// 
-//  
-// 
+// Returns True if the functional subsystem exists in the configuration.
+// Intended for calling an optional subsystem (conditional call) alongside "CommonClient.SubsystemExists". 
+// A subsystem is considered functional if its "Include in command interface" check box is cleared.
 //
-// 
-// 
+// See also: CommonOverridable.OnDetermineDisabledSubsystems
+// and Common.SubsystemExists to call from server-side code.
 // 
 //
 // Parameters:
-//  FullSubsystemName - String -  the full name of the subsystem metadata object
-//                        without the words " Subsystem."and case-sensitive.
-//                        For example: "Standard subsystems.Variants of reports".
+//  FullSubsystemName - String - the full name of the subsystem metadata object
+//                        without the "Subsystem." part, case-sensitive.
+//                        Example: "StandardSubsystems.ReportsOptions".
 //
 // Example:
-//  
-//  	
-//  	
-//  
+//  If CommonClient.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+//  	ModuleReportsOptionsClient = CommonClient.CommonModule("ReportsOptionsClient");
+//  	ModuleReportsOptionsClient.<Procedure name>();
+//  EndIf;
 //
 // Returns:
 //  Boolean
@@ -170,21 +172,21 @@ Function SubsystemExists(FullSubsystemName) Export
 	
 EndFunction
 
-//  
-// 
-// 
+// Returns a reference to a common module by name. 
+// Intended for conditionally calling procedures and functions alongside "CommonClient.SubsystemExists".
+// See also "CommonClient.CommonModule" for calling the server-side code.
 //
 // Parameters:
-//  Name - String - 
+//  Name - String - The name of a common module. For example, "ConfigurationUpdateClient", "ReportsServerCall".
 //
 // Returns:
 //  CommonModule
 //
 // Example:
-//	
-//		
-//		
-//	
+//	If CommonClient.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
+//		ModuleConfigurationUpdateClient = CommonClient.CommonModule("ConfigurationUpdateClient");
+//		ModuleConfigurationUpdateClient.<Procedure name>();
+//	EndIf;
 //
 Function CommonModule(Name) Export
 	
@@ -192,8 +194,8 @@ Function CommonModule(Name) Export
 	
 #If Not WebClient Then
 	
-	// 
-	// 
+	// Skip for the web client (it has no modules of this type
+	// when contacting the modules with a server call).
 	If TypeOf(Module) <> Type("CommonModule") Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Common module ""%1"" does not exist.';"), 
@@ -211,14 +213,14 @@ EndFunction
 #Region CurrentEnvironment
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// The details functions of the current client application environment and operating system.
 
 // Returns True if the client application is running on Windows.
 //
 // See Common.IsWindowsClient
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsWindowsClient() Export
 	
@@ -228,12 +230,12 @@ Function IsWindowsClient() Export
 	
 EndFunction
 
-// Returns True if the client application is running under Linux.
+// Returns True if the client application is running on Linux.
 //
 // See Common.IsLinuxClient
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsLinuxClient() Export
 	
@@ -258,7 +260,7 @@ EndFunction
 // See Common.IsMacOSClient
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsMacOSClient() Export
 	
@@ -268,12 +270,12 @@ Function IsMacOSClient() Export
 	
 EndFunction
 
-// Returns True if the client application is connected to the database via a web server.
+// Returns True if a client application is connected to the infobase through a web server.
 //
 // See Common.ClientConnectedOverWebServer
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the application is connected.
 //
 Function ClientConnectedOverWebServer() Export
 	
@@ -281,12 +283,12 @@ Function ClientConnectedOverWebServer() Export
 	
 EndFunction
 
-// Returns True if debugging mode is enabled.
+// Returns True if debug mode is enabled.
 //
 // See Common.DebugMode
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if debug mode is enabled.
 //
 Function DebugMode() Export
 	
@@ -299,8 +301,8 @@ EndFunction
 // See Common.RAMAvailableForClientApplication
 //
 // Returns:
-//  Number - 
-//  
+//  Number - the number of GB of RAM, with tenths-place accuracy.
+//  Undefined - no client application is available, meaning CurrentRunMode() = Undefined.
 //
 Function RAMAvailableForClientApplication() Export
 	
@@ -309,17 +311,17 @@ Function RAMAvailableForClientApplication() Export
 	
 EndFunction
 
-// Defines the operation mode of the information database: file (True) or server (False).
-// When checking, the information database connection String is used, which can be specified explicitly.
+// Determines the infobase mode: file (True) or client/server (False).
+// This function uses the InfobaseConnectionString parameter. You can specify this parameter explicitly.
 //
 // See Common.FileInfobase
 //
 // Parameters:
-//  InfoBaseConnectionString - String -  this parameter is used if
-//                 you need to check the connection string of a non-current database.
+//  InfoBaseConnectionString - String - the parameter is applied if
+//                 you need to check a connection string for another infobase.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if it is a file infobase.
 //
 Function FileInfobase(Val InfoBaseConnectionString = "") Export
 	
@@ -331,11 +333,11 @@ Function FileInfobase(Val InfoBaseConnectionString = "") Export
 	
 EndFunction
 
-// Returns the platform type of the client.
+// Returns the client platform type.
 //
 // Returns:
-//  PlatformType, Undefined -  
-//                               
+//  PlatformType, Undefined - the type of the platform running a client. In the web client mode, if the actual platform 
+//                               type does not match the PlatformType value, returns Undefined.
 //
 Function ClientPlatformType() Export
 	
@@ -344,15 +346,15 @@ Function ClientPlatformType() Export
 	
 EndFunction
 
-// Returns a flag for working in the data division mode by area
-// (technically, this is a sign of conditional division).
+// Returns the data separation mode flag
+// (conditional separation).
 // 
-// Returns False if the configuration can't work in data separation mode
-// (it doesn't contain General details intended for data separation).
+// Returns False if the configuration does not support data separation mode
+// (does not contain attributes to share).
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - True if data separation is enabled,
+//           False is separation is disabled or not supported.
 //
 Function DataSeparationEnabled() Export
 	
@@ -360,17 +362,17 @@ Function DataSeparationEnabled() Export
 	
 EndFunction
 
-// Returns whether split data (which is part of separators) can be accessed.
-// This attribute is specific to the session, but may change during the session if partitioning was enabled
-// in the session itself, so you should check it immediately before accessing the split data.
+// Returns a flag indicating whether separated data (included in the separators) can be accessed.
+// The flag is session-specific, but can change its value if data separation is enabled
+// on the session run. So, check the flag right before addressing the shared data.
 // 
-// Returns True if the configuration can't work in data separation mode
-// (it doesn't contain any General details intended for data separation).
+// Returns If True, the configuration does not support data separation mode
+// (does not contain attributes to share).
 //
 // Returns:
-//   Boolean - 
-//                    
-//            
+//   Boolean - True if separation is not supported or disabled
+//                    or separation is enabled and separators are set.
+//            False if separation is enabled and separators are not set.
 //
 Function SeparatedDataUsageAvailable() Export
 	
@@ -383,38 +385,38 @@ EndFunction
 #Region Dates
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions to work with dates considering the session time zone
 
-// 
-// 
-// 
+// Returns current date in the session time zone.
+// It is designed to be used instead of CurrentDate() function in client-side code
+// in cases when it is impossible to transfer algorithm into server-side code.
 //
-// 
-// 
-//  
-// 
-// 
-// 
-// 
+// The returned time is close to the CurrentSessionDate function result in server-side code.
+// The time inaccuracy is associated with the server call execution time.
+// Besides, if you set the time on the client computer, the function will not take this change 
+// into account immediately, but only after you again clear the cache of reused values.
+// (See also: UpdateCachedValues).
+// What is why the algorithms for which the exact time is crucially important must be placed in server-side code
+// rather than in the client-side code.
 //
 // Returns:
-//  Date -  the current date of the session.
+//  Date - a current session date.
 //
 Function SessionDate() Export
 	
 	Adjustment = StandardSubsystemsClient.ClientParameter("SessionTimeOffset");
-	Return CurrentDate() + Adjustment; // 
+	Return CurrentDate() + Adjustment; // ACC:143 - CurrentDate() is required to calculate the session time
 	
 EndFunction
 
-// Returns the universal session date obtained from the current session date.
+// Returns the GMT session date converted from the local session date.
 //
-// The function returns a time that is close to the result of the universal Time() function in the server context.
-// The error is due to the server call execution time.
-// It is intended to be used instead of the universal Time () function.
+// The returned time is close to the ToUniversalTime() function result in the server context.
+// The time inaccuracy is associated with the server call execution time.
+// The function replaced the obsolete function ToUniversalTime().
 //
 // Returns:
-//  Date - 
+//  Date - the universal session date.
 //
 Function UniversalDate() Export
 	
@@ -425,15 +427,15 @@ Function UniversalDate() Export
 	
 EndFunction
 
-// Converts a local date to the format" YYYY-MM-DDThh:mm:ssTZD " according to ISO 8601.
+// Convert a local date to the "YYYY-MM-DDThh:mm:ssTZD" format (ISO 8601).
 //
 // See Common.LocalDatePresentationWithOffset
 //
 // Parameters:
-//  LocalDate - Date -  date in the session's time zone.
+//  LocalDate - Date - a date in the session time zone.
 // 
 // Returns:
-//   String - 
+//   String - date presentation.
 //
 Function LocalDatePresentationWithOffset(LocalDate) Export
 	
@@ -447,11 +449,11 @@ EndFunction
 #Region Data
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common procedures and functions for applied types and value collections.
 
-// Creates a complete copy of a structure, match, array, list, or table of values, recursively,
-// with consideration for the types of child elements. However, the contents of object type values are
-// (Reference object, document Object, etc.) are not copied, but references to the source object are returned.
+// Creates a complete recursive copy of a structure, map, array, list, or value table consistent
+// with the child item type. For object-type values
+// (for example, CatalogObject or DocumentObject), the procedure returns references to the source objects instead of copying the content.
 //
 // See Common.CopyRecursive
 //
@@ -462,19 +464,19 @@ EndFunction
 //           - FixedMap
 //           - Array
 //           - FixedArray
-//           - ValueList - 
+//           - ValueList - an object that needs to be copied.
 //  FixData - Boolean
-//                    - Undefined - 
-//                          
+//                    - Undefined - if it is True, then fix,
+//                          if it is False, remove the fixing, if it is Undefined, do not change.
 //
 // Returns:
 //  Structure
-//  
-//  
-//  
-//  
-//  
-//  
+//  FixedStructure,
+//  Map
+//  FixedMap
+//  Array
+//  FixedArray
+//  ValueList - Copy of the object passed in the Source parameter.
 //
 Function CopyRecursive(Source, FixData = Undefined) Export
 	
@@ -501,27 +503,27 @@ Function CopyRecursive(Source, FixData = Undefined) Export
 	
 EndFunction
 
-// Checks that an object of the expected type is passed in the parameter of the Parameter command.
-// Otherwise, it returns a standard message and returns False.
-// This situation is possible, for example, if a grouping row is selected in the list.
+// Checking that the Parameter command contains an ExpectedType object.
+// Otherwise, returns False and displays the standard user message.
+// This situation is possible, for example, when a row that contains a group is selected in a list.
 //
-// For use in teams that work with dynamic list items in forms.
+// Application: commands that manage dynamic list items in forms.
 // 
 // Parameters:
 //  Parameter     - Array
-//               - AnyRef - 
-//  ExpectedType - Type                 -  the expected type of the parameter.
+//               - AnyRef - the command parameter.
+//  ExpectedType - Type                 - the expected type.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the parameter type matches the expected type.
 //
 // Example:
 // 
-//   If NOT the general purpose of the client.Check the Command parameters(
-//      Elements.List.Highlighted links, Type("Taskslink.Task executor")) Then
-//      Refund;
-//   KonecEsli;
-//   ...
+//   If NOT CommonClient.CheckCommandParameterType(
+//      Items.List.SelectedRows, Type("TaskRef.PerformerTask")) Then
+//      Return;
+//   EndIf;
+//   …
 //
 Function CheckCommandParameterType(Val Parameter, Val ExpectedType) Export
 	
@@ -532,7 +534,7 @@ Function CheckCommandParameterType(Val Parameter, Val ExpectedType) Export
 	Result = True;
 	
 	If TypeOf(Parameter) = Type("Array") Then
-		// 
+		// Checking whether the array contains only one element, and its type does not match the expected type.
 		Result = Not (Parameter.Count() = 1 And TypeOf(Parameter[0]) <> ExpectedType);
 	Else
 		Result = TypeOf(Parameter) = ExpectedType;
@@ -551,41 +553,41 @@ EndFunction
 #Region Forms
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common client procedures to work with forms.
 
+// Asks whether the user wants to continue the action that will discard the changes:
+// "Data was changed. Save the changes?" 
+// Use in form modules BeforeClose event handlers of the objects
+// that can be written to infobase.
+// The message presentation depends on the form modification property.
 // 
-//  
-// 
-// 
-// 
-// 
-// 
+// See also: CommonClient.ShowArbitraryFormClosingConfirmation.
 //
 // Parameters:
-//  SaveAndCloseNotification  - NotifyDescription -  contains the name of the procedure that is called when the " OK " button is clicked.
-//  Cancel                        - Boolean -  return parameter that indicates that the action was rejected.
-//  Exit             - Boolean -  indicates that the form is being closed while the application is shutting down.
-//  WarningText          - String -  warning text displayed to the user. By default, it displays the text
-//                                          "Data has been changed. Save changes?"
-//  WarningTextOnExit - String -  returned parameter with the warning text displayed to the user 
-//                                          when the application is terminated. If this parameter is specified, the text
-//                                          " Data was changed. All changes will be lost.".
+//  SaveAndCloseNotification  - NotifyDescription - name of the procedure to be called once the OK button is clicked.
+//  Cancel                        - Boolean - a return parameter that indicates whether the action is canceled.
+//  Exit             - Boolean - Indicates whether the form closes when a user exits the application.
+//  WarningText          - String - the warning message text. The default text is:
+//                                          "The data was changed. Do you want to save the changes?"
+//  WarningTextOnExit - String - a return parameter that contains a warning text displayed to users 
+//                                          when they exit the application. If the parameter is specified, text
+//                                          "Data was changed. All changes will be lost." is returned.
 //
 // Example:
 //
+//  &AtClient
+//  Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
+//    Notification = New NotifyDescription("SelectAndClose", ThisObject);
+//    CommonClient.ShowFormClosingConfirmation(Notification, Cancel, Exit);
+//  EndProcedure
 //  
-//  
-//    
-//    
-//  
-//  
-//  
-//  
-//     
-//     
-//     
-//     
-//  
+//  &AtClient
+//  Procedure SelectAndClose(Result= Undefined, AdditionalParameters = Undefined) Export
+//     // Writing form data.
+//     // …
+//     Modified = False; // Do not show form closing notification again.
+//     Close(<SelectionResult>);
+//  EndProcedure
 //
 Procedure ShowFormClosingConfirmation(
 		Val SaveAndCloseNotification, 
@@ -602,7 +604,7 @@ Procedure ShowFormClosingConfirmation(
 	Cancel = True;
 	
 	If Exit Then
-		If WarningTextOnExit = "" Then // 
+		If WarningTextOnExit = "" Then // Parameter from BeforeClose is passed.
 			WarningTextOnExit = NStr("en = 'The data has been changed. All changes will be lost.';");
 		EndIf;
 		Return;
@@ -630,23 +632,23 @@ Procedure ShowFormClosingConfirmation(
 	
 EndProcedure
 
-// 
-// 
-// 
+// Asks whether the user wants to proceed the action, which will make the form close.
+// Intended for the BeforeClose event handlers in form modules.
+// See also: CommonClient.ShowFormClosingConfirmation.
 //
 // Parameters:
-//  Form                        - ClientApplicationForm -  a form that calls the warning dialog.
-//  Cancel                        - Boolean -  return parameter that indicates that the action was rejected.
-//  Exit             - Boolean -  indicates that the program is shutting down.
-//  WarningText          - String -  warning text displayed to the user.
-//  CloseFormWithoutConfirmationAttributeName - String -  the name of the attribute that contains the indication of whether to
-//                                 display a warning or not.
-//  CloseNotifyDescription    - NotifyDescription -  contains the name of the procedure that is called when the "Yes" button is clicked.
+//  Form                        - ClientApplicationForm - the form that calls the warning dialog.
+//  Cancel                        - Boolean - a return parameter that indicates whether the action is canceled.
+//  Exit             - Boolean - Indicates whether the application will be closed.
+//  WarningText          - String - the warning message text.
+//  CloseFormWithoutConfirmationAttributeName - String - the name of the flag attribute that indicates whether
+//                                 to show the warning.
+//  CloseNotifyDescription    - NotifyDescription - name of the procedure to be called once the OK button is clicked.
 //
 // Example: 
-//  
-//  
-//      
+//  WarningText = NStr("en = 'Close the wizard?'");
+//  CommonClient.ShowArbitraryFormClosingConfirmation(
+//      ThisObject, Cancel, Exit, MessageText, "CloseFormWithoutConfirmation");
 //
 Procedure ShowArbitraryFormClosingConfirmation(
 		Val Form, 
@@ -681,7 +683,7 @@ Procedure ShowArbitraryFormClosingConfirmation(
 	
 EndProcedure
 
-// Updates the program interface while maintaining the current active window.
+// Updates the application interface keeping the current active window.
 //
 Procedure RefreshApplicationInterface() Export
 	
@@ -693,16 +695,16 @@ Procedure RefreshApplicationInterface() Export
 	
 EndProcedure
 
-// Notifies open forms and dynamic lists of changes to a single object.
+// Notifies opened forms and dynamic lists about changes in a single object.
 //
 // Parameters:
 //  Source - AnyRef
 //           - InformationRegisterRecordKeyInformationRegisterName
 //           - AccumulationRegisterRecordKeyAccumulationRegisterName
 //           - AccountingRegisterRecordKeyAccountingRegisterName
-//           - CalculationRegisterRecordKeyCalculationRegisterName -  
-//                 
-//  AdditionalParameters - Arbitrary -  any parameters that need to be passed in the Notify method.
+//           - CalculationRegisterRecordKeyCalculationRegisterName - the reference of the changed object or the key of the changed register 
+//                 record whose update status must be provided to dynamic lists and forms.
+//  AdditionalParameters - Arbitrary - parameters to be passed in the Notify method.
 //
 Procedure NotifyObjectChanged(Source, Val AdditionalParameters = Undefined) Export
 	If AdditionalParameters = Undefined Then
@@ -712,15 +714,15 @@ Procedure NotifyObjectChanged(Source, Val AdditionalParameters = Undefined) Expo
 	NotifyChanged(Source);
 EndProcedure
 
-// Notifies open forms and dynamic lists of changes to several objects at once.
+// Notifies opened forms and dynamic lists about changes in multiple objects.
 //
 // Parameters:
 //  Source - Type
-//           - TypeDescription -  
-//                             
-//           - Array -  
-//                      
-//  AdditionalParameters - Arbitrary -  any parameters that need to be passed in the Notify method.
+//           - TypeDescription - object type or types, whose update status to be provided to 
+//                             dynamic lists and forms;
+//           - Array - a list of changed references or register record keys, 
+//                      whose update status to be provided to dynamic lists and forms.
+//  AdditionalParameters - Arbitrary - parameters to be passed in the Notify method.
 //
 Procedure NotifyObjectsChanged(Source, Val AdditionalParameters = Undefined) Export
 	
@@ -753,15 +755,15 @@ Procedure NotifyObjectsChanged(Source, Val AdditionalParameters = Undefined) Exp
 
 EndProcedure
 
-// Opens a form to select the format of attachments.
+// Opens an attachment format selection form.
 //
 // Parameters:
-//  NotifyDescription  - NotifyDescription -  handler for the selection result.
-//  FormatSettings - Structure - :
-//   * PackToArchive   - Boolean -  indicates whether attachments need to be archived.
-//   * SaveFormats - Array -  list of selected attachment formats.
-//   * TransliterateFilesNames - Boolean -  convert Cyrillic characters to Latin characters.
-//  Owner - ClientApplicationForm -  the form from which the attachment selection form is called.
+//  NotifyDescription  - NotifyDescription - a choice result handler.
+//  FormatSettings - Structure - default settings in the form of:
+//   * PackToArchive   - Boolean - shows whether it is necessary to archive attachments.
+//   * SaveFormats - Array - a list of the selected save formats.
+//   * TransliterateFilesNames - Boolean - convert Cyrillic characters into the Latin ones.
+//  Owner - ClientApplicationForm - the form from which the attachment selection form is called.
 //
 Procedure ShowAttachmentsFormatSelection(NotifyDescription, FormatSettings, Owner = Undefined) Export
 	FormParameters = New Structure("FormatSettings", FormatSettings);
@@ -774,32 +776,32 @@ EndProcedure
 #Region EditingForms
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// Functions handling user actions related to
+// multiline text edition (for example, document comments).
 
-// Opens a form for editing custom multi-line text.
+// Opens the multiline text edit form.
 //
 // Parameters:
-//  ClosingNotification1     - NotifyDescription -  contains a description of the procedure that will be called 
-//                            after closing the text input form with the same parameters as for the method
-//                            Show the text lines.
-//  MultilineText      - String -  any text you want to edit;
-//  Title               - String -  the text that you want to display in the header of the form.
+//  ClosingNotification1     - NotifyDescription - the details of the procedure to be called 
+//                            when the text entry form is closed. Contains the same parameters as method
+//                            ShowInputString.
+//  MultilineText      - String - a text to be edited;
+//  Title               - String - the text to be displayed in the from title.
 //
 // Example:
 //
-//   Alert = New Description Of The Announcement ("Completion Comment", This Object);
-//   General purpose client.Show The Form Of Editing A Single Line Of Text(Alert, Element.Text editing);
+//   Notification = New NotifyDescription("CommentEndEntering", ThisObject);
+//   CommonClient.FormMultilineTextEditingShow(Notification, Item.EditingText);
 //
-//   &Naciente
-//   Comment Completion Procedure (Value Of The Entered Text, Value Of Additional Parameters) Export
-//      If The Entered Text = Undefined Then
+//   &AtClient
+//   Procedure CommentEndEntering(Val EnteredText, Val AdditionalParameters) Export
+//      If EnteredText = Undefined Then
 //		   Return;
-//   	Conicelli;	
+//   	EndIf;	
 //	
-//	   An object.Multi-line comment = Entered text;
+//	   Object.MultilineComment = EnteredText;
 //	   Modified = True;
-//   End of procedure
+//   EndProcedure
 //
 Procedure ShowMultilineTextEditingForm(Val ClosingNotification1, 
 	Val MultilineText, Val Title = Undefined) Export
@@ -812,19 +814,19 @@ Procedure ShowMultilineTextEditingForm(Val ClosingNotification1,
 	
 EndProcedure
 
-// Opens the multi-line comment editing form.
+// Opens the multiline comment editing form.
 //
 // Parameters:
-//  MultilineText - String -  arbitrary text that you want to edit.
-//  OwnerForm      - ClientApplicationForm -  a form where you can enter a comment in the field.
-//  AttributeName       - String -  name of the form details that the user entered comment will be placed in.
-//                                By default, " Object.Comment".
-//  Title          - String -  the text that you want to display in the header of the form.
-//                                By default, "Comment".
+//  MultilineText - String - a text to be edited.
+//  OwnerForm      - ClientApplicationForm - the form that owns the field a user entering a comment into.
+//  AttributeName       - String - the name of the form attribute the user comment will be stored to.
+//                                The default value is Object.Comment.
+//  Title          - String - the text to be displayed in the from title.
+//                                The default value is Comment.
 //
 // Example:
-//  General purpose client.Show The Form Of Editing The Comment(
-//  	Element.Edit Text, This Is An Object, " Object.Comment");
+//  CommonClient.ShowCommentEditingForm(
+//  	Item.EditingText, ThisObject, Object.Comment);
 //
 Procedure ShowCommentEditingForm(
 	Val MultilineText, 
@@ -851,13 +853,13 @@ EndProcedure
 
 #Region UserSettings
 
-// Saves the user's personal settings.
+// Saves personal application user settings.
 //
 // Parameters:
 //  Settings - Structure:
-//   * RemindAboutFileSystemExtensionInstallation  - Boolean -  indicates whether you need
-//                                                               to be reminded to install the extension.
-//   * AskConfirmationOnExit - Boolean -  request confirmation when the job is completed.
+//   * RemindAboutFileSystemExtensionInstallation  - Boolean - the flag indicating whether
+//                                                               to notify users on extension installation.
+//   * AskConfirmationOnExit - Boolean - the flag indicating whether to ask confirmation before the user exits the application.
 //
 Procedure SavePersonalSettings(Settings) Export
 	
@@ -883,9 +885,9 @@ EndProcedure
 #Region Styles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions to manage style colors in the client code.
 
-// 
+// Gets the style color by a style item name.
 //
 // Parameters:
 //  StyleColorName - String
@@ -899,7 +901,7 @@ Function StyleColor(StyleColorName) Export
 	
 EndFunction
 
-// 
+// Gets the style color by a style item name.
 //
 // Parameters:
 //  StyleFontName - String
@@ -918,34 +920,35 @@ EndFunction
 #Region AddIns
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions to connect and install add-ins from configuration templates.
 
-// 
+// Returns a structure of parameters for the AttachAddInFromTemplate procedure.
 //
 // Returns:
 //  Structure:
-//      * Cached           - Boolean -  (default is True) use the component caching mechanism on the client.
-//      * SuggestInstall - Boolean -  (default is True) offer to install.
-//      * SuggestToImport  - Boolean -  (False by default) offer to download the component from ITS website.
-//      * ExplanationText       - String -  what the component is needed for and what won't work if you don't install it.
-//      * ObjectsCreationIDs - Array - the ID of creating an instance of an object module,
-//                 used only for components that have multiple object creation IDs,
-//                 when setting the ID parameter, it will be ignored.
-//      * Isolated - Boolean, Undefined - 
-//                 
-//                 
-//                 :
-//                 
+//      * Cached           - Boolean - use component caching on the client (the default value is True).
+//      * SuggestInstall - Boolean - (default value is True) prompt to install.
+//      * SuggestToImport  - Boolean - (default value is False) prompt to import the add-in from the ITS website.
+//      * ExplanationText       - String - a text that describes the add-in purpose and which functionality requires the add-in.
+//      * ObjectsCreationIDs - Array - the creation IDs of object module instances.
+//                 Applicable only with add-ins that have a number of object creation IDs.
+//                 Ignored if the ID parameter is specified.
+//      * Isolated - Boolean, Undefined - If True, the add-in is attached isolatedly (it is uploaded to a separate OS process).
+//                 If False, the add-in is executed in the same OS process that runs the 1C:Enterprise code.
+//                 If Undefined, the add-in is executed according to the default 1C:Enterprise settings
+//                 Isolatedly if the add-in supports only isolated execution; otherwise, non-isolatedly.:
+//                 By default, Undefined.
 //                 See https://its.1c.eu/db/v83doc
-//      * AutoUpdate - Boolean -  
-//                 
+//                                              #bookmark:dev:TI000001866
+//      * AutoUpdate - Boolean - Flag indicating whether UpdateFrom1CITSPortal will be set to True, 
+//                 if SuggestToImport is set to True. By default, True.
 //
 //
 // Example:
 //
-//  
-//  
-//                                             
+//  AttachmentParameters = CommonClient.AddInAttachmentParameters();
+//  AttachmentParameters.ExplanationText = NStr("en = 'To use a barcode scanner, install
+//                                             |the add-in 1C:Barcode scanners (NativeApi).'");
 //
 Function AddInAttachmentParameters() Export
 	
@@ -962,65 +965,65 @@ Function AddInAttachmentParameters() Export
 	
 EndFunction
 
-// Connects a native API and COM component in asynchronous mode.
-// The component must be stored in the configuration layout as a ZIP archive.
-// The web client offers a dialog that prompts the user for installation actions.
+// Connects an add-in based on Native API and COM technology in an asynchronous mode.
+// The add-inn must be stored in the configuration template in as a ZIP file.
+// Web client can display dialog with installation tips.
 //
 // Parameters:
-//  Notification - NotifyDescription - :
-//      * Result - Structure - :
-//          ** Attached         - Boolean -  indicates whether the connection is enabled.
-//          ** Attachable_Module - AddInObject  -  instance of an external component object;
-//                                - FixedMap of KeyAndValue -  
-//                                     :
-//                                    *** Key - String -  id of the external component;
-//                                    *** Value - AddInObject -  an instance of the object.
-//          ** Location     - String - 
+//  Notification - NotifyDescription - connection notification details with the following parameters:
+//      * Result - Structure - add-in attachment result:
+//          ** Attached         - Boolean - attachment flag.
+//          ** Attachable_Module - AddInObject  - an instance of the add-in;
+//                                - FixedMap of KeyAndValue - Add-in object instances stored in 
+//                                     AttachmentParameters.ObjectsCreationIDs:
+//                                    *** Key - String - the add-in ID;
+//                                    *** Value - AddInObject - object instance.
+//          ** Location     - String - Template name or add-in URL if the add-in has a later version.
 //                                           
-//          ** SymbolicName   - String - 
+//          ** SymbolicName   - String - The symbolic name that was specified when attaching the add-in.
+//               Pass the symbolic name and location of the add-in to the 1C:Enterprise method
+//               "CheckAddInAttachment" to verify if the add-in is attached.
 //               
-//               
-//               
-//          ** ErrorDescription     - String -  brief description of the error. When canceled by the user, an empty string.
-//      * AdditionalParameters - Structure -  the value that was specified when creating the message Description object.
-//  Id        - String - 
-//  FullTemplateName      - String -  the full name of the layout used as the component location.
+//          ** ErrorDescription     - String - brief error message. Empty string on cancel by user.
+//      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
+//  Id        - String - the add-in identification code.
+//  FullTemplateName      - String - the full name of the template used as the add-in location.
 //  ConnectionParameters - Structure
-//                       - Undefined - see the Component Connection parametersfunction.
+//                       - Undefined - see the AddInAttachmentParameters function.
 //
 // Example:
 //
-//  
+//  Notification = New NotifyDescription("AttachAddInSSLCompletion", ThisObject);
 //
-//  
-//  
-//                                             
+//  AttachmentParameters = CommonClient.AddInAttachmentParameters();
+//  AttachmentParameters.ExplanationText = NStr("en = 'To apply for the certificate,
+//                                             install the CryptS add-in.'");
 //
-//   
-//      
-//      
-//      
+//  CommonClient.AttachAddInFromTemplate(Notification, 
+//      "CryptS",
+//      "DataProcessor.ApplicationForNewQualifiedCertificateIssue.Template.ExchangeComponent",
+//      AttachmentParameters);
 //
-//  
-//  
+//  &AtClient
+//  Procedure AttachAddInSSLCompletion(Result, AdditionalParameters) Export
 //
-//      
+//      AttachableModule = Undefined;
 //
-//       
-//          
-//      
-//          
-//              
-//          
-//      
+//      If Result.Attached Then 
+//          AttachableModule = Result.AttachableModule;
+//      Else
+//          If Not IsBlankString(Result.ErrorDetails) Then
+//              ShowMessageBox (, Result.ErrorDetails);
+//          EndIf;
+//      EndIf;
 //
-//       
-//          
-//      
+//      If AttachableModule <> Undefined Then 
+//          // AttachableModule contains the instance of the attached add-in.
+//      EndIf;
 //
-//      
+//      AttachableModule = Undefined;
 //
-//  
+//  EndProcedure
 //
 Procedure AttachAddInFromTemplate(Notification, Id, FullTemplateName,
 	ConnectionParameters = Undefined) Export
@@ -1040,17 +1043,17 @@ Procedure AttachAddInFromTemplate(Notification, Id, FullTemplateName,
 	
 EndProcedure
 
-// 
+// Returns a structure of parameters for the InstallAddInFromTemplate procedure.
 //
 // Returns:
 //  Structure:
-//      * ExplanationText - String -  what the component is needed for and what won't work if you don't install it.
+//      * ExplanationText - String - a text that describes the add-in purpose and which functionality requires the add-in.
 //
 // Example:
 //
-//  
-//  
-//                                           
+//  InstallationParameters = CommonClient.AddInInstallParameters();
+//  InstallationParameters.ExplanationText = NStr("en = 'To use a barcode scanner, install
+//                                           |the add-in 1C:Barcode scanners (NativeApi).'");
 //
 Function AddInInstallParameters() Export
 	
@@ -1061,39 +1064,39 @@ Function AddInInstallParameters() Export
 	
 EndFunction
 
-// Sets a component executed using the Native API technology and in asynchronous mode.
-// The component must be stored in the configuration layout as a ZIP archive.
+// Connects an add-in based on Native API and COM technology in an asynchronous mode.
+// The add-inn must be stored in the configuration template in as a ZIP file.
 //
 // Parameters:
-//  Notification - NotifyDescription - :
-//      * Result - Structure - :
-//          ** IsSet    - Boolean -  indicates the installation.
-//          ** ErrorDescription - String -  brief description of the error. When canceled by the user, an empty string.
-//      * AdditionalParameters - Structure -  the value that was specified when creating the message Description object.
-//  FullTemplateName    - String                  -  the full name of the layout used as the component location.
+//  Notification - NotifyDescription - notification details of add-in installation:
+//      * Result - Structure - Install component result:
+//          ** IsSet    - Boolean - Installation flag.
+//          ** ErrorDescription - String - brief error message. Empty string on cancel by user.
+//      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
+//  FullTemplateName    - String                  - the full name of the template used as the add-in location.
 //  InstallationParameters - Structure
-//                     - Undefined - see the function parameterstablement components.
+//                     - Undefined - see the AddInInstallParameters function.
 //
 // Example:
 //
-//  
+//  Notification = New NotifyDescription("SetCompletionComponent", ThisObject);
 //
-//  
-//  
-//                                           
+//  InstallationParameters = CommonClient.AddInInstallParameters();
+//  InstallationParameters.ExplanationText = NStr("en = 'To apply for the certificate,
+//                                           install the CryptS add-in.'");
 //
-//  
-//      
-//      
+//  CommonClient.InstallAddInFromTemplate(Notification,
+//      "DataProcessor.ApplicationForNewQualifiedCertificateIssue.Template.ExchangeComponent",
+//      InstallationParameters);
 //
-//  
-//  
+//  &AtClient
+//  Procedure InstallAddInEnd(Result, AdditionalParameters) Export
 //
-//       
-//          
-//      
+//      If Not Result.Installed and Not EmptyString(Result.ErrorDetails) Then 
+//          ShowMessageBox (, Result.ErrorDetails);
+//      EndIf;
 //
-//  
+//  EndProcedure
 //
 Procedure InstallAddInFromTemplate(Notification, FullTemplateName, InstallationParameters = Undefined) Export
 	
@@ -1114,20 +1117,20 @@ EndProcedure
 
 #Region ForCallsFromOtherSubsystems
 
+// ConnectedHardwareLibrary
 // 
-// 
-// 
-// 
+// Connects an add-in based on Native API and COM technology in an asynchronous mode.
+// The add-inn must be stored in the configuration template in as a ZIP file.
 //
 // Parameters:
-//  FullTemplateName    - String                  -  the full name of the layout used as the component location.
+//  FullTemplateName    - String                  - the full name of the template used as the add-in location.
 //  InstallationParameters - Structure
-//                     - Undefined - see the function parameterstablement components.
+//                     - Undefined - see the AddInInstallParameters function.
 //
 // Returns:
-//		Structure - :
-//          * IsSet    - Boolean -  indicates the installation.
-//          * ErrorDescription - String -  brief description of the error. When canceled by the user, an empty string.
+//		Structure - Add-in installation result:
+//          * IsSet    - Boolean - Installation flag.
+//          * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //
 Async Function InstallAddInFromTemplateAsync(FullTemplateName, InstallationParameters = Undefined) Export
 	
@@ -1145,29 +1148,29 @@ Async Function InstallAddInFromTemplateAsync(FullTemplateName, InstallationParam
 	
 EndFunction
 
-// 
-// 
+// Attaches an add-in based on Native API and COM technology in an asynchronous mode.
+// The add-inn must be stored in the configuration template in as a ZIP file.
 //
 // Parameters:
-//  Id        - String - 
-//  FullTemplateName      - String -  the full name of the layout used as the component location.
+//  Id        - String - the add-in identification code.
+//  FullTemplateName      - String - the full name of the template used as the add-in location.
 //  ConnectionParameters - Structure
 //                       - Undefined - See AddInAttachmentParameters.
 //
 // Returns:
-// 	 Structure - :
-//    * Attached         - Boolean -  indicates whether the connection is enabled.
-//    * Attachable_Module - AddInObject  -  instance of an external component object;
-//                         - FixedMap of KeyAndValue -  
-//                           :
-//                             ** Key - String -  id of the external component;
-//                             ** Value - AddInObject -  an instance of the object.
-//    * Location     - String - 
+// 	 Structure - Add-in attachment result:
+//    * Attached         - Boolean - attachment flag.
+//    * Attachable_Module - AddInObject  - an instance of the add-in;
+//                         - FixedMap of KeyAndValue - Add-in object instances stored in 
+//                           AttachmentParameters.ObjectsCreationIDs:
+//                             ** Key - String - the add-in ID;
+//                             ** Value - AddInObject - object instance.
+//    * Location     - String - Template name or add-in URL if the add-in has a later version.
 //                                    
-//    * SymbolicName   - String - 
-//         
-//         
-//    * ErrorDescription     - String -  brief description of the error. When canceled by the user, an empty string.
+//    * SymbolicName   - String - The symbolic name that was specified when attaching the add-in.
+//         Pass the symbolic name and location of the add-in to the 1C:Enterprise method
+//         "CheckAddInAttachment" to verify if the add-in is attached.
+//    * ErrorDescription     - String - brief error message. Empty string on cancel by user.
 //
 Async Function AttachAddInFromTemplateAsync(Id, FullTemplateName,
 	ConnectionParameters = Undefined) Export
@@ -1186,7 +1189,7 @@ Async Function AttachAddInFromTemplateAsync(Id, FullTemplateName,
 	
 EndFunction
 
-// 
+// End ConnectedHardwareLibrary
 
 #EndRegion
 
@@ -1195,25 +1198,25 @@ EndFunction
 #Region ExternalConnection
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for managing external connections.
 
-// Performs component registration "comcntr.dll" for the current version of the platform.
-// If the registration is successful, it prompts the user to restart the client session 
-// in order for the registration to take effect.
+// Registers the comcntr.dll component for the current platform version.
+// If the registration is successful, the procedure suggests the user to restart the client session 
+// in order to registration takes effect.
 //
-// Called before client code that uses the COM connection Manager (V83. COMConnector)
+// Is called before a client script that uses the COM connection manager (V83.COMConnector)
 // and is initiated by interactive user actions.
 // 
 // Parameters:
-//  RestartSession - Boolean -  if True,
-//      the session restart dialog will be called after registering the COM connector.
-//  Notification - NotifyDescription - :
-//      * IsRegistered - Boolean -  True if the COM connector is registered without errors.
-//      * AdditionalParameters - Arbitrary -  the value that was specified 
-//            when creating the object of the announcement description.
+//  RestartSession - Boolean - If True, after the COM connector is registered,
+//      the session restart dialog box is called.
+//  Notification - NotifyDescription - notification on registration result:
+//      * IsRegistered - Boolean - True if the COM connector is registered without errors.
+//      * AdditionalParameters - Arbitrary - a value that was specified 
+//            when creating the NotifyDescription object.
 //
 // Example:
-//  Zaregistrirovatsya();
+//  RegisterCOMConnector();
 //
 Procedure RegisterCOMConnector(Val RestartSession = True, 
 	Val Notification = Undefined) Export
@@ -1244,7 +1247,7 @@ Procedure RegisterCOMConnector(Val RestartSession = True,
 	
 EndProcedure
 
-// Establishes an external connection to the information base based on the passed connection parameters and returns it.
+// Establishes an external infobase connection with the passed parameters and returns it.
 //
 // See Common.EstablishExternalConnectionWithInfobase.
 //
@@ -1254,10 +1257,10 @@ EndProcedure
 // Returns:
 //  Structure:
 //    * Join - COMObject
-//                 - Undefined - 
-//    * BriefErrorDetails - String -  short description of the error;
-//    * DetailedErrorDetails - String -  detailed description of the error;
-//    * AddInAttachmentError - Boolean -  COM connection error flag.
+//                 - Undefined - if the connection is established, returns a COM object reference. Otherwise, returns Undefined;
+//    * BriefErrorDetails - String - brief error description;
+//    * DetailedErrorDetails - String - detailed error description;
+//    * AddInAttachmentError - Boolean - a COM connection error flag.
 //
 Function EstablishExternalConnectionWithInfobase(Parameters) Export
 	
@@ -1273,12 +1276,12 @@ EndFunction
 #Region Backup
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for backup in the user mode.
 
-// Checks whether it is possible to perform a backup in user mode.
+// Checks whether the backup can be done in the user mode.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the installation prompt is on.
 //
 Function PromptToBackUp() Export
 	
@@ -1288,7 +1291,7 @@ Function PromptToBackUp() Export
 	
 EndFunction
 
-// Prompts the user to create a backup.
+// Prompt users for back up.
 Procedure PromptUserToBackUp() Export
 	
 	SSLSubsystemsIntegrationClient.OnPromptUserForBackup();
@@ -1298,57 +1301,57 @@ EndProcedure
 #EndRegion
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-//  
-//  
-//  
+// Deprecated. Instead, use:
+//  FileSystemClient.OpenURL to pass a URL or a website link.
+//  FileSystemClient.OpenExplorer to open the directory in the Explorer.
+//  FileSystemClient.OpenFile to open a file by the extension when passing the file path.
 //
-// 
-// 
+// Follows a link to visit an infobase object or an external object.
+// For example, a website link or a directory path on the computer.
 //
 // Parameters:
-//  Ref - String -  link to go to.
+//  Ref - String - a link to follow.
 //
 Procedure GoToLink(Ref) Export
 	
-	#If ThickClientOrdinaryApplication Then
-		// 
+#If ThickClientOrdinaryApplication Then
+		// 1C:Enterprise design aspect: GotoURL is not supported by ordinary applications running in the thick client mode.
 		Notification = New NotifyDescription;
 		BeginRunningApplication(Notification, Ref);
-	#Else
+#Else
 		GotoURL(Ref);
-	#EndIf
+#EndIf
 	
 EndProcedure
 
-// Deprecated.
-// 
-// 
+// Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
+// Prompts the user to install 1C:Enterprise Extension in the web client.
+// Incorporate the procedure at the beginning of code areas that process files.
 //
 // Parameters:
-//   OnCloseNotifyDescription    - NotifyDescription - 
-//                                    :
-//                                      
-//                                      
-//                                                                               
-//   SuggestionText                - String -  message text. If omitted, the default text is displayed.
-//   CanContinueWithoutInstalling - Boolean -  if True, the continue button will be shown
-//                                              . If False, the Cancel button will be shown.
+//   OnCloseNotifyDescription    - NotifyDescription - the description of the procedure
+//                                    to be called once a form is closed. Parameters:
+//                                      ExtensionAttached - Boolean - True if the extension is attached.
+//                                      AdditionalParameters - Arbitrary - the parameters specified in
+//                                                                               OnCloseNotifyDescription.
+//   SuggestionText                - String - the message text. If the text is not specified, the default text is displayed.
+//   CanContinueWithoutInstalling - Boolean - If True, displays the ContinueWithoutInstalling button.
+//                                              If False, displays the Cancel button.
 //
 // Example:
 //
-//    
-//    
-//    
+//    Notification = New NotifyDescription("PrintDocumentCompletion", ThisObject);
+//    MessageText = NStr("en = 'To print the document, install 1C:Enterprise Extension.'");
+//    CommonClient.ShowFileSystemExtensionInstallationQuestion(Notification, MessageText);
 //
-//    
-//      
-//        
-//        
-//      
-//        
-//        
-//      
+//    Procedure PrintDocumentCompletion(ExtensionAttached, AdditionalParameters) Export
+//      If ExtensionAttached Then
+//        // Script that prints a document only if the extension is attached.
+//        // …
+//      Else
+//        // Script that prints a document if the extension is not attached.
+//        // …
+//      EndIf;
 //
 Procedure ShowFileSystemExtensionInstallationQuestion(
 		OnCloseNotifyDescription, 
@@ -1362,31 +1365,31 @@ Procedure ShowFileSystemExtensionInstallationQuestion(
 	
 EndProcedure
 
-// Deprecated.
-// 
-// 
+// Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
+// Prompts the user to attach 1C:Enterprise Extension in the web client and, if the user refuses, displays a warning that it is impossible to proceed.
+// Incorporate the procedure at the beginning of code areas that deal with files that require this extension.
 // 
 // 
 //
 // Parameters:
-//  OnCloseNotifyDescription - NotifyDescription - 
-//                                                     :
-//                                                      
-//                                                      
-//  SuggestionText    - String -  text with a suggestion to connect the extension to work with 1C:Company. 
-//                                 If omitted, the default text is displayed.
-//  WarningText - String -  text of the warning that the operation cannot be continued. 
-//                                 If omitted, the default text is displayed.
+//  OnCloseNotifyDescription - NotifyDescription - the description of the procedure to be called if the extension
+//                                                     is attached. Parameters:
+//                                                      Result - Boolean - always True.
+//                                                      AdditionalParameters - Undefined
+//  SuggestionText    - String - Text of the prompt to attach 1C:Enterprise Extension. 
+//                                 If not specified, the default text appears.
+//  WarningText - String - warning text that notifies the user that the action cannot be continued. 
+//                                 If the text is not specified, the default text is displayed.
 //
 // Example:
 //
-//    
-//    
-//    
+//    Notification = New NotifyDescription("PrintDocumentCompletion", ThisObject);
+//    MessageText = NStr("en = 'To print the document, install 1C:Enterprise Extension.'");
+//    CommonClient.CheckFileSystemExtensionAttached(Notification, MessageText);
 //
-//    
-//        
-//        
+//    Procedure PrintDocumentCompletion(Result, AdditionalParameters) Export
+//        // Script that prints a document only if the extension is attached.
+//        // …
 //
 Procedure CheckFileSystemExtensionAttached(OnCloseNotifyDescription, Val SuggestionText = "", 
 	Val WarningText = "") Export
@@ -1399,11 +1402,11 @@ Procedure CheckFileSystemExtensionAttached(OnCloseNotifyDescription, Val Suggest
 	
 EndProcedure
 
-// Deprecated.
-// 
+// Deprecated. Instead, use FileSystemClient.AttachFileOperationsExtension
+// Returns the value of the "Prompt to install 1C:Enterprise Extension" user setting.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the installation prompt is on.
 //
 Function SuggestFileSystemExtensionInstallation() Export
 	
@@ -1414,20 +1417,20 @@ Function SuggestFileSystemExtensionInstallation() Export
 	
 EndFunction
 
-// Deprecated.
-// 
-// 
+// Deprecated. Instead, use FileSystemClient.OpenFile
+// Opens the file in the application associated with the file type.
+// Prevents executable files from opening.
 //
 // Parameters:
-//  PathToFile - String - 
-//  Notification - NotifyDescription - 
-//      :
-//      * ApplicationStarted - Boolean -  True if the external application did not cause errors when opening.
-//      * AdditionalParameters - Arbitrary -  the value that was specified when creating the message Description object.
+//  PathToFile - String - Full path to the file to open.
+//  Notification - NotifyDescription - notification on file open attempt.
+//      If the notification is not specified and an error occurs, the method shows a warning:
+//      * ApplicationStarted - Boolean - True if the external application opened successfully.
+//      * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
 //
 // Example:
-//  General purpose client.Open the file in the preview program (document catalog () + " test. pdf");
-//  General purpose client.OpenFile in the preview program (document Catalog() + "test.xlsx");
+//  CommonClient.OpenFileInViewer(DocumentsDir() + "test.pdf");
+//  CommonClient.OpenFileInViewer(DocumentsDir() + "test.xlsx");
 //
 Procedure OpenFileInViewer(PathToFile, Val Notification = Undefined) Export
 	
@@ -1441,20 +1444,20 @@ Procedure OpenFileInViewer(PathToFile, Val Notification = Undefined) Export
 	
 EndProcedure
 
-// Deprecated.
-// 
-// 
+// Deprecated. Instead, use FileSystemClient.OpenExplorer
+// Opens Windows Explorer to the specified directory.
+// If a file path is specified, the pointer is placed on the file.
 //
 // Parameters:
-//  PathToDirectoryOrFile - String -  full path to the file or directory.
+//  PathToDirectoryOrFile - String - the full path to a file or folder.
 //
 // Example:
-//  
-//  
-//  
-//  
-//  
-//  
+//  // For Windows OS
+//  CommonClient.OpenExplorer("C:\Users");
+//  CommonClient.OpenExplorer("C:\Program Files\1cv8\common\1cestart.exe");
+//  // For Linux OS
+//  CommonClient.OpenExplorer("/home/");
+//  CommonClient.OpenExplorer("/opt/1C/v8.3/x86_64/1cv8c");
 //
 Procedure OpenExplorer(PathToDirectoryOrFile) Export
 	
@@ -1462,28 +1465,28 @@ Procedure OpenExplorer(PathToDirectoryOrFile) Export
 	
 EndProcedure
 
-// Deprecated.
-// 
+// Deprecated. Use FileSystemClient.OpenURL instead.
+// Opens a URL in an application associated with URL protocol.
 //
-// 
+// Valid protocols: HTTP, HTTPS, E1C, V8HELP, MAILTO, TEL, SKYPE.
 //
-// 
-//  See OpenExplorer.
-//  See OpenFileInViewer.
+// Do not use the FILE:// protocol to open the Explorer or a file.
+// - To Open Explorer, See OpenExplorer.
+// - To open a file in the associated application, See OpenFileInViewer.
 //
 // Parameters:
-//  URL - String -  the link to open.
-//  Notification - NotifyDescription - 
-//      :
-//      * ApplicationStarted - Boolean -  True if the external application did not cause errors when opening.
-//      * AdditionalParameters - Arbitrary -  the value that was specified when creating the message Description object.
+//  URL - String - a link to open.
+//  Notification - NotifyDescription - notification on file open attempt.
+//      If the notification is not specified and an error occurs, the method shows a warning:
+//      * ApplicationStarted - Boolean - True if the external application opened successfully.
+//      * AdditionalParameters - Arbitrary - a value that was specified on creating the NotifyDescription object.
 //
 // Example:
-//  General purpose client.Open the navigation link ("e1cib/navigationpoint/startpage"); / / home page.
-//  General purpose client.Open the navigation link ("v8help://1cv8/QueryLanguageFullTextSearchInData");
-//  General purpose client.Open the navigation link("https://1c.com");
-//  General purpose client.Open the navigation link ("mailto:help@1c.com");
-//  General purpose client.Open the navigation link ("skype: echo123?call");
+//  CommonClient.OpenURL("e1cib/navigationpoint/startpage"); // Home page.
+//  CommonClient.OpenURL("v8help://1cv8/QueryLanguageFullTextSearchInData");
+//  CommonClient.OpenURL("https://1c.com");
+//  CommonClient.OpenURL("mailto:help@1c.com");
+//  CommonClient.OpenURL("skype:echo123?call");
 //
 Procedure OpenURL(URL, Val Notification = Undefined) Export
 	
@@ -1491,14 +1494,14 @@ Procedure OpenURL(URL, Val Notification = Undefined) Export
 	
 EndProcedure
 
-// Deprecated.
-// 
+// Deprecated. Instead, use FileSystemClient.CreateTemporaryDirectory
+// Gets temporary directory name.
 //
 // Parameters:
-//  Notification - NotifyDescription - :
-//      * DirectoryName             - String -  path to the created folder.
-//      * AdditionalParameters - Structure -  the value that was specified when creating the message Description object.
-//  Extension - String -  a suffix in the folder name that will help you identify the folder during analysis.
+//  Notification - NotifyDescription - notification on getting directory name attempt:
+//      * DirectoryName             - String - path to the directory.
+//      * AdditionalParameters - Structure - a value that was specified on creating the NotifyDescription object.
+//  Extension - String - the suffix in the directory name, which helps to identify the directory for analysis.
 //
 Procedure CreateTemporaryDirectory(Val Notification, Extension = "") Export 
 	
@@ -1506,11 +1509,11 @@ Procedure CreateTemporaryDirectory(Val Notification, Extension = "") Export
 	
 EndProcedure
 
-// Deprecated.
-// 
+// Deprecated. Instead, use CommonClient.IsMacOSClient
+// Returns True if the client application runs on OS X.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsOSXClient() Export
 	

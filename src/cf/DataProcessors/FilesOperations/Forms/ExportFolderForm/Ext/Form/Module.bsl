@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -32,7 +34,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// 
+	// Use the last used export directory as the "My documents" export directory.
 	// 
 	FolderForExport = FilesOperationsInternalClient.DumpDirectory();
 	
@@ -55,7 +57,7 @@ EndProcedure
 &AtClient
 Procedure FolderForExportStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	// 
+	// Open the window of saving folder selection.
 	StandardProcessing = False;
 	SelectingFile = New FileDialog(FileDialogMode.ChooseDirectory);
 	SelectingFile.Multiselect = False;
@@ -82,7 +84,7 @@ Procedure SaveFolder()
 		FolderForExport = FolderForExport + GetPathSeparator();
 	EndIf;
 	
-	// 
+	// Checking if the dump directory exists. Create it if it does not.
 	DumpDirectory = New File(FolderForExport);
 	
 	If Not DumpDirectory.Exists() Then
@@ -98,7 +100,7 @@ Procedure SaveFolder()
 		FullExportPath = StringFunctionsClient.LatinString(FullExportPath);
 	EndIf;
 	
-	// 
+	// If exported folder does not exist, create it.
 	DumpDirectory = New File(FullExportPath);
 	If Not DumpDirectory.Exists() Then
 		ErrorText = "";
@@ -122,10 +124,10 @@ Procedure SaveFolder()
 		EndIf;
 	EndIf;
 	
-	// 
+	// Receiving the list of exported files.
 	GenerateFilesTree(WhatToSave);
 	
-	// 
+	// After that start exporting
 	Handler = New NotifyDescription("SaveFolderCompletion", ThisObject);
 	ProcessFilesTree(Handler, FilesTree, FullExportPath, WhatToSave, Undefined);
 EndProcedure
@@ -210,32 +212,32 @@ Procedure GenerateFilesTree(Val FolderParent)
 	
 EndProcedure
 
-// 
+// Recursive function that exports files to the computer.
 //
 // Parameters:
 //   ResultHandler - NotifyDescription
 //                        - Structure
-//                        - Undefined - 
-//                          
+//                        - Undefined - description of the procedure that receives
+//                          the method result.
 //   TableOfFiles - FormDataTree
-//                 - FormDataTreeItem - 
-//   BaseSaveDirectory - String -  a string with the name of the folder where files are saved.
+//                 - FormDataTreeItem - value tree with files to export.
+//   BaseSaveDirectory - String - a row with the folder name, to which files are saved.
 //                 It recreates the folder structure (as in the file tree)
 //                 if necessary.
-//   ParentFolder - CatalogRef.FilesFolders -  what we save.
+//   ParentFolder - CatalogRef.FilesFolders - items to save.
 //   CommonParameters - Structure:
 //       * ForAllFiles - Boolean -
-//                 
-//                 
-//                 
-//                 
+//                 True if the user picks an action when overwriting the file and
+//                 selects the "For all" check box. No more questions are asked.
+//                 False if a question is asked every time a file in the infobase
+//                 has the same name as a file on the computer.
 //       * BaseAction - DialogReturnCode -
-//                 
-//                 
-//                 
-//                 
-//                 
-//                 
+//                 When performing one action for all conflicts
+//                 when writing a file (the ForAllFiles parameter is True),
+//                 performs the action specified by that parameter.
+//                 DialogReturnCode.Yes - Rewrite.
+//                 DialogReturnCode.Ignore - Skip a file.
+//                 DialogReturnCode.Abort - Cancel export.
 //
 &AtClient
 Procedure ProcessFilesTree(ResultHandler, TableOfFiles, BaseSaveDirectory, ParentFolder, CommonParameters)
@@ -263,7 +265,7 @@ EndProcedure
 //   * BaseSaveDirectory - See ProcessFilesTree.BaseSaveDirectory
 //   * ParentFolder - See ProcessFilesTree.ParentFolder
 //   * CommonParameters - See ProcessFilesTree.CommonParameters
-//   * Result - Undefined, DialogReturnCode -  added later
+//   * Result - Undefined, DialogReturnCode - is added later
 //   * Success - Boolean
 //   * Items - See DataProcessor.FilesOperations.Form.ExportFolderForm.FilesTree
 //   * UBound - Number
@@ -281,10 +283,10 @@ Function ExecutionParameters(Val ResultHandler, Val TableOfFiles, Val BaseSaveDi
 	ExecutionParameters.Insert("ParentFolder", ParentFolder);
 	ExecutionParameters.Insert("CommonParameters", CommonParameters);
 	
-	// 
+	// Result parameters.
 	ExecutionParameters.Insert("Success", False);
 	
-	// 
+	// Loop parameters.
 	ExecutionParameters.Insert("Items", ExecutionParameters.TableOfFiles.GetItems());
 	ExecutionParameters.Insert("UBound", ExecutionParameters.Items.Count()-1);
 	ExecutionParameters.Insert("IndexOf",   -1);
@@ -358,7 +360,7 @@ Procedure ProcessFilesTree2(Result, ExecutionParameters) Export
 	
 	If Result.Success <> True Then
 		ExecutionParameters.Success = False;
-		ExecutionParameters.LoopStartRequired = False; // 
+		ExecutionParameters.LoopStartRequired = False; // Loop restart is not required.
 		FilesOperationsInternalClient.ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	EndIf;
@@ -427,7 +429,7 @@ Procedure ProcessFilesTree5(Response, ExecutionParameters) Export
 		Return;
 	EndIf;
 	
-	// 
+	// Trying to create a folder again.
 	CreateSubdirectory(ExecutionParameters);
 EndProcedure
 
@@ -470,10 +472,10 @@ Procedure ProcessFilesTree7(Result, ExecutionParameters) Export
 		Return;
 	EndIf;
 	
-	// 
+	// Continue processing the item.
 	ProcessFilesTree8(ExecutionParameters);
 	
-	// 
+	// Restart if the dialog was open.
 	StartIterateThroughFilesTree(ExecutionParameters);
 	
 EndProcedure
@@ -482,11 +484,11 @@ EndProcedure
 Procedure ProcessFilesTree8(ExecutionParameters)
 	If (ExecutionParameters.WritingFile.CurrentVersion <> Undefined
 		And ExecutionParameters.WritingFile.CurrentVersion.IsEmpty()) Or ExecutionParameters.WritingFile.CurrentVersion = Undefined Then
-		// 
+		// This is an item of Files catalog without a file. Skip it.
 		Return;
 	EndIf;
 	
-	// 
+	// Writing file to the base directory.
 	ExecutionParameters.Insert("FileNameWithExtension", Undefined);
 	ExecutionParameters.FileNameWithExtension = CommonClientServer.GetNameWithExtension(
 		ExecutionParameters.WritingFile.FullDescr,
@@ -520,7 +522,7 @@ Procedure ProcessFilesTree9(ExecutionParameters)
 		Return;
 	EndIf;
 	
-	// 
+	// There is no file, proceed to the next step.
 	ExecutionParameters.Result = DialogReturnCode.Retry;
 	ProcessFilesTree11(ExecutionParameters);
 EndProcedure
@@ -537,16 +539,16 @@ Procedure ProcessFilesTree10(Response, ExecutionParameters) Export
 	EndIf;
 	
 	If Response = DialogReturnCode.Retry Then
-		// 
+		// Ignore the file.
 		ProcessFilesTree9(ExecutionParameters);
 		Return;
 	EndIf;
 	
-	// 
+	// Continue processing the item.
 	ExecutionParameters.Result = DialogReturnCode.Cancel;
 	ProcessFilesTree11(ExecutionParameters);
 	
-	// 
+	// Restart if the dialog was open.
 	StartIterateThroughFilesTree(ExecutionParameters);
 EndProcedure
 
@@ -556,16 +558,16 @@ EndProcedure
 &AtClient
 Procedure ProcessFilesTree11(ExecutionParameters)
 	If ExecutionParameters.Result = DialogReturnCode.Cancel Then
-		// 
+		// Ignoring the file named like a folder.
 		Return;
 	EndIf;
 	
 	ExecutionParameters.Result = DialogReturnCode.No;
 	
-	// 
+	// Asking what to do with the current file.
 	If ExecutionParameters.FileOnHardDrive.Exists() Then
 		
-		// 
+		// If the file is for reading only and the change time is less than in the infobase, simply rewrite it.
 		If  ExecutionParameters.FileOnHardDrive.GetReadOnly()
 			And ExecutionParameters.FileOnHardDrive.GetModificationUniversalTime() <= ExecutionParameters.WritingFile.UniversalModificationDate Then
 			ExecutionParameters.Result = DialogReturnCode.Yes;
@@ -603,7 +605,7 @@ Procedure ProcessFilesTree11(ExecutionParameters)
 		EndIf;
 	EndIf;
 	
-	// 
+	// If there is no file, do not ask.
 	ExecutionParameters.Result = DialogReturnCode.Yes;
 	ProcessFilesTree14(ExecutionParameters);
 EndProcedure
@@ -623,27 +625,27 @@ Procedure ProcessFilesTree12(Result, ExecutionParameters) Export
 	ExecutionParameters.CommonParameters.ForAllFiles = Result.ApplyForAll;
 	ExecutionParameters.CommonParameters.BaseAction = ExecutionParameters.Result;
 	
-	// 
+	// Continue processing the item.
 	ProcessFilesTree13(ExecutionParameters);
 	
-	// 
+	// Restart loop if an asynchronous dialog box was opened.
 	StartIterateThroughFilesTree(ExecutionParameters);
 EndProcedure
 
 &AtClient
 Procedure ProcessFilesTree13(ExecutionParameters)
 	If ExecutionParameters.Result = DialogReturnCode.Abort Then
-		// 
+		// Abort export.
 		ExecutionParameters.Success = False;
-		ExecutionParameters.LoopStartRequired = False; // 
+		ExecutionParameters.LoopStartRequired = False; // Loop restart is not required.
 		FilesOperationsInternalClient.ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	ElsIf ExecutionParameters.Result = DialogReturnCode.Ignore Then
-		// 
+		// Skip the file.
 		Return;
 	EndIf;
 	
-	// 
+	// Writing file to the file system if it is possible.
 	If ExecutionParameters.Result <> DialogReturnCode.Yes Then
 		Return;
 	EndIf;
@@ -658,7 +660,7 @@ Procedure ProcessFilesTree14(ExecutionParameters)
 	If ExecutionParameters.FileOnHardDrive.Exists() Then
 		ExecutionParameters.FileOnHardDrive.SetReadOnly(False);
 		
-		// 
+		// Always delete and then generate again.
 		ErrorInfo = Undefined;
 		Try
 			DeleteFiles(ExecutionParameters.FullFileName);
@@ -672,7 +674,7 @@ Procedure ProcessFilesTree14(ExecutionParameters)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Re-write the file.
 	FileAddressToOpen = FilesOperationsInternalServerCall.GetURLToOpen(
 		ExecutionParameters.WritingFile.CurrentVersion,
 		UUID);
@@ -697,11 +699,11 @@ Procedure ProcessFilesTree14(ExecutionParameters)
 		
 	If ObtainedFiles.Count() = 0 
 		Or IsBlankString(ObtainedFiles[0].Name) Then
-		// 
+		// File was not received.
 		Return;
 	EndIf;
 	
-	// 
+	// For the option of storing files in volumes, delete the file from the temporary storage after receiving it.
 	If IsTempStorageURL(FileAddressToOpen) Then
 		DeleteFromTempStorage(FileAddressToOpen);
 	EndIf;
@@ -710,7 +712,7 @@ Procedure ProcessFilesTree14(ExecutionParameters)
 	
 	Try
 		ExecutionParameters.FileOnHardDrive.SetReadOnly(True);
-		// 
+		// Setting the modification time as in the infobase.
 		ExecutionParameters.FileOnHardDrive.SetModificationUniversalTime(
 			ExecutionParameters.WritingFile.UniversalModificationDate);
 	Except
@@ -726,7 +728,7 @@ EndProcedure
 
 &AtClient
 Procedure ProcessFilesTree15(ErrorInfo, ExecutionParameters)
-	// 
+	// An error occurred when writing the file and changing its attributes.
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Cannot save the file
 		           |""%1""
@@ -744,18 +746,18 @@ EndProcedure
 &AtClient
 Procedure ProcessFilesTree16(Response, ExecutionParameters) Export
 	If Response = DialogReturnCode.Abort Then
-		// 
+		// Just exit with an error.
 		ExecutionParameters.Success = False;
-		ExecutionParameters.LoopStartRequired = False; // 
-		// 
+		ExecutionParameters.LoopStartRequired = False; // Do not restart the cycle.
+		// False.
 		FilesOperationsInternalClient.ReturnResult(ExecutionParameters.ResultHandler, ExecutionParameters);
 		Return;
 	ElsIf Response = DialogReturnCode.Ignore Then
-		// 
+		// Skipping this file and proceeding to the next step.
 		Return;
 	EndIf;
 	
-	// 
+	// Trying to create a folder again.
 	ProcessFilesTree14(ExecutionParameters);
 EndProcedure
 

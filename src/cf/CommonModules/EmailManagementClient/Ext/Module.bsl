@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
 // Parameters:
 //  Ref  - CatalogRef.IncomingEmailAttachedFiles,
-//            Spravochnike.E-mailinputconnected files - link to the file to
-//                                                                            open.
+//            CatalogRef.IncomingEmailAttachedFiles - a reference to file that
+//                                                                            is to be opened.
 //
 Procedure OpenAttachment(Ref, Form, ForEditing = False) Export
 
@@ -24,7 +26,7 @@ Procedure OpenAttachment(Ref, Form, ForEditing = False) Export
 		
 		Notification = New NotifyDescription("OpenFileAfterConfirm", ThisObject, AdditionalParameters);
 		UsersInternalClient.ShowSecurityWarning(Notification,
-			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeOpenFile,
+			UsersInternalClientServer.SecurityWarningKinds().BeforeOpenFile,
 			FileData.FileName);
 		Return;
 		
@@ -43,8 +45,8 @@ Procedure OpenFileAfterConfirm(Result, AdditionalParameters) Export
 EndProcedure
 
 // Parameters:
-//  TableOfContacts - FormDataCollection -  contains descriptions and links to contacts of the interaction
-//                                            or participants of the interaction subject.
+//  TableOfContacts - FormDataCollection - contains descriptions and references to interaction contacts
+//                                            or interaction subject participants.
 //
 // Returns:
 //  Array of Structure:
@@ -66,10 +68,10 @@ Function ContactsTableToArray(TableOfContacts) Export
 	
 EndFunction
 
-// Receive mail for all available accounts.
+// Get email by all available accounts.
 // 
 // Parameters:
-//  ItemList - FormField -  a form element that needs to be updated after receiving emails.
+//  ItemList - FormField - a form item that has to be updated after getting emails.
 //
 Procedure SendReceiveUserEmail(UUID, Form, ItemList = Undefined, DisplayProgress = True) Export
 
@@ -100,12 +102,12 @@ Procedure SendReceiveUserEmail(UUID, Form, ItemList = Undefined, DisplayProgress
 	
 EndProcedure
 
-// Processing the user's mail upload completion
+// The processing of user email import completion
 // 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.NewResultLongOperation
 //  AdditionalParameters - Structure:
-//   * ItemList - FormTable -  an element containing a dynamic list.
+//   * ItemList - FormTable - an item containing a dynamic list.
 //
 Procedure SendReceiveUserEmailCompletion(Result, AdditionalParameters) Export
 	

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -20,14 +22,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetConditionalAppearance();
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// 
+	// Prepare auxiliary data.
 	AccessManagementInternal.OnCreateAtServerAllowedValuesEditForm(ThisObject);
 	
 	InitialSettingsOnReadAndCreate(Object);
@@ -38,14 +40,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	UserTypesList.Add(Type("CatalogRef.Users"));
 	UserTypesList.Add(Type("CatalogRef.ExternalUsers"));
 	
-	// 
+	// Making the properties always visible.
 	
-	// 
+	// Determining if the access restrictions must be set.
 	If Not AccessManagement.LimitAccessAtRecordLevel() Then
 		Items.Access.Visible = False;
 	EndIf;
 	
-	// 
+	// Setting availability for viewing the form in read-only mode.
 	Items.UsersPick.Enabled                = Not ReadOnly;
 	Items.UsersPickContextMenu.Enabled = Not ReadOnly;
 	
@@ -154,7 +156,7 @@ Procedure OnOpen(Cancel)
 		AttachIdleHandler("JumpToAccessValue", 0.1, True);
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -183,7 +185,7 @@ Procedure OnReadAtServer(CurrentObject)
 		Return;
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -194,7 +196,7 @@ Procedure OnReadAtServer(CurrentObject)
 	
 	InitialSettingsOnReadAndCreate(CurrentObject);
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -225,8 +227,8 @@ EndProcedure
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
 	If Not Users.IsFullUser() Then
-		// 
-		// 
+		// Responsible persons can change only the membership.
+		// Re-read the object to prevent changes in access groups in restricted areas on the client.
 		// 
 		RestoreObjectWithoutGroupMembers(CurrentObject);
 	EndIf;
@@ -299,7 +301,7 @@ Procedure AfterWrite(WriteParameters)
 		AfterWriteCompletion(WriteParameters);
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
@@ -314,12 +316,12 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	VerifiedObjectAttributes = New Array;
 	Errors = Undefined;
 	
-	// 
+	// Checking for unfilled and duplicate users.
 	VerifiedObjectAttributes.Add("Users.User");
 	UsersTreeRows = FormAttributeToValue("GroupUsers").Rows;
 	ErrorsCount = ?(Errors = Undefined, 0, Errors.Count());
 	
-	// 
+	// Preparing data to check mapping between authorization object types.
 	Query = New Query;
 	Query.SetParameter("Users", UsersTreeRows.UnloadColumn("User"));
 	Query.SetParameter("Parent", Object.Profile);
@@ -411,7 +413,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		Member = CurrentRow.User;
 		ValidityPeriod = CurrentRow.ValidityPeriod;
 		
-		// 
+		// Checking whether the value is filled.
 		If Not ValueIsFilled(Member) Then
 			CommonClientServer.AddUserError(Errors,
 				"GroupUsers[%1].User",
@@ -433,7 +435,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 			Continue;
 		EndIf;
 		
-		// 
+		// Checking for duplicate values.
 		FoundValues = UsersTreeRows.FindRows(
 			New Structure("User", CurrentRow.User));
 		
@@ -463,7 +465,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 				SpecifyMessage(SeveralErrorsText, Member));
 		EndIf;
 		
-		// 
+		// Checking for users in the predefined Administrators group.
 		If Object.Ref = AdministratorsAccessGroup
 		   And TypeOf(CurrentRow.User) <> Type("CatalogRef.Users") Then
 			
@@ -504,7 +506,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 			ElsIf TypeOf(CurrentRow.User) = Type("CatalogRef.ExternalUsers") Then
 				SingleErrorText      = NStr("en = 'External user ""%2"" cannot be a member as it does not have the required type.';");
 				SeveralErrorsText = NStr("en = 'External user ""%2"" in line #%1 cannot be a member as it does not have the required type.';");
-			Else // 
+			Else // External user group.
 				SingleErrorText      = NStr("en = 'External user group ""%2"" cannot be a member as it does not have the required type.';");
 				SeveralErrorsText = NStr("en = 'External user group ""%2"" in line #%1 cannot be a member as it does not have the required type.';");
 			EndIf;
@@ -533,7 +535,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Checking for blank and duplicate access values.
 	SkipKindsAndValuesCheck = False;
 	If ErrorsCount <> ?(Errors = Undefined, 0, Errors.Count()) Then
 		SkipKindsAndValuesCheck = True;
@@ -765,7 +767,7 @@ EndProcedure
 &AtClient
 Procedure UsersAfterDeleteRow(Item)
 	
-	// 
+	// Set a tree visibility.
 	HasNested = False;
 	For Each Item In GroupUsers.GetItems() Do
 		If Item.GetItems().Count() > 0 Then
@@ -892,7 +894,7 @@ Procedure AccessKindsOnEditEnd(Item, NewRow, CancelEdit)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the "AllAllowedPresentation" item of the "AccessKinds" form table.
 
 &AtClient
 Procedure AccessKindsAllAllowedPresentationOnChange(Item)
@@ -1005,9 +1007,9 @@ Procedure SnowUnusedAccessKinds(Command)
 EndProcedure
 
 &AtClient
-Procedure SelectAccessValues_(Command)
+Procedure PickAccessValues(Command)
 	
-	AccessManagementInternalClient.SelectAccessValues(ThisObject);
+	AccessManagementInternalClient.AccessValuesPick(ThisObject);
 	
 EndProcedure
 
@@ -1034,7 +1036,7 @@ Procedure SetConditionalAppearance()
 	
 EndProcedure
 
-// Continuation of the Open event handler.
+// OnOpen event handler continuation.
 &AtClient
 Procedure OnOpenAfterAdministratorProfileInstallationConfirmation(Response, Context) Export
 	
@@ -1048,7 +1050,7 @@ Procedure OnOpenAfterAdministratorProfileInstallationConfirmation(Response, Cont
 	
 EndProcedure
 
-// Continuation of the Open event handler.
+// OnOpen event handler continuation.
 &AtClient
 Procedure OnOpenAfterAccessKindUpdateConfirmation(Response, Context) Export
 	
@@ -1062,7 +1064,7 @@ Procedure OnOpenAfterAccessKindUpdateConfirmation(Response, Context) Export
 	
 EndProcedure
 
-// Continuation of the event handler before Recording.
+// The BeforeWrite event handler continuation.
 &AtClient
 Procedure BeforeWriteFollowUp(SaaSUserNewPassword, WriteParameters) Export
 	
@@ -1081,7 +1083,7 @@ Procedure BeforeWriteFollowUp(SaaSUserNewPassword, WriteParameters) Export
 	
 EndProcedure
 
-// Continuation of the post-Recording event handler.
+// AfterWrite event handler continuation.
 &AtClient
 Procedure AfterWriteCompletion(WriteParameters) Export
 	
@@ -1131,7 +1133,7 @@ Procedure InitialSettingsOnReadAndCreate(CurrentObject)
 		EndIf;
 	Else
 		If ValueIsFilled(CurrentObject.User) Then
-			// 
+			// Preparing for personal access group mode.
 			AutoTitle = False;
 			Title = AccessManagementInternalClientServer.PresentationAccessGroups(CurrentObject)
 				+ " " + NStr("en = '(Access group)';");
@@ -1164,7 +1166,7 @@ Procedure InitialSettingsOnReadAndCreate(CurrentObject)
 		Items.UserOwner.ReadOnly
 			= AccessManagementInternal.SimplifiedAccessRightsSetupInterface();
 		
-		// 
+		// Preparing to switch to the mode where an employee responsible for group members can edit users.
 		If Not Users.IsFullUser() Then
 			Items.Description.ReadOnly = True;
 			Items.Parent.ReadOnly = True;
@@ -1177,7 +1179,7 @@ Procedure InitialSettingsOnReadAndCreate(CurrentObject)
 	
 	RefreshAccessKindsContent(True);
 	
-	// 
+	// Prepare a user tree.
 	UsersTree = GroupUsers.GetItems();
 	UsersTree.Clear();
 	For Each TSRow In CurrentObject.Users Do
@@ -1308,7 +1310,7 @@ Procedure RefreshAccessKindsContent(Val OnReadAtServer = False)
 	
 	AccessKindsContentChanged = False;
 	
-	// 
+	// Adding missing access kinds.
 	IndexOf = ProfileAccessKinds.Count() - 1;
 	While IndexOf >= 0 Do
 		String = ProfileAccessKinds[IndexOf];
@@ -1333,7 +1335,7 @@ Procedure RefreshAccessKindsContent(Val OnReadAtServer = False)
 		IndexOf = IndexOf - 1;
 	EndDo;
 	
-	// 
+	// Deleting unused access kinds.
 	IndexOf = Object.AccessKinds.Count() - 1;
 	While IndexOf >= 0 Do
 		
@@ -1360,11 +1362,11 @@ Procedure RefreshAccessKindsContent(Val OnReadAtServer = False)
 	Modified = Modified
 		Or AccessKindsContentChanged And Not OnReadAtServer;
 	
-	// 
+	// Selecting a check box for prompting the user if they want to update the access kind content.
 	If OnReadAtServer
-	     And Not Object.Ref.IsEmpty() // 
+	     And Not Object.Ref.IsEmpty() // It is new.
 	     And AccessKindsContentChanged
-	     And Users.IsFullUser() // 
+	     And Users.IsFullUser() // Only the administrator can update access kinds.
 	     And Common.ObjectAttributeValue(Object.Ref, "Profile") = Object.Profile Then
 	     
 		AccessKindsOnReadChanged = True;
@@ -1372,7 +1374,7 @@ Procedure RefreshAccessKindsContent(Val OnReadAtServer = False)
 	
 	Items.Access.Enabled = Object.AccessKinds.Count() > 0;
 	
-	// 
+	// Setting access kind order by profile.
 	If Not AccessKindsOnReadChanged Then
 		For Each TSRow In ProfileAccessKinds Do
 			Filter = New Structure("AccessKind", TSRow.AccessKind);
@@ -1425,7 +1427,7 @@ Procedure ShowTypeSelectionUsersOrExternalUsers(ContinuationHandler)
 				
 			EndIf;
 			
-		Else // 
+		Else // for external users only.
 			
 			ExternalUsersSelectionAndPickup = True;
 			
@@ -1605,7 +1607,7 @@ Procedure RefreshGroupsUsers(RowID = Undefined,
 		If TypeOf(Item.User) = Type("CatalogRef.UserGroups")
 		 Or TypeOf(Item.User) = Type("CatalogRef.ExternalUsersGroups") Then
 		
-			// 
+			// Populate group users.
 			OldUsers = Item.GetItems();
 			Filter = New Structure("UsersGroup", Item.User);
 			NewUsers = GroupsUsers.FindRows(Filter);
@@ -1645,7 +1647,7 @@ Procedure RefreshGroupsUsers(RowID = Undefined,
 	Users.FillUserPictureNumbers(
 		GroupUsers, "Ref", "PictureNumber", RowID, True);
 	
-	// 
+	// Set the tree visibility.
 	HasTree = False;
 	For Each Item In GroupUsers.GetItems() Do
 		If Item.GetItems().Count() > 0 Then
@@ -1702,13 +1704,13 @@ Procedure RestoreObjectWithoutGroupMembers(CurrentObject)
 	Query.SetParameter("Ref", CurrentObject.Ref);
 	QueriesResults = Query.ExecuteBatch();
 	
-	// 
+	// Restoring attributes.
 	FillPropertyValues(CurrentObject, QueriesResults[0].Unload()[0]);
 	
-	// 
+	// Restoring the AccessKinds tabular section.
 	CurrentObject.AccessKinds.Load(QueriesResults[1].Unload());
 	
-	// 
+	// Restoring the AccessValues tabular section.
 	CurrentObject.AccessValues.Load(QueriesResults[2].Unload());
 	
 EndProcedure
@@ -1752,7 +1754,7 @@ Procedure JumpToAccessValue()
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

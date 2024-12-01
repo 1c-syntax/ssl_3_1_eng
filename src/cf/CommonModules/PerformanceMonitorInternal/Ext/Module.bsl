@@ -1,37 +1,39 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Gets the N worst performance measurements for the period.
+// Gets N worst performance measurements over a period.
 // 
 // Parameters:
-//  StartDate - Date -  start of the sampling period.
-//  EndDate - Date -  end of the selection period.
-//  TopApdexCount - Number -  the number of worst measurements, if no, then all measurements are returned.
+//  StartDate - Date - sampling start date.
+//  EndDate - Date - sampling end date.
+//  TopApdexCount - Number - number of worst measurements. If zero, returns all measurements.
 //
 Function GetAPDEXTop(StartDate, EndDate, AggregationPeriod, TopApdexCount) Export
 	Return InformationRegisters.TimeMeasurements.GetAPDEXTop(StartDate, EndDate, AggregationPeriod, TopApdexCount);
 EndFunction
 
-// Gets the N worst performance measurements of the system for the period.
+// Gets N worst technological performance measurements over a period.
 // 
 // Parameters:
-//  StartDate - Date -  start of the sampling period.
-//  EndDate - Date -  end of the selection period.
-//  TopApdexCount - Number -  the number of worst measurements, if no, then all measurements are returned.
+//  StartDate - Date - sampling start date.
+//  EndDate - Date - sampling end date.
+//  TopApdexCount - Number - number of worst measurements. If zero, returns all measurements.
 //
 Function GetTopTechnologicalAPDEX(StartDate, EndDate, AggregationPeriod, TopApdexCount) Export
 	Return InformationRegisters.TimeMeasurementsTechnological.GetAPDEXTop(StartDate, EndDate, AggregationPeriod, TopApdexCount);
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -58,7 +60,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// 
+	// ForSystemUsersOnly.
 	RolesAssignment.ForSystemUsersOnly.Add(
 		Metadata.Roles.PerformanceSetupAndMonitoring.Name);
 	
@@ -127,7 +129,7 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	
 	If ClientRunParameters.RunPerformanceMeasurements
 	   And SessionParameters.TimeMeasurementComment <> Undefined Then
-		Return; // 
+		Return; // Initialize session parameters.
 	EndIf;
 	
 EndProcedure
@@ -160,7 +162,7 @@ EndProcedure
 //
 Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	
-	// 
+	// Session parameters must be initialized without using application parameters.
 	
 	If ParameterName = "TimeMeasurementComment" Then
 		SessionParameters.TimeMeasurementComment = GetTimeMeasurementComment();
@@ -184,8 +186,8 @@ Procedure InitialFilling1() Export
 		
 EndProcedure
 
-// Fills in the session parameter "comment timestamp"
-// when the program starts.
+// Sets the "TimeMeasurementComment" session parameter
+// at startup.
 //
 Function GetTimeMeasurementComment()
 	
@@ -230,12 +232,12 @@ Function RequestToUseExternalResources(Directories) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal export procedures and functions.
 
-// Finds and returns a routine task for exporting time measurements.
+// Finds and returns the scheduled job for exporting time measurements.
 //
 // Returns:
-//  ScheduledJob - 
+//  ScheduledJob - ScheduledJob.PerformanceMonitorDataExport - retrieved job.
 //
 Function PerformanceMonitorDataExportScheduledJob() Export
 	
@@ -253,17 +255,17 @@ Function PerformanceMonitorDataExportScheduledJob() Export
 		
 EndFunction
 
-// Returns the directory of the export file with the measurement results.
+// Returns directories containing measurement export files.
 //
 // Parameters:
-//  None
+//  No
 //
 // Returns:
 //    Structure:
-//        "Performexportnftp" - Boolean flag for performing export to FTP
-//        "Ftpcatalogexport" - String-FTP export directory
-//        "performexportlocal Directory" - Boolean flag for performing export to the local directory
-//        "Localcatalogexport" - String-local export directory.
+//        "ExecuteExportToFTPDirectory"              - Boolean - indicates whether export to an FTP directory was performed
+//        "FTPExportDirectory"                - String - an FTP directory
+//        "ExecuteExportToLocalDirectory" - Boolean - indicates whether export to a local directory was performed
+//        "LocalExportDirectory"          - String - a local export directory.
 //
 Function PerformanceMonitorDataExportDirectories() Export
 	
@@ -313,12 +315,12 @@ Function PerformanceMonitorDataExportDirectories() Export
 	
 EndFunction
 
-// Returns a reference to the "Overall performance" element
-// . If there is a predefined "system-wide Performance" element, this element is returned.
-// Otherwise, an empty link is returned.
+// Returns a reference to the "Overall performance" item,
+// i.e. the predefined OverallSystemPerformance item, if it exists,
+// or an empty reference otherwise.
 //
 // Parameters:
-//  None
+//  No
 // Returns:
 //  CatalogRef.KeyOperations
 //
@@ -379,11 +381,11 @@ Procedure SetConstantValues31338() Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Local internal procedures and functions.
 
-// Generates an array of permissions for exporting measurement data.
+// Creates an array of permissions to export measurement data.
 //
-// Parameters-Export Catalogs-Structure
+// Parameters - DirectoriesForExport - Structure
 //
 // Returns:
 //  Array
@@ -426,21 +428,21 @@ EndFunction
 #Region CommonCopy
 
 // Returns True if the "functional" subsystem exists in the configuration.
-// It is intended for implementing an optional subsystem call (conditional call).
+// Intended for calling optional subsystems (conditional calls).
 //
-// The" functional "subsystem has the" Include in command interface " checkbox unchecked.
+// A subsystem is considered functional if its "Include in command interface" check box is cleared.
 //
 // Parameters:
-//  FullSubsystemName - String -  the full name of the subsystem metadata object
-//                        without the words " Subsystem."and case-sensitive.
-//                        For example: "Standard subsystems.Variants of reports".
+//  FullSubsystemName - String - the full name of the subsystem metadata object
+//                        without the "Subsystem." part, case-sensitive.
+//                        Example: "StandardSubsystems.ReportsOptions".
 //
 // Example:
 //
-//  If General Purpose.Subsystems Exist ("Standard Subsystems.Varietythat") Then
-//  	Modellvariante = Observatsionnoe.Abdimomun (The"Varietythat");
-//  	Modellvariante.<Method name> ();
-//  ends If;
+//  If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+//  	ModuleReportOptions = Common.CommonModule("ReportsOptions");
+//  	ModuleReportOptions.<Method name>();
+//  EndIf;
 //
 // Returns:
 //  Boolean
@@ -457,26 +459,26 @@ Function SubsystemExists(FullSubsystemName) Export
 	
 EndFunction
 
-// Returns General parameters of the basic functionality.
+// Returns common basic functionality parameters.
 //
 // Returns: 
 //  Structure:
-//      * PersonalSettingsFormName            - String - 
-//      * MinPlatformVersion1    - String - 
-//                                                           
-//      * MustExit               - Boolean -  the initial value is False.
-//      * AskConfirmationOnExit - Boolean -  by default, True. If set to False, 
-//                                                                  you will not
-//                                                                  be prompted for confirmation when the program is shut down, unless you explicitly allow it in
-//                                                                  the personal settings of the program.
-//      * DisableMetadataObjectsIDs - Boolean -  disables filling in the object IDs of Metadata and extension object IDs directories
-//              , as well as the procedure for uploading and loading in the rib nodes.
-//              For partial embedding of individual library functions in the configuration without setting up support.
-//      * DisabledSubsystems                     - Map of KeyAndValue -  allows you to virtually disable
-//                                                                  subsystems for testing purposes.
-//                                                                  If the subsystem is disabled, then the method is general purpose.Modestamente
-//                                                                  will return False. According to the key-name of the disabled subsystem,
-//                                                                  the value must be set to True.
+//      * PersonalSettingsFormName            - String - Name of the user settings edit form.
+//      * MinPlatformVersion1    - String - Full platform version required to start the application.
+//                                                           For example, "8.3.4.365".
+//      * MustExit               - Boolean - the initial value is False.
+//      * AskConfirmationOnExit - Boolean - True by default. If False, 
+//                                                                  the exit confirmation is not
+//                                                                  requested when exiting the application, if it is not clearly enabled in
+//                                                                  the personal application settings.
+//      * DisableMetadataObjectsIDs - Boolean - disables completing the MetadataObjectIDs
+//              and ExtensionObjectIDs catalogs, as well as the export/import procedure for DIB nodes.
+//              For partial embedding certain library functions into the configuration without enabling support.
+//      * DisabledSubsystems                     - Map of KeyAndValue - use to disable
+//                                                                  certain subsystems virtually for testing purposes.
+//                                                                  If the subsystem is disabled, Common.SubsystemExists
+//                                                                  returns False. Set the map's key to the name of the subsystem to be disabled
+//                                                                  and value to True.
 //
 Function CommonCoreParameters() Export
 	
@@ -503,45 +505,45 @@ Function CoreAvailable()
 	
 EndFunction
 
-// Generates and outputs a message that can be associated with a form control.
+// Generates and displays the message that can relate to a form item.
 //
 // Parameters:
-//  MessageToUserText - String -  message text.
-//  DataKey - AnyRef -  the object or key of the database record that this message refers to.
-//  Field - String - 
-//  DataPath - String -  data path (the path to the requisite shape).
-//  Cancel - Boolean -  the output parameter is always set to True.
+//  MessageToUserText - String - message text.
+//  DataKey - AnyRef - the infobase record key or object that message refers to.
+//  Field - String - a form attribute description.
+//  DataPath - String - a data path (a path to a form attribute).
+//  Cancel - Boolean - an output parameter. Always True.
 //
 // Example:
 //
-//  1. to display a message in the field of the managed form associated with the object's details:
-//  General Assignationclient.Inform the user(
-//   NSTR ("ru = 'Error message.'"), ,
-//   "Politikunterricht",
+//  1. Showing the message associated with the object attribute near the form field:
+//  CommonClient.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "FieldInFormAttributeObject",
 //   "Object");
 //
-//  Alternative use in the form of an object:
-//  General purpose Client.Inform the user(
-//   NSTR ("ru = 'Error message.'"), ,
-//   "Object.Politikunterricht");
+//  An alternative variant of using in the object form module:
+//  CommonClient.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "Object.FieldInFormAttributeObject");
 //
-//  2. To display the message next to the managed form, associated with the requisite forms:
-//  Observationnelle.Inform the user(
-//   NSTR ("ru = 'Error message.'"), ,
-//   "Markwesterby");
+//  2. Showing a message for the form attribute, next to the form field:
+//  CommonClient.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "FormAttributeName");
 //
-//  3. to display a message associated with an object in the information database:
-//  General purpose Client.Inform the user(
-//   NSTR ("ru = 'Error message.'"), Object Of The Information Base, "Responsible",, Refusal);
+//  3. To display a message associated with an infobase object:
+//  CommonClient.MessageToUser(
+//   NStr("en = 'Error message.'"), InfobaseObject, "Responsible person",,Cancel);
 //
-//  4. to display the message by reference to the object of the information database:
-//  General purpose Client.Inform the user(
-//   NSTR ("ru = 'Error message.'") The Link, ,,,, Failure);
+//  4. To display a message from a link to an infobase object:
+//  CommonClient.MessageToUser(
+//   NStr("en = 'Error message.'"), Reference, , , Cancel);
 //
-//  Cases of incorrect use:
-//   1. Passing the key Data and path Data parameters simultaneously.
-//   2. Passing a different type of value in the key Data parameter.
-//   3. Installation without field installation (and/or datapath).
+//  Scenarios of incorrect using:
+//   1. Passing DataKey and DataPath parameters at the same time.
+//   2. Passing a value of an illegal type to the DataKey parameter.
+//   3. Specifying a reference without specifying a field (and/or a data path).
 //
 Procedure MessageToUser( 
 	Val MessageToUserText,
@@ -579,12 +581,12 @@ Procedure MessageToUser(
 	
 EndProcedure
 
-// Returns a reference to the shared module by name.
+// Returns a reference to the common module by the name.
 //
 // Parameters:
-//  Name          - String - :
-//                 
-//                 
+//  Name          - String - a common module name, for example:
+//                 "Common",
+//                 "CommonClient".
 //
 // Returns:
 //  CommonModule
@@ -613,7 +615,7 @@ Function CommonModule(Name) Export
 	
 EndFunction
 
-// Returns the backend module Manager by the name of the object.
+// Returns a server manager module by object name.
 Function ServerManagerModule(Name)
 	ObjectFound = False;
 	
@@ -702,7 +704,7 @@ Function ServerManagerModule(Name)
 	Return Module;
 EndFunction
 
-// Returns a value for identifying the General "data Registers" type.
+// Returns a value for identification of the Information registers type.
 //
 // Returns:
 //  String
@@ -713,7 +715,7 @@ Function InformationRegistersTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "accumulation Registers" type.
+// Returns a value for identification of the Accumulation registers type.
 //
 // Returns:
 //  String
@@ -724,7 +726,7 @@ Function AccumulationRegistersTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "accounting Registers" type.
+// Returns a value for identification of the Accounting registers type.
 //
 // Returns:
 //  String
@@ -735,7 +737,7 @@ Function AccountingRegistersTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "calculation Registers" type.
+// Returns a value for identification of the Calculation registers type.
 //
 // Returns:
 //  String
@@ -746,7 +748,7 @@ Function CalculationRegistersTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "Documents" type.
+// Returns a value for identification of the Documents type.
 //
 // Returns:
 //  String
@@ -757,7 +759,7 @@ Function DocumentsTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "Directories" type.
+// Returns a value for identification of the Catalogs type.
 //
 // Returns:
 //  String
@@ -768,7 +770,7 @@ Function CatalogsTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "Reports" type.
+// Returns a value for identification of the Reports type.
 //
 // Returns:
 //  String
@@ -779,7 +781,7 @@ Function ReportsTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "Processing" type.
+// Returns a value for identification of the Data processors type.
 //
 // Returns:
 //  String
@@ -790,7 +792,7 @@ Function DataProcessorsTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "exchange Plan" type.
+// Returns a value for identification of the Exchange plans type.
 //
 // Returns:
 //  String
@@ -801,7 +803,7 @@ Function ExchangePlansTypeName()
 	
 EndFunction
 
-// Returns the value for identifying the shared-type Plans "types of characteristics."
+// Returns a value for identification of the Charts of characteristic types type.
 //
 // Returns:
 //  String
@@ -812,7 +814,7 @@ Function ChartsOfCharacteristicTypesTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "Business processes" type.
+// Returns a value for identification of the Business processes type.
 //
 // Returns:
 //  String
@@ -823,7 +825,7 @@ Function BusinessProcessesTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "Task" type.
+// Returns a value for identification of the Tasks type.
 //
 // Returns:
 //  String
@@ -834,7 +836,7 @@ Function TasksTypeName()
 	
 EndFunction
 
-// Returns the value for identifying the shared-type "chart of accounts".
+// Checks whether the metadata object belongs to the Charts of accounts type.
 //
 // Returns:
 //  String
@@ -845,7 +847,7 @@ Function ChartsOfAccountsTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General type "calculation type Plans".
+// Returns a value for identification of the Charts of calculation types type.
 //
 // Returns:
 //  String
@@ -856,7 +858,7 @@ Function ChartsOfCalculationTypesTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "Constant" type.
+// Returns a value for identification of the Constants type.
 //
 // Returns:
 //  String
@@ -867,7 +869,7 @@ Function ConstantsTypeName()
 	
 EndFunction
 
-// Returns a value for identifying the General "document Logs" type.
+// Returns a value for identification of the Document journals type.
 //
 // Returns:
 //  String
@@ -919,7 +921,7 @@ EndFunction
 //
 // Returns:
 //  InformationRegisterRecordSet.TimeMeasurements
-//  
+//  InformationRegisterRecordSet.TimeMeasurementsTechnological
 //
 Function ServiceRecordSet(RegisterManager) Export
 	
@@ -937,26 +939,26 @@ EndFunction
 
 #Region SafeModeCopy
 
-// Evaluates the passed expression by first setting safe code execution mode
-//  and safe data separation mode for all delimiters present in the configuration.
-//  As a result, when evaluating the expression:
-//   - attempts to set the privileged mode are ignored,
-//   - all external ones are forbidden (in relation to the 1C platform:Enterprise) action (COM,
-//       loading an external component, launch external applications and operating system commands,
-//       access to the file system and Internet resources),
-//   - do not disable the use of delimiters session
-//   - do not change the values of the delimiters of a session (if the separation by the separator does not
-//       is conditionally disabled)
-//   - do not modify objects that control the condition of the conditional split.
+// Evaluates the passed expression, setting the safe mode of script execution
+//  and the safe mode of data separation for all separators of the configuration.
+//  Thus, when evaluating the expression:
+//   - attempts to set the privileged mode are ignored;
+//   - all external (relative to the 1C:Enterprise platform) actions (COM,
+//       add-in loading, external application startup, operating system command execution,
+//       file system and Internet resource access) are prohibited;
+//   - session separators cannot be disabled;
+//   - session separator values cannot be changed (if data separation is
+//       not disabled conditionally);
+//   - objects that manage the conditional separation state cannot be changed.
 //
 // Parameters:
-//  Expression - String -  the expression that you want to calculate. For Example, "Mymodule.MyFunction (Parameters)".
-//  Parameters - Arbitrary -  the value of this parameter can be passed as the value
-//    that is required for calculating the expression (in the text of the expression, this
-//    value must be referred to as the name of the parameters variable).
+//  Expression - String - an expression to be calculated. For example, "MyModule.MyFunction(Parameters)".
+//  Parameters - Arbitrary - any value as might be required for
+//    evaluating the expression. The expression must refer to this
+//    value as the Parameters variable.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - the result of the expression calculation.
 //
 Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined)
 	

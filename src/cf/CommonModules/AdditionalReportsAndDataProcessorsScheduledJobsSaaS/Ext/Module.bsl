@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
+// Deprecated. Obsolete. Use ScheduledJobsServer.AddJob().
 //
 // Returns:
-//   Undefined - 
+//   Undefined - use ScheduledJobsServer.AddJob().
 //
 Function CreateNewJob() Export
 	
@@ -21,13 +23,13 @@ Function CreateNewJob() Export
 	
 EndFunction
 
-// Deprecated.
+// Deprecated. Obsolete. Use ScheduledJobsServer.UUID().
 //
 // Parameters:
-//   Job - ScheduledJob -  routine task.
+//   Job - ScheduledJob - a scheduled job.
 //
 // Returns:
-//   Undefined - 
+//   Undefined - use ScheduledJobsServer.UUID().
 //
 Function GetJobID(Val Job) Export
 	
@@ -35,13 +37,13 @@ Function GetJobID(Val Job) Export
 	
 EndFunction
 
-// Deprecated.
+// Deprecated. Obsolete. Use ScheduledJobsServer.ChangeJob().
 //
 // Parameters:
-//   Job - ScheduledJob -  routine task.
-//   Use - Boolean -  flag for using a scheduled task.
-//   Parameters - Array -  parameters of a routine task.
-//   Schedule - JobSchedule -  schedule of a routine task.
+//   Job - ScheduledJob - a scheduled job.
+//   Use - Boolean - indicates whether a scheduled job is used.
+//   Parameters - Array - parameters of the scheduled job.
+//   Schedule - JobSchedule - a scheduled job schedule.
 //
 Procedure SetJobParameters(Job, Use, Parameters, Schedule) Export
 	
@@ -49,13 +51,13 @@ Procedure SetJobParameters(Job, Use, Parameters, Schedule) Export
 	
 EndProcedure
 
-// Deprecated.
+// Deprecated. Obsolete. Use ScheduledJobsServer.FindJobs().
 //
 // Parameters:
-//   Job - ScheduledJob -  routine task.
+//   Job - ScheduledJob - a scheduled job.
 //
 // Returns:
-//   Undefined - 
+//   Undefined - Use ScheduledJobsServer.FindJobs().
 //
 Function GetJobParameters(Val Job) Export
 	
@@ -63,13 +65,13 @@ Function GetJobParameters(Val Job) Export
 	
 EndFunction
 
-// Deprecated.
+// Deprecated. Obsolete. Use ScheduledJobsServer.Job().
 //
 // Parameters:
-//   Id - UUID -  ID of the scheduled task.
+//   Id - UUID - a scheduled job ID.
 //
 // Returns:
-//   Undefined - 
+//   Undefined - Use ScheduledJobsServer.FindJobs().
 //
 Function FindJob(Val Id) Export
 	
@@ -77,10 +79,10 @@ Function FindJob(Val Id) Export
 	
 EndFunction
 
-// Deprecated.
+// Deprecated. Obsolete. Use ScheduledJobsServer.DeleteJob().
 //
 // Parameters:
-//   Job - ScheduledJob -  routine task.
+//   Job - ScheduledJob - a scheduled job.
 //
 Procedure DeleteJob(Val Job) Export
 	

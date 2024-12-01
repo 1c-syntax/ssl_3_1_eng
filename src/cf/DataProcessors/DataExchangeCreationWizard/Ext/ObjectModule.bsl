@@ -1,34 +1,36 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var ErrorMessageStringField; // String - 
+Var ErrorMessageStringField; // String - Error message.
 
 #EndRegion
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal export procedures and functions.
 
-// Performs actions when creating a new data exchange:
+// Performs the following actions on data exchange creation:
 // - creates or updates nodes of the current exchange plan
-// - loads conversion rules with data from the layout of the current exchange plan (if not rib)
-// - loads data registration rules from the layout of the current exchange plan
-// - loads the settings of the message exchange transport
-// - sets the value of the prefix constant of the information database (if not specified)
-// - registers all data on the current node of the exchange plan, taking into account the rules for registering objects.
+// - loads data conversion rules from the template of the current exchange plan (if infobase is not a DIB)
+// - loads data registration rules from the template of the current exchange plan
+// - loads exchange message transport settings
+// - sets the infobase prefix constant value (if it is not set)
+// - registers all data on the current exchange plan node according to object registration rules.
 //
 // Parameters:
-//  Cancel - Boolean -  failure flag; raised if errors occur during the procedure.
+//  Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
 // 
 Procedure ExecuteActionsToSetNewDataExchange(Cancel,
 	NodeFiltersSetting,
@@ -51,17 +53,17 @@ Procedure ExecuteActionsToSetNewDataExchange(Cancel,
 	
 	BeginTransaction();
 	Try
-		// 
+		// Creating/updating the exchange plan node.
 		CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, ThisNodeCode, NewNodeCode);
 		
 		If UseTransportSettings Then
 			
-			// 
+			// Loading message transport settings.
 			UpdateExchangeMessagesTransportSettings();
 			
 		EndIf;
 		
-		// 
+		// Updating the infobase prefix constant value.
 		If UsePrefixesForExchangeSettings
 			And Not SourceInfobasePrefixIsSet Then
 			
@@ -76,7 +78,7 @@ Procedure ExecuteActionsToSetNewDataExchange(Cancel,
 			Constants.UseDataSynchronization.Set(True);
 			Constants.NotUseSeparationByDataAreas.Set(True);
 			
-			// 
+			// Importing rules as exchange rules are not migrated to DIB.
 			DataExchangeServer.UpdateDataExchangeRules();
 			
 		EndIf;
@@ -88,7 +90,7 @@ Procedure ExecuteActionsToSetNewDataExchange(Cancel,
 		Return;
 	EndTry;
 	
-	// 
+	// Updating cached values of the object registration mechanism.
 	DataExchangeInternal.CheckObjectsRegistrationMechanismCache();
 	
 	Try
@@ -96,7 +98,7 @@ Procedure ExecuteActionsToSetNewDataExchange(Cancel,
 		If RecordDataForExport
 			And Not IsDistributedInfobaseSetup Then
 			
-			// 
+			// Registering changes for an exchange plan node.
 			RecordChangesForExchange(Cancel);
 			
 		EndIf;
@@ -109,9 +111,9 @@ Procedure ExecuteActionsToSetNewDataExchange(Cancel,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// This function is intended for operations through an external connection.
 
-// Performs actions when creating a new data exchange over an external connection.
+// Sets up a new data exchange over an external connection.
 //
 Procedure ExternalConnectionSetUpNewDataExchange(Cancel, 
 									CorrespondentInfobaseNodeFilterSetup, 
@@ -135,13 +137,13 @@ Procedure ExternalConnectionSetUpNewDataExchange(Cancel,
 	BeginTransaction();
 	Try
 		
-		// 
+		// Create a node.
 		CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, ThisNodeCode, NewNodeCode);
 		
-		// 
+		// Loading message transport settings.
 		UpdateCOMExchangeMessagesTransportSettings();
 		
-		// 
+		// Updating the infobase prefix constant value.
 		If Not InfobasePrefixSet Then
 			
 			ValueBeforeUpdate = GetFunctionalOption("InfobasePrefix");
@@ -166,7 +168,7 @@ Procedure ExternalConnectionSetUpNewDataExchange(Cancel,
 	
 EndProcedure
 
-// Performs actions when creating a new data exchange over an external connection.
+// Sets up a new data exchange over an external connection.
 //
 Procedure ExternalConnectionSetUpNewDataExchange_2_0_1_6(Cancel, 
 									CorrespondentInfobaseNodeFilterSetup, 
@@ -190,13 +192,13 @@ Procedure ExternalConnectionSetUpNewDataExchange_2_0_1_6(Cancel,
 		
 		DataExchangeServer.CheckDataExchangeUsage();
 		
-		// 
+		// Create a node.
 		CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, ThisNodeCode, NewNodeCode);
 		
-		// 
+		// Loading message transport settings.
 		UpdateCOMExchangeMessagesTransportSettings();
 		
-		// 
+		// Updating the infobase prefix constant value.
 		If Not InfobasePrefixSet Then
 			
 			ValueBeforeUpdate = GetFunctionalOption("InfobasePrefix");
@@ -221,16 +223,16 @@ Procedure ExternalConnectionSetUpNewDataExchange_2_0_1_6(Cancel,
 	
 EndProcedure
 
-// Performs registration of changes on the site plan of exchange.
+// Registers changes for an exchange plan node.
 //
 Procedure ExternalConnectionRecordChangesForExchange() Export
 	
-	// 
+	// Registering changes for an exchange plan node.
 	RecordChangesForExchange(False);
 	
 EndProcedure
 
-// Reads the exchange assistant settings from an XML string.
+// Reads settings of data exchange wizard from an XML string.
 //
 Procedure ExternalConnectionImportWizardParameters(Cancel, XMLLine) Export
 	
@@ -238,7 +240,7 @@ Procedure ExternalConnectionImportWizardParameters(Cancel, XMLLine) Export
 	
 EndProcedure
 
-// Updates the settings of the data exchange node over an external connection and sets the default values.
+// Updates data exchange node settings over an external connection and sets default values.
 //
 Procedure ExternalConnectionUpdateDataExchangeSettings(DefaultNodeValues) Export
 	
@@ -249,11 +251,11 @@ Procedure ExternalConnectionUpdateDataExchangeSettings(DefaultNodeValues) Export
 	    LockItem.SetValue("Ref", InfobaseNode);
 	    Block.Lock();
 		
-		// 
+		// Updating settings for the node.
 		LockDataForEdit(InfobaseNode);
 		InfobaseNodeObject = InfobaseNode.GetObject();
 		
-		// 
+		// Setting default values.
 		DataExchangeEvents.SetDefaultNodeValues(InfobaseNodeObject, DefaultNodeValues);
 		
 		InfobaseNodeObject.AdditionalProperties.Insert("GettingExchangeMessage");
@@ -267,8 +269,8 @@ Procedure ExternalConnectionUpdateDataExchangeSettings(DefaultNodeValues) Export
 	
 EndProcedure
 
-// Performs actions when creating a new data exchange via a web service.
-// For a detailed description, see the procedure to perform the actions to configure the Data exchange.
+// Sets up a new data exchange over a web service.
+// See the detailed description in the SetUpNewDataExchange procedure.
 //
 Procedure SetUpNewDataExchangeWebService(Cancel, NodeFiltersSetting, DefaultNodeValues) Export
 	
@@ -278,7 +280,7 @@ Procedure SetUpNewDataExchangeWebService(Cancel, NodeFiltersSetting, DefaultNode
 		SourceInfobasePrefixIsSet = ValueIsFilled(GetFunctionalOption("InfobasePrefix"));
 	EndIf;
 
-	// 
+	// {Handler: OnGetSenderData} Start
 	If DataExchangeServer.HasExchangePlanManagerAlgorithm("OnGetSenderData",ExchangePlanName) Then
 		Try
 			ExchangePlans[ExchangePlanName].OnGetSenderData(NodeFiltersSetting, False);
@@ -287,7 +289,7 @@ Procedure SetUpNewDataExchangeWebService(Cancel, NodeFiltersSetting, DefaultNode
 			Return;
 		EndTry;
 	EndIf;
-	// 
+	// {Handler: OnGetSenderData} End
 	
 	ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WSPassiveMode;
 	
@@ -315,19 +317,19 @@ Procedure DeleteDataExchangeSettings()
 	
 EndProcedure
 
-// Uploads the assistant parameters to temporary storage to continue configuring the exchange in the second database.
+// Exports wizard parameters to the temporary storage to continue exchange setup in the second base.
 //
 // Parameters:
-//  Cancel - Boolean -  failure flag; raised if errors occur during the procedure.
-//  TempStorageAddress - String -  when the xml file with settings is successfully uploaded
-//                                      , the address of the temporary storage
-//                                      where the file data will be available on the server and on the client is written to this variable.
+//  Cancel - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
+//  TempStorageAddress - String - on successful export xml file with settings
+//                                      a temporary storage address is written in this variable.
+//                                      The data file is available on server and client at the address.
 // 
 Procedure ExportWizardParametersToTempStorage(Cancel, TempStorageAddress) Export
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Getting the temporary file name in the local file system on the server.
 	TempFileName = GetTempFileName("xml");
 	
 	ModuleSetupWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
@@ -345,7 +347,7 @@ Procedure ExportWizardParametersToTempStorage(Cancel, TempStorageAddress) Export
 	
 EndProcedure
 
-// Initializes the exchange node settings.
+// Initializes exchange node settings.
 //
 Procedure Initialize(Node) Export
 	
@@ -413,12 +415,12 @@ Procedure Initialize(Node) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions for retrieving properties.
 
-// Error message when exchanging data.
+// Returns the data exchange error message string.
 //
 // Returns:
-//  String - 
+//  String - a data exchange error message string.
 //
 Function ErrorMessageString() Export
 	
@@ -433,15 +435,15 @@ Function ErrorMessageString() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal auxiliary procedures and functions.
 
 Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, ThisNodeCode, NewNodeCode)
 	
 	ManagerExchangePlan = ExchangePlans[ExchangePlanName]; // ExchangePlanManager
 	
-	// 
+	// UPDATING THIS NODE, IF NECESSARY
 	
-	// 
+	// Getting references to this exchange plan node.
 	ThisNode = ManagerExchangePlan.ThisNode();
 	
 	ThisNodeCodeInDatabase = Common.ObjectAttributeValue(ThisNode, "Code");
@@ -472,7 +474,7 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 		
 	EndIf;
 	
-	// 
+	// GETTING THE NODE FOR EXCHANGE
 	CreateNewNode = False;
 	If IsDistributedInfobaseSetup
 		And WizardRunOption = "ContinueDataExchangeSetup" Then
@@ -489,7 +491,7 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 		
 	Else
 		
-		// 
+		// CREATE/UPDATE NODE
 		NewNode = ManagerExchangePlan.FindByCode(NewNodeCode);
 		CreateNewNode = NewNode.IsEmpty();
 		If CreateNewNode Then
@@ -508,13 +510,13 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 		
 	EndIf;
 	
-	// 
+	// Setting filter values for the new node.
 	DataExchangeEvents.SetNodeFilterValues(NewNode, NodeFiltersSetting);
 	
-	// 
+	// Setting default values for the new node.
 	DataExchangeEvents.SetDefaultNodeValues(NewNode, DefaultNodeValues);
 	
-	// 
+	// Reset message counters.
 	NewNode.SentNo = 0;
 	NewNode.ReceivedNo     = 0;
 	
@@ -559,7 +561,7 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 		DataExchangeInternal.UpdateInformationRegisterRecord(RecordStructure, "XDTODataExchangeSettings");
 	EndIf;
 	
-	// 
+	// Shared node data.
 	InformationRegisters.CommonInfobasesNodesSettings.UpdatePrefixes(
 		NewNode.Ref,
 		?(UsePrefixesForExchangeSettings, SourceInfobasePrefix, ""),
@@ -578,7 +580,7 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 	If ThisNodeCode <> ThisNodeCodeInDatabase 
 		And (UsePrefixesForExchangeSettings
 			Or UsePrefixesForCorrespondentExchangeSettings) Then
-		// 
+		// Node in the correspondent base needs recoding.
 		StructureTemporaryCode = New Structure("Peer, NodeCode", InfobaseNode, ThisNodeCode);
 		DataExchangeInternal.AddRecordToInformationRegister(StructureTemporaryCode, "PredefinedNodesAliases");
 	EndIf;
@@ -614,7 +616,7 @@ Procedure UpdateExchangeMessagesTransportSettings()
 	SupplementStructureWithAttributeValue(RecordStructure, "WSRememberPassword");
 	SupplementStructureWithAttributeValue(RecordStructure, "ArchivePasswordExchangeMessages");
 	
-	// 
+	// Adding information register record
 	InformationRegisters.DataExchangeTransportSettings.AddRecord(RecordStructure);
 	
 EndProcedure
@@ -633,7 +635,7 @@ Procedure UpdateCOMExchangeMessagesTransportSettings()
 	SupplementStructureWithAttributeValue(RecordStructure, "COMInfobaseDirectory");
 	SupplementStructureWithAttributeValue(RecordStructure, "COMUserPassword");
 	
-	// 
+	// Adding information register record
 	InformationRegisters.DataExchangeTransportSettings.AddRecord(RecordStructure);
 	
 EndProcedure
@@ -702,11 +704,11 @@ Function GetThisBaseNodeCode(Val InfobasePrefixSpecifiedByUser)
 	EndIf;
 EndFunction
 
-// Reads the exchange assistant settings from an XML string.
+// Reads settings of data exchange wizard from an XML string.
 //
 Procedure ImportWizardParameters(Cancel, XMLLine) Export
 	
-	// 
+	// Checking whether it is possible to use the exchange plan in SaaS.
 	If Common.DataSeparationEnabled()
 		And Not DataExchangeCached.ExchangePlanUsedInSaaS(ExchangePlanName) Then
 		ErrorMessageStringField = NStr("en = 'Data synchronization with this application is not available in SaaS mode.';");

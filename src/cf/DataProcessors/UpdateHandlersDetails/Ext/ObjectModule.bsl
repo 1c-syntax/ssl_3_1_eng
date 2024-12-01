@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -44,7 +46,7 @@ EndProcedure
 
 #Region QueueNumbersFilling
 
-// Fills in the queue number
+// Fills in a queue number
 //
 // Parameters:
 //  UpdateIterations - Array of See InfobaseUpdateInternal.UpdateIteration
@@ -57,7 +59,7 @@ Procedure FillQueueNumber(UpdateIterations) Export
 	
 EndProcedure
 
-// Loads descriptions of configuration handlers in the table parts of processing
+// Imports details of configuration handlers to the data processor tables
 //
 Procedure ImportHandlers() Export
 	
@@ -93,7 +95,7 @@ Procedure ImportHandlers() Export
 	
 EndProcedure
 
-// Loads descriptions of subsystem handlers in the table parts of processing
+// Imports details of subsystem handlers to the data processor tables
 //
 // Parameters:
 //  SubsystemsHandlers - See NewSubsystemsHandlers
@@ -140,11 +142,11 @@ Procedure ImportSubsystemsHandlers(SubsystemsHandlers)
 	
 EndProcedure
 
-// Detects handler intersections based on data from readable / modifiable objects
-// and updates data about the fullness of handler execution priorities.
+// Defines handler intersections by the data of objects to read/to change
+// and updates the data on whether handler execution priorities are specified.
 //
 // Returns:
-//   ValueTable - 
+//   ValueTable - new data of the UpdateHandlers tabular section
 //
 Function UpdateHandlersConflictsInfo() Export
 	
@@ -219,13 +221,13 @@ Function UpdateHandlersConflictsInfo() Export
 	
 EndFunction
 
-// Builds a queue for executing handlers based on the intersections and the specified handler execution priorities.
+// Builds a handler execution queue based on intersection data and specified handler execution priorities.
 //
 // Parameters:
-//   RaiseException - Boolean -  throw an exception if there are errors
+//   RaiseException - Boolean - throw an exception if errors occurred
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if no errors occurred when building the queue
 //
 Function BuildQueue(RaiseException = False) Export
 	
@@ -310,14 +312,14 @@ Function BuildQueue(RaiseException = False) Export
 		
 	EndDo;
 	
-	// 
+	// Clear the new queue.
 	If UpdateHandlers.Total("NewQueue") > 0 Then
 		For Each LongDesc In UpdateHandlers Do
 			LongDesc.NewQueue = 0;
 		EndDo;
 	EndIf;
 	
-	// 
+	// Remove blanks in the queue number, which could appear during recursive transitions.
 	NumberChange = 0;
 	For QueueNumber = 1 To MaxQueue Do
 		
@@ -531,8 +533,8 @@ Function ConflictsDataUpdateQueryText()
 	
 	DestructionText = "DROP HandlersConflicts";
 	
-	#Region TextOfHandlersIntersection
-	// 
+#Region TextOfHandlersIntersection
+	// Other handlers read and write modifiable objects
 	TextOfHandlersIntersection = 
 	"SELECT
 	|	T.MetadataObject AS MetadataObject,
@@ -607,9 +609,9 @@ Function ConflictsDataUpdateQueryText()
 	|INDEX BY
 	|	HandlerWriter,
 	|	ReadOrWriteHandler2";
-	#EndRegion
+#EndRegion
 	
-	#Region TextTTConflicts
+#Region TextTTConflicts
 	TextTTConflicts = 
 	"SELECT
 	|	T.HandlerWriter AS HandlerWriter,
@@ -656,9 +658,9 @@ Function ConflictsDataUpdateQueryText()
 	|INDEX BY
 	|	HandlerWriter,
 	|	ReadOrWriteHandler2";
-	#EndRegion
+#EndRegion
 	
-	#Region TtPrioritiesByRecord
+#Region TtPrioritiesByRecord
 	TtPrioritiesByRecord = 
 	"SELECT DISTINCT
 	|	Conflicts1.HandlerWriter AS HandlerWriter,
@@ -673,9 +675,9 @@ Function ConflictsDataUpdateQueryText()
 	|INDEX BY
 	|	HandlerWriter,
 	|	ReadOrWriteHandler2";
-	#EndRegion
+#EndRegion
 	
-	#Region TextTTPriorities
+#Region TextTTPriorities
 	TextTTPriorities = 
 	"SELECT DISTINCT
 	|	Conflicts1.HandlerWriter AS HandlerWriter,
@@ -768,9 +770,9 @@ Function ConflictsDataUpdateQueryText()
 	|INDEX BY
 	|	HandlerWriter,
 	|	ReadOrWriteHandler2";
-	#EndRegion
+#EndRegion
 	
-	#Region TextNewPriorities
+#Region TextNewPriorities
 	TextNewPriorities =
 	"SELECT DISTINCT
 	|	Priorities.HandlerWriter AS HandlerWriter,
@@ -856,9 +858,9 @@ Function ConflictsDataUpdateQueryText()
 	|INDEX BY
 	|	HandlerWriter,
 	|	ReadOrWriteHandler2";
-	#EndRegion
+#EndRegion
 	
-	#Region TextTTLowPriorityHandlers
+#Region TextTTLowPriorityHandlers
 	TextTTLowPriorityHandlers = 
 	"SELECT DISTINCT
 	|	ItemsToRead.MetadataObject AS MetadataObject,
@@ -911,9 +913,9 @@ Function ConflictsDataUpdateQueryText()
 	|		AND LowPriorityReading.OrderReader.Order < LowPriorityReading.OrderWriter.Order
 	|		AND Priorities.Order = ""Before"")
 	|";
-	#EndRegion
+#EndRegion
 	
-	#Region IssueText
+#Region IssueText
 	IssueText = 
 	"SELECT
 	|	Issues.Handler AS Handler,
@@ -949,9 +951,9 @@ Function ConflictsDataUpdateQueryText()
 	|
 	|INDEX BY
 	|	Handler";
-	#EndRegion
+#EndRegion
 	
-	#Region TextLowPriorityHandlers
+#Region TextLowPriorityHandlers
 	TextLowPriorityHandlers = 
 	"SELECT DISTINCT
 	|	LowPriorityReading.Reader AS Ref,
@@ -970,9 +972,9 @@ Function ConflictsDataUpdateQueryText()
 	|FROM 
 	|	ttTTLowOrderReadingWithFilterByPriority AS LowPriorityReading
 	|";
-	#EndRegion
+#EndRegion
 	
-	#Region TextConflicts
+#Region TextConflicts
 	TextConflicts = 
 	"SELECT
 	|	Conflicts1.MetadataObject AS MetadataObject,
@@ -998,9 +1000,9 @@ Function ConflictsDataUpdateQueryText()
 	|	MetadataObject,
 	|	WriteProcedure,
 	|	ReadOrWriteProcedure2";
-	#EndRegion
+#EndRegion
 	
-	#Region TextPriorities
+#Region TextPriorities
 	TextPriorities = 
 	"SELECT
 	|	Priorities.HandlerWriter AS Ref,
@@ -1048,9 +1050,9 @@ Function ConflictsDataUpdateQueryText()
 	|ORDER BY
 	|	Procedure1,
 	|	Procedure2";
-	#EndRegion
+#EndRegion
 
-	#Region TextDescription
+#Region TextDescription
 	TextDescription = 
 	"SELECT
 	|	Handlers.Ref AS Ref,
@@ -1097,7 +1099,7 @@ Function ConflictsDataUpdateQueryText()
 	|	Handlers AS Handlers
 	|	LEFT JOIN Issues AS Issues
 	|		ON Handlers.Ref = Issues.Handler";
-	#EndRegion
+#EndRegion
 	
 	ArrayOfTexts = New Array;
 	ArrayOfTexts.Add(DestructionText);
@@ -1147,11 +1149,11 @@ Function TempTablesQueryText()
 
 	QueriesTexts = New Array;
 
-	#Region HandlersDetails
+#Region HandlersDetails
 	QueriesTexts.Add(TempHandlersTableText());
-	#EndRegion
+#EndRegion
 
-	#Region ObjectsToRead
+#Region ObjectsToRead
 	QueryTextObjectsToRead = 
 	"SELECT
 	|	ObjectsToRead.Ref AS Ref,
@@ -1193,15 +1195,15 @@ Function TempTablesQueryText()
 	|////////////////////////////////////////////////////////////////////////////////
 	|DROP ttObjectsToRead";
 	QueriesTexts.Add(StrReplace(QueryTextObjectsToRead, "&NewObjects", "FALSE"));
-	#EndRegion
+#EndRegion
 
-	#Region ObjectsToChange
+#Region ObjectsToChange
 	QueryTextObjectsToChange = StrReplace(QueryTextObjectsToRead, "&NewObjects", "ObjectsToRead.NewObjects");
 	QueryTextObjectsToChange = StrReplace(QueryTextObjectsToChange, "ObjectsToRead", "ObjectsToChange");
 	QueriesTexts.Add(StrReplace(QueryTextObjectsToChange, "ObjectsToRead", "ObjectsToChange"));
-	#EndRegion
+#EndRegion
 
-	#Region TypeUpdatePriorities
+#Region TypeUpdatePriorities
 	QueryTextTypeUpdatePriorities = 
 	"SELECT
 	|	ObjectsToChange.Ref AS Ref,
@@ -1215,9 +1217,9 @@ Function TempTablesQueryText()
 	|INDEX BY
 	|	Ref";
 	QueriesTexts.Add(QueryTextTypeUpdatePriorities);
-	#EndRegion
+#EndRegion
 
-	#Region ObjectsToLock
+#Region ObjectsToLock
 	QueriesTexts.Add(
 	"SELECT
 	|	ObjectsToLock.Ref AS Ref,
@@ -1225,9 +1227,9 @@ Function TempTablesQueryText()
 	|INTO ObjectsToLock
 	|FROM
 	|	&ObjectsToLock AS ObjectsToLock");
-	#EndRegion
+#EndRegion
 
-	#Region ExecutionPriorities
+#Region ExecutionPriorities
 	QueriesTexts.Add(
 	"SELECT
 	|	ExecutionPriorities.Ref AS Ref,
@@ -1270,9 +1272,9 @@ Function TempTablesQueryText()
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|DROP ttPriorities");
-	#EndRegion
+#EndRegion
 	
-	#Region HandlersConflicts
+#Region HandlersConflicts
 	QueriesTexts.Add(
 	"SELECT
 	|	HandlersConflicts.HandlerWriter AS HandlerWriter,
@@ -1288,7 +1290,7 @@ Function TempTablesQueryText()
 	|	HandlerWriter,
 	|	ReadOrWriteHandler2,
 	|	MetadataObject");
-	#EndRegion
+#EndRegion
 
 	Return StrConcat(QueriesTexts, Common.QueryBatchSeparator());
 
@@ -1546,7 +1548,7 @@ Procedure ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQu
 				HandlersQueue[Handler].Queue = HandlersQueue[Handler].Queue + 1;
 				AddHandlerToExistenceInQueue(HandlersAvailabilityInQueue, HandlersQueue[Handler].Queue, Handler, MaxQueue);
 
-				// 
+				// Offset completed linked handlers.
 				ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQueue, Handler, MaxQueue, RecursionData);
 			EndIf;
 			
@@ -1558,7 +1560,7 @@ Procedure ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQu
 				HandlersQueue[LinkedHandler.Key].Queue = HandlersQueue[Handler].Queue + 1;
 				AddHandlerToExistenceInQueue(HandlersAvailabilityInQueue, HandlersQueue[LinkedHandler.Key].Queue, LinkedHandler.Key, MaxQueue);
 				
-				// 
+				// Offset linked handlers of a linked handler.
 				ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQueue, LinkedHandler.Key, MaxQueue, RecursionData);
 			EndIf;
 			
@@ -1570,7 +1572,7 @@ Procedure ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQu
 				HandlersQueue[Handler].Queue = HandlersQueue[LinkedHandler.Key].Queue + 1;
 				AddHandlerToExistenceInQueue(HandlersAvailabilityInQueue, HandlersQueue[Handler].Queue, Handler, MaxQueue);
 				
-				// 
+				// Offset completed linked handlers.
 				ShiftRecursivelyLinkedHandlers(HandlersQueue, HandlersAvailabilityInQueue, Handler, MaxQueue, RecursionData);
 			EndIf;
 			
@@ -1815,10 +1817,10 @@ EndProcedure
 
 #Region HasHandlersExecutionCycle
 
-// Checks whether execution is looped based on priority data for all handlers.
+// Checks whether the execution cycle is available for all handlers by priority data.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the execution cycle is available
 //
 Function HasHandlersExecutionCycle(TheHandlerBeingChecked = Undefined, Val HandlerPriorities = Undefined, ReportErrors = False)
 
@@ -2192,20 +2194,20 @@ Procedure SetQueueNumber(UpdateIterations)
 			For Each LongDesc In FoundADescriptionOf Do
 				Handler.DeferredProcessingQueue = LongDesc.NewQueue;
 			EndDo;
-		EndDo;// 
+		EndDo;// By deferred handlers.
 		
-	EndDo;// 
+	EndDo;// By libraries.
 	
 EndProcedure
 
-// 
-// 
-// 
+// Returns the time between the specified dates in the "00:00:00" format.
+// If the TimeStructure parameter is specified, the Hours, Minutes, and Seconds values are returned separately.
+// if StartTime = 0, transforms the date to the time format and returns the TimeStructure parameter if required.
 //
 // Parameters:
-//   EndTime - Date -  end time.
-//   BeginTime - Date -  start time.
-//   TimeStructure - Structure - :
+//   EndTime - Date - End time.
+//   BeginTime - Date - Start time.
+//   TimeStructure - Structure - separate components:
 //    * Hours1 - Number
 //    * Minutes1 - Number
 //    * Seconds - Number
@@ -2230,13 +2232,13 @@ Function TimeDifference1(EndTime, BeginTime = 0, TimeStructure = Undefined)
 			+?(StrLen(String(Round(Seconds))) = 1,"0" + String(Seconds), String(Seconds));
 EndFunction
 
-// Returns a numeric representation of the version number.
+// Returns a number presentation of a version.
 //
 // Parameters:
-//   Version - String -  version number in the format X. X. XX. XXX 
+//   Version - String - Version number in the X.X.XX.XXX format 
 //
 // Returns:
-//   Number - 
+//   Number - a version number converted into an integer
 //
 Function VersionAsNumber(Version) Export
 	
@@ -2263,16 +2265,16 @@ Function VersionAsNumber(Version) Export
 	
 EndFunction
 
-// Returns a list of developed subsystems in the configuration 
+// Returns the list of subsystems to be developed in the configuration 
 //
 // Returns:
-//   Array of String - 
+//   Array of String - subsystem names as they were set in the InfobaseUpdateXXX common modules
 //
 Function SubsystemsToDevelop() Export
 	
 	Result = New Array;
 	InfobaseUpdateOverridable.WhenFormingAListOfSubsystemsUnderDevelopment(Result);
-	InfobaseUpdateOverridable.OnGenerateListOfSubsystemsToDevelop(Result); // 
+	InfobaseUpdateOverridable.OnGenerateListOfSubsystemsToDevelop(Result); // ACC:222 For backward compatibility.
 	Return Result;
 	
 EndFunction
@@ -2332,10 +2334,10 @@ Function ObjectTypeOrder(FullName)
 	
 EndFunction
 
-// 
-//  
-//  
-// 
+// Returns the mapping of direct and backward orders.
+// "Before" in the direct order matches "After" in the backward order. 
+// "After" in the direct order matches "Before" in the backward order. 
+// "Any" in the direct order matches "Any" in the backward order.
 //
 // Returns:
 //   Map

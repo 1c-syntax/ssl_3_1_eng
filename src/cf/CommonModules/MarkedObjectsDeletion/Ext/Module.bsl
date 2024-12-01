@@ -1,15 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// 
-// 
+// Permanently deletes objects marked for deletion ensuring reference integrity.
+// It must be called outside of transactions as the function manages transactions and batching.
 //
 // Parameters:
 //  ObjectsToDelete - Array of ExchangePlanRef 
@@ -18,48 +20,48 @@
 //                   - Array of ChartOfAccountsRef
 //                   - Array of ChartOfCalculationTypesRef
 //                   - Array of BusinessProcessRef
-//                   - Array of TaskRef -  objects to delete.
-//  DeletionMode - String - :
-//		 
-//					    
-//		
-//					    
-//		
+//                   - Array of TaskRef - the objects for deletion.
+//  DeletionMode - String - Deletion method. Takes the following values:
+//		Standard - Deletes objects and ensures the reference integrity and multi-user work. 
+//					    Exclusive - Deletes objects and ensures the reference integrity with the exclusive mode.
+//		If it fails to set the exclusive mode, an exception is raised.
+//					    Simplified - Deletes objects ensuring the reference integrity of the objects that are not marked for deletion.
+//		Clears the references to the objects being deleted in the objects marked for deletion objects.
 //					    
 //
 // Returns:	
 //    Structure:
-//      * Success - Boolean -  True if all objects were deleted.
-//      * ObjectsPreventingDeletion - ValueTable - :
+//      * Success - Boolean - True if all the objects were deleted.
+//      * ObjectsPreventingDeletion - ValueTable - the objects that have references to the objects to be deleted:
 //        ** ItemToDeleteRef - AnyRef
-//        ** UsageInstance1 - AnyRef -  a reference to the object that prevents deletion.
-//									  - Undefined -  
-//									  	
-//									  	
-//        ** ErrorDescription - String -  description of the error when deleting an object.
-//        ** DetailedErrorDetails - String -  detailed description of the error when deleting an object.
-//        ** Metadata - MetadataObject -  description of the metadata of the object that prevents deletion.
-//        * Trash - Array of AnyRef-  successfully deleted objects.
-//        * NotTrash - Array of AnyRef -  not deleted objects.
+//        ** UsageInstance1 - AnyRef - a reference to the object that prevents deletion.
+//									  - Undefined - — the object is used in a constant or 
+//									  	an error occurred while deleting. The constant details are specified in the Metadata field.
+//									  	Error details are specified in the ErrorDescription field.
+//        ** ErrorDescription - String - error details upon the object deletion.
+//        ** DetailedErrorDetails - String - detailed error description upon the object deletion.
+//        ** Metadata - MetadataObject - metadata details on the object that prevents deletion.
+//        * Trash - Array of AnyRef- successfully deleted objects.
+//        * NotTrash - Array of AnyRef - not deleted objects.
 //
 Function ToDeleteMarkedObjects(ObjectsToDelete, DeletionMode = "Standard") Export
 	Return MarkedObjectsDeletionInternal.ToDeleteMarkedObjectsInternal(ObjectsToDelete, DeletionMode);
 EndFunction
 
-// Generates objects marked for deletion, taking into account the separation and filtering of service and predefined objects.
-// When executed in a split session, objects will be returned with the separator in mind.
-// Predefined elements are excluded from the search result.
+// Generates the internal and overridable objects marked for deletion considering separation and filtering.
+//  When executed in separated session, the objects will be returned considering separation.
+// The overridable items are excluded from search results.
 // 
 // Parameters:
-//   MetadataFilter - ValueList of String - 
-// 												 
-// 												 
-//                   - Undefined - 
+//   MetadataFilter - ValueList of String - A list of full names of metadata objects where
+// 												 the marked for deletion objects will be searched for.
+// 												 For example, "Catalog.Products".
+//                   - Undefined - — filter by metadata objects will not be applied.
 //
-//  SearchForTechnologicalObjects - Boolean -  if True, the search will be performed in the metadata objects
-//											added to the link search exceptions. 
+//  SearchForTechnologicalObjects - Boolean - if True, the search will be carried out in the metadata objects
+//											added to the reference search exceptions. 
 //											See Common.RefSearchExclusions. 
-//											For example, in the access Key reference.
+//											For example, in the AccessKeys catalog.
 //
 //
 // Returns:
@@ -122,30 +124,30 @@ EndFunction
 
 #Region FormsPublic
 
-// Sets the visibility of those marked for deletion.
+// Sets visibility on the objects marked for deletion.
 // 
 // Parameters:
-//   Form - ClientApplicationForm -  form with dynamic list
+//   Form - ClientApplicationForm - a form containing dynamic list
 //   MarkedObjectsDisplaySettings - See MarkedObjectsDisplaySettings
-//                                          - Form table is a dynamic list form element. 
+//                                          - — FormTable is an item of the dynamic list form. 
 //
 // Example:
+// 	// To set one list
+// 	MarkedObjectsDeletion.OnCreateAtServer(ThisObject, Elements.List);
 // 	
-// 	
-// 	
-// 	
-// 	
-// 	
-// 	
-// 	
-// 	
+// 	// To set several lists
+// 	MarkedObjectsViewSettings = MarkedObjectsDeletion.MarkedObjectsViewSettings();
+// 	Setting = ViewSettings.Add();
+// 	Setting.FormItemName = Items.List1.Name;
+// 	Setting = ViewSettings.Add();
+// 	Setting.FormItemName = Items.List2.Name;
 // 	 
-// 	 
-// 	
-// 	
-// 	
-// 	
-// 	
+// 	// Setting the main table is required to go to the marked objects list 
+// 	// with a predefined filter
+// 	MainListTables = New ValueList();
+// 	MainListTables.Add("Catalog.Products");
+// 	Setting.MetadataTypes = MainListTables;
+// 	MarkedObjectsDeletion.OnCreateAtServer(ThisObject, MarkedObjectsViewSettings);
 //
 Procedure OnCreateAtServer(Form, Val MarkedObjectsDisplaySettings) Export
 	If TypeOf(MarkedObjectsDisplaySettings) <> Type("ValueTable") Then
@@ -164,13 +166,13 @@ Procedure OnCreateAtServer(Form, Val MarkedObjectsDisplaySettings) Export
 
 EndProcedure
 
-// Generates settings for displaying objects marked for deletion.
+// Generated the settings of displaying the objects marked for deletion.
 // 
 // Returns:
 //   ValueTable:
-//   * FormItemName - String -  name of the form table associated with the dynamic list.
-//   * MetadataTypes - ValueList of String -  types of objects displayed in the dynamic list.
-//   * ListName - String -  optional. Name of the dynamic list on the form.
+//   * FormItemName - String - the form table name connected with the dynamic list.
+//   * MetadataTypes - ValueList of String - the types of the objects displayed in the dynamic list.
+//   * ListName - String - optional. The dynamic list name on the form.
 //
 Function MarkedObjectsDisplaySettings() Export
 
@@ -182,25 +184,25 @@ Function MarkedObjectsDisplaySettings() Export
 
 EndFunction
 
-// Returns information about the scheduled deletion settings.
-// For an example of use, see the documentation.
+// Returns information on the setting of marked object deletion on schedule.
+// See the usage example in the documentation.
 // 
 // Returns:
 //   Structure:
 //   * Schedule - See ScheduledJobsServer.JobSchedule
-//   * Use - Boolean -  indicates whether the scheduled task is being used.
+//   * Use - Boolean - indicates whether a scheduled job is used.
 //
 Function ModeDeleteOnSchedule() Export
 	Return MarkedObjectsDeletionInternalServerCall.ModeDeleteOnSchedule();
 EndFunction
 
-// Sets the mark of the Show marked commands according to the saved user settings.
-// Used to set the initial value of the form button label.
+// Sets the Show marked objects command mark according to the saved user settings.
+// Used to set the initial value of the form button mark.
 // 
 // Parameters:
 //   Form - ClientApplicationForm 	
-//   FormTable - FormTable -  form table associated with a dynamic list
-//   FormButton - FormButton -  button associated with the Show marked items command
+//   FormTable - FormTable - the form table that relates to the dynamic list
+//   FormButton - FormButton - a button connected with the Show marked objects command
 //
 Procedure SetShowMarkedObjectsCommandMark(Form, FormTable, FormButton) Export
 	FilterValue = MarkedObjectsDeletionInternal.ImportObjectsMarkedForDeletionViewSetting(
@@ -210,20 +212,20 @@ EndProcedure
 
 #EndRegion
 
-// 
-// 
-//  
-//   
+// Returns a list of objects being deleted and whose references are present in the Source object.
+// For records that are subordinate to a register, always returns a empty Ref list in order to:
+//  - Mitigate the performance downgrade.
+//  - Ensure the stability of the automatic record generation. For example, when closing a month. 
 //
 // Parameters:
 //   Source - CatalogObject
 //            - DocumentObject
-//            - InformationRegisterRecordSet - 
+//            - InformationRegisterRecordSet - Object to search in for the objects to be deleted.
 //
 // Returns:
 //   Map of KeyAndValue:
-//   * Key - AnyRef - 
-//   * Value - String - 
+//   * Key - AnyRef - Object to be deleted whose reference is present in Source.
+//   * Value - String - Reference presentation.
 //
 Function RefsToObjectsToDelete(Source) Export
 	RefsToObjectsToDelete = New Map;
@@ -261,11 +263,11 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
+// Deprecated. Outdated. Check box state for the setup form of marked objects deletion.
+// Use instead MarkedObjectsDeletion.ModeDeleteOnSchedule.
 //
 // Returns: 
-//   Boolean - 
+//   Boolean - a value.
 //
 Function DeleteOnScheduleCheckBoxValue() Export
 
@@ -287,13 +289,13 @@ EndFunction
 
 #Region Private
 
-// Generates settings for hiding marked objects for a dynamic list.
+// Generates the settings of hiding the marked objects for the dynamic list.
 // 
 // Parameters:
 //   Form - ClientApplicationForm
 //   ItemList - FormTable
 //   MetadataTypes - Array of String
-//                  - Undefined -  
+//                  - Undefined - — the main dynamic list table by default 
 //
 // Returns:
 //   See MarkedObjectsDisplaySettings
@@ -319,7 +321,7 @@ Function MarkedListObjectsDisplaySetup(Form, ItemList, MetadataTypes = Undefined
 	Return Settings;
 EndFunction
 
-// Displays controls on the form and resolves conflicts between fixed and custom list settings.
+// Outputs controls on the form and resolves the conflict of fixed and user list settings.
 // 
 // Parameters:
 //   Form - ClientApplicationForm
@@ -360,7 +362,7 @@ Procedure CreateSettingsStorageAttribute(Form)
 
 EndProcedure
 
-// Deletes the selection by the Markdelete field from the saved user settings
+// Removes the filter from the saved user settings by the DeletionMark field
 // 
 // Parameters:
 //   Form - ClientApplicationForm 

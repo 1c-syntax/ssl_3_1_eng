@@ -119,7 +119,7 @@ Go to %1, complete the setup there, perform initial data export, and then comple
 		<Attribute name="HandlerParameters" id="3">
 			<Type/>
 		</Attribute>
-		<Attribute name="CorrespondentDescription" id="4">
+		<Attribute name="PeerInfobaseName" id="4">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>

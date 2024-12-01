@@ -1,65 +1,67 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region UserNotification
 
-// 
+// Generates and displays a message that might be related to a form's control element.
 //
-// 
-// 
-// 
-// 
-// 
-// 
-// 
+// In a long-running operation background job, if the call was made outside of a transaction,
+// the procedure writes the message to an internal register and sends it to client if Collaboration System is integrated.
+// At the end of the background job or when sending the progress,
+// the procedure gets all messages from the message queue and writes
+// them to the internal register and sends them to client, if Collaboration System is integrated.
+// ACC:142-off - Four optional parameters required for compatibility with the obsolete procedure
+// CommonClientServer.MessageToUser.
 //
 //  
 // 
 //
 // Parameters:
-//  MessageToUserText - String -  message text.
-//  DataKey - Arbitrary - 
-//  Field - String - 
-//  DataPath - String -  data path (the path to the requisite shape).
-//  Cancel - Boolean -  the output parameter is always set to True.
+//  MessageToUserText - String - message text.
+//  DataKey - Arbitrary - Infobase record key, object, or object reference associated with the message.
+//  Field - String - a form attribute description.
+//  DataPath - String - a data path (a path to a form attribute).
+//  Cancel - Boolean - an output parameter. Always True.
 //
 // Example:
 //
-//  
-//  
-//   
-//   
-//   
+//  1. Show the message associated with the object attribute near the form field:
+//  Common.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "FieldInFormAttributeObject",
+//   "Object");
 //
-//  
-//  
-//   
-//   
+//  An alternative variant of using in the object form module:
+//  Common.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "Object.FieldInFormAttributeObject");
 //
-//  
-//  
-//   
-//   
+//  2. Showing a message for the form attribute, next to the form field:
+//  Common.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "FormAttributeName");
 //
-//  
-//  
-//   
+//  3. To display a message associated with an infobase object:
+//  Common.MessageToUser(
+//   NStr("en = 'Error message.'"), InfobaseObject, "Responsible person",,Cancel);
 //
-//  
-//  
-//   
+//  4. To display a message from a link to an infobase object:
+//  Common.MessageToUser(
+//   NStr("en = 'Error message.'"), Reference, , , Cancel);
 //
-//  
-//   
-//   
-//   
+//  Scenarios of incorrect using:
+//   1. Passing DataKey and DataPath parameters at the same time.
+//   2. Passing a value of an illegal type to the DataKey parameter.
+//   3. Specifying a reference without specifying a field (and/or a data path).
 //
 Procedure MessageToUser(Val MessageToUserText, Val DataKey = Undefined,	Val Field = "",
 	Val DataPath = "", Cancel = False) Export
@@ -90,7 +92,7 @@ Procedure MessageToUser(Val MessageToUserText, Val DataKey = Undefined,	Val Fiel
 	
 EndProcedure
 
-// 
+// ACC:142-on
 
 #EndRegion
 
@@ -99,54 +101,54 @@ EndProcedure
 #Region InfobaseData
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common procedures and functions to manage infobase data.
 
-// Returns a structure containing the details values read from the information base by reference to the object.
-// It is recommended to use it instead of accessing the object's details through a dot from the object reference
-// to quickly read individual object details from the database.
+// Returns a structure containing attribute values retrieved from the infobase using the object reference.
+// It is recommended that you use it instead of referring to object attributes via the point from the reference to an object
+// for quick reading of separate object attributes from the database.
 //
-// If you need to read the details regardless of the current user's rights,
-// you should use the pre - transition to privileged mode.
+// To read attribute values regardless of current user rights,
+// enable privileged mode.
 //
 // Parameters:
-//  Ref    - AnyRef -  the object whose details are to be retrieved.
-//            - String      - 
-//  Attributes - String -  names of details, separated by commas, in the format
-//                       of requirements for structure properties.
-//                       For Example, "Code, Name, Parent".
+//  Ref    - AnyRef - the object whose attribute values will be read.
+//            - String      - full name of the predefined item whose attribute values will be read.
+//  Attributes - String - attribute names separated with commas, formatted
+//                       according to structure requirements.
+//                       Example: "Code, Description, Parent".
 //            - Structure
-//            - FixedStructure - 
-//                       
-//                       
-//                       
-//                       
-//                       
+//            - FixedStructure - the field alias is passed
+//                       as a key for the passed structure with the result,
+//                       an actual field name in the table (optional) is passed as a value.
+//                       If the key is defined but the value is not specified, the field name is retrieved from the key.
+//                       It is allowed to specify a dot-separated field name, but the LanguageCode parameter for such field
+//                       is ignored.
 //            - Array of String
-//            - FixedArray of String - 
-//  SelectAllowedItems - Boolean -  if True, the request to the object is executed with the user's rights taken into account;
-//                                if there is a restriction at the record level, all the details will be returned with 
-//                                the value Undefined. if there are no rights to work with the table, an exception will be thrown;
-//                                if False, an exception will occur if there are no rights to the table 
-//                                or any of the details.
-//  LanguageCode - String -  language code for multilingual props. The default value is the main configuration language.
+//            - FixedArray of String - Attribute names formatted according to structure property requirements.
+//  SelectAllowedItems - Boolean - If True, user rights are considered when executing the object query;
+//                                if there is a restriction at the record level, all attributes will return with 
+//                                the Undefined value. If there are insufficient rights to work with the table, an exception will appear;
+//                                if False, an exception is raised if the user has no rights to access the table 
+//                                or any attribute.
+//  LanguageCode - String - language code for a multilanguage attribute. Default value is the main configuration language.
 //
 // Returns:
-//  Structure - 
-//              
-//               
-//              
-//               
-//              
+//  Structure - contains names (keys) and values of the requested attributes.
+//              If a blank string is passed to Attributes, a blank structure returns.
+//              If a blank reference is passed to Ref, a structure 
+//              matching names of Undefined attributes returns.
+//              If a reference to nonexisting object (invalid reference) is passed to Ref, 
+//              all attributes return as Undefined.
 //
 Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False, Val LanguageCode = Undefined) Export
 	
-	// 
+	// If the name of a predefined item is passed.
 	If TypeOf(Ref) = Type("String") Then
 		
 		FullNameOfPredefinedItem = Ref;
 		
-		// 
-		// 
+		// Calculate a reference by the name of a predefined item.
+		// - Preliminary verify the item's metadata.
 		Try
 			Ref = PredefinedItem(FullNameOfPredefinedItem);
 		Except
@@ -157,12 +159,12 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 			Raise(ErrorText, ErrorCategory.ConfigurationError);
 		EndTry;
 		
-		// 
+		// Parsing the full name of the predefined item.
 		FullNameParts1 = StrSplit(FullNameOfPredefinedItem, ".");
 		FullMetadataObjectName = FullNameParts1[0] + "." + FullNameParts1[1];
 		
-		// 
-		// 
+		// If the predefined item was not created in the infobase, check access to the object.
+		// In other cases, the check is performed when executing the query.
 		If Ref = Undefined Then 
 			ObjectMetadata = MetadataObjectByFullName(FullMetadataObjectName);
 			If Not AccessRight("Read", ObjectMetadata) Then 
@@ -172,7 +174,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 			EndIf;
 		EndIf;
 		
-	Else // 
+	Else // If a reference is passed.
 		
 		Try
 			FullMetadataObjectName = Ref.Metadata().FullName(); 
@@ -186,7 +188,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		
 	EndIf;
 	
-	// 
+	// Parsing the attributes if the second parameter is String.
 	If TypeOf(Attributes) = Type("String") Then
 		If IsBlankString(Attributes) Then
 			Return New Structure;
@@ -210,7 +212,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		EndIf;
 	EndIf;
 	
-	// 
+	// Converting the attributes to the unified format.
 	FieldsStructure = New Structure;
 	If TypeOf(Attributes) = Type("Structure")
 		Or TypeOf(Attributes) = Type("FixedStructure") Then
@@ -228,9 +230,9 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 				FieldAlias = StrReplace(Attribute, ".", "");
 				FieldsStructure.Insert(FieldAlias, Attribute);
 			Except 
-				// 
+				// If the alias is not a key.
 				
-				// 
+				// Searching for field availability error.
 				Result = CheckIfObjectAttributesExist(FullMetadataObjectName, Attributes);
 				If Result.Error Then 
 					Raise(StringFunctionsClientServer.SubstituteParametersToString(
@@ -239,7 +241,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 						ErrorCategory.ConfigurationError);
 				EndIf;
 				
-				// 
+				// Cannot identify the error. Forwarding the original error.
 				Raise;
 			
 			EndTry;
@@ -251,10 +253,10 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 			ErrorCategory.ConfigurationError);
 	EndIf;
 	
-	// 
+	// Preparing the result (will be redefined after the query).
 	Result = New Structure;
 	
-	// 
+	// Generating the text of query for the selected fields.
 	FieldQueryText = "";
 	For Each KeyAndValue In FieldsStructure Do
 		
@@ -271,13 +273,13 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 			FieldQueryText + ?(IsBlankString(FieldQueryText), "", ",") + "
 			|	" + FieldName + " AS " + FieldAlias;
 		
-		// 
+		// Adding the field by its alias to the return value.
 		Result.Insert(FieldAlias);
 		
 	EndDo;
 	
-	// 
-	// 
+	// In case the predefined item is missing from the infobase.
+	// - Translate the result to either a missing object or passing an empty Ref.
 	If Ref = Undefined Then 
 		Return Result;
 	EndIf;
@@ -337,7 +339,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 	QueryText = StrReplace(QueryText, "&FieldQueryText", FieldQueryText);
 	QueryText = StrReplace(QueryText, "&FullMetadataObjectName", FullMetadataObjectName);
 	
-	// 
+	// Run the query.
 	Query = New Query;
 	Query.SetParameter("Ref", Ref);
 	Query.Text = QueryText;
@@ -346,10 +348,10 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		Selection = Query.Execute().Select();
 	Except
 		
-		// 
-		// 
-		// 
-		// 
+		// Attributes passed as String are already converted into Array.
+		// If the attributes are passed as Array, do nothing.
+		// If the attributes are passed as Structure, convert them into Array.
+		// Other cases already caused an exception.
 		If Type("Structure") = TypeOf(Attributes)
 			Or Type("FixedStructure") = TypeOf(Attributes) Then
 			Attributes = New Array;
@@ -361,7 +363,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 			EndDo;
 		EndIf;
 		
-		// 
+		// Searching for field availability error.
 		Result = CheckIfObjectAttributesExist(FullMetadataObjectName, Attributes);
 		If Result.Error Then 
 			Raise(StringFunctionsClientServer.SubstituteParametersToString(
@@ -374,7 +376,7 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 		
 	EndTry;
 	
-	// 
+	// Populate attributes.
 	If Selection.Next() Then
 		FillPropertyValues(Result, Selection);
 	EndIf;
@@ -383,32 +385,32 @@ Function ObjectAttributesValues(Ref, Val Attributes, SelectAllowedItems = False,
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns attribute values retrieved from the infobase using the object reference.
+// It is recommended that you use it instead of referring to object attributes via the point from the reference to an object
+// for quick reading of separate object attributes from the database.
 //
-// 
-// 
+// To read attribute values regardless of current user rights, enable privileged mode.
+// If a non-existent attribute name is passed, throws the "Object field does not exist" exception.
 // 
 //  
 //
 // Parameters:
-//  Ref    - AnyRef -  the object whose details are to be retrieved.
-//            - String      - 
-//  AttributeName       - String -  the name of the bank account to receive.
-//                                It is allowed to specify the name of a prop separated by a dot, but the language code parameter for
-//                                such a prop will not be taken into account.
-//  SelectAllowedItems - Boolean -  if True, the request to the object is executed with the user's rights taken into account;
-//                                if there is a limit at the record level, it returns Undefined;
-//                                if you don't have permissions to work with the table, an exception will be thrown;
-//                                if False, an exception will occur if there are no rights to the table
-//                                or any of the details.
-//  LanguageCode - String -  language code for multilingual props. The default value is the main configuration language.
+//  Ref    - AnyRef - the object whose attribute values will be read.
+//            - String      - full name of the predefined item whose attribute values will be read.
+//  AttributeName       - String - a name of the attribute being received.
+//                                It is allowed to specify a dot-separated attribute name, but the LanguageCode parameter for
+//                                such attribute is ignored.
+//  SelectAllowedItems - Boolean - If True, user rights are considered when executing the object query;
+//                                If a record-level restriction is set, return Undefined;
+//                                if the user has no rights to access the table, an exception is raised;
+//                                if False, an exception is raised if the user has no rights to access the table
+//                                or any attribute.
+//  LanguageCode - String - language code for a multilanguage attribute. Default value is the main configuration language.
 //
 // Returns:
-//  Arbitrary - 
-//                  
-//                 
+//  Arbitrary - if a blank reference is passed to Ref, return Undefined.
+//                 If a reference to a nonexisting object (invalid reference) is passed to Ref, 
+//                 return Undefined.
 //
 Function ObjectAttributeValue(Ref, AttributeName, SelectAllowedItems = False, Val LanguageCode = Undefined) Export
 	
@@ -425,36 +427,36 @@ Function ObjectAttributeValue(Ref, AttributeName, SelectAllowedItems = False, Va
 	
 EndFunction 
 
-// 
-// 
-// 
+// Returns attribute values retrieved from the infobase for multiple objects.
+// It is recommended that you use it instead of referring to object attributes via the point from the reference to an object
+// for quick reading of separate object attributes from the database.
 //
-// 
-// 
+// To read attribute values regardless of current user rights, enable privileged mode.
+// If a non-existent attribute name is passed, throws the "Object field does not exist" exception.
 //
 //  
 //
 // Parameters:
 //  References - Array of AnyRef
-//         - FixedArray of AnyRef - 
-//           
-//  Attributes - String -  the names of the details are separated by commas, in the format of requirements for
-//                       the structure properties. For Example, "Code, Name, Parent".
+//         - FixedArray of AnyRef - references to objects.
+//           If the array is blank, a blank map is returned.
+//  Attributes - String - the attributes names, comma-separated, in a format that meets the requirements to the structure
+//                       properties. Example: "Code, Description, Parent".
 //            - Array of String
-//            - FixedArray of String - 
-//  SelectAllowedItems - Boolean -  if True, the request to objects is executed with the user's rights taken into account;
-//                                if an object is excluded from the selection by rights, this object
-//                                will also be excluded from the result;
-//                                if False, an exception will occur if there are no rights to the table
-//                                or any of the details.
-//  LanguageCode - String -  language code for multilingual props. The default value is the main configuration language.
+//            - FixedArray of String - Attribute names formatted according to structure property requirements.
+//  SelectAllowedItems - Boolean - If True, user rights are considered when executing the object query;
+//                                excluding any object from the selection also excludes
+//                                it from the result;
+//                                if False, an exception is raised if the user has no rights to access the table
+//                                or any attribute.
+//  LanguageCode - String - language code for a multilanguage attribute. Default value is the main configuration language.
 //
 // Returns:
-//  Map of KeyAndValue - :
-//   * Key - AnyRef -  object reference;
+//  Map of KeyAndValue - List of objects and their attribute values:
+//   * Key - AnyRef - object reference;
 //   * Value - Structure:
-//    ** Key - String -  the name of the props;
-//    ** Value - Arbitrary -  the value of the props.
+//    ** Key - String - an attribute name;
+//    ** Value - Arbitrary - Attribute value.
 // 
 Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems = False, Val LanguageCode = Undefined) Export
 	
@@ -617,12 +619,12 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 		Selection = Query.Execute().Select();
 	Except
 		
-		// 
+		// Trim whitespaces.
 		Attributes = StrReplace(Attributes, " ", "");
-		// 
+		// Converting the parameter to a field array.
 		Attributes = StrSplit(Attributes, ",");
 		
-		// 
+		// Searching for field availability error.
 		ErrorList = New Array;
 		For Each FullMetadataObjectName In MetadataObjectNames Do
 			Result = CheckIfObjectAttributesExist(FullMetadataObjectName, Attributes);
@@ -654,30 +656,30 @@ Function ObjectsAttributesValues(References, Val Attributes, SelectAllowedItems 
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns attribute values retrieved from the infobase for multiple objects.
+// It is recommended that you use it instead of referring to object attributes via the point from the reference to an object
+// for quick reading of separate object attributes from the database.
 //
-// 
-// 
+// To read attribute values regardless of current user rights, enable privileged mode.
+// If a non-existent attribute name is passed, throws the "Object field does not exist" exception.
 // 
 //  
 //
 // Parameters:
 //  ReferencesArrray       - Array of AnyRef
 //                     - FixedArray of AnyRef
-//  AttributeName       - String -  for example, "Code".
-//  SelectAllowedItems - Boolean -  if True, the request to objects is executed with the user's rights taken into account;
-//                                if an object is excluded from the selection by rights, this object
-//                                will also be excluded from the result;
-//                                if False, an exception will occur if there are no rights to the table
-//                                or any of the details.
-//  LanguageCode - String -  language code for multilingual props. The default value is the main configuration language.
+//  AttributeName       - String - for example, "Code".
+//  SelectAllowedItems - Boolean - If True, user rights are considered when executing the object query;
+//                                excluding any object from the selection also excludes
+//                                it from the result;
+//                                if False, an exception is raised if the user has no rights to access the table
+//                                or any attribute.
+//  LanguageCode - String - language code for a multilanguage attribute. Default value is the main configuration language.
 //
 // Returns:
 //  Map of KeyAndValue:
-//      * Key     - AnyRef  -  object reference,
-//      * Value - Arbitrary -  the value of the read props.
+//      * Key     - AnyRef  - reference to object,
+//      * Value - Arbitrary - the read attribute value.
 // 
 Function ObjectsAttributeValue(ReferencesArrray, AttributeName, SelectAllowedItems = False, Val LanguageCode = Undefined) Export
 	
@@ -698,34 +700,34 @@ Function ObjectsAttributeValue(ReferencesArrray, AttributeName, SelectAllowedIte
 	
 EndFunction
 
-// 
+// Edits an attribute value or adds it to an object.
 //
-//  
+// If a non-existent attribute is passed, throws an exception. 
 //
 // Parameters:
 //  Object - CatalogObject
 //         - DocumentObject
 //         - ChartOfCharacteristicTypesObject
-//         - InformationRegisterRecord -  the object to fill in.
-//  AttributeName - String -  name of the information to fill in. For Example, " Comment"
-//  Value - String -  the value to put in the props.
-//  LanguageCode - String -  the language code of the props. For example, "ru".
+//         - InformationRegisterRecord - Object to populate.
+//  AttributeName - String - name of the attribute to fill in. For example, "Comment"
+//  Value - String - the value to place in the attribute.
+//  LanguageCode - String - attribute language code. For example, "en".
 //
 Procedure SetAttributeValue(Object, AttributeName, Value, LanguageCode = Undefined) Export
 	SetAttributesValues(Object, New Structure(AttributeName, Value), LanguageCode);
 EndProcedure
 
-// 
+// Edits attribute values or adds it to an object.
 //
-//  
+// If a non-existent attribute is passed, throws an exception. 
 //
 // Parameters:
 //  Object - CatalogObject
 //         - DocumentObject
 //         - ChartOfCharacteristicTypesObject
-//         - InformationRegisterRecord -  the object to fill in.
-//  Values - Structure -  where the key is the name of the prop, and the value contains the string to be placed in the prop.
-//  LanguageCode - String -  the language code of the props. For example, "ru".
+//         - InformationRegisterRecord - Object to populate.
+//  Values - Structure - where the key is the attribute name, and the value contains the string placed in the attribute.
+//  LanguageCode - String - attribute language code. For example, "en".
 //
 Procedure SetAttributesValues(Object, Values, LanguageCode = Undefined) Export
 	
@@ -745,10 +747,10 @@ Procedure SetAttributesValues(Object, Values, LanguageCode = Undefined) Export
 	
 EndProcedure
 
-// Returns the code of the main language of the information base, for example "ru".
-// On which automatically generated strings are programmatically written to the information database.
-// For example, when initially filling in the information database with data from the layout, auto-generating a comment
-// on a transaction, or determining the value of the EventName parameter of the log record method.
+// Returns the code of the default infobase language, for example, "en".
+// On which auto-generated rows are programmatically written in the infobase.
+// For example, when initially filling the infobase with template data, generating a posting comment automatically,
+// or determining the value of the EventName parameter of the EventLogRecord method.
 //
 // Returns:
 //  String
@@ -764,8 +766,8 @@ Function DefaultLanguageCode() Export
 	
 EndFunction
 
-// Returns a flag indicating that the user has set the interface language
-// corresponding to the main language of the information base.
+// Returns a flag indicating whether the interface language
+// corresponding to the main language of the infobase is set for the user.
 //
 // Returns:
 //  Boolean
@@ -776,26 +778,26 @@ Function IsMainLanguage() Export
 	
 EndFunction
 
-// Returns a reference to a predefined element by its full name.
-// Predefined elements can only be contained in the following objects:
-//   - directories;
-//   - plans of types of characteristics;
-//   - chart of accounts;
-//   - plans for calculation types.
-// After changing the composition of the predefined ones, run the method
-// Update the re-used values (), which will reset the Repeat cache in the current session.
+// Returns a reference to the predefined item by its full name.
+// Only the following objects can contain predefined objects:
+//   - catalogs;
+//   - charts of characteristic types;
+//   - charts of accounts;
+//   - charts of calculation types.
+// After changing the list of predefined items, it is recommended that you run
+// the UpdateCachedValues() method to clear the cache for Cached modules in the current session.
 //
 // Parameters:
-//   FullPredefinedItemName - String - 
-//     
-//     :
-//       
-//       
-//       
+//   FullPredefinedItemName - String - full path to the predefined item including the name.
+//     The format is identical to the PredefinedValue() global context function.
+//     Example:
+//       "Catalog.ContactInformationKinds.UserEmail"
+//       "ChartOfAccounts.SelfFinancing.Materials"
+//       "ChartOfCalculationTypes.Accruals.SalaryPayments".
 //
 // Returns: 
-//   AnyRef - 
-//   
+//   AnyRef - reference to the predefined item.
+//   Undefined - if the predefined item exists in metadata but not in the infobase.
 //
 Function PredefinedItem(FullPredefinedItemName) Export
 	
@@ -816,17 +818,17 @@ Function PredefinedItem(FullPredefinedItemName) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns flags identifying whether the passed items are predefined or not.
+// If the user does not have record-level rights to the item, it is excluded from the result.
+// If the user has no right to the table, an exception is thrown.
 // 
 // Parameters:
 //  Items - Array of AnyRef
 //
 // Returns:
-//  Map of KeyAndValue - :
-//   * Key - AnyRef -  object reference.
-//   * Value - Boolean - 
+//  Map of KeyAndValue - List of objects and their attribute values:
+//   * Key - AnyRef - a reference to an object.
+//   * Value - Boolean - True if it is a reference to a predefined item.
 //
 Function ArePredefinedItems(Val Items) Export
 	
@@ -850,14 +852,14 @@ Function ArePredefinedItems(Val Items) Export
 	
 EndFunction
 
-// Checks the status of the submitted documents and returns
-// those that were not processed.
+// Checks posting status of the passed documents and returns
+// the unposted documents.
 //
 // Parameters:
-//  Var_Documents - Array of DocumentRef -  documents that need to be checked for their status.
+//  Var_Documents - Array of DocumentRef - documents to check.
 //
 // Returns:
-//  Array of DocumentRef - 
+//  Array of DocumentRef - unposted documents.
 //
 Function CheckDocumentsPosting(Val Var_Documents) Export
 	
@@ -905,15 +907,15 @@ Function CheckDocumentsPosting(Val Var_Documents) Export
 	
 EndFunction
 
-// Attempts to process documents.
+// Attempts to post the documents.
 //
 // Parameters:
-//  Var_Documents - Array of DocumentRef -  documents to be processed.
+//  Var_Documents - Array of DocumentRef - documents to post.
 //
 // Returns:
 //  Array of Structure:
-//   * Ref         - DocumentRef -  document that could not be processed,
-//   * ErrorDescription - String         -  text of the error description.
+//   * Ref         - DocumentRef - document that could not be posted,
+//   * ErrorDescription - String         - the text of a posting error.
 //
 Function PostDocuments(Var_Documents) Export
 	
@@ -949,19 +951,19 @@ Function PostDocuments(Var_Documents) Export
 	
 EndFunction 
 
-// Checks for references to the object in the database.
-// When called in an undivided session, it does not detect links in split areas.
+// Checks whether there are references to the object in the infobase.
+// When called in a shared session, does not find references in separated areas.
 //
 // Parameters:
 //  RefOrRefArray - AnyRef
-//                        - Array of AnyRef - 
-//  SearchInInternalObjects - Boolean - 
-//      
+//                        - Array of AnyRef - an object or a list of objects.
+//  SearchInInternalObjects - Boolean - If True, ignore the default reference search exceptions.
+//      For more details about reference search exceptions, see CommonOverridable.OnAddRefsSearchExceptions.
 //      
 //      
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if any references to the object are found.
 //
 Function RefsToObjectFound(Val RefOrRefArray, Val SearchInInternalObjects = False) Export
 	
@@ -985,19 +987,19 @@ Function RefsToObjectFound(Val RefOrRefArray, Val SearchInInternalObjects = Fals
 	
 EndFunction
 
-// 
+// Determines whether use instances are specified in the search exceptions.
 //
 // Parameters:
-//  UsageInstances		 - ValueTable - :
-//   *  Ref - AnyRef -  the link being checked.
-//   *  Data - AnyRef -  place of use.
-//   *  Metadata - MetadataObject -  metadata of the place of use.
+//  UsageInstances		 - ValueTable - Outcome of the FindByRef function:
+//   *  Ref - AnyRef - the reference to check.
+//   *  Data - AnyRef - usage instance.
+//   *  Metadata - MetadataObject - usage instance metadata.
 //  RefSearchExclusions	 - See RefSearchExclusions
 //   
 // Returns:
 //   Map of KeyAndValue:
 //     * Key - ValueTableRow
-//     * Value - Boolean - 
+//     * Value - Boolean - Always True. If this is not an internal data link, the map doesn't contain this item.
 //
 Function InternalDataLinks(Val UsageInstances, Val RefSearchExclusions = Undefined) Export
 	
@@ -1011,14 +1013,14 @@ Function InternalDataLinks(Val UsageInstances, Val RefSearchExclusions = Undefin
 	For Each UsageInstance1 In UsageInstances Do
 		SearchException = RefSearchExclusions[UsageInstance1.Metadata];
 		
-		// 
+		// Data can be either a reference or a register record key.
 		If SearchException = Undefined Then
 			If UsageInstance1.Ref = UsageInstance1.Data Then
-				Result[UsageInstance1] = True; // 
+				Result[UsageInstance1] = True; // Excluding self-reference.
 			EndIf;
 			Continue;
 		ElsIf SearchException = "*" Then
-			Result[UsageInstance1] = True; // 
+			Result[UsageInstance1] = True; // Excluding everything.
 			Continue;
 		EndIf;
 	
@@ -1062,7 +1064,7 @@ Function InternalDataLinks(Val UsageInstances, Val RefSearchExclusions = Undefin
 		TableName = UsageInstance1.Key; // String
 		UsageInstance1 = UsageInstance1.Value; // ValueTable
 
-		// 
+		// Check whether the excluded path from the given data contains the reference to be checked.
 		If UsageInstance1.Count() > 1 Then
 			QueryTemplate = 
 				"SELECT
@@ -1118,7 +1120,7 @@ Function InternalDataLinks(Val UsageInstances, Val RefSearchExclusions = Undefin
 		EndIf;
 
 		ConditionText = New Array;
-		// 
+		// Attribute's relative path: "<NameOfTableOrAttribute>[.<TableAttributeName>]".
 		For Each AttributePath1 In RefSearchExclusions[UsageInstance1[0].Metadata] Do
 			ConditionText.Add(AttributePath1 + " = " 
 				+ ?(UsageInstance1.Count() > 1, "RefsTable.RefToCheck", "&" + ParameterName));
@@ -1154,13 +1156,13 @@ Function InternalDataLinks(Val UsageInstances, Val RefSearchExclusions = Undefin
 	
 EndFunction
 
-// 
+// Determines whether a use instance is specified in the search exceptions.
 //
 // Parameters:
 //  UsageInstance1		 - Structure:
-//   *  Ref - AnyRef -  the link being checked.
-//   *  Data - AnyRef -  place of use.
-//   *  Metadata - MetadataObject -  metadata of the place of use.
+//   *  Ref - AnyRef - the reference to check.
+//   *  Data - AnyRef - usage instance.
+//   *  Metadata - MetadataObject - usage instance metadata.
 //  RefSearchExclusions	 - See RefSearchExclusions
 // 
 // Returns:
@@ -1184,37 +1186,37 @@ Function IsInternalDataLink(Val UsageInstance1, Val RefSearchExclusions = Undefi
 
 EndFunction
 
-// 
-// 
-// 
-// 
-// 	
-//	 
-//		 
-// 	
-//		
+// Replaces references in all data. There is an option to delete all unused references after the replacement.
+// References are replaced in transactions by the object to be changed and its relations but not by the reference being analyzed.
+// When called in the shared session, it does not find references in separated areas.
+// If the links of subordinate and main objects are described (see SubordinateObjectsLinks):
+// 	* Subordinate object replacements will be searched for upon the main object replacement.
+//	* An attempt to search for replacements for subordinate objects by link field values 
+//		will be made (if RunAutoReplacementSearch = True). If the object does not exist, the OnSearchForReferenceReplacement procedure will be executed. 
+// 	* SearchMethod will be called to select replacements (if SearchMethod is specified in the link description
+//		and if the auto search did not find replacements or was not executed).
 //
 // Parameters:
 //   ReplacementPairs - Map of KeyAndValue:
-//       * Key     - AnyRef -  what we are looking for (double).
-//       * Value - AnyRef -  what we replace (the original).
-//       Links to themselves and empty search links will be ignored.
+//       * Key     - AnyRef - a reference to be replaced.
+//       * Value - AnyRef - a reference to use as a replacement.
+//       Self-references and empty search references are ignored.
 //   
 //   ReplacementParameters - See Common.RefsReplacementParameters
 //
 // Returns:
-//   ValueTable - :
-//       * Ref - AnyRef -  the link that was replaced.
-//       * ErrorObject - Arbitrary -  object - the cause of the error.
-//       * ErrorObjectPresentation - String -  string representation of the error object.
-//       * ErrorType - String - :
-//           
-//           
-//           
-//           
-//           
+//   ValueTable - Failed replacements (errors):
+//       * Ref - AnyRef - a reference that was replaced.
+//       * ErrorObject - Arbitrary - an object that has caused an error.
+//       * ErrorObjectPresentation - String - string representation of an error object.
+//       * ErrorType - String - An error type. Valid values are::
+//           LockError - The object is locked by another user.
+//           DataChanged - Another user is modifying the object data.
+//           WritingError - Failed to write the object, or the "CanReplaceItems" method returned a failure.
+//           DeletionError - Failed to delete the object.
+//           UnknownData - Data that was not intended for replacement is found.
 //       * ErrorInfo - ErrorInfo
-//       * ErrorText - String - 
+//       * ErrorText - String - Contains the error cause if "ErrorInfo" is set to "Undefined".
 //
 Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Undefined) Export
 	
@@ -1249,17 +1251,17 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 	Duplicates = GenerateDuplicates(ExecutionParameters, ReplacementParameters, ReplacementPairs, Result);	
 	SearchTable = UsageInstances(Duplicates,, ExecutionParameters.UsageInstancesSearchParameters);
 	
-	// 
-	// 
+	// For each object reference, make replacements in "Constant", "Object", and "Set" (in this order).
+	// An empty row in this column signifies that replacement is not required or has been made.
 	SearchTable.Columns.Add("ReplacementKey", StringType);
 	SearchTable.Indexes.Add("Ref, ReplacementKey");
 	SearchTable.Indexes.Add("Data, ReplacementKey");
 	
-	// 
+	// Auxiliary data.
 	SearchTable.Columns.Add("DestinationRef");
 	SearchTable.Columns.Add("Processed", New TypeDescription("Boolean"));
 	
-	// 
+	// Defining the processing order and validating items that can be processed.
 	MarkupErrors = New Array;
 	ObjectsWithErrors = New Array;
 	Count = Duplicates.Count();
@@ -1286,7 +1288,7 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 		EndDo;
 	EndIf;
 	
-	// 
+	// Searching for and replacing the found duplicates.
 	ExecutionParameters.Insert("ReplacementPairs",      ReplacementPairs);
 	ExecutionParameters.Insert("SuccessfulReplacements", New Map);
 	
@@ -1301,7 +1303,7 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 			HadErrors = Result.HasErrors;
 			Result.HasErrors = False;
 			
-			// 
+			// @skip-check query-in-loop - Batch processing of a large amount of data.
 			ReplaceRefsUsingShortTransactions(Result, ExecutionParameters, Duplicate1, SearchTable);
 					
 			If Not Result.HasErrors Then
@@ -1346,26 +1348,26 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 	
 EndFunction
 
-// Structure designer for the parameter Parametrization functions Observatsionnoe.Replace links.
+// Structure constructor for the ReplacementParameters parameter  of the Common.ReplaceRefs function.
 // 
 // Returns:
 //   Structure:
-//     * DeletionMethod - String - :
-//         
-//         
-//         
-//     * TakeAppliedRulesIntoAccount - Boolean -  if True, the function "possibility to Replace elements of the Manager module" is called for each pair of "duplicate-original" 
-//          
-//         (the subsystem "Search and delete duplicates" is required). By default, False.
-//     * IncludeBusinessLogic - Boolean -  mode for recording objects when replacing duplicate references with originals.
-//         If True (by default), then the places where duplicates are used are recorded in the normal mode,
-//         otherwise the recording is performed in the Tricked mode.Upload = True.
-//     * ReplacePairsInTransaction - Boolean -  outdated. determines the size of the transaction when replacing duplicates.
-//         If True (default), then all the places where the same duplicate is used are replaced in a single transaction. 
-//         This can be very resource-intensive in the case of a large number of use cases.
-//         If False, the replacement at each use location is performed in a separate transaction.
-//     * WriteInPrivilegedMode - Boolean -  if True, then set the privileged mode before writing
-//         objects when replacing duplicate references in them with the originals. False by default.
+//     * DeletionMethod - String - shows what to do with the duplicate after a successful replacement:
+//         ""                - do not do anything (by default);
+//         "Mark"         - mark for deletion;
+//         "Directly" - delete directly.
+//     * TakeAppliedRulesIntoAccount - Boolean - If True, for the each duplicate-original pair 
+//         the CanReplaceItems function of the manager module is called 
+//         (the "Duplicate object detection" subsystem is required). The default value is False.
+//     * IncludeBusinessLogic - Boolean - recording mode of objects when replacing duplicate references to originals.
+//         If True (by default), the places of duplicate usage are recorded in the normal mode,
+//         otherwise they are recorded in mode DataExchange.Import = True.
+//     * ReplacePairsInTransaction - Boolean - obsolete. determines transaction size when replacing duplicates.
+//         If True (default), all usage locations of one duplicate are replaced in one transaction. 
+//         It can be very resource-demanding in case of a large number of usage locations.
+//         If False, the replacement at usage location is performed in a separate transaction.
+//     * WriteInPrivilegedMode - Boolean - If True, set privileged mode before recording
+//         objects when replacing duplicate references in them to originals. Default value is False.
 //
 Function RefsReplacementParameters() Export
 	Result = New Structure;
@@ -1377,25 +1379,25 @@ Function RefsReplacementParameters() Export
 	Return Result;
 EndFunction
 
-// Gets all places where links are used.
-// If a reference is not used anywhere, there will be no rows for it in the resulting table.
-// When called in an undivided session, it does not detect links in split areas.
+// Retrieves all places where references are used.
+// If any of the references is not used, it will not be presented in the result table.
+// When called in a shared session, does not find references in separated areas.
 //
 // Parameters:
-//     RefSet     - Array of AnyRef -  links that we are looking for places to use.
-//     ResultAddress - String - 
+//     RefSet     - Array of AnyRef - references whose usage instances are to be found.
+//     ResultAddress - String - Address in the temporary storage where the replacement result copy will be stored.
 //     AdditionalParameters - See Common.UsageInstancesSearchParameters 
 // 
 // Returns:
 //     ValueTable:
-//       * Ref - AnyRef -  the link that is being analyzed.
-//       * Data - Arbitrary -  data containing the analyzed link.
-//       * Metadata - MetadataObject -  metadata of the found data.
-//       * DataPresentation - String -  representation of data containing the analyzed link.
-//       * RefType - Type -  the type of link being analyzed.
-//       * AuxiliaryData - Boolean -  True if the data is used by the analyzed link as
-//           auxiliary data (the leading dimension or was included in the exception for adding exceptions to links).
-//       * IsInternalData - Boolean -  the data was included in the exclusionreferencesexternal Links
+//       * Ref - AnyRef - the reference to analyze.
+//       * Data - Arbitrary - the data that contains the reference to analyze.
+//       * Metadata - MetadataObject - metadata for the found data.
+//       * DataPresentation - String - presentation of the data containing the reference.
+//       * RefType - Type - the type of reference to analyze.
+//       * AuxiliaryData - Boolean - True if the data is used by the reference as
+//           auxiliary data (leading dimension, or covered by the OnAddReferenceSearchExceptions exception).
+//       * IsInternalData - Boolean - the data is covered by the OnAddReferenceSearchExceptions exception
 //
 Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters = Undefined) Export
 	
@@ -1405,10 +1407,10 @@ Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters
 	UsageInstances = FindByRef(RefSet); // See UsageInstances.
 	SetPrivilegedMode(False);
 	
-	// 
-	// 
-	// 
-	// 
+	// UsageInstances - ValueTable - A table where:
+	// * Ref - AnyRef - The reference being analyzed.
+	// * Data - Arbitrary - Data containing the reference.
+	// * Metadata - MetadataObject - Metadata object of the data.
 	
 	UsageInstances.Columns.Add("DataPresentation", New TypeDescription("String"));
 	UsageInstances.Columns.Add("RefType");
@@ -1493,7 +1495,7 @@ Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters
 						IsAuxiliaryData = True;
 					EndIf;
 				EndIf;
-				If Not IsInternalData Then // 
+				If Not IsInternalData Then // Intended for optimization
 					ValueFormat = LongDesc.Format; 
 					DimensionsDetails.Add(LongDesc.Presentation + " """ 
 						+ ?(ValueFormat = Undefined, String(Value), Format(Value, ValueFormat)) + """");
@@ -1521,13 +1523,13 @@ Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters
 	Return UsageInstances;
 EndFunction
 
-// Returns the structure for the parameter Additional parameters of the General purpose function.Places of use. 
+// Returns the structure for the AdditionalParameters parameter of the Common.UsageInstances function. 
 // 
 // Returns:
 //   Structure:
-//   * AdditionalRefSearchExceptions - Map -  allows you to extend link search exceptions
+//   * AdditionalRefSearchExceptions - Map - allows you to expand the reference search exceptions
 // 			See CommonOverridable.OnAddReferenceSearchExceptions
-//   * CancelRefsSearchExceptions - Array of MetadataObject -  fully repeals the exception of references search for
+//   * CancelRefsSearchExceptions - Array of MetadataObject - completely cancels the reference search exceptions for
 //                                                                 metadata objects.
 //
 Function UsageInstancesSearchParameters() Export
@@ -1540,15 +1542,15 @@ Function UsageInstancesSearchParameters() Export
 
 EndFunction
 
-// Returns exceptions when searching for places where objects are used.
+// Returns an exception when searching for object usage locations.
 //
 // Returns:
-//   Map of KeyAndValue - :
-//       * Key - MetadataObject -  the metadata object that exceptions are applied to.
+//   Map of KeyAndValue - Reference search exceptions by metadata object:
+//       * Key - MetadataObject - the metadata object to apply exceptions to.
 //       * Value - String
-//                  - Array of String - 
-//           
-//           
+//                  - Array of String - descriptions of excluded attributes.
+//           If "*", all the metadata object attributes are excluded.
+//           If a string array, contains the relative names of the excluded attributes.
 //
 Function RefSearchExclusions() Export
 	
@@ -1561,7 +1563,7 @@ Function RefSearchExclusions() Export
 	
 	Result = New Map;
 	For Each SearchException In SearchExceptions Do
-		// 
+		// Defining the full name of the attribute and the metadata object that owns the attribute.
 		If TypeOf(SearchException) = Type("String") Then
 			FullName          = SearchException;
 			SubstringsArray     = StrSplit(FullName, ".");
@@ -1583,25 +1585,25 @@ Function RefSearchExclusions() Export
 				EndDo;
 			EndIf;
 		EndIf;
-		// 
+		// Registration.
 		If SubstringCount < 4 Then
 			Result.Insert(MetadataObject, "*");
 		Else
 			PathsToAttributes = Result.Get(MetadataObject);
 			If PathsToAttributes = "*" Then
-				Continue; // 
+				Continue; // The whole metadata object is excluded.
 			ElsIf PathsToAttributes = Undefined Then
 				PathsToAttributes = New Array;
 				Result.Insert(MetadataObject, PathsToAttributes);
 			EndIf;
-			// 
-			//   
-			//   
-			//     
-			//     
-			//     
-			// 
-			//   
+			// Attribute format is:
+			//   "<Object type>.<Object name>.<Type of attribute or table>.<Name of attribute or table>[.<Attribute type>.<Table attribute name>]".
+			//   Examples:
+			//     "InformationRegister.ObjectsVersions.Attribute.VersionAuthor",
+			//     "Document.SalesOrder.TabularSection.ProformaInvoices.Attribute.Account",
+			//     "ChartOfCalculationTypes.BaseEarnings.StandardTabularSection.BaseCalculationTypes.StandardAttribute.CalculationType".
+			// The relative path to the attribute should be such that is can be used in query conditions:
+			//   "<Name of attribute or table>[.<Table attribute name>]".
 			If SubstringCount = 4 Then
 				RelativePathToAttribute = SubstringsArray[3];
 			Else
@@ -1614,26 +1616,26 @@ Function RefSearchExclusions() Export
 	
 EndFunction
 
-// 
+// Returns subordinate object links and a list of attributes for the link.
 //
-// 
-// 
-// 
-//	
-//	
-//	  
-//	   See Common.SubordinateObjectsLinksByTypes  
-//	  
+// You can override the procedure of subordinate object search.
+// In the common module or the manager module, implement the OnSearchForReferenceReplacement
+// procedure with the parameters:
+//	ReplacementPairs - Map - Contains Original/Duplicate value pairs.
+//	UnprocessedOriginalsValues - Array of Structure - Additional information on the objects to process:
+//	  * ValueToReplace - ArbitraryRef - Original object value.
+//	  * UsedLinks - See Common.SubordinateObjectsLinksByTypes  
+//	  * KeyAttributesValue - Structure - Key - Attribute name. Value - Attribute value.
 //
 // Returns:
 //  ValueTable:
-//    * SubordinateObject - MetadataObject -  
-//    * LinksFields - String - 
-//    * OnSearchForReferenceReplacement - String -  
-//                              
-//    * RunReferenceReplacementsAutoSearch - Boolean -  
-//                               
-//                              
+//    * SubordinateObject - MetadataObject - Metadata object that is subordinate to the given object. 
+//    * LinksFields - String - Names of attributes that determine the link between the main and subordinate objects.
+//    * OnSearchForReferenceReplacement - String - (Optional) Name of the common module or manager module where the 
+//                              OnSearchForReferenceReplacement procedure is defined.
+//    * RunReferenceReplacementsAutoSearch - Boolean - If True, the function will attempt to search for replacements 
+//                              for subordinate objects by linking field values. If an object is not found, the function 
+//                              calls the OnSearchForReferenceReplacement procedure. See also: ReplaceReferences.
 //
 Function SubordinateObjects() Export
 	
@@ -1646,7 +1648,7 @@ Function SubordinateObjects() Export
 	SSLSubsystemsIntegration.OnDefineSubordinateObjects(LinksDetails);
 	CommonOverridable.OnDefineSubordinateObjects(LinksDetails);
 	
-	// 
+	// If Map or Structure is passed, cast it to the required type.
 	For Each LinkRow In LinksDetails Do
 		
 		LinkFieldsDetailsType = TypeOf(LinkRow.LinksFields);
@@ -1672,7 +1674,7 @@ Function SubordinateObjects() Export
 	
 EndFunction
 
-// Returns relationships of subordinate objects with the type of relationship field specified.
+// Returns subordinate object links specifying a linking field type.
 //
 // Returns:
 //   ValueTable:
@@ -1700,25 +1702,25 @@ EndFunction
 #Region ConditionCalls
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for calling optional subsystems.
 
-// 
-// 
+// Returns True if the functional subsystem exists in the configuration.
+// Intended for calling an optional subsystem (making a conditional call) alongside "Common.CommonModule".
 //
-// 
-// 
-// 
+// A subsystem is considered functional if its "Include in command interface" check box is cleared.
+// See also "CommonOverridable.OnDetermineDisabledSubsystems"
+// and "CommonClient.SubsystemExists" to call from client-side code.
 //
 // Parameters:
-//  FullSubsystemName - String -  the full name of the subsystem metadata object
-//                        without the words " Subsystem."and case-sensitive.
-//                        For example: "Standard subsystems.Variants of reports".
+//  FullSubsystemName - String - the full name of the subsystem metadata object
+//                        without the "Subsystem." part, case-sensitive.
+//                        Example: "StandardSubsystems.ReportsOptions".
 //
 // Example:
-//  
-//  	
-//  	
-//  
+//  If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+//  	ModuleReportOptions = Common.CommonModule("ReportsOptions");
+//  	ModuleReportOptions.<Procedure name>();
+//  EndIf;
 //
 // Returns:
 //  Boolean
@@ -1730,36 +1732,36 @@ Function SubsystemExists(FullSubsystemName) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns a reference to a common module or manager module by name.
+// Intended for conditionally calling procedures and functions alongside "Common.SubsystemExists".
+// See also "CommonClient.CommonModule" for calling the client-side code.
 //
 // Parameters:
-//  Name - String -  
-//                 
+//  Name - String - The name of a common module or manager module. For example: 
+//                 "ConfigurationUpdate", "DataProcessor.FullTextSearch".
 //
 // Returns:
 //   CommonModule
-//   Object Manager Module
+//   ObjectManagerModule
 //
 // Example:
-//	
-//		
-//		
-//	
+//	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
+//		ModuleSoftwareUpdate = Common.CommonModule("ConfigurationUpdate");
+//		ModuleSoftwareUpdate.<Procedure name>();
+//	EndIf;
 //
-//	
-//		
-//		
-//	
+//	If Common.SubsystemExists("StandardSubsystems.FullTextSearch") Then
+//		ModuleDataProcessorFullTextSearch = Common.CommonModule("DataProcessor.FullTextSearch");
+//		ModuleDataProcessorFullTextSearch.<Procedure name>();
+//	EndIf;
 //
 Function CommonModule(Name) Export
 	
 	If Metadata.CommonModules.Find(Name) <> Undefined Then
-		// 
+		// ACC:488-disable CalculateInSafeMode is not used, to avoid calling CommonModule recursively.
 		SetSafeMode(True);
 		Module = Eval(Name);
-		// 
+		// ACC:488-on
 	ElsIf StrOccurrenceCount(Name, ".") = 1 Then
 		Return ServerManagerModule(Name);
 	Else
@@ -1768,7 +1770,7 @@ Function CommonModule(Name) Export
 	
 	If TypeOf(Module) <> Type("CommonModule") Then
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid parameter %1 in %2. Common module ""%1"" does not exist.';"), 
+			NStr("en = 'Invalid parameter %1 in %2. Common module ""%3"" does not exist.';"), 
 			"Name", "Common.CommonModule", Name), 
 			ErrorCategory.ConfigurationError);
 	EndIf;
@@ -1782,12 +1784,12 @@ EndFunction
 #Region CurrentEnvironment
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// The details functions of the current client application environment and operating system.
 
 // Returns True if the client application is running on Windows.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsWindowsClient() Export
 	
@@ -1796,17 +1798,17 @@ Function IsWindowsClient() Export
 	IsWindowsClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsWindowsClient");
 	
 	If IsWindowsClient = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 	
 	Return IsWindowsClient;
 	
 EndFunction
 
-// Returns True if the current session is running on a server running Windows.
+// Returns True if the session runs on a Windows server.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the server runs on Windows.
 //
 Function IsWindowsServer() Export
 	
@@ -1816,10 +1818,10 @@ Function IsWindowsServer() Export
 	
 EndFunction
 
-// Returns True if the client application is running under Linux.
+// Returns True if the client application is running on Linux.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsLinuxClient() Export
 	
@@ -1828,17 +1830,17 @@ Function IsLinuxClient() Export
 	IsLinuxClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsLinuxClient");
 	
 	If IsLinuxClient = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 	
 	Return IsLinuxClient;
 	
 EndFunction
 
-// Returns True if the current session is running on a server running Linux.
+// Returns True if the current session runs on a Linux server.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the server runs on Linux.
 //
 Function IsLinuxServer() Export
 	
@@ -1851,10 +1853,10 @@ Function IsLinuxServer() Export
 	
 EndFunction
 
-// Returns True if the client application is running under MacOS.
+// Returns True if the client application is running on macOS.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsMacOSClient() Export
 	
@@ -1863,17 +1865,17 @@ Function IsMacOSClient() Export
 	IsMacOSClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsMacOSClient");
 	
 	If IsMacOSClient = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 	
 	Return IsMacOSClient;
 	
 EndFunction
 
-// Returns True if the client application is a Web client.
+// Returns True if the client application is a web client.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsWebClient() Export
 	
@@ -1881,7 +1883,7 @@ Function IsWebClient() Export
 	IsWebClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsWebClient");
 	
 	If IsWebClient = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 	
 	Return IsWebClient;
@@ -1891,7 +1893,7 @@ EndFunction
 // Returns True if the client application is a mobile client.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsMobileClient() Export
 	
@@ -1900,17 +1902,17 @@ Function IsMobileClient() Export
 	IsMobileClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsMobileClient");
 	
 	If IsMobileClient = Undefined Then
-		Return False; // 
+		Return False; // No client application
 	EndIf;
 	
 	Return IsMobileClient;
 	
 EndFunction
 
-// Returns True if the client application is connected to the database via a web server.
+// Returns True if a client application is connected to the infobase through a web server.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the application is connected.
 //
 Function ClientConnectedOverWebServer() Export
 	
@@ -1919,15 +1921,15 @@ Function ClientConnectedOverWebServer() Export
 	InfoBaseConnectionString = StandardSubsystemsServer.ClientParametersAtServer().Get("InfoBaseConnectionString");
 	
 	If InfoBaseConnectionString = Undefined Then
-		Return False; // 
+		Return False; // No client application
 	EndIf;
 	
 	Return StrFind(Upper(InfoBaseConnectionString), "WS=") = 1;
 	
 EndFunction
 
-// 
-// 
+// Returns the client's system information (if there is a client app).
+// Before the first server call from the client is made, returns Undefined.
 //
 // Returns:
 //  FixedStructure:
@@ -1938,8 +1940,8 @@ EndFunction
 //    * RAM - Number
 //    * Processor - String
 //    * PlatformType - See CommonClientServer.NameOfThePlatformType
-//  
-//   
+//  Undefined - If no client app is used, or the information is retrieved before the first server call is made.
+//   For example, the first call of the SessionParametersSetting event from the session module.
 //   
 //
 Function ClientSystemInfo() Export
@@ -1949,17 +1951,17 @@ Function ClientSystemInfo() Export
 	
 EndFunction
 
-// 
-// 
+// Returns the used client. For web client, also returns its version (if any).
+// Before the first server call from the client is made, returns Undefined.
 //
 // Returns:
-//  String - 
-//           
-//           
-//           
-//  
-//   
-//   
+//  String - Valid values: "WebClient.<Name>[.<Version>]", "ThinClient",
+//           "ThickClientManagedApplication", "ThickClientOrdinaryApplication".
+//           Where <Name> could be "Chrome", "Firefox", "Safari", "IE", "Opera"
+//           or "Other" if non of the above is applicable. For example, "WebClient.Chrome.109".
+//  Undefined - If no client app is used, or the information is retrieved
+//   before the first server call is made.
+//   For example, the first call of the SessionParametersSetting event from the session module.
 //
 Function ClientUsed() Export
 	
@@ -1968,10 +1970,10 @@ Function ClientUsed() Export
 	
 EndFunction
 
-// Returns True if debugging mode is enabled.
+// Returns True if debug mode is enabled.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if debug mode is enabled.
 //
 Function DebugMode() Export
 	
@@ -1984,8 +1986,8 @@ EndFunction
 // Returns the amount of RAM available to the client application.
 //
 // Returns:
-//  Number - 
-//  
+//  Number - the number of GB of RAM, with tenths-place accuracy.
+//  Undefined - no client application is available, meaning CurrentRunMode() = Undefined.
 //
 Function RAMAvailableForClientApplication() Export
 	
@@ -1994,15 +1996,15 @@ Function RAMAvailableForClientApplication() Export
 	
 EndFunction
 
-// Defines the operation mode of the information database: file (True) or server (False).
-// When checking, the information database connection String is used, which can be specified explicitly.
+// Determines the infobase mode: file (True) or client/server (False).
+// This function uses the InfobaseConnectionString parameter. You can specify this parameter explicitly.
 //
 // Parameters:
-//  InfoBaseConnectionString - String -  this parameter is used if
-//                 you need to check the connection string of a non-current database.
+//  InfoBaseConnectionString - String - the parameter is applied if
+//                 you need to check a connection string for another infobase.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if it is a file infobase.
 //
 Function FileInfobase(Val InfoBaseConnectionString = "") Export
 	
@@ -2014,10 +2016,10 @@ Function FileInfobase(Val InfoBaseConnectionString = "") Export
 	
 EndFunction 
 
-// Returns True if this information base is connected to 1C: Fresh.
+// Returns True if the infobase is connected to 1C:Fresh.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - indicates a standalone workstation.
 //
 Function IsStandaloneWorkplace() Export
 	
@@ -2030,7 +2032,7 @@ Function IsStandaloneWorkplace() Export
 	
 EndFunction
 
-// 
+// Returns the flag identifying whether the infobase is distributed (DIB).
 //
 // Returns:
 //   Boolean
@@ -2042,11 +2044,11 @@ Function IsDistributedInfobase() Export
 	
 EndFunction
 
-// Determines that this information base is a subordinate node
-// of the distributed information base (rib).
+// Determines whether this infobase is a subordinate node
+// of a distributed infobase (DIB).
 //
 // Returns: 
-//  Boolean - 
+//  Boolean - True if the infobase is a subordinate DIB node.
 //
 Function IsSubordinateDIBNode() Export
 	
@@ -2056,11 +2058,11 @@ Function IsSubordinateDIBNode() Export
 	
 EndFunction
 
-// Determines that this information base is a subordinate node
-// of a distributed information base (rib) with a filter.
+// Determines whether this infobase is a subordinate node
+// of a distributed infobase (DIB) with filter.
 //
 // Returns: 
-//  Boolean - 
+//  Boolean - True if the infobase is a subordinate DIB node with filter.
 //
 Function IsSubordinateDIBNodeWithFilter() Export
 	
@@ -2078,11 +2080,11 @@ Function IsSubordinateDIBNodeWithFilter() Export
 	
 EndFunction
 
-// Returns True if the configuration of the information base of the subordinate rib node needs to be updated.
-// The master node is always False.
+// Returns True if update is required for the subordinate DIB node infobase configuration.
+// Always False for the master node.
 //
 // Returns: 
-//  Boolean - 
+//  Boolean - True if required.
 //
 Function SubordinateDIBNodeConfigurationUpdateRequired() Export
 	
@@ -2090,15 +2092,15 @@ Function SubordinateDIBNodeConfigurationUpdateRequired() Export
 	
 EndFunction
 
-// Returns a flag for working in the data division mode by area
-// (technically, this is a sign of conditional division).
+// Returns the data separation mode flag
+// (conditional separation).
 // 
-// Returns False if the configuration can't work in data separation mode
-// (it doesn't contain General details intended for data separation).
+// Returns False if the configuration does not support data separation mode
+// (does not contain attributes to share).
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - True if separation is enabled,
+//           False is separation is disabled or not supported.
 //
 Function DataSeparationEnabled() Export
 	
@@ -2106,17 +2108,17 @@ Function DataSeparationEnabled() Export
 	
 EndFunction
 
-// Returns whether split data (which is part of separators) can be accessed.
-// This attribute is specific to the session, but may change during the session if partitioning was enabled
-// in the session itself, so you should check it immediately before accessing the split data.
+// Returns a flag indicating whether separated data (included in the separators) can be accessed.
+// The flag is session-specific, but can change its value if data separation is enabled
+// on the session run. So, check the flag right before addressing the shared data.
 // 
-// Returns True if the configuration can't work in data separation mode
-// (it doesn't contain any General details intended for data separation).
+// Returns True if the configuration does not support data separation mode
+// (does not contain attributes to share).
 //
 // Returns:
-//   Boolean - 
-//                    
-//            
+//   Boolean - True if separation is not supported or disabled
+//                    or separation is enabled and separators are set.
+//            False if separation is enabled and separators are not set.
 //
 Function SeparatedDataUsageAvailable() Export
 	
@@ -2124,19 +2126,19 @@ Function SeparatedDataUsageAvailable() Export
 	
 EndFunction
 
-// Returns the publication address of the information base for generating direct links to information security objects 
-// for users who have access to the database through the publication on the Internet to go to them.
-// For example, if you include such an address in an email, you can go from the email with a single click
-// to the object form in the program itself.
+// Returns infobase publishing URL that is used to generate direct links to infobase objects 
+// for Internet users.
+// For example, if you send a link in an email, the recipient will be able to open the object in the application simply
+// by clicking on the link.
 // 
 // Returns:
-//   String - 
-//            
-//            
+//   String - the infobase address specified in the "Internet address" administration panel setting.
+//            It is stored in the InfobasePublicationURL constant.
+//            For example, "http://1c.com/database".
 //
 // Example: 
-//  General purpose.Adresspublicationinformation baselocal network () + " / " + e1cib/app/Processing.Viruskrankheiten";
-//  returns a direct link to open processing Viruskrankheiten.
+//  Common.LocalInfobasePublishingURL() + "/" + e1cib/app/DataProcessor.ExportProjectData";
+//  Returns a direct link to open the ExportProjectData data processor.
 //
 Function InfobasePublicationURL() Export
 	
@@ -2153,7 +2155,7 @@ Function InfobasePublicationURL() Export
 			Try
 				Result = ModuleServiceProgrammingInterface.ApplicationProperties(SessionSeparator).ApplicationURL;
 			Except
-				WriteLogEvent(NStr("en = 'Publication address';", DefaultLanguageCode()), //  
+				WriteLogEvent(NStr("en = 'Publication address';", DefaultLanguageCode()), // ACC:154 - Unavailability of the Server Manager is not considered an issue. 
 					EventLogLevel.Warning,,, 
 					ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				Return "";
@@ -2166,21 +2168,21 @@ Function InfobasePublicationURL() Export
 	
 EndFunction
 
-//  
+// Returns infobase publishing URL that is used to generate direct links to infobase objects 
+// for local network users.
+// For example, if you send a link in an email, the recipient will be able to open the object in the application simply
+// by clicking on the link.
 // 
-// 
-// 
-// 
-// 
+// For web apps, it returns the value of the function "InfobasePublicationURL".
 // 
 // Returns:
-//   String - 
-//            
-//            
+//   String - the infobase address specified in the "Local address" administration panel setting.
+//            It is stored in the LocalInfobasePublicationURL constant.
+//            Example: "http://localserver/base".
 //
 // Example: 
-//  General purpose.Adresspublicationinformation baselocal network () + " / " + e1cib/app/Processing.Viruskrankheiten";
-//  returns a direct link to open processing Viruskrankheiten.
+//  Common.LocalInfobasePublishingURL() + "/" + e1cib/app/DataProcessor.ExportProjectData";
+//  Returns a direct link to open the ExportProjectData data processor.
 //
 Function LocalInfobasePublishingURL() Export
 	
@@ -2193,16 +2195,16 @@ Function LocalInfobasePublishingURL() Export
 	
 EndFunction
 
-// Generates a link to log in to the program for the specified user.
+// Generates the application access address for the specified user.
 //
 // Parameters:
-//  User - String -  user's login to log in to the program;
-//  Password - String -  user password to log in to the program;
-//  IBPublicationType - String - :
-//                           
+//  User - String - user's sign-in name;
+//  Password - String - user's sign-in password;
+//  IBPublicationType - String - publication used by the user to access the application:
+//                           "OnInternet" or "OnLocalNetwork".
 //
 // Returns:
-//  String, Undefined - 
+//  String, Undefined - application access address, or Undefined if no address is specified.
 //
 Function ProgrammAuthorizationAddress(User, Password, IBPublicationType) Export
 	
@@ -2231,12 +2233,12 @@ Function ProgrammAuthorizationAddress(User, Password, IBPublicationType) Export
 	
 EndFunction
 
-// Returns the configuration revision.
-// The first two groups of digits in the full version of the configuration are usually called editors.
-// For example, the version " 1.2.3.4 "has the revision"1.2".
+// Returns the configuration revision number.
+// The revision number is two first digits of a full configuration version.
+// Example: revision number for version 1.2.3.4 is 1.2.
 //
 // Returns:
-//  String - 
+//  String - configuration revision number.
 //
 Function ConfigurationRevision() Export
 	
@@ -2263,10 +2265,10 @@ Function ConfigurationRevision() Export
 	
 EndFunction
 
-// 
+// Returns the general functional parameters.
 // 
 // Parameters:
-//   ShouldReturnCachedValue - Boolean -  the service parameter.
+//   ShouldReturnCachedValue - Boolean - Internal parameter.
 //
 // Returns:
 //   See CommonOverridable.OnDetermineCommonCoreParameters.CommonParameters
@@ -2285,9 +2287,9 @@ Function CommonCoreParameters(ShouldReturnCachedValue = True) Export
 	Result.Insert("RecommendedPlatformVersion", Result.MinPlatformVersion);
 	Result.Insert("ShouldIncludeFullStackInLongRunningOperationErrors", False);
 	Result.Insert("DisableMetadataObjectsIDs", False);
-	// 
+	// Instead, use MinPlatformVersion and RecommendedPlatformVersion properties :
 	Result.Insert("MinPlatformVersion1", "");
-	Result.Insert("MustExit", False); // 
+	Result.Insert("MustExit", False); // Aborting startup if the current version is earlier than the minimum version.
 	
 	CommonOverridable.OnDetermineCommonCoreParameters(Result);
 	Result.MinPlatformVersion = BuildNumberForTheCurrentPlatformVersion(Result.MinPlatformVersion);
@@ -2320,7 +2322,7 @@ Function CommonCoreParameters(ShouldReturnCachedValue = True) Export
 			MessageText);		
 	EndIf;
 	
-	// 
+	// Backward compatibility.
 	MinPlatformVersion1 = Result.MinPlatformVersion1;
 	If ValueIsFilled(MinPlatformVersion1) Then
 		If Result.MustExit Then
@@ -2349,14 +2351,14 @@ Function CommonCoreParameters(ShouldReturnCachedValue = True) Export
 EndFunction
 
 // Returns descriptions of all configuration libraries, including
-// a description of the configuration itself.
+// the configuration itself.
 //
 // Returns:
-//  Array - :
-//     * Name                            - String -  name of the subsystem, for example, "standard Subsystems".
-//     * OnlineSupportID - String - 
-//     * Version                         - String -  version in a four-digit format, such as "2.3.3.1".
-//     * IsConfiguration                - Boolean -  indicates that this subsystem is the primary configuration.
+//  Array - Array of Structure with the following properties:
+//     * Name                            - String - a subsystem name (for example, StandardSubsystems).
+//     * OnlineSupportID - String - a unique application name in online support services.
+//     * Version                         - String - version number in a four-digit format (for example, "2.1.3.1").
+//     * IsConfiguration                - Boolean - Indicates that this subsystem is the main configuration.
 //
 Function SubsystemsDetails() Export
 	Result = New Array;
@@ -2375,10 +2377,10 @@ Function SubsystemsDetails() Export
 	Return Result;
 EndFunction
 
-// Returns the ID of the Internet support for the main configuration.
+// Returns ID of the main configuration online support.
 //
 // Returns:
-//  String -  unique name of the program in Internet support services.
+//  String - a unique application name in online support services.
 //
 Function ConfigurationOnlineSupportID() Export
 	SubsystemsDetails = StandardSubsystemsCached.SubsystemsDetails();
@@ -2396,15 +2398,15 @@ EndFunction
 #Region Dates
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions to work with dates considering the session time zone
 
-// Converts a local date to the format" YYYY-MM-DDThh:mm:ssTZD " according to ISO 8601.
+// Convert a local date to the "YYYY-MM-DDThh:mm:ssTZD" format (ISO 8601).
 //
 // Parameters:
-//  LocalDate - Date -  date in the session's time zone.
+//  LocalDate - Date - a date in the session time zone.
 // 
 // Returns:
-//   String - 
+//   String - date presentation.
 //
 Function LocalDatePresentationWithOffset(LocalDate) Export
 	
@@ -2413,15 +2415,15 @@ Function LocalDatePresentationWithOffset(LocalDate) Export
 	
 EndFunction
 
-// Returns a string representation of the interval between the transmitted dates or
-// relative to the transmitted date and the current session date.
+// Returns a string presentation of a time period between the passed dates or
+// between the passed date and the current session date.
 //
 // Parameters:
-//  BeginTime    - Date -  starting point of the interval.
-//  EndTime - Date -  end point of the interval, if not specified, the current session date is taken.
+//  BeginTime    - Date - starting point of the time period.
+//  EndTime - Date - ending point of the time period; if not specified, the current session date is used instead.
 //
 // Returns:
-//  String - 
+//  String - a time period presentation.
 //
 Function TimeIntervalString(BeginTime, EndTime = Undefined) Export
 	
@@ -2451,14 +2453,14 @@ Function TimeIntervalString(BeginTime, EndTime = Undefined) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Work date management functions.
 
-// Saves the user's work date setting.
+// Save user work date settings.
 //
 // Parameters:
-//  NewWorkingDate - Date -  the date to set as the user's work date.
-//  UserName - String -  name of the user to set the working date for.
-//		If omitted, it is set for the current user.
+//  NewWorkingDate - Date - the date to be set as a work date for the user.
+//  UserName - String - name of the user, for whom the work date is set.
+//		If not set, the current user work date will be set.
 //			
 Procedure SetUserWorkingDate(NewWorkingDate, UserName = Undefined) Export
 
@@ -2468,14 +2470,14 @@ Procedure SetUserWorkingDate(NewWorkingDate, UserName = Undefined) Export
 
 EndProcedure
 
-// Returns the value of the work date setting for the user.
+// Returns the user work date settings value.
 //
 // Parameters:
-//  UserName - String -  name of the user for whom the work date is requested.
-//		If omitted, it is set for the current user.
+//  UserName - String - Name of the user the work date requested for.
+//		If no user is specified, the current user.
 //
 // Returns:
-//  Date - 
+//  Date - User work date setting. If no setting is specified, an empty date.
 //
 Function UserWorkingDate(UserName = Undefined) Export
 
@@ -2491,15 +2493,15 @@ Function UserWorkingDate(UserName = Undefined) Export
 	
 EndFunction
 
-// Returns the value of the user's work date setting, or the current session date
-// if the user's work date is not set.
+// Returns the user work date settings value or the current session date
+// if the user work date is not set.
 //
 // Parameters:
-//  UserName - String -  name of the user for whom the work date is requested.
-//		If omitted, it is set for the current user.
+//  UserName - String - Name of the user the work date requested for.
+//		If no user is specified, takes the current user.
 //
 // Returns:
-//  Date - 
+//  Date - a user work date setting value, or the current session date if no settings are found.
 //
 Function CurrentUserDate(UserName = Undefined) Export
 
@@ -2518,21 +2520,21 @@ EndFunction
 #Region Data
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common procedures and functions for applied types and value collections.
 
-// Returns the string name of the enumeration value by its reference.
-// Throws an exception if a nonexistent enumeration value is passed 
-// (for example, one that was deleted in the configuration or from a disabled configuration extension).
+// Returns the enumeration value name string by its reference.
+// Throws an exception if a non-existing enumeration value is passed 
+// (for example, deleted in the configuration or from a disabled configuration extension).
 //
 // Parameters:
-//  Value - EnumRef -  the value for which you want to retrieve the name of the enumeration.
+//  Value - EnumRef - the value whose enumeration name is sought.
 //
 // Returns:
 //  String
 //
 // Example:
-//   The result will contain the string value "physical Person":
-//   Result = General Values.Number_name (Enumeration.Legal and physical person.Physical person);
+//   String value "Individual" will be placed in the result:
+//   Result = Common.EnumerationValueName(Enumerations.CompanyIndividual.Individual);
 //
 Function EnumerationValueName(Value) Export
 	
@@ -2542,13 +2544,13 @@ Function EnumerationValueName(Value) Export
 	
 EndFunction 
 
-// The procedure removes the elements corresponding to the names 
-// of the object's details from the array of array-Verifiedrequisits from the array array.
-// For use in the event handlers of Obrabatyvaniya.
+// Deletes AttributeArray elements that match object attribute 
+// names from the NoncheckableAttributeArray array.
+// The procedure is intended to be used in FillCheckProcessing event handlers.
 //
 // Parameters:
-//  AttributesArray              - Array -  collection of names and details of the object.
-//  NotCheckedAttributeArray - Array -  collection of names of object details that do not require verification.
+//  AttributesArray              - Array - the collection of object attribute names.
+//  NotCheckedAttributeArray - Array - collection of the object attribute names that are not checked.
 //
 Procedure DeleteNotCheckedAttributesFromArray(AttributesArray, NotCheckedAttributeArray) Export
 	
@@ -2563,22 +2565,22 @@ Procedure DeleteNotCheckedAttributesFromArray(AttributesArray, NotCheckedAttribu
 	
 EndProcedure
 
-// Converts a table of values to an array of structures.
-// It can be used for transmitting data to the client if the table
-// it contains only values that can
-// be passed from the server to the client.
+// Converts a value table to a structure array.
+// Can be used to pass data to a client if the value
+// table contains only those values that can
+// be passed from the server to a client.
 //
-// The resulting array contains structures, each of which repeats
-// the structure of columns in the table of values.
+// The resulting array contains structures that duplicate
+// value table row structures.
 //
-// It is not recommended to use it for converting tables of values
+// It is recommended that you do not use this procedure to convert value tables
 // with a large number of rows.
 //
 // Parameters:
-//  ValueTable - ValueTable -  the original table of values.
+//  ValueTable - ValueTable - the original value table.
 //
 // Returns:
-//  Array - 
+//  Array - collection of the table rows expressed as structures.
 //
 Function ValueTableToArray(ValueTable) Export
 	
@@ -2601,14 +2603,14 @@ Function ValueTableToArray(ValueTable) Export
 
 EndFunction
 
-// Converts a row in the value table to a structure.
-// The structure properties and their values match the columns of the passed string.
+// Converts a value table row to a structure.
+// Structure properties and their values correspond to the columns of the passed row.
 //
 // Parameters:
 //  ValueTableRow - ValueTableRow
 //
 // Returns:
-//  Structure - 
+//  Structure - the converted value table row.
 //
 Function ValueTableRowToStructure(ValueTableRow) Export
 	
@@ -2621,15 +2623,15 @@ Function ValueTableRowToStructure(ValueTableRow) Export
 	
 EndFunction
 
-// Creates a structure containing the names and values of dimensions, resources, and details
-// of the passed information register record Manager.
+// Creates a structure containing names and values of dimensions, resources, and attributes
+// passed from information register record manager.
 //
 // Parameters:
-//  RecordManager     - InformationRegisterRecordManagerInformationRegisterName -  the record Manager to get the structure from.
-//  RegisterMetadata - MetadataObjectInformationRegister -  metadata of the information register.
+//  RecordManager     - InformationRegisterRecordManagerInformationRegisterName - the record manager that must pass the structure.
+//  RegisterMetadata - MetadataObjectInformationRegister - the information register metadata.
 //
 // Returns:
-//  Structure - 
+//  Structure - a collection of dimensions, resources, and attributes passed to the record manager.
 //
 Function StructureByRecordManager(RecordManager, RegisterMetadata) Export
 	
@@ -2652,8 +2654,8 @@ Function StructureByRecordManager(RecordManager, RegisterMetadata) Export
 	
 EndFunction
 
-// Creates an array and copies to it the values contained in the column of the object
-// that can be traversed using the operator for each ... From.
+// Creates an array and fills it with values from the column of the object that
+// can be iterated using For each… From operator.
 //
 // Parameters:
 //  RowsCollection           - ValueTable
@@ -2661,15 +2663,15 @@ EndFunction
 //                           - ValueList
 //                           - TabularSection
 //                           - Map
-//                           - Structure - 
-//                                         
-//                                         
-//  ColumnName               - String -  the field name of the collection whose values should be loaded.
-//  UniqueValuesOnly - Boolean -  if True,
-//                                      only different values will be included in the array.
+//                           - Structure - a collection whose column must be exported to an array.
+//                                         And other objects that can be iterated
+//                                         using For each… From… Do operator.
+//  ColumnName               - String - the name of the collection field whose values must be exported.
+//  UniqueValuesOnly - Boolean - If True,
+//                                      only unique values will be added to the array.
 //
 // Returns:
-//  Array - 
+//  Array - the column values.
 //
 Function UnloadColumn(RowsCollection, ColumnName, UniqueValuesOnly = False) Export
 
@@ -2690,12 +2692,12 @@ Function UnloadColumn(RowsCollection, ColumnName, UniqueValuesOnly = False) Expo
 	
 EndFunction
 
-// Converts text in the specified XML format to a table of values,
-// and the table columns are formed based on the description in XML.
+// Converts XML text into a structure with value tables.
+// The function creates table columns based on the XML description.
 //
 // XML schema:
-// <? xml version= "1.0" encoding= "utf-8"?>
-//  <xs:schema attributeFormDefault="unqualified" elementFormDefault=" qualified " xmlns:xs="http://www.w3.org/2001/XMLSchema">
+// <?xml version="1.0" encoding="utf-8"?>
+//  <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 //   <xs:element name="Items">
 //    <xs:complexType>
 //     <xs:sequence>
@@ -2716,16 +2718,16 @@ EndFunction
 //
 // Parameters:
 //  XML - String
-//      - XMLReader - 
+//      - XMLReader - text in XML or ReadXML format.
 //
 // Returns:
 //  Structure:
-//   * TableName - String          -  table name.
-//   * Data     - ValueTable -  converted from an XML table.
+//   * TableName - String          - table name.
+//   * Data     - ValueTable - the table converted from XML.
 //
 // Example:
-//   Classifier Table = General purpose.Read the XML table(
-//     Processing.The download of the courses is complete.Get a package ("All-Russian Classifier of the currency").Get the text()).Data;
+//   ClassifierTable = Common.ReadXMLToTable(
+//     DataProcessors.ImportCurrenciesRates.GetTemplate("NationalCurrencyClassifier").GetText()).Data;
 //
 Function ReadXMLToTable(Val XML) Export
 	
@@ -2736,7 +2738,7 @@ Function ReadXMLToTable(Val XML) Export
 		Read = XML;
 	EndIf;
 	
-	// 
+	// Read the first node and check it.
 	If Not Read.Read() Then
 		Raise NStr("en = 'The XML file is empty. Data couldn''t be imported.';");
 	ElsIf Read.Name <> "Items" Then
@@ -2745,7 +2747,7 @@ Function ReadXMLToTable(Val XML) Export
 			"Items");
 	EndIf;
 	
-	// 
+	// Get table details and create a table.
 	TableName = Read.GetAttribute("Description");
 	ColumnsNames = StrReplace(Read.GetAttribute("Columns"), ",", Chars.LF);
 	Columns1 = StrLineCount(ColumnsNames);
@@ -2755,7 +2757,7 @@ Function ReadXMLToTable(Val XML) Export
 		ValueTable.Columns.Add(StrGetLine(ColumnsNames, Cnt), New TypeDescription("String"));
 	EndDo;
 	
-	// 
+	// Populate the table.
 	While Read.Read() Do
 		
 		If Read.NodeType = XMLNodeType.EndElement And Read.Name = "Items" Then
@@ -2776,7 +2778,7 @@ Function ReadXMLToTable(Val XML) Export
 		
 	EndDo;
 	
-	// 
+	// Populate the resulting value table.
 	Result = New Structure;
 	Result.Insert("TableName", TableName);
 	Result.Insert("Data", ValueTable);
@@ -2785,14 +2787,14 @@ Function ReadXMLToTable(Val XML) Export
 	
 EndFunction
 
-// 
-// 
-// 
-//  
-//   
-//  
-//  
-//   
+// Compares two collections of rows (such as "ValueTable" and "ValueTree")
+// that can be iterated using the "For Each… From… Do" statement.
+// Both collections must meet the following requirements:
+//  - It supports iteration with the "For Each… From… Do" statement.
+//  - It contains all columns listed in "ColumnNames" 
+//  (if "ColumnNames" is empty, the second collection must contain all columns of the first collection).
+//  The method can be used to compare arrays.
+//  For comparing other collection kinds and comparing hierarchical collections, see the "DataMatch" function. 
 //
 // Parameters:
 //  RowsCollection1 - ValueTable
@@ -2802,8 +2804,8 @@ EndFunction
 //                  - Map
 //                  - Array
 //                  - FixedArray
-//                  - Structure - 
-//                     
+//                  - Structure - a collection meeting the above requirements. And other
+//                     objects that can be iterated using For each… From… Do operator.
 //  RowsCollection2 - ValueTable
 //                  - ValueTree
 //                  - ValueList
@@ -2811,24 +2813,24 @@ EndFunction
 //                  - Map
 //                  - Array
 //                  - FixedArray
-//                  - Structure - 
-//                     
-//  ColumnsNames - String - 
-//                          :
+//                  - Structure - a collection meeting the above requirements. And other
+//                     objects that can be iterated using For each… From… Do operator.
+//  ColumnsNames - String - A list of comma-delimited column names used for comparison.
+//                          It is optional for collections whose column list can be auto-determined:
+//                          ValueTable, ValueList, Map, Structure.
+//                          If the parameter is not passed, the first collection's columns are compared.
+//                          NOTE: When comparing collections containing item types instead of rows,
+//                          pass only item property names as column names.
+//                          For Map and Structure, it is "Key" and "Value" (not the keys' values).
+//                          For ValueList, it is "Value" and "Presentation" (not the values).
 //                          
 //                          
-//                          
-//                          
-//                          
-//                          
-//                          
-//                          
-//  ExcludingColumns - String -  names of columns that are ignored during comparison.
-//  UseRowOrder - Boolean -  if True, collections are recognized 
-//                      as identical only if the same rows are placed in the same places in the collections.
+//  ExcludingColumns - String - names of columns not included in the comparison.
+//  UseRowOrder - Boolean - If True, the collections are considered 
+//                      identical only if they contain the same rows in the same order.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the collections are identical.
 //
 Function IdenticalCollections(RowsCollection1, RowsCollection2, Val ColumnsNames = "", Val ExcludingColumns = "", 
 	UseRowOrder = False) Export
@@ -2843,7 +2845,7 @@ Function IdenticalCollections(RowsCollection1, RowsCollection2, Val ColumnsNames
 	
 	If UseRowOrder Then
 		Return SequenceSensitiveToCompare(RowsCollection1, RowsCollection2, ColumnsToCompare);
-	ElsIf ArraysCompared Then // 
+	ElsIf ArraysCompared Then // Using a simplified algorithm for arrays.
 		Return CompareArrays(RowsCollection1, RowsCollection2);
 	Else
 		Return SequenceIgnoreSensitiveToCompare(RowsCollection1, RowsCollection2, ColumnsToCompare);
@@ -2851,7 +2853,7 @@ Function IdenticalCollections(RowsCollection1, RowsCollection2, Val ColumnsNames
 	
 EndFunction
 
-// Compares data of a complex structure with consideration for nesting.
+// Compares data of a complex structure taking nesting into account.
 //
 // Parameters:
 //  Data1 - Structure
@@ -2864,11 +2866,11 @@ EndFunction
 //          - ValueTable
 //          - String
 //          - Number
-//          - Boolean - 
-//  Data2 - Arbitrary -  the same types as for the Data1 parameter.
+//          - Boolean - data to compare.
+//  Data2 - Arbitrary - the same types as the Data1 parameter types.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the types match.
 //
 Function DataMatch(Data1, Data2) Export
 	
@@ -2977,24 +2979,24 @@ Function DataMatch(Data1, Data2) Export
 	
 EndFunction
 
-// Captures data of the Structure, Match, and Array types, taking into account nesting.
+// Records data of the Structure, Map, and Array types taking nesting into account.
 //
 // Parameters:
 //  Data - Structure
 //         - Map
-//         - Array - 
-//           :
-//           
-//           
+//         - Array - Collections, whose values are primitive types, value storages, or are immutable.
+//           The following value types are supported::
+//           Boolean, String, Number, Date, Undefined, UUID, Null, Type,
+//           ValueStorage, CommonModule, MetadataObject, XDTOValueType, XDTOObjectType, AnyRef.
 //           
 //
-//  RaiseException1 - Boolean -  the initial value is True. When set to False, then if there
-//                                is non-commitable data, the exception will not be raised, and the data will
-//                                be fixed for as long as possible.
+//  RaiseException1 - Boolean - the default value is True. If it is False and there is data that
+//                                cannot be fixed, no exception is raised but as much data as possible
+//                                is fixed.
 //
 // Returns:
-//  FixedStructure, FixedMap, FixedArray - 
-//    
+//  FixedStructure, FixedMap, FixedArray - fixed data similar to
+//    the one passed in the Data parameter.
 // 
 Function FixedData(Data, RaiseException1 = True) Export
 	
@@ -3058,14 +3060,14 @@ Function FixedData(Data, RaiseException1 = True) Export
 	
 EndFunction
 
-// Calculates a checksum for arbitrary data using the specified algorithm.
+// Calculates the checksum for arbitrary data using the specified algorithm.
 //
 // Parameters:
-//  Data   - Arbitrary -  any serializable value.
-//  Algorithm - HashFunction   -  algorithm for calculating the checksum. By default, MD5.
+//  Data   - Arbitrary - the data to serialize.
+//  Algorithm - HashFunction   - an algorithm to calculate the checksum. The default algorithm is MD5.
 // 
 // Returns:
-//  String - 
+//  String - the checksum. 32 bytes, no whitespaces.
 //
 Function CheckSumString(Val Data, Val Algorithm = Undefined) Export
 	
@@ -3089,18 +3091,18 @@ Function CheckSumString(Val Data, Val Algorithm = Undefined) Export
 	
 EndFunction
 
-// Reduces the string to the desired length, and the truncated part is hashed,
-// ensuring that the string is unique. Checks the length of the input string and, if
-// the maximum length is exceeded, converts its end using the MD5 algorithm to a
-// unique string of 32 characters.
+// Trims a string to the specified length. The trimmed part is hashed
+// to ensure the result string is unique. Checks an input string and, unless
+// it fits the limit, converts its end into
+// a unique 32 symbol string using MD5 algorithm.
 //
 // Parameters:
-//  String            - String -  source string of any length.
-//  MaxLength - Number  -  required maximum number of characters per line,
-//                               minimum value: 32.
+//  String            - String - the input string of arbitrary length.
+//  MaxLength - Number  - the maximum valid string length.
+//                               The minimum value is 32.
 // 
 // Returns:
-//   String - 
+//   String - a string within the maximum length limit.
 //
 Function TrimStringUsingChecksum(String, MaxLength) Export
 	
@@ -3120,9 +3122,9 @@ Function TrimStringUsingChecksum(String, MaxLength) Export
 	Return Result;
 EndFunction
 
-// Creates a complete copy of a structure, match, array, list, or table of values, recursively,
-// with consideration for the types of child elements. However, the contents of object type values are
-// (Reference object, document Object, etc.) are not copied, but references to the source object are returned.
+// Creates a complete recursive copy of a structure, map, array, list, or value table consistent
+// with the child item type. For object-type values
+// (for example, CatalogObject or DocumentObject), the procedure returns references to the source objects instead of copying the content.
 //
 // Parameters:
 //  Source - Structure
@@ -3131,18 +3133,18 @@ EndFunction
 //           - FixedMap
 //           - Array
 //           - FixedArray
-//           - ValueList - 
-//  FixData - Boolean       -  if True, fix it, if False, remove the fixation.
-//                    - Undefined - 
+//           - ValueList - an object that needs to be copied.
+//  FixData - Boolean       - If it is True, then fix, if it is False, remove the fixing.
+//                    - Undefined - do not change.
 //
 // Returns:
 //  Structure, 
-//  Fixed Structure,
-//  Accordance
-//  Fixed Compliance
+//  FixedStructure,
+//  Map
+//  FixedMap
 //  Array
-//  Fixed Array
-//  The list of values is a copy of the object passed in the Source parameter.
+//  FixedArray
+//  ValueList - a copy of the object passed in the Source parameter.
 //
 Function CopyRecursive(Source, FixData = Undefined) Export
 	
@@ -3175,16 +3177,16 @@ Function CopyRecursive(Source, FixData = Undefined) Export
 	
 EndFunction
 
-// 
-//  
-// 
-// 
+// Returns topic details as a string.
+// For documents, returns the document presentation. 
+// For Ref objects, returns the presentation and the type enclosed in brackets. For example, "Scissors (Inventory)".
+// For empty Ref, Undefined, or empty primitive types, returns "not specified".
 // 
 // Parameters:
 //  ReferenceToSubject - Arbitrary
 //
 // Returns:
-//   String - 
+//   String - For example, "Scissors (Inventory)", "Sales order #0001 dated 01.01.2001", or "not specified".
 // 
 Function SubjectString(ReferenceToSubject) Export
 	
@@ -3196,12 +3198,12 @@ Function SubjectString(ReferenceToSubject) Export
 	
 EndFunction
 
-// 
-//  
-// 
-// 
-// 
-// 
+// Returns the details of the RefsToSubjects objects.
+// For documents, returns the document presentation. 
+// For Ref objects, returns the presentation and the type enclosed in brackets. For example, "Scissors (Inventory)".
+// For empty Ref, Undefined, or empty primitive types, returns "not specified".
+// For objects not found in the configuration, returns "deleted".
+// Undefined values are skipped.
 // 
 // Parameters:
 //  RefsToSubjects - Array of AnyRef
@@ -3209,7 +3211,7 @@ EndFunction
 // Returns:
 //   Map of KeyAndValue:
 //     * Key - AnyRef
-//     * Value - String - 
+//     * Value - String - For example, "Scissors (Inventory)", "Sales order #0001 dated 01.01.2001", or "not specified".
 // 
 Function SubjectAsString(Val RefsToSubjects) Export
 	
@@ -3246,7 +3248,7 @@ Function SubjectAsString(Val RefsToSubjects) Export
 	
 EndFunction
 
-// 
+// Returns the presentations of the passed references.
 //
 // Parameters:
 //  RefsToCheck - Array of AnyRef, AnyRef
@@ -3254,7 +3256,7 @@ EndFunction
 // Returns:
 //  Map of KeyAndValue:
 //   * Key - AnyRef
-//   * Value - String - 
+//   * Value - String - Reference presentation, or "deleted" if it could not find the reference in the infobase.
 //
 Function RefsPresentations(RefsToCheck) Export
 	
@@ -3334,13 +3336,13 @@ EndFunction
 
 #Region DynamicList
 
-// Creates a structure for the second parameter of the properties of the list of the procedure to set the properties of the dynamic list.
+// Creates a structure for the second ListProperties parameter of the SetDynamicListProperties procedure.
 //
 // Returns:
-//  Structure - :
-//     * QueryText - String -  the new text of the request.
-//     * MainTable - String -  name of the main table.
-//     * DynamicDataRead - Boolean -  indicates whether dynamic reading is used.
+//  Structure - Any field can be Undefined if it is not set.:
+//     * QueryText - String - the new query text.
+//     * MainTable - String - the name of the main table.
+//     * DynamicDataRead - Boolean - a flag indicating whether dynamic reading is used.
 //
 Function DynamicListPropertiesStructure() Export
 	
@@ -3348,11 +3350,11 @@ Function DynamicListPropertiesStructure() Export
 	
 EndFunction
 
-// To set the text of the query, the underlying table or dynamically loading a dynamic list.
-// You should set these properties in a single call to this procedure to avoid performance degradation.
+// Sets the query text, primary table, or dynamic reading from a dynamic list.
+// To avoid low performance, set these properties within the same call of this procedure.
 //
 // Parameters:
-//  List - FormTable -  a dynamic list form element for which properties are set.
+//  List - FormTable - a form item of the dynamic list whose properties are to be set.
 //  ListProperties - See DynamicListPropertiesStructure
 //
 Procedure SetDynamicListProperties(List, ListProperties) Export
@@ -3390,15 +3392,15 @@ EndProcedure
 #Region ExternalConnection
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for managing external connections.
 
-// Returns the CLSID of the COM class for working with "1C:"8" via COM connection.
+// Returns the CLSID of the COM class for working with 1C:Enterprise 8 through a COM connection.
 //
 // Parameters:
-//  COMConnectorName - String -  name of the COM class for working with " 1C:"8" via COM connection.
+//  COMConnectorName - String - the name of the COM class for working with 1C:Enterprise 8 through a COM connection.
 //
 // Returns:
-//  String - 
+//  String - the CLSID string presentation.
 //
 Function COMConnectorID(Val COMConnectorName) Export
 	
@@ -3413,8 +3415,8 @@ Function COMConnectorID(Val COMConnectorName) Export
 	
 EndFunction
 
-// Sets up an external connection to the database based on the passed connection parameters and returns a pointer
-// to this connection.
+// Establishes an external infobase connection with the passed parameters and returns a pointer
+// to the connection.
 // 
 // Parameters:
 //  Parameters - See CommonClientServer.ParametersStructureForExternalConnection
@@ -3422,10 +3424,10 @@ EndFunction
 // Returns:
 //  Structure:
 //    * Join - COMObject
-//                 - Undefined - 
-//    * BriefErrorDetails - String -  short description of the error;
-//    * DetailedErrorDetails - String -  detailed description of the error;
-//    * AddInAttachmentError - Boolean -  COM connection error flag.
+//                 - Undefined - If the connection is established, returns a COM object reference. Otherwise, returns Undefined.
+//    * BriefErrorDetails - String - brief error description;
+//    * DetailedErrorDetails - String - detailed error description;
+//    * AddInAttachmentError - Boolean - a COM connection error flag.
 //
 Function EstablishExternalConnectionWithInfobase(Parameters) Export
 	
@@ -3441,17 +3443,17 @@ EndFunction
 #Region Metadata
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Metadata object type definition functions.
 
-// 
+// Reference data types
 
-// Defines whether the metadata object belongs to the General "Document" type.
+// Checks whether the metadata object belongs to the Document common  type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to documents.
+//  MetadataObject - MetadataObject - object to compare against Document type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a document.
 //
 Function IsDocument(MetadataObject) Export
 	
@@ -3459,13 +3461,13 @@ Function IsDocument(MetadataObject) Export
 	
 EndFunction
 
-// Defines whether the metadata object belongs to the General Reference type.
+// Checks whether the metadata object belongs to the Catalog common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a catalog.
 //
 Function IsCatalog(MetadataObject) Export
 	
@@ -3473,13 +3475,13 @@ Function IsCatalog(MetadataObject) Export
 	
 EndFunction
 
-// Defines whether the metadata object belongs to the General "Enumeration" type.
+// Checks whether the metadata object belongs to the Enumeration common  type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is an enumeration.
 //
 Function IsEnum(MetadataObject) Export
 	
@@ -3487,13 +3489,13 @@ Function IsEnum(MetadataObject) Export
 	
 EndFunction
 
-// Defines whether the metadata object belongs to the General "exchange Plan" type.
+// Checks whether the metadata object belongs to the Exchange Plan common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is an exchange plan.
 //
 Function IsExchangePlan(MetadataObject) Export
 	
@@ -3501,13 +3503,13 @@ Function IsExchangePlan(MetadataObject) Export
 	
 EndFunction
 
-// Defines whether the metadata object belongs to the General "feature types Plan" type.
+// Checks whether the metadata object belongs to the Chart of Characteristic Types common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a chart of characteristic types.
 //
 Function IsChartOfCharacteristicTypes(MetadataObject) Export
 	
@@ -3515,13 +3517,13 @@ Function IsChartOfCharacteristicTypes(MetadataObject) Export
 	
 EndFunction
 
-// Defines whether the metadata object belongs to the General "Business process" type.
+// Checks whether the metadata object belongs to the Business Process common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a business process.
 //
 Function IsBusinessProcess(MetadataObject) Export
 	
@@ -3529,13 +3531,13 @@ Function IsBusinessProcess(MetadataObject) Export
 	
 EndFunction
 
-// Defines whether the metadata object belongs to the General "Task" type.
+// Checks whether the metadata object belongs to the Task common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a task.
 //
 Function IsTask(MetadataObject) Export
 	
@@ -3543,13 +3545,13 @@ Function IsTask(MetadataObject) Export
 	
 EndFunction
 
-// Defines whether the metadata object belongs to the General chart of accounts type.
+// Checks whether the metadata object belongs to the Chart of Accounts common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a chart of accounts.
 //
 Function IsChartOfAccounts(MetadataObject) Export
 	
@@ -3557,13 +3559,13 @@ Function IsChartOfAccounts(MetadataObject) Export
 	
 EndFunction
 
-// Defines whether the metadata object belongs to the General type "plan of calculation types".
+// Checks whether the metadata object belongs to the Chart of Calculation Types common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a chart of calculation types.
 //
 Function IsChartOfCalculationTypes(MetadataObject) Export
 	
@@ -3573,13 +3575,13 @@ EndFunction
 
 // Registers
 
-// Defines whether the metadata object belongs to the General "data Register" type.
+// Checks whether the metadata object belongs to the Information Register common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is an information register.
 //
 Function IsInformationRegister(MetadataObject) Export
 	
@@ -3587,13 +3589,13 @@ Function IsInformationRegister(MetadataObject) Export
 	
 EndFunction
 
-// Defines whether the metadata object belongs to the General "accumulation Register" type.
+// Checks whether the metadata object belongs to the Accumulation Register common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is an accumulation register.
 //
 Function IsAccumulationRegister(MetadataObject) Export
 	
@@ -3601,13 +3603,13 @@ Function IsAccumulationRegister(MetadataObject) Export
 	
 EndFunction
 
-// Determines whether the metadata object belongs to the General "accounting Register" type.
+// Checks whether the metadata object belongs to the Accounting Register common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is an accounting register.
 //
 Function IsAccountingRegister(MetadataObject) Export
 	
@@ -3615,13 +3617,13 @@ Function IsAccountingRegister(MetadataObject) Export
 	
 EndFunction
 
-// Defines whether the metadata object belongs to the General "calculation Register" type.
+// Checks whether the metadata object belongs to the Calculation Register common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a calculation register.
 //
 Function IsCalculationRegister(MetadataObject) Export
 	
@@ -3631,13 +3633,13 @@ EndFunction
 
 // Constants
 
-// Defines whether the metadata object belongs to the General "Constant" type.
+// Checks whether the metadata object belongs to the Constant common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a constant.
 //
 Function IsConstant(MetadataObject) Export
 	
@@ -3645,15 +3647,15 @@ Function IsConstant(MetadataObject) Export
 	
 EndFunction
 
-// 
+// Document journals
 
-// Defines whether the metadata object belongs to the General document Log type.
+// Checks whether the metadata object belongs to the Document Journal common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean -  True if the object is a document log.
+//   Boolean - True if the object is a document journal.
 //
 Function IsDocumentJournal(MetadataObject) Export
 	
@@ -3663,13 +3665,13 @@ EndFunction
 
 // Sequences
 
-// Defines whether the metadata object belongs to the General "Sequence" type.
+// Checks whether the metadata object belongs to the Sequences common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a sequence.
 //
 Function IsSequence(MetadataObject) Export
 	
@@ -3679,13 +3681,13 @@ EndFunction
 
 // ScheduledJobs
 
-// Defines whether the metadata object belongs to the General "Routine tasks" type.
+// Checks whether the metadata object belongs to the Scheduled Jobs common type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - If True, the object is a scheduled job.
 //
 Function IsScheduledJob(MetadataObject) Export
 	
@@ -3693,15 +3695,15 @@ Function IsScheduledJob(MetadataObject) Export
 	
 EndFunction
 
-// Overall
+// Common
 
-// Determines whether the metadata object belongs to the register type.
+// Checks whether the metadata object belongs to the register type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - True if the object is a register.
 //
 Function IsRegister(MetadataObject) Export
 	
@@ -3712,13 +3714,13 @@ Function IsRegister(MetadataObject) Export
 		
 EndFunction
 
-// Defines whether the metadata object belongs to the reference type.
+// Checks whether the metadata object belongs to the reference type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the object to determine whether it belongs to the specified type.
+//  MetadataObject - MetadataObject - object to compare against the specified type.
 // 
 // Returns:
-//   Boolean -  True if the object is of the reference type.
+//   Boolean - True if the object is a reference type object.
 //
 Function IsRefTypeObject(MetadataObject) Export
 	
@@ -3741,19 +3743,19 @@ Function IsRefTypeObject(MetadataObject) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for operations with types, metadata objects, and their string presentations.
 
-// Returns the names of object details of the specified type.
+// Returns names of attributes for an object of the specified type.
 //
 // Parameters:
-//  Ref - AnyRef -  reference to the database element that you want to get the function result for;
-//  Type    - Type -  type of the prop value.
+//  Ref - AnyRef - a reference to a database item to use with the function;
+//  Type    - Type - attribute value type.
 // 
 // Returns:
-//  String - 
+//  String - a comma-separated string of configuration metadata object attributes.
 //
 // Example:
-//  Company Details = General Purpose.Namesrequisitovpotip(Document.The Link Type("Spravochniki.Companies"));
+//  CompanyAttributes = Common.AttributeNamesByType (Document.Ref, Type("CatalogRef.Companies"));
 //
 Function AttributeNamesByType(Ref, Type) Export
 	
@@ -3769,16 +3771,16 @@ Function AttributeNamesByType(Ref, Type) Export
 	Return Result;
 EndFunction
 
-// Returns the name of the base type based on the passed value of the metadata object.
+// Returns a base type name by the passed metadata object value.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  the metadata object to use to determine the base type.
+//  MetadataObject - MetadataObject - a metadata object whose base type is to be determined.
 // 
 // Returns:
-//  String - 
+//  String - name of the base type for the passed metadata object value.
 //
 // Example:
-//  Base_name = General Purpose.Name Of The Base_type Of The Meta-Data Object(Metadata.Guides.Nomenclature); = "Reference Books".
+//  BaseTypeName = Common.BaseTypeNameByMetadataObject(Metadata.Catalogs.Products); = "Catalogs".
 //
 Function BaseTypeNameByMetadataObject(MetadataObject) Export
 	
@@ -3914,18 +3916,18 @@ Function BaseTypeNameByMetadataObject(MetadataObject) Export
 	
 EndFunction
 
-// Returns the object Manager by the full name of the metadata object.
-// Restriction: business process route points are not processed.
+// Returns an object manager by the passed full name of a metadata object.
+// Restriction: does not process business process route points.
 //
 // Parameters:
-//  FullName - String -  full name of the metadata object. Example: "Directory.Companies".
+//  FullName - String - a full name of metadata object. Example: "Catalog.Company".
 //
 // Returns:
-//  
+//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager, ChartOfCharacteristicTypesManager
 // 
 // Example:
-//  Managerphone = Observatsionnoe.Of Managedobjectreference("Handbook.Companies");
-//  Portasilo = Mengersponge.Empty link();
+//  CatalogManager = Common.ObjectManagerByFullName("Catalog.Companies");
+//  EmptyRef = CatalogManager.EmptyRef();
 //
 Function ObjectManagerByFullName(FullName) Export
 	
@@ -4033,19 +4035,19 @@ Function ObjectManagerByFullName(FullName) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns an object manager by the passed object reference.
+// Restriction: does not process business process route points.
+// See also: Common.ObjectManagerByFullName.
 //
 // Parameters:
-//  Ref - AnyRef -  the object to get the Manager for.
+//  Ref - AnyRef - an object whose manager is sought.
 //
 // Returns:
-//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - 
+//  CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - an object manager.
 //
 // Example:
-//  Managerphone = Observatsionnoe.Managedobjectreference(Selenoorganic);
-//  Portasilo = Mengersponge.Empty link();
+//  CatalogManager = Common.ObjectManagerByRef(RefToCompany);
+//  EmptyRef = CatalogManager.EmptyRef();
 //
 Function ObjectManagerByRef(Ref) Export
 	
@@ -4084,14 +4086,14 @@ Function ObjectManagerByRef(Ref) Export
 	
 EndFunction
 
-// 
-// 
+// Check whether the passed type is a reference data type.
+// Returns False for Undefined type.
 //
 // Parameters:
-//  TypeToCheck - Type -  to check for a reference data type.
+//  TypeToCheck - Type - a reference type to check.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the type is a reference type.
 //
 Function IsReference(TypeToCheck) Export
 	
@@ -4099,13 +4101,13 @@ Function IsReference(TypeToCheck) Export
 	
 EndFunction
 
-// Checks whether there is a physical record in the information database about the passed link value.
+// Checks whether the infobase record exists by its reference.
 //
 // Parameters:
-//  RefToCheck - AnyRef -  the value of any information database link.
+//  RefToCheck - AnyRef - a value of an infobase reference.
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - True if exists.
 //
 Function RefExists(RefToCheck) Export
 	
@@ -4128,15 +4130,15 @@ Function RefExists(RefToCheck) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns the name of the metadata object kind by the passed object reference.
+// Restriction: Business process route points are not supported.
+// See also: ObjectKindByType.
 //
 // Parameters:
-//  Ref - AnyRef -  the object to get the view of.
+//  Ref - AnyRef - an object of the kind to search for.
 //
 // Returns:
-//  String - 
+//  String - a metadata object kind name. For example: "Catalog", "Document".
 // 
 Function ObjectKindByRef(Ref) Export
 	
@@ -4144,15 +4146,15 @@ Function ObjectKindByRef(Ref) Export
 	
 EndFunction 
 
-// 
-// 
-// 
+// Returns the name of a metadata object kind by the passed object type.
+// Restriction: Business process route points are not supported.
+// See also: ObjectKindByRef.
 //
 // Parameters:
-//  ObjectType - Type -  the type of application object defined in the configuration.
+//  ObjectType - Type - an applied object type defined in the configuration.
 //
 // Returns:
-//  String - 
+//  String - a metadata object kind name. For example: "Catalog", "Document".
 // 
 Function ObjectKindByType(ObjectType) Export
 	
@@ -4191,13 +4193,13 @@ Function ObjectKindByType(ObjectType) Export
 	
 EndFunction
 
-// Returns the full name of the metadata object based on the passed reference value.
+// Returns full metadata object name by the passed reference value.
 //
 // Parameters:
-//  Ref - AnyRef -  object to get the name of the information security table for.
+//  Ref - AnyRef - an object whose infobase table name is sought.
 // 
 // Returns:
-//  String - 
+//  String - the full name of the metadata object for the specified object. For example, "Catalog.Products".
 //
 Function TableNameByRef(Ref) Export
 	
@@ -4205,13 +4207,13 @@ Function TableNameByRef(Ref) Export
 	
 EndFunction
 
-// Checks that the passed value is of the reference data type.
+// Checks whether the value is a reference type value.
 //
 // Parameters:
-//  Value - Arbitrary -  the value to check.
+//  Value - Arbitrary - a value to check.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the value has a reference type.
 //
 Function RefTypeValue(Value) Export
 	
@@ -4219,13 +4221,13 @@ Function RefTypeValue(Value) Export
 	
 EndFunction
 
-// Checks whether an item in the reference list or the feature view plan is a group of items.
+// Checks whether a catalog item or an item of the chart of characteristic types is an item group.
 //
 // Parameters:
 //  Object - CatalogRef
 //         - ChartOfCharacteristicTypesRef
 //         - CatalogObject
-//         - ChartOfCharacteristicTypesObject -  the object being checked.
+//         - ChartOfCharacteristicTypesObject - Object being checked.
 //
 // Returns:
 //  Boolean
@@ -4256,47 +4258,47 @@ Function ObjectIsFolder(Object) Export
 	
 EndFunction
 
-// 
-// 
+// Returns a reference corresponding to the metadata object to be used in the database.
+// See also: Common.MetadataObjectIDs.
 //
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
+// References are returned for the following metadata objects:
+// - Subsystem (See also: CommonOverridable.OnAddMetadataObjectsRenaming)
+// - Role (See also: CommonOverridable.OnAddMetadataObjectsRenaming)
+// - ExchangePlan
+// - Constant
+// - Catalog
+// - Document
+// - DocumentJournal
+// - Report
+// - DataProcessor
+// - ChartOfCharacteristicTypes
+// - ChartOfAccounts
+// - ChartOfCalculationTypes
+// - InformationRegister
+// - AccumulationRegister
+// - AccountingRegister
+// - CalculationRegister
+// - BusinessProcess
+// - Task
 // 
 // Parameters:
-//  MetadataObjectDetails - MetadataObject -  the metadata object's configuration;
-//                            - Type - 
-//                            - String -  
-//                                       
+//  MetadataObjectDetails - MetadataObject - a configuration metadata object;
+//                            - Type - a type that can be used in Metadata.FindByType;
+//                            - String - the valid full name of a metadata object to 
+//                                       use in the Metadata.FindByFullName function.
 //
-//  RaiseException1 - Boolean -  if False, Null is returned for a nonexistent
-//                                or unsupported metadata object instead of calling an exception.
+//  RaiseException1 - Boolean - If False, Null is returned instead of calling an exception for a non-existing
+//                                or unsupported metadata object.
 //
 // Returns:
 //  CatalogRef.MetadataObjectIDs
-//  Spravochniki.Identifiers
-//  of the extension objects Null
+//  CatalogRef.ExtensionObjectIDs
+//  Null
 //  
 // Example:
-//  ID = General Purpose.ID Of The Metadata Object(Type Of Tag (Link));
-//  ID = General Purpose.ID Of The Metadat Object(Metadat Object);
-//  ID = General Purpose.ID Of The Metadata Object ("Reference.Companies");
+//  ID = Common.MetadataObjectID(TypeOf(Ref));
+//  ID = Common.MetadataObjectID(MetadataObject);
+//  ID = Common.MetadataObjectID("Catalog.Companies");
 //
 Function MetadataObjectID(MetadataObjectDetails, RaiseException1 = True) Export
 	
@@ -4305,48 +4307,48 @@ Function MetadataObjectID(MetadataObjectDetails, RaiseException1 = True) Export
 	
 EndFunction
 
-// 
-// 
+// Returns references corresponding to the metadata objects to be used in the database.
+// See also: Common.MetadataObjectID.
 //
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
+// References are returned for the following metadata objects:
+// - Subsystem (See also: CommonOverridable.OnAddMetadataObjectsRenaming)
+// - Role (See also: CommonOverridable.OnAddMetadataObjectsRenaming)
+// - ExchangePlan
+// - Constant
+// - Catalog
+// - Document
+// - DocumentJournal
+// - Report
+// - DataProcessor
+// - ChartOfCharacteristicTypes
+// - ChartOfAccounts
+// - ChartOfCalculationTypes
+// - InformationRegister
+// - AccumulationRegister
+// - AccountingRegister
+// - CalculationRegister
+// - BusinessProcess
+// - Task
 // 
 // Parameters:
-//  MetadataObjectsDetails - Array of MetadataObject -  configuration metadata objects;
-//                             - Array of String - 
-//                         
-//                             - Array of Type - 
-//  RaiseException1 - Boolean -  if False, nonexistent and unsupported metadata objects
-//                                will be omitted in the return value.
+//  MetadataObjectsDetails - Array of MetadataObject - configuration metadata objects;
+//                             - Array of String - full names of the metadata objects to use
+//                         in the Metadata.FindByFullName function;
+//                             - Array of Type - types that can be used in the Metadata.FindByType function.
+//  RaiseException1 - Boolean - If False, non-existing and unsupported metadata objects
+//                                will be skipped in the return value.
 //
 // Returns:
 //  Map of KeyAndValue:
-//    * Key     - String -  full name of the specified metadata object.
+//    * Key     - String - a full name of the metadata object.
 //    * Value - CatalogRef.MetadataObjectIDs
-//               - CatalogRef.ExtensionObjectIDs - 
+//               - CatalogRef.ExtensionObjectIDs - the found ID.
 //
 // Example:
-//  Full name = new array;
-//  Full name.Add (Metadata.Guides.Currencies.Full name());
-//  Full name.Add (Metadata.Ledgers.Currency exchange rate.Full name());
-//  IDs = General Purpose.Object IDs Of The Metadata(Full Name);
+//  FullNames = New Array;
+//  FullNames.Add(Metadata.Catalogs.Currencies.FullName());
+//  FullNames.Add(Metadata.InformationRegisters.ExchangeRates.FullName());
+//  IDs = Common.MetadataObjectIDs(FullNames);
 //
 Function MetadataObjectIDs(MetadataObjectsDetails, RaiseException1 = True) Export
 	
@@ -4355,29 +4357,29 @@ Function MetadataObjectIDs(MetadataObjectsDetails, RaiseException1 = True) Expor
 	
 EndFunction
 
-// Returns a metadata object by the passed ID.
+// Returns a metadata object by ID.
 //
 // Parameters:
 //  Id - CatalogRef.MetadataObjectIDs
-//                - CatalogRef.ExtensionObjectIDs - 
-//                    
+//                - CatalogRef.ExtensionObjectIDs - the IDs of
+//                    metadata objects in an application or an extension.
 //
-//  RaiseException1 - Boolean -  if False, then if the metadata object
-//                    does not exist or is not available, returns, respectively
-//                    Null or Undefined instead of calling an exception.
+//  RaiseException1 - Boolean - If True, when metadata object
+//                    does not exist or it is unavailable, it returns
+//                    Null or Undefined instead of raising an exception.
 //
 // Returns:
-//  MetadataObject - 
+//  MetadataObject - the metadata object with the specified ID.
 //
-//  
-//    
+//  Null is returned when RaiseException = False. Null means
+//    there is no metadata object with this ID (the ID is invalid).
 //
-//  
-//    
-//    
-//    
-//    
-//    
+//  Undefined is returned when RaiseException = False. Undefined means
+//    the ID is valid, but the session fails to get the MetadataObject.
+//    For configuration extensions, that means the extension had been installed, but was not attached,
+//    or the configuration was not restarted, or attaching the extension failed.
+//    For the configuration, that means the new session contains the object
+//    and the current session does not contain it.
 //
 Function MetadataObjectByID(Id, RaiseException1 = True) Export
 	
@@ -4386,31 +4388,31 @@ Function MetadataObjectByID(Id, RaiseException1 = True) Export
 	
 EndFunction
 
-// Returns metadata objects based on the passed IDs.
+// Returns metadata objects with the specified IDs.
 //
 // Parameters:
-//  IDs - Array - :
+//  IDs - Array - with the following values:
 //                     * Value - CatalogRef.MetadataObjectIDs
-//                                - CatalogRef.ExtensionObjectIDs - 
-//                                    
+//                                - CatalogRef.ExtensionObjectIDs - the IDs of
+//                                    metadata objects in an application or an extension.
 //
-//  RaiseException1 - Boolean -  if False, then if the metadata object
-//                    does not exist or is not available, returns, respectively
-//                    Null or Undefined instead of calling an exception.
+//  RaiseException1 - Boolean - If True, when metadata object
+//                    does not exist or it is unavailable, it returns
+//                    Null or Undefined instead of raising an exception.
 //
 // Returns:
 //  Map of KeyAndValue:
 //   * Key     - CatalogRef.MetadataObjectIDs
-//              - CatalogRef.ExtensionObjectIDs - 
-//   * Value - MetadataObject -  the metadata object corresponding to the ID.
-//              - Null - 
-//                  
-//              - Undefined - 
-//                  
-//                  
-//                  
-//                  
-//                  
+//              - CatalogRef.ExtensionObjectIDs - the passed ID.
+//   * Value - MetadataObject - the metadata object with the specified ID.
+//              - Null - is returned when RaiseException = False. Null means
+//                  there is no metadata object with this ID (the ID is invalid).
+//              - Undefined - is returned when RaiseException = False. Undefined means
+//                  the ID is valid, but the session fails to get the MetadataObject.
+//                  For configuration extensions, that means the extension had been installed, but was not attached,
+//                  or the configuration was not restarted, or attaching the extension failed.
+//                  For the configuration, that means the new session contains the object
+//                  and the current session does not contain it.
 //
 Function MetadataObjectsByIDs(IDs, RaiseException1 = True) Export
 	
@@ -4419,16 +4421,16 @@ Function MetadataObjectsByIDs(IDs, RaiseException1 = True) Export
 	
 EndFunction
 
-// 
-// 
+// Returns MetadataObject quickly found by its full name.
+// More efficient than method Metadata.FindByFullName for root objects.
 // 
 //
 // Parameters:
-//  FullName - String - 
+//  FullName - String - Full name of the metadata object. For example, "Catalog.Companies".
 //
 // Returns:
-//  MetadataObject - 
-//  
+//  MetadataObject - When an object is found.
+//  Undefined - When no object is found.
 //
 Function MetadataObjectByFullName(FullName) Export
 	
@@ -4475,14 +4477,14 @@ Function MetadataObjectByFullName(FullName) Export
 	
 EndFunction
 
-// Determines the availability of the metadata object by functional options.
+// Determines whether the metadata object is available by functional options.
 //
 // Parameters:
 //   MetadataObject - MetadataObject
-//                    - String -  the metadata object to check.
+//                    - String - Metadata object being checked.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the object is available.
 //
 Function MetadataObjectAvailableByFunctionalOptions(Val MetadataObject) Export
 	If MetadataObject = Undefined Then
@@ -4496,26 +4498,26 @@ Function MetadataObjectAvailableByFunctionalOptions(Val MetadataObject) Export
 	Return StandardSubsystemsCached.ObjectsEnabledByOption().Get(FullName) <> False;
 EndFunction
 
-// Adds a description of renaming the metadata object when switching to the specified configuration version.
-// The addition is performed in the Total structure, which is passed to the
-// General purpose procedure Undefined.Adding the name of the metadat objects.
+// During migration to the specified configuration version, stores the metadata object renaming details
+// to the Totals structure, which is passed to
+// the CommonOverridable.OnAddMetadataObjectsRenaming procedure.
 // 
 // Parameters:
 //   Total                    - See CommonOverridable.OnAddMetadataObjectsRenaming.Total
-//   IBVersion                - String    -  the version of the final configuration that you want
-//                                         to rename when switching to, for example, "2.1.2.14".
-//   PreviousFullName         - String    - 
-//                                         
-//   NewFullName          - String    - 
-//                                         
-//   LibraryID - String    -  internal ID of the library that the version of the Library belongs to.
-//                                         It is not required for the main configuration.
-//                                         For example, "standard Subsystems" - as specified
-//                                         in the update of the information database.In addition to the subsystems.
+//   IBVersion                - String    - the destination configuration version.
+//                                         For example, "2.1.2.14".
+//   PreviousFullName         - String    - The original full name of the metadata object to rename.
+//                                         For example, "Subsystem.ServiceSubsystems".
+//   NewFullName          - String    - New full name of the metadata object.
+//                                         For example, "Subsystem.UtilitySubsystems".
+//   LibraryID - String    - an internal ID of the library that contains IBVersion.
+//                                         Not required for the base configuration.
+//                                         For example, "StandardSubsystems", as specified
+//                                         in InfobaseUpdateSSL.OnAddSubsystem.
 // Example:
-//	
-//		
-//		
+//	Common.AddRenaming(Total, "2.1.2.14",
+//		"Subsystem.ServiceSubsystems",
+//		"Subsystem.UtilitySubsystems");
 //
 Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID = "") Export
 	
@@ -4524,11 +4526,11 @@ Procedure AddRenaming(Total, IBVersion, PreviousFullName, NewFullName, LibraryID
 	
 EndProcedure
 
-// 
-// 
+// Returns the string presentation of the type. For example, "CatalogRef.ObjectName" or "DocumentRef.ObjectName".
+// For other types, casts the type to String. For example, "Number".
 //
 // Parameters:
-//  Type - Type -  for which you need to get an idea.
+//  Type - Type - a type whose presentation is sought.
 //
 // Returns:
 //  String
@@ -4601,36 +4603,36 @@ Function TypePresentationString(Type) Export
 	
 EndFunction
 
-// Returns a table of values with a description of the required properties of all metadata object details.
-// Gets the values of properties of standard and custom details (created in the Configurator mode).
+// Returns a value table with the required property information for all attributes of a metadata object.
+// Gets property values of standard and custom attributes (custom attributes are the attributes created in Designer mode).
 //
 // Parameters:
-//  MetadataObject  - MetadataObject -  the object for which you need to get the value of the details ' properties.
-//                      For Example: Metadata.Document.Realsozialismus
-//  Properties - String -  comma-separated properties of Bank details to get the value of.
-//                      For example: "Name, Type, Synonym, Hint".
+//  MetadataObject  - MetadataObject - an object whose attribute property values are sought.
+//                      Example: Metadata.Document.Invoice
+//  Properties - String - comma-separated attribute properties whose values to be retrieved.
+//                      Example: "Name, Type, Synonym, Tooltip".
 //
 // Returns:
-//  ValueTable - 
+//  ValueTable - required property information for all attributes of the metadata object.
 //
 Function ObjectPropertiesDetails(MetadataObject, Properties) Export
 	
 	PropertiesArray = StrSplit(Properties, ",");
 	
-	// 
+	// Function return value.
 	ObjectPropertiesDescriptionTable = New ValueTable;
 	
-	// 
+	// Adding fields to the value table according to the names of the passed properties.
 	For Each PropertyName In PropertiesArray Do
 		ObjectPropertiesDescriptionTable.Columns.Add(TrimAll(PropertyName));
 	EndDo;
 	
-	// 
+	// Filling table rows with metadata object attribute values.
 	For Each Attribute In MetadataObject.Attributes Do
 		FillPropertyValues(ObjectPropertiesDescriptionTable.Add(), Attribute);
 	EndDo;
 	
-	// 
+	// Filling table rows with standard metadata object attribute properties.
 	For Each Attribute In MetadataObject.StandardAttributes Do
 		FillPropertyValues(ObjectPropertiesDescriptionTable.Add(), Attribute);
 	EndDo;
@@ -4639,16 +4641,16 @@ Function ObjectPropertiesDetails(MetadataObject, Properties) Export
 	
 EndFunction
 
-// Returns an indication that the item is part of a subset of standard items.
+// Returns a flag indicating whether the attribute is a standard attribute.
 //
 // Parameters:
-//  StandardAttributes - StandardAttributeDescriptions -  type and value that describe a collection of settings for various
-//                                                         standard details;
-//  AttributeName         - String -  a prop that needs to be checked for belonging to a set of standard
-//                                  props.
+//  StandardAttributes - StandardAttributeDescriptions - the type and value describe a collection of settings for various
+//                                                         standard attributes;
+//  AttributeName         - String - an attribute to check whether it is a standard
+//                                  attribute or not.
 // 
 // Returns:
-//   Boolean - 
+//   Boolean - True if the attribute is a standard attribute.
 //
 Function IsStandardAttribute(StandardAttributes, AttributeName) Export
 	
@@ -4661,14 +4663,14 @@ Function IsStandardAttribute(StandardAttributes, AttributeName) Export
 	
 EndFunction
 
-// Allows you to determine whether the object's details include a detail with the passed name.
+// Checks whether the attribute with the passed name exists among the object attributes.
 //
 // Parameters:
-//  AttributeName - String -  the name of the props;
-//  ObjectMetadata - MetadataObject -  the object where you want to check the presence of props.
+//  AttributeName - String - an attribute name;
+//  ObjectMetadata - MetadataObject - an object to search for the attribute.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the attribute is found.
 //
 Function HasObjectAttribute(AttributeName, ObjectMetadata) Export
 
@@ -4677,20 +4679,20 @@ Function HasObjectAttribute(AttributeName, ObjectMetadata) Export
 
 EndFunction
 
-// Check that the type description consists of a single value type and 
-// matches the desired type.
+// Checks whether the type description contains only one value type and 
+// it is equal to the specified type.
 //
 // Parameters:
-//   TypeDetails - TypeDescription -  type collection to check;
-//   ValueType  - Type -  the type being checked.
+//   TypeDetails - TypeDescription - a type collection to check;
+//   ValueType  - Type - Data type being checked.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - If True, there's a match.
 //
 // Example:
-//  
-//    
-//  
+//  If Common.TypeDetailsContainsType(ValueTypeProperties, Type("Boolean") Then
+//    // Displaying the field as a check box.
+//  EndIf;
 //
 Function TypeDetailsContainsType(TypeDetails, ValueType) Export
 	
@@ -4703,13 +4705,13 @@ Function TypeDetailsContainsType(TypeDetails, ValueType) Export
 	
 EndFunction
 
-// Creates a type Descriptor object containing the String type.
+// Creates a TypeDescription object that contains the String type.
 //
 // Parameters:
-//  StringLength - Number -  string length.
+//  StringLength - Number - string length.
 //
 // Returns:
-//  TypeDescription - 
+//  TypeDescription - description of the String type.
 //
 Function StringTypeDetails(StringLength) Export
 	
@@ -4717,16 +4719,16 @@ Function StringTypeDetails(StringLength) Export
 	
 EndFunction
 
-// Creates a type Description object containing the Number type.
+// Creates a TypeDescription object that contains the Number type.
 //
 // Parameters:
-//  Digits - Number -  the total number of digits (number of digits
-//                        the integer part plus the number of digits of the fractional part).
-//  FractionDigits - Number -  the number of digits of the fractional part.
-//  NumberSign - AllowedSign -  valid sign of the number.
+//  Digits - Number - the total number of digits in a number (both in
+//                        the integer part and the fractional part).
+//  FractionDigits - Number - number of digits in the fractional part.
+//  NumberSign - AllowedSign - allowed sign of the number.
 //
 // Returns:
-//  TypeDescription - 
+//  TypeDescription - description of Number type.
 //
 Function TypeDescriptionNumber(Digits, FractionDigits = 0, Val NumberSign = Undefined) Export
 	
@@ -4738,13 +4740,13 @@ Function TypeDescriptionNumber(Digits, FractionDigits = 0, Val NumberSign = Unde
 	
 EndFunction
 
-// Creates a type Descriptor object containing the date type.
+// Creates a TypeDescription object that contains the Date type.
 //
 // Parameters:
-//  Var_DateFractions - DateFractions -  a set of options for using date values.
+//  Var_DateFractions - DateFractions - a set of Date type value usage options.
 //
 // Returns:
-//  TypeDescription - 
+//  TypeDescription - description of Date type.
 //
 Function DateTypeDetails(Var_DateFractions) Export
 	
@@ -4752,10 +4754,10 @@ Function DateTypeDetails(Var_DateFractions) Export
 	
 EndFunction
 
-// Returns a description of the type that includes all possible configuration reference types.
+// Returns a type description that includes all configuration reference types.
 //
 // Returns:
-//  TypeDescription - 
+//  TypeDescription - all reference types in the configuration.
 //
 Function AllRefsTypeDetails() Export
 	
@@ -4763,15 +4765,15 @@ Function AllRefsTypeDetails() Export
 	
 EndFunction
 
-// Returns the string representation of the list specified in the properties of the metadata object.
-// Depending on which properties of the metadata object are filled in, the function returns one of them in the specified
-// order: Extended list view, list View, Synonym, or Name.
+// Returns a string list presentation specified in metadata object properties.
+// Depending on which metadata object properties are filled in, the function returns one of them in the specified
+// order: Extended list presentation, List presentation, Synonym, or Name.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  arbitrary object.
+//  MetadataObject - MetadataObject - an arbitrary object.
 //
 // Returns:
-//  String - 
+//  String - list presentation.
 //
 Function ListPresentation(MetadataObject) Export
 	
@@ -4790,15 +4792,15 @@ Function ListPresentation(MetadataObject) Export
 	
 EndFunction
 
-// Returns the string representation of the object specified in the metadata object properties.
-// Depending on which properties of the metadata object are filled in, the function returns one of them in the specified
-// order: Extended object representation, object Representation, Synonym, or Name.
+// Returns a string object presentation specified in metadata object properties.
+// Depending on which metadata object properties are filled in, the function returns one of them in the specified
+// order: Extended object presentation, Object presentation, Synonym, or Name.
 //
 // Parameters:
-//  MetadataObject - MetadataObject -  arbitrary object.
+//  MetadataObject - MetadataObject - an arbitrary object.
 //
 // Returns:
-//  String -  representation of objects.
+//  String - object presentation.
 //
 Function ObjectPresentation(MetadataObject) Export
 	
@@ -4822,21 +4824,21 @@ EndFunction
 #Region SettingsStorage
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Saving, reading, and deleting settings from storages.
 
-// Saves the setting to the General settings store, as the Save platform method
-// , for standard storageadjustment Manager or storageadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Saves a setting to the common settings storage as the Save method
+// of StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// object. Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// If you do not have the right to save the user's Data, saving is skipped without an error.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
 //
 // Parameters:
-//   ObjectKey       - String           - 
-//   SettingsKey      - String           - 
-//   Settings         - Arbitrary     - 
-//   SettingsDescription  - SettingsDescription - 
-//   UserName   - String           - 
-//   RefreshReusableValues - Boolean -  execute the platform method of the same name.
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - SettingsDescription - See Syntax Assistant.
+//   UserName   - String           - See Syntax Assistant.
+//   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 			SettingsDescription = Undefined,
@@ -4853,20 +4855,20 @@ Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 	
 EndProcedure
 
-// Saves several settings to the General settings store, such as the Save platform method
-// , the standard storageadjustment Manager, or storageadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Saves settings to the common settings storage as the Save method
+// of StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// object. Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// If you do not have the right to save the user's Data, saving is skipped without an error.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
 // 
 // Parameters:
-//   MultipleSettings - Array - :
+//   MultipleSettings - Array - with the following values:
 //     * Value - Structure:
-//         * Object    - String       - see the Key object parameter in the platform's syntax assistant.
-//         * Setting - String       - see the Settings key parameter in the platform's syntax assistant.
-//         * Value  - Arbitrary - see the Configuration parameter in the platform's syntax assistant.
+//         * Object    - String       - see the ObjectKey parameter in the Syntax Assistant.
+//         * Setting - String       - see the SettingsKey parameter in the Syntax Assistant.
+//         * Value  - Arbitrary - see the Settings parameter in the Syntax Assistant.
 //
-//   RefreshReusableValues - Boolean -  execute the platform method of the same name.
+//   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure CommonSettingsStorageSaveArray(MultipleSettings,
 			RefreshReusableValues = False) Export
@@ -4885,29 +4887,29 @@ Procedure CommonSettingsStorageSaveArray(MultipleSettings,
 	
 EndProcedure
 
-// Loads a setting from the General settings store, as the upload method of the Platform
-// , for standard storagesadjustment Manager or storagesadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Imports the setting from the common settings storage as the Import method
+// of the StandardSettingsStorageManager or SettingsStorageManager.<Storage name> objects.
+// Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// It also returns the specified default value if the settings do not exist.
-// If you do not have the right to save user Data, the default value is returned without an error.
+// Returns the specified default value if the settings do not exist.
+// If the SaveUserData right is not granted, the default value is returned and no error is raised.
 //
-// The return value clears references to a nonexistent object in the database, namely
-// - , the returned reference is replaced with the specified default value;
-// - links are removed from Array data;
-// - for data of the Structure and Match type, the key does not change, and the value is set Undefined;
-// - analysis of values in data of the Array, Structure, and Match type is performed recursively.
+// The return value clears references to a non-existent object in the database, namely:
+// - The returned reference is replaced with the default value.
+// - The references are deleted from the data of the Array type.
+// - The key is not changed for the data of the Structure or Map types, and the value is set to Undefined.
+// - Recursive analysis of values in the data of the Array, Structure, Map types is carried out.
 //
 // Parameters:
-//   ObjectKey          - String           - 
-//   SettingsKey         - String           - 
-//   DefaultValue  - Arbitrary     -  the value that is returned if the settings do not exist.
-//                                             If omitted, the value Undefined is returned.
-//   SettingsDescription     - SettingsDescription - 
-//   UserName      - String           - 
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
+//   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
+//                                             If not specified, returns Undefined.
+//   SettingsDescription     - SettingsDescription - See Syntax Assistant.
+//   UserName      - String           - See Syntax Assistant.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - See Syntax Assistant.
 //
 Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined, 
 			SettingsDescription = Undefined, UserName = Undefined) Export
@@ -4921,19 +4923,19 @@ Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefi
 	
 EndFunction
 
-// Deletes a setting from the General settings store, as the delete method of the Platform
-// , for standard storageadjustment Manager or storageadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Removes a setting from the general settings storage as the Remove method,
+// StandardSettingsStorageManager objects, or SettingsStorageManager.<Storage name>,
+// The setting key supports more than 128 characters by hashing the part
 // that exceeds 96 characters.
-// If you do not have the right to save the user's Data, the deletion is skipped without an error.
+// If the SaveUserData right is not granted, no data is deleted and no error is raised.
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   SettingsKey    - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   UserName - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //
 Procedure CommonSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -4944,18 +4946,18 @@ Procedure CommonSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
 EndProcedure
 
-// Saves the setting to the system settings store, as the platform's Save method
-// for the standard storage object Configuremanager, but with support for the settings key length
-// of more than 128 characters by hashing the part that exceeds 96 characters.
-// If you do not have the right to save the user's Data, saving is skipped without an error.
+// Saves a setting to the system settings storage as the Save method
+// of StandardSettingsStorageManager object. Setting keys
+// exceeding 128 characters are supported by hashing the key part that exceeds 96 characters.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
 //
 // Parameters:
-//   ObjectKey       - String           - 
-//   SettingsKey      - String           - 
-//   Settings         - Arbitrary     - 
-//   SettingsDescription  - SettingsDescription - 
-//   UserName   - String           - 
-//   RefreshReusableValues - Boolean -  execute the platform method of the same name.
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - SettingsDescription - See Syntax Assistant.
+//   UserName   - String           - See Syntax Assistant.
+//   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure SystemSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 			SettingsDescription = Undefined,
@@ -4972,28 +4974,28 @@ Procedure SystemSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 	
 EndProcedure
 
-// Loads a setting from the system settings store, as the platform's Upload method,
-// and the standard configuration Manager Storage object, but with support for a settings key length
-// of more than 128 characters by hashing the part that exceeds 96 characters.
-// It also returns the specified default value if the settings do not exist.
-// If you do not have the right to save user Data, the default value is returned without an error.
+// Imports settings from the system settings storage as the Import method
+// of the StandardSettingsStorageManager object. Setting keys exceeding
+// 128 characters are supported by hashing the key part that exceeds 96 characters.
+// Returns the specified default value if the settings do not exist.
+// If the SaveUserData right is not granted, the default value is returned and no error is raised.
 //
-// The returned value clears references to a nonexistent object in the database, namely:
-// - the returned reference is replaced with the specified default value;
-// - links are removed from Array data;
-// - for data of the Structure and Match type, the key does not change, and the value is set Undefined;
-// - analysis of values in data of the Array, Structure, and Match type is performed recursively.
+// The return value clears references to a non-existent object in the database, namely:
+// - The returned reference is replaced with the default value.
+// - The references are deleted from the data of the Array type.
+// - The key is not changed for the data of the Structure or Map types, and the value is set to Undefined.
+// - Recursive analysis of values in the data of the Array, Structure, Map types is carried out.
 //
 // Parameters:
-//   ObjectKey          - String           - 
-//   SettingsKey         - String           - 
-//   DefaultValue  - Arbitrary     -  the value that is returned if the settings do not exist.
-//                                             If omitted, the value Undefined is returned.
-//   SettingsDescription     - SettingsDescription - 
-//   UserName      - String           - 
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
+//   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
+//                                             If not specified, returns Undefined.
+//   SettingsDescription     - SettingsDescription - See Syntax Assistant.
+//   UserName      - String           - See Syntax Assistant.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - See Syntax Assistant.
 //
 Function SystemSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined, 
 			SettingsDescription = Undefined, UserName = Undefined) Export
@@ -5007,18 +5009,18 @@ Function SystemSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefi
 	
 EndFunction
 
-// Deletes a setting from the system settings store, as the delete method of the Platform
-// , and the standard storage Configuremanager object, but with support for the settings key length
-// of more than 128 characters by hashing the part that exceeds 96 characters.
-// If you do not have the right to save the user's Data, the deletion is skipped without an error.
+// Removes a setting from the system settings storage as the Remove method
+// or the StandardSettingsStorageManager object. The setting key supports
+// more than 128 characters by hashing the part that exceeds 96 characters.
+// If the SaveUserData right is not granted, no data is deleted and no error is raised.
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   SettingsKey    - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   UserName - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //
 Procedure SystemSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -5029,19 +5031,19 @@ Procedure SystemSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
 EndProcedure
 
-// Saves the configuration in the form data settings store, as the Save platform method
-// , for standard Storagesconfigurationmanager or Storagesconfigurationmanager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Saves a setting to the form data settings storage as the Save method of
+// StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// object. Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// If you do not have the right to save the user's Data, saving is skipped without an error.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
 //
 // Parameters:
-//   ObjectKey       - String           - 
-//   SettingsKey      - String           - 
-//   Settings         - Arbitrary     - 
-//   SettingsDescription  - SettingsDescription - 
-//   UserName   - String           - 
-//   RefreshReusableValues - Boolean -  execute the platform method of the same name.
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - SettingsDescription - See Syntax Assistant.
+//   UserName   - String           - See Syntax Assistant.
+//   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure FormDataSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 			SettingsDescription = Undefined,
@@ -5058,29 +5060,29 @@ Procedure FormDataSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 	
 EndProcedure
 
-// Loads a setting from the form data settings store, as a method of the Upload platform,
-// for standard storagesadjustment Manager or storagesadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Imports the setting from the common settings storage as the Import method
+// of the StandardSettingsStorageManager or SettingsStorageManager.<Storage name> objects.
+// Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// It also returns the specified default value if the settings do not exist.
-// If you do not have the right to save user Data, the default value is returned without an error.
+// Returns the specified default value if the settings do not exist.
+// If the SaveUserData right is not granted, the default value is returned and no error is raised.
 //
-// The return value clears references to a nonexistent object in the database, namely
-// - , the returned reference is replaced with the specified default value;
-// - links are removed from Array data;
-// - for data of the Structure and Match type, the key does not change, and the value is set Undefined;
-// - analysis of values in data of the Array, Structure, and Match type is performed recursively.
+// The return value clears references to a non-existent object in the database, namely:
+// - The returned reference is replaced with the default value.
+// - The references are deleted from the data of the Array type.
+// - The key is not changed for the data of the Structure or Map types, and the value is set to Undefined.
+// - Recursive analysis of values in the data of the Array, Structure, Map types is carried out.
 //
 // Parameters:
-//   ObjectKey          - String           - 
-//   SettingsKey         - String           - 
-//   DefaultValue  - Arbitrary     -  the value that is returned if the settings do not exist.
-//                                             If omitted, the value Undefined is returned.
-//   SettingsDescription     - SettingsDescription - 
-//   UserName      - String           - 
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
+//   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
+//                                             If not specified, returns Undefined.
+//   SettingsDescription     - SettingsDescription - See Syntax Assistant.
+//   UserName      - String           - See Syntax Assistant.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - See Syntax Assistant.
 //
 Function FormDataSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined, 
 			SettingsDescription = Undefined, UserName = Undefined) Export
@@ -5094,19 +5096,19 @@ Function FormDataSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Unde
 	
 EndFunction
 
-// Deletes a setting from the form data settings store, as the delete method of the Platform
-// , for standard storagesadjustment Manager or storagesadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Deletes the setting from the form data settings storage using the Delete method
+// for StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// objects. Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// If you do not have the right to save the user's Data, the deletion is skipped without an error.
+// If the SaveUserData right is not granted, no data is deleted and no error is raised.
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   SettingsKey    - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   UserName - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //
 Procedure FormDataSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -5121,15 +5123,15 @@ EndProcedure
 
 #Region XMLSerialization
 
-// 
-// 
-// 
+// Converts (serializes) a value into an XML string.
+// Supports only serializable objects (for details, see Syntax Assistant).
+// See also: ValueFromXMLString.
 //
 // Parameters:
-//  Value - Arbitrary -  the value to serialize to an XML string.
+//  Value - Arbitrary - a value to serialize into an XML string.
 //
 // Returns:
-//  String - 
+//  String - an XML string.
 //
 Function ValueToXMLString(Value) Export
 	
@@ -5140,14 +5142,14 @@ Function ValueToXMLString(Value) Export
 	Return XMLWriter.Close();
 EndFunction
 
-// 
-// 
+// Converts (deserializes) an XML string into a value.
+// See also: ValueToXMLString.
 //
 // Parameters:
-//  XMLLine - String -  XML string with a serialized object..
+//  XMLLine - String - an XML string with a serialized object..
 //
 // Returns:
-//  Arbitrary - 
+//  Arbitrary - value extracted from a passed XML string.
 //
 Function ValueFromXMLString(XMLLine) Export
 	
@@ -5157,15 +5159,15 @@ Function ValueFromXMLString(XMLLine) Export
 	Return XDTOSerializer.ReadXML(XMLReader);
 EndFunction
 
-// Returns the XML representation of the XDTO object.
+// Returns an XML presentation of the XDTO object.
 //
 // Parameters:
-//  XDTODataObject - XDTODataObject  -  the object to generate an XML representation for.
-//  Factory    - XDTOFactory -  the factory that you want to use to generate the XML representation.
-//                             If this parameter is omitted, the global XDTO factory will be used.
+//  XDTODataObject - XDTODataObject  - an object that requires XML presentation to be generated.
+//  Factory    - XDTOFactory - the factory used for generating the XML presentation.
+//                             If the parameter is not specified, the global XDTO factory is used.
 //
 // Returns: 
-//   String - 
+//   String - the XML presentation of the XDTO object.
 //
 Function XDTODataObjectToXMLString(Val XDTODataObject, Val Factory = Undefined) Export
 	
@@ -5183,15 +5185,15 @@ Function XDTODataObjectToXMLString(Val XDTODataObject, Val Factory = Undefined) 
 	
 EndFunction
 
-// Generates an XDTO object based on the XML representation.
+// Generates an XDTO object by the XML presentation.
 //
 // Parameters:
-//  XMLLine - String    -  XML representation of an XDTO object,
-//  Factory - XDTOFactory -  the factory that you want to use to generate the XDTO object.
-//                          If this parameter is omitted, the global XDTO factory will be used.
+//  XMLLine - String    - the XML presentation of the XDTO object,
+//  Factory - XDTOFactory - the factory used for generating the XDTO object.
+//                          If the parameter is not specified, the global XDTO factory is used.
 //
 // Returns: 
-//  XDTODataObject - 
+//  XDTODataObject - an XDTO object.
 //
 Function XDTODataObjectFromXMLString(Val XMLLine, Val Factory = Undefined) Export
 	
@@ -5210,9 +5212,9 @@ EndFunction
 
 #Region JSONSerialization
 
-// 
-// 
-// 
+// Converts a value into a JSON string using the WriteJSON global context method.
+// Some data types are not supported. For details, see Syntax Assistant.
+// Converts dates to the ISO format (YYYY-MM-DDThh:mm:ssZ).
 // 
 // Parameters:
 //  Value - Arbitrary
@@ -5230,18 +5232,18 @@ Function ValueToJSON(Val Value) Export
 	
 EndFunction
 
-// 
-// 
-//  
-// 
-// 
+// Converts a JSON string into a value using the ReadJSON global context method.
+// For the limitation details, see Syntax Assistant.
+// By default, casts JSON objects into Map. 
+// The conversion requires that you explicitly specified Date-type properties.
+// The expected format date is ISO (YYYY-MM-DDThh:mm:ssZ).
 // 
 // Parameters:
-//   String - String - 
-//   PropertiesWithDateValuesNames - String - 
+//   String - String - JSON value.
+//   PropertiesWithDateValuesNames - String - Name of the Date-type property, or comma-delimited list of properties.
 //                                           
 //                                - Array of String 
-//   ReadToMap       - Boolean - 
+//   ReadToMap       - Boolean - If False, JSON objects will be converted to Structure.
 //   
 // Returns:
 //  Arbitrary
@@ -5263,7 +5265,7 @@ EndFunction
 
 #Region WebServices
 
-// Returns the parameter structure for the create Wsproxy function.
+// Returns a parameter structure for the CreateWSProxy function.
 //
 // Returns:
 //   See CreateWSProxy.WSProxyConnectionParameters
@@ -5285,43 +5287,43 @@ Function WSProxyConnectionParameters() Export
 	Return Result;
 EndFunction
 
-// 
-//  
-//  
-//  
-//  
+// Constructor of the WSProxy object. Compared to New WSProxy constructor has the following advanced features:
+//  - Creates WSDefinitions.
+//  - Caches WSDL file to speed up the web service.
+//  - InternetProxy is not required (used automatically if configured).
+//  - Can quickly check the server availability with the "Ping" command.
 //
 // Parameters:
 //  WSProxyConnectionParameters - Structure:
-//   * WSDLAddress                    - String - 
-//   * NamespaceURI          - String - 
-//   * ServiceName                   - String - 
-//   * EndpointName          - String - 
-//   * UserName              - String - 
-//   * Password                       - String - 
-//   * Timeout                      - Number  -  
+//   * WSDLAddress                    - String - Location of wsdl. For example, "http://webservice.net/webservice.asmx?wsdl".
+//   * NamespaceURI          - String - Web service namespace URI. For example, "http://www.webservice.net/WebService/1.0.0.1".
+//   * ServiceName                   - String - Service name. For example, "WebService_1_0_0_1".
+//   * EndpointName          - String - Optional. If not specified, it is generated by mask <ServiceName>Soap.
+//   * UserName              - String - Optional. Server authentication username.
+//   * Password                       - String - Optional. A user password.
+//   * Timeout                      - Number  - Optional. Timeout for web service operation running via a proxy, in seconds. 
 //                                              
-//   * Location               - String - 
+//   * Location               - String - Optional. The actual service address.
+//                                             Used if the actual server address does not match the WSDL file address.
 //                                             
+//   * UseOSAuthentication - Boolean - Optional. Enables NTLM or Negotiate authentication on the server. 
 //                                             
-//   * UseOSAuthentication - Boolean -  
-//                                             
-//   * ProbingCallRequired       - Boolean -  
-//                                             
+//   * ProbingCallRequired       - Boolean - Optional. Check service availability. 
+//                                             Requires the support of the "Ping" command. By default, False.
 //   * SecureConnection         - OpenSSLSecureConnection
-//                                  - Undefined - 
+//                                  - Undefined - Optional secured connection parameters.
 //   * IsPackageDeliveryCheckOnErrorEnabled - See GetFilesFromInternet.ConnectionDiagnostics.IsPackageDeliveryCheckEnabled.
 //
 // Returns:
 //  WSProxy
 //
 // Example:
-//	
-//	
-//	
-//	
-//	
-//	
+//	ConnectionParameters = Common.WSProxyConnectionParameters();
+//	ConnectionParameters.WSDLAddress = "http://webservice.net/webservice.asmx?wsdl";
+//	ConnectionParameters.NamespaceURI = "http://www.webservice.net/WebService/1.0.0.1";
+//	ConnectionParameters.ServiceName = "WebService_1_0_0_1";
+//	ConnectionParameters.Timeout = 20;
+//	Proxy = Common.CreateWSProxy(ConnectionParameters);
 //
 Function CreateWSProxy(Val WSProxyConnectionParameters) Export
 	
@@ -5371,42 +5373,42 @@ Function CreateWSProxy(Val WSProxyConnectionParameters) Export
 EndFunction
 
 /////////////////////////////////////////////////////////////////////////////////
-// 
+// API versioning.
 
-// Returns the version numbers of the software interfaces of the remote system accessible via the web service.
-// Allows you to provide full backward compatibility for changes in software interfaces
-// by explicitly versioning them. For example, if the program interface is higher than a certain version,
-// then only in this case you can call a new function from it.
+// Returns version numbers of interfaces in a remote system accessed over web service.
+// Ensures full backwards compatibility against any API modifications,
+// based on explicit versioning. For example, you could specify that a new function is only available if the API used is later than
+// a specific version.
 //
-// In order to save traffic when there is intense interaction between the calling and called parties 
-// information about the versions are cached for one day. If you need to reset the cache before this time for debugging purposes,
-// delete the corresponding entries from the cache Interface information register.
+// For traffic economy purposes, API version 
+// information is cached daily when under heavy traffic conditions. To clear the cache before the daily timeout,
+// delete the corresponding records from the ProgramInterfaceCache information register.
 //
 // Parameters:
-//  Address        - String -  address of the InterfaceVersion interface versioning web service;
-//  User - String -  name of the web service user;
-//  Password       - String -  password of the web service user;
-//  Interface    - String - 
+//  Address        - String - address of InterfaceVersion web service;
+//  User - String - name of a web service user;
+//  Password       - String - password of a web service user;
+//  Interface    - String - name of the queried interface. Example: "FileTransferService";
 //  IsPackageDeliveryCheckOnErrorEnabled - See GetFilesFromInternet.ConnectionDiagnostics.IsPackageDeliveryCheckEnabled
 //
 // Returns:
-//   FixedArray -  
-//                         
+//   FixedArray - array of strings where each string contains a presentation of an interface version number. 
+//                         Example: "1.0.2.1".
 //
 // Example:
-//	  Versions = get the interface Version("http://vsrvx/sm", "ivanov",, " Servistransferencefiles");
+//	  Versions = GetInterfaceVersions("http://vsrvx/sm", "smith",, "FileTransferService");
 //
-//    Also, for backward compatibility, the deprecated call option is supported:
-//	  connection Parameters = The New Structure;
-//	  Connection parameters.Insert ("URL", "http://vsrvx/sm");
-//	  Connection parameters.Insert ("UserName", " ivanov");
-//	  Connection parameters.Insert ("Password", "");
-//	  Versions = Get The Interface Version(Connection Parameters, " File Servertransmission");
+//    The obsolete option is also supported for backward compatibility reason:
+//	  ConnectionParameters = New Structure;
+//	  ConnectionParameters.Insert("URL", "http://vsrvx/sm");
+//	  ConnectionParameters.Insert("UserName", "smith");
+//	  ConnectionParameters.Insert("Password", "");
+//	  Versions = GetInterfaceVersions(ConnectionParameters, "FileTransferService");
 //
 Function GetInterfaceVersions(Val Address, Val User, Val Password = Undefined, 
 	Val Interface = Undefined, Val IsPackageDeliveryCheckOnErrorEnabled = True) Export
 	
-	If TypeOf(Address) = Type("Structure") Then // 
+	If TypeOf(Address) = Type("Structure") Then // For backward compatibility purposes.
 		ConnectionParameters = Address;
 		InterfaceName = User;
 	Else
@@ -5439,21 +5441,21 @@ Function GetInterfaceVersions(Val Address, Val User, Val Password = Undefined,
 	
 EndFunction
 
-// Returns the version numbers of the software interfaces of the remote system connected via an external connection.
-// Allows you to provide full backward compatibility for changes in software interfaces
-// by explicitly versioning them. For example, if the program interface is higher than a certain version,
-// then only in this case you can call a new function from it.
+// Returns version numbers of interfaces in a remote system accessed over external connection.
+// Ensures full backwards compatibility against any API modifications,
+// based on explicit versioning. For example, you could specify that a new function is only available if the API used is later than
+// a specific version.
 //
 // Parameters:
-//   ExternalConnection - COMObject -  an external connection that is used to work with the remote system.
-//   InterfaceName     - String    -  the name of the requested software interface, e.g. "Serviceproduction".
+//   ExternalConnection - COMObject - an external connection used to access a remote system.
+//   InterfaceName     - String    - name of the queried interface, for example: FileTransferService.
 //
 // Returns:
-//   FixedArray -  
-//                         
+//   FixedArray - array of strings where each string contains a presentation of an interface version number. 
+//                         For example: "1.0.2.1".
 //
 // Example:
-//  Versions = General Purpose.Getversiiinterfaceexternal Connection(External Connection, " Servertransferencefiles");
+//  Versions = Common.GetInterfaceVersionsViaExternalConnection(ExternalConnection, "FileTransferService");
 //
 Function GetInterfaceVersionsViaExternalConnection(ExternalConnection, Val InterfaceName) Export
 	Try
@@ -5471,12 +5473,12 @@ Function GetInterfaceVersionsViaExternalConnection(ExternalConnection, Val Inter
 	Return New FixedArray(ValueFromXMLString(XMLInterfaceVersions));
 EndFunction
 
-// Deletes cache entries for software interface versions that contain the specified substring in the ID. 
-// For example, the name of an interface that is no longer used in the configuration can be used as a substring.
+// Deletes records from cache of interface versions that contain the specified substring in their IDs. 
+// For example, a name of obsolete interface can be specified as the substring.
 //
 // Parameters:
-//  IDSearchSubstring - String -  substring of the ID search. 
-//                                            Cannot contain%,_, or [characters.
+//  IDSearchSubstring - String - ID search substring. 
+//                                            Cannot contain the following characters: % _ [.
 //
 Procedure DeleteVersionCacheRecords(Val IDSearchSubstring) Export
 	
@@ -5521,60 +5523,60 @@ EndProcedure
 #Region SecureStorage
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Password storage management procedures and functions.
 
-// Writes sensitive data to secure storage.
-// The calling code must set the privileged mode itself.
+// Writes confidential data to a secure storage.
+// The calling script must enable privileged mode.
 //
-// Secure storage is not readable by users (other than administrators),
-// and is only available to code that accesses only its own part of the data and
-// in a context that involves reading or writing sensitive data.
+// Users (except administrators) cannot read data from the secure storage.
+// The code can only read the data related to it, and
+// only in context of confidential data reading and writing.
 //
 // Parameters:
 //  Owner - ExchangePlanRef
 //           - CatalogRef
-//           - String - 
-//             
-//             
-//             
-//             
-//             :
-//               
-//             
-//               
-//             
-//               
-//  Data  - Arbitrary -  data placed in secure storage. Undefined-deletes all data.
-//            To delete data by key, use the delete data from secure Storage procedure.
-//          - Structure - 
-//  Var_Key    - String       - 
-//                           :
-//                           
-//                            
-//            
-//            
+//           - String - Reference to the infobase object
+//             representing the object that owns the password, or a string containing up to 128 characters.
+//             For objects of other types, use a reference to
+//             metadata item of that kind in the MetadataObjectIDs catalog
+//             or a string key accounting to subsystem names as owner.
+//             For SSL, the code looks as follows::
+//               Owner = Common.MetadataObjectID("InformationRegister.AddressObjects");
+//             If one storage is enough for SSL subsystem:
+//               Owner = "StandardSubsystems.AccessManagement";
+//             If multiple storages are required for SSL subsystem:
+//               Owner = "StandardSubsystems.AccessManagement.<Clarification>";
+//  Data  - Arbitrary - data to save to the secure storage. Undefined - deletes all data.
+//            To delete data by key, use the DeleteDataFromSecureStorage procedure instead.
+//          - Structure - If the "Key" parameters is assigned "Undefined". For details, see the "Key" parameter details.
+//  Var_Key    - String       - Key of the settings to be saved. By default, "Password".
+//                           The key must comply with the identifier naming conventions.:
+//                           1. An identifier name must start with a letter or underscore ( _ ).
+//                           2. The following characters are alphanumeric and underscores. 
+//            Undefined - If you add a dataset as Structure.
+//            Key - Data key name. Value - Data to be saved. See use cases below.
 //
 // Example:
 //
-//  
-//      
-//          
-//          
-//          
-//          
-//      
-//  
+//  Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
+//      If CurrentUserCanChangePassword Then
+//          SetPrivilegedMode(True);
+//          Common.WriteDataToSecureStorage(CurrentObject.Ref, Login, "Login");
+//          Common.WriteDataToSecureStorage(CurrentObject.Ref, Password);
+//          SetPrivilegedMode(False);
+//      EndIf;
+//  EndProcedure
 // 
-//  
-//      
-//          
-//          
-//          
-//          
-//          
-//          
-//      
-//  
+//  Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
+//      If CurrentUserCanChangePassword Then
+//          LoginAndPassword = New Structure;
+//          LoginAndPassword .Insert("Login", Login);
+//          LoginAndPassword .Insert("Password", Password);
+//          SetPrivilegedMode(True);
+//          Common.WriteDataToSecureStorage(CurrentObject.Ref, LoginAndPassword, Undefined);
+//          SetPrivilegedMode(False);
+//      EndIf;
+//  EndProcedure
 //
 Procedure WriteDataToSecureStorage(Owner, Data, Var_Key = "Password") Export
 	
@@ -5650,48 +5652,48 @@ Procedure WriteDataToSecureStorage(Owner, Data, Var_Key = "Password") Export
 	
 EndProcedure
 
-// Returns the data from the secure storage.
-// The calling code must set the privileged mode itself.
+// Retrieves data from a secure storage.
+// The calling script must enable privileged mode.
 //
-// Secure storage is not readable by users (other than administrators),
-// and is only available to code that accesses only its own part of the data and
-// in a context that involves reading or writing sensitive data.
+// Users (except administrators)
+// cannot read data from the secure storage. The code can only read the data related to it, and
+// only in context of confidential data reading and writing.
 //
 // Parameters:
 //  Owners   - Array of ExchangePlanRef
 //              - Array of CatalogRef
-//              - Array of String - 
-//                  
-//  Keys       - String - 
-//              - Undefined -  
-//  SharedData - Boolean -  The truth is, if you want to model service to retrieve data from shared data in divided mode.
+//              - Array of String - References to infobase objects,
+//                  which are either owners or unique strings (up to 128 characters) containing owner's data.
+//  Keys       - String - Contains data key name or a list of comma-delimited names.
+//              - Undefined - Return all saved data for the passed owners. 
+//  SharedData - Boolean - True if getting data from shared data in separated mode in SaaS.
 // 
 // Returns:
 //  Map of KeyAndValue:
 //    * Key - ExchangePlanRef
 //           - CatalogRef
-//           - String -  
-//                      
-//    * Value - Arbitrary -  
+//           - String - Reference to the infobase object, 
+//                      or a string (up to 128 characters), which identifies the data owner.
+//    * Value - Arbitrary - If the Keys parameter contains only one key, 
+//                                return its value of an arbitrary type.
+//               - Structure    - If the Keys parameter contains multiple keys or Undefined. 
+//                                (Key - Saved data key. Value - Arbitrary type value.) 
+//                                If all the keys have no matching data, the value is "Undefined". 
 //                                
-//               - Structure    -  
-//                                 
-//                                 
-//                                
-//               - Undefined - 
+//               - Undefined - If the key has no matching data.
 //
 // Example:
-//	
+//	Procedure DistributeInvitations(Users)
 //		
+//			SetPrivilegedMode(True);
+//			AuthorizationData = Common.ReadDataFromSecureStorage(Users, "Username, Password");
+//			SetPrivilegedMode(False);
 //			
-//			
-//			
-//			
-//			
-//				
-//			
+//			For Each User From Users Do
+//				DistributeInvitations(User, AuthorizationData[User]);
+//			EndDo;
 //		
-//	
+//	EndProcedure
 //
 Function ReadOwnersDataFromSecureStorage(Owners, Keys = "Password", SharedData = Undefined) Export
 	
@@ -5707,39 +5709,39 @@ Function ReadOwnersDataFromSecureStorage(Owners, Keys = "Password", SharedData =
 	
 EndFunction
 
-// Returns the data from the secure storage.
-// The calling code must set the privileged mode itself.
+// Retrieves data from a secure storage.
+// The calling script must enable privileged mode.
 //
-// Secure storage is not readable by users (other than administrators),
-// and is only available to code that accesses only its own part of the data and
-// in a context that involves reading or writing sensitive data.
+// Users (except administrators)
+// cannot read data from the secure storage. The code can only read the data related to it, and
+// only in context of confidential data reading and writing.
 //
 // Parameters:
 //  Owner    - ExchangePlanRef
 //              - CatalogRef
-//              - String - 
-//                  
-//  Keys       - String -  contains a list of the names of the stored data specified by a comma.
-//              - Undefined - 
-//  SharedData - Boolean -  The truth is, if you want to model service to retrieve data from shared data in divided mode.
+//              - String - Reference to the infobase object,
+//                  or a unique string (up to 128 characters), which identifies the data owner.
+//  Keys       - String - contains a comma-separated list of saved data item names.
+//              - Undefined - Return all saved data for the passed owner.
+//  SharedData - Boolean - True if getting data from shared data in separated mode in SaaS.
 // 
 // Returns:
-//  Arbitrary, Structure, Undefined - 
-//                            
-//                            
+//  Arbitrary, Structure, Undefined - data from the secure storage. If single key is specified,
+//                            its value is returned, otherwise a structure is returned.
+//                            If no data is available - Undefined.
 //
 // Example:
+//	If CurrentUserCanChangePassword Then
+//		SetPrivilegedMode(True);
+//		Login = Common.ReadDataFromSecureStorage(CurrentObject.Ref, "Login");
+//		Password = Common.ReadDataFromSecureStorage(CurrentObject.Ref);
+//		SetPrivilegedMode(False);
+//	Else
+//		Items.UsernameAndPasswordGroup.Visible = False;
+//	EndIf;
 //	
-//		
-//		
-//		
-//		
-//	
-//		
-//	
-//	
-//	
-//	
+//	SetPrivilegedMode(True);
+//	LoginAndPassword = Common.ReadDataFromSecureStorage(CurrentObject.Ref, Undefined);
 //
 Function ReadDataFromSecureStorage(Owner, Keys = "Password", SharedData = Undefined) Export
 	
@@ -5752,33 +5754,33 @@ Function ReadDataFromSecureStorage(Owner, Keys = "Password", SharedData = Undefi
 	
 EndFunction
 
-// Deletes sensitive data to secure storage.
-// The calling code must set the privileged mode itself.
+// Deletes confidential data from a secure storage.
+// The calling script must enable privileged mode.
 //
-// Secure storage is not readable by users (other than administrators),
-// and is only available to code that accesses only its own part of the data and
-// in a context that involves reading or writing sensitive data.
+// Users (except administrators) cannot read data from the secure storage.
+// The code can only read the data related to it, and
+// only in context of confidential data reading and writing.
 //
 // Parameters:
 //  Owner - ExchangePlanRef
 //           - CatalogRef
-//           - String - 
-//               
-//           - Array - 
-//  Keys    - String -  contains a comma-separated list of names of data to delete. 
-//               Undefined-deletes all data.
+//           - String - Reference to the infobase object,
+//               or a unique string (up to 128 characters), which identifies the data owner.
+//           - Array - Infobase object references used to delete data for multiple owners.
+//  Keys    - String - contains a comma-separated list of deleted data item names. 
+//               Undefined - deletes all data.
 //
 // Example:
-//	
+//	Procedure beforeDelete(Cancel)
 //		
+//		// Skipping the DataExchange.Import property check because it is necessary to delete data
+//		// from the secure storage even if the object is deleted during data exchange.
 //		
+//		SetPrivilegedMode(True);
+//		Common.DeleteDataFromSecureStorage(Ref);
+//		SetPrivilegedMode(False);
 //		
-//		
-//		
-//		
-//		
-//		
-//	
+//	EndProcedure
 //
 Procedure DeleteDataFromSecureStorage(Owner, Keys = Undefined) Export
 	
@@ -5829,17 +5831,17 @@ EndProcedure
 #Region Clipboard
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for internal clipboard management.
 
-// Puts the selected row in tabular portion into the internal clipboard
-// where they can be obtained using Statessupreme.
+// Copies the selected tabular section rows to the internal clipboard
+// so that they can be retrieved using RowsFromClipboard.
 //
 // Parameters:
-//  TabularSection   - FormDataCollection -  the table part whose rows
-//                                            should be placed in the internal clipboard.
-//  SelectedRows - Array -  array of IDs of the selected rows.
-//  Source         - String -  an arbitrary string identifier, such as the name of an object
-//                              whose table part rows are placed in the internal clipboard.
+//  TabularSection   - FormDataCollection - a tabular section whose rows
+//                                            need to be placed to the internal clipboard.
+//  SelectedRows - Array - an array of IDs for selected rows.
+//  Source         - String - an arbitrary string ID (for example, name of the object
+//                              whose tabular section rows are to be copied to the internal clipboard).
 //
 Procedure CopyRowsToClipboard(TabularSection, SelectedRows, Source = Undefined) Export
 	
@@ -5872,12 +5874,12 @@ Procedure CopyRowsToClipboard(TabularSection, SelectedRows, Source = Undefined) 
 	
 EndProcedure
 
-// Places arbitrary data in the internal clipboard, from where it can be retrieved using the clipboard string.
+// Copies temporary data to the clipboard. To get the data, use RowsFromClipboard.
 //
 // Parameters:
-//  Data           - Arbitrary -  data to be placed in the internal clipboard.
-//  Source         - String       -  an arbitrary string identifier, such as the name of an object
-//                                    whose table part rows are placed in the internal clipboard.
+//  Data           - Arbitrary - the data to be copied to the clipboard.
+//  Source         - String       - an arbitrary string ID (for example, name of the object
+//                                    whose tabular section rows are to be copied to the internal clipboard).
 //
 Procedure CopyToClipboard(Data, Source = Undefined) Export
 	
@@ -5899,14 +5901,14 @@ Procedure CopyToClipboard(Data, Source = Undefined) Export
 	
 EndProcedure
 
-// Retrieves rows from the table, placed in the internal clipboard using Copyrightstatement.
+// Gets the tabular section rows that were copied to the clipboard with CopyRowsToClipboard.
 //
 // Returns:
 //  Structure:
-//     * Data   - Arbitrary -  data from the internal clipboard.
-//                                 For example, Cableconnected when calling Copyrightstatement.
-//     * Source - String       -  the object that the data belongs to.
-//                                 If it was not specified when it was placed in the internal buffer, it is Undefined.
+//     * Data   - Arbitrary - data retrieved from the internal clipboard.
+//                                 For example, ValueTable when calling CopyRowsToClipboard.
+//     * Source - String       - the object related to the data.
+//                                 Undefined if it was not specified in the data copied to the clipboard.
 //
 Function RowsFromClipboard() Export
 	
@@ -5925,14 +5927,14 @@ Function RowsFromClipboard() Export
 	Return Result;
 EndFunction
 
-// Checks for saved data in the internal clipboard.
+// Checks whether the clipboard has any data saved.
 //
 // Parameters:
-//  Source - String -  if passed, it checks whether there is data
-//             in the internal clipboard with this key.
-//             By default, it is Undefined.
+//  Source - String - If this parameter is passed, a check is made to determine whether
+//             the internal clipboard with this key contains data.
+//             The default value is Undefined.
 // Returns:
-//  Boolean - 
+//  Boolean - True if empty.
 //
 Function EmptyClipboard(Source = Undefined) Export
 	
@@ -5950,26 +5952,26 @@ EndFunction
 #Region ExternalCodeSecureExecution
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// Functions that provide support of security profiles that
+// restrict attaching external modules in unsafe mode.
 //
 
-// Perform the export procedure by name with the configuration privilege level.
-// When security profiles are enabled, the Run () operator is called
-// to switch to safe mode with the security profile used for the information base
-// (if no other safe mode was set higher up the stack).
+// Executes the export procedure by the name with the configuration privilege level.
+// To enable the security profile for calling the Execute() operator, the safe mode with the security profile of the infobase
+// is used
+// (if no other safe mode was set in stack previously).
 //
 // Parameters:
-//  MethodName  - String -  name of the export procedure in the format
-//                       <object name>.< procedure name>, where <object name> is
-//                       a General module or object Manager module.
-//  Parameters  - Array -  parameters are passed to the <export procedure Name>
-//                        procedure in the order of array elements.
+//  MethodName  - String - the name of the export procedure in format
+//                       <object name>.<procedure name>, where <object name> - is
+//                       a common module or object manager module.
+//  Parameters  - Array - the parameters are passed to <ExportProcedureName>
+//                        according to the array item order.
 // 
 // Example:
-//  Characteristic = new array();
-//  Parameters.Add ("1");
-//  General purpose.Perform A Configuration Method ("My General Module.Myprocedure", Parameters);
+//  Parameters = New Array();
+//  Parameters.Add("1");
+//  Common.ExecuteConfigurationMethod("MyCommonModule.MyProcedure", Parameters);
 //
 Procedure ExecuteConfigurationMethod(Val MethodName, Val Parameters = Undefined) Export
 	
@@ -6005,20 +6007,20 @@ Procedure ExecuteConfigurationMethod(Val MethodName, Val Parameters = Undefined)
 	
 EndProcedure
 
-// Perform an export procedure for an embedded language object by name.
-// When security profiles are enabled, the Run () operator is invoked
-// by switching to safe mode with the security profile used for the information base
-// (if no other safe mode was set higher up the stack).
+// Executes the export procedure of the 1C:Enterprise language object by name.
+// To enable the security profile for calling the Execute() operator, the safe mode with the security profile of the infobase
+// is used
+// (if no other safe mode was set in stack previously).
 //
 // Parameters:
-//  Object    - Arbitrary -  object of the built-in 1C language:An object containing methods (for example, a processing Object).
-//  MethodName - String       -  name of the export procedure for the processing object module.
-//  Parameters - Array       -  parameters are passed to the <procedure Name>
-//                             procedure in the order of array elements.
+//  Object    - Arbitrary - 1C:Enterprise language object that contains the methods (for example, DataProcessorObject).
+//  MethodName - String       - the name of export procedure of the data processor object module.
+//  Parameters - Array       - the parameters are passed to <ProcedureName>
+//                             according to the array item order.
 //
 Procedure ExecuteObjectMethod(Val Object, Val MethodName, Val Parameters = Undefined) Export
 	
-	// 
+	// Method name validation.
 	Try
 		Test = New Structure(MethodName, MethodName);
 		If Test = Undefined Then 
@@ -6063,26 +6065,42 @@ Procedure ExecuteObjectMethod(Val Object, Val MethodName, Val Parameters = Undef
 	
 EndProcedure
 
-// Performs an arbitrary algorithm in the built-in 1C language:Enterprises by pre-setting
-// safe code execution mode and safe data separation mode for all separators
-// present in the configuration.
+// Executes any algorithm written in 1C:Enterprise language after setting
+// the script execution safe mode and date separation safe mode for
+// all separators within the configuration.
+// 
+// Also, the following restrictions are applied to the executable code:
+// 
+// 1. The code cannot call the following methods:
+//   - Execute
+//   - Eval
+//   - CommitTransaction
+//   - TruncateEventLog
+//   - SetEventLogEventUse
+//   - RunApp
+//
+// 2. The code cannot call the global context common modules and context:
+//   - TimeConsumingOperations
+//   - InfoBaseUsers
 //
 // Parameters:
-//  Algorithm  - String -  algorithm in the built - in language " 1C:Companies".
-//  Parameters - Arbitrary -    the context that is required for executing the algorithm.
-//    In the algorithm text, the context must be accessed by the name "Parameters".
-//    For example, the expression " Parameters.Value1 = Parameters.Value2 "refers to the values
-//    " Value1 "and" Value2 " passed to Parameters as properties.
+//  Algorithm  - String - the algorithm in the 1C:Enterprise language.
+//  Parameters - Arbitrary -  the algorithm context.
+//    To address the context in the algorithm text, use "Parameters" name.
+//    For example, expression "Parameters.Value1 = Parameters.Value2" addresses values
+//    Value1 and Value2 that were passed to Parameters as properties.
 //
 // Example:
 //
-//  Characteristic = The New Structure;
-//  Parameters.Insert ("Value1", 1);
-//  Parameters.Insert ("Value2", 10);
-//  General purpose.Run In Safe Mode ("Parameters.Value1 = Parameters.Value2", Parameters);
+//  Parameters = New Structure;
+//  Parameters.Insert("Value1", 1);
+//  Parameters.Insert("Value2", 10);
+//  Common.ExecuteInSafeMode("Parameters.Value1 = Parameters.Value2", Parameters);
 //
 Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined) Export
 	
+	CheckAlgorithm(Algorithm);
+	
 	SetSafeMode(True);
 	
 	If SubsystemExists("CloudTechnology.Core") Then
@@ -6098,35 +6116,68 @@ Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined) Export
 		
 	EndDo;
 	
-	Execute Algorithm;
+	Try
+		If TransactionActive() Then
+			Execute Algorithm;
+		Else
+			BeginTransaction();
+			Try
+				Execute Algorithm;
+				RollbackTransaction();
+			Except
+				RollbackTransaction();
+				Raise;
+			EndTry;
+		EndIf;
+	Except
+		ErrorInfo = ErrorInfo();
+		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo);
+		Raise(Refinement.Text, ErrorCategory.ExternalDataSourceError ,,, ErrorInfo);
+	EndTry;
 	
 EndProcedure
 
-// Evaluates the passed expression by first setting safe code execution mode
-// and safe data separation mode for all delimiters present in the configuration.
+// Calculates the passed expression after setting the script execution
+// safe mode and date separation safe mode for all separators within the configuration.
+//
+// Also, the following restrictions are applied to the executable code:
+// 
+// 1. The code cannot call the following methods:
+//   - Execute
+//   - Eval
+//   - CommitTransaction
+//   - TruncateEventLog
+//   - SetEventLogEventUse
+//   - RunApp
+//
+// 2. The code cannot call the global context common modules and context:
+//   - TimeConsumingOperations
+//   - InfoBaseUsers
 //
 // Parameters:
-//  Expression - String -  the expression in the embedded language of 1C:Companies.
-//  Parameters - Arbitrary -  the context that is required for evaluating the expression.
-//    In the text of the expression, the context must be accessed by the name "Parameters".
-//    For example, the expression " Parameters.Value1 = Parameters.Value2 "refers to the values
-//    " Value1 "and" Value2 " passed to Parameters as properties.
+//  Expression - String - an expression in the 1C:Enterprise language.
+//  Parameters - Arbitrary - the context required to calculate the expression.
+//    To address the context in the expression text, use "Parameters" name.
+//    For example, expression "Parameters.Value1 = Parameters.Value2" addresses values
+//    Value1 and Value2 that were passed to Parameters as properties.
 //
 // Returns:
-//   Arbitrary - 
+//   Arbitrary - the result of the expression calculation.
 //
 // Example:
 //
-//  
-//  
-//  
-//  
-//  
+//  // Example 1
+//  Parameters = New Structure;
+//  Parameters.Insert("Value1", 1);
+//  Parameters.Insert("Value2", 10);
+//  Result = Common.ExecuteInSafeMode("Parameters.Value1 = Parameters.Value2", Parameters);
 //
-//  
-//  
+//  // Example 2
+//  Result = Common.ExecuteInSafeMode("StandardSubsystemsServer.LibraryVersion()");
 //
 Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined) Export
+	
+	CheckAlgorithm(Expression);
 	
 	SetSafeMode(True);
 	
@@ -6143,14 +6194,33 @@ Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined) Export
 		
 	EndDo;
 	
-	Return Eval(Expression);
+	Try
+		If TransactionActive() Then
+			Result = Eval(Expression);
+		Else
+			BeginTransaction();
+			Try
+				Result = Eval(Expression);
+				RollbackTransaction();
+			Except
+				RollbackTransaction();
+				Raise;
+			EndTry;
+		EndIf;
+		
+		Return Result;
+	Except
+		ErrorInfo = ErrorInfo();
+		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo);
+		Raise(Refinement.Text, ErrorCategory.ExternalDataSourceError ,,, ErrorInfo);
+	EndTry;
 	
 EndFunction
 
-// 
+// Returns details of the Unsafe action protection with disabled warnings.
 //
 // Returns:
-//  UnsafeOperationProtectionDescription - 
+//  UnsafeOperationProtectionDescription - with the UnsafeOperationWarnings property value set to False.
 //
 Function ProtectionWithoutWarningsDetails() Export
 	
@@ -6165,24 +6235,24 @@ EndFunction
 
 #Region Queries
 
-// 
-// 
+// Prepares a string for being used as a search template in a query with the "LIKE" statement.
+// All special symbols are escaped.
 //
 // Parameters:
-//  SearchString - String -  arbitrary string.
+//  SearchString - String - arbitrary string.
 //
 // Returns:
 //  String
 //  
 // Example:
-//   
-//    
-//  
-//    
-//  
-//    
+//   SELECT
+//    Products.Ref AS Ref
+//  FROM
+//    Catalog.Products AS Products
+//  WHERE
+//    Products.Description LIKE &Template ESCAPE "~"
 //
-//  
+//  Query.SetParameters("Template", Common.GenerateSearchQueryString(SearchText_1));
 //
 Function GenerateSearchQueryString(Val SearchString) Export
 	
@@ -6197,10 +6267,10 @@ Function GenerateSearchQueryString(Val SearchString) Export
 	
 EndFunction
 
-// Returns a fragment of the request text that separates one request from another.
+// Returns a query text fragment that is used as a separator between queries.
 //
 // Returns:
-//  String - 
+//  String - query separator.
 //
 Function QueryBatchSeparator() Export
 	
@@ -6212,7 +6282,7 @@ Function QueryBatchSeparator() Export
 		
 EndFunction
 
-// 
+// Returns a piece of a query text that combines multiple queries into a single query.
 //
 // Returns:
 //  String
@@ -6232,19 +6302,19 @@ EndFunction
 
 #Region Other
 
-// 
-// 
-//  
-//   
-//    
-//  
+// Runs checks before starting a scheduled job handler and breaks its execution if the handler cannot run.
+// For example, in the following cases:
+//  - App update is in progress.
+//  - It was started from the console or in a different way that bypasses the activation of the functional option 
+//    (if cases, when the scheduled job depends on functional options).
+//  - It's an attempt to start a job that handles external resources in an infobase copy.
 //
 // Parameters:
-//  ScheduledJob - MetadataObjectScheduledJob - 
-//    
+//  ScheduledJob - MetadataObjectScheduledJob - Scheduled job
+//    that is calling the procedure.
 //
 // Example:
-// 
+// Common.OnStartExecuteScheduledJob(Metadata.ScheduledJobs.<ScheduledJobName>);
 //
 Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 	
@@ -6303,11 +6373,11 @@ Procedure OnStartExecuteScheduledJob(ScheduledJob = Undefined) Export
 	
 EndProcedure
 
-// Sets the session parameters to the "not installed" state. 
+// Resets session parameters to Not set. 
 // 
 // Parameters:
-//  ParametersToClear_ - String -  the names of the parameters of the session for clearing, separated by ",".
-//  Exceptions          - String -  session parameter names not intended for cleaning, separated by ",".
+//  ParametersToClear_ - String - names of comma-separated session parameters to be cleared.
+//  Exceptions          - String - names of comma-separated session parameters that are not supposed to be cleared.
 //
 Procedure ClearSessionParameters(ParametersToClear_ = "", Exceptions = "") Export
 	
@@ -6341,16 +6411,16 @@ Procedure ClearSessionParameters(ParametersToClear_ = "", Exceptions = "") Expor
 	
 EndProcedure
 
-// Checks whether the transmitted table documents fit on the page when printing.
+// Checks whether the passed spreadsheet document fits a single page in the print layout.
 //
 // Parameters:
-//  TabDocument        - SpreadsheetDocument -  table document.
+//  TabDocument        - SpreadsheetDocument - spreadsheet document.
 //  AreasToOutput   - Array
-//                     - SpreadsheetDocument -  
-//  ResultOnError - Boolean -  how to return the result when an error occurs.
+//                     - SpreadsheetDocument - an array of tables, or a spreadsheet document. 
+//  ResultOnError - Boolean - a result to return when an error occurs.
 //
 // Returns:
-//   Boolean   - 
+//   Boolean   - flag indicating whether the passed documents fit the page.
 //
 Function SpreadsheetDocumentFitsPage(TabDocument, AreasToOutput, ResultOnError = True) Export
 
@@ -6362,19 +6432,19 @@ Function SpreadsheetDocumentFitsPage(TabDocument, AreasToOutput, ResultOnError =
 
 EndFunction 
 
-// Saves the user's personal settings related to the basic Functionality subsystem.
-// To get settings, the following functions are provided:
-//  - General purpose Client.Suggest Installing Extensions To Work With Files (),
-//  - Standardsystem Server.Request Confirmation Of Program Completion (),
-//  - Standardsystem Server.Show pre-installed program updates().
+// Saves personal user settings related to the Core subsystem.
+// To receive settings, use the following functions:
+//  - CommonClient.SuggestFileSystemExtensionInstallation(),
+//  - StandardSubsystemsServer.AskConfirmationOnExit(),
+//  - StandardSubsystemsServer.ShowInstalledApplicationUpdatesWarning().
 // 
 // Parameters:
 //  Settings - Structure:
-//    * RemindAboutFileSystemExtensionInstallation  - Boolean -  indicates whether you need
-//                                                               to be reminded to install the extension.
-//    * AskConfirmationOnExit - Boolean -  request confirmation when the job is completed.
-//    * ShowInstalledApplicationUpdatesWarning - Boolean -  show a notification when
-//                                                               the program is updated dynamically.
+//    * RemindAboutFileSystemExtensionInstallation  - Boolean - the flag indicating whether
+//                                                               to notify users on extension installation.
+//    * AskConfirmationOnExit - Boolean - the flag indicating whether to ask confirmation before the user exits the application.
+//    * ShowInstalledApplicationUpdatesWarning - Boolean - show a notification when
+//                                                               the application is dynamically updated.
 //
 Procedure SavePersonalSettings(Settings) Export
 	
@@ -6405,30 +6475,30 @@ Procedure SavePersonalSettings(Settings) Export
 	
 EndProcedure
 
-// Performs a proportional distribution of the amount according
-// to the specified distribution coefficients. 
+// Distributes the amount according
+// to the specified distribution ratios. 
 //
 // Parameters:
-//  AmountToDistribute - Number  -  the amount to distribute, if the amount is 0, it is returned Undefined;
-//                                 If you pass in a negative calculation in the module after inversion of the signs of the result.
-//  Coefficients        - Array of Number -  
-//                                          
-//  Accuracy            - Number  -  
+//  AmountToDistribute - Number  - the amount to distribute. If set to 0, returns Undefined;
+//                                 If set to a negative value, absolute value is calculated and then its sign is inverted.
+//  Coefficients        - Array of Number - Distribution coefficients. 
+//                                          All coefficients must be positive, or all coefficients must be negative.
+//  Accuracy            - Number  - Rounding accuracy during distribution. 
 //
 // Returns:
-//  Array of Number - 
-//           
-//           
-//           
-//           
+//  Array of Number - array whose dimension is equal to the number of coefficients, contains
+//           amounts according to the coefficient weights (from the array of coefficients).
+//           If distribution cannot be performed (for example, number of coefficients = 0,
+//           or some coefficients are negative, or total coefficient weight = 0),
+//           returns Undefined.
 //
 // Example:
 //
-//	
-//	
-//	
-//	
-//	
+//	Coefficients = New Array;
+//	Coefficients.Add(1);
+//	Coefficients.Add(2);
+//	Result = CommonClientServer.DistributeAmountInProportionToCoefficients(1, Coefficients);
+//	// Result = [0.33, 0.67]
 //
 Function DistributeAmountInProportionToCoefficients(
 		Val AmountToDistribute, Coefficients, Val Accuracy = 2) Export
@@ -6438,11 +6508,11 @@ Function DistributeAmountInProportionToCoefficients(
 	
 EndFunction
 
-// The procedure is intended for filling in the details of a form of the data Formtree type.
+// Fills an attribute for a form of the FormDataTree type.
 //
 // Parameters:
-//  TreeItemsCollection - FormDataTreeItemCollection -  details to fill in.
-//  ValueTree           - ValueTree    -  data to fill in.
+//  TreeItemsCollection - FormDataTreeItemCollection - required attribute.
+//  ValueTree           - ValueTree    - data to fill.
 // 
 Procedure FillFormDataTreeItemCollection(TreeItemsCollection, ValueTree) Export
 	
@@ -6458,36 +6528,37 @@ Procedure FillFormDataTreeItemCollection(TreeItemsCollection, ValueTree) Export
 	
 EndProcedure
 
-// Connects an external component made using Native API or COM technology
-// from the configuration layout (stored as a ZIP archive).
+// Applies an add-in based on Native API or COM technologies
+// from the configuration template (stored as a ZIP archive).
 //
 // Parameters:
-//   Id   - String - 
-//   FullTemplateName - String -  full name of the configuration layout with the ZIP archive.
-//   Isolated    - Boolean -  
-//                              
+//   Id   - String - the add-in identification code.
+//   FullTemplateName - String - full name of the configuration template with a ZIP archive.
+//   Isolated    - Boolean - If set to "True", the add-in is attached isolatedly. 
+//                              That is, it runs in a separate OS process.
+//                              If set to "False", the add-in runs in the same OS process that runs 1C:Enterprise scripts. 
 //                               
-//                               
-//                   - Undefined - :
-//                               
-//                              
+//                   - Undefined - Defines the 1C:Enterprise behavior.:
+//                              Non-isolatedly if the add-in supports only this mode. 
+//                              Isolatedly, in other cases. By default, "Undefined".
 //                              See https://its.1c.eu/db/v83doc
+//                                    #bookmark:dev:TI000001866
 //
 // Returns:
-//   - AddInObject -  an instance of an external component object.
-//   - Undefined - 
+//   - AddInObject - Add-in instance.
+//   - Undefined - Add-in instance.
 //
 // Example:
 //
-//  
-//      
-//      
+//  AttachableModule = Common.AttachAddInFromTemplate(
+//      "QRCodeExtension",
+//      "CommonTemplate.QRCodePrintingComponent");
 //
-//   
-//      
-//  
+//  If AttachableModule <> Undefined Then 
+//      // AttachableModule contains the instance of the attached add-in.
+//  EndIf;
 //
-//  
+//  AttachableModule = Undefined;
 //
 Function AttachAddInFromTemplate(Val Id, Val FullTemplateName, Val Isolated = Null) Export
 	
@@ -6518,7 +6589,7 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
+// Deprecated. Use Common.DataSeparationEnabled() AND Common.CanUseSeparatedData().
 // 
 //
 // Returns:
@@ -6537,17 +6608,17 @@ Function SessionSeparatorUsage() Export
 	
 EndFunction
 
-// Deprecated.
-//  
-// 
+// Deprecated. Instead, use FileSystem.CreateTemporaryDirectory
+// Creates a temporary directory. If a temporary directory is not required anymore, deleted it 
+// with the Common.DeleteTemporaryDirectory procedure.
 //
 // Parameters:
-//   Extension - String -  a directory extension that identifies the purpose of the temporary directory
-//                         and the subsystem that created it.
-//                         It is recommended to indicate in English.
+//   Extension - String - the temporary directory extension that contains the directory designation
+//                         and its subsystem.
+//                         It is recommended that you use only Latin characters in this parameter.
 //
 // Returns:
-//   String - 
+//   String - the full path to the directory, including path separators.
 //
 Function CreateTemporaryDirectory(Val Extension = "") Export
 	
@@ -6555,16 +6626,16 @@ Function CreateTemporaryDirectory(Val Extension = "") Export
 	
 EndFunction
 
-// Deprecated.
-// 
-// 
-// 
+// Deprecated. Instead, use FileSystem.DeleteTemporaryDirectory
+// Deletes the temporary directory and its content if possible.
+// If a temporary directory cannot be deleted (for example, if it is busy),
+// the procedure is completed and the warning is added to the event log.
 //
-//  
-// 
+// This procedure is for using with the Common.CreateTemporaryDirectory procedure 
+// after a temporary directory is not required anymore.
 //
 // Parameters:
-//   PathToDirectory - String -  full path to the temporary directory.
+//   PathToDirectory - String - the full path to a temporary directory.
 //
 Procedure DeleteTemporaryDirectory(Val PathToDirectory) Export
 	
@@ -6572,10 +6643,10 @@ Procedure DeleteTemporaryDirectory(Val PathToDirectory) Export
 	
 EndProcedure
 
-// Deprecated.
+// Deprecated. Obsolete. Checks for the platform features that notify users about unsafe actions.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, the unsafe action protection feature is on.
 //
 Function HasUnsafeActionProtection() Export
 	
@@ -6583,14 +6654,14 @@ Function HasUnsafeActionProtection() Export
 	
 EndFunction
 
-// Deprecated.
+// Deprecated. Obsolete. Creates and returns an instance of a report or data processor by the passed full name of a metadata object.
 //
 // Parameters:
-//  FullName - String -  full name of the metadata object. Example: "Report.business process".
+//  FullName - String - full name of a metadata object. Example: "Report.BusinessProcesses".
 //
 // Returns:
 //  ReportObject
-//  A processing object is an instance of a report or processing.
+//  DataProcessorObject - an instance of a report or data processor.
 // 
 Function ObjectByFullName(FullName) Export
 	RowsArray = StrSplit(FullName, ".");
@@ -6617,11 +6688,11 @@ Function ObjectByFullName(FullName) Export
 	EndIf;
 EndFunction
 
-// Deprecated.
-// 
+// Deprecated. Instead, use Common.IsMacOSClient
+// Returns True if the client application runs on OS X.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsOSXClient() Export
 	
@@ -6630,7 +6701,7 @@ Function IsOSXClient() Export
 	IsMacOSClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsMacOSClient");
 	
 	If IsMacOSClient = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 	
 	Return IsMacOSClient;
@@ -6647,22 +6718,22 @@ EndFunction
 
 #Region Internal
 
-// 
-//   
-//   
-//   
-//   
+// Exports the query into an XML string, which you can pass to the Query console.
+//   To pass the query and all its parameters to the Query console, call the function in the window.
+//   "Eval expression" (Shift + F9), copy the resulting XML to the "Query text" field
+//   of the query console and run the "Fill from XML" command in the "More" menu.
+//   For details, see the Query console help.
 //
 // Parameters:
-//   Query - Query -  the request to be uploaded to the XML string format.
+//   Query - Query - query to be exported as an XML string.
 //
 // Returns:
-//   String - 
-//       :
-//       * Text     - String -  query text.
-//       * Parameters - Structure -   request parameters.
+//   String - XML string, which can extracted using the Common.ValueFromXMLString method.
+//       The extraction outcome is a structure with the following fields:
+//       * Text     - String - query text.
+//       * Parameters - Structure - query parameters.
 //
-Function QueryToXMLString(Query) Export //  
+Function QueryToXMLString(Query) Export // ACC:299 - Intended for debugging queries. See the function comments.
 	Structure = New Structure("Text, Parameters");
 	FillPropertyValues(Structure, Query);
 	Return ValueToXMLString(Structure);
@@ -6815,12 +6886,12 @@ Function StringAsNstr(Val RowToValidate) Export
 	
 EndFunction
 
-// Sets the conditional design of the selection list
+// Sets the conditional appearance of the choice list
 // 
 // Parameters:
-//  Form - ClientApplicationForm -  the form for which the design is set.
-//  TagName - String -  name of the element to set the appearance for.
-//  DataCompositionFieldName - String -  name of the data layout field.
+//  Form - ClientApplicationForm - the form for which the appearance is set.
+//  TagName - String - the item name for which the appearance is set.
+//  DataCompositionFieldName - String - a data composition field name.
 //
 Procedure SetChoiceListConditionalAppearance(Form, TagName, DataCompositionFieldName) Export
 	
@@ -6846,12 +6917,12 @@ Procedure SetChoiceListConditionalAppearance(Form, TagName, DataCompositionField
 	
 EndProcedure
 
-// 
+// Returns the suffix of the current language (for multilingual attributes).
 // 
 // Returns:
-//  String - 
-//           
-//  
+//  String - "Lang1" or "Lang2" if the user language is not default.
+//           Empty string, if the user language is default.
+//  Undefined, if multilingual data is not supported.
 //
 Function CurrentUserLanguageSuffix() Export
 	
@@ -6878,12 +6949,12 @@ Function CurrentUserLanguageSuffix() Export
 	
 EndFunction
 
-//  
-//  
+// Truncates a filename if its size exceeds 255 bytes. 
+// It replaces the end part of the filename (without the extension) with a unique MD5 hash. 
 //  
 // 
 // Parameters:
-//  FileName - String - 
+//  FileName - String - File name including the extension.
 // 
 Procedure ShortenFileName(FileName) Export
 	
@@ -6932,18 +7003,18 @@ Procedure ShortenFileName(FileName) Export
 	
 EndProcedure
 
-// 
-// 
+// Internal objects and backup objects must be written without using any applied logic.
+// Applied logic might lead to infinite loops, performance degradation, and unwanted changes.
 //
-// 
-// 
-// 
-// 
+// An object is considered internal if it is not involved in data exchange and dependencies. For example:
+// - Cache objects
+// - Cache update dates and flags
+// - Intermediate data to be passed to background jobs
 //
-// 
-// 
-// 
-// 
+// - Auxiliary data (access keys, object IDs)
+// If the AccessManagement subsystem is integrated, also call the AccessManagement.DisableAccessKeysUpdate procedure.
+// - This procedure enables the data import mode and disables data registration in exchange plans,
+// - and control of the Marked object deletion mechanism.
 // 
 // 
 //   
@@ -6992,10 +7063,10 @@ Function TemplateExists(FullTemplateName) Export
 	Template = Metadata.FindByFullName(FullTemplateName);
 	If TypeOf(Template) = Type("MetadataObject") Then 
 		
-		Var_477_Template = New Structure("TemplateType");
-		FillPropertyValues(Var_477_Template, Template);
+		Var_482_Template = New Structure("TemplateType");
+		FillPropertyValues(Var_482_Template, Template);
 		TemplateType = Undefined;
-		If Var_477_Template.Property("TemplateType", TemplateType) Then 
+		If Var_482_Template.Property("TemplateType", TemplateType) Then 
 			Return TemplateType <> Undefined;
 		EndIf;
 		
@@ -7013,28 +7084,28 @@ EndFunction
 
 #Region AttributesValues
 
-// 
+// Checks the metadata object for the given attributes.
 // 
 // Parameters:
-//  FullMetadataObjectName - String -  full name of the object being checked.
-//  ExpressionsToCheck       - Array -  field names or verifiable expressions of the metadata object.
+//  FullMetadataObjectName - String - object full name.
+//  ExpressionsToCheck       - Array - field names or metadata object expressions to check.
 // 
 // Returns:
 //  Structure:
-//   * Error         - Boolean -  an error was found.
-//   * ErrorDescription - String -  description of errors found.
+//   * Error         - Boolean - the flag indicating whether an error is found.
+//   * ErrorDescription - String - the descriptions of errors that are found.
 //
 // Example:
 //  
-// 
-// 
-// 
+// Attributes = New Array;
+// Attributes.Add("Number");
+// Attributes.Add("Currency.FullDescription");
 //
-// 
+// Result = Common.CheckIfObjectAttributesExist("Document.SalesOrder", Attributes);
 //
-// 
-//     
-// 
+// If Result.Error Then
+//     CallException Result.ErrorDescription;
+// EndIf;
 //
 Function CheckIfObjectAttributesExist(FullMetadataObjectName, ExpressionsToCheck)
 	
@@ -7045,8 +7116,8 @@ Function CheckIfObjectAttributesExist(FullMetadataObjectName, ExpressionsToCheck
 				NStr("en = 'Non-existing metadata object: ""%1"".';"), FullMetadataObjectName));
 	EndIf;
 
-	// 
-	// 
+	// Allow a call from the safe mode of an external data processor or extension.
+	// The information on the availability of the schema's source fields is not considered private when checking metadata.
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
@@ -7070,8 +7141,8 @@ Function CheckIfObjectAttributesExist(FullMetadataObjectName, ExpressionsToCheck
 	
 EndFunction
 
-// 
-// 
+// Intended for CheckIfObjectAttributesExist.
+// Checks the availability of an expression field in the query schema operator source.
 //
 Function QuerySchemaSourceFieldAvailable(OperatorSource, ExpressToCheck)
 	
@@ -7087,7 +7158,7 @@ Function QuerySchemaSourceFieldAvailable(OperatorSource, ExpressToCheck)
 			Return False;
 		EndIf;
 		
-		// 
+		// Incrementing the next part of the field name and the relevant field availability list.
 		CurrentFieldNamePart = CurrentFieldNamePart + 1;
 		AvailableFields = CurrentField.Fields;
 		
@@ -7104,7 +7175,7 @@ EndFunction
 Function MarkUsageInstances(Val ExecutionParameters, Val Ref, Val DestinationRef, Val SearchTable)
 	SetPrivilegedMode(True);
 	
-	// 
+	// Setting the order of known objects and checking whether there are unidentified ones.
 	Result = New Structure;
 	Result.Insert("UsageInstances", SearchTable.FindRows(New Structure("Ref", Ref)));
 	Result.Insert("MarkupErrors",     New Array);
@@ -7112,7 +7183,7 @@ Function MarkUsageInstances(Val ExecutionParameters, Val Ref, Val DestinationRef
 	
 	For Each UsageInstance1 In Result.UsageInstances Do
 		If UsageInstance1.IsInternalData Then
-			Continue; // 
+			Continue; // Skipping dependent data.
 		EndIf;
 		
 		Information = TypeInformation(UsageInstance1.Metadata, ExecutionParameters);
@@ -7139,7 +7210,7 @@ Function MarkUsageInstances(Val ExecutionParameters, Val Ref, Val DestinationRef
 			UsageInstance1.DestinationRef = DestinationRef;
 			
 		Else
-			// 
+			// Unknown object for reference replacement.
 			Result.Success = False;
 			Text = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot replace references in ""%1"".';"), Information.FullName);
@@ -7157,7 +7228,7 @@ EndFunction
 //
 Procedure ReplaceRefsUsingShortTransactions(Result, Val ExecutionParameters, Val Duplicate1, Val SearchTable)
 	
-	// 
+	// Main data processor loop.
 	RefFilter = New Structure("Ref, ReplacementKey");
 	
 	Result.HasErrors = False;
@@ -7258,7 +7329,7 @@ Procedure ReplaceInConstant(Result, Val UsageInstance1, Val WriteParameters)
 			Return;
 		EndIf;	
 		 
-		// 
+		// Save attempt.
 		If Not WriteParameters.WriteInPrivilegedMode Then
 			SetPrivilegedMode(False);
 		EndIf;
@@ -7301,7 +7372,7 @@ Procedure ReplaceInObject(Result, Val UsageInstance1, Val ExecutionParameters)
 	
 	Data = UsageInstance1.Data;
 	
-	// 
+	// Performing all replacement of the data in the same time.
 	Filter = New Structure("Data, ReplacementKey", Data, "Object");
 	RowsToProcess = UsageInstance1.Owner().FindRows(Filter); // See UsageInstances
 	
@@ -7328,26 +7399,26 @@ Procedure ReplaceInObject(Result, Val UsageInstance1, Val ExecutionParameters)
 		
 		WritingObjects = ModifiedObjectsOnReplaceInObject(ExecutionParameters, UsageInstance1, RowsToProcess);
 		
-		// 
+		// Attempting to save. The object goes last.
 		If Not ExecutionParameters.WriteInPrivilegedMode Then
 			SetPrivilegedMode(False);
 		EndIf;
 		
 		Try
 			If ExecutionParameters.IncludeBusinessLogic Then
-				// 
+				// First writing iteration without the control to fix loop references.
 				NewExecutionParameters = CopyRecursive(ExecutionParameters);
 				NewExecutionParameters.IncludeBusinessLogic = False;
 				For Each KeyValue In WritingObjects Do
 					WriteObject(KeyValue.Key, NewExecutionParameters);
 				EndDo;
-				// 
+				// Second writing iteration with the control.
 				NewExecutionParameters.IncludeBusinessLogic = True;
 				For Each KeyValue In WritingObjects Do
 					WriteObject(KeyValue.Key, NewExecutionParameters);
 				EndDo;
 			Else
-				// 
+				// Writing without the business logic control.
 				For Each KeyValue In WritingObjects Do
 					WriteObject(KeyValue.Key, ExecutionParameters);
 				EndDo;
@@ -7377,7 +7448,7 @@ Procedure ReplaceInObject(Result, Val UsageInstance1, Val ExecutionParameters)
 		EndIf;
 	EndTry;
 	
-	// 
+	// Mark as processed.
 	For Each TableRow In RowsToProcess Do
 		TableRow.ReplacementKey = "";
 	EndDo;
@@ -7391,7 +7462,7 @@ Procedure ReplaceInSet(Result, Val UsageInstance1, Val ExecutionParameters)
 	RegisterMetadata = UsageInstance1.Metadata;
 	DataPresentation = String(Data);
 	
-	// 
+	// Performing all replacement of the data in the same time.
 	Filter = New Structure("Data, ReplacementKey");
 	FillPropertyValues(Filter, UsageInstance1);
 	RowsToProcess = UsageInstance1.Owner().FindRows(Filter); // See UsageInstances
@@ -7404,7 +7475,7 @@ Procedure ReplaceInSet(Result, Val UsageInstance1, Val ExecutionParameters)
 		ReplacementPairs.Insert(TableRow.Ref, TableRow.DestinationRef);
 	EndDo;
 	
-	// 
+	// Mark as processed.
 	For Each TableRow In RowsToProcess Do
 		TableRow.ReplacementKey = "";
 	EndDo;
@@ -7414,7 +7485,7 @@ Procedure ReplaceInSet(Result, Val UsageInstance1, Val ExecutionParameters)
 	
 	Try
 		
-		// 
+		// Locking and preparing the set.
 		Block = New DataLock;
 		For Each KeyValue In SetDetails.MeasurementList Do
 			DimensionType = KeyValue.Value;
@@ -7496,18 +7567,18 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 	EndIf;
 	UsageInstance1.Processed = True;
 	
-	// 
-	//     
-	//     
-	//     
-	//         
-	//         
-	//     
+	// If a duplicate is specified in the set's dimensions, two sets of records are used:
+	//     "DuplicateRecordSet" for reading values from the old dimensions and deleting them.
+	//     "OriginalRecordSet" for reading values in the new dimensions and writing them.
+	//     The following rules apply for merging the original and duplicate items:
+	//         The original item's data has a higher priority.
+	//         If the original item has no data, it's copied from the duplicate.
+	//     The original item is written, and the duplicate is deleted.
 	//
-	// 
-	//     
+	// If no duplicate is specified in the set's dimensions, a single set of records is used:
+	//     "DuplicateRecordSet" for reading values from the old dimensions and writing new values.
 	//
-	// 
+	// In both cases, the references in resources and attributes are replaced.
 	
 	SetPrivilegedMode(True);
 	
@@ -7524,7 +7595,7 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 		DuplicateDimensionValue = RegisterRecordKey[KeyValue.Key];
 		If DuplicateDimensionValue = Duplicate1
 			Or ExecutionParameters.SuccessfulReplacements[DuplicateDimensionValue] = Duplicate1 Then
-			TwoSetsRequired = True; // 
+			TwoSetsRequired = True; // Duplicate is specified in dimensions.
 			Break;
 		EndIf;
 	EndDo;
@@ -7549,9 +7620,9 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 		For Each KeyValue In Information.Dimensions Do
 			DuplicateDimensionValue = RegisterRecordKey[KeyValue.Key];
 			
-			// 
-			//   
-			//   
+			// To resolve the uniqueness issue, the old values of the dimension record keys
+			//   are replaced with new ones. The "SuccessfulReplacements" map stores the old and new values.
+			//   The map updates after a new value–old value pair is processed and the transaction is committed.
 			//   
 			//   
 			NewDuplicateDimensionValue = ExecutionParameters.SuccessfulReplacements[DuplicateDimensionValue];
@@ -7561,7 +7632,7 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 			
 			DuplicateRecordSet.Filter[KeyValue.Key].Set(DuplicateDimensionValue);
 			
-			 // 
+			 // Replacement in the pair and lock for the replacement.
 			DuplicateLock.SetValue(KeyValue.Key, DuplicateDimensionValue);
 			
 			
@@ -7575,7 +7646,7 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 				OriginalRecordSet.Filter[KeyValue.Key].Set(OriginalDimensionValue);
 				OriginalDimensionValues.Insert(KeyValue.Key, OriginalDimensionValue);
 				
-				// 
+				// Replacement in the pair and lock for the replacement.
 				OriginalLock.SetValue(KeyValue.Key, OriginalDimensionValue);
 			EndIf;
 		EndDo;
@@ -7590,7 +7661,7 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 		DuplicateRecord = DuplicateRecordSet[0];
 		
 		If TwoSetsRequired Then
-			// 
+			// Writing to a set with other dimensions.
 			OriginalRecordSet.Read();
 			If OriginalRecordSet.Count() = 0 Then
 				OriginalRecord = OriginalRecordSet.Add();
@@ -7600,12 +7671,12 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 				OriginalRecord = OriginalRecordSet[0];
 			EndIf;
 		Else
-			// 
+			// Write to the source.
 			OriginalRecordSet = DuplicateRecordSet;
-			OriginalRecord = DuplicateRecord; // 
+			OriginalRecord = DuplicateRecord; // The zero record set case is processed above.
 		EndIf;
 		
-		// 
+		// Substituting the original for duplicate in resource and attributes.
 		For Each KeyValue In Information.Resources Do
 			AttributeValueInOriginal = OriginalRecord[KeyValue.Key];
 			If AttributeValueInOriginal = Duplicate1 Then
@@ -7623,13 +7694,13 @@ Procedure ReplaceInInformationRegister(Result, Val UsageInstance1, Val Execution
 			SetPrivilegedMode(False);
 		EndIf;
 		
-		// 
+		// Delete the duplicate data.
 		If TwoSetsRequired Then
 			DuplicateRecordSet.Clear();
 			WriteObject(DuplicateRecordSet, ExecutionParameters);
 		EndIf;
 		
-		// 
+		// Write original object data.
 		If OriginalRecordSet.Modified() Then
 			WriteObject(OriginalRecordSet, ExecutionParameters);
 		EndIf;
@@ -7651,15 +7722,15 @@ Function ModifiedObjectsOnReplaceInObject(ExecutionParameters, UsageInstance1, R
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Returning modified processed objects.
 	Modified1 = New Map;
 	
-	// 
+	// Read.
 	LongDesc = ObjectDetails(Data.Metadata());
 	Try
 		Object = Data.GetObject();
 	Except
-		// 
+		// Has already been processed with errors.
 		Object = Undefined;
 	EndTry;
 	
@@ -7677,7 +7748,7 @@ Function ModifiedObjectsOnReplaceInObject(ExecutionParameters, UsageInstance1, R
 		SequenceDetails.RecordSet.Read();
 	EndDo;
 	
-	// 
+	// Replacing all at once.
 	ReplacementPairs = New Map;
 	For Each UsageInstance1 In RowsToProcess Do
 		ReplacementPairs.Insert(UsageInstance1.Ref, UsageInstance1.DestinationRef);
@@ -7685,7 +7756,7 @@ Function ModifiedObjectsOnReplaceInObject(ExecutionParameters, UsageInstance1, R
 	
 	ExecuteReplacementInObjectAttributes(Object, LongDesc, ReplacementPairs);
 		
-	// RegisterRecords
+	// Register records.
 	For Each RegisterRecordDetails In RegisterRecordsDetails Do
 		ReplaceInRowCollection(
 			"RegisterRecords",
@@ -7740,7 +7811,7 @@ Function ModifiedObjectsOnReplaceInObject(ExecutionParameters, UsageInstance1, R
 	
 	EndIf;
 	
-	// 
+	// The object goes last in case a reposting is required.
 	If Object.Modified() Then
 		Modified1.Insert(Object, LongDesc.CanBePosted);
 	EndIf;
@@ -7775,7 +7846,7 @@ Procedure ExecuteReplacementInObjectAttributes(Object, LongDesc, ReplacementPair
 		EndIf;
 	EndDo;
 	
-	// 
+	// Standard attributes.
 	For Each KeyValue In LongDesc.StandardAttributes Do
 		Name = KeyValue.Key;
 		DestinationRef = ReplacementPairs[ Object[Name] ];
@@ -7785,7 +7856,7 @@ Procedure ExecuteReplacementInObjectAttributes(Object, LongDesc, ReplacementPair
 		EndIf;
 	EndDo;
 	
-	// 
+	// Tables.
 	For Each Item In LongDesc.TabularSections Do
 		ReplaceInRowCollection(
 			"TabularSections",
@@ -7796,7 +7867,7 @@ Procedure ExecuteReplacementInObjectAttributes(Object, LongDesc, ReplacementPair
 			ReplacementPairs);
 	EndDo;
 	
-	// 
+	// Standard tables.
 	For Each Item In LongDesc.StandardTabularSections Do
 		ReplaceInRowCollection(
 			"StandardTabularSections",
@@ -7904,12 +7975,12 @@ Function SetDeletionMark(Result, Val RefToDelete, Val AllUsageInstances, Val Exe
 	
 	If UsageInstances.Count() > 0 Then
 		AddModifiedObjectReplacementResults(Result, UsageInstances);
-		Return False; // 
+		Return False; // Cannot delete the object because other objects refer to it.
 	EndIf;
 	
 	Object = RefToDelete.GetObject(); // DocumentObject, CatalogObject
 	If Object = Undefined Then
-		Return False; // 
+		Return False; // Object has already been deleted.
 	EndIf;
 	
 	If Not ExecutionParameters.WriteInPrivilegedMode Then
@@ -7953,7 +8024,7 @@ Procedure AddModifiedObjectReplacementResults(Result, RepeatSearchTable)
 		Filter.ErrorObject = TableRow.Data;
 		Filter.Ref       = TableRow.Ref;
 		If Result.Errors.FindRows(Filter).Count() > 0 Then
-			Continue; // 
+			Continue; // Error on this issue has already been recorded.
 		EndIf;
 
 		RegisterReplacementError(Result, TableRow.Ref, 
@@ -7974,22 +8045,22 @@ Procedure LockUsageInstance(ExecutionParameters, Block, UsageInstance1)
 		ObjectRef2     = UsageInstance1.Data;
 		ObjectMetadata = UsageInstance1.Metadata;
 		
-		// 
+		// The object.
 		Block.Add(ObjectMetadata.FullName()).SetValue("Ref", ObjectRef2);
 		
-		// 
+		// Register records by recorder.
 		RegisterRecordsDetails = RegisterRecordsDetails(ObjectMetadata);
 		For Each Item In RegisterRecordsDetails Do
 			Block.Add(Item.LockSpace + ".RecordSet").SetValue("Recorder", ObjectRef2);
 		EndDo;
 		
-		// 
+		// Sequences.
 		SequencesDetails = SequencesDetails(ObjectMetadata);
 		For Each Item In SequencesDetails Do
 			Block.Add(Item.LockSpace).SetValue("Recorder", ObjectRef2);
 		EndDo;
 		
-		// 
+		// Business process tasks.
 		TaskDetails = TaskDetails(ObjectMetadata);
 		If TaskDetails <> Undefined Then
 			Block.Add(TaskDetails.LockSpace).SetValue("BusinessProcess", ObjectRef2);	
@@ -8076,15 +8147,15 @@ Function RegisterRecordsDetails(Val MetadataObject)
 			                |EndOfActionPeriod, BegOfActionPeriod, RegistrationPeriod, Recorder, ReversingEntry,
 			                |ActualActionPeriod";
 		Else
-			// 
+			// Unknown type.
 			Continue;
 		EndIf;
 		
-		// 
-		// 
+		// Ref fields and candidate dimensions.
+		// @skip-check query-in-loop - An empty request to obtain a list of table fields.
 		LongDesc = ObjectFieldLists(RecordSet, Movement.Dimensions, ExcludeFields);
 		If LongDesc.FieldList.Count() = 0 Then
-			// 
+			// No need to process.
 			Continue;
 		EndIf;
 		
@@ -8120,7 +8191,7 @@ Function SequencesDetails(Val Meta)
 		
 		TableName = Sequence.FullName();
 		
-		// 
+		// @skip-check query-in-loop - Empty query for obtaining the list of table fields.
 		LongDesc = ObjectFieldLists(TableName, Sequence.Dimensions, "Recorder");
 		If LongDesc.FieldList.Count() > 0 Then
 			
@@ -8227,7 +8298,7 @@ Function ObjectDetails(Val MetadataObject)
 EndFunction
 
 // Parameters:
-//   Object Of Metadata - Object Of Metadata
+//   MetadataObject - MetadataObject
 // 	
 // Returns:
 //  Array of Structure:
@@ -8255,8 +8326,8 @@ Function RecordKeyDetails(Val MetadataTables)
 	
 	TableName = MetadataTables.FullName();
 	
-	// 
-	// 
+	// Candidate Ref fields and a dimension set.
+	// @skip-check query-in-loop - An empty request to obtain a list of table fields.
 	KeyDetails = ObjectFieldLists(TableName, MetadataTables.Dimensions, "Period, Recorder");
 	
 	If Metadata.InformationRegisters.Contains(MetadataTables) Then
@@ -8290,7 +8361,7 @@ Function DescriptionTypesOverlap(Val LongDesc1, Val LongDesc2)
 	Return False;
 EndFunction
 
-// Returns a description by table name or by a set of records.
+// Returns a description by the table name or by the record set.
 Function ObjectFieldLists(Val DataSource, Val RegisterDimensionsMetadata, Val ExcludeFields)
 	
 	LongDesc = New Structure;
@@ -8304,13 +8375,13 @@ Function ObjectFieldLists(Val DataSource, Val RegisterDimensionsMetadata, Val Ex
 	DataSourceType = TypeOf(DataSource);
 	
 	If DataSourceType = Type("String") Then
-		// 
+		// The source is the table name. The fields are received with a query.
 		QueryText = "SELECT * FROM &TableName WHERE FALSE";
 		QueryText = StrReplace(QueryText, "&TableName", DataSource);
 		Query = New Query(QueryText);
 		FieldSource = Query.Execute();
 	Else
-		// 
+		// The source is a record set.
 		FieldSource = DataSource.UnloadColumns();
 	EndIf;
 	
@@ -8319,7 +8390,7 @@ Function ObjectFieldLists(Val DataSource, Val RegisterDimensionsMetadata, Val Ex
 		If Not ToExclude.Property(Name) And DescriptionTypesOverlap(Column.ValueType, ControlType) Then
 			LongDesc.FieldList.Insert(Name);
 			
-			// 
+			// Checking for a master dimension.
 			Meta = RegisterDimensionsMetadata.Find(Name);
 			If Meta <> Undefined Then
 				LongDesc.DimensionStructure.Insert(Name, Meta.Type);
@@ -8419,7 +8490,7 @@ EndProcedure
 
 Procedure WriteObjectWithMessageInterception(Val Object, Val Action, Val WriteMode, Val WriteParameters)
 	
-	// 
+	// Save the current messages before the exception.
 	PreviousMessages = GetUserMessages(True);
 	ReportAgain    = CurrentRunMode() <> Undefined;
 	
@@ -8497,11 +8568,11 @@ Procedure WriteObject(Val Object, Val WriteParameters)
 		Return;
 	EndIf;
 	
-	// 
+	// Checking for loop references.
 	ObjectProperties = New Structure("Hierarchical, ExtDimensionTypes, Owners", False, Undefined, New Array);
 	FillPropertyValues(ObjectProperties, ObjectMetadata);
 	
-	// 
+	// Check the parent.
 	If ObjectProperties.Hierarchical Or ObjectProperties.ExtDimensionTypes <> Undefined Then 
 		
 		If Object.Parent = Object.Ref Then
@@ -8512,14 +8583,14 @@ Procedure WriteObject(Val Object, Val WriteParameters)
 			
 	EndIf;
 	
-	// 
+	// Check the owner.
 	If ObjectProperties.Owners.Count() > 1 And Object.Owner = Object.Ref Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot write ""%1"" because it cannot own itself.';"),
 			SubjectString(Object));
 	EndIf;
 	
-	// 
+	// For sequences, the Update right can be absent even in the SystemAdministrator role.
 	If IsSequence(ObjectMetadata)
 		And Not AccessRight("Update", ObjectMetadata)
 		And Users.IsFullUser(,, False) Then
@@ -8562,7 +8633,7 @@ EndProcedure
 //    * ErrorType - String
 //    * ErrorObject - AnyRef
 //    * ErrorObjectPresentation - String
-//    * ErrorInfo - 
+//    * ErrorInfo - ErrorInfo, String
 //
 Function ReplacementErrorDescription(Val ErrorType, Val ErrorObject, Val ErrorObjectPresentation, Val ErrorInfo)
 
@@ -8629,13 +8700,13 @@ Procedure RegisterErrorInTable(Result, Duplicate1, Original, Data, Information, 
 	
 EndProcedure
 
-// Generates information about the type of metadata object: full name, views, view, and so on.
+// Generates details on the metadata object type: full name, presentations, kind, and so on.
 Function TypeInformation(FullNameOrMetadataOrType, Cache)
 	FirstParameterType = TypeOf(FullNameOrMetadataOrType);
 	If FirstParameterType = Type("String") Then
 		MetadataObject = MetadataObjectByFullName(FullNameOrMetadataOrType);
 	Else
-		If FirstParameterType = Type("Type") Then // 
+		If FirstParameterType = Type("Type") Then // Search for the metadata object.
 			MetadataObject = Metadata.FindByType(FullNameOrMetadataOrType);
 		Else
 			MetadataObject = FullNameOrMetadataOrType;
@@ -8661,13 +8732,13 @@ Function TypeInformation(FullNameOrMetadataOrType, Cache)
 	|Dimensions, Attributes, Resources");
 	TypesInformation.Insert(FullName, Information);
 	
-	// 
+	// Populate basic information.
 	Information.FullName = FullName;
 	
-	// 
+	// Item presentation.
 	Information.ItemPresentation = ObjectPresentation(MetadataObject);
 	
-	// 
+	// Kind and its properties.
 	Information.Kind = Left(Information.FullName, StrFind(Information.FullName, ".")-1);
 	If Information.Kind = "CATALOG"
 		Or Information.Kind = "DOCUMENT"
@@ -8782,10 +8853,10 @@ EndFunction
 //   AttributeMetadata - MetadataObjectAttribute
 // 
 Function AttributeInformation1(AttributeMetadata)
-	// 
-	// 
-	// 
-	// 
+	// StandardAttributeDetails
+	// MetadataObject: Dimension
+	// MetadataObject: Resource
+	// MetadataObject: Attribute
 	Information = New Structure("Master, Presentation, Format, Type, DefaultValue, FillFromFillingValue");
 	FillPropertyValues(Information, AttributeMetadata);
 	Information.Presentation = AttributeMetadata.Presentation();
@@ -8862,10 +8933,10 @@ Function GenerateDuplicates(ExecutionParameters, ReplacementParameters, Replacem
 		Duplicate1 = KeyValue.Key;
 		Original = KeyValue.Value;
 		If Duplicate1 = Original Or Duplicate1.IsEmpty() Then
-			Continue; // 
+			Continue; // Not replacing self-references and empty references.
 		EndIf;
 		Duplicates.Add(Duplicate1);
-		// 
+		// Skipping intermediate replacements to avoid building a graph (if A->B and B->C, replacing A->C).
 		OriginalOriginal = ReplacementPairs[Original];
 		HasOriginalOriginal = (OriginalOriginal <> Undefined And OriginalOriginal <> Duplicate1 And OriginalOriginal <> Original);
 		If HasOriginalOriginal Then
@@ -8889,7 +8960,7 @@ Function GenerateDuplicates(ExecutionParameters, ReplacementParameters, Replacem
 
 			IndexOf = Duplicates.Find(Duplicate1);
 			If IndexOf <> Undefined Then
-				Duplicates.Delete(IndexOf); // 
+				Duplicates.Delete(IndexOf); // Skip the item with issues.
 			EndIf;
 		EndDo;
 		
@@ -8917,7 +8988,7 @@ Function NewReferenceReplacementExecutionParameters(Val ReplacementParameters)
 	ExecutionParameters.Insert("TakeAppliedRulesIntoAccount", DefaultParameters.TakeAppliedRulesIntoAccount);
 	ExecutionParameters.Insert("ReplacementLocations", New Array);
 	
-	// 
+	// The passed parameters are processed conditionally for backward compatibility.
 	ParameterValue = CommonClientServer.StructureProperty(ReplacementParameters, "DeletionMethod");
 	If ParameterValue = "Directly" Then
 		ExecutionParameters.ShouldDeleteDirectly = True;
@@ -8980,13 +9051,13 @@ Function RecordSetDimensionsDetails(Val RegisterMetadata, RegisterDimensionCache
 		Return DimensionsDetails;
 	EndIf;
 	
-	// 
+	// Period and recorder, if any.
 	DimensionsDetails = New Structure;
 	
 	DimensionData = New Structure("Master, Presentation, Format, Type", False);
 	
 	If Metadata.InformationRegisters.Contains(RegisterMetadata) Then
-		// 
+		// There might be a period.
 		MetaPeriod = RegisterMetadata.InformationRegisterPeriodicity; 
 		Periodicity = Metadata.ObjectProperties.InformationRegisterPeriodicity;
 		
@@ -9036,7 +9107,7 @@ Function RecordSetDimensionsDetails(Val RegisterMetadata, RegisterDimensionCache
 		
 	EndIf;
 	
-	// 
+	// All dimensions.
 	For Each MetaDimension In RegisterMetadata.Dimensions Do
 		DimensionData = New Structure("Master, Presentation, Format, Type");
 		DimensionData.Type           = MetaDimension.Type;
@@ -9056,7 +9127,7 @@ EndFunction
 
 #Region ConditionCalls
 
-// Returns the backend module Manager by the name of the object.
+// Returns a server manager module by object name.
 Function ServerManagerModule(Name)
 	ObjectFound = False;
 	
@@ -9141,10 +9212,10 @@ Function ServerManagerModule(Name)
 			ErrorCategory.ConfigurationError);
 	EndIf;
 	
-	// 
+	// ACC:488-disable CalculateInSafeMode is not used, to avoid calling CommonModule recursively.
 	SetSafeMode(True);
 	Module = Eval(Name);
-	// 
+	// ACC:488-on
 	
 	Return Module;
 EndFunction
@@ -9188,7 +9259,7 @@ Function ColumnsToCompare(Val RowsCollection, Val ColumnsNames, Val ExcludingCol
 		ColumnsToCompare = StrSplit(StrReplace(ColumnsNames, " ", ""), ",");
 	EndIf;
 	
-	// 
+	// Remove excluded columns.
 	If Not IsBlankString(ExcludingColumns) Then
 		ExcludingColumns = StrSplit(StrReplace(ExcludingColumns, " ", ""), ",");
 		ColumnsToCompare = CommonClientServer.ArraysDifference(ColumnsToCompare, ExcludingColumns);
@@ -9202,10 +9273,10 @@ Function SequenceSensitiveToCompare(Val RowsCollection1, Val RowsCollection2, Va
 	CollectionType = TypeOf(RowsCollection1);
 	ArraysCompared = (CollectionType = Type("Array") Or CollectionType = Type("FixedArray"));
 	
-	// 
+	// Iterating both collections in parallel.
 	Collection1RowNumber = 0;
 	For Each CollectionRow1 In RowsCollection1 Do
-		// 
+		// Searching for the same row in the second collection.
 		Collection2RowNumber = 0;
 		HasCollection2Rows = False;
 		For Each CollectionRow2 In RowsCollection2 Do
@@ -9216,10 +9287,10 @@ Function SequenceSensitiveToCompare(Val RowsCollection1, Val RowsCollection2, Va
 			Collection2RowNumber = Collection2RowNumber + 1;
 		EndDo;
 		If Not HasCollection2Rows Then
-			// 
+			// Second collection has no rows.
 			Return False;
 		EndIf;
-		// 
+		// Comparing field values for two rows.
 		If ArraysCompared Then
 			If CollectionRow1 <> CollectionRow2 Then
 				Return False;
@@ -9236,13 +9307,13 @@ Function SequenceSensitiveToCompare(Val RowsCollection1, Val RowsCollection2, Va
 	
 	Collection1RowCount = Collection1RowNumber;
 	
-	// 
+	// Calculating rows in the second collection.
 	Collection2RowCount = 0;
 	For Each CollectionRow2 In RowsCollection2 Do
 		Collection2RowCount = Collection2RowCount + 1;
 	EndDo;
 	
-	//  
+	// If the first collection has no rows, they shouldn't be present in the other one. 
 	// 
 	If Collection1RowCount = 0 Then
 		For Each CollectionRow2 In RowsCollection2 Do
@@ -9251,7 +9322,7 @@ Function SequenceSensitiveToCompare(Val RowsCollection1, Val RowsCollection2, Va
 		Collection2RowCount = 0;
 	EndIf;
 	
-	// 
+	// Number of rows must be equal in both collections.
 	If Collection1RowCount <> Collection2RowCount Then
 		Return False;
 	EndIf;
@@ -9262,9 +9333,9 @@ EndFunction
 
 Function SequenceIgnoreSensitiveToCompare(Val RowsCollection1, Val RowsCollection2, Val ColumnsToCompare)
 	
-	// 
-	//  
-	//  
+	// Accumulate selection rows by the first collection to:
+	//  - Save time on searching for duplicates.
+	//  - Make sure the other collection has only the rows that have been accumulated.
 	
 	FilterRows = New ValueTable;
 	FilterParameters = New Structure;
@@ -9278,12 +9349,12 @@ Function SequenceIgnoreSensitiveToCompare(Val RowsCollection1, Val RowsCollectio
 		
 		FillPropertyValues(FilterParameters, FIlterRow);
 		If FilterRows.FindRows(FilterParameters).Count() > 0 Then
-			// 
+			// The row with such field values is already checked.
 			Continue;
 		EndIf;
 		FillPropertyValues(FilterRows.Add(), FIlterRow);
 		
-		// 
+		// Calculating the number of such rows in the first collection.
 		Collection1RowsFound = 0;
 		For Each CollectionRow1 In RowsCollection1 Do
 			RowFits = True;
@@ -9298,7 +9369,7 @@ Function SequenceIgnoreSensitiveToCompare(Val RowsCollection1, Val RowsCollectio
 			EndIf;
 		EndDo;
 		
-		// 
+		// Calculating the number of such rows in the second collection.
 		Collection2RowsFound = 0;
 		For Each CollectionRow2 In RowsCollection2 Do
 			RowFits = True;
@@ -9310,15 +9381,15 @@ Function SequenceIgnoreSensitiveToCompare(Val RowsCollection1, Val RowsCollectio
 			EndDo;
 			If RowFits Then
 				Collection2RowsFound = Collection2RowsFound + 1;
-				//  
-				// 
+				// If the number of rows in the other collection exceeds the number of the same rows 
+				// in the first collection, the collections are not identical.
 				If Collection2RowsFound > Collection1RowsFound Then
 					Return False;
 				EndIf;
 			EndIf;
 		EndDo;
 		
-		// 
+		// The number of rows must be equal for both collections.
 		If Collection1RowsFound <> Collection2RowsFound Then
 			Return False;
 		EndIf;
@@ -9327,7 +9398,7 @@ Function SequenceIgnoreSensitiveToCompare(Val RowsCollection1, Val RowsCollectio
 		
 	EndDo;
 	
-	//  
+	// If the first collection has no rows, they shouldn't be present in the other one. 
 	// 
 	If Not HasCollection1Rows Then
 		For Each CollectionRow2 In RowsCollection2 Do
@@ -9335,7 +9406,7 @@ Function SequenceIgnoreSensitiveToCompare(Val RowsCollection1, Val RowsCollectio
 		EndDo;
 	EndIf;
 	
-	// 
+	// Checking that all accumulated rows exist in the second collection.
 	For Each CollectionRow2 In RowsCollection2 Do
 		FillPropertyValues(FilterParameters, CollectionRow2);
 		If FilterRows.FindRows(FilterParameters).Count() = 0 Then
@@ -9554,16 +9625,16 @@ Function StorageLoad(StorageManager, ObjectKey, SettingsKey, DefaultValue,
 	
 EndFunction
 
-// Deletes links from the passed collection that refer to non-existent data in the information database.
-// Does not clear the passed value if a nonexistent reference is passed in it, but returns False. 
+// Deletes references that refer to non-existing data in the infobase from the passed collection.
+// Does not clear the passed value if a non-existing reference is passed in it, but returns False. 
 //
 // Parameters:
 //   Value - AnyRef
-//            - Arbitrary - 
+//            - Arbitrary - a value or a collection to check.
 //
 // Returns: 
-//   Boolean - 
-//            
+//   Boolean - True if Value of the reference type and an object do not exist in the infobase.
+//            False if Value of the non-reference type or an object exists.
 //
 Function ClearNonExistentRefs(Value)
 	
@@ -9572,34 +9643,34 @@ Function ClearNonExistentRefs(Value)
 		Or Type = Type("Boolean")
 		Or Type = Type("String")
 		Or Type = Type("Number")
-		Or Type = Type("Date") Then // 
+		Or Type = Type("Date") Then // Optimization - frequently used primitive types.
 		
-		Return False; // 
+		Return False; // Not a reference.
 		
 	ElsIf Type = Type("Array") Then
 		
 		Count = Value.Count();
 		For Number = 1 To Count Do
 			ReverseIndex = Count - Number;
-			// 
+			// @skip-check query-in-loop - Set of reference from tables.
 			If ClearNonExistentRefs(Value[ReverseIndex]) Then
 				Value.Delete(ReverseIndex);
 			EndIf;
 		EndDo;
 		
-		Return False; // 
+		Return False; // Not a reference.
 		
 	ElsIf Type = Type("Structure")
 		Or Type = Type("Map") Then
 		
 		For Each KeyAndValue In Value Do
-			// 
+			// @skip-check query-in-loop - Set of reference from tables.
 			If ClearNonExistentRefs(KeyAndValue.Value) Then
 				Value.Insert(KeyAndValue.Key, Undefined);
 			EndIf;
 		EndDo;
 		
-		Return False; // 
+		Return False; // Not a reference.
 		
 	ElsIf Documents.AllRefsType().ContainsType(Type)
 		Or Catalogs.AllRefsType().ContainsType(Type)
@@ -9610,15 +9681,15 @@ Function ClearNonExistentRefs(Value)
 		Or ExchangePlans.AllRefsType().ContainsType(Type)
 		Or BusinessProcesses.AllRefsType().ContainsType(Type)
 		Or Tasks.AllRefsType().ContainsType(Type) Then
-		// 
+		// Reference type except BusinessProcessRoutePointRef.
 		
 		If Value.IsEmpty() Then
-			Return False; // 
+			Return False; // Empty reference.
 		EndIf;
 		Return ObjectAttributeValue(Value, "Ref") = Undefined;
 		
 	Else
-		Return False; // 
+		Return False; // Not a reference.
 	EndIf;
 	
 EndFunction
@@ -9631,15 +9702,15 @@ Procedure StorageDelete(StorageManager, ObjectKey, SettingsKey, UserName)
 	
 EndProcedure
 
-// Returns a string of the settings key that does not exceed the allowed length of 128 characters.
-// If the specified string exceeds 128, then
-// the 32-character MD5 hash sum is added instead of characters over 96 characters.
+// Returns a settings key string with the length within 128 character limit.
+// If the string exceeds 128 characters, the part after 96 characters
+// is ignored and MD5 hash sum (32 characters long) is returned instead.
 //
 // Parameters:
-//  String - String -  a string of any length.
+//  String - String - string of any number of characters.
 //
 // Returns:
-//  String - 
+//  String - must not exceed 128 characters.
 //
 Function SettingsKey(Val String)
 	Return TrimStringUsingChecksum(String, 128);
@@ -9714,17 +9785,17 @@ EndFunction
 
 #Region ExternalCodeSecureExecution
 
-// Verifies that the passed procedure name is the name of the configuration export procedure.
-// It can be used to check that the passed string does not contain an arbitrary algorithm
-// in the built-in 1C language:Enterprises, before using it in statements, Execute and Calculate
-// the configuration code when using them to dynamically call methods.
+// Checks whether the passed ProcedureName is the name of a configuration export procedure.
+// Can be used for checking whether the passed string does not contain an arbitrary algorithm
+// in the 1C:Enterprise in-built language before using it in the Execute and Evaluate operators
+// upon the dynamic call of the configuration code methods.
 //
-// If the passed string is not the name of the configuration procedure, an exception is thrown.
+// If the passed string is not a procedure name, an exception is generated.
 //
-// It is intended to be called from see the procedure to perform the Configuration method.
+// It is intended to be called from ExecuteConfigurationMethod procedure.
 //
 // Parameters:
-//   ProcedureName - String -  name of the export procedure to check.
+//   ProcedureName - String - the export procedure name to be checked.
 //
 Procedure CheckConfigurationProcedureName(Val ProcedureName)
 	
@@ -9764,8 +9835,8 @@ Procedure CheckConfigurationProcedureName(Val ProcedureName)
 	ObjectMethodName = NameParts[NameParts.UBound()];
 	TempStructure = New Structure;
 	Try
-		// 
-		// 
+		// Check if "ProcedureName" is a valid identifier name.
+		// For example, "MyProcedure".
 		TempStructure.Insert(ObjectMethodName);
 	Except
 		WriteLogEvent(NStr("en = 'Executing method in safe mode';", DefaultLanguageCode()),
@@ -9779,18 +9850,18 @@ Procedure CheckConfigurationProcedureName(Val ProcedureName)
 	
 EndProcedure
 
-// Returns the object Manager by name.
-// Restriction: business process route points are not processed.
+// Returns an object manager by name.
+// Restriction: does not process business process route points.
 //
 // Parameters:
-//  Name - String -  name for example, "Directory", "Directories", " Directory.Companies".
+//  Name - String - name, for example Catalog, Catalogs, or Catalog.Companies.
 //
 // Returns:
 //  CatalogsManager
-//  Referencemanager
-//  Documentmanager
-//  Document
-//  Manager ...
+//  CatalogManager
+//  DocumentsManager
+//  DocumentManager
+//  …
 //
 Function ObjectManagerByName(Name)
 	Var MOClass, MetadataObjectName1, Manager;
@@ -9866,7 +9937,7 @@ Function ObjectManagerByName(Name)
 	      Or MOClass = "CALCULATIONREGISTERS" Then
 		
 		If NameParts.Count() < 3 Then
-			// 
+			// Calculation register.
 			Manager = CalculationRegisters;
 		Else
 			SubordinateMOClass = Upper(NameParts[2]);
@@ -9875,7 +9946,7 @@ Function ObjectManagerByName(Name)
 			EndIf;
 			If SubordinateMOClass = "RECALCULATION"
 			 Or SubordinateMOClass = "RECALCULATIONS" Then
-				// Recalculation
+				// Recalculate.
 				Try
 					Manager = CalculationRegisters[MetadataObjectName1].Recalculations;
 					MetadataObjectName1 = SubordinateMOName;
@@ -9920,20 +9991,20 @@ Function ObjectManagerByName(Name)
 	
 EndFunction
 
-// Call the export function by name with the configuration privilege level.
-// When security profiles are enabled, the Run () operator is invoked
-// by switching to safe mode with the security profile used for the information base
-// (unless a different safe mode was set higher up the stack).
+// Call an export procedure by the name with the configuration privilege level.
+// To enable the security profile for calling the Execute() operator, the safe mode with the security profile of the configuration
+// is used
+// (if no other safe mode was set in stack previously).
 //
 // Parameters:
-//  MethodName  - String -  name of the export function in the format
-//                       <object name>.< procedure name>, where <object name> is
-//                       a General module or object Manager module.
-//  Parameters  - Array -  parameters are passed to the <Methodname> function
-//                        in the order of array elements.
+//  MethodName  - String - the name of the export function in format
+//                       <object name>.<procedure name>, where <object name> - is
+//                       a common module or object manager module.
+//  Parameters  - Array - the parameters are passed to the <MethodName> function
+//                        according to the array item order.
 //
 // Returns:
-//  Arbitrary - 
+//  Arbitrary - the called function result.
 //
 Function CallConfigurationFunction(Val MethodName, Val Parameters = Undefined) Export
 	
@@ -9965,27 +10036,27 @@ Function CallConfigurationFunction(Val MethodName, Val Parameters = Undefined) E
 		ParametersString = Mid(ParametersString, 1, StrLen(ParametersString) - 1);
 	EndIf;
 	
-	Return Eval(MethodName + "(" + ParametersString + ")"); // 
+	Return Eval(MethodName + "(" + ParametersString + ")"); // ACC:488 The code being executed is safe.
 	
 EndFunction
 
-// Call the export function of an embedded language object by name.
-// When security profiles are enabled, the Run () operator is invoked
-// by switching to safe mode with the security profile used for the information base
-// (unless a different safe mode was set higher up the stack).
+// Call the export function of the 1C:Enterprise script language object by name.
+// To enable the security profile for calling the Execute() operator, the safe mode with the security profile of the configuration
+// is used
+// (if no other safe mode was set in stack previously).
 //
 // Parameters:
-//  Object    - Arbitrary -  object of the built-in 1C language:An object containing methods (for example, a processing Object).
-//  MethodName - String       -  name of the export function of the processing object module.
-//  Parameters - Array       -  parameters are passed to the <Methodname> function
-//                             in the order of array elements.
+//  Object    - Arbitrary - 1C:Enterprise language object that contains the methods (for example, DataProcessorObject).
+//  MethodName - String       - the name of export function of the data processor object module.
+//  Parameters - Array       - the parameters are passed to the <MethodName> function
+//                             according to the array item order.
 //
 // Returns:
-//  Arbitrary - 
+//  Arbitrary - the called function result.
 //
 Function CallObjectFunction(Val Object, Val MethodName, Val Parameters = Undefined) Export
 	
-	// 
+	// Method name validation.
 	Try
 		Test = New Structure;
 		Test.Insert(MethodName, MethodName);
@@ -10024,7 +10095,7 @@ Function CallObjectFunction(Val Object, Val MethodName, Val Parameters = Undefin
 		ParametersString = Mid(ParametersString, 1, StrLen(ParametersString) - 1);
 	EndIf;
 	
-	Return Eval("Object." + MethodName + "(" + ParametersString + ")"); // 
+	Return Eval("Object." + MethodName + "(" + ParametersString + ")"); // ACC:488 The code being executed is safe.
 	
 EndFunction
 
@@ -10108,12 +10179,12 @@ Function BuildNumberForTheCurrentPlatformVersion(AssemblyNumbersAsAString)
 	
 EndFunction
 
-// 
-// 
-// 
-// 
+// Sets the update prompt threshold for 1C:Enterprise. If a user runs a configuration on a version earlier than the threshold
+// (and later than "StandardSubsystemsServer.Min1CEnterpriseVersionForStart").
+// Specific version numbers are given in StandardSubsystemsServer.Min1CEnterpriseVersionForUse.
+// Versions can be overridden in CommonOverridable.OnDetermineCommonCoreParameters.
 //
-Function MinPlatformVersion() Export // 
+Function MinPlatformVersion() Export // ACC:581 - Export checker since it is used for testing.
 	
 	CompatibilityModeVersion = CompatibilityModeVersion();
 	MinPlatformVersions = StandardSubsystemsServer.Min1CEnterpriseVersionForUse();
@@ -10143,31 +10214,31 @@ Function CompatibilityModeVersion() Export
 	
 EndFunction
 
-// 
+// Validates the minimum and recommended 1C:Enterprise versions.
 //
 // Parameters:
-//  Min - String - 
-//  Recommended - String - 
+//  Min - String - 1C:Enterprise version.
+//  Recommended - String - 1C:Enterprise version.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the minimum and recommended versions are invalid.
 //
 Function IsMinRecommended1CEnterpriseVersionInvalid(Min, Recommended)
 	
-	// 
+	// Minimum 1C:Enterprise version is required.
 	If IsBlankString(Min) Then
 		Return True;
 	EndIf;
 	
-	// 
-	// 
+	// The minimum 1C:Enterprise version required in the configuration must be
+	// equal to or greater than the minimum 1C:Enterprise version required in the library.
 	MinimalSSL = BuildNumberForTheCurrentPlatformVersion(MinPlatformVersion());
 	If Not IsVersionOfProtectedComplexITSystem(Min)
 		And CommonClientServer.CompareVersions(MinimalSSL, Min) > 0 Then
 		Return True;
 	EndIf;
 	
-	// 
+	// Minimum 1C:Enterprise version cannot be greater than the recommended one.
 	Return Not IsBlankString(Min)
 		And Not IsBlankString(Recommended)
 		And CommonClientServer.CompareVersions(Min, Recommended) > 0;
@@ -10187,7 +10258,7 @@ Function IsVersionOfProtectedComplexITSystem(Version)
 	
 EndFunction
 
-// 
+// Intended for the CommonCoreParameters function.
 Procedure ClarifyPlatformVersion(CommonParameters)
 	
 	SystemInfo = New SystemInfo;
@@ -10211,6 +10282,173 @@ Procedure ClarifyPlatformVersion(CommonParameters)
 	
 EndProcedure
 
+
+#EndRegion
+
+#Region CheckingAlgorithms
+
+Procedure CheckAlgorithm(Val Algorithm)
+	
+	ErrorsTexts = New Array;
+	
+	Algorithm = Upper(Algorithm);
+	// Exclude the method of the "Query" object.
+	Algorithm = StrReplace(StrReplace(Algorithm, Upper("Execute()"), ""), Upper("Execute()"), "");
+	// Check if the algorithm contains invalid methods.
+	FoundCalls = FoundCalls(Algorithm, InvalidMethods(), "(");
+	If FoundCalls.Count() > 0 Then
+		ErrorText = NStr("en = 'Invalid method calls:
+			|%1';");
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, StrConcat(FoundCalls, Chars.LF));
+		
+		ErrorsTexts.Add(ErrorText);
+	EndIf;
+	
+	// Check for calls to the global context common modules and properties.
+	FoundCalls = FoundCalls(Algorithm, ForbiddenPropertiesOfGlobalContext(), ".");
+	AlternativeCallsFound = FoundCalls(Algorithm, ForbiddenPropertiesOfGlobalContext(), "[");
+	CommonClientServer.SupplementArray(FoundCalls, AlternativeCallsFound, True);
+	If FoundCalls.Count() > 0 Then
+		ErrorText = NStr("en = 'Invalid global context property calls:
+			|%1';");
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, StrConcat(FoundCalls, Chars.LF));
+		
+		ErrorsTexts.Add(ErrorText);
+	EndIf;
+	
+	FoundCalls = FoundCalls(Algorithm, ProhibitedModules(), ".");
+	If FoundCalls.Count() > 0 Then
+		ErrorText = NStr("en = 'Invalid modules calls:
+			|%1';");
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText, StrConcat(FoundCalls, Chars.LF));
+		
+		ErrorsTexts.Add(ErrorText);
+	EndIf;
+	
+	If ErrorsTexts.Count() > 0 Then
+		Raise StrConcat(ErrorsTexts, Chars.LF + Chars.LF);
+	EndIf;
+EndProcedure
+
+Function FoundCalls(Algorithm, SearchBars, Ending = Undefined)
+	
+	FoundCalls  = New Array;
+	SearchForAddressThroughPoint = False;
+	TableSearch = False;
+	For Each Item In SearchBars Do
+		
+		If TypeOf(Item) = Type("Structure") Then
+			SearchForAddressThroughPoint = True;
+			SearchString = Item.Collection;
+		Else
+			SearchString = Item;
+		EndIf;
+		
+		CallPosition  = StrFind(Algorithm, Upper(SearchString));
+		EntryNumber = 1;
+		While CallPosition > 0 Do
+			If SearchForAddressThroughPoint Then
+				Ending = ".";
+				TableSearch = False;
+			EndIf;
+			
+			CountOfCharacters  = StrLen(Ending);
+			CharPosition = CallPosition + StrLen(SearchString);
+			
+			While CharPosition + CountOfCharacters < StrLen(Algorithm) Do
+				SymbolValue = TrimAll(Mid(Algorithm, CharPosition, CountOfCharacters));
+				If Upper(SearchString) = Upper("Execute")
+					Or Upper(SearchString) = Upper("Execute") Then
+					
+					If Not ValueIsFilled(SymbolValue) Then
+						FoundCalls.Add(SearchString);
+						Break;
+					EndIf;
+				EndIf;
+				
+				If StrLen(SymbolValue) < StrLen(Ending) Then
+					CountOfCharacters = CountOfCharacters + 1;
+				ElsIf SearchForAddressThroughPoint
+					And SymbolValue = Ending
+					And Not TableSearch Then
+					CharPosition = CharPosition + CountOfCharacters;
+					Ending      = Upper(Item.Table);
+					CountOfCharacters  = StrLen(Ending);
+					TableSearch = True;
+				ElsIf SymbolValue = Ending Then
+					If SearchForAddressThroughPoint Then
+						FoundCalls.Add(Item.Collection + "." + Item.Table);
+					Else
+						FoundCalls.Add(SearchString);
+					EndIf;
+					Break;
+				ElsIf ValueIsFilled(TrimAll(SymbolValue)) Then
+					Break;
+				EndIf;
+			EndDo;
+			
+			EntryNumber = EntryNumber + 1;
+			CallPosition  = StrFind(Algorithm, Upper(SearchString), , , EntryNumber);
+		EndDo;
+	EndDo;
+	
+	Return FoundCalls;
+	
+EndFunction
+
+Function InvalidMethods()
+	Array = New Array;
+	Array.Add("Выполнить"); // @Non-NLS
+	Array.Add("Вычислить"); // @Non-NLS
+	Array.Add("ЗафиксироватьТранзакцию"); // @Non-NLS
+	Array.Add("СократитьЖурналРегистрации"); // @Non-NLS
+	Array.Add("УстановитьИспользованиеСобытияЖурналаРегистрации"); // @Non-NLS
+	Array.Add("ЗапуститьПриложение"); // @Non-NLS
+	Array.Add("УстановитьМаксимальныйСрокДействияПаролейПользователей"); // @Non-NLS
+	Array.Add("УстановитьМинимальнуюДлинуПаролейПользователей"); // @Non-NLS
+	Array.Add("УстановитьМинимальныйСрокДействияПаролейПользователей"); // @Non-NLS
+	Array.Add("УстановитьОграничениеПовторенияПаролейПользователейСредиПоследних"); // @Non-NLS
+	Array.Add("УстановитьПроверкуСложностиПаролейПользователей"); // @Non-NLS
+	Array.Add("УстановитьНастройкиВосстановленияПароля"); // @Non-NLS
+	
+	Array.Add("Execute");
+	Array.Add("Eval");
+	Array.Add("CommitTransaction");
+	Array.Add("TruncateEventLog");
+	Array.Add("SetEventLogEventUse");
+	Array.Add("RunApp");
+	Array.Add("SetUserPasswordMaxEffectivePeriod");
+	Array.Add("SetUserPasswordMinLength");
+	Array.Add("SetUserPasswordMinEffectivePeriod");
+	Array.Add("SetUserPasswordReuseLimit");
+	Array.Add("SetUserPasswordStrengthCheck");
+	Array.Add("SetPasswordRecoverySettings");
+	
+	Return Array;
+EndFunction
+
+Function ForbiddenPropertiesOfGlobalContext()
+	
+	Array = New Array;
+	Array.Add("ПользователиИнформационнойБазы"); // @Non-NLS
+	Array.Add("ДополнительныеНастройкиАутентификации"); // @Non-NLS
+	Array.Add("ПараметрыСеанса"); // @Non-NLS
+	Array.Add("InfoBaseUsers");
+	Array.Add("AdditionalAuthenticationSettings");
+	Array.Add("SessionParameters");
+	
+	Return Array;
+	
+EndFunction
+
+Function ProhibitedModules()
+	
+	Array = New Array;
+	Array.Add("TimeConsumingOperations");
+	
+	Return Array;
+	
+EndFunction
 
 #EndRegion
 

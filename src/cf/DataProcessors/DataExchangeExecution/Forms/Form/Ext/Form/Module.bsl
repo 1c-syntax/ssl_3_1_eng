@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -32,7 +34,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	SetPrivilegedMode(True);
 	
-	CorrespondentDescription = String(InfobaseNode);
+	PeerInfobaseName = String(InfobaseNode);
 
 	TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettings(InfobaseNode);
 	MessagesTransportKind = TransportSettings.DefaultExchangeMessagesTransportKind;
@@ -45,7 +47,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ExchangeViaInternalPublication = MessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS
 		And ValueIsFilled(CorrespondentEndpoint);
 	
-	// 
+	// Initialize user roles.
 	DataExchangeAdministrationRoleAssigned = DataExchangeServer.HasRightsToAdministerExchanges();
 	RoleAvailableFullAccess                     = Users.IsFullUser();
 	
@@ -64,38 +66,38 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// 
+	// Set a form title.
 	Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Synchronize data with %1';"), CorrespondentDescription);
+		NStr("en = 'Synchronize data with %1';"), PeerInfobaseName);
 	
-	// 
-	// 
+	// For DIB data exchange over a web service, always override the authentication parameters (username and password) saved in the infobase.
+	// For non-DIB data exchange, override (prompt for) the authentication parameters (password) only if they aren't saved in the infobase.
 	// 
 	// 
 	UseCurrentUserForAuthentication = False;
 	UseSavedAuthenticationParameters    = False;
 	SynchronizationPasswordSpecified                          = False;
-	SyncPasswordSaved                       = False; // 
+	SyncPasswordSaved                       = False; // The password is saved in a safe storage (available in the background job)
 	WSPassword                                          = "";
 	
 	If MessagesTransportKind = Enums.ExchangeMessagesTransportTypes.WS Then
 		
 		If DataExchangeCached.IsDistributedInfobaseNode(InfobaseNode) Then
 			
-			// 
+			// It is DIB and WS exchange, using the current user and password from the session.
 			UseCurrentUserForAuthentication = True;
 			SynchronizationPasswordSpecified = DataExchangeServer.DataSynchronizationPasswordSpecified(InfobaseNode);
 			
 		Else
 			
-			// 
+			// If the current infobase is not a DIB node, reading transport settings from the infobase.
 			TransportSettings = InformationRegisters.DataExchangeTransportSettings.TransportSettingsWS(InfobaseNode);
 			SynchronizationPasswordSpecified = TransportSettings.WSRememberPassword;
 			If SynchronizationPasswordSpecified Then
 				SyncPasswordSaved = True;
 				UseSavedAuthenticationParameters = True;
 			Else
-				// 
+				// Using the session data only if it is not available in the register.
 				SynchronizationPasswordSpecified = DataExchangeServer.DataSynchronizationPasswordSpecified(InfobaseNode);
 				If SynchronizationPasswordSpecified Then
 					UseSavedAuthenticationParameters = True;
@@ -241,8 +243,9 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// 1C-SUPPLIED SECTION
 ////////////////////////////////////////////////////////////////////////////////
+//
 
 &AtClient
 Function GetFormButtonByCommandName(FormItem, CommandName)
@@ -309,10 +312,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// 
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// 
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -332,7 +335,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	
-	// 
+	// Navigation event handlers.
 	If IsMoveNext Then
 		
 		NavigationRows = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber - 1));
@@ -341,7 +344,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 			
 			NavigationRow = NavigationRows[0];
 			
-			// 
+			// OnNavigationToNextPage handler.
 			If Not IsBlankString(NavigationRow.OnNavigationToNextPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -372,7 +375,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 			
 			NavigationRow = NavigationRows[0];
 			
-			// 
+			// OnNavigationToPreviousPage handler.
 			If Not IsBlankString(NavigationRow.OnSwitchToPreviousPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -411,7 +414,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		Return;
 	EndIf;
 	
-	// 
+	// OnOpen handler
 	If Not IsBlankString(NavigationRowCurrent.OnOpenHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, SkipPage, IsMoveNext)";
@@ -461,7 +464,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
 	
-	// 
+	// TimeConsumingOperationProcessing handler.
 	If Not IsBlankString(NavigationRowCurrent.TimeConsumingOperationHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, GoToNext)";
@@ -526,11 +529,12 @@ Function NavigationTableNewRow(MainPageName,
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// OVERRIDABLE SECTION
 ////////////////////////////////////////////////////////////////////////////////
+//
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// PROCEDURES AND FUNCTIONS SECTION
 
 &AtClient
 Procedure RunMoveNext()
@@ -568,7 +572,7 @@ EndProcedure
 &AtClient
 Procedure InitializeDataProcessorVariables()
 	
-	// 
+	// Initialize data processor variables.
 	ProgressPercent                   = 0;
 	MessageFileIDInService = "";
 	TimeConsumingOperationID     = "";
@@ -596,7 +600,7 @@ Procedure CheckWhetherTransferToNewExchangeIsRequired()
 	Message      = ArrayOfMessages[Count-1];
 	MessageText = Message.Text;
 	
-	// 
+	// A subsystem ID is deleted from the message if necessary.
 	If StrStartsWith(MessageText, "{MigrationToNewExchangeDone}") Then
 		
 		MessageData = Common.ValueFromXMLString(MessageText);
@@ -677,12 +681,12 @@ Procedure TestConnectionAtServer(HasConnection, AuthenticationParameters)
 	ElsIf Not SettingCompleted Then
 		ErrorMessageToUser = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'To continue, set up synchronization in ""%1"". The data exchange is canceled.';"),
-			CorrespondentDescription);
+			PeerInfobaseName);
 		DataSyncDisabled = True;
 	ElsIf DataReceivedForMapping Then
 		ErrorMessageToUser = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'To continue, open %1 and import the data mapping message. The data exchange is canceled.';"),
-			CorrespondentDescription);
+			PeerInfobaseName);
 		DataSyncDisabled = True;
 	EndIf;
 	
@@ -1131,10 +1135,10 @@ Function Attachable_ExchangeCompletionOnOpen(Cancel, SkipPage, IsMoveNext)
 				Items.UpdateRequiredFullAccess, Items.UpdateRequiredRestrictedAccess);
 				
 			Items.UpdateRequiredTextFullAccess.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				Items.UpdateRequiredTextFullAccess.Title, CorrespondentDescription);
+				Items.UpdateRequiredTextFullAccess.Title, PeerInfobaseName);
 				
 			Items.UpdateRequiredTextRestrictedAccess.Title = StringFunctionsClientServer.SubstituteParametersToString(
-				Items.UpdateRequiredTextRestrictedAccess.Title, CorrespondentDescription);
+				Items.UpdateRequiredTextRestrictedAccess.Title, PeerInfobaseName);
 				
 		ElsIf IsRestartRequired() Then
 				
@@ -1161,7 +1165,7 @@ Function Attachable_ExchangeCompletionOnOpen(Cancel, SkipPage, IsMoveNext)
 		
 	EndIf;
 	
-	// 
+	// Updating all opened dynamic lists.
 	DataExchangeClient.RefreshAllOpenDynamicLists();
 	
 	Return Undefined;
@@ -1187,7 +1191,7 @@ Function Attachable_ExchangeCompletionTimeConsumingOperationProcessing(Cancel, G
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Pages of exchange over a web service
 
 &AtClient
 Function Attachable_UserPasswordRequestOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -1237,7 +1241,7 @@ Function Attachable_ConnectionTestWaitingTimeConsumingOperationProcessing(Cancel
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// SECTION OF PROCESSING BACKGROUND JOBS
 
 &AtClient
 Procedure BackgroundJobStartClient(Action, JobName, Cancel)
@@ -1320,7 +1324,7 @@ Procedure BackgroundJobExecutionResult()
 	
 	BackgroundJobGetResultAtServer();
 	
-	// 
+	// For a data exchange with a web app, wait till the sync is over on the peer infobase's side.
 	// 
 	If TimeConsumingOperation Then
 		RetryCountOnConnectionError = 0;
@@ -1387,8 +1391,8 @@ Procedure TimeConsumingOperationCompletion()
 			ErrorMessage);
 	Else
 		
-		// 
-		// 
+		// If the data has been obtained from a web app for a while,
+		// import the file with data to the infobase.
 		If BackgroundJobCurrentAction = 1 
 			And ValueIsFilled(MessageFileIDInService) Then
 				
@@ -1409,14 +1413,14 @@ EndProcedure
 &AtClient
 Procedure AfterCompleteBackgroundJob()
 	
-	// 
+	// Data exchange has been updated to a later version. Close the form and open it with the new parameters.
 	If BackgroundJobCompleteResult.AdditionalResultData.Property("ForceCloseForm") 
 		And BackgroundJobCompleteResult.AdditionalResultData.ForceCloseForm Then
 		FormReopeningParameters = BackgroundJobCompleteResult.AdditionalResultData.FormReopeningParameters;
 		Close();
 	EndIf;
 	
-	// 
+	// Go further with a one second delay to display the progress bar 100%.
 	AttachIdleHandler("RunMoveNext", 0.1, True);
 	
 EndProcedure
@@ -1512,7 +1516,7 @@ Procedure BackgroundJobGetResultAtServer()
 			
 			If BackgroundExecutionResult.ExecuteImport1 Then
 				
-				// 
+				// Data on exchange rule version difference.
 				VersionDifferenceErrorOnGetData = DataExchangeServer.VersionDifferenceErrorOnGetData();
 				
 				If VersionDifferenceErrorOnGetData <> Undefined
@@ -1520,7 +1524,7 @@ Procedure BackgroundJobGetResultAtServer()
 					ErrorMessage = VersionDifferenceErrorOnGetData.ErrorText;
 				EndIf;
 				
-				// 
+				// Checking the transition to a new data exchange.
 				CheckWhetherTransferToNewExchangeIsRequired();
 				
 				If BackgroundJobCompleteResult.AdditionalResultData.Property("FormReopeningParameters") Then
@@ -1547,10 +1551,10 @@ Procedure BackgroundJobGetResultAtServer()
 		
 	EndIf;
 	
-	// 
+	// If errors occurred during data synchronization, record them.
 	If ValueIsFilled(ErrorMessage) Then
 		
-		// 
+		// If a long-running operation is started in the peer infobase, it must be completed.
 		If Not TimeConsumingOperationCompleted Then
 			EndExecutingTimeConsumingOperation(TimeConsumingOperationID);
 		EndIf;
@@ -1591,7 +1595,7 @@ Function TimeConsumingOperationStateForInfobaseNode(
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// NAVIGATION INITIALIZATION SECTION
 
 &AtServer
 Procedure FillNavigationTable()
@@ -1606,7 +1610,7 @@ Procedure FillNavigationTable()
 
 	NavigationTableNewRow("WaitForSynchronizationToStart", "", True, "Attachable_WaitingForSynchronizationToStart_ProcessingLongRunningOperation");
 	
-	// 
+	// Initializing the current exchange scenario.
 	If HasErrors Then
 		
 		NavigationTableNewRow("ExchangeCompletion", "Attachable_ExchangeCompletionOnOpen");
@@ -1622,7 +1626,7 @@ Procedure FillNavigationTable()
 		EndIf;
 		
 		If ExchangeBetweenSaaSApplications Or ExchangeViaInternalPublication Then
-			// 
+			// Send and receive.
 			NavigationTableNewRow(PageNameSynchronizationExport, "Attachable_DataExportOnOpen", True, "Attachable_DataExportTimeConsumingOperationProcessing");
 			NavigationTableNewRow(PageNameSynchronizationExport, , True, "Attachable_DataExportTimeConsumingOperationProcessingCompletion");
 		Else
@@ -1638,20 +1642,20 @@ Procedure FillNavigationTable()
 			EndIf;
 			
 			If ExecuteDataSending Then
-				// Send
+				// Send.
 				NavigationTableNewRow(PageNameSynchronizationExport, "Attachable_DataExportOnOpen", True, "Attachable_DataExportTimeConsumingOperationProcessing");
 				NavigationTableNewRow(PageNameSynchronizationExport, , True, "Attachable_DataExportTimeConsumingOperationProcessingCompletion");
 			EndIf;
 			
-			// Receive
+			// Receive.
 			NavigationTableNewRow(PageNameSynchronizationImport, "Attachable_DataImportOnOpen", True, "Attachable_DataImportTimeConsumingOperationProcessing");
-			// Send
+			// Send.
 			NavigationTableNewRow(PageNameSynchronizationExport, "Attachable_DataExportOnOpen", True, "Attachable_DataExportTimeConsumingOperationProcessing");
 			NavigationTableNewRow(PageNameSynchronizationExport, , True, "Attachable_DataExportTimeConsumingOperationProcessingCompletion");
 			
 		EndIf;
 		
-		// End
+		// Complete.
 		NavigationTableNewRow("ExchangeCompletion", "Attachable_ExchangeCompletionOnOpen", True, "Attachable_ExchangeCompletionTimeConsumingOperationProcessing");
 		
 	EndIf;
@@ -1669,10 +1673,10 @@ Procedure DecorationErrorIDAssignmentForNodeURLProcessing(Item, FormattedStringU
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// SECTION OF STEP CHANGE HANDLERS
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common exchange pages.
 
 &AtClient
 Procedure StatusSynchronizationUnavailabilityURLProcessing(Item, FormattedStringURL, StandardProcessing)

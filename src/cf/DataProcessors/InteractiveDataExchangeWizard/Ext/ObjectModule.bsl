@@ -1,25 +1,27 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal export procedures and functions.
 
-// Retrieves statistics of matching objects to table rows Informatizaciyi.
+// Gets object mapping statistics for the StatisticsInformation table rows.
 //
 // Parameters:
-//      Cancel        - Boolean -  failure flag; raised if errors occur during the procedure.
-//      RowIndexes - Array -  indexes of rows in the Informationstatistics table
-//                              for which you need to get information about mapping statistics.
-//                              If omitted, the operation will be performed for all rows in the table.
+//      Cancel        - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
+//      RowIndexes - Array - indexes of StatisticsInformation table rows.
+//                              Data is imported to these rows.
+//                              If the parameter is not specified, statistics data is retrieved for all table rows.
 // 
 Procedure GetObjectMappingByRowStats(Cancel, RowIndexes = Undefined) Export
 	
@@ -37,7 +39,7 @@ Procedure GetObjectMappingByRowStats(Cancel, RowIndexes = Undefined) Export
 		
 	EndIf;
 	
-	// 
+	// Importing data from the exchange message into the cache for several tables at the same time
 	ExecuteDataImportFromExchangeMessagesIntoCache(Cancel, RowIndexes);
 	
 	If Cancel Then
@@ -46,7 +48,7 @@ Procedure GetObjectMappingByRowStats(Cancel, RowIndexes = Undefined) Export
 	
 	InfobasesObjectsMapping = DataProcessors.InfobasesObjectsMapping.Create();
 	
-	// 
+	// Getting mapping digest data separately for each table.
 	For Each RowIndex In RowIndexes Do
 		
 		TableRow = StatisticsInformation[RowIndex];
@@ -55,7 +57,7 @@ Procedure GetObjectMappingByRowStats(Cancel, RowIndexes = Undefined) Export
 			Continue;
 		EndIf;
 		
-		// 
+		// Initialize data processor properties.
 		InfobasesObjectsMapping.DestinationTableName            = TableRow.DestinationTableName;
 		InfobasesObjectsMapping.SourceTableObjectTypeName = TableRow.ObjectTypeString;
 		InfobasesObjectsMapping.InfobaseNode         = InfobaseNode;
@@ -64,13 +66,13 @@ Procedure GetObjectMappingByRowStats(Cancel, RowIndexes = Undefined) Export
 		InfobasesObjectsMapping.SourceTypeString = TableRow.SourceTypeString;
 		InfobasesObjectsMapping.DestinationTypeString = TableRow.DestinationTypeString;
 		
-		// Designer
+		// Constructor.
 		InfobasesObjectsMapping.Designer();
 		
-		// 
+		// Getting mapping digest data.
 		InfobasesObjectsMapping.GetObjectMappingDigestInfo(Cancel);
 		
-		// 
+		// Mapping summary.
 		TableRow.ObjectCountInSource       = InfobasesObjectsMapping.ObjectCountInSource();
 		TableRow.ObjectCountInDestination       = InfobasesObjectsMapping.ObjectCountInDestination();
 		TableRow.MappedObjectCount   = InfobasesObjectsMapping.MappedObjectCount();
@@ -83,16 +85,16 @@ Procedure GetObjectMappingByRowStats(Cancel, RowIndexes = Undefined) Export
 	
 EndProcedure
 
-// Performs automatic mapping of information database objects
-//  to the default values and gets statistics for object mapping
-//  after automatic mapping.
+// Maps infobase objects automatically
+//  with default values and gets statistics of objects mapping
+//  after mapping them automatically.
 //
 // Parameters:
-//      Cancel        - Boolean -  failure flag; raised if errors occur during the procedure.
-//      RowIndexes - Array -  indexes of rows in the statistics Informationstatistics table
-//                              for which you need to perform automatic matching and get
-//                              statistics information.
-//                              If omitted, the operation will be performed for all rows in the table.
+//      Cancel        - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
+//      RowIndexes - Array - indexes of StatisticsInformation table rows.
+//                              Data is mapped automatically for these
+//                              rows.
+//                              If the parameter is not specified, statistics data is retrieved for all table rows.
 // 
 Procedure ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Cancel, RowIndexes = Undefined) Export
 	
@@ -110,7 +112,7 @@ Procedure ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Cancel, RowIndex
 		
 	EndIf;
 	
-	// 
+	// Importing data from the exchange message into the cache for several tables at the same time
 	ExecuteDataImportFromExchangeMessagesIntoCache(Cancel, RowIndexes);
 	
 	If Cancel Then
@@ -119,7 +121,7 @@ Procedure ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Cancel, RowIndex
 	
 	InfobasesObjectsMapping = DataProcessors.InfobasesObjectsMapping.Create();
 	
-	// 
+	// Do auto-mapping and get the mapping summary.
 	// 
 	For Each RowIndex In RowIndexes Do
 		
@@ -129,7 +131,7 @@ Procedure ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Cancel, RowIndex
 			Continue;
 		EndIf;
 		
-		// 
+		// Initialize data processor properties.
 		InfobasesObjectsMapping.DestinationTableName            = TableRow.DestinationTableName;
 		InfobasesObjectsMapping.SourceTableObjectTypeName = TableRow.ObjectTypeString;
 		InfobasesObjectsMapping.DestinationTableFields           = TableRow.TableFields;
@@ -140,16 +142,16 @@ Procedure ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Cancel, RowIndex
 		InfobasesObjectsMapping.SourceTypeString = TableRow.SourceTypeString;
 		InfobasesObjectsMapping.DestinationTypeString = TableRow.DestinationTypeString;
 		
-		// Designer
+		// Constructor.
 		InfobasesObjectsMapping.Designer();
 		
-		// 
+		// Performing default automatic object mapping.
 		InfobasesObjectsMapping.ExecuteDefaultAutomaticMapping(Cancel);
 		
-		// 
+		// Getting mapping digest data.
 		InfobasesObjectsMapping.GetObjectMappingDigestInfo(Cancel);
 		
-		// 
+		// Mapping summary.
 		TableRow.ObjectCountInSource       = InfobasesObjectsMapping.ObjectCountInSource();
 		TableRow.ObjectCountInDestination       = InfobasesObjectsMapping.ObjectCountInDestination();
 		TableRow.MappedObjectCount   = InfobasesObjectsMapping.MappedObjectCount();
@@ -161,17 +163,17 @@ Procedure ExecuteDefaultAutomaticMappingAndGetMappingStatistics(Cancel, RowIndex
 	
 EndProcedure
 
-// Loads data to the information database for rows in the statistics Informationtable.
-//  If all the data of the exchange message is loaded
-//  , the number of the incoming message will be written to the exchange node.
-//  This means that these messages are fully loaded into the information database.
-//  Reloading this message will be canceled.
+// Imports data into the infobase for StatisticsInformation table rows.
+//  If all exchange message data is imported, the incoming exchange message
+//  number is stored in the exchange node.
+//  It implies that all data is imported to the infobase.
+//  The repeat import of this message will be canceled.
 //
 // Parameters:
-//       Cancel        - Boolean -  failure flag; raised if errors occur during the procedure.
-//       RowIndexes - Array -  indexes of rows in the Informationstatistics table
-//                               for which you need to load data.
-//                               If omitted, the operation will be performed for all rows in the table.
+//       Cancel        - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
+//       RowIndexes - Array - indexes of StatisticsInformation table rows.
+//                               Data is imported to these rows.
+//                               If the parameter is not specified, statistics data is retrieved for all table rows.
 // 
 Procedure RunDataImport(Cancel, RowIndexes = Undefined) Export
 	
@@ -201,12 +203,12 @@ Procedure RunDataImport(Cancel, RowIndexes = Undefined) Export
 		
 	EndDo;
 	
-	// 
+	// Initialize data processor properties.
 	InfobasesObjectsMapping = DataProcessors.InfobasesObjectsMapping.Create();
 	InfobasesObjectsMapping.ExchangeMessageFileName = ExchangeMessageFileName;
 	InfobasesObjectsMapping.InfobaseNode  = InfobaseNode;
 	
-	// 
+	// Import file.
 	InfobasesObjectsMapping.ExecuteDataImportForInfobase(Cancel, TablesToImport);
 	
 	DataImportedSuccessfully = Not Cancel;
@@ -223,17 +225,17 @@ Procedure RunDataImport(Cancel, RowIndexes = Undefined) Export
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+// Local internal procedures and functions.
 
-// Loads data (tables) from the exchange message to the cache.
-// Only tables that have not been loaded before are loaded.
-// The variable data Processing contains (caches) previously loaded tables.
+// Imports data (tables) to the cache from the exchange message.
+// Only tables not imported before are imported.
+// The DataExchangeDataProcessor variable contains (caches) the tables imported before.
 //
 // Parameters:
-//       Cancel        - Boolean -  failure flag; raised if errors occur during the procedure.
-//       RowIndexes - Array -  indexes of rows in the Informationstatistics table
-//                               for which you need to load data.
-//                               If omitted, the operation will be performed for all rows in the table.
+//       Cancel        - Boolean - a cancellation flag. It is set to True if errors occur during the procedure execution.
+//       RowIndexes - Array - indexes of StatisticsInformation table rows.
+//                               Data is imported to these rows.
+//                               If the parameter is not specified, statistics data is retrieved for all table rows.
 // 
 Procedure ExecuteDataImportFromExchangeMessagesIntoCache(Cancel, RowIndexes)
 	
@@ -245,7 +247,7 @@ Procedure ExecuteDataImportFromExchangeMessagesIntoCache(Cancel, RowIndexes)
 	ExchangeSettingsStructure.StartDate = CurrentSessionDate();
 	DataExchangeDataProcessor = ExchangeSettingsStructure.DataExchangeDataProcessor;
 	
-	// 
+	// Getting the array of tables to be batchly imported into the platform cache
 	TablesToImport = New Array;
 	
 	For Each RowIndex In RowIndexes Do
@@ -258,7 +260,7 @@ Procedure ExecuteDataImportFromExchangeMessagesIntoCache(Cancel, RowIndexes)
 		
 		DataTableKey = DataExchangeServer.DataTableKey(TableRow.SourceTypeString, TableRow.DestinationTypeString, TableRow.IsObjectDeletion);
 		
-		// 
+		// Perhaps the data table is already imported and is placed in the DataExchangeDataProcessor data processor cache
 		DataTable = DataExchangeDataProcessor.DataTablesExchangeMessages().Get(DataTableKey);
 		
 		If DataTable = Undefined Then
@@ -269,7 +271,7 @@ Procedure ExecuteDataImportFromExchangeMessagesIntoCache(Cancel, RowIndexes)
 		
 	EndDo;
 	
-	// 
+	// Importing tables into the cache batchly
 	If TablesToImport.Count() > 0 Then
 		
 		DataExchangeDataProcessor.ExecuteDataImportIntoValueTable(TablesToImport);
@@ -296,12 +298,12 @@ Function IsMasterDataTypeName(DestinationTypeString)
 	Return True;
 EndFunction
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions for retrieving properties.
 
-// Data table part Informatizaciyi.
+// Data of the StatisticsInformation tabular section.
 //
 // Returns:
-//  ValueTable - 
+//  ValueTable - data of the Statistics tabular section.
 //
 Function StatisticsTable() Export
 	

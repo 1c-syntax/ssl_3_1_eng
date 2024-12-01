@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -27,13 +29,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		And Not (Parameters.Basis = False Or Parameters.Basis = Undefined));
 	EndIf;
 	
-	// 
+	// Determining types of contacts that can be created.
 	ContactsToInteractivelyCreateList = Interactions.CreateValueListOfInteractivelyCreatedContacts();
 	Items.CreateContact.Visible      = ContactsToInteractivelyCreateList.Count() > 0;
 	
 	Interactions.PrepareNotifications(ThisObject,Parameters);
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("ItemForPlacementName", "AdditionalAttributesPage");
@@ -56,16 +58,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	InteractionsClientServer.CheckContactsFilling(Object, ThisObject, "PhoneCall");
 	
-	// Standard subsystems.Remotefile
+	// StandardSubsystems.StoredFiles
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		FilesHyperlink = ModuleFilesOperations.FilesHyperlink();
 		FilesHyperlink.Location = "CommandBar";
 		ModuleFilesOperations.OnCreateAtServer(ThisObject, FilesHyperlink);
 	EndIf;
-	// End StandardSubsystems.FilesOperations
+	// End StandardSubsystems.StoredFiles
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -77,7 +79,7 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.OnReadAtServer(ThisObject, CurrentObject);
@@ -86,14 +88,14 @@ Procedure OnReadAtServer(CurrentObject)
 	
 	OnCreateAndOnReadAtServer();
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
@@ -105,7 +107,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// 
+	// StandardSubsystems.Properties
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		ModulePropertyManagerClient.AfterImportAdditionalAttributes(ThisObject);
@@ -114,14 +116,14 @@ Procedure OnOpen(Cancel)
 	
 	CheckContactCreationAvailability();
 	
-	// Standard subsystems.Remotefile
+	// StandardSubsystems.StoredFiles
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.OnOpen(ThisObject, Cancel);
 	EndIf;
-	// End StandardSubsystems.FilesOperations
+	// End StandardSubsystems.StoredFiles
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -133,7 +135,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.BeforeWriteAtServer(ThisObject, CurrentObject);
@@ -167,7 +169,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 
-	// 
+	// StandardSubsystems.Properties
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		If ModulePropertyManagerClient.ProcessNotifications(ThisObject, EventName, Parameter) Then
@@ -181,19 +183,19 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	InteractionsClientServer.CheckContactsFilling(Object, ThisObject, "PhoneCall");
 	CheckContactCreationAvailability();
 	
-	// Standard subsystems.Remotefile
+	// StandardSubsystems.StoredFiles
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.NotificationProcessing(ThisObject, EventName);
 	EndIf;
-	// End StandardSubsystems.FilesOperations
+	// End StandardSubsystems.StoredFiles
 
 EndProcedure
 
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -207,7 +209,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.FillCheckProcessing(ThisObject, Cancel, CheckedAttributes);
@@ -230,7 +232,7 @@ EndProcedure
 &AtClient
 Procedure DetailsPagesAdditionalOnCurrentPageChange(Item, CurrentPage)
 	
-	// 
+	// StandardSubsystems.Properties
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties")
 		And CurrentPage.Name = "AdditionalAttributesPage"
 		And Not PropertiesParameters.DeferredInitializationExecuted Then
@@ -302,7 +304,7 @@ Procedure SubjectOfStartChoice(Item, ChoiceData, StandardProcessing)
 	
 EndProcedure
 
-// Standard subsystems.Remotefile
+// StandardSubsystems.StoredFiles
 &AtClient
 Procedure Attachable_PreviewFieldClick(Item, StandardProcessing)
 	
@@ -334,7 +336,7 @@ Procedure Attachable_PreviewFieldDrag(Item, DragParameters, StandardProcessing)
 	EndIf;
 	
 EndProcedure
-// End StandardSubsystems.FilesOperations
+// End StandardSubsystems.StoredFiles
 
 #EndRegion
 
@@ -358,7 +360,7 @@ Procedure LinkedInteractionsExecute()
 
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -372,7 +374,7 @@ EndProcedure
 
 // End StandardSubsystems.Properties
 
-// Standard subsystems.Remotefile
+// StandardSubsystems.StoredFiles
 &AtClient
 Procedure Attachable_AttachedFilesPanelCommand(Command)
 	
@@ -382,7 +384,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 	EndIf;
 	
 EndProcedure
-// End StandardSubsystems.FilesOperations
+// End StandardSubsystems.StoredFiles
 
 #EndRegion
 
@@ -423,7 +425,7 @@ Procedure OnCreateAndOnReadAtServer()
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtServer
 Procedure PropertiesExecuteDeferredInitialization()
@@ -476,7 +478,7 @@ Procedure CheckContactCreationAvailability()
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");

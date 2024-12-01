@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// To set up a report form.
+// Set report form settings.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -72,7 +74,7 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
 EndProcedure
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary
@@ -414,9 +416,9 @@ Procedure FinishOutput(ResultDocument, DetailsData, Variant, ProfilesInsteadofRo
 	
 	Images = Images();
 	None = New Line(SpreadsheetDocumentCellLineType.None);
-	// 
+	// ACC:163-off - #598.1. The use is acceptable, as it affects the meaning.
 	TextIsRestriction = NStr("en = 'Not everything is available';");
-	// 
+	// ACC:163-on
 	
 	If Variant = "RolesRights"
 	 Or Variant = "RightsRolesOnMetadataObjects" Then
@@ -512,7 +514,7 @@ EndProcedure
 
 #Region Private
 
-// 
+// For procedure AfterImportSettingsToComposer.
 Procedure ConfigureParameterAccessLevel(Settings)
 	
 	Parameter = New DataCompositionParameter("AccessLevel");
@@ -541,7 +543,7 @@ Procedure ConfigureParameterAccessLevel(Settings)
 	
 EndProcedure
 
-// 
+// For procedure AfterImportSettingsToComposer.
 Procedure ConfigureParameterRight(Variant, Settings)
 	
 	If Variant <> "DetailedPermissionsRolesOnMetadataObject" Then
@@ -563,7 +565,7 @@ Procedure ConfigureParameterRight(Variant, Settings)
 	
 EndProcedure
 
-// 
+// For procedure BeforeImportSettingsToComposer.
 Procedure EnableParameter(UserSettings, ParameterName, Value, GenerateImmediately)
 	
 	SettingItem = ParameterSetting(UserSettings, ParameterName);
@@ -576,7 +578,7 @@ Procedure EnableParameter(UserSettings, ParameterName, Value, GenerateImmediatel
 	
 EndProcedure
 
-// 
+// For procedure BeforeImportSettingsToComposer.
 Procedure DisableOption(UserSettings, ParameterName, Inaccessible = False)
 	
 	SettingItem = ParameterSetting(UserSettings, ParameterName);
@@ -614,7 +616,7 @@ Procedure SetDisplayMode(ParameterName, Mode, DCSettings, UserSettings)
 	
 EndProcedure
 
-// 
+// For procedure AfterImportSettingsToComposer.
 Function ParameterSetting(UserSettings, ParameterName)
 	
 	Parameter = New DataCompositionParameter(ParameterName);
@@ -631,7 +633,7 @@ Function ParameterSetting(UserSettings, ParameterName)
 	
 EndFunction
 
-// 
+// For procedure BeforeImportSettingsToComposer.
 Function ParameterUsed(UserSettings, ParameterName)
 	
 	LayoutParameter = New DataCompositionParameter(ParameterName);
@@ -837,7 +839,7 @@ EndFunction
 //    * MetadataObject         - MetadataObject
 //    * StandardAttributeName - String
 //    * ObjectPresentation     - String
-//  Undefined
+//  Undefined.
 //
 Function ReportContextByObject(FillOnlyDescriptionPermissions = False)
 	
@@ -1141,7 +1143,7 @@ EndFunction
 //  Profiles - Array of CatalogRef.AccessGroupProfiles
 //
 // Returns:
-//  Array of String - 
+//  Array of String - Role names.
 //
 Function ListRoleNamesProfiles(Profiles)
 	
@@ -1180,7 +1182,7 @@ EndFunction
 //  Profiles - Array of CatalogRef.AccessGroupProfiles
 //
 // Returns:
-//  Array of CatalogRef.AccessGroupProfiles - 
+//  Array of CatalogRef.AccessGroupProfiles - Profiles without a group.
 //
 Function ProfileListWithoutGroups(Profiles)
 	
@@ -1866,7 +1868,7 @@ Function MetadataTree(WithFields)
 	Tree.Columns.Add("HasHierarchy",         New TypeDescription("Boolean"));
 	Tree.Columns.Add("WithoutDecryption",       New TypeDescription("Boolean"));
 	Tree.Columns.Add("PathToObject",         StringType(255));
-	Tree.Columns.Add("ParentMetadataAttachments"); // 
+	Tree.Columns.Add("ParentMetadataAttachments"); // Populated automatically.
 	
 	// Configuration
 	ConfigurationString = Tree.Rows.Add();
@@ -1877,12 +1879,12 @@ Function MetadataTree(WithFields)
 	ConfigurationString.Presentation        = NStr("en = 'Configuration';");
 	ConfigurationString.ObjectPresentation = NStr("en = 'Configuration';");
 	
-	// 
+	// Configuration.Common
 	StringGeneral = ConfigurationString.Rows.Add();
 	StringGeneral.Name           = "Overall";
 	StringGeneral.Presentation = NStr("en = 'Common';");
 	
-	// 
+	// Configuration.Common.FilterCriteria.Subsystems
 	SubsystemRow = StringGeneral.Rows.Add();
 	SubsystemRow.Name                  = "Subsystems";
 	SubsystemRow.Metadata           = Metadata.Subsystems;
@@ -1891,7 +1893,7 @@ Function MetadataTree(WithFields)
 	SubsystemRow.Presentation        = NStr("en = 'Subsystems';");
 	SubsystemRow.ObjectPresentation = NStr("en = 'Subsystem';");
 	
-	// 
+	// Configuration.Common.FilterCriteria.Subsystems.Subsystems.*
 	StringNestedSubsystems = SubsystemRow.Rows.Add();
 	StringNestedSubsystems.Name                  = "Subsystems";
 	StringNestedSubsystems.Metadata           = "Subsystems";
@@ -1903,7 +1905,7 @@ Function MetadataTree(WithFields)
 	StringNestedSubsystems.NoGroup            = True;
 	StringNestedSubsystems.HasHierarchy         = True;
 	
-	// 
+	// Configuration.Common.FilterCriteria.SessionParameters
 	StringSessionParameters = StringGeneral.Rows.Add();
 	StringSessionParameters.Name                  = "SessionParameters";
 	StringSessionParameters.Metadata           = Metadata.SessionParameters;
@@ -1912,7 +1914,7 @@ Function MetadataTree(WithFields)
 	StringSessionParameters.Presentation        = NStr("en = 'Session parameters';");
 	StringSessionParameters.ObjectPresentation = NStr("en = 'Session parameter';");
 	
-	// 
+	// Configuration.Common.FilterCriteria.CommonAttributes
 	StringGeneralRequisites = StringGeneral.Rows.Add();
 	StringGeneralRequisites.Name                  = "CommonAttributes";
 	StringGeneralRequisites.Metadata           = Metadata.CommonAttributes;
@@ -1921,7 +1923,7 @@ Function MetadataTree(WithFields)
 	StringGeneralRequisites.Presentation        = NStr("en = 'Common attributes';");
 	StringGeneralRequisites.ObjectPresentation = NStr("en = 'Common attribute';");
 	
-	// 
+	// Configuration.Common.FilterCriteria.ExchangePlans
 	StringExchangePlans = StringGeneral.Rows.Add();
 	StringExchangePlans.Name                  = "ExchangePlans";
 	StringExchangePlans.Metadata           = Metadata.ExchangePlans;
@@ -1931,7 +1933,7 @@ Function MetadataTree(WithFields)
 	StringExchangePlans.ObjectPresentation = NStr("en = 'Exchange plan';");
 	AddCommandsFields(WithFields, StringExchangePlans);
 	
-	// 
+	// Configuration.Common.FilterCriteria
 	StringSelectionCriteria = StringGeneral.Rows.Add();
 	StringSelectionCriteria.Name                  = "FilterCriteria";
 	StringSelectionCriteria.Metadata           = Metadata.FilterCriteria;
@@ -1941,7 +1943,7 @@ Function MetadataTree(WithFields)
 	StringSelectionCriteria.ObjectPresentation = NStr("en = 'Filter criterion';");
 	AddCommandsFields(False, StringSelectionCriteria);
 	
-	// 
+	// Configuration.Common.FilterCriteria.CommonForms
 	StringGeneralForms = StringGeneral.Rows.Add();
 	StringGeneralForms.Name                  = "CommonForms";
 	StringGeneralForms.Metadata           = Metadata.CommonForms;
@@ -1950,7 +1952,7 @@ Function MetadataTree(WithFields)
 	StringGeneralForms.Presentation        = NStr("en = 'Common forms';");
 	StringGeneralForms.ObjectPresentation = NStr("en = 'Common form';");
 	
-	// 
+	// Configuration.Common.FilterCriteria.CommonCommands
 	StringCommonCommands = StringGeneral.Rows.Add();
 	StringCommonCommands.Name                  = "CommonCommands";
 	StringCommonCommands.Metadata           = Metadata.CommonCommands;
@@ -1959,7 +1961,7 @@ Function MetadataTree(WithFields)
 	StringCommonCommands.Presentation        = NStr("en = 'Common commands';");
 	StringCommonCommands.ObjectPresentation = NStr("en = 'Common command';");
 	
-	// 
+	// Configuration.Common.WebServices
 	StringWebServices = StringGeneral.Rows.Add();
 	StringWebServices.Name                  = "WebServices";
 	StringWebServices.Metadata           = Metadata.WebServices;
@@ -1967,7 +1969,7 @@ Function MetadataTree(WithFields)
 	StringWebServices.Presentation        = NStr("en = 'Web services';");
 	StringWebServices.ObjectPresentation = NStr("en = 'Web service';");
 	
-	// 
+	// Configuration.Common.WebServices.Operations
 	OperationString = StringWebServices.Rows.Add();
 	OperationString.Name                  = "Operations";
 	OperationString.AttachmentName          = "Operations";
@@ -1976,7 +1978,7 @@ Function MetadataTree(WithFields)
 	OperationString.NoGroup            = True;
 	OperationString.ObjectPresentation = NStr("en = 'Operation';");
 	
-	// 
+	// Configuration.Common.HTTPServices
 	StringHTTPServices = StringGeneral.Rows.Add();
 	StringHTTPServices.Name                  = "HTTPServices";
 	StringHTTPServices.Metadata           = Metadata.HTTPServices;
@@ -1984,7 +1986,7 @@ Function MetadataTree(WithFields)
 	StringHTTPServices.Presentation        = NStr("en = 'HTTP services';");
 	StringHTTPServices.ObjectPresentation = NStr("en = 'HTTP service';");
 	
-	// 
+	// Configuration.Common.HTTPServices.URLTemplates
 	StringTemplatesURL = StringHTTPServices.Rows.Add();
 	StringTemplatesURL.Name                  = "URLTemplates";
 	StringTemplatesURL.AttachmentName          = "URLTemplates";
@@ -1992,7 +1994,7 @@ Function MetadataTree(WithFields)
 	StringTemplatesURL.NoGroup            = True;
 	StringTemplatesURL.ObjectPresentation = NStr("en = 'URL template';");
 	
-	// 
+	// Configuration.Common.HTTPService.URLTemplates.Methods
 	StringMethods = StringTemplatesURL.Rows.Add();
 	StringMethods.Name                  = "Methods";
 	StringMethods.AttachmentName          = "Methods";
@@ -2001,7 +2003,7 @@ Function MetadataTree(WithFields)
 	StringMethods.NoGroup            = True;
 	StringMethods.ObjectPresentation = NStr("en = 'Method';");
 	
-	// 
+	// Configuration.Constants
 	StringConsts = ConfigurationString.Rows.Add();
 	StringConsts.Name                  = "Constants";
 	StringConsts.Metadata           = Metadata.Constants;
@@ -2010,7 +2012,7 @@ Function MetadataTree(WithFields)
 	StringConsts.Presentation        = NStr("en = 'Constants';");
 	StringConsts.ObjectPresentation = NStr("en = 'Constant';");
 	
-	// 
+	// Configuration.Catalogs
 	StringCatalogs = ConfigurationString.Rows.Add();
 	StringCatalogs.Name                  = "Catalogs";
 	StringCatalogs.Metadata           = Metadata.Catalogs;
@@ -2020,12 +2022,12 @@ Function MetadataTree(WithFields)
 	StringCatalogs.ObjectPresentation = NStr("en = 'Catalog';");
 	AddCommandsFields(WithFields, StringCatalogs);
 	
-	// 
+	// Configuration.Documents (group)
 	StringGroupDocuments = ConfigurationString.Rows.Add();
 	StringGroupDocuments.Name           = "Documents";
 	StringGroupDocuments.Presentation = NStr("en = 'Documents';");
 	
-	// 
+	// Configuration.Documents.Sequence
 	StringSequence = StringGroupDocuments.Rows.Add();
 	StringSequence.Name                  = "Sequences";
 	StringSequence.Metadata           = Metadata.Sequences;
@@ -2034,7 +2036,7 @@ Function MetadataTree(WithFields)
 	StringSequence.Presentation        = NStr("en = 'Sequences';");
 	StringSequence.ObjectPresentation = NStr("en = 'Sequence';");
 	
-	// 
+	// Configuration.Documents (elements)
 	StringDocuments = StringGroupDocuments.Rows.Add();
 	StringDocuments.Name                  = "Documents";
 	StringDocuments.Metadata           = Metadata.Documents;
@@ -2044,7 +2046,7 @@ Function MetadataTree(WithFields)
 	StringDocuments.ObjectPresentation = NStr("en = 'Document';");
 	AddCommandsFields(WithFields, StringDocuments);
 	
-	// 
+	// Configuration.DocumentJournals
 	StringDocumentLogs = ConfigurationString.Rows.Add();
 	StringDocumentLogs.Name                  = "DocumentJournals";
 	StringDocumentLogs.Metadata           = Metadata.DocumentJournals;
@@ -2054,7 +2056,7 @@ Function MetadataTree(WithFields)
 	StringDocumentLogs.ObjectPresentation = NStr("en = 'Document journal';");
 	AddCommandsFields(WithFields, StringDocumentLogs, "StandardAttributes", True);
 	
-	// 
+	// Configuration.Enumerations
 	EnumString = ConfigurationString.Rows.Add();
 	EnumString.Name                  = "Enums";
 	EnumString.Metadata           = Metadata.Enums;
@@ -2064,7 +2066,7 @@ Function MetadataTree(WithFields)
 	EnumString.WithoutDecryption       = True;
 	AddCommandsFields(False, EnumString);
 	
-	// 
+	// Configuration.Reports
 	ReportsRow = ConfigurationString.Rows.Add();
 	ReportsRow.Name                  = "Reports";
 	ReportsRow.Metadata           = Metadata.Reports;
@@ -2074,7 +2076,7 @@ Function MetadataTree(WithFields)
 	ReportsRow.ObjectPresentation = NStr("en = 'Report';");
 	AddCommandsFields(WithFields, ReportsRow, "Attributes, TabularSections");
 	
-	// 
+	// Configuration.DataProcessors
 	ProcessingString = ConfigurationString.Rows.Add();
 	ProcessingString.Name                  = "DataProcessors";
 	ProcessingString.Metadata           = Metadata.DataProcessors;
@@ -2084,7 +2086,7 @@ Function MetadataTree(WithFields)
 	ProcessingString.ObjectPresentation = NStr("en = 'Data processor';");
 	AddCommandsFields(WithFields, ProcessingString, "Attributes, TabularSections");
 	
-	// 
+	// Configuration.ChartsOfCharacteristicTypes
 	StringPlansViewsCharacteristics = ConfigurationString.Rows.Add();
 	StringPlansViewsCharacteristics.Name                  = "ChartsOfCharacteristicTypes";
 	StringPlansViewsCharacteristics.Metadata           = Metadata.ChartsOfCharacteristicTypes;
@@ -2094,7 +2096,7 @@ Function MetadataTree(WithFields)
 	StringPlansViewsCharacteristics.ObjectPresentation = NStr("en = 'Chart of characteristic types';");
 	AddCommandsFields(WithFields, StringPlansViewsCharacteristics);
 	
-	// 
+	// Configuration.ChartsOfAccounts
 	LineOfAccountPlans = ConfigurationString.Rows.Add();
 	LineOfAccountPlans.Name                  = "ChartsOfAccounts";
 	LineOfAccountPlans.Metadata           = Metadata.ChartsOfAccounts;
@@ -2105,7 +2107,7 @@ Function MetadataTree(WithFields)
 	AddCommandsFields(WithFields, LineOfAccountPlans, "Attributes, AccountingFlags,
 	|ExtDimensionAccountingFlags, TabularSections, StandardAttributes, StandardTabularSections");
 	
-	// 
+	// Configuration.ChartsOfCalculationTypes
 	StringPlansViewsCalculation = ConfigurationString.Rows.Add();
 	StringPlansViewsCalculation.Name                  = "ChartsOfCalculationTypes";
 	StringPlansViewsCalculation.Metadata           = Metadata.ChartsOfCalculationTypes;
@@ -2116,7 +2118,7 @@ Function MetadataTree(WithFields)
 	AddCommandsFields(WithFields, StringPlansViewsCalculation, "Attributes, TabularSections,
 	|StandardAttributes, StandardTabularSections");
 	
-	// 
+	// Configuration.InformationRegisters
 	StringRegistersDetails = ConfigurationString.Rows.Add();
 	StringRegistersDetails.Name                  = "InformationRegisters";
 	StringRegistersDetails.Metadata           = Metadata.InformationRegisters;
@@ -2127,7 +2129,7 @@ Function MetadataTree(WithFields)
 	AddCommandsFields(WithFields, StringRegistersDetails, "Dimensions, Resources,
 	|Attributes, StandardAttributes");
 	
-	// 
+	// Configuration.AccumulationRegisters
 	StringRegistersAccumulation = ConfigurationString.Rows.Add();
 	StringRegistersAccumulation.Name                  = "AccumulationRegisters";
 	StringRegistersAccumulation.Metadata           = Metadata.AccumulationRegisters;
@@ -2138,7 +2140,7 @@ Function MetadataTree(WithFields)
 	AddCommandsFields(WithFields, StringRegistersAccumulation, "Dimensions, Resources,
 	|Attributes, StandardAttributes");
 	
-	// 
+	// Configuration.AccountingRegisters
 	StringRegistersAccounting = ConfigurationString.Rows.Add();
 	StringRegistersAccounting.Name                  = "AccountingRegisters";
 	StringRegistersAccounting.Metadata           = Metadata.AccountingRegisters;
@@ -2149,7 +2151,7 @@ Function MetadataTree(WithFields)
 	AddCommandsFields(WithFields, StringRegistersAccounting, "Dimensions, Resources,
 	|Attributes, StandardAttributes");
 	
-	// 
+	// Configuration.CalculationRegisters
 	StringRegistersCalculation = ConfigurationString.Rows.Add();
 	StringRegistersCalculation.Name                  = "CalculationRegisters";
 	StringRegistersCalculation.Metadata           = Metadata.CalculationRegisters;
@@ -2160,7 +2162,7 @@ Function MetadataTree(WithFields)
 	AddCommandsFields(WithFields, StringRegistersCalculation, "Dimensions, Resources,
 	|Attributes, StandardAttributes, Recalculations");
 	
-	// 
+	// Configuration.BusinessProcesses
 	StringBusinessProcesses = ConfigurationString.Rows.Add();
 	StringBusinessProcesses.Name                  = "BusinessProcesses";
 	StringBusinessProcesses.Metadata           = Metadata.BusinessProcesses;
@@ -2170,7 +2172,7 @@ Function MetadataTree(WithFields)
 	StringBusinessProcesses.ObjectPresentation = NStr("en = 'Business process';");
 	AddCommandsFields(WithFields, StringBusinessProcesses);
 	
-	// 
+	// Configuration.Tasks
 	TaskLine = ConfigurationString.Rows.Add();
 	TaskLine.Name                  = "Tasks";
 	TaskLine.Metadata           = Metadata.Tasks;
@@ -2181,7 +2183,7 @@ Function MetadataTree(WithFields)
 	AddCommandsFields(WithFields, TaskLine, "AddressingAttributes,
 	|Attributes, TabularSections, StandardAttributes");
 	
-	// 
+	// Configuration.ExternalDataSources
 	StringExternalDataSources = ConfigurationString.Rows.Add();
 	StringExternalDataSources.Name                  = "ExternalDataSources";
 	StringExternalDataSources.Metadata           = Metadata.ExternalDataSources;
@@ -2190,7 +2192,7 @@ Function MetadataTree(WithFields)
 	StringExternalDataSources.Presentation        = NStr("en = 'External data sources';");
 	StringExternalDataSources.ObjectPresentation = NStr("en = 'External data source';");
 	
-	// 
+	// Configuration.ExternalDataSources.Tables
 	TableRow = StringExternalDataSources.Rows.Add();
 	TableRow.Name                  = "Tables";
 	TableRow.AttachmentName          = "Tables";
@@ -2200,7 +2202,7 @@ Function MetadataTree(WithFields)
 	TableRow.ObjectPresentation = NStr("en = 'Table';");
 	AddCommandsFields(WithFields, TableRow, "Fields");
 	
-	// 
+	// Configuration.ExternalDataSources.Cubes
 	StringCube = StringExternalDataSources.Rows.Add();
 	StringCube.Name                  = "Cubes";
 	StringCube.AttachmentName          = "Cubes";
@@ -2209,7 +2211,7 @@ Function MetadataTree(WithFields)
 	StringCube.Presentation        = NStr("en = 'Cubes';");
 	StringCube.ObjectPresentation = NStr("en = 'Cube';");
 	
-	// 
+	// Configuration.ExternalDataSources.Cubes.DimensionTables
 	RowTableDimensions = StringCube.Rows.Add();
 	RowTableDimensions.Name                  = "DimensionTables";
 	RowTableDimensions.AttachmentName          = "DimensionTables";
@@ -2220,7 +2222,7 @@ Function MetadataTree(WithFields)
 	AddCommandsFields(WithFields, RowTableDimensions, "Fields");
 	AddCommandsFields(WithFields, StringCube, "Dimensions, Resources", True);
 	
-	// 
+	// Configuration.ExternalDataSources.Functions
 	FunctionString = StringExternalDataSources.Rows.Add();
 	FunctionString.Name                  = "Functions";
 	FunctionString.AttachmentName          = "Functions";
@@ -2324,7 +2326,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowTableParts.Presentation        = NStr("en = 'Tables.';");
 		RowTableParts.ObjectPresentation = NStr("en = 'Table';");
 		
-		// 
+		// TabularSections.Attributes
 		RowTablePartsAttributes = RowTableParts.Rows.Add();
 		RowTablePartsAttributes.Name                  = "Attributes";
 		RowTablePartsAttributes.AttachmentName          = "Attributes";
@@ -2356,7 +2358,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 		RowStandardTableParts.Presentation        = NStr("en = 'Standard tables.';");
 		RowStandardTableParts.ObjectPresentation = NStr("en = 'Standard table';");
 		
-		// 
+		// StandardTabularSections.StandardAttributes
 		RowStandardTablePartsStandardAttributes = RowStandardTableParts.Rows.Add();
 		RowStandardTablePartsStandardAttributes.Name                  = "StandardAttributes";
 		RowStandardTablePartsStandardAttributes.AttachmentName          = "StandardAttributes";
@@ -2368,7 +2370,7 @@ Procedure AddCommandsFields(WithFields, TreeRow, Fields = "Attributes, TabularSe
 	EndIf;
 	
 	If FieldsStructure.Property("Recalculations") Then
-		// 
+		// Recalculations
 		StringRecalculations = TreeRow.Rows.Add();
 		StringRecalculations.Name                  = "Recalculations";
 		StringRecalculations.AttachmentName          = "Recalculations";
@@ -3096,7 +3098,7 @@ EndProcedure
 Function Images()
 	
 	Images = New ValueList;
-	Images.Add(""); // 
+	Images.Add(""); // No picture.
 	Images.Add("Configuration",,,              PictureLib.MetadataConfiguration);
 	Images.Add("Overall",,,                     PictureLib.MetadataCommon);
 	Images.Add("Subsystems",,,                PictureLib.MetadataSubsystems);

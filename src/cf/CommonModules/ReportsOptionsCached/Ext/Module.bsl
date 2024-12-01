@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Generates a list of configuration reports available to the current user.
-// It should be used in all queries to the table
-// of the "report Options" reference list as a selection for the "Report"attribute.
+// Generates a list of configuration reports available for the current user.
+// Use it in all queries to the table
+// of the "ReportsOptions" catalog as a filter for the "Report" attribute.
 //
 // Returns:
-//   Array - 
-//            
+//   Array - References to the reports the current user can access.
+//            See the item type in Catalogs.ReportsOptions.Attributes.Report.
 //
 Function AvailableReports(CheckFunctionalOptions = True) Export
 	
@@ -43,14 +45,16 @@ Function AvailableReports(CheckFunctionalOptions = True) Export
 	
 EndFunction
 
-// Generates a list of configuration report options that are not available to the current user by functional options.
-// It should be used in all queries to the table
-// of the reference list "Variationsreports"as an exclusive selection based on the "predefined Option" attribute.
+// Generates a list of configuration report option unavailable for the current user by functional options.
+// Use in all queries to the table
+// of the "ReportsOptions" catalog as an excluding filter for the "PredefinedOption" attribute.
 //
 // Returns:
-//   Array - 
+//   Array - Report options disabled by functional options.
 //            
+//            See the item type in CatalogRef.PredefinedReportOptions,
 //            
+//            CatalogRef.PredefinedReportOptionsOfExtensions.
 //
 Function DIsabledApplicationOptions() Export
 	
@@ -62,17 +66,17 @@ EndFunction
 
 #Region Private
 
-// Creates a tree of subsystems available to the current user.
+// Generates a tree of subsystems available for the current user.
 //
 // Returns:
 //   FixedStructure:
 //    * Tree - ValueTree:
-//       ** SectionReference  - CatalogRef.MetadataObjectIDs -  the link section.
-//       ** Ref        - CatalogRef.MetadataObjectIDs -  the reference subsystem.
-//       ** Name           - String -  name of the subsystem.
-//       ** FullName     - String -  full name of the subsystem.
-//       ** Presentation - String -  representation of the subsystem.
-//       ** Priority     - String -  priority of the subsystem.
+//       ** SectionReference  - CatalogRef.MetadataObjectIDs - Section reference.
+//       ** Ref        - CatalogRef.MetadataObjectIDs - Subsystem reference.
+//       ** Name           - String - Subsystem name.
+//       ** FullName     - String - Full subsystem name.
+//       ** Presentation - String - Subsystem presentation.
+//       ** Priority     - String - Subsystem priority.
 //    * List - FixedArray of CatalogRef.MetadataObjectIDs
 //
 Function CurrentUserSubsystems() Export
@@ -125,7 +129,7 @@ Function CurrentUserSubsystems() Export
 		If Not IsHomePage
 			And (Not AccessRight("View", MetadataSection)
 				Or Not Common.MetadataObjectAvailableByFunctionalOptions(MetadataSection)) Then
-			Continue; // 
+			Continue; // The subsystem is unavailable by functional options or rights.
 		EndIf;
 		
 		TreeRow = RootRow.Rows.Add();
@@ -144,7 +148,7 @@ Function CurrentUserSubsystems() Export
 		If TreeRowsFullNames[TreeRow.FullName] = Undefined Then
 			TreeRowsFullNames.Insert(TreeRow.FullName, TreeRow);
 		Else
-			TreeRowsFullNames.Insert(TreeRow.FullName, True); // 
+			TreeRowsFullNames.Insert(TreeRow.FullName, True); // A search in the tree is required.
 		EndIf;
 		
 		TreeRow.SectionFullName = TreeRow.FullName;
@@ -163,7 +167,7 @@ Function CurrentUserSubsystems() Export
 	SubsystemsReferences = Common.MetadataObjectIDs(FullSubsystemsNames);
 	For Each KeyAndValue In SubsystemsReferences Do
 		TreeRow = TreeRowsFullNames[KeyAndValue.Key];
-		If TreeRow = True Then // 
+		If TreeRow = True Then // A search in the tree is required.
 			FoundItems = Result.Rows.FindRows(New Structure("FullName", KeyAndValue.Key), True);
 			For Each TreeRow In FoundItems Do
 				TreeRow.Ref = KeyAndValue.Value;
@@ -197,7 +201,7 @@ Procedure AddCurrentUserSubsystems(ParentLevelRow, ParentMetadata, FullSubsystem
 		If Not SubsystemMetadata1.IncludeInCommandInterface
 			Or Not AccessRight("View", SubsystemMetadata1)
 			Or Not Common.MetadataObjectAvailableByFunctionalOptions(SubsystemMetadata1) Then
-			Continue; // 
+			Continue; // The subsystem is unavailable by functional options or rights.
 		EndIf;
 		
 		TreeRow = ParentLevelRow.Rows.Add();
@@ -208,7 +212,7 @@ Procedure AddCurrentUserSubsystems(ParentLevelRow, ParentMetadata, FullSubsystem
 		If TreeRowsFullNames[TreeRow.FullName] = Undefined Then
 			TreeRowsFullNames.Insert(TreeRow.FullName, TreeRow);
 		Else
-			TreeRowsFullNames.Insert(TreeRow.FullName, True); // 
+			TreeRowsFullNames.Insert(TreeRow.FullName, True); // A search in the tree is required.
 		EndIf;
 		TreeRow.SectionFullName = ParentLevelRow.SectionFullName;
 		
@@ -304,14 +308,14 @@ Procedure AddSubsystems(SubsystemsTable, ParentMetadata)
 	
 EndProcedure
 
-// Returns True if the user has the right to read report variants.
+// Returns True if the user has the right to read report options.
 Function ReadRight1() Export
 	
 	Return AccessRight("Read", Metadata.Catalogs.ReportsOptions);
 	
 EndFunction
 
-// Returns True if the user has the right to save report variants.
+// Returns True if the user has the right to save report options.
 Function InsertRight1() Export
 	
 	Return AccessRight("SaveUserData", Metadata)
@@ -319,16 +323,17 @@ Function InsertRight1() Export
 	
 EndFunction
 
-// 
+// Subsystem parameters cached during the update
+// .
 //
 // Returns:
 //   Structure:
-//     * FunctionalOptionsTable - ValueTable - :
+//     * FunctionalOptionsTable - ValueTable - Association between functional options and predefined report options::
 //       ** Report - CatalogRef.MetadataObjectIDs
 //       ** PredefinedOption - CatalogRef.PredefinedReportsOptions
 //       ** FunctionalOptionName - String
-//     * ReportsWithSettings - Array of CatalogRef.MetadataObjectIDs -  reports
-//          that contain integration procedures with the General report form in the object module.
+//     * ReportsWithSettings - Array of CatalogRef.MetadataObjectIDs - Reports whose
+//          object module contains procedures for integrating with the common report form.
 // 
 Function Parameters() Export
 	

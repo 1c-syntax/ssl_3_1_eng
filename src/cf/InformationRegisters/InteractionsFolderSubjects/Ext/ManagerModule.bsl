@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +14,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -39,9 +41,9 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Update handlers.
 
-// Creates an empty structure for writing information to the register of the subject of the interaction Folder.
+// Generates a blank structure to write to the InteractionsFolderSubjects information register.
 //
 // Returns:
 //  Structure:
@@ -64,17 +66,17 @@ Function InteractionAttributes() Export
 	
 EndFunction
 
-// Sets the folder, subject, and review details for interactions.
+// Sets a folder, subject, and review attributes for interactions.
 //
 // Parameters:
 //  Interaction - DocumentRef.IncomingEmail
 //                 - DocumentRef.OutgoingEmail
 //                 - DocumentRef.Meeting
 //                 - DocumentRef.PlannedInteraction
-//                 - DocumentRef.PhoneCall - 
+//                 - DocumentRef.PhoneCall - Interaction to assign a folder and topic for.
 //  Attributes    - See InformationRegisters.InteractionsFolderSubjects.InteractionAttributes.
-//  RecordSet - InformationRegisterRecordSet.InteractionsFolderSubjects -  a set of register entries, if it was already created
-//                 when the procedure was called.
+//  RecordSet - InformationRegisterRecordSet.InteractionsFolderSubjects - a register record set if is created
+//                 at the time of the procedure call.
 //
 Procedure WriteInteractionFolderSubjects(Interaction, Attributes, RecordSet = Undefined) Export
 	
@@ -164,17 +166,17 @@ Procedure WriteInteractionFolderSubjects(Interaction, Attributes, RecordSet = Un
 	
 EndProcedure
 
-// 
+// Locks the InteractionsFoldersSubjects information register.
 // 
 // Parameters:
-//  Block - DataLock -  lock to be set
+//  Block - DataLock - a lock to be set.
 //  Interactions - Array
 //                 - DocumentRef.PlannedInteraction
 //                 - DocumentRef.Meeting
 //                 - DocumentRef.PhoneCall
 //                 - DocumentRef.SMSMessage
 //                 - DocumentRef.IncomingEmail
-//                 - DocumentRef.OutgoingEmail - 
+//                 - DocumentRef.OutgoingEmail - Documents to lock.
 //
 Procedure BlockInteractionFoldersSubjects(Block, Interactions) Export
 	
@@ -189,12 +191,12 @@ Procedure BlockInteractionFoldersSubjects(Block, Interactions) Export
 	
 EndProcedure
 
-// Blocks the PC subject of the interaction Folder.
+// Locks the InteractionsFoldersSubjects information register.
 // 
 // Parameters:
-//  Block       - DataLock -  lock to be set.
-//  DataSource   - ValueTable -  the data source for the lock.
-//  NameSourceField - String -  name of the source field that will be used to set the interaction lock.
+//  Block       - DataLock - a set lock.
+//  DataSource   - ValueTable - a data source to be locked.
+//  NameSourceField - String - the source field name that will be used to set the lock by interaction.
 //
 Procedure BlochFoldersSubjects(Block, DataSource, NameSourceField) Export
 	

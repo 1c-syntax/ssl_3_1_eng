@@ -1,28 +1,30 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region EventHandlers
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
-// Handler read the settings option of the report.
+// Reading handler of report option settings.
 //
 // Parameters:
-//   ReportKey        - String -  full name of the report with a dot.
-//   VariantKey      - String -  the key version of the report.
-//   Settings         - Arbitrary     -  settings version of the report.
-//   SettingsDescription  - SettingsDescription -  additional description of settings.
-//   User      - String           - 
-//       
-//       
+//   ReportKey        - String - Full report name (dot-delimited).
+//   VariantKey      - String - Report option key.
+//   Settings         - Arbitrary     - Report option settings.
+//   SettingsDescription  - SettingsDescription - Additional details of the settings.
+//   User      - String           - Name of the infobase user.
+//       It is not used, because the "Report options" subsystem does not group report options by their authors.
+//       The uniqueness of storage and selection is guaranteed by the uniqueness of the report key–option key pairs.
 //
-// :
-//   
+// See also::
+//   "SettingsStorageManager.<Storage name>.LoadProcessing" in Syntax Assistant.
 //
 Procedure LoadProcessing(ReportKey, VariantKey, Settings, SettingsDescription, User)
 	If Not ReportsOptionsCached.ReadRight1() Then
@@ -62,20 +64,20 @@ Procedure LoadProcessing(ReportKey, VariantKey, Settings, SettingsDescription, U
 	EndIf;
 EndProcedure
 
-// The handler records the settings option of the report.
+// Handler of writing report option settings.
 //
 // Parameters:
-//   ReportKey        - String -  full name of the report with a dot.
-//   VariantKey      - String -  the key version of the report.
-//   Settings         - Arbitrary         -  settings version of the report.
-//   SettingsDescription  - SettingsDescription     -  additional description of settings.
+//   ReportKey        - String - Full report name (dot-delimited).
+//   VariantKey      - String - Report option key.
+//   Settings         - Arbitrary         - Report option settings.
+//   SettingsDescription  - SettingsDescription     - Additional details of the settings.
 //   User      - String
-//                     - Undefined - 
-//       
-//       
+//                     - Undefined - Name of the infobase user.
+//       It is not used, because the "Report options" subsystem does not group report options by their authors.
+//       The uniqueness of storage and selection is guaranteed by the uniqueness of the report key–option key pairs.
 //
-// :
-//   
+// See also::
+//   "SettingsStorageManager.<Storage name>.SaveProcessing" in Syntax Assistant.
 //
 Procedure SaveProcessing(ReportKey, VariantKey, Settings, SettingsDescription, User)
 	If Not ReportsOptionsCached.InsertRight1() Then
@@ -142,19 +144,19 @@ Procedure SaveProcessing(ReportKey, VariantKey, Settings, SettingsDescription, U
 	
 EndProcedure
 
-// Handler for getting a description of the report variant settings.
+// Receiving handler of report option settings details.
 //
 // Parameters:
-//   ReportKey       - String -  full name of the report with a dot.
-//   VariantKey     - String -  the key version of the report.
-//   SettingsDescription - SettingsDescription     -  additional description of settings.
+//   ReportKey       - String - Full report name (dot-delimited).
+//   VariantKey     - String - Report option key.
+//   SettingsDescription - SettingsDescription     - Additional details of the settings.
 //   User     - String
-//                    - Undefined - 
-//       
-//       
+//                    - Undefined - Name of the infobase user.
+//       It is not used, because the "Report options" subsystem does not group report options by their authors.
+//       The uniqueness of storage and selection is guaranteed by the uniqueness of the report key–option key pairs.
 //
-// :
-//   
+// See also::
+//   "SettingsStorageManager.<Storage name>.GetDescriptionProcessing" in Syntax Assistant.
 //
 Procedure GetDescriptionProcessing(ReportKey, VariantKey, SettingsDescription, User)
 	If Not ReportsOptionsCached.ReadRight1() Then
@@ -202,18 +204,18 @@ Procedure GetDescriptionProcessing(ReportKey, VariantKey, SettingsDescription, U
 	EndIf;
 EndProcedure
 
-// Handler for setting the description of report variant settings.
+// Installation handler of report option settings details.
 //
 // Parameters:
-//   ReportKey       - String -  full name of the report with a dot.
-//   VariantKey     - String -  the key version of the report.
-//   SettingsDescription - SettingsDescription -  additional description of settings.
-//   User     - String           - 
-//       
-//       
+//   ReportKey       - String - Full report name (dot-delimited).
+//   VariantKey     - String - Report option key.
+//   SettingsDescription - SettingsDescription - Additional details of the settings.
+//   User     - String           - Name of the infobase user.
+//       It is not used, because the "Report options" subsystem does not group report options by their authors.
+//       The uniqueness of storage and selection is guaranteed by the uniqueness of the report key–option key pairs.
 //
-// :
-//   
+// See also::
+//   "SettingsStorageManager.<Storage name>.SetDescriptionProcessing" in Syntax Assistant.
 //
 Procedure SetDescriptionProcessing(ReportKey, VariantKey, SettingsDescription, User)
 	If Not ReportsOptionsCached.InsertRight1() Then
@@ -270,12 +272,12 @@ EndProcedure
 
 #Region Private
 
-// 
-// 
+// ACC:361-off - The preprocessor command wraps only the function implementation
+// (rather than the entire function) to make it return a "ValueList" type value.
 
 // Returns a list of user report options.
 //
-Function GetList(ReportKey, Val User = Undefined) Export // 
+Function GetList(ReportKey, Val User = Undefined) Export // CAC:307 - Same as the standard setting storage method.
 	List = New ValueList;
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -292,7 +294,7 @@ Function GetList(ReportKey, Val User = Undefined) Export //
 	Return List;
 EndFunction
 
-// 
+// ACC:361-on
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 

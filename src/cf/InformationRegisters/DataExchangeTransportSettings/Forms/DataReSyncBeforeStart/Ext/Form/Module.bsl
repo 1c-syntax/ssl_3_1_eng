@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -32,12 +34,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	CorrespondentDescription = Common.ObjectAttributeValue(InfobaseNode, "Description");
+	PeerInfobaseName = Common.ObjectAttributeValue(InfobaseNode, "Description");
 	NodeNameLabel = NStr("en = 'Cannot install the application update received from
 		|""%1"".
 		|See <a href = ""%2"">Event log</a> for technical information.';");
 	Items.NodeNameHelpText.Title = 
-		StringFunctions.FormattedString(NodeNameLabel, CorrespondentDescription, "EventLog");
+		StringFunctions.FormattedString(NodeNameLabel, PeerInfobaseName, "EventLog");
 	
 	SetFormItemsView();
 	
@@ -132,7 +134,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Scenario without infobase updating.
 
 &AtClient
 Procedure SynchronizeAndContinueWithoutIBUpdate()
@@ -154,15 +156,15 @@ EndProcedure
 &AtServer
 Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 	
-	// 
-	// 
-	// 
-	// 
-	// 
-	// 
-	//   
-	// 
-	//   
+	// The repeat mode should be enabled in the following cases:
+	// 1. Metadata with a later configuration version is imported (an infobase update required).
+	// - If "Cancel" is set to "True", it cannot proceed as duplicates of generated data might occur.
+	// - If "Cancel" is set to "False", an infobase update error might occur requiring re-import of the message.
+	// 2. Metadata with the same configuration version is imported (no infobase update required).
+	// - If "Cancel" is set to "True" and the startup proceeds, an error might occur
+	//   (for example, because predefined items were not imported).
+	// - If "Cancel" is set to "False", you can proceed as the import can be done later
+	//   (if import fails, you can also import a new exchange message later).
 	
 	SetPrivilegedMode(True);
 	
@@ -170,7 +172,7 @@ Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 		
 		DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", False);
 		
-		// 
+		// If the message is imported, reimporting is not required.
 		If Constants.LoadDataExchangeMessage.Get() Then
 			Constants.LoadDataExchangeMessage.Set(False);
 		EndIf;
@@ -179,7 +181,7 @@ Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 		Try
 			ExportMessageAfterInfobaseUpdate();
 		Except
-			// 
+			// If import fails, resume the startup and run import in 1C:Enterprise mode.
 			// 
 			EventLogMessageKey = DataExchangeServer.DataExchangeEventLogEvent();
 			WriteLogEvent(EventLogMessageKey,
@@ -210,7 +212,7 @@ EndProcedure
 &AtServer
 Procedure ExportMessageAfterInfobaseUpdate()
 	
-	// 
+	// The repeat mode can be disabled if messages are imported and the infobase is updated successfully.
 	DataExchangeServer.DisableDataExchangeMessageImportRepeatBeforeStart();
 	
 	Try
@@ -239,7 +241,7 @@ Procedure ExportMessageAfterInfobaseUpdate()
 					
 					AuthenticationParameters = ?(IsStandaloneWorkplace, New Structure("UseCurrentUser, Password", True, Password), Undefined);
 					
-					// 
+					// Export only.
 					Cancel = False;
 					
 					ExchangeParameters = DataExchangeServer.ExchangeParameters();
@@ -300,7 +302,7 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 			DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", True);
 			SetPrivilegedMode(False);
 			
-			// 
+			// Updating object registration rules before importing data.
 			DataExchangeServer.UpdateDataExchangeRules();
 			
 			TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(InfobaseNode);
@@ -309,7 +311,7 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 			
 			AuthenticationParameters = ?(IsStandaloneWorkplace, New Structure("UseCurrentUser, Password", True, Password), Undefined);
 			
-			// 
+			// Import only.
 			ExchangeParameters = DataExchangeServer.ExchangeParameters();
 			ExchangeParameters.ExchangeMessagesTransportKind = TransportKind;
 			ExchangeParameters.ExecuteImport1 = True;
@@ -342,7 +344,7 @@ Procedure ImportMessageBeforeInfobaseUpdate()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Scenario that includes infobase update.
 
 &AtClient
 Procedure SynchronizeAndContinueWithIBUpdate()
@@ -457,7 +459,7 @@ Procedure ImportPriorityDataToSubordinateDIBNode()
 			
 			AuthenticationParameters = ?(IsStandaloneWorkplace, New Structure("UseCurrentUser, Password", True, Password), Undefined);
 			
-			// 
+			// Importing application parameters only.
 			ExchangeParameters = DataExchangeServer.ExchangeParameters();
 			ExchangeParameters.ExchangeMessagesTransportKind = TransportKind;
 			ExchangeParameters.ExecuteImport1 = True;
@@ -491,7 +493,7 @@ Procedure ImportPriorityDataToSubordinateDIBNode()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Scenario that does not include synchronization.
 
 &AtServer
 Procedure DoNotSyncAndContinueAtServer()
@@ -511,7 +513,7 @@ Procedure DoNotSyncAndContinueAtServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal procedures and functions.
 
 &AtServer
 Procedure CheckUpdateRequired()
@@ -541,8 +543,8 @@ Procedure SyncAndContinueCompletion()
 	
 EndProcedure
 
-// Sets whether the download will be repeated if there is a download or update error.
-// Clears the storage of the exchange message received from the main rib node.
+// Sets the RetryDataExchangeMessageImportBeforeStart constant value to True.
+// Clears exchange messages received from the master node.
 //
 &AtServer
 Procedure EnableDataExchangeMessageImportRecurrenceBeforeStart()

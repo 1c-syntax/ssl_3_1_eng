@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -31,7 +33,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -91,8 +93,8 @@ EndProcedure
 
 #Region Internal
 
-// Registers objects
-// that need to be updated to the new version on the exchange plan for updating the information Database.
+// Registers the objects to be updated in the InfobaseUpdate exchange plan.
+// 
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -195,9 +197,9 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	
 EndProcedure
 
-// 
+// Initial population.
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -208,7 +210,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -368,7 +370,7 @@ Function DefineDomainMailServersNames(Domain)
 	ApplicationStartupParameters.ExecutionEncoding = "OEM";
 	
 	DNSServerAddresses = EmailOperationsInternal.DNSServerAddresses();
-	DNSServerAddresses.Insert(0, ""); // 
+	DNSServerAddresses.Insert(0, ""); // Default server.
 	
 	CommandsStrings = New Array;
 	
@@ -1030,38 +1032,38 @@ Function IMAPServerConnectionSettingsOptions(Email) Export
 		Return Result;
 	EndIf;
 
-	// 
-	// 
+	// Standard settings suitable for Gmail, Yandex, and Mail.ru accounts.
+	// The server name is prefixed with "imap." and the connection is secured.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "imap." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 993;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name with the "mail." prefix, secure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 993;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name without the "imap." prefix, secure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 993;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name with the "imap." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "imap." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 143;
 	SettingsMode.UseSecureConnectionForIncomingMail = False;
 	
-	// 
+	// Server name with the "mail." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 143;
 	SettingsMode.UseSecureConnectionForIncomingMail = False;
 	
-	// 
+	// Server name without the "imap." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 143;
@@ -1081,50 +1083,50 @@ Function POPServerConnectionSettingsOptions(Email)
 	Result.Columns.Add("IncomingMailServerPort");
 	Result.Columns.Add("UseSecureConnectionForIncomingMail");
 	
-	// 
-	// 
+	// Standard settings suitable for Gmail, Yandex, and Mail.ru accounts.
+	// The server name is prefixed with "pop." and the connection is secured.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "pop." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 995;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name with the "pop3." prefix, secure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "pop3." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 995;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name with the "mail." prefix, secure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 995;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name without a prefix, secure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 995;
 	SettingsMode.UseSecureConnectionForIncomingMail = True;
 	
-	// 
+	// Server name with the "pop." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "pop." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 110;
 	SettingsMode.UseSecureConnectionForIncomingMail = False;
 	
-	// 
+	// Server name with the "pop3." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "pop3." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 110;
 	SettingsMode.UseSecureConnectionForIncomingMail = False;
 	
-	// 
+	// Server name with the "mail." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 110;
 	SettingsMode.UseSecureConnectionForIncomingMail = False;
 	
-	// 
+	// Server name without a prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.IncomingMailServer = ServerNameInAccount;
 	SettingsMode.IncomingMailServerPort = 110;
@@ -1162,56 +1164,56 @@ Function SMTPServerConnectionSettingsOptions(Email) Export
 		Return Result;
 	EndIf;
 	
-	// 
-	// 
+	// Standard settings suitable for Gmail, Yandex, and Mail.ru accounts.
+	// The server name is prefixed with "smtp.", the connection is secured, and the port is 465.
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "smtp." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 465;
 	SettingsMode.UseSecureConnectionForOutgoingMail = True;
 	
-	// 
+	// Server name with the "mail." prefix, secure connection, port 465.
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 465;
 	SettingsMode.UseSecureConnectionForOutgoingMail = True;
 	
-	// 
+	// Server name without a prefix, secure connection, port 465.
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 465;
 	SettingsMode.UseSecureConnectionForOutgoingMail = True;
 	
-	// 
+	// Server name with the "smtp." prefix, secure connection (STARTTLS), port 587
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "smtp." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 587;
 	SettingsMode.UseSecureConnectionForOutgoingMail = False;
 	
-	// 
+	// Server name with the "mail." prefix, secure connection (STARTTLS), port 587
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 587;
 	SettingsMode.UseSecureConnectionForOutgoingMail = False;
 	
-	// 
+	// Server name without a prefix, secure connection (STARTTLS), port 587
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 587;
 	SettingsMode.UseSecureConnectionForOutgoingMail = False;
 	
-	// 
+	// Server name with the "smtp." prefix, insecure connection
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "smtp." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 25;
 	SettingsMode.UseSecureConnectionForOutgoingMail = False;
 	
-	// 
+	// Server name with the "mail." prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = "mail." + ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 25;
 	SettingsMode.UseSecureConnectionForOutgoingMail = False;
 	
-	// 
+	// Server name without a prefix, insecure connection.
 	SettingsMode = Result.Add();
 	SettingsMode.OutgoingMailServer = ServerNameInAccount;
 	SettingsMode.OutgoingMailServerPort = 25;

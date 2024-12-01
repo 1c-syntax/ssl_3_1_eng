@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// ID that is used for the home page in the report Variationsreadable module.
+// ID that is used for the home page in the ReportsOptionsOverridable module.
 //
 // Returns:
-//   String - 
+//   String - ID used for the home page in the ReportsOptionsOverridable module.
 //
 Function HomePageID() Export
 	
@@ -23,12 +25,12 @@ EndFunction
 
 #Region Internal
 
-// Adds a Key to the Structure if it doesn't exist.
+// Adds Key to Structure if it is missing.
 //
 // Parameters:
-//   Structure - Structure    -  augmented structure.
-//   Var_Key      - String       -  property name.
-//   Value  - Arbitrary -  the value of the property if it is not present in the structure.
+//   Structure - Structure    - Structure to be complemented.
+//   Var_Key      - String       - Property name.
+//   Value  - Arbitrary - Property value if it is missing from the structure.
 //
 Procedure AddKeyToStructure(Structure, Var_Key, Value = Undefined) Export
 	If Not Structure.Property(Var_Key) Then
@@ -40,12 +42,12 @@ EndProcedure
 
 #Region Private
 
-// The full name of the subsystem.
+// Full subsystem name.
 Function FullSubsystemName() Export
 	Return "StandardSubsystems.ReportsOptions";
 EndFunction
 
-// Turns the search string into an array of words with unique values, sorted in descending order of length.
+// Converts a search string to an array of words with unique values sorted by length descending.
 Function ParseSearchStringIntoWordArray(SearchString) Export
 	WordsAndTheirLength = New ValueList;
 	StringLength = StrLen(SearchString);
@@ -55,14 +57,14 @@ Function ParseSearchStringIntoWordArray(SearchString) Export
 	QuotationMarkOpened = False;
 	For CharacterNumber = 1 To StringLength Do
 		CharCode = CharCode(SearchString, CharacterNumber);
-		If CharCode = 34 Then // 
+		If CharCode = 34 Then // 34 - Double quotation mark (").
 			QuotationMarkOpened = Not QuotationMarkOpened;
 		ElsIf QuotationMarkOpened
-			Or (CharCode >= 48 And CharCode <= 57) // Digits
-			Or (CharCode >= 65 And CharCode <= 90) // 
-			Or (CharCode >= 97 And CharCode <= 122) // 
-			Or (CharCode >= 1040 And CharCode <= 1103) // CyrillicCharacters
-			Or CharCode = 95 Then // 
+			Or (CharCode >= 48 And CharCode <= 57) // Numerics.
+			Or (CharCode >= 65 And CharCode <= 90) // Uppercase Latin characters
+			Or (CharCode >= 97 And CharCode <= 122) // Lowercase Latin characters
+			Or (CharCode >= 1040 And CharCode <= 1103) // Cyrillic characters.
+			Or CharCode = 95 Then // Underline ( _ ) character.
 			Word = Word + Char(CharCode);
 			WordLength = WordLength + 1;
 		ElsIf Word <> "" Then
@@ -83,7 +85,7 @@ Function ParseSearchStringIntoWordArray(SearchString) Export
 	Return WordsAndTheirLength.UnloadValues();
 EndFunction
 
-// Turns the report type into a string identifier.
+// The function converts a report type into a string ID.
 Function ReportByStringType(Val ReportType, Val Report = Undefined) Export
 	TypeOfReportType = TypeOf(ReportType);
 	If TypeOfReportType = Type("String") Then

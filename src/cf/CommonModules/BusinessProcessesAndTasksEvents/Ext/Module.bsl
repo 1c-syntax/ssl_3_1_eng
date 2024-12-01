@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Subsystem event subscription handlers.
 
-// Handler for subscribing to the event write_list of business Processes.
+// The WriteToBusinessProcessesList event subscription handler.
 //
 Procedure WriteToBusinessProcessesList(Source, Cancel) Export
 	
@@ -49,7 +51,7 @@ Procedure WriteToBusinessProcessesList(Source, Cancel) Export
 
 EndProcedure
 
-// Handler for subscribing to the event set the tag for deleting Tasks.
+// MarkTasksForDeletion event subscription handler.
 //
 Procedure MarkTasksForDeletion(Source, Cancel) Export
 	
@@ -69,7 +71,7 @@ Procedure MarkTasksForDeletion(Source, Cancel) Export
 	
 EndProcedure
 
-// Handler for subscribing to the event updatestates of the business Process.
+// The UpdateBusinessProcessState event subscription handler.
 //
 Procedure UpdateBusinessProcessState(Source, Cancel) Export
 	
@@ -90,7 +92,7 @@ Procedure UpdateBusinessProcessState(Source, Cancel) Export
 	
 EndProcedure
 
-// The handler routine job Starttagendindex
+// The StartDeferredProcesses scheduled job handler
 //
 Procedure StartDeferredProcesses() Export
 	

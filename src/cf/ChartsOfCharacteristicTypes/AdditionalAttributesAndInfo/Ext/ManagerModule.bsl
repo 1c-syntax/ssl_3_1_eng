@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -37,7 +39,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// Standard subsystems.Forbidding editingrequisitobjects
+// StandardSubsystems.ObjectAttributesLock
 
 // Returns:
 //   See ObjectAttributesLockOverridable.OnDefineLockedAttributes.LockedAttributes.
@@ -56,7 +58,7 @@ EndFunction
 
 // End StandardSubsystems.ObjectAttributesLock
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -143,12 +145,12 @@ EndProcedure
 
 #Region IDUniquenessForFormulas
 
-// Checks the uniqueness of the ID and whether the ID matches the spelling rules
+// Checks the ID uniqueness and that the ID complies with the syntax
 // 
 // Parameters:
-//   IDForFormulas - String -  the identifier for the formulas.
-//   Ref - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo -  reference to the current object.
-//   Cancel - Boolean -  flag for failure if there is an error.
+//   IDForFormulas - String - iD for formulas.
+//   Ref - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - a reference to the current object.
+//   Cancel - Boolean - a cancellation flag if there is an error.
 //
 Procedure CheckIDUniqueness(IDForFormulas, Ref, Cancel) Export
 	
@@ -221,19 +223,19 @@ Procedure CheckIDUniqueness(IDForFormulas, Ref, Cancel) Export
 	
 EndProcedure
 
-// Returns a unique identifier for formulas (after checking for uniqueness)
+// Returns a UUID for formulas (after the uniqueness check)
 // 
 // Parameters:
-//   ObjectPresentation - String -  the view from which the ID for formulas will be generated.
-//   CurrentObjectRef - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo -  link to the current item.
+//   ObjectPresentation - String - a presentation from which an ID for formulas will be formed.
+//   CurrentObjectRef - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - a reference to the current item.
 // Returns:
-//   String - 
+//   String - — a unique ID value for formulas.
 //
 Function UUIDForFormulas(ObjectPresentation, CurrentObjectRef) Export
 
 	Id = IDForFormulas(ObjectPresentation);
 	If IsBlankString(Id) Then
-		// 
+		// Presentation consists of special characters and digits.
 		Prefix = NStr("en = 'ID';");
 		Id = IDForFormulas(Prefix + ObjectPresentation);
 	EndIf;
@@ -264,7 +266,7 @@ Function UUIDForFormulas(ObjectPresentation, CurrentObjectRef) Export
 	QueryResults = Query.ExecuteBatch();
 	UniquenessByExactMatch = QueryResults[0];
 	If Not UniquenessByExactMatch.IsEmpty() Then
-		// 
+		// There are items with this ID.
 		PreviousIDs = New Map;
 		SimilarItemsSelection = QueryResults[1].Select();
 		While SimilarItemsSelection.Next() Do
@@ -301,13 +303,13 @@ Function IDForFormulasUnique(IDToCheck, CurrentObjectRef)
 	Return QueryResult.IsEmpty();
 EndFunction
 
-// Calculates the ID value from a string according to the variable naming rules.
+// Calculates the value of an ID from the string according to the variable naming rules.
 // 
 // Parameters:
-//  PresentationRow - String -  name of the string to get the ID from. 
+//  PresentationRow - String - description, the string from which it is required to receive an ID. 
 //
 // Returns:
-//  String - 
+//  String - — an ID matching the ID naming rules.
 //
 Function IDForFormulas(PresentationRow) Export
 	
@@ -368,8 +370,8 @@ EndFunction
 
 #EndRegion
 
-// Changes the property setting from a General property or a General list of property values
-// to a separate property with a separate list of values.
+// Changes the property setting from the common property or common list of property values
+// to a separate property with separate value list.
 // 
 // Parameters:
 //  Parameters - Structure:
@@ -517,12 +519,12 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			LockItem = Block.Add("InformationRegister.AdditionalInfo");
 			LockItem.SetValue("Property", ObjectProperty.Ref);
 			
-			// 
-			// 
-			// 
+			// If the original property is common, then get the list of object's sets (for each reference).
+			// If the replaceable property belongs not exclusively to the target set, then add the new property and value.
+			// For common original properties, if their value owners have multiple property sets,
 			//
-			// 
-			// 
+			// the procedure runtime might take a while because sets in each owner are analyzed
+			// (the procedure "PropertyManagerOverridable.FillObjectPropertiesSets" overrides the list of sets).
 			// 
 			// 
 			
@@ -548,7 +550,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 					EachOwnerObjectSetsAnalysisRequired = Common.ObjectAttributeValue(
 						PropertiesSet, "IsFolder");
 				EndIf;
-				// 
+				// If the predefined item is missing in the infobase.
 				If EachOwnerObjectSetsAnalysisRequired = Undefined Then 
 					EachOwnerObjectSetsAnalysisRequired = False;
 				EndIf;
@@ -573,8 +575,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			Query = New Query;
 			
 			If Property = ObjectProperty.Ref Then
-				// 
-				// 
+				// If the property is not changed (it's already individual), and only the list of additional values is common,
+				// then replace only the additional values.
 				Query.TempTablesManager = New TempTablesManager;
 				
 				ValueTable = New ValueTable;
@@ -604,11 +606,11 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 			AdditionalValuesTypes.Insert(Type("CatalogRef.ObjectsPropertiesValues"), True);
 			AdditionalValuesTypes.Insert(Type("CatalogRef.ObjectPropertyValueHierarchy"), True);
 			
-			// 
+			// Replace additional information records.
 			
 			If Property = ObjectProperty.Ref Then
-				// 
-				// 
+				// If the property is not changed (it's already individual), and only the list of additional values is common,
+				// then replace only the additional values.
 				Query.Text =
 				"SELECT TOP 1000
 				|	AdditionalInfo.Object
@@ -620,8 +622,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 				|			AND (AdditionalInfo.Property = &Property)
 				|			AND AdditionalInfo.Value = PreviousValues1.Value";
 			Else
-				// 
-				// 
+				// If the property is changed (a common property becomes individual and its additional values are copied),
+				// then replace the properties and the additional values.
 				Query.Text =
 				"SELECT TOP 1000
 				|	AdditionalInfo.Object
@@ -653,7 +655,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 						AnalysisQuery.SetParameter("AllSetsForObject",
 							PropertyManagerInternal.GetObjectPropertySets(
 								Selection.Object).UnloadColumn("Set"));
-						// 
+						// @skip-check query-in-loop. Batch processing of a large amount of data.
 						Replace = AnalysisQuery.Execute().IsEmpty();
 					EndIf;
 					OldRecordSet.Filter.Object.Set(Selection.Object);
@@ -683,7 +685,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 				EndDo;
 			EndDo;
 			
-			// 
+			// Replace additional attributes.
 			
 			If OwnerWithAdditionalAttributes Then
 				
@@ -703,8 +705,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 				EndIf;
 				
 				If Property = ObjectProperty.Ref Then
-					// 
-					// 
+					// If the property is not changed (it's already individual), and only the list of additional values is common,
+					// then replace only the additional values.
 					Query.Text =
 					"SELECT TOP 1000
 					|	CurrentTable.Ref AS Ref
@@ -715,8 +717,8 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 					|			AND (CurrentTable.Property = &Property)
 					|			AND CurrentTable.Value = PreviousValues1.Value";
 				Else
-					// 
-					// 
+					// If the property is changed (a common property becomes individual and its additional values are copied),
+					// then replace the properties and the additional values.
 					Query.Text =
 					"SELECT TOP 1000
 					|	CurrentTable.Ref AS Ref
@@ -743,7 +745,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 							AnalysisQuery.SetParameter("AllSetsForObject",
 								PropertyManagerInternal.GetObjectPropertySets(
 									Selection.Ref).UnloadColumn("Set"));
-							// 
+							// @skip-check query-in-loop. Batch processing of a large amount of data.
 							Replace = AnalysisQuery.Execute().IsEmpty();
 						EndIf;
 						For Each String In CurrentObject.AdditionalAttributes Do
@@ -819,7 +821,7 @@ EndProcedure
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	// 
+	// Get a list of properties with the Obsolete prefix.
 	PropertiesSets = New Array;
 	NamesOfPredefinedSets = Metadata.Catalogs.AdditionalAttributesAndInfoSets.GetPredefinedNames();
 	For Each PredefinedSetName In NamesOfPredefinedSets Do
@@ -828,7 +830,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 				PredefinedSet = Catalogs.AdditionalAttributesAndInfoSets[PredefinedSetName];
 				PropertiesSets.Add(PredefinedSet);
 			Except
-				// 
+				// Don't handle the exception. The data has no predefined item.
 				Continue;
 			EndTry;
 		EndIf;
@@ -885,7 +887,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 		RepresentationOfTheReference = String(Selection.Ref);
 		BeginTransaction();
 		Try
-			// 
+			// Lock the object (to ensure that it won't be edited in other sessions).
 			Block = New DataLock;
 			LockItem = Block.Add(FullName);
 			Ref = Selection.Ref; // ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - 
@@ -895,7 +897,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Object = Ref.GetObject();
 			
 			If Not ValueIsFilled(Object.Name) Then
-				// 
+				// @skip-check query-in-loop. Batch processing of a large amount of data.
 				SetAttributeName(Selection, Object);
 			Else
 				PropertyManagerInternal.DeleteDisallowedCharacters(Object.Name);
@@ -923,7 +925,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			If Not ValueIsFilled(Object.IDForFormulas) Then
 				TitleForFormulas = TitleForIDGeneration(Object.Title, Object.Presentations);
-				// 
+				// @skip-check query-in-loop. Batch processing of a large amount of data.
 				Object.IDForFormulas = UUIDForFormulas(TitleForFormulas, Object.Ref);
 			EndIf;
 			
@@ -967,7 +969,7 @@ Procedure SetAttributeName(Selection, Object)
 		Object.Name = Object.Name + Upper(Left(TitlePart, 1)) + Mid(TitlePart, 2);
 	EndDo;
 	
-	// 
+	// Check the name for uniqueness.
 	If NameUsed(Selection.Ref, Object.Name) Then
 		UID = New UUID();
 		UIDString = StrReplace(String(UID), "-", "");

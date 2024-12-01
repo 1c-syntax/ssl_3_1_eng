@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -63,20 +65,20 @@ Procedure OpenAddRecipientsForm(IsPick)
 	
 	ChoiceFormParameters = New Structure;
 	
-	// 
+	// Standard attributes of the choice form. See "Client application form extension for dynamic lists" in Syntax Assistant.
 	ChoiceFormParameters.Insert("ChoiceFoldersAndItems", FoldersAndItemsUse.FoldersAndItems);
 	ChoiceFormParameters.Insert("CloseOnChoice", ?(IsPick, False, True));
 	ChoiceFormParameters.Insert("CloseOnOwnerClose", True);
 	ChoiceFormParameters.Insert("MultipleChoice", IsPick);
 	ChoiceFormParameters.Insert("ChoiceMode", True);
 	
-	// 
+	// Expected attributes.
 	ChoiceFormParameters.Insert("WindowOpeningMode", FormWindowOpeningMode.LockOwnerWindow);
 	ChoiceFormParameters.Insert("SelectGroups", True);
 	ChoiceFormParameters.Insert("UsersGroupsSelection", True);
 	
-	// 
-	//  
+	// Extended pick form opening parameters.
+	// See the "Users" catalog list form for the attribute description.
 	If IsPick Then
 		ChoiceFormParameters.Insert("AdvancedPick", True);
 		ChoiceFormParameters.Insert("PickFormHeader", NStr("en = 'Pick recipients';"));
@@ -164,7 +166,7 @@ EndProcedure
 
 &AtClient
 Procedure AddDragRecipient(RecipientOrRecipientsSet)
-	// 
+	// Delete users who have been deleted in the pickup form or who are already in the list.
 	If IsPickupUsersOrGroup(RecipientOrRecipientsSet) Then
 		Count = Recipients.Count();
 		For Number = 1 To Count Do
@@ -173,17 +175,17 @@ Procedure AddDragRecipient(RecipientOrRecipientsSet)
 			
 			IndexInArray = RecipientOrRecipientsSet.Find(RecipientRow.Recipient);
 			If IndexInArray = Undefined Then
-				Recipients.Delete(RecipientRow); // 
+				Recipients.Delete(RecipientRow); // User is deleted in the pickup form.
 			Else
-				RecipientOrRecipientsSet.Delete(IndexInArray); // 
+				RecipientOrRecipientsSet.Delete(IndexInArray); // User is already in the list.
 			EndIf;
 		EndDo;
 	EndIf;
 	
-	// 
+	// Add selected rows.
 	NewRowArray = ChoicePickupDragToTabularSection(RecipientOrRecipientsSet);
 	
-	// 
+	// Prepare notification text.
 	If NewRowArray.Count() > 0 Then
 		If NewRowArray.Count() = 1 Then
 			NotificationTitle = NStr("en = 'The user is added to the recipient list.';");
@@ -332,7 +334,7 @@ Procedure FillRecipientsTypeInfo(Cancel)
 		MetadataObjectID            = RecipientRow.MetadataObjectID;
 		ChoiceFormPath                           = RecipientRow.ChoiceFormPath;
 		ContactInformationOfRecipientsTypeGroup = RecipientRow.CIGroup;
-		// 
+		// CI group is used for the RecipientsEmailAddressKind field in the ChoiceParameterLinks.Filter.
 	Else
 		Cancel = True;
 	EndIf;

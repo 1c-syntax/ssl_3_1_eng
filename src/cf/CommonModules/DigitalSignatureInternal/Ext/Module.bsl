@@ -1,36 +1,38 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// 
-// 
-// 
+// For internal use only.
+// Verifies the cryptographic certificate.
+// Intended only for operation using 1C:Enterprise tools (CryptoManager).
 //
 // Parameters:
-//   CryptoManager - Undefined -  to the Manager of the cryptographic automatically.
-//                        - CryptoManager - 
+//   CryptoManager - Undefined - get the crypto manager automatically.
+//                        - CryptoManager - use the specified crypto manager.
 //
-//   Certificate           - CryptoCertificate -  certificate.
-//                        - BinaryData -  binary data of the certificate.
-//                        - String - 
+//   Certificate           - CryptoCertificate - Certificate.
+//                        - BinaryData - certificate binary data.
+//                        - String - Temp storage address that contains certificate binary data.
 //
-//   ErrorDescription       - Null -  throw an exception when a validation error occurs.
-//                        - String - 
+//   ErrorDescription       - Null - raise an exception if an error occurs during the check.
+//                        - String - Contains error details (if occurred).
 //
-//   OnDate               - Date -  check the certificate for the specified date.
-//                          If the parameter is omitted or an empty date is specified,
-//                          then check for the current session date.
+//   OnDate               - Date - check the certificate on the specified date.
+//                          If parameter is not specified or a blank date is specified,
+//                          check on the current session date.
 //   AdditionalVerificationParameters_ - See AdditionalCertificateVerificationParameters
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - True if the check is completed successfully.
+//           False if the cryptographic manager is not received (because it is not specified).
 //
 Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, OnDate = Undefined, AdditionalVerificationParameters_ = Undefined) Export
 	
@@ -77,16 +79,16 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 	If AdditionalVerificationParameters_ <> Undefined Then
 		FillPropertyValues(AdditionalParameters, AdditionalVerificationParameters_);
 		
-		If TypeOf(AdditionalParameters.PerformCAVerification) = Type("Boolean") Then // 
+		If TypeOf(AdditionalParameters.PerformCAVerification) = Type("Boolean") Then // Intended for compatibility purposes.
 			AdditionalParameters.PerformCAVerification = ?(
 				AdditionalParameters.PerformCAVerification,
-				DigitalSignatureInternalClientServer.CheckQualified(), 
+				DigitalSignatureInternalClientServer.VerifyQualified(), 
 				DigitalSignatureInternalClientServer.NotVerifyCertificate());
 		EndIf;
 		
 		ExpectedValues = New Array;
-		ExpectedValues.Add(DigitalSignatureInternalClientServer.CheckQualified());
-		ExpectedValues.Add(DigitalSignatureInternalClientServer.OnlyQualified());
+		ExpectedValues.Add(DigitalSignatureInternalClientServer.VerifyQualified());
+		ExpectedValues.Add(DigitalSignatureInternalClientServer.QualifiedOnly());
 		ExpectedValues.Add(DigitalSignatureInternalClientServer.NotVerifyCertificate());
 		CommonClientServer.CheckParameter("DigitalSignatureInternal.CheckCertificate",
 			"AdditionalVerificationParameters_.PerformCAVerification", AdditionalParameters.PerformCAVerification,
@@ -104,10 +106,10 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 			DigitalSignature.CommonSettings(), CertificateCheckModes);
 		Try
 			If CheckParameters <> Undefined Then
-				// 
-				// 
+				// ACC:287-off - No.640. It's acceptable to call a non-existent CTL procedure.
+				// It's checked against CTL v.2.0.3, where the procedure exists.
 				Result = ModuleCryptographyService.VerifyCertificateWithParameters(CertificateData, CheckParameters);
-				// 
+				// ACC:287-on
 			Else
 				Result = ModuleCryptographyService.CheckCertificate(CertificateData);
 			EndIf;
@@ -166,12 +168,12 @@ Function CheckCertificate(CryptoManager, Certificate, ErrorDescription = Null, O
 	
 	If AdditionalParameters.PerformCAVerification <> DigitalSignatureInternalClientServer.NotVerifyCertificate() Then
 		
-		VerificationParametersOfCertificationCenter = New Structure;
-		VerificationParametersOfCertificationCenter.Insert("ThisVerificationSignature", AdditionalParameters.ToVerifySignature);
-		VerificationParametersOfCertificationCenter.Insert("VerifyCertificate", AdditionalParameters.PerformCAVerification);
+		CertificateAuthorityVerificationParameters = New Structure;
+		CertificateAuthorityVerificationParameters.Insert("ThisVerificationSignature", AdditionalParameters.ToVerifySignature);
+		CertificateAuthorityVerificationParameters.Insert("VerifyCertificate", AdditionalParameters.PerformCAVerification);
 		
 		Result = ResultofCertificateAuthorityVerification(CertificateToCheck, OnDate,
-			VerificationParametersOfCertificationCenter, CertificateProperties);
+			CertificateAuthorityVerificationParameters, CertificateProperties);
 		
 		If Not Result.Valid_SSLyf Or ValueIsFilled(AdditionalParameters.Certificate) And ValueIsFilled(Result.Warning.ErrorText)
 				And Not AdditionalParameters.ToVerifySignature Then
@@ -222,7 +224,7 @@ EndFunction
 Function AdditionalCertificateVerificationParameters() Export
 	
 	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("PerformCAVerification", DigitalSignatureInternalClientServer.OnlyQualified());
+	AdditionalParameters.Insert("PerformCAVerification", DigitalSignatureInternalClientServer.QualifiedOnly());
 	AdditionalParameters.Insert("ToVerifySignature", False);
 	AdditionalParameters.Insert("IgnoreCertificateRevocationStatus", False);
 	AdditionalParameters.Insert("Warning");
@@ -343,7 +345,7 @@ Procedure AddEncryptionCertificates(ObjectRef, ThumbprintsArray) Export
 
 EndProcedure
 
-// Clears the encryption certificate records after the object is decrypted.
+// Clears records about encryption certificates after object decryption.
 Procedure ClearEncryptionCertificates(ObjectRef) Export
 	SetPrivilegedMode(True);
 	
@@ -375,24 +377,25 @@ Procedure RegisterSignaturesList(Form, SignaturesListName) Export
 	
 EndProcedure
 
-// 
-//  See DigitalSignatureClient.Sign.ResultProcessing. 
-//  
+// Returns the details of files with data, signatures, and LOAs, extracted from the signing result.
+// The result is returned in the notification specified in  See DigitalSignatureClient.Sign.ResultProcessing. 
+// . In the array, a file of the Data type is followed by its signature. 
 // 
 // Parameters:
 //  SigningResult - See DigitalSignatureClient.Sign.DataDetails
 //  FilesReceiptParameters - Structure
-//   
-//   
-//   
-//  UUID - UUID - 
+//   * ExportCertificate - Boolean
+//   * ExportLOA - Boolean
+//   * ExportCertificate - Boolean
+//   * ExportLOA - Boolean
+//  UUID - UUID - Intended for storing in a temporary storage.
 // 
 // Returns:
 //  Array of Structure:
-//   * Data   - String -  See DigitalSignatureClient.Sign.DataDetails.
+//   * Data   - String - Address in the temporary storage. Depending on how it was passed to See DigitalSignatureClient.Sign.DataDetails.
 //              - BinaryData 
 //   * FileName - String 
-//   * FileType - String - 
+//   * FileType - String - "Data", "Signature", "LetterOfAuthority", "LetterOfAuthoritySignature", "Certificate".
 //
 Function GetFilesFromSigningResult(SigningResult, FilesReceiptParameters, UUID) Export
 	
@@ -474,13 +477,13 @@ Function FilesReceiptParameters() Export
 EndFunction
 
 
-// Determines whether an electronic signature is available for an object (by its type)
+// Determines digital signature availability for an object (by its type)
 // 
 // Parameters:
 //  ObjectType - Type
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - Electronic signature is available.
 //
 Function DigitalSignatureAvailable(ObjectType) Export
 	
@@ -488,16 +491,16 @@ Function DigitalSignatureAvailable(ObjectType) Export
 	
 EndFunction
 
-// Returns the address of the certificate in temporary storage and its extension.
+// Returns a certificate address in the temporary storage and its extension.
 //
 // Parameters:
-//  DigitalSignatureInfo - Structure -  a string with signatures from the array obtained by the electronic Signature method.Installed signatures.
-//  UUID     - UUID -  the ID of the form.
+//  DigitalSignatureInfo - Structure - a string with signatures from the array received by the DigitalSIgnature.SetSignatures method.
+//  UUID     - UUID - a form ID.
 // 
 // Returns:
 //  Structure:
-//   * CertificateExtension - String -  the file extension of the certificate.
-//   * CertificateAddress      - String -  the address in temporary storage where the certificate was placed.
+//   * CertificateExtension - String - a certificate file extension.
+//   * CertificateAddress      - String - an address in the temporary storage, by which the certificate was placed.
 //
 Function DataByCertificate(DigitalSignatureInfo, UUID) Export
 	
@@ -518,11 +521,11 @@ Function DataByCertificate(DigitalSignatureInfo, UUID) Export
 	
 EndFunction
 
-// Returns whether electronic signatures and encryption can be used interactively 
+// Returns the capability flag of interactive use of digital signatures and encryption 
 // for the current user.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, you can use digital signatures and encryption interactively.
 //
 Function InteractiveUseofElectronicSignaturesandEncryption() Export
 	
@@ -530,20 +533,20 @@ Function InteractiveUseofElectronicSignaturesandEncryption() Export
 	
 EndFunction
 
-// The names of data files and the names of their signatures are selected from the transmitted file names.
-// Matching takes place according to the rules for forming the signature name and the signature file extension (p7s).
+// Names of the data files and names of their signatures are extracted from the passed file names.
+// Mapping is executed according to the signature name generation and signature file extension rules (p7s).
 // For example:
-//  data file Name: "example.txt"
-//  signature file name: "example-Ivanov Petr.p7s"
-//  signature file name:"example-Ivanov Petr (1).p7s".
+//  The data file name is "example.txt"
+//  the signature file name is "example-Ivanov Petr.p7s"
+//  the signature file name is "example-Ivanov Petr (1).p7s".
 //
 // Parameters:
-//  FilesNames - Array -  file names of the String type.
+//  FilesNames - Array - file names of the Row type.
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - String -  file name.
-//   * Value - Array -  names of signature files of the String type.
+//   * Key     - String - a file name.
+//   * Value - Array - signature file names of the Row type.
 // 
 Function SignaturesFilesNamesOfDataFilesNames(FilesNames) Export
 	
@@ -551,7 +554,7 @@ Function SignaturesFilesNamesOfDataFilesNames(FilesNames) Export
 	
 	Result = New Map;
 	
-	// 
+	// Dividing files by extension.
 	DataFilesNames = New Array;
 	SignatureFilesNames = New Array;
 	
@@ -563,10 +566,10 @@ Function SignaturesFilesNamesOfDataFilesNames(FilesNames) Export
 		EndIf;
 	EndDo;
 	
-	// 
+	// Sorting data file names by their length in characters, descending.
 	
 	For IndexA = 1 To DataFilesNames.Count() Do
-		IndexMAX = IndexA; // 
+		IndexMAX = IndexA; // Assume that the current file has the maximum number of characters.
 		For IndexB = IndexA+1 To DataFilesNames.Count() Do
 			If StrLen(DataFilesNames[IndexMAX-1]) > StrLen(DataFilesNames[IndexB-1]) Then
 				IndexMAX = IndexB;
@@ -577,12 +580,12 @@ Function SignaturesFilesNamesOfDataFilesNames(FilesNames) Export
 		DataFilesNames[IndexMAX-1] = swap;
 	EndDo;
 	
-	// 
+	// Searching for file name mapping.
 	For Each DataFileName In DataFilesNames Do
 		Result.Insert(DataFileName, FindSignatureFilesNames(DataFileName, SignatureFilesNames));
 	EndDo;
 	
-	// 
+	// The remaining signature files are not recognized as signatures related to a specific file.
 	For Each SignatureFileName In SignatureFilesNames Do
 		Result.Insert(SignatureFileName, New Array);
 	EndDo;
@@ -597,7 +600,7 @@ EndFunction
 //  CertificatesData - Array of BinaryData
 // 
 // Returns:
-//  Array of BinaryData - 
+//  Array of BinaryData - Certificates up to the root one.
 //
 Function CertificatesInOrderToRoot(CertificatesData) Export
 	
@@ -631,10 +634,10 @@ EndFunction
 // 
 // Parameters:
 //  CryptoCertificate
-//  OnDate - 
+//  OnDate - Undefined, Date
 //  CheckParameters - Structure
-//   
-//    
+//   * VerifyCertificate - String - "QualifiedOnly", "VerifyQualified", "DoNotVerifyCertificate".
+//   * VerifyCertificate - String - "QualifiedOnly", "VerifyQualified", "DoNotVerifyCertificate". 
 //  CertificateProperties - See DigitalSignature.CertificateProperties
 // 
 // Returns:
@@ -708,7 +711,7 @@ Procedure ChangeRegulatoryTaskExtensionCredibilitySignatures(RefineSignaturesAut
 				And (CryptoSignatureTypeDefault = Enums.CryptographySignatureTypes.WithTimeCAdEST
 					Or CryptoSignatureTypeDefault = Enums.CryptographySignatureTypes.ArchivalCAdESAv3)
 	Else
-		// 
+		// In SaaS, can be upgraded only to CAdES-T.
 		Use = RefineSignaturesAutomatically = 1 
 				And CryptoSignatureTypeDefault = Enums.CryptographySignatureTypes.WithTimeCAdEST;
 	EndIf;
@@ -728,11 +731,11 @@ Procedure ChangeRegulatoryTaskExtensionCredibilitySignatures(RefineSignaturesAut
 
 EndProcedure
 
-// 
+// For the form of the Administration subsystem's common settings.
 // 
 // Parameters:
 //  Form - ClientApplicationForm - 
-//  DataPathAttribute - String - 
+//  DataPathAttribute - String - Attribute data path that was modified in the form.
 //
 Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
 	
@@ -843,7 +846,7 @@ Procedure ConfigureCommonSettingsForm(Form, DataPathAttribute) Export
 	
 EndProcedure
 
-// 
+// Returns a selection of individuals' certificates.
 // 
 // Parameters:
 //  Persons - Array of DefinedType.Individual
@@ -875,7 +878,7 @@ Function CertificatesOfIndividuals(Persons) Export
 
 EndFunction
 
-// 
+// Returns a selection of individuals' (users') certificates.
 // 
 // Parameters:
 //  Users - Array of CatalogRef.Users
@@ -917,8 +920,8 @@ Function CertificatesOfIndividualsUsers(Users) Export
 
 EndFunction
 
-//  
-// 
+// Returns a value indicating whether it is possible (depending on the app locale) 
+// to display a link to the guide with the app common issues.
 // 
 // Returns:
 //  Boolean
@@ -970,13 +973,13 @@ Procedure OnDefineSuppliedDataHandlers(Handlers) Export
 	
 EndProcedure
 
-// Called when a notification of new data is received.
-// In the body, check whether the application needs this data, 
-// and if so, select the Upload checkbox.
+// The procedure is called when a new data notification is received.
+// In the procedure body, check whether the app requires this data. 
+// If it requires, select the Import check box.
 // 
 // Parameters:
 //   Descriptor - XDTODataObject
-//   ToImport - Boolean -  True if loaded, False otherwise.
+//   ToImport - Boolean - If True, run import. Otherwise, False.
 //
 Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
@@ -984,13 +987,13 @@ Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
 EndProcedure
 
-// Called after calling available Data, allows you to parse the data.
+// The procedure is called after calling NewDataAvailable, it parses the data.
 //
 // Parameters:
 //   Descriptor - XDTODataObject
-//   PathToFile - String -  full name of the extracted file. The file will be automatically deleted 
-//                  after the procedure is completed. If the
-//                  file was not specified in the service Manager, the argument value is Undefined.
+//   PathToFile - String - Full name of the extracted file. 
+//                  The file is automatically deleted once the procedure is completed.
+//                  If a file is not specified, it is set to Undefined.
 //
 Procedure ProcessNewData(Val Descriptor, Val PathToFile) Export
 	
@@ -1000,7 +1003,7 @@ Procedure ProcessNewData(Val Descriptor, Val PathToFile) Export
 	
 EndProcedure
 
-// Called when data processing is canceled in the event of a failure.
+// The procedure is called if data processing is canceled due to an error.
 //
 // Parameters:
 //   Descriptor - XDTODataObject
@@ -1027,7 +1030,7 @@ Function UseCloudSignatureService() Export
 	
 EndFunction
 
-// Defines the type of cloud signature program.
+// Determines the type of the cloud signature app.
 //
 // Returns:
 //  Undefined 
@@ -1179,13 +1182,13 @@ EndProcedure
 // See ImportDataFromFileOverridable.OnDefineCatalogsForDataImport.
 Procedure OnDefineCatalogsForDataImport(CatalogsToImport) Export
 	
-	// 
+	// Cannot import to the DigitalSignatureAndEncryptionApplications catalog.
 	TableRow = CatalogsToImport.Find(Metadata.Catalogs.DigitalSignatureAndEncryptionApplications.FullName(), "FullName");
 	If TableRow <> Undefined Then 
 		CatalogsToImport.Delete(TableRow);
 	EndIf;
 	
-	// 
+	// Cannot import to the DigitalSignatureAndEncryptionKeysCertificates catalog.
 	TableRow = CatalogsToImport.Find(Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates.FullName(), "FullName");
 	If TableRow <> Undefined Then 
 		CatalogsToImport.Delete(TableRow);
@@ -1199,10 +1202,10 @@ Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
 	Objects.Insert(Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates.FullName(), "AttributesToSkipInBatchProcessing");
 EndProcedure
 
-//  
+// Overrides shared data exceptions for the SaaSTechnology subsystem 
 // 
 // Parameters:
-//  Exceptions - Array of MetadataObject -  exceptions.
+//  Exceptions - Array of MetadataObject - Exceptions.
 //
 Procedure OnDefineSharedDataExceptions(Exceptions) Export
 
@@ -1287,7 +1290,7 @@ Procedure OnImportClassifier(Id, Version, Address, Processed, AdditionalParamete
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// ToDoList subsystem event handlers.
 
 // Parameters:
 //   ToDoList - See ToDoListServer.ToDoList.
@@ -1404,7 +1407,7 @@ Procedure OnFillToDoList(ToDoList) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers of the ReportsOptions subsystem.
 
 // See ReportsOptionsOverridable.CustomizeReportsOptions.
 Procedure OnSetUpReportsOptions(Settings) Export
@@ -1429,14 +1432,14 @@ EndProcedure
 //  SessionDate - Date
 // 
 // Returns:
-//  Structure - :
+//  Structure - Cryptographic signature parameters:
 //   * SignatureType          - EnumRef.CryptographySignatureTypes
-//   * DateActionLastTimestamp - Date, Undefined - 
-//   * DateSignedFromLabels - Date, Undefined - 
-//   * UnverifiedSignatureDate - Date - 
-//                                 - Undefined - 
-//   * DateLastTimestamp - Date - 
-//   * Certificate   - CryptoCertificate - 
+//   * DateActionLastTimestamp - Date, Undefined - Filled only using the cryptographic manager.
+//   * DateSignedFromLabels - Date, Undefined - Date of the earliest timestamp.
+//   * UnverifiedSignatureDate - Date - Unconfirmed signature data.
+//                                 - Undefined - Unconfirmed signature data is missing from the signature data.
+//   * DateLastTimestamp - Date - Date of the latest timestamp.
+//   * Certificate   - CryptoCertificate - Signatory's certificate.
 //   * CertificateDetails - See DigitalSignatureClient.CertificateProperties.
 //
 Function ParametersCryptoSignatures(ContainerSignatures, UTCOffset, SessionDate) Export
@@ -1456,12 +1459,12 @@ Function ParametersCryptoSignatures(ContainerSignatures, UTCOffset, SessionDate)
 	
 EndFunction
 
-//  
-// 
+// Obtains signature properties from the signature data. If the Cryptography service failed to obtain the properties, 
+// it returns the properties read from the binary data.
 // 
 // Returns:
 //   See DigitalSignatureInternalClientServer.ResultOfReadSignatureProperties
-//   
+//   Map - If a signature array is passed.
 //
 Function SignatureProperties(Signatures, ShouldReadCertificates, UseCryptoManager = True) Export
 	
@@ -1649,11 +1652,11 @@ Function InfoHeadingForSupport() Export
 		Title = StringFunctions.FormattedString(
 			NStr("en = 'Facing issues? Learn how to <a href = %1>troubleshoot digital signing apps</a> (in Russian).
 				|
-				|If you didn''t find a solution, contact the 1C support team and provide <a href = %2>technical information</a> about the issue.';"),
+				|If you didn''t find a solution, <a href = %2>contact the 1C support team</a>.';"),
 				"TypicalIssues", "TechnicalInformation");
 	Else
 		Title = StringFunctions.FormattedString(
-			NStr("en = 'Contact the 1C support team and provide <a href = %1>technical information</a> about the issue.';"),
+			NStr("en = '<a href = %1>Contact 1C support</a>';"),
 				"TechnicalInformation");
 	EndIf;
 	
@@ -1661,10 +1664,10 @@ Function InfoHeadingForSupport() Export
 	
 EndFunction
 
-// Defines the internal classifier ID for the classifier subsystem.
+// Returns the internal classifier ID for the ClassifiersOperations subsystem.
 //
 // Returns:
-//  String - 
+//  String - Classifier ID.
 //
 Function ClassifierID()
 	
@@ -1690,23 +1693,24 @@ Function ErrorCertificateMarkedAsRevoked() Export
 	
 EndFunction
 
-// Returns additional parameters for creating a cryptography Manager.
+// Returns additional parameters of the crypto manager creation.
 //
 // Returns:
 //   Structure:
-//    * ShowError - Boolean -  if True, then an exception containing the error description will be thrown.
+//    * ShowError     - Boolean - if True, throw an exception that contains the error description.
 //
-//    * ErrorDescription - String -  returned error description when the function returned an Undefined value.
-//                     - Structure - See DigitalSignatureInternalClientServer.NewErrorsDescription
+//    * ErrorDescription     - String - an error description that is returned when the function returns Undefined.
+//                         - Structure - See DigitalSignatureInternalClientServer.NewErrorsDescription
 //
-//    * Application       - Undefined -  returns the cryptography Manager of the first
-//                      program from the directory for which it was created.
-//                      - CatalogRef.DigitalSignatureAndEncryptionApplications - 
-//                      
-//                      - Structure - See DigitalSignature.NewApplicationDetails
+//    * Application          - Undefined - returns a crypto manager of the first
+//                         app from the catalog for which it was possible to create it.
+//                         - CatalogRef.DigitalSignatureAndEncryptionApplications - App for which
+//                         a crypto manager must be created and returned.
+//                         - Structure - See DigitalSignature.NewApplicationDetails
 //
-//    * SignAlgorithm - String -  if the parameter is filled in, returns the program with the specified signature algorithm.
-//    * AutoDetect - Boolean - 
+//    * SignAlgorithm    - String - If specified, returns an app that uses this signature algorithm.
+//    * EncryptAlgorithm - String - If specified, returns an application with the given encryption algorithm.
+//    * AutoDetect    - Boolean - Flag indicating whether to detect installed apps.
 //
 Function CryptoManagerCreationParameters() Export
 	
@@ -1715,23 +1719,24 @@ Function CryptoManagerCreationParameters() Export
 	CryptoManagerCreationParameters.Insert("ShowError", False);
 	CryptoManagerCreationParameters.Insert("ErrorDescription", "");
 	CryptoManagerCreationParameters.Insert("SignAlgorithm", "");
+	CryptoManagerCreationParameters.Insert("EncryptAlgorithm", "");
 	CryptoManagerCreationParameters.Insert("AutoDetect", True);
 	
 	Return CryptoManagerCreationParameters;
 	
 EndFunction
 
-// Returns the cryptography Manager (on the server) for the specified program.
+// Returns the crypto manager (on the server) for the specified app.
 //
 // Parameters:
-//  Operation                       - String -  if not empty, it must contain one of the lines that define
-//                                 the operation to insert in the error description: Signing, Verifying Signatures, Encrypting,
-//                                 Decrypting, Verifying Certificates, Receiving Certificates.
-//  Parametersinterceptor -  See DigitalSignatureInternal.CryptoManagerCreationParameters.
+//  Operation                       - String - If not blank, it must contain one of the strings that determine
+//                                 the operation to be inserted in the error details: Signing, SignatureCheck, Encryption,
+//                                 Decryption, CertificateCheck, and GetCertificates.
+//  CryptoManagerParameters - See DigitalSignatureInternal.CryptoManagerCreationParameters.
 //
 // Returns:
-//   CryptoManager - 
-//   
+//   CryptoManager - -a crypto manager.
+//   Undefined - an error occurred. The error description is in the ErrorDescription parameter.
 //
 Function CryptoManager(Operation, CryptoManagerCreationParameters = Undefined) Export
 	
@@ -1739,14 +1744,21 @@ Function CryptoManager(Operation, CryptoManagerCreationParameters = Undefined) E
 		CryptoManagerCreationParameters = CryptoManagerCreationParameters();
 	EndIf;
 	
-	Application = CryptoManagerCreationParameters.Application;
-	ShowError = CryptoManagerCreationParameters.ShowError;
-	SignAlgorithm = CryptoManagerCreationParameters.SignAlgorithm;
-		
+	Application			= CryptoManagerCreationParameters.Application;
+	ShowError		= CryptoManagerCreationParameters.ShowError;
+	SignAlgorithm		= CryptoManagerCreationParameters.SignAlgorithm;
+	EncryptAlgorithm	= CryptoManagerCreationParameters.EncryptAlgorithm;
+	AutoDetect		= CryptoManagerCreationParameters.AutoDetect;
+	
+	AdditionalParameters = New Structure();
+	AdditionalParameters.Insert("Operation", Operation);
+	AdditionalParameters.Insert("AutoDetect", AutoDetect);
+	AdditionalParameters.Insert("SignAlgorithm", SignAlgorithm);
+	AdditionalParameters.Insert("EncryptAlgorithm", EncryptAlgorithm);
+	
 	ComputerName = ComputerName();
 	ErrorsDescription = DigitalSignatureInternalClientServer.NewErrorsDescription(ComputerName);
-	Manager = NewCryptoManager(Application,
-		ErrorsDescription.Errors, CryptoManagerCreationParameters.AutoDetect, SignAlgorithm, Operation);
+	Manager = NewCryptoManager(Application, ErrorsDescription.Errors, AdditionalParameters);
 	
 	If Manager <> Undefined Then
 		Return Manager;
@@ -1813,7 +1825,7 @@ Function CryptoManager(Operation, CryptoManagerCreationParameters = Undefined) E
 	
 EndFunction
 
-// 
+// Returns an array with the server-side certificate thumbprint.
 //
 Function CertificateThumbprints(OnlyPersonal, ErrorDescription) Export
 	
@@ -1846,7 +1858,7 @@ Function CertificateThumbprints(OnlyPersonal, ErrorDescription) Export
 	 
 EndFunction
 
-// 
+// Returns an array with the service-side certificate thumbprint.
 //
 Function ServiceCertificateThumbprints() Export
 	
@@ -1861,15 +1873,15 @@ Function ServiceCertificateThumbprints() Export
 	
 EndFunction
 
-// Finds the certificate on the computer based on the fingerprint string.
+// Finds a certificate on the computer by a thumbprint string.
 //
 // Parameters:
-//   Thumbprint              - String -  The Base64 encoded thumbprint of the certificate.
-//   InPersonalStorageOnly - Boolean -  if True, then search in your personal storage, otherwise everywhere.
+//   Thumbprint              - String - a Base64 coded certificate thumbprint.
+//   InPersonalStorageOnly - Boolean - if True, search in the Personal store, otherwise, search everywhere.
 //
 // Returns:
-//   CryptoCertificate - 
-//   
+//   CryptoCertificate - certificate of digital signature and encryption.
+//   Undefined - the certificate does not exist.
 //
 Function GetCertificateByThumbprint(Thumbprint, InPersonalStorageOnly,
 			ShowError = True, Application = Undefined, ErrorDescription = "") Export
@@ -1960,7 +1972,7 @@ Function UTCOffset() Export
 	
 EndFunction
 
-// Saves the current user's settings for working with an electronic signature.
+// Saves the current user settings to work with the digital signature.
 Procedure SavePersonalSettings(PersonalSettings) Export
 	
 	SubsystemKey = SettingsStorageKey();
@@ -1972,20 +1984,20 @@ Procedure SavePersonalSettings(PersonalSettings) Export
 	
 EndProcedure
 
-// The key that is used to store the subsystem settings.
+// The key that is used to store subsystem settings.
 Function SettingsStorageKey() Export
 	
-	Return "DS1"; // 
+	Return "DS1"; // Do not replace with "ES". Intended for the backward compatibility purposes.
 	
 EndFunction
 
 // Returns:
 //  Structure:
-//   * ReadOnly     - Boolean -  if set to True, editing will be prohibited.
-//   * FillChecking - Boolean -  if set to True, the filling will be checked.
-//   * Visible          - Boolean -  if set to True, the props will become invisible.
-//   * FillValue - Arbitrary -  the initial value of the new object's props.
-//                        - Undefined - 
+//   * ReadOnly     - Boolean - if you set True, editing will be prohibited.
+//   * FillChecking - Boolean - if you set True, filling will be checked.
+//   * Visible          - Boolean - if you set True, the attribute will become hidden.
+//   * FillValue - Arbitrary - an initial attribute value of the new object.
+//                        - Undefined - filling is not required.
 //
 Function TheNewSettingsOfTheRequisiteCertificate()
 	
@@ -2157,22 +2169,26 @@ EndProcedure
 // For internal use only.
 //
 // Parameters:
-//  ChoiceList - ValueList - 
-//  Operation     - String - 
-//               - Undefined - 
-//  SignatureType   - EnumRef.CryptographySignatureTypes - 
-//                                                              
+//  ChoiceList - ValueList - List to be populated.
+//  Operation     - String - Enhancement, Signing, Settings - Operations the list is generated for.
+//               - Undefined - Default value. Used to generate a list without exceptions.
+//  SignatureType   - EnumRef.CryptographySignatureTypes - SignatureType that defines what signatures are
+//                                                              available for this operation.
 //
 Procedure FillListSignatureTypesCryptography(ChoiceList, Operation = Undefined, SignatureType = Undefined) Export
 	
 	ChoiceList.Clear();
 	If Operation <> "Improvement"
 		And (Not ValueIsFilled(SignatureType) Or SignatureType = Enums.CryptographySignatureTypes.BasicCAdESBES) Then
-		
-		ChoiceList.Add(Enums.CryptographySignatureTypes.BasicCAdESBES, StringFunctionsClientServer.SubstituteParametersToString(
+		SignaturePresentation = "";
+		DigitalSignatureLocalization.WhenFillingOutSignatureTypeView(Enums.CryptographySignatureTypes.BasicCAdESBES, SignaturePresentation);
+		If SignaturePresentation = "" Then
+			SignaturePresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Basic electronic signature (%1)
 					 |becomes invalid after the signer''s certificate expires (usually within a year).';"),
-			"CAdES-BES"));
+			"CAdES-BES");
+		EndIf;
+		ChoiceList.Add(Enums.CryptographySignatureTypes.BasicCAdESBES, SignaturePresentation);
 	EndIf;
 
 	DataSeparationEnabled = Common.DataSeparationEnabled();
@@ -2189,18 +2205,33 @@ Procedure FillListSignatureTypesCryptography(ChoiceList, Operation = Undefined, 
 	EndIf;
 	
 	If AddSignatureType Then
-		ChoiceList.Add(Enums.CryptographySignatureTypes.WithTimeCAdEST,
-			StringFunctionsClientServer.SubstituteParametersToString(
+		
+		SignaturePresentation = "";
+		DigitalSignatureLocalization.WhenFillingOutSignatureTypeView(Enums.CryptographySignatureTypes.WithTimeCAdEST, SignaturePresentation);
+		If SignaturePresentation = "" Then
+			SignaturePresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Electronic signature with time (%1)
-					 |is valid after the signer''s certificate expires.';"), "CAdES-T"));
+					 |is valid after the signer''s certificate expires.';"), "CAdES-T");
+		EndIf;
+		
+		ChoiceList.Add(Enums.CryptographySignatureTypes.WithTimeCAdEST,
+			SignaturePresentation);
+			
 	EndIf;
 
 	If Operation = Undefined Or Not (DataSeparationEnabled And Operation = "Settings") Then
-		ChoiceList.Add(Enums.CryptographySignatureTypes.ArchivalCAdESAv3,
-			StringFunctionsClientServer.SubstituteParametersToString(
+		
+		SignaturePresentation = "";
+		DigitalSignatureLocalization.WhenFillingOutSignatureTypeView(Enums.CryptographySignatureTypes.ArchivalCAdESAv3, SignaturePresentation);
+		If SignaturePresentation = "" Then
+			SignaturePresentation = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Archival electronic signature (%1)
 					 |contains the full authenticity proof set, including a certificate chain, and is renewed automatically.';"),
-			"CAdES-A"));
+			"CAdES-A");
+		EndIf;
+		
+		ChoiceList.Add(Enums.CryptographySignatureTypes.ArchivalCAdESAv3, SignaturePresentation);
+		
 	EndIf;
 
 EndProcedure
@@ -2330,7 +2361,7 @@ Procedure UpdateCertificatesList(Certificates, CertificatesPropertiesAtClient, B
 				Certificates.Move(RowIndex, IndexOf - RowIndex);
 			EndIf;
 		EndIf;
-		// 
+		// Updating only changed values not to update the form table once again.
 		UpdateValue(String.Thumbprint,            CertificateProperties.Thumbprint);
 		UpdateValue(String.Presentation,        CertificateProperties.Presentation);
 		UpdateValue(String.IssuedBy,             CertificateProperties.IssuedBy);
@@ -2356,7 +2387,7 @@ Procedure UpdateCertificatesList(Certificates, CertificatesPropertiesAtClient, B
 	
 EndProcedure
 
-// 
+// For the CheckCertificate function.
 Function ValidateCertificate(CryptoManagerToCheck, CertificateToCheck, 
 	CertificateCheckModes, ErrorDescription, RaiseException1)
 	
@@ -2396,7 +2427,7 @@ Function ValidateCertificate(CryptoManagerToCheck, CertificateToCheck,
 	
 EndFunction
 
-// 
+// For the CheckCertificate function.
 Function RevalidateCertificate(CryptoManagerToCheck, CertificateToCheck, 
 	CertificateCheckModes, ErrorDescription, RaiseException1, RemedyActions)
 	
@@ -2406,31 +2437,38 @@ Function RevalidateCertificate(CryptoManagerToCheck, CertificateToCheck,
 		If ValueIsFilled(RemedyActions) And RemedyActions.Find("SetListOfCertificateRevocation") <> Undefined Then
 			CertificateAuthorityName = Lower(DigitalSignature.CertificateIssuerProperties(CertificateToCheck).CommonName);
 			If ValueIsFilled(CertificateAuthorityName) Then
+				
 				CertificateAuthorityName = StringFunctions.LatinString(CertificateAuthorityName);
+				
 				RevocationListInternalAddress = DigitalSignatureInternalClientServer.RevocationListInternalAddress(
-					CertificateAuthorityName, CertificateToCheck.Unload());
+					CertificateAuthorityName,
+					CertificateToCheck.Unload(), 
+					DigitalSignatureInternalCached.CataloguesOfReviewListsOfUTS());
+					
 				If ValueIsFilled(RevocationListInternalAddress.InternalAddress) Then
 					ShouldInstallRevocationList = True;
 				EndIf;
+				
 			EndIf;
 		EndIf;
 	EndIf;
 	
 	If ShouldInstallRevocationList Then
 		
+		CertificateProperties = DigitalSignature.CertificateProperties(CertificateToCheck);
+		DetailsCertificateString = DigitalSignatureInternalClientServer.DetailsCertificateString(CertificateProperties);
+		
 		Try
 			SetListOfCertificateRevocation(CertificateToCheck,
 				RevocationListInternalAddress.ExternalAddress, RevocationListInternalAddress.InternalAddress);
 		Except
 			
-			CertificateProperties = DigitalSignature.CertificateProperties(CertificateToCheck);
-			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Couldn''t install the revocation list when checking the certificate: %1
+				NStr("en = 'Couldn''t find a revocation list on the server when checking the certificate: %1
 				|%2.';"),
 				
 				ErrorProcessing.BriefErrorDescription(ErrorInfo()),
-				DigitalSignatureInternalClientServer.DetailsCertificateString(CertificateProperties));
+				DetailsCertificateString);
 			
 			WriteLogEvent(
 					NStr("en = 'Digital signature.Update revocation list';",
@@ -2441,7 +2479,15 @@ Function RevalidateCertificate(CryptoManagerToCheck, CertificateToCheck,
 			Return False;
 		EndTry;
 		
-		// 
+		WriteLogEvent(
+					NStr("en = 'Digital signature.Update revocation list';",
+					Common.DefaultLanguageCode()),
+					EventLogLevel.Information, , ,
+					StringFunctionsClientServer.SubstituteParametersToString(
+						NStr("en = 'Certificate revocation list was installed  on server during the certificate validation: %1';"),
+						DetailsCertificateString));
+		
+		// Re-check after a certificate revocation list has been set.
 		Try
 			CryptoManagerToCheck.CheckCertificate(CertificateToCheck, CertificateCheckModes);
 		Except
@@ -2559,7 +2605,7 @@ EndFunction
 // For internal use only.
 // 
 // Parameters:
-//  Thumbprint - String -  
+//  Thumbprint - String - Certificate thumbprint in the Base64String format. 
 //
 Function DoWriteCertificateRevocationMark(Thumbprint) Export
 	
@@ -2675,7 +2721,7 @@ Function CloudPasswordConfirmed(Certificate)
 	
 EndFunction
 
-// For the cloud function, the password is Confirmed.
+// For the CloudPasswordConfirmed function.
 Function SecurityTokens(CertificateID)
 
 	Result = New Structure();
@@ -2686,7 +2732,7 @@ Function SecurityTokens(CertificateID)
 	
 	SetPrivilegedMode(False);
 	
-	// 
+	// Replacing blank values with blank strings to pass to the crypto service.
 	If Not ValueIsFilled(Result.SecurityToken) Then
 		Result.SecurityToken = "";
 	EndIf;
@@ -2695,8 +2741,8 @@ Function SecurityTokens(CertificateID)
 
 EndFunction
 
-// In Linux and MacOS, when creating a cryptography Manager
-// , you must specify the path to the program.
+// In Linux and MacOS, when creating a crypto manager,
+// it is required to specify the path to the app.
 //
 // Returns:
 //  Boolean
@@ -2717,13 +2763,13 @@ Function RequiresThePathToTheProgram(AtClient = False) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common procedures and functions for client application forms.
 
 // For internal use only.
 // 
 // Parameters:
-//  CertificatesList - ValueList - 
-//  Error - String - Error
+//  CertificatesList - ValueList - Certificate list to add Personal store certificates to.
+//  Error - String - Error.
 //
 Procedure AddListofCertificatesInPersonalStorageOnServer(CertificatesList, Error = "") Export
 	
@@ -2819,7 +2865,7 @@ Procedure SetSigningEncryptionDecryptionForm(Form, Encryption = False, Details =
 	
 	If Details Then
 		FillThumbprintsFilter(Form);
-	ElsIf Not Encryption Then // Signing
+	ElsIf Not Encryption Then // Signing.
 		Items.Comment.Visible = Parameters.ShowComment And Not Form.NoConfirmation;
 	EndIf;
 	
@@ -2951,7 +2997,7 @@ Function SavedCertificateProperties(Thumbprint, Address, AttributesParameters, T
 	CryptoCertificate = New CryptoCertificate(GetFromTempStorage(Address));
 	
 	FillingValues = AttributesParameters;
-	AttributesParameters = Undefined; // 
+	AttributesParameters = Undefined; // It is filled in the BeforeStartEditKeyCertificate procedure.
 	
 	Selection = Query.Execute().Select();
 	If Selection.Next() Then
@@ -3634,22 +3680,22 @@ Function EnhanceServerSide(Parameters) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Infobase update.
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// XMLDSig operations.
 
-// Signs the message by inserting the signature data into the xml envelope.
+// Signs the message by inserting the signature data into the XMLEnvelope.
 //
 // Parameters:
 //  XMLEnvelope             - See DigitalSignatureClient.XMLEnvelope
 //  XMLDSigParameters       - See DigitalSignatureClient.XMLDSigParameters
-//  CryptoCertificate - CryptoCertificate -  the certificate to use cryptography.
-//  CryptoManager   - CryptoManager   -  a cryptography manager
-//                           that matches the private key of the certificate with the password set.
+//  CryptoCertificate - CryptoCertificate - a crypto certificate to be used.
+//  CryptoManager   - CryptoManager   - a crypto manager
+//                           that matches the private key of the certificate with the set password.
 //
 // Returns:
-//  String - 
+//  String - the signed XMLEnvelope.
 //
 Function Sign(Val XMLEnvelope, XMLDSigParameters, CryptoCertificate, CryptoManager) Export
 	
@@ -3726,14 +3772,14 @@ Function Sign(Val XMLEnvelope, XMLDSigParameters, CryptoCertificate, CryptoManag
 	
 EndFunction
 
-// The certificate with which the signature was made is returned.
-// If the signature verification fails, an exception is generated.
+// Returns a certificate, by which the signature was made.
+// If the signature check fails, an exception is generated.
 //
 // Parameters:
 //  XMLEnvelope           - See DigitalSignatureClient.XMLEnvelope
 //  XMLDSigParameters     - See DigitalSignatureClient.XMLDSigParameters
-//  CryptoManager - CryptoManager -  a cryptography manager
-//                         that supports verifiable signature algorithms.
+//  CryptoManager - CryptoManager - a crypto manager
+//                         that supports the algorithms of the signature to be checked.
 //  XMLEnvelopeProperties  - See XMLEnvelopeProperties
 //
 // Returns:
@@ -3828,16 +3874,16 @@ Function XMLSignatureVerificationResult(Base64CryptoCertificate)
 		
 EndFunction
 
-// Calculates and checks the properties of the XML envelope for signing and verifying the signature.
+// Calculates and checks the properties of the XML envelope for signing and checking the signature.
 //
 // Parameters:
 //  XMLEnvelope             - See DigitalSignatureClient.XMLEnvelope
 //  XMLDSigParameters       - See DigitalSignatureClient.XMLDSigParameters
-//  CheckSignature  - Boolean -  when False, then the envelope checks
-//                                for the presence of substitution parameters and canonization algorithms.
-//                              When it is True, then the correctness
-//                                of the canonization, signing and hashing algorithms, as well
-//                                as the completeness of the signature, hash and certificate values, are in the envelope.
+//  CheckSignature  - Boolean - If False, the envelope is checked for 
+//                                substitution parameters and canonicalization algorithms.
+//                              If True, the envelope contains correct algorithms of
+//                                canonicalization, signing, and hashing, and filled in
+//                                values of signature, hash, and certificate.
 //
 // Returns:
 //   See ReturnedPropertiesOfTheXMLEnvelope
@@ -3846,7 +3892,7 @@ Function XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature) E
 	
 	If ValueIsFilled(XMLDSigParameters.XPathSignedInfo)
 	 Or ValueIsFilled(XMLDSigParameters.XPathTagToSign) Then
-		Return Undefined; // 
+		Return Undefined; // Backward compatibility.
 	EndIf;
 	
 	XMLReader = New XMLReader;
@@ -3874,8 +3920,8 @@ Function XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature) E
 			Return ReturnedPropertiesOfTheXMLEnvelope(XMLEnvelopeProperties);
 		EndIf;
 		
-		// 
-		// 
+		// If the node's text contains the signature value, this means that signature overlapping is used.
+		// Find a different node.
 		If StrFind(SignatureNode.TextContent, "%SignatureValue%") = 0 And Not CheckSignature Then
 			ExcludedNodes.Add(SignatureNode);
 			Continue;
@@ -4039,18 +4085,18 @@ Procedure ConfigureTheComponent(ComponentObject)
 	
 EndProcedure
 
-// Signs the data and returns the signature with or without data.
+// Signs the data and returns a signature with or without data.
 //
 // Parameters:
-//  Data - String -  custom string for signing,
-//         - BinaryData - 
+//  Data - String - an arbitrary string for signing,
+//         - BinaryData - binary data for signing.
 //
-//  CMSParameters            - Structure -  returned by the electronic Signature function.Parametric.
-//  CryptoCertificate  - CryptoCertificate -  the certificate to use cryptography.
-//  CryptoManager    - CryptoManager   -  the cryptography Manager used.
+//  CMSParameters            - Structure - returns the DigitalSignature.CMSParameters function.
+//  CryptoCertificate  - CryptoCertificate - a crypto certificate to be used.
+//  CryptoManager    - CryptoManager   - a crypto manager to be used.
 // 
 // Returns:
-//  String - 
+//  String - a string in the Base64 format.
 //
 Function SignCMS(Val Data, CMSParameters, CryptoCertificate, CryptoManager) Export
 	
@@ -4088,14 +4134,14 @@ Function CheckCMSSignature(Signature, Data, CMSParameters, CryptoManager) Export
 	
 EndFunction
 
-// 
+// Installed cryptographic service providers
 // 
 // Returns:
 //  Structure:
 //   * CheckCompleted - Boolean
-//   * Error - String - 
+//   * Error - String - If "CheckCompleted" is False
 //   * Cryptoproviders - Array of Structure:
-//      ** Ref - 
+//      ** Ref - Undefined, CatalogRef.DigitalSignatureAndEncryptionKeysCertificates
 //      ** Presentation - String
 //      ** ApplicationName - String
 //      ** ApplicationType - Number
@@ -4104,8 +4150,8 @@ EndFunction
 //      ** EncryptAlgorithm - String
 //      ** Id - String
 //      ** ApplicationPath - String
-//      ** Version - String - 
-//      ** ILicenseInfo - Boolean - 
+//      ** Version - String - Library version
+//      ** ILicenseInfo - Boolean - App license presence flag
 //      ** AutoDetect - Boolean
 //
 Function InstalledCryptoProviders(ComponentObject = Undefined) Export
@@ -4446,9 +4492,9 @@ EndFunction
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
-// For the procedure update the list of Certificates.
+// Intended for: UpdateCertificatesList procedure.
 Procedure ProcessAddedCertificates(CertificatesPropertiesTable, ButAlreadyAddedOnes, FilterByCompany = Undefined)
 	
 	Query = New Query;
@@ -4488,11 +4534,11 @@ Procedure ProcessAddedCertificates(CertificatesPropertiesTable, ButAlreadyAddedO
 	While Selection.Next() Do
 		String = CertificatesPropertiesTable.Find(Selection.Thumbprint, "Thumbprint");
 		If ButAlreadyAddedOnes Then
-			If String <> Undefined Then // 
+			If String <> Undefined Then // Protection against data errors (duplicate certificates).
 				CertificatesPropertiesTable.Delete(String);
 			EndIf;
 		ElsIf ValueIsFilled(FilterByCompany) Then
-			If String <> Undefined And Selection.Organization <> FilterByCompany Then // 
+			If String <> Undefined And Selection.Organization <> FilterByCompany Then // Protection against data errors (duplicate certificates).
 				CertificatesPropertiesTable.Delete(String);
 			EndIf;
 		Else
@@ -4504,7 +4550,7 @@ Procedure ProcessAddedCertificates(CertificatesPropertiesTable, ButAlreadyAddedO
 	
 EndProcedure
 
-// For the procedure update the list of Certificates.
+// Intended for: UpdateCertificatesList procedure.
 Procedure UpdateValue(PreviousValue2, NewValue, SkipNotDefinedValues = False)
 	
 	If NewValue = Undefined And SkipNotDefinedValues Then
@@ -4530,7 +4576,7 @@ Procedure FillAttribute(SavedProperties, AttributesParameters, AttributeName)
 	
 EndProcedure
 
-// For the procedure, set up the Formsubscribingencryptionscryption.
+// Intended for: SetSigningEncryptionDecryptionForm procedure.
 Procedure FillThumbprintsFilter(Form)
 	
 	Parameters = Form.Parameters;
@@ -4593,7 +4639,7 @@ Procedure FillThumbprintsFilter(Form)
 	
 EndProcedure
 
-// For the procedure, fill in the printout.
+// Intended for: FillThumbprintsFilter procedure.
 Function EncryptionCertificatesFromDetails(LongDesc)
 	
 	If TypeOf(LongDesc) = Type("String") Then
@@ -4654,7 +4700,7 @@ Function RowBinaryData(RowData)
 	
 EndFunction
 
-// 
+// For the SetSigningEncryptionDecryptionForm and CertificateOnChangeAtServer procedures.
 
 Procedure FillExistingUserCertificates(ChoiceList, CertificatesThumbprintsAtClient,
 			CertificatesFilter, ThumbprintsFilter, Details, ExecuteAtServer)
@@ -4674,8 +4720,8 @@ Procedure FillExistingUserCertificates(ChoiceList, CertificatesThumbprintsAtClie
 				CertificatesArray = CryptoManager.GetCertificateStore(StoreType).GetAll();
 				DigitalSignatureInternalClientServer.AddCertificatesThumbprints(CertificatesThumbprintsAtClient,
 					CertificatesArray, UTCOffset(), CurrentSessionDate);
-			Except // 
-				// 
+			Except // ACC:280
+				// Do not handle the exception as the error is displayed on the certificate pick form.
 			EndTry;
 			
 		EndIf;
@@ -4944,10 +4990,14 @@ Function NumberofDaysforEndofTermAlert()
 	Return 30;
 EndFunction
 
-// For the function of Managersreport.
-Function NewCryptoManager(Application, Errors, AutoDetect, SignAlgorithm = "", Operation = "")
+// For the CryptoManager function.
+Function NewCryptoManager(Application, Errors, AdditionalParameters)
 	
-	AppsAuto = Undefined;
+	AppsAuto		= Undefined;
+	Operation			= AdditionalParameters.Operation;
+	AutoDetect		= AdditionalParameters.AutoDetect;
+	SignAlgorithm		= AdditionalParameters.SignAlgorithm;
+	EncryptAlgorithm	= AdditionalParameters.EncryptAlgorithm;
 	
 	If TypeOf(Application) = Type("String") Or TypeOf(Application) = Type("BinaryData") Then
 		
@@ -5072,20 +5122,20 @@ Function NewCryptoManager(Application, Errors, AutoDetect, SignAlgorithm = "", O
 		EndTry;
 		
 		AlgorithmsSet = DigitalSignatureInternalClientServer.CryptoManagerAlgorithmsSet(
-			ApplicationDetails, Manager, Errors);
+			ApplicationDetails, Manager, Errors, EncryptAlgorithm);
 		
 		If Not AlgorithmsSet Then
 			Continue;
 		EndIf;
 		
-		Break; // 
+		Break; // The required crypto manager is received.
 	EndDo;
 	
 	Return Manager;
 	
 EndFunction
 
-// 
+// For the NewCryptoManager function.
 Procedure PopulateParametersForCreatingCryptoManager(Application, SignAlgorithm, ErrorDescription, IsPrivateKeyRequied)
 	
 	Data = Application;
@@ -5243,7 +5293,7 @@ Function ApplicationPath(ProgramLink)
 	
 EndFunction
 
-// For the function get the corresponding files and Labels.
+// For the GetFilesAndSignaturesMap function.
 Function FindSignatureFilesNames(DataFileName, SignatureFilesNames)
 	
 	SignatureNames = New Array;
@@ -5265,7 +5315,7 @@ Function FindSignatureFilesNames(DataFileName, SignatureFilesNames)
 	
 EndFunction
 
-// 
+// Intended for: WriteCertificateAfterCheck procedure.
 
 Function CheckEncryptionAndDecryption(CryptoManager, CertificateBinaryData,
 			CryptoCertificate, ApplicationDetails, ErrorAtServer, IsFullUser)
@@ -5376,6 +5426,7 @@ Function ApplicationsSettingsToSupply() Export
 	Settings.Columns.Add("NotInWindows", New TypeDescription("Boolean"));
 	Settings.Columns.Add("NotOnLinux",   New TypeDescription("Boolean"));
 	Settings.Columns.Add("NotInMacOS",   New TypeDescription("Boolean"));
+	Settings.Columns.Add("Irrelevant", New TypeDescription("Boolean"));
 	
 	Return Settings;
 	
@@ -5383,11 +5434,11 @@ EndFunction
 
 // Returns:
 //   Structure:
-//     * Key - String -  start of the program ID, for example, CryptoPro.
+//     * Key - String - Prefix of the app ID. For example "CryptoPro".
 //     * Value - FixedMap of KeyAndValue:
 //         * Key - PlatformType
-//         * Value - FixedArray of String -  paths
-//             with module names separated by a colon.
+//         * Value - FixedArray of String - the paths
+//             with module names separated by colon.
 //
 Function SupplyThePathToTheProgramModules() Export
 	
@@ -5395,7 +5446,7 @@ Function SupplyThePathToTheProgramModules() Export
 	
 EndFunction
 
-// 
+// Runs when a configuration is updated to v.3.1.5.220 and during the initial data population.
 // 
 Procedure FillinSettingsToImproveSignatures() Export
 	
@@ -5407,8 +5458,8 @@ Procedure FillinSettingsToImproveSignatures() Export
 	
 EndProcedure
 
-//  
-// 
+// Runs when a configuration is updated to v.3.1.6.180. 
+// Called from PopulateSignatureEnhancementSettings procedure
 // 
 Procedure FillinServerAddressesTimestamps() Export
 
@@ -5706,7 +5757,7 @@ Function RequestForExtensionSignatureCredibility(Parameters) Export
 	
 EndFunction
 
-// 
+// Looks up for individuals by description.
 // 
 // Parameters:
 //   IssuedTo - Array of String
@@ -5714,9 +5765,9 @@ EndFunction
 //
 // Returns:
 //   Map of KeyAndValue:
-//     * Key     - String - 
-//     * Value - Array of DefinedType.Individual - 
-//                                                             
+//     * Key     - String - Individual's name
+//     * Value - Array of DefinedType.Individual - References to the individuals catalog specified in the
+//                                                             "Individual" type collection.
 //
 Function GetIndividualsByCertificateFieldIssuedTo(IssuedTo) Export
 
@@ -5769,7 +5820,7 @@ Function GetIndividualsByCertificateFieldIssuedTo(IssuedTo) Export
 	
 EndFunction
 
-// 
+// Intended for: ConfigureCommonSettingsForm procedure.
 Procedure SetHeaderTipsImprovements(Form, SignatureType)
 	
 	Items = Form.Items;
@@ -5799,7 +5850,7 @@ Procedure SetHeaderTipsImprovements(Form, SignatureType)
 
 EndProcedure
 
-// 
+// Intended for: ConfigureCommonSettingsForm procedure.
 Procedure SetHeaderElectronicSignatureOnServer(Form)
 	
 	If Common.DataSeparationEnabled() Then
@@ -6398,9 +6449,9 @@ EndFunction
 //   * TheCanonizationAlgorithm - See TheCanonizationAlgorithm
 //   * SignAlgorithm     - See SignatureAndHashingAlgorithm
 //   * AreasToHash   - Array of See DescriptionOfTheHashedArea
-//   * SignatureValue     - String -  Base64 string.
+//   * SignatureValue     - String - the Base64 string.
 //   * Certificate          - See CertificateDetails
-//   * CheckSignature     - Boolean -  when False, signing.
+//   * CheckSignature     - Boolean - when False, signing.
 //
 Function ReturnedPropertiesOfTheXMLEnvelope(ServicePropertiesOfTheXMLEnvelope = Undefined)
 	
@@ -6434,16 +6485,16 @@ EndFunction
 //   * TheCanonizationAlgorithm - See TheCanonizationAlgorithm
 //   * SignAlgorithm     - See SignatureAndHashingAlgorithm
 //   * AreasToHash   - Array of See DescriptionOfTheHashedArea
-//   * SignatureValue     - String -  Base64 string.
+//   * SignatureValue     - String - the Base64 string.
 //   * Certificate          - See CertificateDetails
-//   * CheckSignature     - Boolean -  when False, signing.
+//   * CheckSignature     - Boolean - when False, signing.
 //   * AvailableProperties   - See AvailableXMLEnvelopeProperties
 //   * RequiredNodes    - Structure of KeyAndValue:
-//       * Key     - String -  the node name or the node name of the parent with the node name.
+//       * Key     - String - a node name or a parent node name with a node name.
 //       * Value - DOMElement
 //                  - Undefined
 //   * UniqueNodes      - Structure of KeyAndValue:
-//       * Key     - String -  the node name or the node name of the parent with the node name.
+//       * Key     - String - a node name or a parent node name with a node name.
 //       * Value - DOMElement
 //                  - Undefined
 //
@@ -6471,7 +6522,7 @@ EndFunction
 //   * NodeID      - String
 //   * TransformationAlgorithms - Array of See TheCanonizationAlgorithm
 //   * HashAlgorithm    - See SignatureAndHashingAlgorithm
-//   * HashValue           - String -  Base64 string.
+//   * HashValue           - String - the Base64 string.
 //
 Function DescriptionOfTheHashedArea()
 	
@@ -6488,7 +6539,7 @@ EndFunction
 // Returns:
 //  Structure:
 //   * NodeID   - String
-//   * CertificateValue - String -  Base64 string.
+//   * CertificateValue - String - the Base64 string.
 //
 Function CertificateDetails()
 	
@@ -6685,6 +6736,7 @@ Function ErrorPresentation() Export
 	ErrorPresentation.Insert("IsCheckRequired", False);
 	ErrorPresentation.Insert("CertificateRevoked", False);
 	ErrorPresentation.Insert("InvalidSignatureHash", False);
+	ErrorPresentation.Insert("UnknownCryptographyAlgorithm", False);
 	
 	Return ErrorPresentation;
 	
@@ -6789,6 +6841,7 @@ Function NewClassifierOfCryptoErrors()
 	Result.Columns.Add("CertificateRevoked",  New TypeDescription("Boolean"));
 	Result.Columns.Add("InvalidSignatureHash", New TypeDescription("Boolean"));
 	Result.Columns.Add("IsSignatureVerificationError", New TypeDescription("Boolean"));
+	Result.Columns.Add("UnknownCryptographyAlgorithm", New TypeDescription("Boolean"));
 	
 	Return Result;
 	
@@ -6844,6 +6897,9 @@ Function RepresentationOfErrorClassifier(ClassifierData) Export
 				NewError.IsCheckRequired   = IsErrorRecheckRequired(Category);
 				If Not NewError.IsCheckRequired Then
 					NewError.CertificateRevoked = ErrorCertificateRevoked(Category);
+					If Not NewError.CertificateRevoked Then
+						NewError.UnknownCryptographyAlgorithm = ErrorUnknownCryptographyAlgorithm(Category);
+					EndIf;
 				EndIf;
 			EndIf;
 		EndIf;
@@ -6888,6 +6944,16 @@ EndFunction
 Function ErrorInvalidSignatureHash(Category)
 	
 	If Category = "hash_value" Then
+		Return True;
+	EndIf;
+	
+	Return False;
+	
+EndFunction
+
+Function ErrorUnknownCryptographyAlgorithm(Category)
+	
+	If Category = "unknown_algo" Then
 		Return True;
 	EndIf;
 	
@@ -7096,16 +7162,16 @@ Procedure AddInformationAboutTheProgramPath(DiagnosticsInformation, Title, Appli
 	
 EndProcedure
 
-// 
+// Download the revocation list file on server.
 // 
 // Parameters:
 //  Addresses - Array of String
 //  InternalAddress - String
 // 
 // Returns:
-//  Structure - :
-//   * FileAddress - String -  
-//   * FileName - String -  file name 
+//  Structure - Download the revocation list file on server:
+//   * FileAddress - String - Address the file was downloaded from. 
+//   * FileName - String - file name 
 //   * FileData - BinaryData
 //   * ErrorMessage - String
 //
@@ -7135,12 +7201,12 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 			
 			If ValueIsFilled(ImportResult1.ErrorMessage) Then
 				If DataFromCache.CheckDate + 1200 > CheckDate Then 
-					// 
+					// Run check upon error no more than once every 20 minutes.
 					Return ImportResult1;
 				EndIf;
 			Else
 				If DataFromCache.CheckDate + 1800 > CheckDate Then
-					// 
+					// Return the file if it was uploaded less than 30 min ago.
 					Return ImportResult1;
 				EndIf;
 			EndIf;
@@ -7165,7 +7231,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 			
 			NewDataFromCache = RevocationListDataFromDatabase(InternalAddress);
 			If NewDataFromCache.CheckDate <> DataFromCache.CheckDate Then
-				// 
+				// Infobase data had been modified before the lock was applied.
 				PopulateResultOfRevocationListImportFromCacheData(ImportResult1, NewDataFromCache);
 				CommitTransaction();
 				Return ImportResult1; 
@@ -7185,7 +7251,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 			ElsIf ImportResult1.FileData = Undefined Then
 
 				If ValueIsFilled(DataFromCache) Then
-					// 
+					// Update the previous revocation list data.
 					FillPropertyValues(RecordManager, DataFromCache);
 					PopulateResultOfRevocationListImportFromCacheData(ImportResult1, DataFromCache);
 				Else
@@ -7223,7 +7289,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 			
 			RollbackTransaction();
 			
-			If IsLockEnabled Then // 
+			If IsLockEnabled Then // Revocation list is being updated.
 				If Not ValueIsFilled(DataFromCache) Then
 					ImportResult1.ErrorMessage = NStr("en = 'Revocation list is being updated.';");
 				EndIf;
@@ -7256,7 +7322,7 @@ Function DownloadRevocationListFileAtServer(Val Addresses, InternalAddress = Und
 EndFunction
 
 
-// 
+// Intended for: DownloadRevocationListFileAtServer procedure
 Procedure DownloadRevocationListFile(Addresses, ImportResult1, DataFromCache = Undefined, LastChangeDate = Undefined)
 	
 	ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
@@ -7285,7 +7351,7 @@ Procedure DownloadRevocationListFile(Addresses, ImportResult1, DataFromCache = U
 		ImportResult1.FileAddress = CurrentAddress;
 		Result = ModuleNetworkDownload.DownloadFileAtServer(CurrentAddress, FileGettingParameters);
 		
-		If Result.StatusCode = 304 And ValueIsFilled(DataFromCache) Then // 
+		If Result.StatusCode = 304 And ValueIsFilled(DataFromCache) Then // The file wasn't updated.
 			PopulateResultOfRevocationListImportFromCacheData(ImportResult1, DataFromCache);
 			Return;
 		EndIf;
@@ -7339,7 +7405,7 @@ Function RevocationListFilename(RevocationListAddress)
 
 EndFunction
 
-// 
+// Intended for: DownloadRevocationListFileAtServer procedure
 Function RevocationListDataFromDatabase(InternalAddress)
 	
 	Query = New Query;
@@ -7381,7 +7447,7 @@ Function RevocationListDataFromDatabase(InternalAddress)
 	
 EndFunction
 
-// 
+// Intended for: DownloadRevocationListFileAtServer procedure
 Procedure PopulateResultOfRevocationListImportFromCacheData(ImportResult1, DataFromCache)
 	
 	If Not ValueIsFilled(DataFromCache.RevocationList) Then
@@ -7493,16 +7559,16 @@ Function CertificatePropertiesExtended(Val Certificate, FormIdentifier = Undefin
 	
 EndFunction
 
-// 
+// Base64String certificate.
 // 
 // Parameters:
 //  Certificate - BinaryData
-//             - String - 
-//             - String - 
+//             - String - Address in the temp storage.
+//             - String - Certificate in the Base64String format.
 //             - CryptoCertificate
 // 
 // Returns:
-//  String - 
+//  String - Base64String certificate
 //
 Function CertificateBase64String(Val Certificate)
 	
@@ -7652,6 +7718,7 @@ Function SupplementErrorClassifierSolutionWithDetails(ClassifierError,
 
 EndFunction
 
+
 Function LocalStoreCertificateSolutionText(Location)
 	
 	If Location = "Server" Then
@@ -7696,7 +7763,7 @@ EndFunction
 
 Function IsLocalStoreCertificate(CertificateData)
 	
-	#If Not MobileAppServer And Not MobileClient Then
+#If Not MobileAppServer And Not MobileClient Then
 	
 	If Not ValueIsFilled(CertificateData) Then
 		Return Undefined;
@@ -7719,7 +7786,7 @@ Function IsLocalStoreCertificate(CertificateData)
 		Return True;
 	EndIf;
 	
-	#EndIf
+#EndIf
 	
 	Return Undefined;
 	
@@ -7733,24 +7800,26 @@ Procedure SetListOfCertificateRevocation(Certificate, Addresses = Undefined, Int
 		Raise ComponentObject;
 	EndIf;
 	
-	If Not ValueIsFilled(Addresses) Then
-		CertificatePropertiesExtended = CertificatePropertiesExtended(Certificate, ComponentObject);
-		
-		If ValueIsFilled(CertificatePropertiesExtended.Error) Then
-			Raise CertificatePropertiesExtended.Error;
-		EndIf;
-		
-		AddressesOfRevocationLists = CertificatePropertiesExtended.CertificateProperties.AddressesOfRevocationLists;
-		If AddressesOfRevocationLists.Count() = 0 Then
-			Raise NStr("en = 'Revocation list addresses are not specified in the certificate.';");
+	If ValueIsFilled(Addresses) Then
+		If TypeOf(Addresses) = Type("String") Then
+			Addresses = StrSplit(Addresses, ";");
 		EndIf;
 	Else
-		If TypeOf(Addresses) = Type("String") Then
-			AddressesOfRevocationLists = StrSplit(Addresses, ";");
-		EndIf;
+		Addresses = New Array;
 	EndIf;
-
-	Result = DownloadRevocationListFileAtServer(AddressesOfRevocationLists, InternalAddress);
+	
+	AddressesOfRevocationLists = AddressesOfRevocationLists(Certificate, ComponentObject);
+	If TypeOf(AddressesOfRevocationLists) = Type("String") And Not ValueIsFilled(Addresses) Then
+		Raise AddressesOfRevocationLists;
+	EndIf;
+	
+	For Each Address In AddressesOfRevocationLists Do
+		If Addresses.Find(Address) = Undefined Then
+			Addresses.Add(Address);
+		EndIf;
+	EndDo;
+	
+	Result = DownloadRevocationListFileAtServer(Addresses, InternalAddress);
 	
 	If ValueIsFilled(Result.ErrorMessage) Then
 		Raise Result.ErrorMessage;
@@ -7772,7 +7841,7 @@ Procedure SetListOfCertificateRevocation(Certificate, Addresses = Undefined, Int
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The certificate revocation list %1 is expired. Contact the certificate issuer.';"), Result.FileAddress);
 	EndIf;
-
+	
 	TempFileName = GetTempFileName(".crl");
 	FileData.Write(TempFileName);
 	
@@ -7792,13 +7861,30 @@ Procedure SetListOfCertificateRevocation(Certificate, Addresses = Undefined, Int
 	
 EndProcedure
 
+Function AddressesOfRevocationLists(Certificate, ComponentObject)
+
+	CertificatePropertiesExtended = CertificatePropertiesExtended(Certificate, ComponentObject);
+
+	If ValueIsFilled(CertificatePropertiesExtended.Error) Then
+		Return CertificatePropertiesExtended.Error;
+	EndIf;
+
+	AddressesOfRevocationLists = CertificatePropertiesExtended.CertificateProperties.AddressesOfRevocationLists;
+	If AddressesOfRevocationLists.Count() = 0 Then
+		Return NStr("en = 'Revocation list addresses are not specified in the certificate.';");
+	EndIf;
+	
+	Return AddressesOfRevocationLists;
+	
+EndFunction
+
 #EndRegion
 
 #Region InfobaseUpdate
 
-// 
-// 
-// 
+// Replaces in all profiles the role AddEditDigitalSignaturesAndEncryption with the roles:
+// AddEditDigitalSignatures, AddEditDigitalSignatureAndEncryptionKeyCertificates,
+// and EncryptAndDecryptData.
 //
 Procedure ReplaceRoleAddingChangeElectronicSignaturesAndEncryption() Export
 	
@@ -7823,13 +7909,13 @@ EndProcedure
 
 #Region CertificateContents
 
-// 
+// Extended data for certificate print.
 // 
 // Parameters:
-//  Data - BinaryData -  certificate data
+//  Data - BinaryData - Certificate data.
 // 
 // Returns:
-//  Structure - :
+//  Structure - Extended data for printing the certificate:
 //   * IdentificationType - Number
 //   * CIPF - String
 //   * ClosingStatement - String

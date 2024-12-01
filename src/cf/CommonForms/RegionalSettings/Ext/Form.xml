@@ -327,13 +327,14 @@
 									<ExtendedTooltip name="PictureTimeConsumingOperationExtendedTooltip" id="59"/>
 								</PictureDecoration>
 								<LabelDecoration name="DetailsDecoration" id="77">
+									<Width>50</Width>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<Height>3</Height>
 									<AutoMaxHeight>false</AutoMaxHeight>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Updating predefined items and classifiers.</v8:content>
+											<v8:content>Refill predefined items and classifiers in the selected languages.</v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
@@ -397,13 +398,14 @@
 									<ExtendedTooltip name="CompletedSuccessfullyPictureExtendedTooltip" id="43"/>
 								</PictureDecoration>
 								<LabelDecoration name="DecorationCompletion" id="72">
+									<Width>50</Width>
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<Height>3</Height>
 									<AutoMaxHeight>false</AutoMaxHeight>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Predefined items and classifiers are successfully updated.</v8:content>
+											<v8:content>Predefined items and classifiers are successfully updated in the selected languages.</v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
@@ -432,7 +434,6 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
-			<SavedData>true</SavedData>
 			<FillCheck>ShowError</FillCheck>
 		</Attribute>
 		<Attribute name="UseAdditionalLanguage1" id="2">
@@ -445,7 +446,6 @@
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
-			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="AdditionalLanguage1" id="3">
 			<Title>
@@ -461,7 +461,6 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
-			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="AppTimeZone" id="4">
 			<Title>
@@ -477,7 +476,6 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
-			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="AdditionalLanguage2" id="5">
 			<Title>
@@ -493,7 +491,6 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
-			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="UseAdditionalLanguage2" id="6">
 			<Title>
@@ -505,7 +502,6 @@
 			<Type>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
-			<SavedData>true</SavedData>
 		</Attribute>
 		<Attribute name="Source" id="7">
 			<Type>
@@ -583,6 +579,11 @@
 					<v8:FractionDigits>0</v8:FractionDigits>
 					<v8:AllowedSign>Any</v8:AllowedSign>
 				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="DataChanged" id="15">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
 	</Attributes>

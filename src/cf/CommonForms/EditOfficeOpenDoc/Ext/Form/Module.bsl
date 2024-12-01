@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -170,11 +172,11 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 
-	#If WebClient Then
+#If WebClient Then
 		HideDragZone = False;
-	#Else
+#Else
 		HideDragZone = True;
-	#EndIf
+#EndIf
 
 	If IsLinuxClient Then
 		HideDragZone = False;
@@ -1320,11 +1322,11 @@ Procedure AfterRequestPermissionsToOpenTemplate(PermissionsGranted, Context) Exp
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
 	
-	#If WebClient Then
+#If WebClient Then
 		SavingParameters.Interactively = True;
-	#Else
+#Else
 		SavingParameters.Interactively = False;
-	#EndIf
+#EndIf
 
 	OpeningParameters = AfterPermissionsHandler.AdditionalParameters;		
 	FileSystemClient.SaveFile(AfterPermissionsHandler, OpeningParameters.DocumentAddress, TempDirectory+OpeningParameters.NameOfFileToOpen, SavingParameters);
@@ -1739,7 +1741,7 @@ Procedure ExpandFieldList()
 		EndDo;
 	EndDo;
 	
-	// 
+	// Color of the fields that are not common for the selected objects.
 	
 	AppearanceItem = ConditionalAppearance.Items.Add();
 	
@@ -1990,7 +1992,7 @@ Procedure Attachable_ExpandTheCurrentFieldListItem()
 EndProcedure
 
 &AtClient
-Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // 
+Procedure Attachable_FillInTheListOfAvailableFields(FillParameters) Export // ACC:78 - Called from FormulaConstructorClient.
 	
 	FillInTheListOfAvailableFields(FillParameters);
 	
@@ -2085,7 +2087,7 @@ Procedure Attachable_FormulaEditorHandlerServer(Parameter, AdditionalParameters)
 EndProcedure
 
 &AtClient
-Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export  // 
+Procedure Attachable_FormulaEditorHandlerClient(Parameter, AdditionalParameters = Undefined) Export  // ACC:78 - Procedure is called from FormulaConstructorClient.StartSearchInFieldsList.
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		ModuleConstructorFormulaClient.FormulaEditorHandler(ThisObject, Parameter, AdditionalParameters);

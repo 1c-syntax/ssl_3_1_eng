@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -38,12 +40,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Users.IsFullUser() Then
 		ErrorText = NStr("en = 'Insufficient rights to perform the operation.';");
-		Return; // 
+		Return; // Cancel is set in OnOpen.
 	EndIf;
 	
 	If Common.DataSeparationEnabled() And Not Common.SeparatedDataUsageAvailable() Then
 		ErrorText = NStr("en = 'To delete marked objects, log in to the data area.';");
-		Return; // 
+		Return; // Cancel is set in OnOpen.
 	EndIf;
 	
 	If Parameters.ObjectsToDelete.Count() > 0 Then
@@ -267,14 +269,14 @@ EndProcedure
 &AtClient
 Procedure NotDeletedItemsUsageInstancesChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	
-	CurrentTreeRow = CurCurrentRowOfPlacesWhereFailedOnesWereUsed();
+	CurrentTreeRow = CurrentRowOfNotDeletedItemsUsageInstances();
 	CurrentData = Items.NotDeletedItemsUsageInstances.CurrentData;
-	MessageText = InstallReplaceOnServer(CurrentData.ItemToDeleteRef, ValueSelected);
+	MessageText = SetReplaceOnServer(CurrentData.ItemToDeleteRef, ValueSelected);
 	If Not IsBlankString(MessageText) Then
 		ShowMessageBox(, MessageText);
 	EndIf;
 	StandardSubsystemsClient.ExpandTreeNodes(ThisObject, "NotDeletedItemsUsageInstances", "*", True);
-	SetCurCurrentRowOfPlacesWhereFailedOnesWereUsed(CurrentTreeRow);
+	SetCurrentRowOfNotDeletedItemsUsageInstances(CurrentTreeRow);
 	
 EndProcedure
 
@@ -313,7 +315,7 @@ Procedure NotDeletedItemRelationsActionChoiceProcessing(Item, ValueSelected, Sta
 	StandardProcessing = False;
 	
 	NotDeletedItemRelationsAction = New Structure;
-	NotDeletedItemRelationsAction.Insert("CurrentTreeRow", CurCurrentRowOfPlacesWhereFailedOnesWereUsed());
+	NotDeletedItemRelationsAction.Insert("CurrentTreeRow", CurrentRowOfNotDeletedItemsUsageInstances());
 	NotDeletedItemRelationsAction.Insert("RowID", Items.NotDeletedItemsUsageInstances.CurrentRow);
 	NotDeletedItemRelationsAction.Insert("ValueSelected", ValueSelected);
 	
@@ -340,9 +342,9 @@ Procedure NotDeletedItemRelationsActionChoiceProcessingCompletion()
 		Return;
 	EndIf;
 	
-	MessageText = SetActionForPlaceOfUse(NotDeletedItemRelationsAction.RowID, 
+	MessageText = SetActionForUsageInstance(NotDeletedItemRelationsAction.RowID, 
 		NotDeletedItemRelationsAction.ValueSelected);
-	SetCurCurrentRowOfPlacesWhereFailedOnesWereUsed(NotDeletedItemRelationsAction.CurrentTreeRow);
+	SetCurrentRowOfNotDeletedItemsUsageInstances(NotDeletedItemRelationsAction.CurrentTreeRow);
 	If Not IsBlankString(MessageText) Then
 		ShowMessageBox(, MessageText);
 	EndIf;
@@ -412,7 +414,7 @@ EndProcedure
 &AtClient
 Procedure InstallDelete(Command)
 	
-	CurrentTreeRow = CurCurrentRowOfPlacesWhereFailedOnesWereUsed();
+	CurrentTreeRow = CurrentRowOfNotDeletedItemsUsageInstances();
 	SelectedTableRows = New Array;
 	NonReferenceValues = New Array;
 	AllSelectedTableRows = Items.NotDeletedItemsUsageInstances.SelectedRows;
@@ -427,7 +429,7 @@ Procedure InstallDelete(Command)
 	EndDo;
 
 	If SelectedTableRows.Count() > 0 Then
-		SetActionForPlacesOfUse(SelectedTableRows, "Delete");
+		SetActionForUsageInstances(SelectedTableRows, "Delete");
 	EndIf;
 	If NonReferenceValues.Count() = 1 Then
 		ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
@@ -444,7 +446,7 @@ Procedure InstallDelete(Command)
 	EndIf;
 		
 	StandardSubsystemsClient.ExpandTreeNodes(ThisObject, "NotDeletedItemsUsageInstances", "*", True);
-	SetCurCurrentRowOfPlacesWhereFailedOnesWereUsed(CurrentTreeRow);
+	SetCurrentRowOfNotDeletedItemsUsageInstances(CurrentTreeRow);
 
 EndProcedure
 
@@ -940,7 +942,7 @@ Function SelectedObjectsCount()
 		
 	EndDo;
 	
-	// 
+	// All metadata objects are never selected.
 	If MetadataFilter.Count() <> 0 Then
 		Result.TotalCount1 = -1;
 	EndIf;
@@ -949,7 +951,7 @@ Function SelectedObjectsCount()
 EndFunction
 
 &AtClient
-Function CurCurrentRowOfPlacesWhereFailedOnesWereUsed()
+Function CurrentRowOfNotDeletedItemsUsageInstances()
 
 	CurrentData = Items.NotDeletedItemsUsageInstances.CurrentData;
 	If CurrentData = Undefined Then
@@ -960,7 +962,7 @@ Function CurCurrentRowOfPlacesWhereFailedOnesWereUsed()
 EndFunction
 
 &AtClient
-Procedure SetCurCurrentRowOfPlacesWhereFailedOnesWereUsed(Value)
+Procedure SetCurrentRowOfNotDeletedItemsUsageInstances(Value)
 
 	TreeItems = NotDeletedItemsUsageInstances.GetItems();
 	If Value = Undefined Or TreeItems.Count() = 0 Then
@@ -973,7 +975,7 @@ Procedure SetCurCurrentRowOfPlacesWhereFailedOnesWereUsed(Value)
 EndProcedure
 
 &AtServer
-Function InstallReplaceOnServer(ItemToDeleteRef, ValueSelected)
+Function SetReplaceOnServer(ItemToDeleteRef, ValueSelected)
 	
 	If ValueSelected = Undefined Then
 		Return "";
@@ -992,12 +994,12 @@ Function InstallReplaceOnServer(ItemToDeleteRef, ValueSelected)
 		EndIf;
 	EndDo;
 	
-	Return SetActionForPlacesOfUse(SelectedTableRows, "ReplaceRef", ValueSelected);
+	Return SetActionForUsageInstances(SelectedTableRows, "ReplaceRef", ValueSelected);
 
 EndFunction
 
 &AtServer
-Function SetActionForPlacesOfUse(Val TableRowIds, Val Action, Val Parameter = Undefined)
+Function SetActionForUsageInstances(Val TableRowsIDs, Val Action, Val Parameter = Undefined)
 	
 	ActionPresentation = ?(Parameter = Undefined,
 		NotDeletedItemsUsageInstancesActions.FindByValue(Action).Presentation,
@@ -1006,7 +1008,7 @@ Function SetActionForPlacesOfUse(Val TableRowIds, Val Action, Val Parameter = Un
 	ValueTable = ActionsTable();
 	Success = False;
 
-	For Each TableRowID_ In TableRowIds Do
+	For Each TableRowID_ In TableRowsIDs Do
 		UsageInstance1 = NotDeletedItemsUsageInstances.FindByID(TableRowID_);
 		If Parameter <> Undefined Then
 			ActionPresentation = ReplaceWithCommandPresentation(UsageInstance1, Parameter);
@@ -1034,12 +1036,12 @@ Function SetActionForPlacesOfUse(Val TableRowIds, Val Action, Val Parameter = Un
 			EndDo;
 			
 			Filter = New Structure("Source, Action", UsageInstance1.ItemToDeleteRef, "ReplaceRef");
-			ModifiableActions = ValueTable.FindRows(Filter);	
-			For Each ModifiableAction In ModifiableActions Do
+			ActionsToChange = ValueTable.FindRows(Filter);	
+			For Each ModifiableAction In ActionsToChange Do
 				ModifiableAction.ActionParameter = Parameter;
 			EndDo;
 			
-			If ModifiableActions.Count() = 0 Then
+			If ActionsToChange.Count() = 0 Then
 				NewAction = ValueTable.Add();
 				NewAction.Action = Action;
 				NewAction.FoundItemReference = UsageInstance1.FoundItemReference;
@@ -1063,10 +1065,10 @@ Function SetActionForPlacesOfUse(Val TableRowIds, Val Action, Val Parameter = Un
 			
 	EndDo;
 
-	If Success Then // 
+	If Success Then // If at least one action was modified.
 		
 		If Action = "ReplaceRef" Then
-			// 
+			// Replace the reference in all objects except the objects marked for deletion.
 			Filter = New Structure("FoundItemReference");
 			For Each UsageInstance1 In NotDeletedItemsUsageInstances.GetItems() Do
 				Filter.FoundItemReference = UsageInstance1.FoundItemReference;
@@ -1090,9 +1092,9 @@ Function SetActionForPlacesOfUse(Val TableRowIds, Val Action, Val Parameter = Un
 EndFunction
 
 &AtServer
-Function SetActionForPlaceOfUse(Val TableRowID_, Val Action, Val Parameter = Undefined)
+Function SetActionForUsageInstance(Val TableRowID_, Val Action, Val Parameter = Undefined)
 
-	Return SetActionForPlacesOfUse(CommonClientServer.ValueInArray(TableRowID_),
+	Return SetActionForUsageInstances(CommonClientServer.ValueInArray(TableRowID_),
 		Action, Parameter);
 	
 EndFunction
@@ -1143,7 +1145,7 @@ EndProcedure
 
 &AtClient
 Procedure AfterSettingTheExclusiveMode(Result, AdditionalParameters) Export
-	If Result = False Then // 
+	If Result = False Then // The exclusive mode is set.
 		AddJob(FormJobs().DeleteMarkedObjects);
 		RunJob();
 	EndIf;
@@ -1180,7 +1182,7 @@ Procedure SetPassedMetadataFilter()
 	Parameters.MetadataFilter = ActiveFilter;
 EndProcedure
 
-// Configuring the form if the form is opened via the client API.
+// Form settings, if the form is opened from the client API.
 &AtServer
 Procedure ConfigureFormToWorkAsService()
 	DeleteOnOpen = True;
@@ -1221,7 +1223,7 @@ Procedure SetConditionalAppearance()
 	AppearanceField = AppearanceItem.Fields.Items.Add();
 	AppearanceField.Field = New DataCompositionField("NotDeletedItemRelationsAction");
 	
-	// 
+	// Hyperlink color.
 	AppearanceItem = ConditionalAppearanceItems.Add();
 	AppearanceFilter = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	AppearanceFilter.LeftValue = New DataCompositionField("NotDeletedItemsUsageInstances.MainReason");
@@ -1233,10 +1235,10 @@ Procedure SetConditionalAppearance()
 	AppearanceField = AppearanceItem.Fields.Items.Add();
 	AppearanceField.Field = New DataCompositionField("NotDeletedItemRelationsAction");
 	
-	// 
+	// Column titles.
 	SetConditionalAppearanceOfAdditionalAttributes(ConditionalAppearanceItems, InactiveLabelColor);
 	
-	// 
+	// Action availability.
 	AppearanceItem = ConditionalAppearanceItems.Add();
 	AppearanceFilter = AppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	AppearanceFilter.LeftValue = New DataCompositionField("NotDeletedItemsUsageInstances.MainReason");
@@ -1324,7 +1326,7 @@ Procedure FillNotDeletedObjectsUsageInstances(Val ActionsTable = Undefined)
 	ReasonsForNotDeletionCache.Clear();
 	
 	If TreeRow = Undefined Or TreeRow.PictureNumber < 1 Then
-		// 
+		// Nothing or a group is selected.
 		ErrorText = NStr("en = 'Select an object to view the reason
 			|why it cannot be deleted.';");
 		Return;
@@ -1334,11 +1336,11 @@ Procedure FillNotDeletedObjectsUsageInstances(Val ActionsTable = Undefined)
 		ActionsTable = ActionsTable();
 	EndIf;
 
-	TableOfLinksThatHaveNotBeenDeleted = FormAttributeToValue("NotDeletedItemsLinks", Type("ValueTable")); // ValueTable
-	TableOfLinksThatHaveNotBeenDeleted.Indexes.Add("ItemToDeleteRef");
+	TableOfNotDeletedItemsLinks = FormAttributeToValue("NotDeletedItemsLinks", Type("ValueTable")); // ValueTable
+	TableOfNotDeletedItemsLinks.Indexes.Add("ItemToDeleteRef");
 	
-	// 
-	ItemsToShow = TableOfLinksThatHaveNotBeenDeleted.FindRows(New Structure("ItemToDeleteRef", TreeRow.ItemToDeleteRef));
+	// Reference to a not deleted object is selected.
+	ItemsToShow = TableOfNotDeletedItemsLinks.FindRows(New Structure("ItemToDeleteRef", TreeRow.ItemToDeleteRef));
 	For Each TableRow In ItemsToShow Do
 		If TableRow.IsError Then
 			ErrorText = TableRow.FoundItemReference;
@@ -1346,7 +1348,7 @@ Procedure FillNotDeletedObjectsUsageInstances(Val ActionsTable = Undefined)
 			Break;
 		EndIf;
 			
-		AddReasonsForNotDeletionRecursively(ActionsTable, TableOfLinksThatHaveNotBeenDeleted, DisplayedRows, TableRow);
+		AddReasonsForNotDeletionRecursively(ActionsTable, TableOfNotDeletedItemsLinks, DisplayedRows, TableRow);
 		ReasonsForNotDeletionCache.Add(TableRow.ItemToDeleteRef);
 	EndDo;
 
@@ -1387,7 +1389,7 @@ Procedure FillInTheActionInTheLineOfThePlaceOfUseOfTheUndeletedOnes(ActionsTable
 EndProcedure
 
 &AtServer
-Procedure AddReasonsForNotDeletionRecursively(ActionsTable, TableOfLinksThatHaveNotBeenDeleted, ParentRowsCollection, RowData)
+Procedure AddReasonsForNotDeletionRecursively(ActionsTable, TableOfNotDeletedItemsLinks, ParentRowsCollection, RowData)
 
 	NewRow = ParentRowsCollection.Add();
 	SubordinateRows = NewRow.GetItems();
@@ -1399,21 +1401,21 @@ Procedure AddReasonsForNotDeletionRecursively(ActionsTable, TableOfLinksThatHave
 		FillPropertyValues(NewRow, RowData);
 	EndIf;
 
-	ItemsToShow = TableOfLinksThatHaveNotBeenDeleted.FindRows(New Structure("ItemToDeleteRef", RowData.FoundItemReference));
-	ThereAreOnlyErrors = True;
+	ItemsToShow = TableOfNotDeletedItemsLinks.FindRows(New Structure("ItemToDeleteRef", RowData.FoundItemReference));
+	HasErrorsOnly = True;
 	For Each TableRow In ItemsToShow Do
 		If Not TableRow.IsError Then
-			ThereAreOnlyErrors = False;
+			HasErrorsOnly = False;
 		EndIf;
 		
 		If ReasonsForNotDeletionCache.FindByValue(TableRow.FoundItemReference) = Undefined Then
 			ReasonsForNotDeletionCache.Add(TableRow.ItemToDeleteRef);
-			AddReasonsForNotDeletionRecursively(ActionsTable, TableOfLinksThatHaveNotBeenDeleted, SubordinateRows, TableRow);
+			AddReasonsForNotDeletionRecursively(ActionsTable, TableOfNotDeletedItemsLinks, SubordinateRows, TableRow);
 		EndIf;
 	EndDo;
 
 	NewRow.MainReason = Not NewRow.IsError 
-		And (SubordinateRows.Count() = 0 Or ThereAreOnlyErrors Or ItemsToShow.Count() = 0);
+		And (SubordinateRows.Count() = 0 Or HasErrorsOnly Or ItemsToShow.Count() = 0);
 									
 	FillInTheActionInTheLineOfThePlaceOfUseOfTheUndeletedOnes(ActionsTable, NewRow, ?(ItemsToShow.Count() <> 0, "Delete", ""));
 
@@ -1434,7 +1436,7 @@ Procedure NotDeletedItemsUsageInstancesOnActivateRow(Item)
 	If ValueIsFilled(CurrentData.FoundItemReference) Then
 		Items.NotDeletedItemRelationsAction.ChoiceList.Clear();
 		
-		// 
+		// Deletion is not available for errors and constants.
 		If TypeOf(CurrentData.FoundItemReference) <> Type("String") Then
 			Items.NotDeletedItemRelationsAction.ChoiceList.Add("Delete", ViewOfTheDeleteCommand(CurrentData));
 		EndIf;
@@ -1508,7 +1510,7 @@ EndProcedure
 &AtClient
 Procedure MarkedForDeletionItemsTreeSetMarkInList(Data, Check, CheckParent)
 	
-	// 
+	// Mark as a subordinate item.
 	RowItems = Data.GetItems();
 	
 	For Each Item In RowItems Do
@@ -1516,7 +1518,7 @@ Procedure MarkedForDeletionItemsTreeSetMarkInList(Data, Check, CheckParent)
 		MarkedForDeletionItemsTreeSetMarkInList(Item, Check, False);
 	EndDo;
 	
-	// 
+	// Check the parent item.
 	Parent = Data.GetParent();
 	
 	If CheckParent And Parent <> Undefined Then 
@@ -1553,7 +1555,7 @@ EndProcedure
 
 &AtClientAtServerNoContext
 Procedure SetMetadataFilter(Form, Result)
-	Form.MetadataFilter = ?(Result = Undefined, New ValueList, Result.Copy());// 
+	Form.MetadataFilter = ?(Result = Undefined, New ValueList, Result.Copy());// ValueList of String.
 	Form.Items.ConfigureFilter.Title = MetadataFilterPresentation(Result);
 EndProcedure
 
@@ -2376,7 +2378,7 @@ Procedure MarkedForDeletionItemsTreeSetAllClearAll(Value)
 	EndDo;
 EndProcedure
 
-// Generates the result of calling the delete method for marked client Objects.Nachtgedanken
+// Generates the result of calling the method "MarkedObjectsDeletionClient.StartMarkedObjectsDeletion".
 //
 // Returns:
 //   Structure:

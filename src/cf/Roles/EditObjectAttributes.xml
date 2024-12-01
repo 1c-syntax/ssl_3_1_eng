@@ -3,7 +3,12 @@
 	<Role uuid="d1b950b0-dd66-49f9-998e-3ae5e820ae7f">
 		<Properties>
 			<Name>EditObjectAttributes</Name>
-			<Synonym/>
+			<Synonym>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Edit attributes</v8:content>
+				</v8:item>
+			</Synonym>
 			<Comment/>
 		</Properties>
 	</Role>

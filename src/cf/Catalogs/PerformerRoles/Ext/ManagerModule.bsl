@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns the details of an object that is not recommended to edit
-// by processing a batch update of account details.
+// Returns the object attributes that are not recommended to be edited
+// using a bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String
@@ -34,7 +36,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// Populate predefined items.
 
 #EndRegion
 
@@ -133,7 +135,7 @@ Procedure PresentationFieldsGetProcessing(Fields, StandardProcessing)
 		ModuleNationalLanguageSupportClientServer = Common.CommonModule("NationalLanguageSupportClientServer");
 		ModuleNationalLanguageSupportClientServer.PresentationFieldsGetProcessing(Fields, StandardProcessing);
 	EndIf;
-	#Else
+#Else
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportClientServer = CommonClient.CommonModule("NationalLanguageSupportClientServer");
 		ModuleNationalLanguageSupportClientServer.PresentationFieldsGetProcessing(Fields, StandardProcessing);
@@ -148,7 +150,7 @@ EndProcedure
 
 #Region Internal
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -159,7 +161,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -174,7 +176,7 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
 		ModuleNationalLanguageSupportServer.FillMultilanguageAttribute(Item, "Description",
-			"en = 'Task control manager';", LanguagesCodes); // 
+			"en = 'Task control manager';", LanguagesCodes); // @NStr-1
 	Else
 		Item.Description = NStr("en = 'Task control manager';", Common.DefaultLanguageCode());
 	EndIf;
@@ -195,13 +197,13 @@ Procedure OnInitialItemsFilling(LanguagesCodes, Items, TabularSections) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.
 //
 // Parameters:
-//  Object                  - CatalogObject.PerformerRoles -  the object to fill in.
-//  Data                  - ValueTableRow -  data for filling in the object.
+//  Object                  - CatalogObject.PerformerRoles - Object to populate.
+//  Data                  - ValueTableRow - object filling data.
 //  AdditionalParameters - Structure:
-//   * PredefinedData - ValueTable -  the data filled in in the procedure for the initial filling of the elements.
+//   * PredefinedData - ValueTable - Data populated in the OnInitialItemsFilling procedure.
 //
 Procedure OnInitialItemFilling(Object, Data, AdditionalParameters) Export
 	
@@ -213,7 +215,7 @@ EndProcedure
 
 #Region Private
 
-// Registers for processing in the update handler
+// Registers data to process in the update handler
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	

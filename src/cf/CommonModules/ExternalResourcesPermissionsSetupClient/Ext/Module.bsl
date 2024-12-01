@@ -1,15 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See CommonClientOverridable.AfterStart.
 Procedure AfterStart() Export
@@ -33,30 +35,30 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// The logic of switching between the operations of the external resource permission wizard.
 // 
 //
 
-// Runs the wizard for configuring permissions to use service resources.
+// Starts external resource permissions setup wizard.
 //
-// The result of the operation is the opening of the form
-// Processing.Setting up the permission to use external resources.Form.Initialization of the resolution request, for which the
-// procedure is set as a description of the closure notification
-// After initialization of the request for permission to use the external resources.
+// Operation result is form opening
+// "DataProcessor.ExternalResourcePermissionSetup.Form.PermissionsRequestInitialization", for which a procedure is set
+// as closing notification details
+// DataProcessorAfterInitializeRequestForPermissionsToUseExternalResources.
 //
 // Parameters:
-//  IDs - Array of UUID -  ids of requests for the use of external resources,
+//  IDs - Array of UUID - IDs (UUID) of requests to use external resources,
 //                  for which the wizard is called.
 //  OwnerForm - ClientApplicationForm
-//                - Undefined - 
-//  ClosingNotification1 - NotifyDescription, Undefined -  description of the notification that should be processed
-//                        after the wizard is completed.
-//  EnablingMode - Boolean -  flag that the wizard is called when enabling the use for
-//                            the security profile information base.
-//  DisablingMode - Boolean -  flag that the wizard is called when disabling usage for
-//                             the security profile information base.
-//  RecoveryMode - Boolean -  flag that the wizard is called to restore the settings of security profiles in
-//                                 the server cluster (according to the current data of the information base).
+//                - Undefined - a form, for which the wizard is opened.
+//  ClosingNotification1 - NotifyDescription, Undefined - details of a notification that must be
+//                        processed after closing the wizard.
+//  EnablingMode - Boolean - indicates that the wizard is called upon enabling usage for the security profile
+//                            infobase.
+//  DisablingMode - Boolean - indicates that the wizard is called upon disabling usage for the security profile
+//                             infobase.
+//  RecoveryMode - Boolean - indicates that the wizard is called to restore settings of security profiles in
+//                                 the server cluster (according to the current infobase data).
 //
 Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 		Val IDs,
@@ -105,15 +107,15 @@ Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 	
 EndProcedure
 
-// Navigates to the Permission settings dialog in security profiles.
-// The result of the operation is the opening of the form:
-// Processing.Setting up the permission to use external resources.Form.Setting up the permission to use external resources, 
-// for which the procedure is set as a description of the closure notification
-// After setting up the permission to use the external resources or an emergency interruption of the wizard.
+// Starts the security profile permission setup dialog.
+// Operation result is form opening:
+// "DataProcessor.ExternalResourcePermissionSetup.Form.ExternalResourcePermissionSetup", 
+// for which a procedure is set as closing notification details
+// AfterSetUpPermissionsToUseExternalResources or abnormal wizard termination.
 //
 // Parameters:
-//  Result - DialogReturnCode -  the result of the previous operation
-//                                   in the apply external resource permissions wizard (the values used are OK and Cancel),
+//  Result - DialogReturnCode - a result of executing a previous operation of
+//                                   external resource permissions application wizard (used values are OK and Cancel),
 //  State - See RequestForPermissionsToUseExternalResourcesState
 //
 //
@@ -149,7 +151,7 @@ Procedure AfterInitializeRequestForPermissionsToUseExternalResources(Result, Sta
 			
 		Else
 			
-			// 
+			// The requested permissions are excessive. Do not change security profiles on the cluster.
 			// 
 			CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(State.NotifyDescription);
 			
@@ -165,19 +167,19 @@ Procedure AfterInitializeRequestForPermissionsToUseExternalResources(Result, Sta
 	
 EndProcedure
 
-// Navigates to the dialog waiting for the security profile settings to be applied by the server cluster.
-// The result of the operation is the opening of the form:
-// Processing.Setting up the permission to use external resources.Form.Completion of a resolution request, for which
-// the procedure is set as a description of the closure notification
-// After the completion of the request for permission to use the external resources or an emergency interruption of the wizard.
+// Starts the dialog of waiting for server cluster security profile settings to be applied.
+// Operation result is form opening:
+// "DataProcessor.ExternalResourcePermissionSetup.PermissionsRequestEnd", for which a procedure is set
+// as a closing notification details
+// AfterCompleteRequestForPermissionsToUseExternalResources or abnormal wizard termination.
 //
 // Parameters:
-//  Result - DialogReturnCode -  the result of the previous operation
-//                                   in the apply external resource permissions wizard (the values used are OK, Skip, and Cancel).
-//                                   The Skip value is used if no changes have been
-//                                   made to the security profile settings, but requests to use external resources
-//                                   must be considered successful (for example, if the use
-//                                   of all requested external resources has already been provided),
+//  Result - DialogReturnCode - a result of executing a previous operation of
+//                                   external resource permissions application wizard (used values are OK, Skip, and Cancel).
+//                                   Ignore value is used if no changes were made to the
+//                                   security profile settings but requests to use external resources
+//                                   must be considered applied (for example, if permissions to use
+//                                   all external resources being requested have already been granted),
 //  State - See RequestForPermissionsToUseExternalResourcesState
 //
 Procedure AfterSetUpPermissionsToUseExternalResources(Result, State) Export
@@ -223,13 +225,13 @@ Procedure AfterSetUpPermissionsToUseExternalResources(Result, State) Export
 	
 EndProcedure
 
-// Completes the wizard for applying permissions to use external resources.
-// The operation results in processing the notification description that was originally passed from the form that
-// the wizard was opened for.
+// Processes the data entered to the external resource permission application wizard.
+// The operation result is processing of the notification description, which was initially passed from the form for which
+// the the wizard was opened.
 //
 // Parameters:
-//  Result - DialogReturnCode -  the result of the previous operation
-//                                   in the apply external resource permissions wizard (the values used are OK and Cancel),
+//  Result - DialogReturnCode - a result of executing a previous operation of
+//                                   external resource permissions application wizard (used values are OK and Cancel),
 //  State - See RequestForPermissionsToUseExternalResourcesState.
 //
 Procedure AfterCompleteRequestForPermissionsToUseExternalResources(Result, State) Export
@@ -251,11 +253,11 @@ Procedure AfterCompleteRequestForPermissionsToUseExternalResources(Result, State
 	
 EndProcedure
 
-// Asynchronously (in relation to the code from which the wizard was called) processes the alert description
-// that was originally passed from the form for which the wizard was opened, returning the OK return code.
+// Asynchronously (relative to the code, from which the wizard was called) processes the notification details
+// that were initially passed from the form, for which the wizard was opened returning the return code OK.
 //
 // Parameters:
-//  NotifyDescription - NotifyDescription -  which was passed from the calling code.
+//  NotifyDescription - NotifyDescription - Description passed from the calling code.
 //
 Procedure CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(Val NotifyDescription)
 	
@@ -269,11 +271,11 @@ Procedure CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(Val Notif
 	
 EndProcedure
 
-// Asynchronously (in relation to the code from which the wizard was called), it processes the notification description
-// that was originally passed from the form for which the wizard was opened, returning the Cancel return code.
+// Asynchronously (relative to the code, from which the wizard was called) processes the notification details
+// that were initially passed from the form, for which the wizard was opened returning the return code Cancel.
 //
 // Parameters:
-//  NotifyDescription - NotifyDescription -  which was passed from the calling code.
+//  NotifyDescription - NotifyDescription - Description passed from the calling code.
 //
 Procedure CancelSetUpPermissionsToUseExternalResourcesAsynchronously(Val NotifyDescription)
 	
@@ -287,8 +289,8 @@ Procedure CancelSetUpPermissionsToUseExternalResourcesAsynchronously(Val NotifyD
 	
 EndProcedure
 
-// Synchronously (with respect to the code from which the wizard was called) processes the notification description
-// that was originally passed from the form for which the wizard was opened.
+// Synchronously (relative to the code, from which the wizard was called) processes the notification details
+// that were initially passed from the form, for which the wizard was opened.
 //
 // Parameters:
 //  ReturnCode - DialogReturnCode
@@ -304,24 +306,24 @@ Procedure CompleteSetUpPermissionsToUseExternalResourcesSynchronously(Val Return
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// The logic of the external resource permission wizard that checks for the
+// completion of the operations where such permissions were requested.
 // 
 //
 
-// Starts the wizard in the mode of checking the completion of an operation in which
-// permission requests for the use of external resources were previously applied.
+// Starts the wizard in operation completion check mode. In this mode, the wizard checks whether the operation whence requests for
+// permissions to use external resources were applied is completed.
 //
-// The result of this procedure is the launch of the wizard for configuring permissions to use
-// external resources in the mode of checking the completion of an operation in which permissions
-// to use external resources were previously applied (with the regular passage of all operations), after the completion of which
-// the processing of the description of the alert, as which the procedure is set, will be called.
-// After the verification of the application of the resolution after the closure of the owner's form.
+// The result of the procedure is a startup of the
+// external resource permissions setup wizard in operation completion check mode.
+// Once the wizard is closed, the
+// PermissionApplyingAfterCheckAfterOwnerFormClose() procedure
+// is used for processing the notification description.
 //
 // Parameters:
-//  Result - Arbitrary -  the result of closing the form that opened the wizard for configuring permissions 
-//                             to use external resources. It is not used in the procedure body. the parameter is required
-//                             to assign the procedure as a description of the form closing notification.
+//  Result - Arbitrary - a result of closing the form, for which 
+//                             external resource permissions setup wizard was opened. Does not used in the procedure body, the parameter is required
+//                             for defining a form closing notification description procedure.
 //  State - See PermissionsApplicabilityCheckStateAfterCloseOwnerForm.
 //
 Procedure CheckPermissionsAppliedAfterOwnerFormClose(Result, State) Export
@@ -336,7 +338,7 @@ Procedure CheckPermissionsAppliedAfterOwnerFormClose(Result, State) Export
 	
 EndProcedure
 
-// Handles checking the application of requests to use external resources.
+// Checks whether requests to use external resources were applied.
 //
 // Parameters:
 //  Validation - See ExternalResourcesPermissionsSetupServerCall.CheckApplyPermissionsToUseExternalResources.
@@ -363,16 +365,16 @@ Procedure AfterCheckApplicabilityOfPermissionsToUseExternalResources(Val Validat
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Invoke the external resource permission wizard in special modes.
 // 
 //
 
-// Calls the wizard for configuring permissions to use external resources in the mode
-// of enabling the use of security profiles for the information database.
+// Calls the external resource permissions setup wizard in infobase security profile enabling
+// mode.
 //
 // Parameters:
-//  OwnerForm - ClientApplicationForm -  a form that should be blocked until permissions are applied,
-//  ClosingNotification1 - NotifyDescription -  will be called when permissions are granted successfully.
+//  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
+//  ClosingNotification1 - NotifyDescription - it will be called once permissions are granted.
 //
 Procedure StartEnablingSecurityProfilesUsage(OwnerForm, ClosingNotification1 = Undefined) Export
 	
@@ -381,12 +383,12 @@ Procedure StartEnablingSecurityProfilesUsage(OwnerForm, ClosingNotification1 = U
 	
 EndProcedure
 
-// Calls the wizard for configuring permissions to use external resources in the mode
-// of disabling the use of security profiles for the information database.
+// Calls the external resource permissions setup wizard in infobase security profile disabling
+// mode.
 //
 // Parameters:
-//  OwnerForm - ClientApplicationForm -  a form that should be blocked until permissions are applied,
-//  ClosingNotification1 - NotifyDescription -  will be called when permissions are granted successfully.
+//  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
+//  ClosingNotification1 - NotifyDescription - it will be called once permissions are granted.
 //
 Procedure StartDisablingSecurityProfilesUsage(OwnerForm, ClosingNotification1 = Undefined) Export
 	
@@ -395,13 +397,13 @@ Procedure StartDisablingSecurityProfilesUsage(OwnerForm, ClosingNotification1 = 
 	
 EndProcedure
 
-// Calls the wizard for configuring permissions to use external resources in the mode
-// of restoring security profile settings in the server cluster based on the current
-// state of the information database.
+// Calls the external resource permissions setup wizard in server cluster security profile settings recovery
+// mode based on the current
+// infobase state.
 //
 // Parameters:
-//  OwnerForm - ClientApplicationForm -  a form that should be blocked until permissions are applied,
-//  ClosingNotification1 - NotifyDescription -  will be called when permissions are granted successfully.
+//  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
+//  ClosingNotification1 - NotifyDescription - it will be called once permissions are granted.
 //
 Procedure StartRestoringSecurityProfiles(OwnerForm, ClosingNotification1 = Undefined) Export
 	
@@ -410,43 +412,43 @@ Procedure StartRestoringSecurityProfiles(OwnerForm, ClosingNotification1 = Undef
 	
 EndProcedure
 
-// Constructor of the structure that is used to store the status of the wizard
-// for configuring permissions to use external resources.
+// Creates a structure used for storing the
+// external resource permissions setup wizard state.
 //
 // Returns: 
-//   Structure - 
+//   Structure - for field details, see the function body.
 //
 Function RequestForPermissionsToUseExternalResourcesState()
 	
 	Result = New Structure();
 	
-	// 
+	// IDs of requests to use external resources to be provided.
 	Result.Insert("RequestsIDs", New Array());
 	
-	// 
+	// The original details of the notification that is triggered after the permission request is confirmed.
 	// 
 	Result.Insert("NotifyDescription", Undefined);
 	
-	// 
+	// Address in a temporary storage for storing data passed between forms.
 	Result.Insert("StorageAddress", "");
 	
-	// 
+	// The form where the request to use external resources was initialized.
 	// 
 	Result.Insert("OwnerForm");
 	
-	// 
+	// Enabling mode - indicates whether security profiles are being enabled.
 	Result.Insert("EnablingMode", False);
 	
-	// 
+	// Disabling mode - indicates whether security profiles are being disabled.
 	Result.Insert("DisablingMode", False);
 	
-	// 
-	// 
+	// In restoration mode, permissions are requested "from scratch"
+	// (ignoring the information on the previously granted permissions).
 	// 
 	Result.Insert("RecoveryMode", False);
 	
-	// 
-	// 
+	// The check mode: indicates the completion of the operation that granted new permissions in security profiles.
+	// For example, when saving a new catalog item, permissions are granted but the writing is not completed.
 	// 
 	Result.Insert("CheckMode", False);
 	
@@ -454,20 +456,20 @@ Function RequestForPermissionsToUseExternalResourcesState()
 	
 EndFunction
 
-// Constructor of a structure that is used to store the status of checking the completion
-// of an operation that used permission requests to use external resources.
+// Creates a structure used for storing a state of check for completion
+// of the operation where the requests for permissions to use external resources were applied.
 //
 // Returns: 
-//   Structure - 
+//   Structure - for field details, see the function body.
 //
 Function PermissionsApplicabilityCheckStateAfterCloseOwnerForm()
 	
 	Result = New Structure();
 	
-	// 
+	// Address in a temporary storage for storing data passed between forms.
 	Result.Insert("StorageAddress", Undefined);
 	
-	// 
+	// The original details of the form notification that triggers when permission applicability is checked.
 	// 
 	Result.Insert("NotifyDescription", Undefined);
 	
@@ -475,31 +477,31 @@ Function PermissionsApplicabilityCheckStateAfterCloseOwnerForm()
 	
 EndFunction
 
-// Returns the duration of the wait for changes to the security profile settings
-// in the server cluster to be applied.
+// Returns the duration of waiting for changes
+// in server cluster security profile settings to be applied.
 //
 // Returns:
-//   Number - 
+//   Number - duration of waiting for changes to be applied (in seconds).
 //
 Function ChangeApplyingTimeout()
 	
-	Return 20; // 
+	Return 20; // Interval that rphost uses to update the current security profile settings from rmngr.
 	
 EndFunction
 
-// Schedules (by spoofing the value of the property of the form descriptiondisclosing) a call to the wizard
-// to check that the operation is completed after closing the form from which the wizard was called.
+// Plans (by substituting a value to OnCloseNotifyDescription form property) a wizard call
+// to check whether the action is complete when the form that called the master is closed.
 //
-// The result of this procedure is a procedure call.
-// Checking the use of permissions after closing the owner form after closing the form that 
-// opened the wizard for configuring permissions to use external resources.
+// As a result, the
+// PermissionsApplicabilityCheckAfterOwnerFormClose procedure is called after closing the form, for which 
+// external resource permissions setup wizard was opened.
 //
 // Parameters:
-//  Form Owner - Client Application form, Indefinite - a form, after closing of which it is required to
-//    check the completion of operations in which permission requests for the use
-//    of external resources were previously applied.
-//  RequestsIDs - Array of UUID -  ids of requests for permissions to
-//    use external resources that were applied as part of the operation whose completion is being checked.
+//  OwnerForm - ClientApplicationForm, Undefined - when this form is closed, the procedure will
+//    check completion of operations that included requests for permissions to use
+//    external resources.
+//  RequestsIDs - Array of UUID - IDs (UUID) of requests for permissions to
+//    use external resources applied within the operation, the completion of which is being checked.
 //
 Procedure PlanPermissionApplyingCheckAfterOwnerFormClose(FormOwner, RequestsIDs)
 	

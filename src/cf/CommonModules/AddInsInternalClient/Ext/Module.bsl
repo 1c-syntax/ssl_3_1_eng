@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
@@ -47,11 +49,11 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 	
 	Context.Location = Information.Location;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Information.State:
+	// * IsNotFound
+	// * FoundInStorage
+	// * FoundInSharedStorage
+	// * DisabledByAdministrator
 	
 	Result = AddInAvailabilityResult();
 	Result.TheComponentOfTheLatestVersion = Information.TheLatestVersionOfComponentsFromTheLayout;
@@ -144,11 +146,11 @@ Async Function AddInAvailabilityCheckResult(Context) Export
 	
 	Context.Location = Information.Location;
 	
-	// 
-	// 
-	// 
-	// 
-	// 
+	// Information.State:
+	// * IsNotFound
+	// * FoundInStorage
+	// * FoundInSharedStorage
+	// * DisabledByAdministrator
 	
 	Result = AddInAvailabilityResult();
 	Result.TheComponentOfTheLatestVersion = Information.TheLatestVersionOfComponentsFromTheLayout;
@@ -234,13 +236,13 @@ Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
 	
 EndProcedure
 
-// 
+// Compatibility error with add-in from template.
 // 
 // Parameters:
-//  Location - String - 
+//  Location - String - Template that contains the add-in.
 // 
 // Returns:
-//  String - 
+//  String - Compatibility error with add-in from template
 //
 Function TemplateAddInCompatibilityError(Location) Export
 	
@@ -255,10 +257,10 @@ Function TemplateAddInCompatibilityError(Location) Export
 	
 EndFunction
 
-// 
+// Check if the add-in from template is compatible.
 // 
 // Parameters:
-//  Notification - NotifyDescription - 
+//  Notification - NotifyDescription - Notify on the compatibility check and show a warning.
 //  AddInAttachmentContext - See CommonInternalClient.AddInAttachmentContext
 //
 Procedure CheckTemplateAddInForCompatibility(Notification, AddInAttachmentContext) Export
@@ -365,19 +367,19 @@ Procedure ReplaceWithCurrentComponentFromCatalog(Result, Id, Location, ShouldAtt
 		EndIf;
 	EndIf;
 		
-	// 
+	// Use the add-in from the catalog if the add-in version is greater than the template version or it mismatches the template.
 	Result.TheComponentOfTheLatestVersion = New Structure("Id, Version, Location", Id,
 		Result.Version, Location);
 		
 EndProcedure
 
-// 
+// The add-in supports the client.
 // 
 // Parameters:
 //  Attributes - 
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - Flag indicating whether the add-in supports the client.
 //
 Function CurrentClientIsSupportedByAddIn(Attributes)
 	
@@ -503,7 +505,7 @@ Function CurrentClientIsSupportedByAddIn(Attributes)
 		EndIf;
 	
 	ElsIf NameOfThePlatformType = "MacOS_x86" Then
-		// 
+		// Browsers may misdefine the OS.
 	
 		If Browser = "Firefox" Then
 			Return Attributes.MacOS_x86_64_Firefox;
@@ -679,9 +681,9 @@ Function PresentationOfCurrentClient()
 		Platform = NStr("en = 'WinRT x86-64';");
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// Example:
+	// Firefox Windows x86 web client
+	// Windows x86-64 thin client
 	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2';"), Package, Platform);
 	
 EndFunction
@@ -728,10 +730,10 @@ Procedure AttachAddInSSL(Context) Export
 EndProcedure
 
 // Parameters:
-//  Result - Structure - :
-//    * Attached - Boolean -  the sign connection;
-//    * Attachable_Module - AddInObject -  an instance of an external component object.
-//    * ErrorDescription - String -  brief description of the error. When the user cancels an empty string
+//  Result - Structure - add-in attachment result:
+//    * Attached - Boolean - attachment flag.
+//    * Attachable_Module - AddInObject - an instance of the add-in.
+//    * ErrorDescription - String - brief error message. Empty string on cancel by user
 //  Context - See CommonInternalClient.AddInAttachmentContext
 //
 Procedure AttachAddInAfterAvailabilityCheck(Result, Context) Export
@@ -774,7 +776,7 @@ Function ConnectionContextComponentsFromTheWindowsRegistry() Export
 		
 EndFunction
 
-// 
+// Intended to be called from AddInClient.AttachAddInFromWindowsRegisterAsync.
 // 
 // Parameters:
 //  Context - See ConnectionContextComponentsFromTheWindowsRegistry.
@@ -861,7 +863,7 @@ Async Function AttachAddInFromWindowsRegistryAsync(Context) Export
 	
 EndFunction
 
-//  See AddInsClient.AttachAddInFromWindowsRegistry.
+// For calls from See AddInsClient.AttachAddInFromWindowsRegistry.
 // 
 // Parameters:
 //  Context - See ConnectionContextComponentsFromTheWindowsRegistry.
@@ -891,7 +893,7 @@ Procedure AttachAddInFromWindowsRegistry(Context) Export
 	
 EndProcedure
 
-// Continue with the connect component of the Windows Registry.
+// Continues the AttachAddInFromWindowsRegistry procedure.
 //
 // Parameters:
 //  Attached - Boolean
@@ -948,7 +950,7 @@ Procedure AttachAddInFromWindowsRegistryAfterAttachmentAttempt(Attached, Context
 	
 EndProcedure
 
-// Continue with the connect component of the Windows Registry.
+// Continues the AttachAddInFromWindowsRegistry procedure.
 //
 // Parameters:
 //  ErrorInfo - ErrorInfo
@@ -971,7 +973,7 @@ Procedure AttachAddInFromWIndowsRegisterOnProcessError(ErrorInfo, StandardProces
 	
 EndProcedure
 
-// Continue with the connect component of the Windows Registry.
+// Continues the AttachAddInFromWindowsRegistry procedure.
 Function AttachAddInFromWindowsRegistryAttachmentAvailable()
 	
 #If WebClient Then
@@ -1021,10 +1023,10 @@ Procedure InstallAddInSSL(Context) Export
 EndProcedure
 
 // Parameters:
-//  Result - Structure - :
-//    * Attached - Boolean -  the sign connection;
-//    * Attachable_Module - AddInObject -  an instance of an external component object.
-//    * ErrorDescription - String -  brief description of the error. When canceled by the user, an empty string.
+//  Result - Structure - add-in attachment result:
+//    * Attached - Boolean - attachment flag.
+//    * Attachable_Module - AddInObject - an instance of the add-in.
+//    * ErrorDescription - String - brief error message. Empty string on cancel by user.
 //  Context - See CommonInternalClient.AddInAttachmentContext 
 //
 Procedure InstallAddInAfterAvailabilityCheck(Result, Context) Export
@@ -1067,7 +1069,7 @@ Function ContextForLoadingComponentsFromAFile() Export
 	
 EndFunction
 	
-// To call from an external component client.Upload the component of the file.
+// To be called from AddInClient.ImportAddInFromFile.
 // 
 // Parameters:
 //  Context - See ContextForLoadingComponentsFromAFile.
@@ -1107,7 +1109,7 @@ Procedure ImportAddInFromFile(Context) Export
 	
 EndProcedure
 
-// Continue with the upload component of the File procedure.
+// Continues the ImportAddInFromFile procedure.
 Procedure ImportAddInFromFileAfterAvailabilityWarnings(Context) Export
 	
 	Result = AddInImportResult();
@@ -1116,12 +1118,12 @@ Procedure ImportAddInFromFileAfterAvailabilityWarnings(Context) Export
 	
 EndProcedure
 
-// Continue with the upload component of the File procedure.
+// Continues the ImportAddInFromFile procedure.
 Procedure ImportAddInFromFileAfterImport(Result, Context) Export
 	
-	//  
-	// 
-	//  
+	// Result: 
+	// - Structure - Add-in attached.
+	// - Undefined - Close the dialog. 
 	
 	UserClosedDialogBox = (Result = Undefined);
 	
@@ -1136,7 +1138,7 @@ Procedure ImportAddInFromFileAfterImport(Result, Context) Export
 	
 EndProcedure
 
-// Continue with the upload component of the File procedure.
+// Continues the ImportAddInFromFile procedure.
 Function AddInImportResult() Export
 	
 	Result = New Structure;
@@ -1156,7 +1158,7 @@ EndFunction
 
 Procedure AddInSearchOnPortalOnGenerateResult(Result, Notification) Export
 	
-	Imported1 = (Result = True); // 
+	Imported1 = (Result = True); // When the form is closed, it is set to "Undefined".
 	ExecuteNotifyProcessing(Notification, Imported1);
 	
 EndProcedure
@@ -1217,7 +1219,7 @@ Procedure SaveAddInToFile(AddInRef) Export
 	
 EndProcedure
 
-// Continue with the save component File procedure.
+// Continuation of the SaveAddInToFile procedure.
 Procedure SaveAddInsToFileAfterDirectorySelected(Directory, FilesDetails) Export
 	
 	If IsBlankString(Directory) Then
@@ -1238,7 +1240,7 @@ Procedure SaveAddInsToFileAfterDirectorySelected(Directory, FilesDetails) Export
 
 EndProcedure
 
-// Continue with the save component File procedure.
+// Continuation of the SaveAddInToFile procedure.
 Procedure SaveAddInToFileAfterReceivingFiles(ObtainedFiles, Context) Export
 	
 	If ObtainedFiles <> Undefined 

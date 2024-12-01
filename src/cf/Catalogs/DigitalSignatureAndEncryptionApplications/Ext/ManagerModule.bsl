@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -87,9 +89,9 @@ Procedure AddMicrosoftEnhancedCSPSettings(Settings) Export
 	Setting.Presentation       = NStr("en = 'Microsoft Enhanced CSP';");
 	Setting.ApplicationName        = "Microsoft Enhanced Cryptographic Provider v1.0";
 	Setting.ApplicationType        = 1;
-	Setting.SignAlgorithm     = "RSA_SIGN"; // 
-	Setting.HashAlgorithm = "MD5";      // 
-	Setting.EncryptAlgorithm  = "RC2";      // 
+	Setting.SignAlgorithm     = "RSA_SIGN"; // One option.
+	Setting.HashAlgorithm = "MD5";      // Options: SHA-1, MD2, MD4, MD5.
+	Setting.EncryptAlgorithm  = "RC2";      // Options: RC2, RC4, DES, 3DES.
 	Setting.Id       = "MicrosoftEnhanced";
 	
 	Setting.SignAlgorithms.Add("RSA_SIGN");
@@ -109,13 +111,38 @@ Procedure AddMicrosoftEnhancedCSPSettings(Settings) Export
 	Setting.Presentation       = NStr("en = 'Microsoft Enhanced RSA and AES CSP';");
 	Setting.ApplicationName        = "Microsoft Enhanced RSA and AES Cryptographic Provider";
 	Setting.ApplicationType        = 24;
-	Setting.SignAlgorithm     = "RSA_SIGN"; // 
-	Setting.HashAlgorithm = "SHA-256";  // 
-	Setting.EncryptAlgorithm  = "3DES";     // 
+	Setting.SignAlgorithm     = "RSA_SIGN"; // One option.
+	Setting.HashAlgorithm = "SHA-256";  // Options: SHA-256, SHA-1, MD2, MD4, MD5.
+	Setting.EncryptAlgorithm  = "3DES";     // Options: RC2, RC4, DES, 3DES.
 	Setting.Id       = "MicrosoftEnhanced_RSA_AES";
 	
 	Setting.SignAlgorithms.Add("RSA_SIGN");
 	Setting.HashAlgorithms.Add("SHA-256");
+	Setting.HashAlgorithms.Add("SHA-1");
+	Setting.HashAlgorithms.Add("MD2");
+	Setting.HashAlgorithms.Add("MD4");
+	Setting.HashAlgorithms.Add("MD5");
+	Setting.EncryptAlgorithms.Add("RC2");
+	Setting.EncryptAlgorithms.Add("RC4");
+	Setting.EncryptAlgorithms.Add("DES");
+	Setting.EncryptAlgorithms.Add("3DES");
+	Setting.NotOnLinux = True;
+	Setting.NotInMacOS = True;
+	
+	// Microsoft Base Smart Card Crypto Provider
+	Setting = Settings.Add();
+	Setting.Presentation       = NStr("en = 'Microsoft Base Smart Card CSP';");
+	Setting.ApplicationName        = "Microsoft Base Smart Card Crypto Provider";
+	Setting.ApplicationType        = 1;
+	Setting.SignAlgorithm     = "RSA_SIGN"; // One option.
+	Setting.HashAlgorithm = "SHA-256";  // Options: SHA-256, SHA-1, SHA-384, SHA-512, MD2, MD4, MD5.
+	Setting.EncryptAlgorithm  = "3DES";     // Options: RC2, RC4, DES, 3DES.
+	Setting.Id       = "MicrosoftBaseSmartCard";
+	
+	Setting.SignAlgorithms.Add("RSA_SIGN");
+	Setting.HashAlgorithms.Add("SHA-256");
+	Setting.HashAlgorithms.Add("SHA-384");
+	Setting.HashAlgorithms.Add("SHA-512");
 	Setting.HashAlgorithms.Add("SHA-1");
 	Setting.HashAlgorithms.Add("MD2");
 	Setting.HashAlgorithms.Add("MD4");
@@ -143,7 +170,7 @@ Function SupplyThePathToTheProgramModules() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Infobase update.
 
 Procedure FillInitialSettings(Programs = Undefined, WithoutEmbeddedCryptoprovider = False) Export
 	

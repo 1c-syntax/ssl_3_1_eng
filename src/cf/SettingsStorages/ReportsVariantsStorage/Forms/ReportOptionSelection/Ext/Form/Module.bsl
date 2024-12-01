@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -77,9 +79,9 @@ Procedure FilterAuthorOnChange(Item)
 				HasEnabledItems = False;
 			EndIf;
 		EndDo;
-		If HasEnabledItems = Undefined Then // 
+		If HasEnabledItems = Undefined Then // Group is an option.
 			GroupOrOption.HiddenByFilter = FilterEnabled And GroupOrOption.Author <> FilterAuthor;
-		Else // 
+		Else // This is a group.
 			GroupOrOption.HiddenByFilter = HasEnabledItems;
 		EndIf;
 	EndDo;
@@ -276,7 +278,7 @@ Procedure OpenOptionForChange()
 	ReportsOptionsClient.ShowReportSettings(Variant.Ref);
 EndProcedure
 
-// Issue notification handler.
+// Question notification handler.
 //
 // Parameters:
 //   Response - DialogReturnCode
@@ -314,7 +316,7 @@ Procedure FillOptionsList()
 		FilterReports, False, Not ShowPersonalReportsOptionsByOtherAuthors);
 	VariantsTable = ReportsOptions.ReportOptionTable(SearchParameters);
 	
-	// 
+	// Populate autocalculated columns.
 	VariantsTable.Columns.Add("CurrentUserIsAuthor", New TypeDescription("Boolean"));	
 	VariantsTable.Columns.Add("PictureIndex", New TypeDescription("Number", New NumberQualifiers(1, 0, AllowedSign.Any)));	
 	VariantsTable.Columns.Add("Order", New TypeDescription("Number", New NumberQualifiers(1, 0, AllowedSign.Any)));	

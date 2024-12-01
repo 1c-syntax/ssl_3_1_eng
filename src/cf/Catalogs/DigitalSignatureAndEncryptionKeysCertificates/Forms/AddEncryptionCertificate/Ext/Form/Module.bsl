@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -126,7 +128,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// 
+	// Checking description for uniqueness.
 	DigitalSignatureInternal.CheckPresentationUniqueness(
 		DescriptionCertificate, Certificate, "DescriptionCertificate", Cancel);
 	
@@ -289,7 +291,7 @@ Procedure Next(Command)
 	
 EndProcedure
 
-// Continue the procedure Further.
+// Continues the Next procedure.
 &AtClient
 Procedure NextAfterCertificateSearch(Result, Context) Export
 	
@@ -312,7 +314,7 @@ Procedure NextAfterCertificateSearch(Result, Context) Export
 	
 EndProcedure
 
-// Continue the procedure Further.
+// Continues the Next procedure.
 &AtClient
 Procedure NextAfterSearchingForTheCertificateTheCloudSignature(Result, Context) Export
 	
@@ -336,7 +338,7 @@ Procedure NextAfterSearchingForTheCertificateTheCloudSignature(Result, Context) 
 	
 EndProcedure
 
-// Continue the procedure Further.
+// Continues the Next procedure.
 &AtClient
 Async Procedure NextAfterCertificateExport(ExportedData, CryptoCertificate) Export
 	
@@ -347,7 +349,7 @@ Async Procedure NextAfterCertificateExport(ExportedData, CryptoCertificate) Expo
 	
 EndProcedure
 
-// Continue the procedure Further.
+// Continues the Next procedure.
 &AtClient
 Procedure NextAfterCertificatesListUpdate(Result, Context) Export
 	
@@ -356,7 +358,7 @@ Procedure NextAfterCertificatesListUpdate(Result, Context) Export
 	
 EndProcedure
 
-// Continue the procedure Further.
+// Continues the Next procedure.
 //
 // Parameters:
 //   Result - Structure:
@@ -411,9 +413,7 @@ Procedure Add(Command)
 	
 	WriteCertificateToCatalog();
 	
-	NotifyChanged(Certificate);
-	Notify("Write_DigitalSignatureAndEncryptionKeysCertificates",
-		AdditionalParameters, Certificate);
+	DigitalSignatureInternalClient.AfterAddingElectronicSignatureCertificatesToDirectory(Certificate, AdditionalParameters);
 	
 	NotifyChoice(Certificate);
 	
@@ -521,7 +521,7 @@ Procedure UpdateCertificatesList(Notification = Undefined)
 	
 EndProcedure
 
-// Continue the procedure to update the list of Certificates.
+// Continues the UpdateCertificatesList procedure.
 &AtClient
 Procedure UpdateCertificatesListFollowUp(Result, Context) Export
 	

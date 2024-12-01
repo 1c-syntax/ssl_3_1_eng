@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Returns the correspondence of metadata objects and command interface subsystems.
+// Returns a map of metadata objects and command interface subsystems.
 //
 // Returns: 
 //  Map of KeyAndValue:
-//    * Key - String -  full name of the object.
-//    * Value - Array of String -  the full names of the subsystems of the program
-//                                    's command interface that this object belongs to.
+//    * Key - String - full object name.
+//    * Value - Array of String - full names of the command interface subsystems
+//                                    the object belongs to.
 //
 Function ObjectsBelongingToCommandInterfaceSections() Export
 	

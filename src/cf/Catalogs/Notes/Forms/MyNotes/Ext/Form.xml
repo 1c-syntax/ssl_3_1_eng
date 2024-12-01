@@ -50,6 +50,14 @@
 				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormCommonCommandRemindExtendedTooltip" id="16"/>
 			</Button>
+			<Popup name="SubmenuOrganizer" id="50">
+				<Picture>
+					<xr:Ref>CommonPicture.Organizer</xr:Ref>
+					<xr:LoadTransparent>false</xr:LoadTransparent>
+				</Picture>
+				<Representation>Picture</Representation>
+				<ExtendedTooltip name="SubmenuOrganizerExtendedTooltip" id="51"/>
+			</Popup>
 			<SearchStringAddition name="SearchString" id="47">
 				<AdditionSource>
 					<Item>List</Item>
@@ -196,6 +204,9 @@
 				<ContextMenu name="ListSearchControlContextMenu" id="45"/>
 				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="46"/>
 			</SearchControlAddition>
+			<Events>
+				<Event name="OnActivateRow">ListOnActivateRow</Event>
+			</Events>
 			<ChildItems>
 				<ColumnGroup name="Content" id="8">
 					<Title>

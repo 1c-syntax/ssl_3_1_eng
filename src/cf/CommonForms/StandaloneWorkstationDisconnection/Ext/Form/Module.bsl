@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
+	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("StandaloneWorkstation") Then
 		
 		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
@@ -33,7 +35,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// 
+	// Selecting the first wizard step
 	SetNavigationNumber(1);
 	
 EndProcedure
@@ -63,7 +65,7 @@ Procedure CloseForm(Command)
 	
 EndProcedure
 
-// 
+// Idle handlers.
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -100,7 +102,7 @@ EndProcedure
 
 #Region Private
 
-// 
+// Built-in part.
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -131,10 +133,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// 
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// 
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -146,7 +148,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	Items.PanelMain.CurrentPage  = Items[NavigationRowCurrent.MainPageName];
 	Items.NavigationPanel.CurrentPage = Items[NavigationRowCurrent.NavigationPageName];
 	
-	// 
+	// Set the default button.
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "StopDataSynchronization");
 	
 	If NextButton <> Undefined Then
@@ -176,7 +178,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	
-	// 
+	// Navigation event handlers.
 	If IsMoveNext Then
 		
 		NavigationRows = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber - 1));
@@ -187,7 +189,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		
 		NavigationRow = NavigationRows[0];
 		
-		// 
+		// OnNavigationToNextPage handler.
 		If Not IsBlankString(NavigationRow.OnNavigationToNextPageHandlerName)
 			And Not NavigationRow.TimeConsumingOperation Then
 			
@@ -218,7 +220,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		
 		NavigationRow = NavigationRows[0];
 		
-		// 
+		// OnNavigationToPreviousPage handler.
 		If Not IsBlankString(NavigationRow.OnSwitchToPreviousPageHandlerName)
 			And Not NavigationRow.TimeConsumingOperation Then
 			
@@ -255,7 +257,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		Return;
 	EndIf;
 	
-	// 
+	// OnOpen handler.
 	If Not IsBlankString(NavigationRowCurrent.OnOpenHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, SkipPage, IsMoveNext)";
@@ -305,7 +307,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
 	
-	// 
+	// TimeConsumingOperationHandler handler.
 	If Not IsBlankString(NavigationRowCurrent.TimeConsumingOperationHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, GoToNext)";
@@ -401,7 +403,7 @@ Procedure GoBack()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Overridable part - internal procedures and functions
 
 &AtServer
 Procedure DeleteStandaloneWorkstation1(Cancel, ErrorMessage = "")
@@ -441,7 +443,7 @@ Procedure WriteErrorToEventLog(ErrorMessageString, Event)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Overridable part - navigation event handlers
 
 &AtClient
 Function Attachable_WaitTimeConsumingOperationProcessing(Cancel, GoToNext)
@@ -500,7 +502,7 @@ Function JobCompleted(JobID)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Overridable part - wizard navigation initialization
 
 &AtServer
 Procedure SetMainScenario()

@@ -1,24 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Private
 
-// The procedure updates the register data when the use of access types changes.
+// Updates register data after changing the access kind.
 //
 // Parameters:
-//  HasChanges - Boolean -  (return value) - if a record was made,
-//                  it is set to True, otherwise it is not changed.
+//  HasChanges - Boolean - (return value) - if recorded,
+//                  True is set, otherwise, it does not change.
 //
-//  WithoutUpdatingDependentData - Boolean -  if True, then
-//                  do not call the procedure for changing the use of the Access view and
-//                  do not plan to update the access restriction parameters.
+//  WithoutUpdatingDependentData - Boolean - if True, 
+//                  do not call the OnChangeAccessKindsUse procedure and
+//                  do not schedule the update of the access restriction parameters.
 //
 Procedure UpdateRegisterData(HasChanges = Undefined, WithoutUpdatingDependentData = False) Export
 	
@@ -31,7 +33,7 @@ Procedure UpdateRegisterData(HasChanges = Undefined, WithoutUpdatingDependentDat
 		
 		If AccessKindProperties.Name = "ExternalUsers"
 		 Or AccessKindProperties.Name = "Users" Then
-			// 
+			// These access kinds cannot be disabled by functional options.
 			Used = True;
 		Else
 			Used = True;
@@ -83,35 +85,56 @@ EndProcedure
 //
 Function HasChangesInAccessKindsUsage(RecordSet)
 	
-	PreviousValues1 = CreateRecordSet();
+	Query = New Query;
+	Query.Text =
+	"SELECT
+	|	UsedAccessKinds.AccessValuesType AS AccessValuesType,
+	|	UsedAccessKinds.Used AS Used
+	|INTO NewRecords
+	|FROM
+	|	&NewRecords AS UsedAccessKinds
+	|WHERE
+	|	&Filter
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	NewRecords AS NewRecords
+	|		LEFT JOIN InformationRegister.UsedAccessKinds AS UsedAccessKinds
+	|		ON (UsedAccessKinds.AccessValuesType = NewRecords.AccessValuesType)
+	|			AND (UsedAccessKinds.Used = NewRecords.Used)
+	|WHERE
+	|	UsedAccessKinds.AccessValuesType IS NULL
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	InformationRegister.UsedAccessKinds AS UsedAccessKinds
+	|		LEFT JOIN NewRecords AS NewRecords
+	|		ON (NewRecords.AccessValuesType = UsedAccessKinds.AccessValuesType)
+	|			AND (NewRecords.Used = UsedAccessKinds.Used)
+	|WHERE
+	|	&Filter
+	|	AND NewRecords.AccessValuesType IS NULL";
+	
+	Query.SetParameter("NewRecords", RecordSet.Unload());
+	
 	If RecordSet.Filter.AccessValuesType.Use Then
-		PreviousValues1.Filter.AccessValuesType.Set(RecordSet.Filter.AccessValuesType.Value);
+		Query.SetParameter("AccessValuesType",
+			RecordSet.Filter.AccessValuesType.Value);
+		Query.Text = StrReplace(Query.Text, "&Filter",
+			"UsedAccessKinds.AccessValuesType = &AccessValuesType");
+	Else
+		Query.Text = StrReplace(Query.Text, "&Filter", "TRUE");
 	EndIf;
 	
-	PreviousValues1.Read();
+	QueryResults = Query.ExecuteBatch();
 	
-	Table = PreviousValues1.Unload();
-	Table.Columns.Add("LineChangeType", New TypeDescription("Number"));
-	Table.FillValues(-1, "LineChangeType");
-	
-	For Each Record In RecordSet Do
-		NewRow = Table.Add();
-		NewRow.LineChangeType = 1;
-		NewRow.AccessValuesType = Record.AccessValuesType;
-		NewRow.Used       = Record.Used;
-	EndDo;
-	Table.GroupBy("AccessValuesType,Used", "LineChangeType");
-	
-	HasChanges = False;
-	For Each String In Table Do
-		If String.LineChangeType = 0 Then
-			Continue;
-		EndIf;
-		HasChanges = True;
-		Break;
-	EndDo;
-	
-	Return HasChanges;
+	Return Not QueryResults[1].IsEmpty() Or Not QueryResults[2].IsEmpty();
 	
 EndFunction
 
@@ -134,7 +157,7 @@ EndProcedure
 Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
-		// 
+		// SWP right settings are locked for editing. Cannot import them into the data area.
 		Return;
 	EndIf;
 	
@@ -153,7 +176,7 @@ Procedure ScheduleUpdateOnChangeAccessKindsUsage() Export
 	UsersInternal.RegisterRefs("UsedAccessKinds", Undefined);
 EndProcedure
 
-// For procedures, update the register data, process the change of the registered reload.
+// For the UpdateRegisterData, ProcessChangeRecordedOnImport procedures.
 Procedure WhenChangingTheUseOfAccessTypes(PlanToUpdateAccessRestrictionSettings = False) Export
 	
 	InformationRegisters.AccessGroupsValues.UpdateRegisterData();

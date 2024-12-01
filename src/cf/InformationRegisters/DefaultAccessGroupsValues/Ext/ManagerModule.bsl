@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,9 +14,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// SaaSTechnology.ExportImportData
 
-// It is connected to the offload of the unloaded data, which is undetectable.When registering the data handlers, the data loads.
+// Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
 // Parameters:
 //   Container - DataProcessorObject.ExportImportDataContainerManager
@@ -44,7 +46,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End CloudTechnology.ExportImportData
+// End SaaSTechnology.ExportImportData
 
 #EndRegion
 
@@ -66,7 +68,7 @@ Procedure CreateARepresentationOfTheAccessValueType(List, FieldName) Export
 		TypeDetails = New TypeDescription(Types);
 		TypeBlankRef = TypeDetails.AdjustValue(Undefined);
 		
-		// 
+		// Appearance.
 		AppearanceItem = List.SettingsComposer.Settings.ConditionalAppearance.Items.Add();
 		AppearanceItem.ViewMode = DataCompositionSettingsItemViewMode.Inaccessible;
 		

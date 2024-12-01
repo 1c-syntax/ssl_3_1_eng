@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -177,7 +179,7 @@ Procedure RunDataProcessorByParameters()
 	ElsIf DataProcessorData.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.ServerMethodCall")
 		Or DataProcessorData.StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.SafeModeScenario") Then
 		
-		// 
+		// Change form items.
 		Items.ExplainingDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Executing command ""%1""…';"),
 			DataProcessorData.Presentation);
@@ -185,7 +187,7 @@ Procedure RunDataProcessorByParameters()
 		Items.CustomizeList.Visible = False;
 		Items.ExecuteProcessing.Visible = False;
 		
-		// 
+		// Delaying the server call until the form state becomes consistent.
 		AttachIdleHandler("ExecuteDataProcessorServerMethod", 0.1, True);
 		
 	EndIf;
@@ -245,7 +247,7 @@ Procedure ExecuteDataProcessorServerMethodCompletion(Result, AdditionalParameter
 			Result.ErrorInfo);
 	EndIf;
 		
-	// 
+	// Showing a pop-up notification and closing this form.
 	If CommandToExecute.ShouldShowUserNotification Then
 		ShowUserNotification(NStr("en = 'The operation is completed.';"),, CommandToExecute.Presentation);
 	EndIf;
@@ -253,16 +255,16 @@ Procedure ExecuteDataProcessorServerMethodCompletion(Result, AdditionalParameter
 		Close();
 	EndIf;
 	
-	// 
+	// Refresh owner form.
 	If IsObjectForm Then
 		Try
 			FormOwner.Read();
 		Except
-			// 
+			// No action required.
 		EndTry;
 	EndIf;
 	
-	// 
+	// Notify other forms.
 	ExecutionResult = GetFromTempStorage(Result.ResultAddress);
 	NotifyForms = CommonClientServer.StructureProperty(ExecutionResult, "NotifyForms");
 	If NotifyForms <> Undefined Then

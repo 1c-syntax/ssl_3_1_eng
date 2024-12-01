@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -19,7 +21,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// End StandardSubsystems.AttachableCommands
 	
 	// 
-	// 
+	If Common.SubsystemExists("StandardSubsystems.UserReminders") Then
+		ModuleUserReminder = Common.CommonModule("UserReminders");
+		PlacementParameters = ModuleUserReminder.PlacementParameters();
+		PlacementParameters.NameOfAttributeWithEventDate = "TaskDueDate";
+		ModuleUserReminder.OnCreateAtServer(ThisObject, PlacementParameters);
+	EndIf;
+	// End StandardSubsystems.UserReminders
+	
+	// For new objects, run the form initializer in "OnCreateAtServer".
+	// For existing objects, in "OnReadAtServer".
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;
@@ -34,31 +45,46 @@ Procedure OnReadAtServer(CurrentObject)
 	
 	InitializeTheForm();
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.AccessManagement 
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
-
+	
+	// 
+	If Common.SubsystemExists("StandardSubsystems.UserReminders") Then
+		ModuleUserReminder = Common.CommonModule("UserReminders");
+		ModuleUserReminder.OnReadAtServer(ThisObject, CurrentObject);
+	EndIf;
+	// End StandardSubsystems.UserReminders
+	
 EndProcedure
 
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	BusinessProcessesAndTasksClient.TaskFormNotificationProcessing(ThisObject, EventName, Parameter, Source);
+	
+	// 
+	If CommonClient.SubsystemExists("StandardSubsystems.UserReminders") Then
+		ModuleUserReminderClient = CommonClient.CommonModule("UserRemindersClient");
+		ModuleUserReminderClient.NotificationProcessing(ThisObject, EventName, Parameter, Source);
+	EndIf;
+	// End StandardSubsystems.UserReminders
+	
 EndProcedure
 
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -70,12 +96,26 @@ EndProcedure
 &AtClient
 Procedure AfterWrite(WriteParameters)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
+	
+EndProcedure
+
+&AtServer
+Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
+	
+	// 
+	If Common.SubsystemExists("StandardSubsystems.UserReminders") Then
+		ModuleUserReminder = Common.CommonModule("UserReminders");
+		ReminderText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Проверить выполнение задачи %1';"), CurrentObject.Description);	
+		ModuleUserReminder.OnWriteAtServer(ThisObject, Cancel, CurrentObject, WriteParameters, ReminderText);
+	EndIf;
+	// End StandardSubsystems.UserReminders
 	
 EndProcedure
 
@@ -109,6 +149,18 @@ Procedure CompletionDateOnChange(Item)
 	
 EndProcedure
 
+// 
+&AtClient
+Procedure Attachable_OnChangeReminderSettings(Item)
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.UserReminders") Then
+		ModuleUserReminderClient = CommonClient.CommonModule("UserRemindersClient");
+		ModuleUserReminderClient.OnChangeReminderSettings(Item, ThisObject);
+	EndIf;
+	
+EndProcedure
+// End StandardSubsystems.UserReminders
+
 #EndRegion
 
 #Region FormCommandsEventHandlers
@@ -134,7 +186,7 @@ Procedure More(Command)
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

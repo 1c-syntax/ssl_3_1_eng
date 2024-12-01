@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
+	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("ExchangeNode") Then
 		
 		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
@@ -143,7 +145,7 @@ Procedure OnCompleteSynchronizationSettingsDeletion()
 			Items.SyncDeletedLabelDecoration.Title = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Data synchronization settings in this application
 				|and in %1 are deleted.';"),
-				CorrespondentDescription);
+				PeerInfobaseName);
 		EndIf;
 		
 	Else
@@ -262,11 +264,11 @@ Procedure InitializeFormAttributes()
 		And Common.SeparatedDataUsageAvailable();
 		
 	Parameters.Property("CorrespondentDataArea",  CorrespondentDataArea);
-	Parameters.Property("CorrespondentDescription",   CorrespondentDescription);
+	Parameters.Property("PeerInfobaseName",   PeerInfobaseName);
 	Parameters.Property("IsExchangeWithApplicationInService", IsExchangeWithApplicationInService);
 	
-	If Not ValueIsFilled(CorrespondentDescription) Then
-		CorrespondentDescription = String(ExchangeNode);
+	If Not ValueIsFilled(PeerInfobaseName) Then
+		PeerInfobaseName = String(ExchangeNode);
 	EndIf;
 	
 	TransportKind = InformationRegisters.DataExchangeTransportSettings.DefaultExchangeMessagesTransportKind(ExchangeNode);
@@ -349,11 +351,11 @@ Function Attachable_BeginningPageOnOpen1(Cancel, SkipPage, IsMoveNext)
 	If IsExchangeWithExternalSystem Then
 		Items.DeleteSettingItemInCorrespondent.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Delete exchange with %1 at 1C:ITS Portal';"),
-			CorrespondentDescription);
+			PeerInfobaseName);
 	Else
 		Items.DeleteSettingItemInCorrespondent.Title = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Also delete the setting in %1';"),
-			CorrespondentDescription);
+			PeerInfobaseName);
 	EndIf;
 	
 	Return Undefined;
@@ -429,10 +431,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// 
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// 
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -446,7 +448,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
 	Items.NavigationPanel.CurrentPage.Enabled = Not (IsMoveNext And NavigationRowCurrent.TimeConsumingOperation);
 	
-	// 
+	// Set the default button.
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "NextCommand");
 	
 	If NextButton <> Undefined Then
@@ -476,7 +478,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	
-	// 
+	// Navigation event handlers.
 	If IsMoveNext Then
 		
 		NavigationRows = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber - 1));
@@ -484,7 +486,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		If NavigationRows.Count() > 0 Then
 			NavigationRow = NavigationRows[0];
 		
-			// 
+			// OnNavigationToNextPage handler.
 			If Not IsBlankString(NavigationRow.OnNavigationToNextPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -513,7 +515,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		If NavigationRows.Count() > 0 Then
 			NavigationRow = NavigationRows[0];
 		
-			// 
+			// OnNavigationToPreviousPage handler.
 			If Not IsBlankString(NavigationRow.OnSwitchToPreviousPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -551,7 +553,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		Return;
 	EndIf;
 	
-	// 
+	// OnOpen handler
 	If Not IsBlankString(NavigationRowCurrent.OnOpenHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, SkipPage, IsMoveNext)";
@@ -601,7 +603,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
 	
-	// 
+	// TimeConsumingOperationProcessing handler.
 	If Not IsBlankString(NavigationRowCurrent.TimeConsumingOperationHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, GoToNext)";
@@ -769,7 +771,7 @@ Procedure OnCompleteGettingApplicationsListAtServer(GoToNext)
 		If Not ApplicationRow = Undefined Then
 			IsExchangeWithApplicationInService = True;
 			CorrespondentDataArea  = ApplicationRow.DataArea;
-			CorrespondentDescription   = ApplicationRow.ApplicationDescription;
+			PeerInfobaseName   = ApplicationRow.ApplicationDescription;
 		EndIf;
 	Else
 		Common.MessageToUser(CompletionStatus.ErrorMessage);

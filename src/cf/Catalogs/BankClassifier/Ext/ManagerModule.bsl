@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns the details of an object that is not recommended to edit
-// by processing a batch update of account details.
+// Returns the object attributes that are not recommended to be edited
+// using a bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String
@@ -30,13 +32,13 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// SaaSTechnology.ExportImportData
 
-// Returns the directory details that form the natural key
-// for the directory elements.
+// Returns the catalog attributes
+// that naturally form a catalog item key.
 //
 // Returns:
-//  Array - 
+//  Array - Array of attribute names used to generate a natural key.
 //
 Function NaturalKeyFields() Export
 	
@@ -49,7 +51,7 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End CloudTechnology.ExportImportData
+// End SaaSTechnology.ExportImportData
 
 #EndRegion
 

@@ -1,15 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
-// Checks the status of the deferred update. If the update failed
-// with errors, it informs the user and administrator about it.
+// Checks deferred update status. If there occurred errors
+// during an update procedure, this function informs a user and an administrator about it.
 //
 Procedure CheckDeferredUpdateStatus() Export
 	

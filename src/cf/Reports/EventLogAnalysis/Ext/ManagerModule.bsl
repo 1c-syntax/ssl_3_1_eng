@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +13,7 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.ReportsOptions
 
 // See ReportsOptionsOverridable.BeforeAddReportCommands.
 Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing) Export
@@ -129,31 +130,31 @@ EndProcedure
 
 #Region Private
 
-// The function gets information about user activity from the log
-// for the transmitted period.
+// Gets logged user activities for the given period.
+// 
 //
 // Parameters:
 //    ReportParameters - Structure:
-//    * StartDate          - Date   -  the beginning of the period for which information will be collected.
-//    * EndDate       - Date   -  the end of the period for which information will be collected.
-//    * User        - String -  name of the user to use for analysis.
-//                                     For the "user Activity" report option.
-//    * UsersAndGroups - ValueList -  where the value is the group(s) of users and(or)
-//                                     the user (s) to analyze.
-//                                     For the "user activity Analysis" version of the report.
-//    * ReportVariant       - String -  "User activity" or "user activity Analysis".
-//    * OutputTasks      - Boolean -  get or not information about issues from the log.
-//    * OutputCatalogs - Boolean -  get or not information about reference books from the registration log.
-//    * OutputDocuments   - Boolean -  get or not document information from the registration log.
-//    * OutputBusinessProcesses - Boolean -  get or not information about business processes from the log.
+//    * StartDate          - Date   - Beginning of the reporting period.
+//    * EndDate       - Date   - End of the reporting period.
+//    * User        - String - The name of the user whose activity is being analyzed.
+//                                     Intended for the "User activity" report option.
+//    * UsersAndGroups - ValueList - A value is user groups or users
+//                                     whose activity is being analyzed.
+//                                     Intended for the "Summary user activity" report option.
+//    * ReportVariant       - String - "UserActivity" or "UsersActivityAnalysis".
+//    * OutputTasks      - Boolean - Flag indicating whether to get data on tasks from the event log.
+//    * OutputCatalogs - Boolean - Flag indicating whether to get data on catalogs from the event log.
+//    * OutputDocuments   - Boolean - Flag indicating whether to get data on documents from the Event Log.
+//    * OutputBusinessProcesses - Boolean - Flag indicating whether to get data on business processes from the Event Log.
 //
 // Returns:
-//  ValueTable - 
+//  ValueTable - An ungrouped table with logged user activities.
 //     
 //
 Function EventLogData1(ReportParameters) Export
 	
-	// 
+	// Prepare delivery parameters.
 	StartDate = ReportParameters.StartDate;
 	EndDate = ReportParameters.EndDate;
 	User = ReportParameters.User;
@@ -175,7 +176,7 @@ Function EventLogData1(ReportParameters) Export
 		OutputTasks = False;
 	EndIf;
 	
-	// 
+	// Generate a source data table.
 	RawData = New ValueTable();
 	RawData.Columns.Add("Date", New TypeDescription("Date", , , New DateQualifiers(DateFractions.Date)));
 	RawData.Columns.Add("Week", New TypeDescription("String", , New StringQualifiers(10)));
@@ -197,7 +198,7 @@ Function EventLogData1(ReportParameters) Export
 	RawData.Columns.Add("ObjectKind", New TypeDescription("String", , New StringQualifiers(50)));
 	RawData.Columns.Add("CatalogDocumentObject");
 	
-	// 
+	// Calculating the maximum number of concurrent sessions.
 	ConcurrentSessionsData = New ValueTable();
 	ConcurrentSessionsData.Columns.Add("ConcurrentUsersDate",
 		New TypeDescription("Date", , , New DateQualifiers(DateFractions.Date)));
@@ -211,16 +212,21 @@ Function EventLogData1(ReportParameters) Export
 	Levels.Add(EventLogLevel.Information);
 	
 	Events = New Array;
-	Events.Add("_$Session$_.Start"); //  
-	Events.Add("_$Session$_.Finish"); //    
-	Events.Add("_$Data$_.New"); // 
-	Events.Add("_$Data$_.Update"); // 
+	Events.Add("_$Session$_.Start"); //  Start session.
+	Events.Add("_$Session$_.Finish"); //  Session end  
+	Events.Add("_$Data$_.New"); // Add data
+	Events.Add("_$Data$_.Update"); // Modify data.
 	
 	ApplicationName = New Array;
 	ApplicationName.Add("1CV8C");
 	ApplicationName.Add("WebClient");
 	ApplicationName.Add("1CV8");
 	ApplicationName.Add("BackgroundJob");
+	ApplicationName.Add("MobileClient");
+	ApplicationName.Add("HTTPServiceConnection");
+	ApplicationName.Add("WSConnection");
+	ApplicationName.Add("ODataConnection");
+	ApplicationName.Add("COMConnection");
 	
 	DatesInServerTimeZone = CommonClientServer.StructureProperty(ReportParameters,
 		"DatesInServerTimeZone", False);
@@ -234,7 +240,7 @@ Function EventLogData1(ReportParameters) Export
 	SelectedDivisions = Undefined;
 	UserDepartments = Undefined;
 	
-	// 
+	// Get a user list.
 	If ReportVariant = "UserActivity" Then
 		UserFilter.Add(UserForSelection(User));
 	ElsIf ReportVariant = "DepartmentActivityAnalysis" Then
@@ -271,7 +277,7 @@ Function EventLogData1(ReportParameters) Export
 	
 	ReportIsBlank = (EventLogData.Count() = 0);
 	
-	// 
+	// Add a UUID—UserRef map for future use.
 	UsersIDsMap = UsersUUIDs(EventLogData,
 		ShouldOutputUtilityUsers);
 	
@@ -286,7 +292,7 @@ Function EventLogData1(ReportParameters) Export
 	Sessions.Columns.Add("SessionLastEventDate");
 	Sessions.Indexes.Add("SessionNumber");
 	
-	// 
+	// Count data required for the report.
 	For Each EventLogDataRow In EventLogData Do
 		EventLogDataRow.Date = EventLogDataRow.Date - ServerTimeOffset;
 		
@@ -309,7 +315,7 @@ Function EventLogData1(ReportParameters) Export
 			EndIf;
 		EndIf;
 		
-		// 
+		// Prepare for estimating user session time and the number of app startups.
 		Session = Sessions.Find(EventLogDataRow.Session, "SessionNumber");
 		IsSessionAdded = False;
 		If EventLogDataRow.Event = "_$Session$_.Start" Then
@@ -344,7 +350,7 @@ Function EventLogData1(ReportParameters) Export
 		EventMetadata = EventLogDataRow.Metadata;
 		SourceDataString = Undefined;
 		
-		// 
+		// Calculating the number of created documents and catalogs.
 		If EventLogDataRow.Event = "_$Data$_.New" Then
 			If StrFind(EventMetadata, "Document.") > 0 And OutputDocuments Then
 				SourceDataString = RawData.Add();
@@ -356,7 +362,7 @@ Function EventLogData1(ReportParameters) Export
 			EndIf;
 		EndIf;
 		
-		// 
+		// Count modified documents and catalogs.
 		If EventLogDataRow.Event = "_$Data$_.Update" Then
 			If StrFind(EventMetadata, "Document.") > 0 And OutputDocuments Then
 				SourceDataString = RawData.Add();
@@ -368,7 +374,7 @@ Function EventLogData1(ReportParameters) Export
 			EndIf;
 		EndIf;
 		
-		// 
+		// Calculating the number of created BusinessProcesses and Tasks.
 		If EventLogDataRow.Event = "_$Data$_.New" Then
 			If StrFind(EventMetadata, "BusinessProcess.") > 0  And OutputBusinessProcesses Then
 				SourceDataString = RawData.Add();
@@ -380,7 +386,7 @@ Function EventLogData1(ReportParameters) Export
 			EndIf;
 		EndIf;
 		
-		// 
+		// Calculating the number of changed BusinessProcesses and Tasks.
 		If EventLogDataRow.Event = "_$Data$_.Update" Then
 			If StrFind(EventMetadata, "BusinessProcess.") > 0 And OutputBusinessProcesses Then
 				SourceDataString = RawData.Add();
@@ -403,7 +409,7 @@ Function EventLogData1(ReportParameters) Export
 		
 	EndDo;
 	
-	// 
+	// Calculating the duration of user activity and the number of times the application was started.
 	For Each Session In Sessions Do
 		If Session.StartingEvent <> Undefined Then
 			Begin = Session.StartingEvent.Date;
@@ -463,7 +469,7 @@ Function EventLogData1(ReportParameters) Export
 			
 			ConcurrentUsersDate = BegOfDay(EventLogDataRow.Date);
 			
-			// 
+			// If the day is changed, clearing all concurrent sessions data and filling the data for the previous day.
 			If CurrentDate <> ConcurrentUsersDate Then
 				If ConcurrentUsers <> 0 Then
 					GenerateConcurrentSessionsRow(ConcurrentSessionsData, MaxUsersArray, 
@@ -486,7 +492,7 @@ Function EventLogData1(ReportParameters) Export
 				EndIf;
 			EndIf;
 			
-			// 
+			// Read the counter value and compare it against the cap.
 			Counter = Max(Counter, 0);
 			If Counter > ConcurrentUsers Then
 				MaxUsersArray = New Array;
@@ -503,7 +509,7 @@ Function EventLogData1(ReportParameters) Export
 				ConcurrentUsers, CurrentDate);
 		EndIf;
 		
-		// 
+		// Count errors and warnings.
 		EventLogData = EventLogErrorsInformation(StartDate,
 			EndDate, ServerTimeOffset, UserFilter);
 		
@@ -546,7 +552,7 @@ Function EventLogData1(ReportParameters) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Summary user activity.
 
 Procedure FillUsersForAnalysis(UserFilter, FilterValue)
 	
@@ -609,10 +615,10 @@ EndProcedure
 // Returns:
 //  Structure:
 //   * CurrentItems - Map of KeyAndValue:
-//      ** Key - UUID - 
+//      ** Key - UUID - Infobase user ID
 //      ** Value - See DepartmentDetails
 //   * Changes - Map of KeyAndValue:
-//      ** Key - UUID - 
+//      ** Key - UUID - Infobase user ID
 //      ** Value - Array of See DepartmentChangeDetails
 //   * UsersOfSelectedDepartments - Map of KeyAndValue:
 //      ** Key - UUID
@@ -719,13 +725,13 @@ EndFunction
 
 // Parameters:
 //  Data - Structure:
-//   * Department - String - 
+//   * Department - String - Serialized reference.
 //   * DepartmentPresentation - String
 //
 // Returns:
 //  Structure:
-//   * Department - 
-//   * DepartmentString - String - 
+//   * Department - AnyRef, Undefined
+//   * DepartmentString - String - Serialized reference.
 //   * DepartmentPresentation - String
 //
 Function DepartmentDetails(Data)
@@ -755,8 +761,8 @@ EndFunction
 //   * Date   - Date
 //   * New  - See DepartmentDetails
 //            - Undefined
-//    See DepartmentDetails
-//            - Undefined
+//   * Old - See DepartmentDetails
+//            - * Old -
 //
 Function DepartmentChangeDetails(Date, Var_New = Undefined, Old = Undefined)
 	
@@ -884,9 +890,9 @@ EndProcedure
 
 // Parameters:
 //  SourceDataString - ValueTable:
-//   * Department - 
+//   * Department - AnyRef, String
 //   * DepartmentPresentation - String
-//  Date - Date - 
+//  Date - Date - Event date and time
 //  IBUserID - UUID
 //  UserDepartments - See UserDepartments
 //
@@ -1060,27 +1066,27 @@ Procedure GenerateConcurrentSessionsRow(ConcurrentSessionsData, MaxUsersArray,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Scheduled job runtime.
 
-// This function generates a report on routine tasks.
+// Generates a report on scheduled jobs.
 //
 // Parameters:
-//   FillParameters - Structure - :
-//     * StartDate    - Date -  the beginning of the period for which information will be collected.
-//     * EndDate - Date -  the end of the period for which information will be collected.
-//   Timestamp Size-Number - the minimum number of concurrent scheduled tasks to
-//                                      display in the table.
-//   Minimum duration of Scheduled Task sessions - Number - minimum duration of scheduled
-//                                                                    task sessions in seconds.
-//   Display Background tasks-Boolean - if true, the Gantt chart will display a row with the intervals
-//                                       of the background task sessions.
-//   Output Header-The type of the output text of the data components-is used to disable/enable the header.
-//   Output Selection-The type of the output of the text of the data components-is used to disable / enable the display of the selection.
-//   Hide Scheduled tasks-List of values - a list of scheduled tasks that should be excluded from the report.
+//   FillParameters - Structure - A set of parameters required to generate the report:
+//     * StartDate    - Date - Beginning of the reporting period.
+//     * EndDate - Date - the end of the report period.
+//   ConcurrentSessionsSize - Number - the minimum number of concurrent scheduled jobs
+//                                      to display in the table.
+//   MinScheduledJobSessionDuration - Number - the minimum duration of a scheduled job session
+//                                                                    (in seconds).
+//   DisplayBackgroundJobs - Boolean - if True, display a line with intervals of background jobs sessions
+//                                       on the Gantt chart.
+//   OutputTitle - DataCompositionTextOutputType - shows whether to show the title.
+//   OutputFilter - DataCompositionTextOutputType - shows whether to show the filter.
+//   HideScheduledJobs - ValueList - a list of scheduled jobs to exclude from the report.
 //
 Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	
-	// 
+	// Report parameters.
 	StartDate = FillParameters.StartDate;
 	EndDate = FillParameters.EndDate;
 	MinScheduledJobSessionDuration = 
@@ -1091,7 +1097,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	Result = New Structure;
 	Report = New SpreadsheetDocument;
 	
-	// 
+	// Get data required to generate the report.
 	GetData = DataForScheduledJobsDurationsReport(FillParameters);
 	ScheduledJobsSessionsTable = GetData.ScheduledJobsSessionsTable;
 	ConcurrentSessionsData = GetData.TotalConcurrentScheduledJobs;
@@ -1099,14 +1105,14 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	ReportIsBlank        = GetData.ReportIsBlank;
 	Template = GetTemplate("ScheduledJobsDuration");
 	
-	// 
+	// A set of colors for the chart and table backgrounds.
 	BackColors = New Array;
 	BackColors.Add(WebColors.White);
 	BackColors.Add(WebColors.LightYellow);
 	BackColors.Add(WebColors.LemonChiffon);
 	BackColors.Add(WebColors.NavajoWhite);
 	
-	// 
+	// Generate a report header.
 	If TitleOutput.Value = DataCompositionTextOutputType.Output
 		And TitleOutput.Use
 		Or Not TitleOutput.Use Then
@@ -1132,7 +1138,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	
 		Report.Put(TemplateAreaDetails(Template, "TableHeader"));
 		
-		// 
+		// Generating a table of the maximum number of concurrent scheduled jobs.
 		CurrentSessionsCount = 0; 
 		ColorIndex = 3;
 		For Each ConcurrentSessionsRow In ConcurrentSessionsData Do
@@ -1180,7 +1186,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	
 	Report.Put(TemplateAreaDetails(Template, "IsBlankString"));
 	
-	// 
+	// Getting a Gantt chart and specifying the parameters required to fill the chart.
 	Area = TemplateAreaDetails(Template, "Chart");
 	GanttChart = Area.Drawings.GanttChart.Object; // GanttChart
 	GanttChart.RefreshEnabled = False;  
@@ -1194,7 +1200,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	ScheduledJobStarts = 0;
 	PointChangedFlag        = False;
 	
-	// 	
+	// Populate the Gantt chart.	
 	For Each ScheduledJobsRow In ScheduledJobsSessionsTable Do
 		ScheduledJobIntervalDuration =
 			ScheduledJobsRow.JobEndDate - ScheduledJobsRow.JobStartDate;
@@ -1215,7 +1221,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 				EndIf;
 				StartsCountRow = StartsCount.Find(
 					ScheduledJobsRow.NameOfEvent, "NameOfEvent");
-				// 
+				// Leaving the details of background jobs blank.
 				If ScheduledJobsRow.EventMetadata <> "" Then 
 					PointName = ScheduledJobsRow.NameOfEvent;
 					Point = GanttChart.SetPoint(PointName);
@@ -1251,7 +1257,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 				Format(Interval.Begin, "DLF=T"),
 				Format(Interval.End, "DLF=T"));
 			PointChangedFlag = False;
-			// 
+			// Leaving the details of background jobs blank.
 			If ScheduledJobsRow.EventMetadata <> "" Then
 				IntervalStart.Add(ScheduledJobsRow.JobStartDate);
 				IntervalEnd.Add(ScheduledJobsRow.JobEndDate);
@@ -1265,7 +1271,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	
 	If ScheduledJobStarts <> 0
 		And ValueIsFilled(Point.Details) Then
-		// 
+		// Add the details feature to the last point.
 		DetailsPoint = Point.Details; // Array
 		DetailsPoint.Add(ScheduledJobStarts);
 		DetailsPoint.Add(OverallScheduledJobsDuration);
@@ -1278,7 +1284,7 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 		Point.Value = PointName;
 	EndIf;
 		
-	// 
+	// Setting up chart view settings.
 	GanttChartColors(StartDate, GanttChart, ConcurrentSessionsData, BackColors);
 	AnalysisPeriod = EndDate - StartDate;
 	GanttChartTimescale(GanttChart, AnalysisPeriod);
@@ -1300,23 +1306,23 @@ Function GenerateScheduledJobsDurationReport(FillParameters) Export
 	Return Result;
 EndFunction
 
-// The function receives information on routine tasks from the registration log.
+// Gets scheduled jobs data from the Event log.
 //
 // Parameters:
-//   FillParameters - Structure - :
-//   * StartDate    - Date -  the beginning of the period for which information will be collected.
-//   * EndDate - Date -  the end of the period for which information will be collected.
-//   * ConcurrentSessionsSize	- Number -  the minimum number of concurrent scheduled
-// 		tasks to display in the table.
-//   * MinScheduledJobSessionDuration - Number -  minimum duration
-// 		of scheduled task sessions in seconds.
-//   * DisplayBackgroundJobs - Boolean -  if true, the Gantt chart will display a line with 
-// 		the intervals of sessions of background tasks.
-//   * HideScheduledJobs - ValueList -  a list of routine tasks that need to be excluded from the report.
+//   FillParameters - Structure - Set of parameters required for report generation.:
+//   * StartDate    - Date - Beginning of the reporting period.
+//   * EndDate - Date - End of the reporting period.
+//   * ConcurrentSessionsSize	- Number - Minimum number of concurrent scheduled jobs
+// 		to display in the table.
+//   * MinScheduledJobSessionDuration - Number - Minimal job session duration in seconds.
+// 		
+//   * DisplayBackgroundJobs - Boolean - If set to "True", display a line with intervals of background job sessions 
+// 		on the Gantt chart.
+//   * HideScheduledJobs - ValueList - List of scheduled jobs to exclude from the report.
 //
-// Return value
-//   Assignment table - a table containing information on the work of routine tasks
-//     from the registration log.
+// Returns
+//   ValueTable - Table of log entries on the scheduled jobs.
+//     
 //
 Function DataForScheduledJobsDurationsReport(FillParameters)
 	
@@ -1359,7 +1365,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 		EndDo;
 	EndIf;
 	
-	// 
+	// Generate data for the filter by scheduled jobs.
 	AllScheduledJobsList = ScheduledJobsServer.FindJobs(New Structure);
 	MetadataIDMap = New Map;
 	MetadataNameMap = New Map;
@@ -1376,7 +1382,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 		EndIf;
 	EndDo;
 	
-	// 
+	// Populate parameters required for defining concurrent scheduled jobs.
 	ConcurrentSessionsParameters = New Structure;
 	ConcurrentSessionsParameters.Insert("EventLogData", EventLogData);
 	ConcurrentSessionsParameters.Insert("DescriptionIDMap", DescriptionIDMap);
@@ -1386,10 +1392,10 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	ConcurrentSessionsParameters.Insert("MinScheduledJobSessionDuration",
 		MinScheduledJobSessionDuration);
 	
-	// 
+	// The maximum number of concurrent scheduled jobs sessions.
 	ConcurrentSessionsData = ConcurrentScheduledJobs(ConcurrentSessionsParameters);
 	
-	// 
+	// Select values from the "ConcurrentSessions" table.
 	ConcurrentSessionsData.Sort("ConcurrentScheduledJobs Desc");
 	
 	TotalConcurrentScheduledJobsRow = Undefined;
@@ -1415,7 +1421,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	
 	EventLogData.Sort("Metadata, Data, Date, Session");
 	
-	// 
+	// Populate parameters required for getting data by scheduled jobs session.
 	ScheduledJobsSessionsParameters = New Structure;
 	ScheduledJobsSessionsParameters.Insert("EventLogData", EventLogData);
 	ScheduledJobsSessionsParameters.Insert("DescriptionIDMap", DescriptionIDMap);
@@ -1424,7 +1430,7 @@ Function DataForScheduledJobsDurationsReport(FillParameters)
 	ScheduledJobsSessionsParameters.Insert("DisplayBackgroundJobs", DisplayBackgroundJobs);
 	ScheduledJobsSessionsParameters.Insert("HideScheduledJobs", HideScheduledJobs);
 	
-	// 
+	// Scheduled jobs.
 	ScheduledJobsSessionsTable = 
 		ScheduledJobsSessions(ScheduledJobsSessionsParameters).ScheduledJobsSessionsTable;
 	StartsCount = ScheduledJobsSessions(ScheduledJobsSessionsParameters).StartsCount;
@@ -1533,8 +1539,8 @@ Function ConcurrentScheduledJobs(ConcurrentSessionsParameters)
 				EndIf;
 			EndIf;    						
 			ScheduledJobsArray.Delete(ScheduledJobIndex);
-			ScheduledJobsArray.Delete(ScheduledJobIndex); // 
-			ScheduledJobsArray.Delete(ScheduledJobIndex); // 
+			ScheduledJobsArray.Delete(ScheduledJobIndex); // Delete session value.
+			ScheduledJobsArray.Delete(ScheduledJobIndex); // Delete the date value.
 			Counter = Counter - 1;
 		EndIf;
 		
@@ -1674,9 +1680,9 @@ Function ScheduledJobsSessions(ScheduledJobsSessionsParameters)
 					ScheduledJobsSessionsTable, StartsCount);
 EndFunction
 
-// Function for generating a report on the selected routine task.
+// Generates a report for a single scheduled job.
 // Parameters:
-//   Details - 
+//   Details - scheduled job details.
 //
 Function ScheduledJobDetails1(Details) Export
 	Result = New Structure;
@@ -1733,7 +1739,7 @@ Function ScheduledJobDetails1(Details) Export
 	
 	Report.Put(Template.GetArea("TableHeader"));
 	
-	// 
+	// Populate the intervals table.
 	ArraySize = JobStartDate.Count();
 	IntervalNumber = 1; 	
     Report.StartRowGroup(, False);
@@ -1760,17 +1766,17 @@ Function ScheduledJobDetails1(Details) Export
 	Return Result;
 EndFunction
 
-// Procedure for setting the color of the intervals and background of the Gantt chart.
+// Sets interval and background colors for a Gantt chart.
 //
 // Parameters:
-//   StartDate - 
-//   GanttChart - GanttChart, Type -  Drawing table of the document.
-//   ConcurrentSessionsData - ValueTable -  with data on the number
-// 		of scheduled tasks that worked simultaneously during the day.
-//   BackColors - 
+//   StartDate - Day to be analyzed.
+//   GanttChart - GanttChart, Type - SpreadsheetDocumentDrawing.
+//   ConcurrentSessionsData - ValueTable - Contains the number of concurrent scheduled jobs that ran on the given date.
+// 		
+//   BackColors - Array of colors for background intervals.
 //
 Procedure GanttChartColors(StartDate, GanttChart, ConcurrentSessionsData, BackColors)
-	// 
+	// Adding colors of background intervals.
 	CurrentSessionsCount = 0;
 	ColorIndex = 3;
 	For Each ConcurrentSessionsRow In ConcurrentSessionsData Do
@@ -1793,10 +1799,10 @@ Procedure GanttChartColors(StartDate, GanttChart, ConcurrentSessionsData, BackCo
 	EndDo;
 EndProcedure
 
-// Procedure for generating the Gantt chart time scale.
+// Generates a timescale of a Gantt chart.
 //
 // Parameters:
-//   GanttChart - GanttChart, Type -  Drawing table of the document.
+//   GanttChart - GanttChart, Type - SpreadsheetDocumentDrawing.
 //
 Procedure GanttChartTimescale(GanttChart, AnalysisPeriod)
 	TimeScaleItems = GanttChart.PlotArea.TimeScale.Items;
@@ -1887,15 +1893,15 @@ Function TemplateAreaDetails(Template, AreaName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event log management.
 
-// A function that generates a report on errors registered in the log.
+// Generates a report on errors registered in the event log.
 //
 // Parameters:
-//   Dataregistration Log-Value table - an unloaded table from the log of registrations.
+//   EventLogData - ValueTable - a table exported from the event log.
 //
-// The following columns must be present: Date, Username, Application View,
-//                                          Event View, Comment, Level.
+// It must have the following columns: Date, Username, ApplicationPresentation,
+//                                          EventPresentation, Comment, and Level.
 //
 Function GenerateEventLogMonitorReport(StartDate, EndDate, ServerTimeOffset) Export
 	
@@ -1905,10 +1911,10 @@ Function GenerateEventLogMonitorReport(StartDate, EndDate, ServerTimeOffset) Exp
 	EventLogData = EventLogErrorsInformation(StartDate, EndDate, ServerTimeOffset);
 	EventLogRecordsCount = EventLogData.Count();
 	
-	ReportIsBlank = (EventLogRecordsCount = 0); // 
+	ReportIsBlank = (EventLogRecordsCount = 0); // Validate report input.
 		
 	///////////////////////////////////////////////////////////////////////////////
-	// 
+	// A data preparation sequence.
 	//
 	
 	CollapseByComments = EventLogData.Copy();
@@ -1928,7 +1934,7 @@ Function GenerateEventLogMonitorReport(StartDate, EndDate, ServerTimeOffset) Exp
 	CollapseWarnings.Sort("TotalByComment Desc");
 	
 	///////////////////////////////////////////////////////////////////////////////
-	// 
+	// Report generation block.
 	//
 	
 	Area = Template.GetArea("ReportHeader1");
@@ -1968,14 +1974,14 @@ Function GenerateEventLogMonitorReport(StartDate, EndDate, ServerTimeOffset) Exp
 	
 EndFunction
 
-// Get a view of the physical location of the information base for display to the administrator.
+// Gets a presentation of the physical infobase location to display it to an administrator.
 //
 // Returns:
-//   String - 
+//   String - Infobase presentation.
 //
 // Example:
-// - 
-// 
+// - For a file infobase: \\FileServer\1c_ib\
+// - For a server infobase: ServerName:1111 / information_base_name.
 //
 Function InfobasePresentation()
 	
@@ -1985,7 +1991,7 @@ Function InfobasePresentation()
 		Return Mid(DatabaseConnectionString, 6, StrLen(DatabaseConnectionString) - 6);
 	EndIf;
 		
-	// 
+	// Append the infobase name to the server name.
 	SearchPosition = StrFind(Upper(DatabaseConnectionString), "SRVR=");
 	If SearchPosition <> 1 Then
 		Return Undefined;
@@ -1999,7 +2005,7 @@ Function InfobasePresentation()
 	
 	DatabaseConnectionString = Mid(DatabaseConnectionString, SemicolonPosition + 1);
 	
-	// 
+	// Server name position.
 	SearchPosition = StrFind(Upper(DatabaseConnectionString), "REF=");
 	If SearchPosition <> 1 Then
 		Return Undefined;
@@ -2015,16 +2021,16 @@ Function InfobasePresentation()
 	
 EndFunction
 
-// The function gets information about errors in the log for the passed period.
+// Gets error details from the event log for the given period.
 //
 // Parameters:
-//   StartDate    - Date - 
-//   EndDate - Date - 
+//   StartDate    - Date - the beginning of the period.
+//   EndDate - Date - The end of the reporting period.
 //
-// 
-//   :
-//                    
-//                    
+// Returns
+//   ValueTable - Table of event log filtered records.:
+//                    EventLogLevel - EventLogLevel.Error
+//                    The beginning and end of the reporting period are passed in the parameters.
 //
 Function EventLogErrorsInformation(StartDate, EndDate,
 			ServerTimeOffset, UserFilter = Undefined)
@@ -2058,15 +2064,15 @@ Function EventLogErrorsInformation(StartDate, EndDate,
 	
 EndFunction
 
-// Adds the error table part to the report. Errors are displayed grouped
-// according to the review.
+// Adds to the report a table of errors grouped by comment.
+// 
 //
 // Parameters:
-//   Template  - SpreadsheetDocument -  source of formatted areas that will
-//                              be used when generating the report.
-//   EventLogData   - ValueTable -  data on errors and warnings
-//                              from the log "as is".
-//   CollapsedData - ValueTable -  information collapsed by comments by their number.
+//   Template  - SpreadsheetDocument - The source of formatted areas that will be used to generate the report.
+//                              
+//   EventLogData   - ValueTable - "As is" errors and warnings from the Event Log.
+//                              
+//   CollapsedData - ValueTable - contains their total numbers (collapsed by comment).
 //
 Function GenerateTabularSection(Template, EventLogData, CollapsedData)
 	

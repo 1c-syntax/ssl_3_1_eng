@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Returns the namespace of the message interface version.
+// Returns a message interface version namespace.
 //
 // Returns:
 //   String
@@ -19,7 +21,7 @@ Function Package() Export
 	
 EndFunction
 
-// Returns the version of the message interface served by the handler.
+// Returns a message interface version supported by the handler.
 //
 // Returns:
 //   String
@@ -30,7 +32,7 @@ Function Version() Export
 	
 EndFunction
 
-// Returns the base type for version messages.
+// Returns a base type for version messages.
 //
 // Returns:
 //   String
@@ -41,13 +43,13 @@ Function BaseType() Export
 	
 EndFunction
 
-// Processes incoming messages from the service model
+// Processing incoming SaaS messages
 //
 // Parameters:
-//  Message - XDTODataObject -  incoming message,
-//  Sender - ExchangePlanRef.MessagesExchange -  exchange plan node corresponding to the message sender
-//  MessageProcessed - Boolean -  flag for successful message processing. The value of this parameter must
-//    be set to True if the message was successfully read in this handler.
+//  Message - XDTODataObject - an incoming message,
+//  Sender - ExchangePlanRef.MessagesExchange - exchange plan node that matches the message sender
+//  MessageProcessed - Boolean - indicates whether the message is successfully processed. The parameter value must be
+//    set to True if the message was successfully read in this handler.
 //
 Procedure ProcessSaaSMessage(Val Message, Val Sender, MessageProcessed) Export
 	

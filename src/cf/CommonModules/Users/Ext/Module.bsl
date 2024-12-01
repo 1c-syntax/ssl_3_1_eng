@@ -1,23 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Main procedures and functions.
 
 // Returns the current user or the current external user,
-// depending on who logged in to the session.
-//  We recommend using it in code that supports both cases.
+// depending on which one has signed in.
+//  It is recommended that you use the function in a script fragment that supports both sign in options.
 //
 // Returns:
-//  CatalogRef.Users, CatalogRef.ExternalUsers - 
-//    
+//  CatalogRef.Users, CatalogRef.ExternalUsers - a user
+//    or an external user.
 //
 Function AuthorizedUser() Export
 	
@@ -26,12 +28,12 @@ Function AuthorizedUser() Export
 EndFunction
 
 // Returns the current user.
-//  We recommend using it in code that doesn't support working with external users.
+//  It is recommended that you use the function in a script fragment that does not support external users.
 //
-//  If an external user logs in to the session, an exception is thrown.
+//  If the current user is external, throws an exception.
 //
 // Returns:
-//  CatalogRef.Users -  user.
+//  CatalogRef.Users - a user.
 //
 Function CurrentUser() Export
 	
@@ -39,10 +41,10 @@ Function CurrentUser() Export
 	
 EndFunction
 
-// Returns True if an external user logged in to the session.
+// Returns True if the current user is external.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the current user is external.
 //
 Function IsExternalUserSession() Export
 	
@@ -50,30 +52,30 @@ Function IsExternalUserSession() Export
 	
 EndFunction
 
-// Checks whether the current or specified user is a full user.
+// Checks whether the current user or the specified user has full access rights.
 // 
-// A full-fledged user is considered to be a user who:
-// a) if the list of users in the information database is not empty
-//    , has the role of full-right And the role for system administration (if you check the system administration Rights = Truth);
-// b) if the list of users in the information database is empty
-//    , the main role of the configuration is not set or full Rights.
+// A user is a full access user:
+// a) who has the FullAccess role and the role for system administration
+//    (if CheckSystemAdministrationRights = True), and if the list of infobase users is not empty;
+// b) if the infobase user list is empty and
+//    the main role of configuration is not specified or is FullAccess.
 //
 // Parameters:
-//  User - Undefined -  the current is user is checked.
+//  User - Undefined - checking the current infobase user.
 //               - CatalogRef.Users
-//               - CatalogRef.ExternalUsers - 
-//                    
-//                    
-//               - InfoBaseUser - 
+//               - CatalogRef.ExternalUsers - searching
+//                    for the infobase user by UUID set in the attribute
+//                    IBUserID. If the infobase user does not exist, False is returned.
+//               - InfoBaseUser - checks the infobase user that is passed to the function.
 //
-//  CheckSystemAdministrationRights - Boolean -  if set to True, then
-//                 the system administration role is checked.
+//  CheckSystemAdministrationRights - Boolean - If True, checks whether the user
+//                 has the administrative role.
 //
-//  ForPrivilegedMode - Boolean -  if set to True,
-//                 the function returns True for the current user when privileged mode is set.
+//  ForPrivilegedMode - Boolean - If True, the function returns True for the current user
+//                 (provided that privileged mode is set).
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, the user has full access rights.
 //
 Function IsFullUser(User = Undefined,
                                     CheckSystemAdministrationRights = False,
@@ -81,7 +83,9 @@ Function IsFullUser(User = Undefined,
 	
 	PrivilegedModeSet = PrivilegedMode();
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
+	
 	IBUserProperies = CheckedIBUserProperties(User);
 	
 	If IBUserProperies = Undefined Then
@@ -94,7 +98,7 @@ Function IsFullUser(User = Undefined,
 	If Not IBUserProperies.IsCurrentIBUser Then
 		Roles = IBUserProperies.IBUser.Roles;
 		
-		// 
+		// Checking roles for the saved infobase user if the user to be checked is not the current one.
 		If CheckFullAccessRole
 		   And Not Roles.Contains(Metadata.Roles.FullAccess) Then
 			Return False;
@@ -113,27 +117,27 @@ Function IsFullUser(User = Undefined,
 	EndIf;
 	
 	If StandardSubsystemsCached.PrivilegedModeSetOnStart() Then
-		// 
-		// 
+		// If the client app was launched with the "UsePrivilegedMode" parameter
+		// and the privileged mode is set, the user has full rights.
 		Return True;
 	EndIf;
 	
 	If Not ValueIsFilled(IBUserProperies.Name) And Metadata.DefaultRoles.Count() = 0 Then
-		// 
-		// 
+		// If the main roles are not specified, an unspecified user
+		// has full rights (the same as in the privileged mode).
 		Return True;
 	EndIf;
 	
 	If Not ValueIsFilled(IBUserProperies.Name)
 	   And PrivilegedModeSet
 	   And IBUserProperies.AdministrationRight Then
-		// 
-		// 
+		// If an unspecified user has the "Administration" right, the privileged mode is always considered
+		// to support the startup parameter "UsePrivilegedMode" for non-client apps.
 		// 
 		Return True;
 	EndIf;
 	
-	// 
+	// Check the current user's roles in the current session (not in the saved infobase user).
 	// 
 	If CheckFullAccessRole
 	   And Not IBUserProperies.RoleAvailableFullAccess Then
@@ -149,25 +153,25 @@ Function IsFullUser(User = Undefined,
 	
 EndFunction
 
-// Returns the availability of at least one of the specified roles or
-// the user's full rights (current or specified).
+// Returns True if at least one of the specified roles is available for the user,
+// or the user has full access rights.
 //
 // Parameters:
-//  RolesNames   - String -  comma-separated role names that are checked for availability.
+//  RolesNames   - String - names of roles whose availability is checked, separated by commas.
 //
-//  User - Undefined -  the current is user is checked.
+//  User - Undefined - checking the current infobase user.
 //               - CatalogRef.Users
-//               - CatalogRef.ExternalUsers - 
-//                    
-//                    
-//               - InfoBaseUser - 
+//               - CatalogRef.ExternalUsers - searching
+//                    for the infobase user by UUID set in the attribute.
+//                    IBUserID. If the infobase user does not exist, False is returned.
+//               - InfoBaseUser - checks the infobase user that is passed to the function.
 //
-//  ForPrivilegedMode - Boolean -  if set to True,
-//                 the function returns True for the current user when privileged mode is set.
+//  ForPrivilegedMode - Boolean - If True, the function returns True for the current user
+//                 (provided that privileged mode is set).
 //
 // Returns:
-//  Boolean - 
-//           
+//  Boolean - True if at least one of the roles is available,
+//           or the InfobaseUserWithFullAccess(User) function returns True.
 //
 Function RolesAvailable(RolesNames,
                      User = Undefined,
@@ -181,6 +185,9 @@ Function RolesAvailable(RolesNames,
 	EndIf;
 	
 	RolesNamesArray = StrSplit(RolesNames, ",", False);
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
 	
 	SystemAdministratorRoleRequired = False;
 	RolesAssignment = UsersInternalCached.RolesAssignment();
@@ -197,7 +204,6 @@ Function RolesAvailable(RolesNames,
 		Return True;
 	EndIf;
 	
-	SetPrivilegedMode(True);
 	IBUserProperies = CheckedIBUserProperties(User);
 	
 	If IBUserProperies = Undefined Then
@@ -206,11 +212,12 @@ Function RolesAvailable(RolesNames,
 	
 	If IBUserProperies.IsCurrentIBUser Then
 		For Each NameOfRole In RolesNamesArray Do
-			// 
+			// ACC:336-off - Do not replace with "RolesAvailable". Roles are validated in the "RolesAvailable" function.
+			//@skip-check using-isinrole
 			If IsInRole(TrimAll(NameOfRole)) Then
 				Return True;
 			EndIf;
-			// 
+			// ACC:336-on
 		EndDo;
 	Else
 		Roles = IBUserProperies.IBUser.Roles;
@@ -225,24 +232,24 @@ Function RolesAvailable(RolesNames,
 	
 EndFunction
 
-// 
-// 
-// 
+// Checks if the given infobase user has at least one authentication option.
+// Supports calls from sessions without separators (without database requests)
+// if the "IBUserDetails" parameter's type is either "InfobaseUser" or "Structure".
 //
 // Parameters:
-//  IBUserDetails - UUID -  ID of the IB user.
-//                         - Structure - :
-//                             * StandardAuthentication    - Boolean -  1C authentication:Companies.
-//                             * OSAuthentication             - Boolean -  authentication of the operating system.
-//                             * OpenIDAuthentication         - Boolean -  OpenID authentication.
-//                             * OpenIDConnectAuthentication  - Boolean - 
-//                             * AccessTokenAuthentication - Boolean - 
-//                         - InfoBaseUser       - 
-//                         - CatalogRef.Users        -  user.
-//                         - CatalogRef.ExternalUsers -  external user.
+//  IBUserDetails - UUID - infobase user ID.
+//                         - Structure - Contains the following authentication properties:
+//                             * StandardAuthentication    - Boolean - 1C:Enterprise authentication.
+//                             * OSAuthentication             - Boolean - operating system authentication.
+//                             * OpenIDAuthentication         - Boolean - openID authentication.
+//                             * OpenIDConnectAuthentication  - Boolean - OpenID-Connect authentication.
+//                             * AccessTokenAuthentication - Boolean - JWT authentication.
+//                         - InfoBaseUser       - Infobase user.
+//                         - CatalogRef.Users        - User.
+//                         - CatalogRef.ExternalUsers - external user.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if at least one authentication property is True.
 //
 Function CanSignIn(IBUserDetails) Export
 	
@@ -282,15 +289,15 @@ Function CanSignIn(IBUserDetails) Export
 	
 EndFunction
 
-// 
-// 
+// Checks if the infobase user has rights to log in either interactively or via a COM object.
+// Supports calls from sessions without separators (without database requests)
 //
 // Parameters:
 //  IBUser      - InfoBaseUser
-//  Interactively        - Boolean - 
-//                          
-//  AreStartupRightsOnly - Boolean - 
-//                          
+//  Interactively        - Boolean - If set to True, rights are ignored.
+//                          For example, "ExternalConnection", "Automation".
+//  AreStartupRightsOnly - Boolean - If set to True, checks for logon rights only.
+//                          If set to False, also checks for the minimal logon rights.
 //
 // Returns:
 //  Boolean
@@ -310,32 +317,32 @@ Function HasRightsToLogIn(IBUser, Interactively = True, AreStartupRightsOnly = T
 	EndIf;
 	
 	If Not AreStartupRightsOnly Then
-		// 
+		// ACC:515-off - No.737.4 Check the role as it is indicates the minimal logon rights.
 		Result = Result And RolesAvailable("BasicAccessSSL,
 			|BasicAccessExternalUserSSL", IBUser, False);
-		// 
+		// ACC:515-on
 	EndIf;
 	
 	Return Result;
 	
 EndFunction
 
-// You should call http services, web services, and com connections at the beginning of procedures,
-// if they are used for remote connection of regular users,
-// to ensure control of login restrictions (by date, by activity, etc.),
-// update the date of the last login, and immediately fill in the session parameters
-// Authorized user, Current User, Current External user.
+// Call it when starting the procedures of HTTP-services, web services, COM connections
+// if they are used for remote connection of regular users
+// to ensure the control of authorization restrictions (by date, by activity, and so on),
+// to update the date of the last sign-in of a user, and to fill in the following session parameters:
+// AuthorizedUser, CurrentUser, CurrentExternalUser.
 //
-// The procedure is called automatically only on interactive input,
-// that is, when the current startup mode () < > is undefined.
+// The procedure is called automatically only upon interactive sign-in,
+// that is when CurrentRunMode() <> is Undefined.
 //
 // Parameters:
-//  RaiseException1 - Boolean -  raise an exception in case of an authorization error,
-//                                otherwise return the error text.
+//  RaiseException1 - Boolean - throw an exception if an authorization error occurred,
+//                                otherwise, return the error text.
 // Returns:
 //  Structure:
-//   * AuthorizationError      - String -  error text, if filled in.
-//   * PasswordChangeRequired - Boolean -  if True, then this is a password deprecation error.
+//   * AuthorizationError      - String - an error text if it is filled in.
+//   * PasswordChangeRequired - Boolean - If True, it is a password obsolescence error.
 //
 Function AuthorizeTheCurrentUserWhenLoggingIn(RaiseException1 = True) Export
 	
@@ -349,9 +356,9 @@ Function AuthorizeTheCurrentUserWhenLoggingIn(RaiseException1 = True) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns "True" if the "Individual" type collection contains types other than "String",
+// and the usage of the Individual" attribute is enabled in the
+// "UsersOverridable.OnDefineSettings" procedure.
 // 
 //
 // Returns:
@@ -363,9 +370,9 @@ Function IndividualUsed() Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Returns "True" if the "Department" type collection contains types other than "String",
+// and the usage of the Department" attribute is enabled in the
+// "UsersOverridable.OnDefineSettings" procedure.
 // 
 //
 // Returns:
@@ -378,23 +385,23 @@ Function IsDepartmentUsed() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions used in client application forms.
 
 // Returns a list of users, user groups, external users,
 // and external user groups.
-// For use in event handlers for end-of-text And auto-selection.
+// The function is used in the TextEditEnd and AutoComplete event handlers.
 //
 // Parameters:
-//  Text         - String -  characters entered by the user.
+//  Text         - String - characters entered by the user.
 //
-//  IncludeGroups - Boolean -  if True, include user groups and external users.
-//                  If the use user Group option is disabled, the parameter is ignored.
+//  IncludeGroups - Boolean - If True, includes user groups and external user groups in the result.
+//                  Ignored if the UseUserGroups functional option is disabled.
 //
 //  IncludeExternalUsers - Undefined
-//                              - Boolean - 
-//                  
+//                              - Boolean - if Undefined, takes the return value
+//                  of the ExternalUsers.EnableExternalUsers function.
 //
-//  NoUsers - Boolean -  if True, the user directory elements
+//  NoUsers - Boolean - If True, the Users catalog items
 //                  are excluded from the result.
 //
 // Returns:
@@ -508,25 +515,25 @@ Function GenerateUserSelectionData(Val Text,
 	
 EndFunction
 
-// Fills in the image numbers of users, user groups, external users, and external user groups
-// in all rows or the specified row (see the Row IDENTIFIER parameter) of the Table or Tree collection.
+// Populates user picture numbers, user groups, external users, and external user groups
+// in all rows or given rows (see the RowID parameter) of a TableOrTree collection.
 // 
 // Parameters:
 //  TableOrTree      - FormDataCollection
-//                        - FormDataTree - 
-//  UserFieldName   - String -  name of the column in the table collection or Tree that contains a reference to a user, 
-//                                   user group, external user, or group of external users.
-//                                   Its value is used to calculate the image number.
-//  PictureNumberFieldName - String -  the name of the column in the table collection, or the Tree with the image number 
-//                                   to fill in.
+//                        - FormDataTree - the collection to populate.
+//  UserFieldName   - String - the name of the TableOrTree collection row that contains a reference to a user, 
+//                                   user group, external user, or external user group.
+//                                   It is the input parameter for the picture number.
+//  PictureNumberFieldName - String - name of the column in the TableOrTree collection with the picture number 
+//                                   that needs to be filled.
 //  RowID  - Undefined
-//                       - Number -  
-//                                 
-//                                 
-//  ProcessSecondAndThirdLevelHierarchy - Boolean -  if True and the table or Tree parameter specifies 
-//                                 a collection of the data form Tree type, then 
-//                                 the fields will be filled up to and including the fourth level of the tree,
-//                                 otherwise only the fields at the first and second levels of the tree will be filled in.
+//                       - Number - ID of the row (not a sequence number) must be filled 
+//                                 (child rows of the tree will be filled as well),
+//                                 if Undefined, the pictures will be filled in every row.
+//  ProcessSecondAndThirdLevelHierarchy - Boolean - If True, and the collection of the FormDataTree type is specified 
+//                                 in the TableOrTree parameter, 
+//                                 the fields will be filled up to the fourth tree level inclusive,
+//                                 otherwise, the fields will be filled only at the first and second tree level.
 //
 Procedure FillUserPictureNumbers(Val TableOrTree,
                                                Val UserFieldName,
@@ -652,26 +659,28 @@ Procedure FillUserPictureNumbers(Val TableOrTree,
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions used for infobase update.
 
-// Used for updating and initial filling in the information base.
-// 1) Creates the first administrator and maps it to a new or existing
-//    user in the Users directory.
-// 2) Maps the administrator specified in the user parameter To a new or
-//    existing user in the Users directory.
+// The procedure is used for infobase update and initial filling. It does one of the following:
+// 1) Creates the first administrator and maps it to a new user
+//    or an existing item of the Users catalog.
+// 2) Maps the administrator that is specified in the InfobaseUser parameter to a new user
+//    or an existing Users catalog item.
 //
 // Parameters:
-//  IBUser - Undefined -  create the first administrator if it doesn't exist.
-//                 - InfoBaseUser - 
-//                   
-//                   
+//  IBUser - Undefined - create the first administrator, if it is missing.
+//                 - InfoBaseUser - used for mapping an existing administrator
+//                   to a new user or an existing
+//                   Users catalog item.
 //
 // Returns:
-//  Undefined                  - 
-//  
-//                                  
+//  Undefined                  - the first administrator already exists.
+//  CatalogRef.Users - a user in the directory,
+//                                  to which the created first administrator or the specified existing one is mapped.
 //
 Function CreateAdministrator(IBUser = Undefined) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled("Users.CreateAdministrator");
 	
 	If Not Common.SeparatedDataUsageAvailable() Then
 		ErrorText = NStr("en = 'The ""Users"" catalog is unavailable in shared mode.';");
@@ -680,7 +689,7 @@ Function CreateAdministrator(IBUser = Undefined) Export
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Add administrator.
 	If IBUser = Undefined Then
 		IBUsers = InfoBaseUsers.GetUsers();
 		
@@ -701,14 +710,14 @@ Function CreateAdministrator(IBUser = Undefined) Export
 			EndIf;
 			IBUser.Write();
 		Else
-			// 
+			// Do not create the first administrator if a user with administrator rights exists.
 			// 
 			For Each CurrentIBUser In IBUsers Do
 				If UsersInternal.AdministratorRolesAvailable(CurrentIBUser) Then
-					Return Undefined; // 
+					Return Undefined; // The first administrator has already been created.
 				EndIf;
 			EndDo;
-			// 
+			// The first administrator is created incorrectly.
 			ErrorText =
 				NStr("en = 'The list of infobase users is not blank. No users
 				           |with ""Full access"" and ""System administrator"" roles are found.
@@ -800,10 +809,10 @@ Function CreateAdministrator(IBUser = Undefined) Export
 	
 EndFunction
 
-// Sets the use user Group constant to True
-// if there is at least one user group in the directory.
+// Sets the UseUserGroups constant value to True
+// if at least one user group exists in the catalog.
 //
-// Used when updating the information base.
+// Used upon infobase update.
 //
 Procedure IfUserGroupsExistSetUsage() Export
 	
@@ -832,7 +841,7 @@ Procedure IfUserGroupsExistSetUsage() Export
 	
 EndProcedure
 
-// 
+// Returns the reference to the standard "AllUsers" group.
 //
 // Returns:
 //  CatalogRef.UserGroups
@@ -844,10 +853,10 @@ Function AllUsersGroup() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for infobase user operations.
 
-// 
-// 
+// Returns the "<Not specified>" text presentation when a user is not specified or not selected.
+// See also "Users.UnspecifiedUserRef".
 //
 // Returns:
 //   String
@@ -858,15 +867,15 @@ Function UnspecifiedUserFullName() Export
 	
 EndFunction
 
-// 
-// 
+// Returns a reference to a non-specified user.
+// See also "Users.UnspecifiedUserFullName".
 //
 // Parameters:
-//  CreateIfDoesNotExists - Boolean -  if True, the user "<not specified> " will be created.
+//  CreateIfDoesNotExists - Boolean - If True, the "<Not specified>" user will be created.
 //
 // Returns:
 //  CatalogRef.Users
-//  Undefined - if an unspecified user does not exist in the directory.
+//  Undefined - if an unspecified user does not exist in the catalog.
 //
 Function UnspecifiedUserRef(CreateIfDoesNotExists = False) Export
 	
@@ -880,19 +889,19 @@ Function UnspecifiedUserRef(CreateIfDoesNotExists = False) Export
 	
 EndFunction
 
-// Checks whether the is user is associated with the users directory element or
-// with the external Users directory element.
+// Checks whether the infobase user is mapped to an item of the Users catalog
+// or the ExternalUsers catalog.
 // 
 // Parameters:
-//  IBUser - String -  name of the IB user.
-//                 - UUID - 
+//  IBUser - String - a name of an infobase user.
+//                 - UUID - an infobase user UUID.
 //                 - InfoBaseUser
 //
-//  Account  - InfoBaseUser -  the return value.
+//  Account  - InfoBaseUser - a return value.
 //
 // Returns:
-//  Boolean - 
-//   
+//  Boolean - True if the infobase user exists and its ID
+//   is used either in the Users catalog or in the ExternalUsers catalog.
 //
 Function IBUserOccupied(IBUser, Account = Undefined) Export
 	
@@ -916,73 +925,73 @@ Function IBUserOccupied(IBUser, Account = Undefined) Export
 	
 EndFunction
 
-// Returns an empty structure for the is user description.
-// The assignment of structure properties corresponds to the properties of the user information Database object.
+// Returns an empty structure that describes infobase user properties.
+// The purpose of the structure properties corresponds to the properties of the InfobaseUser object.
 //
 // Parameters:
-//  IsIntendedForSetting - Boolean - 
-//    
-//    
-//    
+//  IsIntendedForSetting - Boolean - If set to "False", the method returns property values for the new infobase user.
+//    If set to "True", the structure properties take "Undefined" to avoid changing properties of
+//    the object "InfobaseUser" when calling the "SetIBUserProperies" procedure.
+//    The default value is "True".
 //
 // Returns:
 //  Structure:
-//   * UUID   - UUID - 
-//                                 
-//   * Name                       - String -  name of the database user. For Example, "Ivanov".
-//                               - Undefined - 
-//   * FullName                 - String -  
-//                                   
-//                               - Undefined - 
-//   * Email     - String - 
-//                               - Undefined - 
+//   * UUID   - UUID - Infobase user's UID.
+//                                 The UID is empty after initialization, and non-empty after a successful reading.
+//   * Name                       - String - Infobase user's name. For example, "Smith".
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * FullName                 - String - Full name of an infobase user. 
+//                                   For example, "John Smith (Sales Manager)".
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * Email     - String - Email address (for example, for password recovery).
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
-//   * StandardAuthentication      - Boolean -  whether standard authentication (by user and password) is allowed.
-//                                    - Undefined - 
-//   * ShowInList        - Boolean -  whether to show the user's full name in the list for selection at startup.
-//   * Password                         - String - 
-//                                    - Undefined - 
-//                                        
-//   * StoredPasswordValue      - String - 
-//                                    - Undefined - 
-//   * PasswordIsSet               - Boolean - 
-//                                      
-//                                    - Undefined - 
-//   * CannotChangePassword        - Boolean -  determines whether the user can change their password.
-//                                    - Undefined - 
-//   * CannotRecoveryPassword - Boolean - 
-//                                    - Undefined - 
+//   * StandardAuthentication      - Boolean - Indicates whether user authentication with credentials is allowed.
+//                                    - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * ShowInList        - Boolean - the flag that indicates whether to show the full user name in the list at startup.
+//   * Password                         - String - Password used for standard authentication.
+//                                    - Undefined - The value after reading and initialization.
+//                                        (Indicates that the property mustn't be changed when a property set is specified.)
+//   * StoredPasswordValue      - String - Password hash.
+//                                    - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * PasswordIsSet               - Boolean - After reading, indicates that the user has a password set.
+//                                      It is ignored when a property set is specified.
+//                                    - Undefined - Initialization value.
+//   * CannotChangePassword        - Boolean - Indicates whether the user can change their password.
+//                                    - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * CannotRecoveryPassword - Boolean - Indicates whether the user can recover their password.
+//                                    - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
-//   * OpenIDAuthentication         - Boolean - 
-//                                  - Undefined - 
-//   * OpenIDConnectAuthentication  - Boolean - 
-//                                  - Undefined - 
-//   * AccessTokenAuthentication - Boolean - 
-//                                  - Undefined - 
+//   * OpenIDAuthentication         - Boolean - Indicates whether OpenID authentication is allowed.
+//                                  - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * OpenIDConnectAuthentication  - Boolean - Indicates whether OpenID-Connect authentication is allowed.
+//                                  - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * AccessTokenAuthentication - Boolean - Indicates whether JWT authentication is allowed.
+//                                  - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
-//   * OSAuthentication          - Boolean -  whether authentication is enabled by the operating system.
-//                               - Undefined - 
-//   * OSUser            - String -  name of the corresponding operating system user account 
-//                                          (not included in the training version of the platform).
-//                               - Undefined - 
+//   * OSAuthentication          - Boolean - Indicates whether OS authentication is allowed.
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * OSUser            - String - The name of the OS user associated with the app user. 
+//                                          Not applicable to 1C:Enterprise sandbox.
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
-//   * DefaultInterface         - String - 
-//                                         
-//                               - Undefined - 
-//   * RunMode              - String - 
-//                               - Undefined - 
-//   * Language                      - String - 
-//                               - Undefined - 
-//   * Roles                      - Array of String - 
-//                               - Undefined - 
+//   * DefaultInterface         - String - Name of the main infobase user interface
+//                                         (a member of the "Metadata.Interfaces" collection).
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * RunMode              - String - Valid values are: "Auto", "OrdinaryApplication", "ManagedApplication".
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * Language                      - String - A language name (a member of the "Metadata.Languages" collection).
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
+//   * Roles                      - Array of String - A collection of infobase user's role names.
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
-//   * UnsafeActionProtection   - Boolean - 
-//                                   
-//                               - Undefined - 
+//   * UnsafeActionProtection   - Boolean - Same as the property "WarnAboutUnsafeActions"
+//                                   with the type "UnsafeOperationProtection".
+//                               - Undefined - Indicates that the property mustn't be changed when a property set is specified.
 //
 Function NewIBUserDetails(IsIntendedForSetting = True) Export
 	
-	// 
+	// Preparing the data structure for storing the return value.
 	Properties = New Structure;
 	
 	Properties.Insert("Name",                            "");
@@ -1026,18 +1035,20 @@ Function NewIBUserDetails(IsIntendedForSetting = True) Export
 	
 EndFunction
 
-// Returns the user properties of the information database as a structure.
-// If the user with the specified ID or name does not exist, it is returned Undefined.
+// Returns an infobase user properties as a structure.
+// If a user with the specified ID or name does not exist, Undefined is returned.
 //
 // Parameters:
 //  NameOrID  - String
-//                       - UUID - 
+//                       - UUID - name or ID of the infobase user.
 //
 // Returns:
 //  Structure - See Users.NewIBUserDetails
-//  
+//  Undefined - No user with the given id or name does not exist.
 //
 Function IBUserProperies(Val NameOrID) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled("Users.IBUserProperies");
 	
 	CommonClientServer.CheckParameter("Users.IBUserProperies", "NameOrID",
 		NameOrID, New TypeDescription("String, UUID"));
@@ -1063,24 +1074,26 @@ Function IBUserProperies(Val NameOrID) Export
 	
 EndFunction
 
-// 
-// 
+// Applies new property values to the specified infobase user or creates a new infobase user.
+// Throws an exception if a user does not exist or when attempting to create an existing user.
 //
 // Parameters:
 //  NameOrID - String
-//                      - UUID -  
-//                                                  
+//                      - UUID - a name or ID of the user 
+//                                                  whose properties require setting. Or name of a new infobase user.
 //  PropertiesToUpdate - See Users.NewIBUserDetails
 //
-//  CreateNewOne - Boolean -  specify True to create a new IB user named Name_identifier.
+//  CreateNewOne - Boolean - specify True to create a new infobase user called NameOrID.
 //
-//  IsExternalUser - Boolean -  specify True if the is user corresponds to an external user
-//                                    (an element of the external Users directory).
+//  IsExternalUser - Boolean - specify True if the infobase user corresponds to an external user
+//                                    (the ExternalUsers item in the directory).
 //
 Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	Val CreateNewOne = False, Val IsExternalUser = False) Export
 	
 	ProcedureName = "Users.SetIBUserProperies";
+	
+	UsersInternal.CheckSafeModeIsDisabled(ProcedureName);
 	
 	CommonClientServer.CheckParameter(ProcedureName, "NameOrID",
 		NameOrID, New TypeDescription("String, UUID"));
@@ -1138,7 +1151,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 		EndIf;
 	EndIf;
 	
-	// 
+	// Preparing new property values.
 	SetPassword = False;
 	NewProperties = Common.CopyRecursive(PreviousProperties);
 	For Each KeyAndValue In NewProperties Do
@@ -1176,10 +1189,10 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 			Raise ErrorText;
 		EndIf;
 		If UsersInternal.IsSettings8_3_26Available() Then
-			// 
+			// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 			IBUser.StoredPasswordValue =
 				Eval("EvaluateStoredUserPasswordValue(PropertiesToUpdate.Password)");
-			// 
+			// ACC:488-on
 		Else
 			IBUser.StoredPasswordValue =
 				UsersInternal.PasswordHashString(PropertiesToUpdate.Password, True);
@@ -1195,7 +1208,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	 Or PropertiesToUpdate.Property("PasswordSetDateToWrite")
 	   And PropertiesToUpdate.PasswordSetDateToWrite <> Undefined  Then
 		
-		// 
+		// Attempt to write a new infobase user or edit an existing one.
 		Try
 			UsersInternal.WriteInfobaseUser(IBUser, IsExternalUser);
 		Except
@@ -1209,7 +1222,7 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 		EndTry;
 		
 		If ValueIsFilled(PreviousProperties.Name) And PreviousProperties.Name <> NewProperties.Name Then
-			// 
+			// Move user settings.
 			UsersInternal.CopyUserSettings(PreviousProperties.Name, NewProperties.Name, True);
 		EndIf;
 		
@@ -1225,15 +1238,18 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 	
 EndProcedure
 
-// Deletes the specified database user.
+// Deletes the specified infobase user.
 //
 // Parameters:
 //  NameOrID  - String
-//                       - UUID - 
+//                       - UUID - the name of ID of the user to delete.
 //
 Procedure DeleteIBUser(Val NameOrID) Export
 	
-	CommonClientServer.CheckParameter("Users.DeleteIBUser", "NameOrID",
+	ProcedureName = "Users.DeleteIBUser";
+	UsersInternal.CheckSafeModeIsDisabled(ProcedureName);
+	
+	CommonClientServer.CheckParameter(ProcedureName, "NameOrID",
 		NameOrID, New TypeDescription("String, UUID"));
 		
 	DeletedIBUserProperties = IBUserProperies(NameOrID);
@@ -1246,10 +1262,8 @@ Procedure DeleteIBUser(Val NameOrID) Export
 	IBUser = DeletedIBUserProperties.IBUser;
 		
 	Try
-		
 		SSLSubsystemsIntegration.BeforeDeleteIBUser(IBUser);
 		IBUser.Delete();
-		
 	Except
 		ErrorText = ErrorDescriptionOnWriteIBUser(
 			NStr("en = 'Cannot delete infobase user ""%1"". Reason:
@@ -1263,20 +1277,20 @@ Procedure DeleteIBUser(Val NameOrID) Export
 	
 EndProcedure
 
-// 
-// 
-// 
+// Copies properties of the given infobase user and converts them to string ids
+// (or the other way) for the default interface, language, run mode, and roles.
+// It a property is missing from either the source or the target, it won't be copied.
 //
-//  
-//  
-// 
+//  Properties whose values are "Undefined" are not copied
+//  (except for when the source type is "InfobaseUser").
+// Properties "OSAuthentication", "StandardAuthentication", "AuthenticationWithOpenIDConnect",
 //
-//  
-// 
-// 
-// 
+//  "AuthenticationWithAccessToken", "OpenIDAuthentication", "PasswordHash", and "OSUser"
+// are not reset if they match and the type of "Receiver" is "InfoBaseUser".
+// Properties "UUID", "PasswordSet", and "PreviousPassword"
+// are not copied if the type of "Receiver" is "InfobaseUser".
 //
-//  
+//  Conversion is executed only if the type of the "Source" and "Receiver" is "InfobaseUser".
 // 
 //
 //  
@@ -1285,21 +1299,21 @@ EndProcedure
 // Parameters:
 //  Receiver     - Structure
 //               - InfoBaseUser
-//               - ClientApplicationForm - 
-//                 
+//               - ClientApplicationForm - a subarray
+//                 of properties from NewIBUserDetails().
 //
 //  Source     - Structure
 //               - InfoBaseUser
-//               - ClientApplicationForm - 
-//                 
-//                 
+//               - ClientApplicationForm - like a destination
+//                 but the types are reverse, that is, when Destination is of the InfobaseUser type,
+//                 Source is not of the InfobaseUser type.
 // 
-//  PropertiesToCopy  - String -  a comma-separated list of properties to copy (without the prefix).
-//  PropertiesToExclude - String -  a comma-separated list of properties that do not need to be copied (without a prefix).
-//  PropertyPrefix      - String -  the initial name for the Source or Receiver type is NOT a Structure.
+//  PropertiesToCopy  - String - the list of comma-separated properties to copy (without the prefix).
+//  PropertiesToExclude - String - the list of comma-separated properties to exclude from copying (without the prefix).
+//  PropertyPrefix      - String - The initial name for Source or Target if its type is NOT Structure.
 //                      - Map:
-//                         * Key - 
-//                         * Value - 
+//                         * Key - The property's name without the prefix.
+//                         * Value - The property's full name with the prefix.
 //
 Procedure CopyIBUserProperties(Receiver,
                                             Source,
@@ -1570,19 +1584,21 @@ Procedure CopyIBUserProperties(Receiver,
 	
 EndProcedure
 
-// 
-// 
+// Returns the user (either from the "Users" or "ExternalUsers" catalog)
+// who is associated with the given infobase user.
 // 
 // Parameters:
-//  LoginName - String -  name of the database user used for logging in.
+//  LoginName - String - the user name for infobase authentication.
 //
 // Returns:
-//  CatalogRef.Users           - 
-//  
-//  
-//  
+//  CatalogRef.Users           - If an internal user was found.
+//  CatalogRef.ExternalUsers - If an external user was found.
+//  Catalogs.Users.EmptyRef - If no infobase user was found.
+//  Undefined - If the infobase user does not exist.
 //
 Function FindByName(Val LoginName) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled("Users.FindByName");
 	
 	SetPrivilegedMode(True);
 	
@@ -1602,19 +1618,21 @@ Function FindByName(Val LoginName) Export
 	
 EndFunction
 
-// 
-// 
+// Returns the member of the "Users" or "EternalUsers" catalog associated with the infobase user
+// whose UUID is passed. Search ignores whether the user does or does not exist.
 // 
 // 
 // Parameters:
-//  IBUserID - UUID - 
+//  IBUserID - UUID - Infobase user's id.
 //
 // Returns:
-//  CatalogRef.Users           - 
-//  
-//  
+//  CatalogRef.Users           - If an internal user was found.
+//  CatalogRef.ExternalUsers - If an external user was found.
+//  Undefined - If no user was found in any of the catalogs.
 //
 Function FindByID(Val IBUserID) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled("Users.FindByID");
 	
 	If TypeOf(IBUserID) <> Type("UUID") Then
 		Return Undefined;
@@ -1631,8 +1649,8 @@ Function FindByID(Val IBUserID) Export
 	
 EndFunction
 
-// 
-//  
+// Returns a user by the passed reference from either the "Users" or "ExternalUsers" catalog.
+//  Search requires administrator rights (without them, only current infobase users can be searched).
 // 
 // 
 // Parameters:
@@ -1640,10 +1658,12 @@ EndFunction
 //               - CatalogRef.ExternalUsers
 //
 // Returns:
-//  InfoBaseUser - 
-//  
+//  InfoBaseUser - If the user is found.
+//  Undefined - If the infobase user does not exist.
 //
 Function FindByReference(User) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled("Users.FindByReference");
 	
 	SetPrivilegedMode(True);
 	IBUserID = Common.ObjectAttributeValue(User,
@@ -1658,28 +1678,28 @@ Function FindByReference(User) Export
 	
 EndFunction
 
-// Searches for IDs of is users that are used more than once, and
-// either throws an exception or returns the found is users for further
-// processing.
+// Searches for infobase user IDs that are used more than once
+// and either raises an exception or returns the list of found infobase
+// users.
 //
 // Parameters:
-//  User - Undefined -  verification for all users and external users.
+//  User - Undefined - checking all users and external users.
 //               - CatalogRef.Users
-//               - CatalogRef.ExternalUsers - 
-//                 
+//               - CatalogRef.ExternalUsers - checking
+//                 only the given reference.
 //
-//  UUID - Undefined -  checking all specified IDS of is users.
-//                          - UUID - 
+//  UUID - Undefined - checking all infobase user IDs.
+//                          - UUID - checking the user with the given ID.
 //
-//  FoundIDs - Undefined - 
-//                            
-//                            
+//  FoundIDs - Undefined - If errors found, throws an exception.
+//                            If a mapping is passed, don't throw an exception if errors found.
+//                            Instead, populate the mapping.
 //                          - Map of KeyAndValue:
-//                              * Key     - UUID - 
+//                              * Key     - UUID - Undefined user ID.
 //                              * Value - Array of CatalogRef.Users, CatalogRef.ExternalUsers
 //
-//  ServiceUserID - Boolean -  if False, then check the userid,
-//                                              And if True, then check the userid of the Service.
+//  ServiceUserID - Boolean - If False, check IBUserID.
+//                                              If True, check ServiceUserID.
 //
 Procedure FindAmbiguousIBUsers(Val User,
                                             Val UUID = Undefined,
@@ -1903,30 +1923,30 @@ Procedure FindAmbiguousIBUsers(Val User,
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Returns the password hash calculated using the SHA-1 algorithm.
+// On 1C:Enterprise 8.3.26 and later, use the method "CalculateUserPasswordHash".
+// To verify a password, use the method "VerifyUserPasswordAgainstHash".
+// The "equal to" comparison supports only SHA-1 hash.
 // 
 // 
 //
 // Parameters:
-//  Password - String -  the password to get the value to save.
+//  Password - String - a password for which it is required to get a password hash.
 //
 // Returns:
-//  String - 
+//  String - password value to save.
 //
 // Example:
-//	
-//	
-//	
-//		
-//		
-//		
-//	
-//		
-//			
-//	
+//	Properties = New Structure("PasswordHashAlgorithmType", Null);
+//	FillPropertyValues(Properties, InfoBaseUsers.CurrentUser());
+//	If Properties.PasswordHashAlgorithmType <> Null Then
+//		ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe).
+//		PasswordMatches = Evaluate("VerifyUserPasswordAgainstHash(Password, IBUser)");
+//		ACC:488-off
+//	Else
+//		PasswordMatches = IBUser.StoredPasswordValue
+//			= Users.PasswordHashString(Password);
+//	EndIf;
 //
 Function PasswordHashString(Val Password) Export
 	
@@ -1934,17 +1954,17 @@ Function PasswordHashString(Val Password) Export
 	
 EndFunction
 
-// Creates a new password that matches the specified complexity check rules.
-// To make it easier to remember, the password is formed from syllables (consonant-vowel).
+// Generates a new password matching the set rules of complexity checking.
+// For easier memorization, a password is formed from syllables (consonant-vowel).
 //
 // Parameters:
 //  PasswordProperties - See PasswordProperties
-//                 
-//  DeleteIsComplex         - Boolean - 
-//  DeleteConsiderSettings - String - 
+//                 - Number - Obsolete.
+//  DeleteIsComplex         - Boolean - Obsolete. Use "PasswordProperties" instead.
+//  DeleteConsiderSettings - String - Obsolete. Use "PasswordProperties" instead.
 //
 // Returns:
-//  String - 
+//  String - new password.
 //
 Function CreatePassword(Val PasswordProperties = 7, DeleteIsComplex = False, DeleteConsiderSettings = "ForUsers") Export
 	
@@ -1990,20 +2010,21 @@ Function CreatePassword(Val PasswordProperties = 7, DeleteIsComplex = False, Del
 	
 EndFunction
 
-// 
+// Describes password properties used in the "CreatePassword" function.
+// In 1C:Enterprise v.8.3.22 and later, it is replaced with "RandomPasswordGenerator".
 // 
 // Returns:
 //   Structure:
-//     * MinLength - Number -  the smallest password length.
-//     * Complicated - Boolean -  consider password complexity requirements.
+//     * MinLength - Number - the minimum password length.
+//     * Complicated - Boolean - Indicates whether the password complexity check is on (always "True" starting from v.8.3.22).
 //     * ConsiderSettings - String -
-//             "Don't account for settings" - ignore administrator settings,
-//             "for Users" - consider settings for users (default),
-//             "for external Users" - consider settings for external users.
-//             If the administrator settings are taken into account, then the specified
-//             password length and complexity parameters will be increased to the values specified in the settings.
-//     * RNG - RandomNumberGenerator -  if you are already using.
-//           - Undefined - 
+//             "DontConsiderSettings" - do not consider administrator settings,
+//             "ForUsers" - consider settings for users (by default),
+//             "ForExternalUsers" - consider settings for external users.
+//             If administrator settings are considered, the specified password
+//             length and complexity parameters will be increased to the values ​​specified in the settings.
+//     * RNG - RandomNumberGenerator - If applicable (obsolete starting from v.8.3.22).
+//           - Undefined - If a new password should be created.
 //
 Function PasswordProperties() Export
 	
@@ -2023,14 +2044,14 @@ Function PasswordProperties() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Other procedures and functions.
 
-// 
-// 
-// 
+// Defines if a configuration supports common authentication settings, such as
+// password complexity, password change, application usage time limits, and others.
+// See the "CommonAuthorizationSettings" property in "UsersOverridable.OnDefineSettings".
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the configuration supports common authentication users.
 //
 Function CommonAuthorizationSettingsUsed() Export
 	
@@ -2038,12 +2059,12 @@ Function CommonAuthorizationSettingsUsed() Export
 	
 EndFunction
 
-// Returns the role assignment specified by library and application developers.
-// Scope: only for automated configuration verification.
+// Returns roles assignment specified by the library and application developers.
+// Area of application: only for automatized configuration check.
 //
 // Returns:
-//  Structure - 
-//              
+//  Structure - see parameter of the same name in the OnDefineRolesAssignment procedure of the UsersOverridable
+//              common module.
 //
 Function RolesAssignment() Export
 	
@@ -2078,24 +2099,24 @@ Function RolesAssignment() Export
 	
 EndFunction
 
-// Checks whether the role rights match the role assignment specified 
-// in the procedure for defining the role assignation Of the shared user module Undefined.
+// Checks whether the rights of roles match the role assignments 
+// specified in the OnDefineRolesAssignment procedure of the UsersOverridable common module.
 //
-// It is used in the following cases:
-//  - checking the security of configurations before automatically updating to a new version;
-//  - checking the configuration before building;
-//  - checking the configuration during development.
+// It is applied if:
+//  - the security of configuration is checked before updating it to a new version automatically;
+//  - the configuration is checked before assembling;
+//  - the configuration is checked when developing.
 //
 // Parameters:
-//  CheckEverything - Boolean -  if False, then the role assignment check
-//                          for service technology requirements is skipped (which is faster), otherwise
+//  CheckEverything - Boolean - If False, the role assignment check is skipped
+//                          according to the requirements of the service technologies (which is faster), otherwise
 //                          the check is performed if separation is enabled.
 //
-//  ErrorList - Undefined   -  if errors are found, the error text is generated and an exception is thrown.
-//               - ValueList - :
-//                   * Value      - String -  role name.
-//                                   - Undefined - 
-//                   * Presentation - String -  error text.
+//  ErrorList - Undefined   - If errors are found, the text of errors is generated and an exception is called.
+//               - ValueList - A return value. Found errors are added to the list without throwing an exception:
+//                   * Value      - String - Role name.
+//                                   - Undefined - the role specified in the procedure does not exist in the metadata.
+//                   * Presentation - String - error text.
 //
 Procedure CheckRoleAssignment(CheckEverything = False, ErrorList = Undefined) Export
 	
@@ -2105,19 +2126,22 @@ Procedure CheckRoleAssignment(CheckEverything = False, ErrorList = Undefined) Ex
 	
 EndProcedure
 
-// Adds all system administrators to the access group
-// associated with the predefined openingexternal accounts and Processing profile.
-// Hides security warnings that pop up when you first open an administrator session.
-// Not for the service model.
+// Adds system administrators to the access group
+// connected with the predefined OpenExternalReportsAndDataProcessors profile.
+// Hides the security warnings that pop-up upon the first start of the administrator session.
+// Not for the SaaS mode.
 //
 // Parameters:
-//   OpenAllowed - Boolean -  if True, set the opening permission.
+//   OpenAllowed - Boolean - If True, set opening permission.
 //
 Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 	
 	If Common.DataSeparationEnabled() Then
 		Return;
 	EndIf;
+	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"Users.SetExternalReportsAndDataProcessorsOpenRight");
 	
 	AdministrationParameters = StandardSubsystemsServer.AdministrationParameters();
 	AdministrationParameters.Insert("OpenExternalReportsAndDataProcessorsDecisionMade", True);
@@ -2169,13 +2193,15 @@ Procedure SetExternalReportsAndDataProcessorsOpenRight(OpenAllowed) Export
 	
 EndProcedure
 
-// 
+// Saves general logon settings. Can take individual properties.
 // 
 // 
 // Parameters:
 //  CommonSettingsToSave - See Users.CommonAuthorizationSettingsNewDetails
 //
 Procedure SetCommonAuthorizationSettings(CommonSettingsToSave) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled("Users.SetCommonAuthorizationSettings");
 	
 	Block = New DataLock();
 	Block.Add("Constant.UserAuthorizationSettings");
@@ -2209,35 +2235,35 @@ Procedure SetCommonAuthorizationSettings(CommonSettingsToSave) Export
 		
 EndProcedure
 
-// 
+// Returns a structure of default logon settings.
 // 
 // Returns:
 //  Structure:
-//   * AreSeparateSettingsForExternalUsers - Boolean - 
-//       
-//   * NotificationLeadTimeBeforeAccessExpire - Number - 
-//       
-//   * NotificationLeadTimeBeforeTerminateInactiveSession - Number - 
-//   * InactivityTimeoutBeforeTerminateSession - Number - 
-//   * PasswordAttemptsCountBeforeLockout - Number - 
-//       
-//   * PasswordLockoutDuration - Number - 
-//   * PasswordSaveOptionUponLogin - String - 
-//       
-//       
-//       
-//   * PasswordRemembranceDuration - Number - 
-//   * ShowInList - String - 
-//       
-//       
+//   * AreSeparateSettingsForExternalUsers - Boolean - If set to False,
+//       the external users are applied the same settings as the internal users.
+//   * NotificationLeadTimeBeforeAccessExpire - Number - Days in advance
+//       of the user expiration to show the warning.
+//   * NotificationLeadTimeBeforeTerminateInactiveSession - Number - Minutes before the session is terminated.
+//   * InactivityTimeoutBeforeTerminateSession - Number - Minutes before an inactive session is terminated.
+//   * PasswordAttemptsCountBeforeLockout - Number - Number of password
+//       entry attempts before the user is blocked.
+//   * PasswordLockoutDuration - Number - Timeout between logon attempts, in minutes.
+//   * PasswordSaveOptionUponLogin - String - Valid values are:
+//       "" - Hide the "Save password" checkbox and don't save the password.
+//       "AllowedAndDisabled" - Show the cleared checkbox.
+//       "AllowedAndEnabled" - Show the selected checkbox.
+//   * PasswordRemembranceDuration - Number - Minutes before the saved password is cleared.
+//   * ShowInList - String - Valid values are:
+//       "EnabledForNewUsers", "HiddenAndEnabledForAllUsers"
+//       "DisabledForNewUsers", "HiddenAndDisabledForAllUsers".
 //   * ShouldUseStandardBannedPasswordList - Boolean
 //   * ShouldUseAdditionalBannedPasswordList - Boolean
 //   * ShouldUseBannedPasswordService - Boolean
-//   * BannedPasswordServiceAddress - String - 
-//   * BannedPasswordServiceMaxTimeout - Number - 
-//   * ShouldSkipValidationIfBannedPasswordServiceOffline - Boolean - 
-//       
-//       
+//   * BannedPasswordServiceAddress - String - Example: "https://api.pwnedpasswords.com/range/"
+//   * BannedPasswordServiceMaxTimeout - Number - Seconds.
+//   * ShouldSkipValidationIfBannedPasswordServiceOffline - Boolean - If set to "False",
+//       the user login is restricted and an error is shown upon a password input.
+//       Otherwise, the user is allowed to sign in.
 //
 Function CommonAuthorizationSettingsNewDetails() Export
 	
@@ -2267,14 +2293,16 @@ Function CommonAuthorizationSettingsNewDetails() Export
 	
 EndFunction
 
-// 
+// Saves custom logon settings. Can take individual properties.
 // 
 // 
 // Parameters:
 //  SavingSettings - See Users.NewDescriptionOfLoginSettings
-//  ForExternalUsers - Boolean - 
+//  ForExternalUsers - Boolean - True if external user authorization settings are saved.
 //
 Procedure SetLoginSettings(SavingSettings, ForExternalUsers = False) Export
+	
+	UsersInternal.CheckSafeModeIsDisabled("Users.SetLoginSettings");
 	
 	Block = New DataLock();
 	Block.Add("Constant.UserAuthorizationSettings");
@@ -2331,50 +2359,50 @@ Procedure SetLoginSettings(SavingSettings, ForExternalUsers = False) Export
 	
 EndProcedure
 
-// 
+// Returns a structure of the default authentication settings.
 // 
 // Returns:
 //  Structure:
-//   * PasswordMustMeetComplexityRequirements - Boolean - 
-//        
+//   * PasswordMustMeetComplexityRequirements - Boolean - Indicates if the password must meet the complexity requirements
+//        • 7 or more characters long
+//          • Includes at least 3 of the 4 character types:
+//          Lower case letters; Upper case letters; Digits; Special characters.
+//            • Doesn't match the login.
 //          
-//          
-//            
-//          
-//   * MinPasswordLength - Number - 
-//   * ShouldBeExcludedFromBannedPasswordList - Boolean - 
-//        
-//        
-//   * ActionUponLoginIfRequirementNotMet - String - 
-//        
-//        
-//        
-//        
-//   * MaxPasswordLifetime - Number - 
-//   * MinPasswordLifetime - Number - 
-//   * DenyReusingRecentPasswords - Number - 
-//        
-//   * WarnAboutPasswordExpiration - Number - 
-//        
-//   * InactivityPeriodBeforeDenyingAuthorization - Number - 
-//        
-//   * InactivityPeriodActivationDate - Date - 
-//        
+//   * MinPasswordLength - Number - Minimum password length.
+//   * ShouldBeExcludedFromBannedPasswordList - Boolean - Flag indicating whether
+//        the password must be excluded from all the banned password lists
+//        (the standard list, additional lists, and the service list).
+//   * ActionUponLoginIfRequirementNotMet - String - Default action
+//        if one of the requirements is not met.
+//        "" - No actions are required. The event will be logged.
+//        "PromptForPasswordChange" - Prompt the user to change the password. The user can skip this prompt.
+//        "RequirePasswordChange" - Prompt the user to change the password. The user cannot skip this prompt.
+//   * MaxPasswordLifetime - Number - Maximal password validity time, in days.
+//   * MinPasswordLifetime - Number - Minimal password validity time, in days.
+//   * DenyReusingRecentPasswords - Number - Number indicating
+//        how many recent passwords cannot be reused.
+//   * WarnAboutPasswordExpiration - Number - Number of days
+//        before the password expiration when the user should be notified.
+//   * InactivityPeriodBeforeDenyingAuthorization - Number - Inactivity period
+//        after which the user is banned.
+//   * InactivityPeriodActivationDate - Date - A service field.
+//        It is filled automatically when the new overdue value is greater than zero.
 //
 Function NewDescriptionOfLoginSettings() Export
 	
 	Settings = New Structure();
-	// 
+	// Complexity requirements.
 	Settings.Insert("PasswordMustMeetComplexityRequirements", False);
 	Settings.Insert("MinPasswordLength", 0);
 	Settings.Insert("ShouldBeExcludedFromBannedPasswordList", False);
 	Settings.Insert("ActionUponLoginIfRequirementNotMet", "");
-	// 
+	// Validity period requirements.
 	Settings.Insert("MaxPasswordLifetime", 0);
 	Settings.Insert("MinPasswordLifetime", 0);
 	Settings.Insert("DenyReusingRecentPasswords", 0);
 	Settings.Insert("WarnAboutPasswordExpiration", 0);
-	// 
+	// The requirements for the periodic operation in the application.
 	Settings.Insert("InactivityPeriodBeforeDenyingAuthorization", 0);
 	Settings.Insert("InactivityPeriodActivationDate", '00010101');
 	
@@ -2382,10 +2410,13 @@ Function NewDescriptionOfLoginSettings() Export
 	
 EndFunction
 
-// 
-// 
+// Sets settings for the "Access.Access" event according to the settings
+// returned by the "RegistrationSettingsForDataAccessEvents" function.
 //
 Procedure UpdateRegistrationSettingsForDataAccessEvents() Export
+	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"Users.UpdateRegistrationSettingsForDataAccessEvents");
 	
 	Settings = RegistrationSettingsForDataAccessEvents();
 	UsersInternal.CollapseSettingsForIdenticalTables(Settings);
@@ -2437,13 +2468,13 @@ Procedure UpdateRegistrationSettingsForDataAccessEvents() Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Collects the current registration settings for the "Access.Access" event
+// from handlers of the event "OnDefineRegistrationSettingsForDataAccessEvents".
+// Use cases: protect personal data and additional settings created by the administrator.
+// Intended for adding settings without complex joins and for avoiding
 //
-// 
-// 
+// losing some settings in cases where some of them should be disabled.
+// For example, on changing settings to protect personal data.
 // 
 // 
 //
@@ -2451,6 +2482,9 @@ EndProcedure
 //  Array of EventLogAccessEventUseDescription
 //
 Function RegistrationSettingsForDataAccessEvents() Export
+	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"Users.RegistrationSettingsForDataAccessEvents");
 	
 	Settings = New Array;
 	UsersOverridable.OnDefineRegistrationSettingsForDataAccessEvents(Settings);
@@ -2462,8 +2496,8 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// 
-// 
+// Obsolete as used passwords are stored in the infobase user and
+// added automatically on changing or saving the password.
 // 
 // Parameters:
 //  User - CatalogRef.Users
@@ -2480,25 +2514,25 @@ EndProcedure
 
 #Region Private
 
-// Generates a short description of the error that the user will see,
-// and can also record a detailed description of the error in the log.
+// Generates a brief error description for displaying to users
+// and also writes error details to the event log if WriteToLog is True.
 //
 // Parameters:
-//  ErrorTemplate       - String - 
-//                       
+//  ErrorTemplate       - String - Template that contains parameter %1 for infobase user presentation,
+//                       and parameter %2 for error details.
 //
-//  LoginName        - String -  name of the database user used for logging in.
+//  LoginName        - String - the user name for infobase authentication.
 //
 //  IBUserID - Undefined
 //                              - UUID
 //
 //  ErrorInfo - ErrorInfo
 //
-//  WriteToLog    - Boolean -  if True, a detailed description of the error is recorded
-//                       in the log.
+//  WriteToLog    - Boolean - If True, write an error description
+//                       to the event log.
 //
 // Returns:
-//  String - 
+//  String - an error description displayed to end users.
 //
 Function ErrorDescriptionOnWriteIBUser(ErrorTemplate,
                                               LoginName,
@@ -2526,9 +2560,9 @@ Function ErrorDescriptionOnWriteIBUser(ErrorTemplate,
 	
 EndFunction
 
-// 
+// This method is required by IsFullUser and RolesAvailable functions.
 
-// LongDesc
+// Details
 //
 // Parameters:
 //  User - Undefined
@@ -2546,6 +2580,9 @@ EndFunction
 //
 Function CheckedIBUserProperties(User) Export
 	
+	UsersInternal.CheckSafeModeIsDisabled(
+		"Users.CheckedIBUserProperties");
+	
 	CurrentIBUserProperties = UsersInternalCached.CurrentIBUserProperties1();
 	IBUser = Undefined;
 	
@@ -2555,7 +2592,7 @@ Function CheckedIBUserProperties(User) Export
 	ElsIf User = Undefined Or User = AuthorizedUser() Then
 		Return CurrentIBUserProperties;
 	Else
-		// 
+		// User passed to the function is not the current user.
 		If ValueIsFilled(User) Then
 			IBUserID = Common.ObjectAttributeValue(User, "IBUserID");
 			If CurrentIBUserProperties.UUID = IBUserID Then

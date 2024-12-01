@@ -1,16 +1,18 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
 // Parameters:
 //  Name - String
-//  DirectionOfTranslation - String - 
+//  DirectionOfTranslation - String - Valid value is either "en" or "ru".
 // 
 // Returns:
 //  String
@@ -49,7 +51,7 @@ Function Dictionary_ru_en()
 	
 	Dictionary = New Map;
 	
-	// 
+	// ACC:1036-off - Disable the spell checker
 	Dictionary.Insert("fileкаталогобменаинформацией", "FILEDataExchangeDirectory"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("fileсжиматьфайлисходящегосообщения", "FILECompressOutgoingMessageFile"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("skuконтрагента", "SKUCounterparty_"); // @NON-NLS-1 @NON-NLS-2
@@ -1482,7 +1484,7 @@ Function Dictionary_ru_en()
 	Dictionary.Insert("являетсярнпт", "IsRNPT"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("являетсяудостоверяющимличность", "IsIdentityDocument"); // @NON-NLS-1 @NON-NLS-2
 
-	// 
+	// ACC:1036-on - Disable the spell checker
 	
 	Return Dictionary;
 	
@@ -1497,7 +1499,7 @@ Function Dictionary_en_ru()
 	
 	Dictionary = New Map;
 	
-	// 
+	// ACC:1036-off - Disable the spell checker
 	Dictionary.Insert("abbreviateddescription", "НаименованиеСокращенное"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("accelerationfactoraccounting", "КоэффициентУскоренияБУ"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("accepted", "Принят"); // @NON-NLS-1 @NON-NLS-2
@@ -2946,7 +2948,7 @@ Function Dictionary_en_ru()
 	Dictionary.Insert("zoomratio8", "Коэффициент8"); // @NON-NLS-1 @NON-NLS-2
 	Dictionary.Insert("zoomratio9", "Коэффициент9"); // @NON-NLS-1 @NON-NLS-2
 
-	// 
+	// ACC:1036-on - Disable the spell checker
 	
 	Return Dictionary;
 	

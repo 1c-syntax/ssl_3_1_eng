@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,16 +14,16 @@
 Var ErrorMessageString Export;
 Var ErrorMessageStringEL Export;
 
-Var ErrorsMessages; // 
-Var ObjectName;		// 
-Var FTPServerName;		// 
-Var DirectoryAtFTPServer;// 
+Var ErrorsMessages; // Map that contains predefined error messages.
+Var ObjectName;		// Metadata object name.
+Var FTPServerName;		// FTP server name or IP address.
+Var DirectoryAtFTPServer;// FTP server address is a name or address.
 
-Var TempExchangeMessageFile; // 
-Var TempExchangeMessagesDirectory; // 
+Var TempExchangeMessageFile; // A temporary exchange message file.
+Var TempExchangeMessagesDirectory; // Temporary exchange message file for importing and exporting data.
 
-Var SendGetDataTimeout; // 
-Var ConnectionCheckTimeout; // 
+Var SendGetDataTimeout; // Timeout for exchanging data with a FTP server.
+Var ConnectionCheckTimeout; // Timeout that is used for FTP connection when sending and receiving data.
 
 Var DirectoryID;
 #EndRegion
@@ -29,15 +31,15 @@ Var DirectoryID;
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal export procedures and functions.
 
-// Creates a temporary directory in the temporary files directory of the operating system user.
+// Creates a temporary directory in the temporary file directory of the operating system user.
 //
 // Parameters:
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function ExecuteActionsBeforeProcessMessage() Export
 	
@@ -49,13 +51,13 @@ Function ExecuteActionsBeforeProcessMessage() Export
 	
 EndFunction
 
-// Sends an exchange message to the specified resource from the temporary directory of the exchange message.
+// Sends the exchange message to the specified resource from the temporary exchange message directory.
 //
 // Parameters:
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function SendMessage() Export
 	
@@ -71,13 +73,13 @@ Function SendMessage() Export
 	
 EndFunction
 
-// Retrieves the exchange message from the specified resource to the temporary directory of the exchange message.
+// Gets an exchange message from the specified resource and puts it in the temporary exchange message directory.
 //
 // Parameters:
-//  ExistenceCheck - Boolean -  True if you only need to check for exchange messages, without downloading them.
+//  ExistenceCheck - Boolean - True if it is necessary to check whether exchange messages exist without their import.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if the function is executed successfully, False if an error occurred.
 // 
 Function GetMessage(ExistenceCheck = False) Export
 	
@@ -93,7 +95,7 @@ Function GetMessage(ExistenceCheck = False) Export
 	
 EndFunction
 
-// Removes the temporary directory the message exchange after performing the upload or download of data.
+// Deletes the temporary exchange message directory after performing data import or export.
 //
 // Parameters:
 //  No.
@@ -111,7 +113,7 @@ Function ExecuteActionsAfterProcessMessage() Export
 	
 EndFunction
 
-// Initializes processing properties with initial values and constants.
+// Initializes data processor properties with initial values and constants.
 //
 // Parameters:
 //  No.
@@ -126,17 +128,17 @@ Procedure Initialize() Export
 	
 EndProcedure
 
-// Checks whether a connection can be established to the specified resource.
+// Checks whether the connection to the specified resource can be established.
 //
 // Parameters:
 //  No.
 // 
 //  Returns:
-//    Boolean - 
+//    Boolean - True if connection can be established. Otherwise, False.
 //
 Function ConnectionIsSet() Export
 	
-	// 
+	// Function return value.
 	Result = True;
 	
 	If Common.DataSeparationEnabled() Then
@@ -152,7 +154,7 @@ Function ConnectionIsSet() Export
 		
 	EndIf;
 	
-	// 
+	// Creating a file in the temporary directory.
 	TempConnectionTestFileName = GetTempFileName("tmp");
 	FileNameForDestination = DataExchangeServer.TempConnectionTestFileName();
 	
@@ -160,29 +162,29 @@ Function ConnectionIsSet() Export
 	TextWriter.WriteLine(FileNameForDestination);
 	TextWriter.Close();
 	
-	// 
+	// Copying a file to the external resource from the temporary directory.
 	Result = CopyFileToFTPServer(TempConnectionTestFileName, FileNameForDestination, ConnectionCheckTimeout);
 	
-	// 
+	// Deleting a file from the external resource.
 	If Result Then
 		
 		Result = DeleteFileAtFTPServer(FileNameForDestination, True);
 		
 	EndIf;
 	
-	// 
+	// Deleting a file from the temporary directory.
 	DeleteFiles(TempConnectionTestFileName);
 	
 	Return Result;
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+// Functions for retrieving properties.
 
-// Function-property: time when the exchange message file was changed.
+// Function for retrieving property: the time of changing the exchange file message.
 //
 // Returns:
-//  Date - 
+//  Date - time exchange message file changed.
 //
 Function ExchangeMessageFileDate() Export
 	
@@ -202,10 +204,10 @@ Function ExchangeMessageFileDate() Export
 	
 EndFunction
 
-// Function property: the fully qualified file name of the message exchange.
+// Retrieves the full name of the exchange message file.
 //
 // Returns:
-//  String - 
+//  String - full exchange message file name.
 //
 Function ExchangeMessageFileName() Export
 	
@@ -221,10 +223,10 @@ Function ExchangeMessageFileName() Export
 	
 EndFunction
 
-// Function-property: full name of the exchange message folder.
+// Retrieves the full name of the exchange message directory.
 //
 // Returns:
-//  String - 
+//  String - full exchange message directory name.
 //
 Function ExchangeMessageDirectoryName() Export
 	
@@ -241,11 +243,11 @@ Function ExchangeMessageDirectoryName() Export
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+// Local internal procedures and functions.
 
 Function CreateTempExchangeMessagesDirectory()
 	
-	// 
+	// Creating the temporary exchange message directory.
 	Try
 		TempDirectoryName = DataExchangeServer.CreateTempExchangeMessagesDirectory(DirectoryID);
 	Except
@@ -293,7 +295,7 @@ Function SendExchangeMessage()
 	
 	If CompressOutgoingMessageFile() Then
 		
-		// 
+		// Getting the temporary archive file name.
 		ArchiveTempFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName(), MessageFileNameTemplate + ".zip");
 		
 		Try
@@ -314,7 +316,7 @@ Function SendExchangeMessage()
 		
 		If Result Then
 			
-			// 
+			// Checking that the exchange message size does not exceed the maximum allowed size.
 			If DataExchangeServer.ExchangeMessageSizeExceedsAllowed(ArchiveTempFileName, MaxMessageSize()) Then
 				GetErrorMessage(108);
 				Result = False;
@@ -324,7 +326,7 @@ Function SendExchangeMessage()
 		
 		If Result Then
 			
-			// 
+			// Copying the archive file to the FTP server in the data exchange directory.
 			If Not CopyFileToFTPServer(ArchiveTempFileName, OutgoingMessageFileName, SendGetDataTimeout) Then
 				Result = False;
 			EndIf;
@@ -335,7 +337,7 @@ Function SendExchangeMessage()
 		
 		If Result Then
 			
-			// 
+			// Checking that the exchange message size does not exceed the maximum allowed size.
 			If DataExchangeServer.ExchangeMessageSizeExceedsAllowed(ExchangeMessageFileName(), MaxMessageSize()) Then
 				GetErrorMessage(108);
 				Result = False;
@@ -345,7 +347,7 @@ Function SendExchangeMessage()
 		
 		If Result Then
 			
-			// 
+			// Copying the archive file to the FTP server in the data exchange directory.
 			If Not CopyFileToFTPServer(ExchangeMessageFileName(), OutgoingMessageFileName, SendGetDataTimeout) Then
 				Result = False;
 			EndIf;
@@ -385,25 +387,25 @@ Function GetExchangeMessage(ExistenceCheck)
 	
 	For Each CurrentFile In FoundFileArray Do
 		
-		// 
+		// Checking the required extension.
 		If ((Upper(CurrentFile.Extension) <> ".ZIP")
 			And (Upper(CurrentFile.Extension) <> ".XML")) Then
 			
 			Continue;
 			
-		// 
+		// Checking that it is a file, not a directory.
 		ElsIf Not CurrentFile.IsFile() Then
 			
 			Continue;
 			
-		// 
+		// Checking that the file size is greater than 0.
 		ElsIf (CurrentFile.Size() = 0) Then
 			
 			Continue;
 			
 		EndIf;
 		
-		// 
+		// The file is a required exchange message. Adding the file to the table.
 		TableRow = ExchangeMessagesFilesTable.Add();
 		TableRow.File           = CurrentFile;
 		TableRow.Modified = CurrentFile.GetModificationTime();
@@ -434,7 +436,7 @@ Function GetExchangeMessage(ExistenceCheck)
 		
 		ExchangeMessagesFilesTable.Sort("Modified Desc");
 		
-		// 
+		// Obtaining the newest exchange message file from the table.
 		IncomingMessageFile = ExchangeMessagesFilesTable[0].File;
 		
 		FilePacked = (Upper(IncomingMessageFile.Extension) = ".ZIP");
@@ -443,7 +445,7 @@ Function GetExchangeMessage(ExistenceCheck)
 		
 		If FilePacked Then
 			
-			// 
+			// Getting the temporary archive file name.
 			ArchiveTempFileName = CommonClientServer.GetFullFileName(ExchangeMessageDirectoryName(), MessageFileNameTemplate + ".zip");
 			
 			Try
@@ -455,7 +457,7 @@ Function GetExchangeMessage(ExistenceCheck)
 				Return False;
 			EndTry;
 			
-			// 
+			// Unpacking the temporary archive file.
 			SuccessfullyUnpacked = DataExchangeServer.UnpackZipFile(ArchiveTempFileName, ExchangeMessageDirectoryName(), ArchivePasswordExchangeMessages);
 			
 			If Not SuccessfullyUnpacked Then
@@ -463,11 +465,11 @@ Function GetExchangeMessage(ExistenceCheck)
 				Return False;
 			EndIf;
 			
-			// 
+			// Checking that the message file exists.
 			File = New File(ExchangeMessageFileName());
 			
 			If Not File.Exists() Then
-				// 
+				// The archive name probably does not match name of the file inside.
 				ArchiveFileNameStructure = CommonClientServer.ParseFullFileName(IncomingMessageFile.Name,False);
 				MessageFileNameStructure = CommonClientServer.ParseFullFileName(ExchangeMessageFileName(),False);
 				
@@ -527,8 +529,8 @@ Procedure SupplementErrorMessage(Message)
 	
 EndProcedure
 
-// An overridable function that returns the maximum allowed size
-// of a message that can be sent.
+// The overridable function, returns the maximum allowed size of
+// a message to be sent.
 // 
 Function MaxMessageSize()
 	
@@ -537,7 +539,7 @@ Function MaxMessageSize()
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+// Functions for retrieving properties.
 
 Function CompressOutgoingMessageFile()
 	
@@ -546,7 +548,7 @@ Function CompressOutgoingMessageFile()
 EndFunction
 
 ///////////////////////////////////////////////////////////////////////////////
-// Initialize
+// Initialization.
 
 Procedure InitMessages()
 	
@@ -559,14 +561,14 @@ Procedure ErrorMessageInitialization()
 	
 	ErrorsMessages = New Map;
 	
-	// 
+	// General error codes
 	ErrorsMessages.Insert(001, NStr("en = 'No message file with data was found in the exchange directory.';"));
 	ErrorsMessages.Insert(002, NStr("en = 'Error extracting message file.';"));
 	ErrorsMessages.Insert(003, NStr("en = 'Error packing the exchange message file.';"));
 	ErrorsMessages.Insert(004, NStr("en = 'An error occurred when creating a temporary directory.';"));
 	ErrorsMessages.Insert(005, NStr("en = 'The archive does not contain the exchange message file.';"));
 	
-	// 
+	// Transport-specific error codes.
 	ErrorsMessages.Insert(101, NStr("en = 'Path on the server is not specified.';"));
 	ErrorsMessages.Insert(102, NStr("en = 'An error occurred when initializing connection to the FTP server.';"));
 	ErrorsMessages.Insert(103, NStr("en = 'An error occurred when establishing connection to the FTP server. Check whether the path is specified correctly and access rights are sufficient.';"));
@@ -581,7 +583,7 @@ Procedure ErrorMessageInitialization()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+// FTP management.
 
 Function GetFTPConnection(Timeout)
 	
@@ -658,13 +660,13 @@ Procedure CreateDirectoryIfNecessary(FTPConnection, DirectoryAtServer)
 	
 	If Common.DataSeparationEnabled() Then
 		
-		// 
-		//  
+		// In SaaS mode, checking if a directory exists is a resource-intensive operation.
+		// Instead, run "CreateDirectory", and if it already exists, throw an exception and exit. 
 		// 
 		Try
 			FTPConnection.CreateDirectory(DirectoryAtServer);
 		Except
-			// 
+			// No action required
 		EndTry;
 		
 	Else	

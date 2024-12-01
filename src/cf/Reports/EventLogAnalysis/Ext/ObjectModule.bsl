@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,9 +13,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.ReportsOptions
 
-// To set up a report form.
+// Set report form settings.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -29,7 +30,7 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 EndProcedure
 
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary
@@ -138,7 +139,7 @@ Procedure OnComposeResult(ResultDocument, ObjectDetailsData, StandardProcessing,
 	If ReportVariant = "EventLogMonitor" Then
 		ReportGenerationResult = Reports.EventLogAnalysis.
 			GenerateEventLogMonitorReport(Period.StartDate, Period.EndDate, ServerTimeOffset);
-		// 
+		// ReportIsBlank - Flag indicating whether the report has no data. Required for report distribution.
 		ReportIsBlank = ReportGenerationResult.ReportIsBlank;
 		SettingsComposer.UserSettings.AdditionalProperties.Insert("ReportIsBlank", ReportIsBlank);
 		ResultDocument.Put(ReportGenerationResult.Report);
@@ -302,7 +303,7 @@ Procedure ScheduledJobsDuration(ReportSettings, ResultDocument, Var_SettingsComp
 	HideScheduledJobs = ReportSettings.DataParameters.Items.Find("HideScheduledJobs");
 	ConcurrentSessionsSize = ReportSettings.DataParameters.Items.Find("ConcurrentSessionsSize");
 	
-	// 
+	// Checking for parameter usage flag.
 	If Not MinScheduledJobSessionDuration.Use Then
 		ReportSettings.DataParameters.SetParameterValue("MinScheduledJobSessionDuration", 0);
 	EndIf;

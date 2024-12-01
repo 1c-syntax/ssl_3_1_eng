@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -15,7 +17,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	PickMode = (Parameters.CloseOnChoice = False);
 	
-	// 
+	// Verify that the form is opened with the required parameters
 	If Not Parameters.Property("AttributeName") Then
 		
 		Raise NStr("en = 'This is a dependent form and opens from a different form.';", Common.DefaultLanguageCode());
@@ -107,7 +109,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	TreeItemsCollection.Clear();
 	Common.FillFormDataTreeItemCollection(TreeItemsCollection, CorrespondentInfobaseTable);
 	
-	// 
+	// Place the cursor in the value tree.
 	If Not IsBlankString(Parameters.ChoiceInitialValue) Then
 		
 		RowID = 0;
@@ -156,9 +158,9 @@ Procedure ValueChoiceProcessing1()
 		Return
 	EndIf;
 	
-	// 
-	//     
-	//     
+	// Indirectly determine the group flag:
+	//     0 - The group is not marked for deletion.
+	//     1 - The group is marked for deletion.
 	
 	IsFolder = CurrentData.PictureIndex=0 Or CurrentData.PictureIndex=1;
 	If (IsFolder And ChoiceFoldersAndItems=FoldersAndItems.Items) 
@@ -175,7 +177,7 @@ Procedure ValueChoiceProcessing1()
 	NotifyChoice(Data);
 EndProcedure
 
-// For backward compatibility.
+// For backward compatibility purposes.
 //
 &AtServer
 Procedure UpdateItemsIconsIndexes(CorrespondentInfobaseTable)

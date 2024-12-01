@@ -1407,6 +1407,7 @@
 					<ExtendedTooltip name="DataExchangeSettingsExtendedTooltip" id="327"/>
 					<ChildItems>
 						<CheckBoxField name="SafeMode" id="404">
+							<DataPath>Object.SafeMode</DataPath>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>Button</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>

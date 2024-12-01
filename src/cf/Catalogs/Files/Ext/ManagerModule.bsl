@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns object details that can be edited
-// by processing group changes to details.
+// Returns object attributes that can be edited using the bulk attribute modification data processor.
+// 
 //
 // Returns:
 //  Array of String
@@ -28,7 +30,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -66,9 +68,9 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
-// Defines a list of creation commands based on.
+// Defines the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
@@ -78,14 +80,14 @@ Procedure AddGenerationCommands(GenerationCommands, Parameters) Export
 	
 EndProcedure
 
-// To use in the procedure add a create command Based on other object Manager modules.
-// Adds this object to the list of base creation commands.
+// Intended for use by the AddGenerationCommands procedure in other object manager modules.
+// Adds this object to the list of generation commands.
 //
 // Parameters:
 //  GenerationCommands - See GenerateFromOverridable.BeforeAddGenerationCommands.GenerationCommands
 //
 // Returns:
-//  ValueTableRow, Undefined - 
+//  ValueTableRow, Undefined - Details of the added command.
 //
 Function AddGenerateCommand(GenerationCommands) Export
 	
@@ -109,7 +111,7 @@ EndFunction
 Procedure FormGetProcessing(FormType, Parameters, SelectedForm, AdditionalInformation, StandardProcessing)
 	
 	If Parameters.Count() = 0 Then
-		SelectedForm = "Files"; // 
+		SelectedForm = "Files"; // Opening the file list because the specific file is not specified.
 		StandardProcessing = False;
 	EndIf;
 	If FormType = "ListForm" Then
@@ -133,8 +135,8 @@ EndProcedure
 
 #Region Private
 
-// Registers objects
-// that need to be updated to the new version on the exchange plan for updating the information Database.
+// Registers the objects to be updated in the InfobaseUpdate exchange plan.
+// 
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -166,7 +168,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			|	Ref";
 		
 		Query.SetParameter("Ref", Ref);
-		// 
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		ReferencesArrray = Query.Execute().Unload().UnloadColumn("Ref");
 		
 		InfobaseUpdate.MarkForProcessing(Parameters, ReferencesArrray);
@@ -249,7 +251,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			CommitTransaction();
 		Except
 			RollbackTransaction();
-			// 
+			// If you fail to process a document, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			InfobaseUpdate.WriteErrorToEventLog(

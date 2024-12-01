@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -24,7 +26,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			ElsIf ParentProperties.Parent <> Undefined
 				And TypeOf(ParentProperties.Parent) = TypeOf(ObjectValue.Ref) Then
 				
-				ObjectValue.Parent = ParentProperties.Parent; // 
+				ObjectValue.Parent = ParentProperties.Parent; // As the first parent, the reference to the item was passed.
 			EndIf;
 			
 		Else

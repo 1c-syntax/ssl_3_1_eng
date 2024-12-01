@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -58,7 +60,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		PrepareFormSettingsForCurrentRefOutput(CurrentRef);
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	PlacementParameters = AttachableCommands.PlacementParameters();
 	PlacementParameters.Insert("CommandBar", Items.NavigationPanelListGroup.ChildItems.NavigationOptionCommandBar);
 	AttachableCommands.OnCreateAtServer(ThisObject, PlacementParameters);
@@ -188,12 +190,12 @@ Procedure OnOpen(Cancel)
 		
 	EndIf;
 	
-	#If MobileClient Then
+#If MobileClient Then
 		
 		Items.ListStatus.Type            = FormGroupType.ButtonGroup;
 		Items.InteractionTypeList.Type = FormGroupType.ButtonGroup;
 		
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -409,7 +411,7 @@ Procedure ListOnActivateRow(Item)
 		
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	AttachableCommandsClient.StartCommandUpdate(ThisObject);
 	// End StandardSubsystems.AttachableCommands
 	
@@ -428,37 +430,37 @@ EndProcedure
 &AtClient
 Procedure FoldersSelection(Item, RowSelected, Field, StandardProcessing)
 	
-	#If Not MobileClient Then
+#If Not MobileClient Then
 		StandardProcessing = False;
 		CurrentData = Item.CurrentData;
 		ShowValue(, CurrentData.Value);
-	#EndIf
+#EndIf
 	
 EndProcedure
 
 &AtClient
 Procedure NavigationPanelContactsSelection(Item, RowSelected, Field, StandardProcessing)
 	
-	#If Not MobileClient Then
+#If Not MobileClient Then
 		StandardProcessing = False;
 		CurrentData = Item.CurrentData;
 		If Not TypeOf(CurrentData.Contact) = Type("CatalogRef.StringContactInteractions") Then
 			ShowValue( ,CurrentData.Contact);
 		EndIf;
-	#EndIf
+#EndIf
 	
 EndProcedure
 
 &AtClient
 Procedure NavigationPanelSubjectsSelection(Item, RowSelected, Field, StandardProcessing)
 	
-	#If Not MobileClient Then
+#If Not MobileClient Then
 		CurrentData = Item.CurrentData;
 		If CurrentData <> Undefined Then
 			StandardProcessing = False;
 			ShowValue( ,CurrentData.SubjectOf);
 		EndIf;
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -687,7 +689,7 @@ EndProcedure
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-// 
+// Drag-and-drop handler.
 
 &AtClient
 Procedure SubjectsDragCheck(Item, DragParameters, StandardProcessing, String, Field)
@@ -1354,10 +1356,10 @@ Procedure DisplayReadingPane(Command)
 	
 EndProcedure
 
-// Changes the selection based on the interaction status in the list.
+// Changes filter by the status of interaction in the list.
 // 
 // Parameters:
-//  Command - FormCommand -  executed command.
+//  Command - FormCommand - a running command.
 //
 &AtClient
 Procedure Attachable_ChangeFilterStatus(Command)
@@ -1367,10 +1369,10 @@ Procedure Attachable_ChangeFilterStatus(Command)
 	
 EndProcedure
 
-// Changes the selection by interaction type in the list.
+// Changes filter by the type of interaction in the list.
 // 
 // Parameters:
-//  Command - FormCommand -  executed command.
+//  Command - FormCommand - a running command.
 //
 &AtClient
 Procedure Attachable_ChangeFilterInteractionType(Command)
@@ -1569,7 +1571,7 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////
-// 
+// Processing quick filter change.
 
 &AtServer
 Procedure ChangeFilterInteractionTypeServer(Val CommandName)
@@ -1655,7 +1657,7 @@ Procedure OnChangeTypeServer(UpdateNavigationPanel = True)
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////
-//    
+//    Processing activation of list rows and navigation panel.
 
 &AtClient
 Procedure ProcessListRowActivation()
@@ -1981,7 +1983,7 @@ Procedure DisplayInteractionPreview(InteractionsDocumentRef, CurrentPageName)
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////
-//    
+//    Switching and filling navigation panels.
 
 &AtServer
 Procedure SwitchNavigationPanelServer(CommandName)
@@ -3243,7 +3245,7 @@ Procedure AddToNavigationPanel()
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-//    
+//    Saving node statuses and navigation panel tree values.
 
 &AtClientAtServerNoContext
 Function GetSavedSettingsOfNavigationPanelTree(
@@ -3417,12 +3419,12 @@ Procedure PositionOnRowAccordingToSavedValue(CurrentRowValue,
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions of command processing.
 
-// Set the responsible person in the selected interactions-server part.
+// Set a responsible person for selected interactions - the server part.
 // Parameters:
 //  Interactions - a list of selected interactions.
-//  EmployeeResponsible - 
+//  EmployeeResponsible - User the interaction is assigned to.
 //
 &AtServer
 Procedure SetEmployeeResponsible(EmployeeResponsible, Val DataForProcessing)
@@ -3460,7 +3462,7 @@ Procedure SetEmployeeResponsible(EmployeeResponsible, Val DataForProcessing)
 	
 EndProcedure
 
-// To set a flag "processed" in the selected interactions with the server part.
+// Set the Reviewed flag for selected interactions - the server part.
 // Parameters:
 //  Interactions - a list of selected interactions.
 //
@@ -3665,10 +3667,10 @@ Function ValueInXML(Value)
 	
 EndFunction
 
-// Set the subject in the selected interactions-server part.
+// Set a subject for selected interactions - the server part.
 // Parameters:
 //  Interactions - a list of selected interactions.
-//  SubjectOf - 
+//  SubjectOf - Topic to set.
 //
 &AtServer
 Procedure SetSubject(SubjectOf, Val DataForProcessing)
@@ -3777,7 +3779,7 @@ Function GetInteractionsByListFilter(AdditionalFilterAttributeValue = Undefined,
 	
 	CopyFilter(SettingsComposer.Settings.Filter, InteractionsClientServer.DynamicListFilter(List));
 	
-	// 
+	// Add a filter with comparison type NOT for group commands.
 	If AdditionalFilterAttributeValue <> Undefined Then
 		FilterElement = SettingsComposer.Settings.Filter.Items.Add(Type("DataCompositionFilterItem"));
 		FilterElement.LeftValue = New DataCompositionField(AdditionalFilterAttributeName);
@@ -3817,7 +3819,7 @@ Procedure ExecuteTransferToEmailsArrayFolder(Val EmailsArray, Val Folder)
 EndProcedure
 
 /////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Full-text search.
 
 &AtServer
 Procedure DetermineAvailabilityFullTextSearch() 
@@ -3872,7 +3874,7 @@ Function InteractionSearchResultFullTextSearch()
 	Result.Insert("ErrorID",        "");
 	Result.Insert("FoundItemsCount2", 0);
 	
-	// 
+	// Set up search parameters.
 	SearchArea = New Array;
 	PortionSize = 200;
 	
@@ -3900,7 +3902,7 @@ Function InteractionSearchResultFullTextSearch()
 
 	SearchResultsList.FirstPart();
 
-	// 
+	// Return if search has too many results.
 	If SearchResultsList.TooManyResults() Then
 		CommonClientServer.SetDynamicListFilterItem(
 			List,
@@ -3916,7 +3918,7 @@ Function InteractionSearchResultFullTextSearch()
 		
 	EndIf;
 
-	// 
+	// Return if search has no results.
 	If SearchResultsList.TotalCount() = 0 Then
 		CommonClientServer.SetDynamicListFilterItem(
 			List,
@@ -3938,7 +3940,7 @@ Function InteractionSearchResultFullTextSearch()
 	EndPosition = ?(Result.FoundItemsCount2 > PortionSize, PortionSize, Result.FoundItemsCount2) - 1;
 	HasNextBatch = True;
 
-	// 
+	// Process the FTS results by portions.
 	While HasNextBatch Do
 		For ItemsCounter = 0 To EndPosition Do
 			
@@ -3978,14 +3980,14 @@ Function InteractionSearchResultFullTextSearch()
 		Return Result;
 	EndIf;
 	
-	// 
+	// Deleting an item from search history if it was there.
 	NumberOfFoundListItem = Items.SearchString.ChoiceList.FindByValue(SearchString);
 	While NumberOfFoundListItem <> Undefined Do
 		Items.SearchString.ChoiceList.Delete(NumberOfFoundListItem);
 		NumberOfFoundListItem = Items.SearchString.ChoiceList.FindByValue(SearchString);
 	EndDo;
 	
-	// 
+	// And put it on top.
 	Items.SearchString.ChoiceList.Insert(0, SearchString);
 	While Items.SearchString.ChoiceList.Count() > 100 Do
 		Items.SearchString.ChoiceList.Delete(Items.SearchString.ChoiceList.Count() - 1);
@@ -4029,7 +4031,7 @@ Procedure FillInTheDescriptionFoundByFullTextSearch(Interaction)
 EndProcedure 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Other
+// Miscellaneous.
 
 &AtServer
 Function FindRowInCollectionFormData(WhereToFind, Value, Column)
@@ -4214,7 +4216,7 @@ Procedure NavigationProcessingAtServer(Val CurrentRef)
 	ManageVisibilityOnSwitchNavigationPanel();
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	AttachableCommandsClient.StartCommandExecution(ThisObject, Command, Items.List);

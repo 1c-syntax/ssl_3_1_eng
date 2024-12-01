@@ -1,26 +1,28 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
+// The external resource locking mechanism:
+// - Disables the scheduled jobs that access external resources.
+// - Disconnects the infobase from the Collaboration server (if "Conversations" subsystem is integrated).
+// The lock is set if:
+// - User signs in to the app.
+// - A scheduled job that accesses external resources has started.
+// The lock is always set automatically.
+// The administrator can confirm the lock or unlock the infobase.
 //
-// 
-// 
-// 
+//  "BeforeStart" or "OnStartExecuteScheduledJob" obtains the session parameter
+// "OperationsWithExternalResourcesLocked", and calls the
+// "OnSetSessionParameters" event in the lock object if the environment has changed.
 //
-// 
+// "OnStartExecuteScheduledJob" disables the scheduled jobs if the session parameter's state is locked.
 // 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -297,14 +299,14 @@ Function SavedLockParameters() Export
 	Result = CurrentLockParameters();
 	
 	If SavedParameters = Undefined Then 
-		SaveLockParameters(Result); // 
+		SaveLockParameters(Result); // Automatic initialization.
 		If Common.FileInfobase() Then
 			WriteFileInfobaseIDToCheckFile(Result.TheDatabaseID);
 		EndIf;
 	EndIf;
 	
 	If TypeOf(SavedParameters) = Type("Structure") Then 
-		FillPropertyValues(Result, SavedParameters); // 
+		FillPropertyValues(Result, SavedParameters); // Reinitializing new properties.
 	EndIf;
 	
 	Return Result;
@@ -334,7 +336,7 @@ EndProcedure
 
 #Region ScheduledJobs
 
-// 
+// ACC:453-disable integrated scheduled jobs management in the block of operation lock.
 
 Function ScheduledJobUsesExternalResources(ScheduledJob)
 	
@@ -389,7 +391,7 @@ Procedure EnableDisabledScheduledJobs(LockParameters)
 	
 EndProcedure
 
-// 
+// ACC:453-on
 
 #EndRegion
 
@@ -459,8 +461,8 @@ Function SetExternalResourcesOperationsLock()
 	
 	LockParameters = SavedLockParameters();
 	
-	// 
-	// 
+	// Either the flag indicating that a decision about the lock should be made is raised,
+	// or the administrator confirmed the lock.
 	If LockParameters.OperationsWithExternalResourcesLocked = Undefined 
 		Or LockParameters.OperationsWithExternalResourcesLocked = True Then
 		Return True; 
@@ -468,10 +470,10 @@ Function SetExternalResourcesOperationsLock()
 	
 	DataSeparationEnabled = Common.DataSeparationEnabled();
 	If DataSeparationEnabled Then
-		Return False; // 
+		Return False; // Infobase transfer is determined by the service manager in SaaS mode.
 	EndIf;
 	
-	// 
+	// The following code is for the case when data separation is disabled.
 	
 	DataSeparationChanged = LockParameters.DataSeparationEnabled <> DataSeparationEnabled;
 	
@@ -483,7 +485,7 @@ Function SetExternalResourcesOperationsLock()
 	
 	ConnectionString = InfoBaseConnectionString();
 	If ConnectionString = LockParameters.ConnectionString Then
-		Return False; // 
+		Return False; // If the connection string matches, do not perform any further check.
 	EndIf;
 	
 	IsFileInfobase = Common.FileInfobase();
@@ -499,14 +501,14 @@ Function SetExternalResourcesOperationsLock()
 		Return True;
 	EndIf;
 	
-	// 
-	// 
-	// 
+	// The code below assumes that the operation mode hasn't changed:
+	// - A file infobase remains a file infobase
+	// - A client/server infobase remains a client/server infobase
 	
 	If IsFileInfobase Then
 		
-		// 
-		// 
+		// For file infobases, the connection string may vary between devices.
+		// Therefore, check if the infobase was re-located using the checking file.
 		
 		If Not FileInfobaseIDCheckFileExists() Then
 			MessageText = NStr("en = 'The infobase folder does not contain check file %1.';");
@@ -525,7 +527,7 @@ Function SetExternalResourcesOperationsLock()
 			Return True;
 		EndIf;
 		
-	Else // 
+	Else // Client/server infobase.
 		
 		BaseName = Lower(StringFunctionsClientServer.ParametersFromString(ConnectionString).Ref);
 		ConnectionManagerServerName = Lower(StringFunctionsClientServer.ParametersFromString(ConnectionString).Srvr);
@@ -542,10 +544,10 @@ Function SetExternalResourcesOperationsLock()
 			And WorkingProcessServerName <> SavedWorkingProcessServerName
 			And StrFind(SavedConnectionManagerServerName, ConnectionManagerServerName) = 0;
 		
-		// 
-		// 
-		//  
-		// 
+		// mIn scalable clusters, "SavedConnectionManagerServerName" might contain
+		// multiple server names that act as connection managers.
+		// When starting the scheduled job, "ConnectionManagerServerName" contains the name of the active manager. 
+		// To work with that, search for the current server in the saved name.
 		
 		If InfobaseNameChanged Or ComputerNameChanged Then
 			
@@ -582,7 +584,7 @@ Procedure SetFlagShowsNecessityOfLock(LockParameters, MessageText)
 	
 	CurrentBlockingParameters = SavedLockParameters();
 	If CurrentBlockingParameters.OperationsWithExternalResourcesLocked = Undefined Then
-		// 
+		// If the flag indicating that a lock decision should be made was set in another session.
 		Return;
 	EndIf;
 	
@@ -599,7 +601,7 @@ EndProcedure
 
 Function LockReasonPresentation(LockParameters)
 	
-	CurrentDate = CurrentDate(); // 
+	CurrentDate = CurrentDate(); // ACC:143 Lock information is required in server date.
 	
 	Return StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'The lock was set on server <b>%1</b> on <b>%2</b> at <b>%3</b> %4.

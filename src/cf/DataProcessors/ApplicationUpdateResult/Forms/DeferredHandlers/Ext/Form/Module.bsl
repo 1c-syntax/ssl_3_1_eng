@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -133,7 +135,7 @@ Procedure DeferredHandlersSelection(Item, RowSelected, Field, StandardProcessing
 	EndIf;
 	
 	If Field = Items.DeferredHandlersHandlerAddOn
-	   And Item.CurrentData.ThisIsOutOfDateDataCleanupHandler Then
+	   And Item.CurrentData.IsObsoleteDataCleanupHandler Then
 		
 		OpenForm("DataProcessor.ApplicationUpdateResult.Form.ClearObsoleteData");
 		Return;
@@ -345,9 +347,9 @@ Procedure StartSelectedProcedureForDebug(HandlerName)
 	Handler.Status = Enums.UpdateHandlersStatuses.NotPerformed;
 	Handler.ExecutionStatistics = New ValueStorage(New Map);
 	
-	// 
+	// ACC:1327-off No competitive usage of the register.
 	RecordSet.Write();
-	// 
+	// ACC:1327-on
 	InfobaseUpdateInternal.ExecuteDeferredUpdateNow(Undefined);
 	
 EndProcedure
@@ -519,7 +521,7 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 	|WHERE
 	|	UpdateHandlers.ExecutionMode = &ExecutionMode";
 	Handlers = Query.Execute().Unload();
-	LineOfOutOfDateDataCleanupHandler = Undefined;
+	ObsoleteDataCleanupHandlerRow = Undefined;
 	For Each Handler In Handlers Do
 		If Not UseParallelMode Then
 			UseParallelMode = (Handler.DeferredHandlerExecutionMode = Enums.DeferredHandlersExecutionModes.Parallel);
@@ -532,7 +534,7 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 			EndIf;
 		EndIf;
 		AddDeferredHandler(Handler, HandlersNotExecuted, AllHandlersExecuted,
-			InitialFilling, ChangingPriority, LineOfOutOfDateDataCleanupHandler);
+			InitialFilling, ChangingPriority, ObsoleteDataCleanupHandlerRow);
 		
 		If Handler.DeferredHandlerExecutionMode <> Enums.DeferredHandlersExecutionModes.Parallel Then
 			Continue;
@@ -583,11 +585,11 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 		Items.ExplanationText.Title = NStr("en = 'It is recommended that you restart the procedures that have not been completed.';");
 	EndIf;
 	
-	If LineOfOutOfDateDataCleanupHandler <> Undefined Then
-		RowIndex = DeferredHandlers.IndexOf(LineOfOutOfDateDataCleanupHandler);
+	If ObsoleteDataCleanupHandlerRow <> Undefined Then
+		RowIndex = DeferredHandlers.IndexOf(ObsoleteDataCleanupHandlerRow);
 		DeferredHandlers.Move(RowIndex, DeferredHandlers.Count() - 1 - RowIndex);
-		LineOfOutOfDateDataCleanupHandler.ThisIsOutOfDateDataCleanupHandler = True;
-		LineOfOutOfDateDataCleanupHandler.HandlerAddOn =
+		ObsoleteDataCleanupHandlerRow.IsObsoleteDataCleanupHandler = True;
+		ObsoleteDataCleanupHandlerRow.HandlerAddOn =
 			NStr("en = 'View and clear obsolete data manually.';");
 	EndIf;
 	
@@ -606,7 +608,7 @@ EndProcedure
 
 &AtServer
 Procedure AddDeferredHandler(HandlerRow, HandlersNotExecuted, AllHandlersExecuted,
-			InitialFilling, ChangingPriority, LineOfOutOfDateDataCleanupHandler)
+			InitialFilling, ChangingPriority, ObsoleteDataCleanupHandlerRow)
 	
 	If InitialFilling Then
 		ListLine = DeferredHandlers.Add();
@@ -615,8 +617,8 @@ Procedure AddDeferredHandler(HandlerRow, HandlersNotExecuted, AllHandlersExecute
 		FilterParameters.Insert("Id", HandlerRow.HandlerName);
 		ListLine = DeferredHandlers.FindRows(FilterParameters)[0];
 	EndIf;
-	If InfobaseUpdateInternal.ThisIsOutOfDateDataCleanupHandler(HandlerRow) Then
-		LineOfOutOfDateDataCleanupHandler = ListLine;
+	If InfobaseUpdateInternal.IsObsoleteDataCleanupHandler(HandlerRow) Then
+		ObsoleteDataCleanupHandlerRow = ListLine;
 	EndIf;
 	
 	ExecutionStatistics = HandlerRow.ExecutionStatistics.Get();
@@ -699,7 +701,7 @@ Procedure AddDeferredHandler(HandlerRow, HandlersNotExecuted, AllHandlersExecute
 	EndIf;
 	
 	If ChangingPriority And ListLine.Priority = "Undefined" Then
-		// 
+		// The priority for this string does not change.
 	ElsIf HandlerRow.Priority = "HighPriority" Then
 		ListLine.PriorityPicture = PictureLib.ExclamationPointRed;
 		ListLine.Priority = HandlerRow.Priority;

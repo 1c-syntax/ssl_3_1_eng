@@ -368,6 +368,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ServerNotificationsGlobal</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ServerNotificationsClient</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ServerNotificationsInternalServerCall</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ServerNotificationsInternalClientServer</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.ServerNotificationsInternalCached</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.SentServerNotifications</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.PeriodicServerNotifications</xr:Item>
@@ -394,6 +395,8 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.StandardSubsystemsServerLocalization</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.VeryLargeFont</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.StandardSubsystemsClientServer</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.CheckSafeModeBeforeWrite</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.CheckSafeModeBeforeWritingRecordSet</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

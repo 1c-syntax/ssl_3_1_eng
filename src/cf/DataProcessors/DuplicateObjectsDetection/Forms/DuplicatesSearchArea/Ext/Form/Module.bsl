@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
-// 
+// Expected parameters:
 //
-//     
+//     DuplicatesSearchArea - String - The full name of the metadata table for the given search area.
 //
-// 
+// Return value (as a selection result):
 //
-//     
-//     
+//     Undefined - Editing is canceled.
+//     String - Address of the new composer settings in a temporary storage.
 //
 
 #Region FormEventHandlers
@@ -61,7 +63,7 @@ Procedure MakeChoice(Val RowID)
 		Return;
 		
 	ElsIf Item.Value = DefaultArea Then
-		// 
+		// No changes were made.
 		Close();
 		Return;
 		

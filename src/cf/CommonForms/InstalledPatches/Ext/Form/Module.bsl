@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -55,7 +57,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.InstalledPatchesApplicableTo.Visible = False;
 	
 	IsWebClient = Common.IsWebClient() Or Common.ClientConnectedOverWebServer();
-	Items.FindAndInstallUpdates.Visible = Not IsWebClient;
+	Items.FindAndInstallUpdates.Visible = Not IsWebClient
+		And Common.SubsystemExists("OnlineUserSupport.GetApplicationUpdates");
 	
 EndProcedure
 
@@ -178,7 +181,6 @@ EndProcedure
 Procedure FindAndInstallUpdates(Command)
 	
 	If CommonClient.SubsystemExists("OnlineUserSupport.GetApplicationUpdates") Then
-		Close();
 		ModuleGetApplicationUpdatesClient = CommonClient.CommonModule("GetApplicationUpdatesClient");
 		ModuleGetApplicationUpdatesClient.UpdateProgram();
 	EndIf;

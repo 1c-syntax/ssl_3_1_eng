@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -17,7 +19,7 @@ Var CurrencyCodes;
 
 #Region EventHandlers
 
-// When recording, the exchange rates of subordinate currencies are monitored.
+// The dependent currency rates are controlled while writing.
 //
 Procedure OnWrite(Cancel, Replacing)
 	
@@ -43,7 +45,7 @@ EndProcedure
 
 #Region Private
 
-// Finds all dependent currencies and changes their exchange rate.
+// Finds all dependent currencies and changes their rate.
 //
 Procedure UpdateSubordinateCurrenciesRates()
 	
@@ -52,7 +54,7 @@ Procedure UpdateSubordinateCurrenciesRates()
 	
 	For Each BaseCurrencyRecord In ThisObject Do
 	
-		If SelectedCurrency <> Undefined Then // 
+		If SelectedCurrency <> Undefined Then // Only the given currency's rate must be updated.
 			BlockDependentCurrencyRate(SelectedCurrency, BaseCurrencyRecord.Period); 
 		Else
 			DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(BaseCurrencyRecord.Currency, AdditionalProperties);
@@ -65,20 +67,22 @@ Procedure UpdateSubordinateCurrenciesRates()
 	
 	For Each BaseCurrencyRecord In ThisObject Do
 
-		If SelectedCurrency <> Undefined Then // 
+		If SelectedCurrency <> Undefined Then // Only the given currency's rate must be updated.
 			UpdatedPeriods = Undefined;
 			If Not AdditionalProperties.Property("UpdatedPeriods", UpdatedPeriods) Then
 				UpdatedPeriods = New Map;
 				AdditionalProperties.Insert("UpdatedPeriods", UpdatedPeriods);
 			EndIf;
-			// 
+			// The rate is not updated more than once over the same period of time.
 			If UpdatedPeriods[BaseCurrencyRecord.Period] = Undefined Then
+				//@skip-check query-in-loop. Batch processing of a large amount of data.
 				UpdateSubordinateCurrencyRate(SelectedCurrency, BaseCurrencyRecord); 
 				UpdatedPeriods.Insert(BaseCurrencyRecord.Period, True);
 			EndIf;
-		Else	// 
+		Else	// Refresh the rate for all dependent currencies.
 			DependentCurrencies = CurrencyRateOperations.DependentCurrenciesList(BaseCurrencyRecord.Currency, AdditionalProperties);
 			For Each DependentCurrency In DependentCurrencies Do
+				//@skip-check query-in-loop. Batch processing of a large amount of data.
 				UpdateSubordinateCurrencyRate(DependentCurrency, BaseCurrencyRecord); 
 			EndDo;
 		EndIf;
@@ -111,7 +115,7 @@ Procedure UpdateSubordinateCurrencyRate(DependentCurrency, BaseCurrencyRecord)
 	If DependentCurrency.RateSource = Enums.RateSources.MarkupForOtherCurrencyRate Then
 		WriteCurrencyRate.Rate = BaseCurrencyRecord.Rate + BaseCurrencyRecord.Rate * DependentCurrency.Markup / 100;
 		WriteCurrencyRate.Repetition = BaseCurrencyRecord.Repetition;
-	Else // 
+	Else // Calculate by formula.
 		Rate = CurrencyRateByFormula(DependentCurrency.Ref, DependentCurrency.RateCalculationFormula, BaseCurrencyRecord.Period);
 		If Rate <> Undefined Then
 			WriteCurrencyRate.Rate = Rate;
@@ -143,7 +147,7 @@ Procedure UpdateSubordinateCurrencyRate(DependentCurrency, BaseCurrencyRecord)
 	
 EndProcedure
 
-// Clears the exchange rates of dependent currencies.
+// Clears rates for dependent currencies.
 //
 Procedure DeleteDependentCurrencyRates()
 	
@@ -176,41 +180,8 @@ EndProcedure
 	
 Function CurrencyRateByFormula(Currency, Formula, Period)
 	
-	If CurrencyCodes = Undefined Then
-		CurrencyCodes = CurrencyCodes();
-	EndIf;
-	
-	QueryText = 
-	"SELECT
-	|	Currencies.Ref AS Ref,
-	|	Currencies.AlphabeticCode AS AlphabeticCode
-	|INTO Currencies
-	|FROM
-	|	&CurrencyCodes AS Currencies
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	Currencies.AlphabeticCode AS AlphabeticCode,
-	|	ISNULL(CurrencyRatesCut.Rate, 1) / ISNULL(CurrencyRatesCut.Repetition, 1) AS Rate
-	|FROM
-	|	Currencies AS Currencies
-	|		LEFT JOIN InformationRegister.ExchangeRates.SliceLast(&Period, ) AS CurrencyRatesCut
-	|		ON (CurrencyRatesCut.Currency = Currencies.Ref)";
-	
-	Query = New Query(QueryText);
-	Query.SetParameter("CurrencyCodes", CurrencyCodes);
-	Query.SetParameter("Period", Period);
-
-	Expression = FormatNumbers(Formula);
-	
-	Selection = Query.Execute().Select();
-	While Selection.Next() Do
-		Expression = StrReplace(Expression, Selection.AlphabeticCode, Format(Selection.Rate, "NDS=.; NG=0"));
-	EndDo;
-	
 	Try
-		Result = Common.CalculateInSafeMode(Expression);
+		Result = Catalogs.Currencies.CurrencyRateByFormula(Formula, Period, CurrencyCodes());
 	Except
 		If ErrorInRateCalculationByFormula = Undefined Then
 			ErrorInRateCalculationByFormula = New Map;
@@ -243,72 +214,14 @@ Function CurrencyCodes()
 	
 	CurrencyCodes = Undefined;
 	AdditionalProperties.Property("CurrencyCodes", CurrencyCodes);
+	
 	If CurrencyCodes = Undefined Then
 		CurrencyCodes = Catalogs.Currencies.CurrencyCodes();
 	EndIf;
 	
-	Result = New ValueTable;
-	Result.Columns.Add("Ref", New TypeDescription("CatalogRef.Currencies"));
-	Result.Columns.Add("AlphabeticCode", New TypeDescription("String", , , , New StringQualifiers(Metadata.Catalogs.Currencies.DescriptionLength, AllowedLength.Variable)));
-	
-	For Each CurrencyDescription In CurrencyCodes Do
-		// 
-		If ValueIsFilled(StrConcat(StrSplit(CurrencyDescription.AlphabeticCode, "0123456789", False), "")) Then
-			FillPropertyValues(Result.Add(), CurrencyDescription);
-		EndIf;
-	EndDo;
-	
-	Result.Indexes.Add("Ref");
-	
-	Return Result;
+	Return CurrencyCodes;
 	
 EndFunction
-
-Function FormatNumbers(String)
-	
-	Result = "";
-	Number = "";
-	IsDelimiterInNumber = False;
-	PreviousChar = "";
-	
-	StringLength = StrLen(String);
-	For IndexOf = 1 To StringLength Do
-		If IndexOf < StringLength Then
-			NextChar = Mid(String, IndexOf + 1, 1);
-		Else
-			NextChar = "";
-		EndIf;
-		Char = Mid(String, IndexOf, 1);
-		
-		PreviousCharacterThisDelimiter = PreviousChar = "" Or StrFind("()[]/*-+%=<>, ", PreviousChar) > 0;
-		
-		If IsDigit(Char) And (PreviousCharacterThisDelimiter Or IsDigit(PreviousChar) And ValueIsFilled(Number)) Then
-			Number = Number + Char;
-		ElsIf Not IsDelimiterInNumber And (Char = "," Or Char = ".") And IsDigit(NextChar)
-			And (IsDigit(PreviousChar) Or PreviousCharacterThisDelimiter) And ValueIsFilled(Number) Then
-			Number = Number + ".";
-			IsDelimiterInNumber = True;
-		Else
-			Result = Result + Number + Char;
-			Number = "";
-			IsDelimiterInNumber = False;
-		EndIf;
-		
-		PreviousChar = Char;
-		Char = "";
-	EndDo;
-	
-	Result = Result + Number + Char;
-	Return Result;
-	
-EndFunction
-
-Function IsDigit(Char)
-	
-	Return StrFind("1234567890", Char) > 0;
-	
-EndFunction
-
 
 #EndRegion
 

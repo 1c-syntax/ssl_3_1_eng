@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// Returns links to nodes with a queue smaller than the one passed.
+// Returns references to nodes that have a smaller position in queue than the passed one.
 //
 // Parameters:
-//  Queue	 - Number -  data processing queue.
+//  Queue	 - Number - the queue position of the data processor.
 // 
 // Returns:
 //   Array of ExchangePlanRef.InfobaseUpdate 
@@ -38,12 +40,12 @@ Function EarlierQueueNodes(Queue) Export
 	
 EndFunction
 
-// Searches for the exchange plan node in turn and returns a link to it.
-// If the node doesn't exist yet, it will be created.
+// Searches for the exchange plan node by its queue and returns a reference to it.
+// If there is no node, it will be created.
 //
 // Parameters:
-//  Queue - Number -  data processing queue.
-//  Temporary - Boolean - 
+//  Queue - Number - the queue position of the data processor.
+//  Temporary - Boolean - Flag indicating whether data is registered during a deferred handler restart.
 // 
 // Returns:
 //  ExchangePlanRef.InfobaseUpdate

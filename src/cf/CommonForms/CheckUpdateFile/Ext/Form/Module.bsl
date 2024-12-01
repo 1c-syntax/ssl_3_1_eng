@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -32,14 +34,14 @@ Procedure OnOpen(Cancel)
 			Cancel = True;
 		EndIf;
 	Else
-	#If Not WebClient And Not MobileClient Then
+#If Not WebClient And Not MobileClient Then
 		Try
 			Result = OnlyBuildNumberOfMainConfigurationChanged();
 		Except
 			ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			WriteError(ErrorText);
 		EndTry;
-	#EndIf
+#EndIf
 		Cancel = True;
 		If TypeOf(Result) <> Type("Boolean") Then
 			Result = False;

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -83,10 +85,10 @@ Procedure Send(Command)
 	Items.Close.DefaultButton = True;
 	Items.Send.Visible = False;
 	
-	// 
+	// Send from server context.
 	SendSMS();
 
-	// 
+	// Check a sending status.
 	If Not IsBlankString(MessageID) Then
 		Items.Pages.CurrentPage = Items.MessageSentPage;
 		AttachIdleHandler("CheckDeliveryStatus", 2, True);
@@ -101,18 +103,18 @@ EndProcedure
 &AtServer
 Procedure SendSMS()
 	
-	// 
+	// Reset a displayed delivery status.
 	MessageID = "";
 	
-	// 
+	// Prepare recipient numbers.
 	NumbersArray = StringFunctionsClientServer.SplitStringIntoSubstringsArray(RecipientsNumbers, ", ", True);
 	
-	// Send
+	// Send.
 	SendingResult = SendSMSMessage.SendSMS(NumbersArray, MessageText, ?(MentionSenderName, SenderName, Undefined), SendInTransliteration);
 	
-	// 
+	// Display information on errors occurred upon sending.
 	If IsBlankString(SendingResult.ErrorDescription) Then
-		// 
+		// Check delivery for the first recipient.
 		If SendingResult.SentMessages.Count() > 0 Then
 			MessageID = SendingResult.SentMessages[0].MessageID;
 		EndIf;
@@ -225,7 +227,7 @@ Function FormattedString(Text)
 		EndIf;
 	EndDo;
 	
-	Return New FormattedString(FormattedStrings); // 
+	Return New FormattedString(FormattedStrings); // ACC:1356 Does not prevent translating into other languages.
 	
 EndFunction
 

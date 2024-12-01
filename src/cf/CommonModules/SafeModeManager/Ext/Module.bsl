@@ -1,29 +1,31 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Permission constructors.
 //
 
-// Returns an internal description of the permission to use the file system directory.
-// To pass as a parameter in the function:
-// Work in a safe mode.Request the use of external resources and
-// work in a secure mode.Request to change the permission to use the external resources.
+// Returns the internal description of the permission to use the file system directory.
+// For passing as a parameter to functions:
+// SafeModeManager.RequestToUseExternalResources and
+// SafeModeManager.RequestToCancelPermissionsToUseExternalResources.
 //
 // Parameters:
-//  Address - String -  address of the file system resource,
-//  DataReader - Boolean -  specifies the need to grant permission
+//  Address - String - a file system resource address.
+//  DataReader - Boolean - indicates that it is required to grant permissions
 //                          to read data from this file system directory.
-//  DataWriter - Boolean -  specifies the need to grant permission
-//                          to write data to the specified directory of the file system.
-//  LongDesc - String -  description of the reason why permission is required.
+//  DataWriter - Boolean - indicates that it is required to grant permissions
+//                          to write data to the specified file system directory.
+//  LongDesc - String - details on the reason to grant the permission.
 //
 // Returns:
 //  XDTODataObject 
@@ -46,17 +48,17 @@ Function PermissionToUseFileSystemDirectory(Val Address, Val DataReader = False,
 	
 EndFunction
 
-// Returns an internal description of the permission to use the temporary files directory.
-// To pass as a parameter in the function:
-// Work in a safe mode.Request the use of external resources and
-// work in a secure mode.Request to change the permission to use the external resources.
+// Returns the internal description of the permission to use the temporary file directory.
+// For passing as a parameter to functions:
+// SafeModeManager.RequestToUseExternalResources and
+// SafeModeManager.RequestToCancelPermissionsToUseExternalResources.
 //
 // Parameters:
-//  DataReader - Boolean -  indicates the need to grant permission
-//                          to read data from the temporary files directory.
-//  DataWriter - Boolean -  indicates the need to grant permission
-//                          to write data to the temporary files directory.
-//  LongDesc - String -  description of the reason why permission is required.
+//  DataReader - Boolean - indicates that it is required to grant a permission
+//                          to read data from the temporary file directory.
+//  DataWriter - Boolean - indicates that it is required to grant a permission
+//                          to write data to the temporary file directory.
+//  LongDesc - String - details on the reason to grant the permission.
 //
 // Returns:
 //  XDTODataObject
@@ -67,17 +69,17 @@ Function PermissionToUseTempDirectory(Val DataReader = False, Val DataWriter = F
 	
 EndFunction
 
-// Returns an internal description of the permission to use the program directory.
-// To pass as a parameter in the function:
-// Work in a safe mode.Request the use of external resources and
-// work in a secure mode.Request to change the permission to use the external resources.
+// Returns the internal description of the permission to use the application directory.
+// For passing as a parameter to functions:
+// SafeModeManager.RequestToUseExternalResources and
+// SafeModeManager.RequestToCancelPermissionsToUseExternalResources.
 //
 // Parameters:
-//  DataReader - Boolean -  indicates the need to grant permission
-//                          to read data from the program directory.
-//  DataWriter - Boolean -  indicates the need to grant permission
-//                          to write data to the program directory.
-//  LongDesc - String -  description of the reason why permission is required.
+//  DataReader - Boolean - indicates that it is required to grant a permission
+//                          to read data from the application directory.
+//  DataWriter - Boolean - indicates that it is required to grant a permission
+//                          to write data to the application directory.
+//  LongDesc - String - details on the reason to grant the permission.
 //
 // Returns:
 //  XDTODataObject
@@ -88,19 +90,19 @@ Function PermissionToUseApplicationDirectory(Val DataReader = False, Val DataWri
 	
 EndFunction
 
-// Returns an internal description of the permission to use the COM class.
-// To pass as a parameter in the function:
-// Work in a safe mode.Request the use of external resources and
-// work in a secure mode.Request to change the permission to use the external resources.
+// Returns the internal description of the permission to use the COM class.
+// For passing as a parameter to functions:
+// SafeModeManager.RequestToUseExternalResources and
+// SafeModeManager.RequestToCancelPermissionsToUseExternalResources.
 //
 // Parameters:
-//  ProgID - String -  The ProgID of the COM class with which it is registered in the system.
+//  ProgID - String - ProgID of COM class, with which it is registered in the application.
 //                    For example, "Excel.Application".
-//  CLSID - String -  The CLSID of the COM class with which it is registered in the system.
-//  ComputerName - String -  the name of the computer on which to create the specified object.
-//                           If not specified, the object will be created on the computer where
-//                           the current workflow is running.
-//  LongDesc - String -  description of the reason why permission is required.
+//  CLSID - String - a CLSID of a COM class, with which it is registered in the application.
+//  ComputerName - String - a name of the computer where the specified object must be created.
+//                           If the parameter is skipped, an object will be created on the computer where the
+//                           current working process is running.
+//  LongDesc - String - details on the reason to grant the permission.
 //
 // Returns:
 //  XDTODataObject
@@ -119,15 +121,15 @@ Function PermissionToCreateCOMClass(Val ProgID, Val CLSID, Val ComputerName = ""
 	
 EndFunction
 
-// Returns an internal description of the permission to use an external component supplied
-// in the general configuration layout.
-// To pass as a parameter in the function:
-// Work in a safe mode.Request the use of external resources and
-// work in a secure mode.Request to change the permission to use the external resources.
+// Returns the internal description of the permission to use the add-in distributed
+// in the common configuration template.
+// For passing as a parameter to functions:
+// SafeModeManager.RequestToUseExternalResources and
+// SafeModeManager.RequestToCancelPermissionsToUseExternalResources.
 //
 // Parameters:
-//  TemplateName - String -  the name of the general layout in the configuration in which the external component is supplied.
-//  LongDesc - String -  description of the reason why permission is required.
+//  TemplateName - String - a name of the common template in the configuration that stores the add-in.
+//  LongDesc - String - details on the reason to grant the permission.
 //
 // Returns:
 //  XDTODataObject
@@ -144,15 +146,15 @@ Function PermissionToUseAddIn(Val TemplateName, Val LongDesc = "") Export
 	
 EndFunction
 
-// Returns an internal description of the permission to use the configuration extension.
-// To pass as a parameter in the function:
-// Work in a safe mode.Request the use of external resources and
-// work in a secure mode.Request to change the permission to use the external resources.
+// Returns the internal description of the permission to use the application extension.
+// For passing as a parameter to functions:
+// SafeModeManager.RequestToUseExternalResources and
+// SafeModeManager.RequestToCancelPermissionsToUseExternalResources.
 //
 // Parameters:
-//  Name - String -  name of the configuration extension.
-//  Checksum - String -  checksum of the configuration extension.
-//  LongDesc - String -  description of the reason why permission is required.
+//  Name - String - a configuration extension name.
+//  Checksum - String - a configuration extension checksum.
+//  LongDesc - String - details on the reason to grant the permission.
 //
 // Returns:
 //  XDTODataObject
@@ -170,15 +172,15 @@ Function PermissionToUseExternalModule(Val Name, Val Checksum, Val LongDesc = ""
 	
 EndFunction
 
-// Returns an internal description of the permission to use the operating system application.
-// To pass as a parameter in the function:
-// Work in a safe mode.Request the use of external resources and
-// work in a secure mode.Request to change the permission to use the external resources.
+// Returns the internal description of the permission to use the operating system application.
+// For passing as a parameter to functions:
+// SafeModeManager.RequestToUseExternalResources and
+// SafeModeManager.RequestToCancelPermissionsToUseExternalResources.
 //
 // Parameters:
-//  CommandLinePattern - String -  template of the application launch string.
+//  CommandLinePattern - String - a template of an application command line.
 //                                 For more information, see the platform documentation.
-//  LongDesc - String -  description of the reason why permission is required.
+//  LongDesc - String - details on the reason to grant the permission.
 //
 // Returns:
 //  XDTODataObject
@@ -195,17 +197,17 @@ Function PermissionToUseOperatingSystemApplications(Val CommandLinePattern, Val 
 	
 EndFunction
 
-// Returns an internal description of the permission to use the Internet resource.
-// To pass as a parameter in the function:
-// Work in a safe mode.Request the use of external resources and
-// work in a secure mode.Request to change the permission to use the external resources.
+// Returns the internal description of the permissions to use the Internet resource.
+// For passing as a parameter to functions:
+// SafeModeManager.RequestToUseExternalResources and
+// SafeModeManager.RequestToCancelPermissionsToUseExternalResources.
 //
 // Parameters:
-//  Protocol - String - :
-//                      
-//  Address - String -  resource address without specifying the Protocol.
-//  Port - Number -  the number of the port that is used to communicate with the resource.
-//  LongDesc - String -  description of the reason why permission is required.
+//  Protocol - String - a protocol used to interact with the resource. The following values are available:
+//                      IMAP, POP3, SMTP, HTTP, HTTPS, FTP, FTPS, WS, WSS.
+//  Address - String - a resource address without a specified protocol.
+//  Port - Number - a number of the port that is used to interact with the resource.
+//  LongDesc - String - details on the reason to grant the permission.
 //
 // Returns:
 //  XDTODataObject
@@ -231,14 +233,14 @@ Function PermissionToUseInternetResource(Val Protocol, Val Address, Val Port = U
 	
 EndFunction
 
-// Returns an internal description of the permission to work with extended data (including the installation
-// of privileged mode) for external modules.
-// To pass as a parameter in the function:
-// Work in a safe mode.Request the use of external resources and
-// work in a secure mode.Request to change the permission to use the external resources.
+// Returns the internal description of the permissions for extended data processing (including the
+// privileged mode) for external modules.
+// For passing as a parameter to functions:
+// SafeModeManager.RequestToUseExternalResources and
+// SafeModeManager.RequestToCancelPermissionsToUseExternalResources.
 //
 // Parameters:
-//  LongDesc - String -  description of the reason why permission is required.
+//  LongDesc - String - details on the reason to grant the permission.
 //
 // Returns:
 //  XDTODataObject
@@ -254,7 +256,7 @@ Function PermissionToUsePrivilegedMode(Val LongDesc = "") Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions creating requests for permissions to use external resources.
 //
 
 // Creates a request to use external resources.
@@ -268,22 +270,22 @@ EndFunction
 //                  - Array of See SafeModeManager.PermissionToUseFileSystemDirectory  
 //                  - Array of See SafeModeManager.PermissionToUsePrivilegedMode  
 //					- Array of See SafeModeManager.PermissionToUseOperatingSystemApplications - 
-//					  
-//  Owner - AnyRef -  a reference to the object of the information base with which the requested
-//    permissions are logically linked. For example, all permissions to access directories of file storage volumes are logically linked
-//    to the corresponding elements of the directory of file storage volumes, all permissions to access
-//    data exchange directories (or other resources, depending on the exchange transport used) are logically
-//    linked to the corresponding nodes of exchange plans, etc. In the event that the permission is logically
-//    separate (for example, the granting of permission is regulated by the value of a constant with the Boolean type), it is
-//    recommended to use a reference to an element of the directory of identifiers of Data objects.
-//  ReplacementMode - Boolean -  defines the mode for replacing previously issued permissions for this owner. If
-//    the parameter is set to True, in addition to granting the requested permissions, the request will
-//    clear all permissions previously requested for the same owner.
+//					  Requests permissions to access external resources.
+//  Owner - AnyRef - a reference to the infobase object the
+//    permissions being requested are logically connected with. For example, all permissions to access file storage volume directories are logically associated
+//    with relevant FileStorageVolumes catalog items, all permissions to access data exchange
+//    directories (or other resources according to the used exchange transport) are logically
+//    associated with relevant exchange plan nodes, and so on. If a permission is logically
+//    isolated (for example, if granting of a permission is controlled by the constant value with the Boolean type),
+//    it is recommended that you use a reference to the MetadataObjectIDs catalog item.
+//  ReplacementMode - Boolean - defines the replacement mode of permissions previously granted for this owner. If the
+//    value is True, in addition to granting the requested permissions,
+//    clearing all permissions that were previously requested for the owner are added to the request.
 //
 // Returns:
-//  UUID -  
-//     
-//    
+//  UUID -  A reference to the permission request written to the infobase. When
+//    all requests for permission changes are created, the changes must be applied by calling the SafeModeManagerClient.ApplyExternalResourcesRequests 
+//    procedure.
 //
 Function RequestToUseExternalResources(Val NewPermissions, Val Owner = Undefined, Val ReplacementMode = True) Export
 	
@@ -294,16 +296,16 @@ Function RequestToUseExternalResources(Val NewPermissions, Val Owner = Undefined
 	
 EndFunction
 
-// Creates a request to revoke permissions to use external resources.
+// Creates a request for canceling permissions to use external resources.
 //
 // Parameters:
-//  Owner - AnyRef -  a reference to an object in the information database that the revoked
-//    permissions are logically associated with. For example, all permissions to access file storage volume directories are logically linked
-//    to the corresponding items in the file Storage directory, all permissions to access
-//    data exchange directories (or other resources, depending on the exchange transport used) are logically
-//    linked to the corresponding exchange plan nodes, and so on. If the permission is logically
-//    separate (for example, revoked permissions are regulated by the value of a constant with the Boolean type), it is
-//    recommended to use a reference to the element of the reference list of object IDs of Metadata.
+//  Owner - AnyRef - a reference to the infobase object the
+//    permissions being canceled are logically connected with. For example, all permissions to access file storage volume directories are logically associated
+//    with relevant FileStorageVolumes catalog items, all permissions to access data exchange
+//    directories (or other resources according to the used exchange transport) are logically
+//    associated with relevant exchange plan nodes, and so on. If a permission is logically
+//    isolated (for example, if permissions being canceled are controlled by the constant value with the Boolean type),
+//    it is recommended that you use a reference to the MetadataObjectIDs catalog item.
 //  PermissionsToCancel - Array of See SafeModeManager.PermissionToUseExternalModule 
 //                       - Array of See SafeModeManager.PermissionToUseAddIn  
 //                       - Array of See SafeModeManager.PermissionToUseInternetResource  
@@ -312,12 +314,12 @@ EndFunction
 //                       - Array of See SafeModeManager.PermissionToUseFileSystemDirectory  
 //                       - Array of See SafeModeManager.PermissionToUsePrivilegedMode  
 //					- Array of See SafeModeManager.PermissionToUseOperatingSystemApplications - 
-//					  
+//					  External resource permissions that should be revoked.
 //
 // Returns:
-//  UUID - 
-//     
-//    
+//  UUID - a reference to the permission request written to the infobase. When
+//    all requests for permission changes are created, the changes must be applied by calling the SafeModeManagerClient.ApplyExternalResourcesRequests 
+//    procedure.
 //
 Function RequestToCancelPermissionsToUseExternalResources(Val Owner, Val PermissionsToCancel) Export
 	
@@ -329,21 +331,21 @@ Function RequestToCancelPermissionsToUseExternalResources(Val Owner, Val Permiss
 	
 EndFunction
 
-// Creates a request to revoke all permissions to use external resources associated with the owner.
+// Creates a request for canceling all owner's permissions to use external resources.
 //
 // Parameters:
-//  Owner - AnyRef -  a reference to an object in the information database that the revoked
-//    permissions are logically associated with. For example, all permissions to access file storage volume directories are logically linked
-//    to the corresponding items in the file Storage directory, all permissions to access
-//    data exchange directories (or other resources, depending on the exchange transport used) are logically
-//    linked to the corresponding exchange plan nodes, and so on. If the permission is logically
-//    separate (for example, revoked permissions are regulated by the value of a constant with the Boolean type), it is
-//    recommended to use a reference to the element of the reference list of object IDs of Metadata.
+//  Owner - AnyRef - a reference to the infobase object the
+//    permissions being canceled are logically connected with. For example, all permissions to access file storage volume directories are logically associated
+//    with relevant FileStorageVolumes catalog items, all permissions to access data exchange
+//    directories (or other resources according to the used exchange transport) are logically
+//    associated with relevant exchange plan nodes, and so on. If a permission is logically
+//    isolated (for example, if permissions being canceled are controlled by the constant value with the Boolean type),
+//    it is recommended that you use a reference to the MetadataObjectIDs catalog item.
 //
 // Returns:
-//  UUID - 
-//     
-//    
+//  UUID - a reference to the permission request written to the infobase. When
+//    all requests for permission changes are created, the changes must be applied by calling the SafeModeManagerClient.ApplyExternalResourcesRequests 
+//    procedure.
 //
 Function RequestToClearPermissionsToUseExternalResources(Val Owner) Export
 	
@@ -354,15 +356,15 @@ Function RequestToClearPermissionsToUseExternalResources(Val Owner) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
-// 
+// Functions that provide support of security profiles that
+// restrict attaching external modules in unsafe mode.
 //
 
-// They will check that safe mode is set, ignoring the safe mode of the security profile
+// Checks whether the safe mode is enabled ignoring the security profile safe mode
 //  that is used as a security profile with the configuration privilege level.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True if the safe mode is enabled.
 //
 Function SafeModeSet() Export
 	
@@ -371,7 +373,7 @@ Function SafeModeSet() Export
 	If TypeOf(CurrentSafeMode) = Type("String") Then
 		
 		If Not SwichingToPrivilegedModeAvailable() Then
-			Return True; // 
+			Return True; // If the safe mode is not enabled, switching to the privileged mode is always available.
 		EndIf;
 		
 		Try
@@ -391,18 +393,18 @@ Function SafeModeSet() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Other
+// Miscellaneous.
 //
 
-// Creates requests to update configuration permissions.
+// Creates requests for application permission update.
 //
 // Parameters:
-//  IncludingIBProfileCreationRequest - Boolean -  include a request to create a security profile
-//    for the current database in the result.
+//  IncludingIBProfileCreationRequest - Boolean - include a request to create a security profile
+//    for the current infobase to the result.
 //
 // Returns:
-//  Array - 
-//           
+//  Array - request IDs for updating the
+//           configuration permissions to the currently required ones.
 //
 Function RequestsToUpdateApplicationPermissions(Val IncludingIBProfileCreationRequest = True) Export
 	
@@ -410,15 +412,15 @@ Function RequestsToUpdateApplicationPermissions(Val IncludingIBProfileCreationRe
 	
 EndFunction
 
-// Returns checksums of the external component kit files that are supplied in the configuration layout.
+// Returns checksums of add-in files from the bundle provided in the configuration template.
 //
 // Parameters:
-//   TemplateName - String -  name of the configuration layout that the external component kit is supplied with.
+//   TemplateName - String - a configuration template name.
 //
 // Returns:
-//   FixedMap of KeyAndValue - :
-//     * Key - String -  file name,
-//     * Value - String -  checksum.
+//   FixedMap of KeyAndValue - Checksums of the files:
+//     * Key - String - file name,
+//     * Value - String - checksum.
 //
 Function AddInBundleFilesChecksum(Val TemplateName) Export
 	
@@ -431,17 +433,18 @@ EndFunction
 #Region Internal
 
 Function UseSecurityProfiles() Export
-	Return GetFunctionalOption("UseSecurityProfiles");
+	Return Not Common.FileInfobase()
+		And GetFunctionalOption("UseSecurityProfiles");
 EndFunction
 
-// Returns the name of the security profile that grants configuration code privileges.
+// Returns the name of the security profile that provides privileges for configuration code.
 //
 // Returns:
 //   String
 //
 Function InfobaseSecurityProfile(CheckForUsage = False) Export
 	
-	If CheckForUsage And Not GetFunctionalOption("UseSecurityProfiles") Then
+	If CheckForUsage And Not UseSecurityProfiles() Then
 		Return "";
 	EndIf;
 	
@@ -461,7 +464,7 @@ EndFunction
 
 #Region Private
 
-// Checks whether it is possible to switch to privileged mode from the current safe mode.
+// Checks whether the privileged mode can be set from the current safe mode.
 //
 // Returns:
 //   Boolean
@@ -473,7 +476,7 @@ Function SwichingToPrivilegedModeAvailable()
 	
 EndFunction
 
-// Returns a "predefined" alias for the program directory.
+// Returns the predefined alias of the application directory.
 //
 // Returns:
 //   String
@@ -484,7 +487,7 @@ Function ApplicationDirectoryAlias()
 	
 EndFunction
 
-// Returns a "predefined" alias for the temporary file directory.
+// Returns the predefined alias of the temporary file directory.
 //
 Function TempDirectoryAlias()
 	
@@ -492,9 +495,9 @@ Function TempDirectoryAlias()
 	
 EndFunction
 
-// Returns standard network ports for Internet protocols, tools for using which
-// are available in the built-in 1C language:Companies. Used to determine the network port
-// when permission is requested from the application code without specifying the network port.
+// Returns the standard ports of the Internet protocols that can be processed
+// using the 1C:Enterprise language. Is used to determine the port
+// if the applied code requests the permission but does not define the port.
 //
 // Returns:
 //   FixedStructure:

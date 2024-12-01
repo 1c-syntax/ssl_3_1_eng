@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -91,7 +93,7 @@ EndProcedure
 #Region Private
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures for output to a spreadsheet document.
 
 &AtServer
 Procedure OutputSpreadsheetDocument()
@@ -168,7 +170,7 @@ Procedure OutputPresentationAndPicture(TreeRow, Template, IsCurrentObject = Fals
 	HasSubordinateItems = TypeOf(TreeRow) = Type("FormDataTreeItem")
 		And TreeRow.GetItems().Count() > 0;
 	
-	// 
+	// Output picture.
 	If TreeRow.Posted Then
 		If IsCurrentObject Then
 			If HasSubordinateItemsCumulative And HasParentsCumulative Then
@@ -257,7 +259,7 @@ Procedure OutputPresentationAndPicture(TreeRow, Template, IsCurrentObject = Fals
 		ReportTable.Join(PictureArea);
 	EndIf;
 	
-	// 
+	// Output object.
 	ObjectArea = Template.GetArea(?(IsCurrentObject, "CurrentObject", "Object"));
 	ObjectArea.Parameters.ObjectPresentation = TreeRow.Presentation;
 	ObjectArea.Parameters.Object = TreeRow.Ref;
@@ -265,15 +267,15 @@ Procedure OutputPresentationAndPicture(TreeRow, Template, IsCurrentObject = Fals
 	
 EndProcedure
 
-// 
+// Determines whether a vertical connector is to be output to the spreadsheet.
 //
 // Parameters:
-//  LevelUp  - Number -  how many levels higher is the 
-//                 parent from which the vertical connector will be drawn.
-//  TreeRow  - FormDataTreeItem -  the source row of the value tree
-//                  that is being counted from.
+//  LevelUp  - Number - how many levels higher is the 
+//                 parent, from which the vertical connector will be drawn.
+//  TreeRow  - FormDataTreeItem - an original value tree row
+//                  that starts the count.
 // Returns:
-//   Boolean   - 
+//   Boolean   - indicates whether output in the vertical connector area is required.
 //
 &AtServer
 Function OutputVerticalConnector(LevelUp, TreeRow, SearchSubordinateDocuments = True)
@@ -305,7 +307,7 @@ Function OutputVerticalConnector(LevelUp, TreeRow, SearchSubordinateDocuments = 
 	
 EndFunction
 
-// Outputs a row with the document for which the subordination structure is formed to a table document.
+// Outputs a row with the document, for which a hierarchy is being generated, to the spreadsheet document.
 //
 // Parameters:
 //  Template - SpreadsheetDocument
@@ -333,10 +335,10 @@ EndProcedure
 
 // Parameters:
 //  Selection - QueryResultSelection
-//          - FormDataTreeItem - 
+//          - FormDataTreeItem - a data set used to generate a presentation.
 //
 // Returns:
-//   String - 
+//   String - a generated presentation.
 //
 &AtServer
 Function ObjectPresentationForReportOutput(Selection)
@@ -372,7 +374,7 @@ Procedure OutputSubordinateTreeItems(TreeRows, Template, RecursionLevels = 1)
 		IsInitialObject = (TreeRow.Ref = InitialObject);
 		SubordinateTreeItems = TreeRow.GetItems();
 		
-		// 
+		// Output connectors.
 		For Level = 1 To RecursionLevels Do
 			
 			If RecursionLevels > Level Then
@@ -418,7 +420,7 @@ Procedure OutputHierarchy()
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures for generating a hierarchical tree of documents.
 
 &AtServer
 Procedure UpdateHierarchicalTree()
@@ -658,14 +660,14 @@ Procedure OutputParentObjects(CurrentObject, ParentTree, DisplayedObjects,
 			If NewRow <> Undefined
 				And Not ObjectToAddIsAmongParents(ParentTree, ObjectToOutput.Ref) Then
 				
-				// 
+				// @skip-check query-in-loop - Recursive algorithm to process a tree.
 				OutputParentObjects(ObjectToOutput.Ref, NewRow, DisplayedObjects,
 					ServiceObjects, IndexOfObjectRelationships);
 				
 			ElsIf ServiceObjects[ObjectToOutput.Ref] = Undefined Then 
 				
 				ServiceObjects[ObjectToOutput.Ref] = True;
-				// 
+				// @skip-check query-in-loop - Recursive algorithm to process a tree.
 				OutputParentObjects(ObjectToOutput.Ref, ParentTree, DisplayedObjects,
 					ServiceObjects, IndexOfObjectRelationships);
 				
@@ -759,18 +761,18 @@ EndProcedure
 Function ObjectsByFilterCriteria(FilterCriteriaValue)
 
 	QueryTemplate = "SELECT ALLOWED
-	|	TablePresentation.Ref AS Ref
+	|	TableAlias.Ref AS Ref
 	|FROM
-	|	TableName AS TablePresentation
+	|	TableName AS TableAlias
 	|WHERE
-	|	TablePresentation.AttributeName = &FilterCriteriaValue";
+	|	TableAlias.AttributeName = &FilterCriteriaValue";
 
 	MergeQueryTemplate = "SELECT
-	|	TablePresentation.Ref AS Ref
+	|	TableAlias.Ref AS Ref
 	|FROM
-	|	TableName AS TablePresentation
+	|	TableName AS TableAlias
 	|WHERE
-	|	TablePresentation.AttributeName = &FilterCriteriaValue";
+	|	TableAlias.AttributeName = &FilterCriteriaValue";
 
 	QueryParts = New Array;
 	TextOfRequestPart = "";
@@ -800,11 +802,11 @@ Function ObjectsByFilterCriteria(FilterCriteriaValue)
 		TableName = StrReplace(TableName, "TabularSection.", "");
 
 		Point = StrFind(TableName, ".", SearchDirection.FromEnd);
-		TablePresentation = Mid(TableName, Point + 1);
+		TableAlias = "Table_" + Mid(TableName, Point + 1);
 
 		TextOfRequestPart = ?(TextOfRequestPart = "", QueryTemplate, MergeQueryTemplate);
 		TextOfRequestPart = StrReplace(TextOfRequestPart, "TableName", TableName);
-		TextOfRequestPart = StrReplace(TextOfRequestPart, "TablePresentation", TablePresentation);
+		TextOfRequestPart = StrReplace(TextOfRequestPart, "TableAlias", TableAlias);
 		TextOfRequestPart = StrReplace(TextOfRequestPart, "AttributeName", AttributeName);
 
 		QueryParts.Add(TextOfRequestPart);
@@ -871,14 +873,14 @@ Procedure OutputSubordinateObjects(CurrentObject, ParentTree, DisplayedObjects,
 		If NewRow <> Undefined
 			And Not ObjectToAddIsAmongParents(ParentTree, ObjectToOutput.Ref) Then
 			
-			// 
+			// @skip-check query-in-loop - Recursive algorithm to process a tree.
 			OutputSubordinateObjects(ObjectToOutput.Ref, NewRow, DisplayedObjects,
 				ServiceObjects, IndexOfObjectRelationships);
 			
 		ElsIf ServiceObjects[ObjectToOutput.Ref] = Undefined Then 
 			
 			ServiceObjects.Insert(ObjectToOutput.Ref, True);
-			// 
+			// @skip-check query-in-loop - Recursive algorithm to process a tree.
 			OutputSubordinateObjects(ObjectToOutput.Ref, ParentTree, DisplayedObjects,
 				ServiceObjects, IndexOfObjectRelationships);
 			
@@ -950,30 +952,32 @@ Function NewObjectProperties()
 EndFunction
 
 &AtServer
-Function TheCurrentObjectWasDisplayedInTheBranch(Parent, CurrentObject, WasOutput = False)
+Function TheCurrentObjectWasDisplayedInTheBranch(Val Parent, Val CurrentObject, WasOutput = False)
 	
-	If Parent = Undefined Then 
-		Return WasOutput;
-	EndIf;
-	
-	IsString = (TypeOf(Parent) = Type("FormDataTreeItem"));
-	
-	If IsString And CurrentObject = Parent.Ref Then 
-		WasOutput = True;
-		Return WasOutput;
-	EndIf;
-
-	For Each Item In Parent.GetItems() Do 
-		If CurrentObject = Item.Ref Then 
+	While Parent <> Undefined Do
+		
+		IsString = (TypeOf(Parent) = Type("FormDataTreeItem"));
+		
+		If IsString And CurrentObject = Parent.Ref Then 
 			WasOutput = True;
+			Return WasOutput;
+		EndIf;
+		
+		For Each Item In Parent.GetItems() Do 
+			If CurrentObject = Item.Ref Then 
+				WasOutput = True;
+				Break;
+			EndIf;
+		EndDo;
+		
+		If IsString And Not WasOutput Then
+			Parent = Parent.GetParent();
+		Else
 			Break;
 		EndIf;
+		
 	EndDo;
 	
-	If IsString And Not WasOutput Then 
-		TheCurrentObjectWasDisplayedInTheBranch(Parent.GetParent(), CurrentObject, WasOutput);
-	EndIf;
-
 	Return WasOutput;
 	
 EndFunction
@@ -1014,8 +1018,8 @@ Function DocumentAttributeName(Val ObjectMetadata, Val Var_AttributeName)
 		Return ?(Result <> Undefined, Result, Var_AttributeName);
 	EndIf;	
 	
-	// 
-	DocumentAttributeName = SubordinationStructureOverridable.DocumentAttributeName(ObjectMetadata.Name, Var_AttributeName); // 
+	// For backward compatibility purposes.
+	DocumentAttributeName = SubordinationStructureOverridable.DocumentAttributeName(ObjectMetadata.Name, Var_AttributeName); // ACC:223
 	If Var_AttributeName = "DocumentAmount" Then
 		Return ?(DocumentAttributeName = Undefined, "DocumentAmount", DocumentAttributeName);
 	ElsIf Var_AttributeName = "Currency" Then
@@ -1044,8 +1048,8 @@ Function AttributesForPresentation(Val FullMetadataObjectName, Val MetadataObjec
 		Return Result;
 	EndIf;
 	
-	// 
-	Return SubordinationStructureOverridable.ObjectAttributesArrayForPresentationGeneration(MetadataObjectName); // 
+	// For backward compatibility purposes.
+	Return SubordinationStructureOverridable.ObjectAttributesArrayForPresentationGeneration(MetadataObjectName); // ACC:223
 	
 EndFunction
 
@@ -1059,13 +1063,13 @@ Function ObjectPresentationForOutput(Data)
 		Return Result;
 	EndIf;
 	
-	// 
-	Return SubordinationStructureOverridable.ObjectPresentationForReportOutput(Data); // 
+	// For backward compatibility purposes.
+	Return SubordinationStructureOverridable.ObjectPresentationForReportOutput(Data); // ACC:223
 	
 EndFunction
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Object state change procedures.
 
 &AtClient
 Function SelectedItems()
@@ -1128,7 +1132,7 @@ Function SelectedAreaBorders(SelectedArea1)
 	
 EndFunction
 
-// 
+// Modify the deletion mark.
 
 &AtServerNoContext
 Function StatisticsBySelectedItems(SelectedItems)
@@ -1221,7 +1225,7 @@ Function DeletionMarkEditScenario(SelectedItems, StatisticsBySelectedItems)
 			
 		Else
 			
-			// 
+			// If some of the items are marked for deletion, 1C:Enterprise will process only them and will clear the deletion mark.
 			SelectedItems.Clear();
 			
 			For Each Item In StatisticsBySelectedItems.WithDeletionMark Do 
@@ -1411,7 +1415,7 @@ Function ProcessedDocuments(SelectedDocuments, Mode, Errors)
 	
 EndFunction
 
-// 
+// Common.
 
 &AtClient
 Procedure WarnAboutAnErrorWhenChangingElements(Errors, Scenario)

@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Opens the new document form "SMS Message" with the passed parameters.
+// Opens the form of a new document "SMS" containing the passed parameters.
 //
 // Parameters:
 //   FormParameters - See InteractionsClient.SMSMessageSendingFormParameters.
-//   DeleteText                - String -  not use.
-//   DeleteSubject              - AnyRef -  not use.
-//   DeleteSendInTransliteration - Boolean -  not use.
+//   DeleteText                - String - not used.
+//   DeleteSubject              - AnyRef - not used.
+//   DeleteSendInTransliteration - Boolean - not used.
 //
 Procedure OpenSMSMessageSendingForm(Val FormParameters = Undefined,
     Val DeleteText = "", Val DeleteSubject = Undefined, Val DeleteSendInTransliteration = False) Export
@@ -31,17 +33,17 @@ Procedure OpenSMSMessageSendingForm(Val FormParameters = Undefined,
 	
 EndProcedure
 
-// Returns the options to pass to Vzaimodejstvija.Open the form for sending SMS.
+// Returns the parameters to pass to InteractionsClient.OpenSMSSendingForm.
 //
 // Returns:
 //  Structure:
 //   * SMSMessageRecipients             - String
 //                          - ValueList
-//                          - Array - 
-//   * Text                - String - 
-//   * SubjectOf              - AnyRef -  subject of the letter.
-//   * SendInTransliteration - Boolean -  indicates that the message should be converted to Latin
-//                                     characters when sent.
+//                          - Array - List of email recipients.
+//   * Text                - String - email text.
+//   * SubjectOf              - AnyRef - an email subject.
+//   * SendInTransliteration - Boolean - indicates that a message must be transformed into Latin characters
+//                                     when sending it.
 //
 Function SMSMessageSendingFormParameters() Export
 	
@@ -54,15 +56,15 @@ Function SMSMessageSendingFormParameters() Export
 	
 EndFunction
 
-// Handler for the event of the post-write form in the Server. Called for a contact.
+// AfterWriteAtServer form event handler. This procedure is called for a contact.
 //
 // Parameters:
-//  Form                          - ClientApplicationForm -  the form that the event is being processed for.
-//  Object                         - FormDataCollection -  object data stored in the form.
-//  WriteParameters                - Structure -  the structure to which parameters are added, which will then be
-//                                               sent with an alert.
-//  MessageSenderObjectName - String -  name of the metadata object that the event is being processed for.
-//  SendNotification1  - Boolean   -  indicates whether to send an alert from this procedure.
+//  Form                          - ClientApplicationForm - a form for which the event is being processed.
+//  Object                         - FormDataCollection - an object data stored in the form.
+//  WriteParameters                - Structure - a structure that gets parameters that will be
+//                                               sent with a notification.
+//  MessageSenderObjectName - String - a metadata object name, for whose form an event is processed.
+//  SendNotification1  - Boolean   - indicates that it is necessary to send a notification from this procedure.
 //
 Procedure ContactAfterWrite(Form,Object,WriteParameters,MessageSenderObjectName,SendNotification1 = True) Export
 	
@@ -84,15 +86,15 @@ Procedure ContactAfterWrite(Form,Object,WriteParameters,MessageSenderObjectName,
 	
 EndProcedure
 
-// Handler for the event of the post-write form in the Server. Called for an interaction or an interaction item.
+// AfterWriteAtServer form event handler. This procedure is called for an interaction or an interaction subject.
 //
 // Parameters:
-//  Form                          - ClientApplicationForm -  the form that the event is being processed for.
-//  Object                         - DefinedType.InteractionSubject -  object data stored in the form.
-//  WriteParameters                - Structure -  the structure to which parameters are added, which will then be
-//                                               sent with an alert.
-//  MessageSenderObjectName - String -  name of the metadata object that the event is being processed for.
-//  SendNotification1  - Boolean   -  indicates whether to send an alert from this procedure.
+//  Form                          - ClientApplicationForm - a form for which the event is being processed.
+//  Object                         - DefinedType.InteractionSubject - an object data stored in the form.
+//  WriteParameters                - Structure - a structure that gets parameters that will be
+//                                               sent with a notification.
+//  MessageSenderObjectName - String - a metadata object name, for whose form an event is processed.
+//  SendNotification1  - Boolean   - indicates that it is necessary to send a notification from this procedure.
 // 
 Procedure InteractionSubjectAfterWrite(Form,Object,WriteParameters,MessageSenderObjectName = "",SendNotification1 = True) Export
 		
@@ -117,15 +119,15 @@ Procedure InteractionSubjectAfterWrite(Form,Object,WriteParameters,MessageSender
 	
 EndProcedure
 
-// Event handler for event shape Preventivemeasures. Called for a list of items when dragging interactions to it.
+// DragCheck form event handler. It is called for the list of values when dragging interactions to it.
 //
 // Parameters:
-//  Item                   - FormTable -  the table for which the event is being processed.
-//  DragParameters   - DragParameters -  contains the value to drag, the type of action, and possible
-//                                                        actions when dragging.
-//  StandardProcessing      - Boolean -  indicates standard event handling.
-//  TableRow             - FormDataCollectionItem -  the row of the table that the cursor is placed over.
-//  Field                      - Field -  the managed form element that this table column is associated with.
+//  Item                   - FormTable - a table, for which the event is being processed.
+//  DragParameters   - DragParameters - contains a dragged value, an action type, and possible
+//                                                        values when dragging.
+//  StandardProcessing      - Boolean - indicates a standard event processing.
+//  TableRow             - FormDataCollectionItem - a table row, on which the pointer is positioned.
+//  Field                      - Field - Form item associated with the table column.
 //
 Procedure ListSubjectDragCheck(Item, DragParameters, StandardProcessing, TableRow, Field) Export
 	
@@ -148,15 +150,15 @@ Procedure ListSubjectDragCheck(Item, DragParameters, StandardProcessing, TableRo
 	
 EndProcedure
 
-// Handler for the Drag and Drop form event. Called for a list of items when dragging interactions into it.
+// Drag form event handler. It is called for the list of values when dragging interactions to it.
 //
 // Parameters:
-//  Item                   - FormTable -  the table for which the event is being processed.
-//  DragParameters   - DragParameters -  contains the value to drag, the type of action, and possible
-//                                                        actions when dragging.
-//  StandardProcessing      - Boolean -  indicates standard event handling.
-//  TableRow             - FormDataCollectionItem -  the row of the table that the cursor is placed over.
-//  Field                      - Field -  the managed form element that this table column is associated with.
+//  Item                   - FormTable - a table, for which the event is being processed.
+//  DragParameters   - DragParameters - contains a dragged value, an action type, and possible
+//                                                        values when dragging.
+//  StandardProcessing      - Boolean - indicates a standard event processing.
+//  TableRow             - FormDataCollectionItem - a table row, on which the pointer is positioned.
+//  Field                      - Field - Form item associated with the table column.
 //
 Procedure ListSubjectDrag(Item, DragParameters, StandardProcessing, TableRow, Field) Export
 	
@@ -173,12 +175,12 @@ Procedure ListSubjectDrag(Item, DragParameters, StandardProcessing, TableRow, Fi
 	
 EndProcedure
 
-// 
+// Saves an email message to the hard drive.
 //
 // Parameters:
 //  MailMessage                  - DocumentRef.IncomingEmail
-//                          - DocumentRef.OutgoingEmail - 
-//  UUID - UUID -  unique ID of the form that the save command was called from.
+//                          - DocumentRef.OutgoingEmail - Email message to save.
+//  UUID - UUID - an Uuid of a form, from which a saving command was called.
 //
 Procedure SaveEmailToHardDrive(MailMessage, UUID) Export
 	
@@ -196,12 +198,12 @@ EndProcedure
 
 #Region Internal
 
-// Opens the new document form "outgoing Email"
-// with the parameters passed to the procedure.
+// Opens a new form of the "Outgoing email" document
+// with parameters passed to the procedure.
 //
 // Parameters:
 //  EmailParameters - See EmailOperationsClient.EmailSendOptions.
-//  OnCloseNotifyDescription - NotifyDescription -  description of the notification about closing the email form.
+//  OnCloseNotifyDescription - NotifyDescription - details of notification on closing an email form.
 //
 Procedure OpenEmailSendingForm(Val EmailParameters = Undefined, Val OnCloseNotifyDescription = Undefined) Export
 	
@@ -214,12 +216,12 @@ EndProcedure
 #Region Private
 
 // Parameters:
-//  ObjectFormName - String -  name of the element form of the object being created.
+//  ObjectFormName - String - item form name of the object being created.
 //  Basis       - DefinedType.InteractionContact
-//                  - DefinedType.InteractionSubject - 
-//  Source        - ClientApplicationForm - :
-//    * Items - FormAllItems - Contains:
-//      ** Attendees - FormTable -  data about participants in the interaction.
+//                  - DefinedType.InteractionSubject - Parent object.
+//  Source        - ClientApplicationForm - the base object form contains:
+//    * Items - FormAllItems - contains:
+//      ** Attendees - FormTable - details on the interaction participants.
 //
 Procedure CreateInteractionOrSubject(ObjectFormName, Basis, Source) Export
 
@@ -252,13 +254,13 @@ Function ParticipantData(Source)
 		Source.ContactPresentation);
 EndFunction
 
-// Opens the contact object form filled in according to the interaction participant's description.
+// Opens a contact object form filled according to an interaction participant details.
 //
 // Parameters:
-//  LongDesc      - String           -  text description of the contact.
-//  Address         - String           -  contact information.
-//  Basis     - DocumentObject   -  the interaction document from which the contact is created.
-//  ContactsTypes - ValueList   -  a list of possible contact types.
+//  LongDesc      - String           - a text contact details.
+//  Address         - String           - contact information.
+//  Basis     - DocumentObject   - the interaction document from which a contact is created.
+//  ContactsTypes - ValueList   - a list of possible contact types.
 //
 Procedure CreateContact(LongDesc, Address, Basis, ContactsTypes) Export
 
@@ -275,11 +277,11 @@ Procedure CreateContact(LongDesc, Address, Basis, ContactsTypes) Export
 
 EndProcedure
 
-// Notification handler for selecting a contact type when creating a contact from interaction documents.
+// A notification handler for contact type choice when creating a contact from interaction documents.
 //
 // Parameters:
-//  SelectionResult - ValueListItem -  the element value contains a string representation of the contact type,
-//  AdditionalParameters - Structure -  contains the "Description", "Address", and "Base" fields.
+//  SelectionResult - ValueListItem - item value contains a string contact type presentation,
+//  AdditionalParameters - Structure - contains fields "Description", "Address" and "Base".
 //
 Procedure SelectContactTypeOnCompletion(SelectionResult, AdditionalParameters) Export
 
@@ -297,11 +299,11 @@ Procedure SelectContactTypeOnCompletion(SelectionResult, AdditionalParameters) E
 	EndDo;
 	
 	If IsBlankString(NewContactFormName) Then
-		// 
+		// ACC:223-off For backward compatibility.
 		If InteractionsClientOverridable.CreateContactNonstandardForm(SelectionResult.Value, FormParameter) Then
 			Return;
 		EndIf;
-		// 
+		// ACC:223-on
 		NewContactFormName = "Catalog." + SelectionResult.Value + ".ObjectForm";
 	EndIf;
 	
@@ -309,25 +311,25 @@ Procedure SelectContactTypeOnCompletion(SelectionResult, AdditionalParameters) E
 
 EndProcedure
 
-// Handler for the event in the message Processing form. Called for interaction.
+// NotificationProcessing form event handler. This procedure is called for an interaction.
 // 
 // Parameters:
-//  Form - ClientApplicationForm - Contains:
+//  Form - ClientApplicationForm - contains:
 //     * Object - DocumentObject.PhoneCall
 //             - DocumentObject.PlannedInteraction
 //             - DocumentObject.SMSMessage
 //             - DocumentObject.Meeting
 //             - DocumentObject.IncomingEmail
-//             - DocumentObject.OutgoingEmail - 
-//      * Items - FormAllItems - Contains:
-//        ** Attendees      - FormTable -  information about interaction contacts.
-//        ** CreateContact - FormButton -  the element that executes the command to create the interaction.
-//  EventName - String -  event name.
+//             - DocumentObject.OutgoingEmail - Object that the form contains.
+//      * Items - FormAllItems - contains:
+//        ** Attendees      - FormTable - interaction contact details.
+//        ** CreateContact - FormButton - the item that runs the interaction creation command.
+//  EventName - String - Event name.
 //  Parameter - Structure:
-//              * NotificationType - String -  information about the type of alert.
+//              * NotificationType - String - notification type details.
 //              * Basis - DefinedType.InteractionContact
 //           
-//  Source - Arbitrary -  event source.
+//  Source - Arbitrary - an event source.
 //
 Procedure DoProcessNotification(Form,EventName, Parameter, Source) Export
 	
@@ -494,8 +496,8 @@ Procedure DoProcessNotification(Form,EventName, Parameter, Source) Export
 EndProcedure
 
 // Parameters:
-//  ObjectType        - String -  type of object to create.
-//  CreationParameters - Structure -  parameters of the document being created.
+//  ObjectType        - String - type of the object to be created.
+//  CreationParameters - Structure - parameters of a document to be created.
 //  Form             - ClientApplicationForm
 //
 Procedure CreateNewInteraction(ObjectType, CreationParameters = Undefined, Form = Undefined) Export
@@ -505,15 +507,15 @@ Procedure CreateNewInteraction(ObjectType, CreationParameters = Undefined, Form 
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common event handlers of interaction documents
 
-// 
+// Opens the contact selection form and handles the choice.
 //
 // Parameters:
-//  SubjectOf        - DefinedType.InteractionSubject -  the subject of the interaction.
-//  Address          - String -  the address of the contact.
-//  Presentation  - String -  the performance of the contact.
-//  Contact        - DefinedType.InteractionContact -  contact.
+//  SubjectOf        - DefinedType.InteractionSubject - interaction topic.
+//  Address          - String - a contact address.
+//  Presentation  - String - contact presentation.
+//  Contact        - DefinedType.InteractionContact - contact.
 //  Parameters      - See InteractionsClient.ContactChoiceParameters.
 //
 Procedure SelectContact(SubjectOf, Address, Presentation, Contact, Parameters) Export
@@ -553,11 +555,11 @@ Function ContactChoiceParameters(FormIdentifier) Export
 EndFunction	
 
 // Parameters:
-//  Simple         - Date -  value of the "Work after" field. 
+//  Simple         - Date - "Process after" field value. 
 //  ValueSelected    - Date
-//                       - Number - 
-//  StandardProcessing - Boolean -  indicates the standard handling of the form event handler.
-//  Modified   - Boolean -  indicates that the form is modified.
+//                       - Number - Either the selected date or the numeric increment of the current date.
+//  StandardProcessing - Boolean - indicates a standard processing of a form event handler.
+//  Modified   - Boolean - indicates that the form was modified.
 //
 Procedure ProcessSelectionInReviewAfterField(Simple, ValueSelected, StandardProcessing, Modified) Export
 	
@@ -572,14 +574,14 @@ Procedure ProcessSelectionInReviewAfterField(Simple, ValueSelected, StandardProc
 	
 EndProcedure
 
-// Sets the selection by owner in the dynamic list of the subordinate directory, when activating
-// the dynamic list row of the parent directory.
+// Sets filter by owner in the subordinate catalog dynamic list
+// when activating a row of parent catalog dynamic list.
 //
 // Parameters:
-//  Item - FormTable - :
+//  Item - FormTable - a table where an event occurred contains:
 //   * CurrentData - ValueTableRow:
-//     ** Ref - DefinedType.InteractionContact -  contact.
-//  Form   - ClientApplicationForm -  the form on which the elements are located.
+//     ** Ref - DefinedType.InteractionContact - contact.
+//  Form   - ClientApplicationForm - a form where the items are located.
 //
 Procedure ContactOwnerOnActivateRow(Item,Form) Export
 	
@@ -605,19 +607,19 @@ Procedure PromptOnChangeMessageFormatToPlainText(Form, AdditionalParameters = Un
 EndProcedure
 
 // Parameters:
-//  Item - FormTable - :
+//  Item - FormTable - the list being modified contains:
 //   * CurrentData - ValueTableRow:
 //     ** Ref - DocumentRef.PhoneCall
 //               - DocumentRef.PlannedInteraction
 //               - DocumentRef.SMSMessage
 //               - DocumentRef.Meeting
 //               - DocumentRef.IncomingEmail
-//               - DocumentRef.OutgoingEmail - 
-//  Cancel  - Boolean -  indicates that you didn't want to add it.
-//  Copy  - Boolean -  flag for copying.
-//  OnlyEmail  - Boolean -  indicates that only the mail client is being used.
-//  DocumentsAvailableForCreation  - ValueList -  list of documents available for creating.
-//  CreationParameters  - Structure -  parameters for creating a new document.
+//               - DocumentRef.OutgoingEmail - Interaction reference.
+//  Cancel  - Boolean - indicates that adding is canceled.
+//  Copy  - Boolean - a copying flag.
+//  OnlyEmail  - Boolean - shows that only an email client is used.
+//  DocumentsAvailableForCreation  - ValueList - a list of documents available for creation.
+//  CreationParameters  - Structure - new document creation parameters.
 //
 Procedure ListBeforeAddRow(Item, Cancel, Copy,OnlyEmail,DocumentsAvailableForCreation,CreationParameters = Undefined) Export
 	
@@ -642,9 +644,9 @@ Procedure ListBeforeAddRow(Item, Cancel, Copy,OnlyEmail,DocumentsAvailableForCre
 EndProcedure
 
 // Parameters:
-//  Item                        - FormField -  for which the event is being processed.
-//  EventData                  - FixedStructure -  data contains the parameters of the event.
-//  StandardProcessing           - Boolean -  indicates standard event handling.
+//  Item                        - FormField - a form, for which the event is being processed.
+//  EventData                  - FixedStructure - data contains event parameters.
+//  StandardProcessing           - Boolean - indicates a standard event processing.
 //
 Procedure HTMLFieldOnClick(Item, EventData, StandardProcessing) Export
 	
@@ -657,12 +659,12 @@ Procedure HTMLFieldOnClick(Item, EventData, StandardProcessing) Export
 	
 EndProcedure
 
-// Checks correctness of filling of requisites to Datacapacity and Datakriminalitet in the form
-// document.
+// Checks if the DateToSendEmail and EmailSendingRelevance attributes in the document form
+// are filled in correctly.
 //
 // Parameters:
-//  Object - DocumentObject -  the document that is being checked.
-//  Cancel  - Boolean - 
+//  Object - DocumentObject - a document being checked.
+//  Cancel  - Boolean - True if the attribute values are invalid.
 //
 Procedure CheckOfDeferredSendingAttributesFilling(Object, Cancel) Export
 	
@@ -746,16 +748,16 @@ EndProcedure
 
 // Returns:
 //   Structure:
-//     * BaseEmailDate          - Date - 
-//     * UserAccountUsername - String - 
-//     * DoNotCallPrintCommand      - Boolean -  indicates that you don't need to call the OS print command when opening the print form
-//                                               .
+//     * BaseEmailDate          - Date - Date of the base email message.
+//     * UserAccountUsername - String - Name of the user whose email account received the base email message.
+//     * DoNotCallPrintCommand      - Boolean - indicates that it is not required to call OS print command when opening
+//                                               a form.
 //     * EmailBasis              - Undefined
 //                                    - String
 //                                    - DocumentRef.IncomingEmail
-//                                    - DocumentRef.OutgoingEmail - 
-//                                                                                  
-//     * BaseEmailSubject          - String -  the subject of the email is grounds.
+//                                    - DocumentRef.OutgoingEmail - Reference to the base email message
+//                                                                                  or the message presentation.
+//     * BaseEmailSubject          - String - a base email subject.
 //
 Function EmailAttachmentParameters() Export
 
@@ -788,13 +790,13 @@ Procedure URLProcessing(Item, FormattedStringURL, StandardProcessing) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Define the reference type.
 
 // Parameters:
-//  ObjectRef - AnyRef -  for which, you need to perform a check.
+//  ObjectRef - AnyRef - a reference, to which a check is required.
 //
 // Returns:
-//   Boolean   - 
+//   Boolean   - True if the passed reference refers to an interaction document.
 //
 Function IsEmail(ObjectRef) Export
 	

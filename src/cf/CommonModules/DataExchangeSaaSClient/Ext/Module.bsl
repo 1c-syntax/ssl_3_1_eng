@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Handler for launching the client application session.
-// If a session is started for an offline workplace, it notifies the user
-// to synchronize data with the application on the Internet
-// (if the corresponding flag is set).
+// Client application session startup handler.
+// If the current session is a standalone workstation session, the procedure notifies a user
+// that data synchronization with a web application is required
+// (provided that the appropriate flag is set).
 //
 Procedure OnStart(Parameters) Export
 	
@@ -42,15 +44,15 @@ Procedure OnStart(Parameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal event handlers of SSL subsystems
 
-// Determines the list of warnings to the user before the system shutdown.
+// Redefines a list of warnings displayed to a user before they exit the application.
 //
 // Parameters:
-//  Cancel - Boolean -  indicates that the user refused to exit the program. If
-//                   this parameter is set to True in the body of the handler procedure, the program will not be finished.
-//  Warnings - Array -  You can add elements of the Structure type to the array,
-//                            the properties of which can be found in the Standardsystem Client.Before completing the work of the system.
+//  Cancel - Boolean - indicates whether the application closing must be canceled. If the parameter
+//                   is set to True in the handler, the application is not closed.
+//  Warnings - Array - you can add elements of the Structure type to the array,
+//                            the structure properties are listed in StandardSubsystemsClient.BeforeExit.
 //
 Procedure BeforeExit(Cancel, Warnings) Export
 	

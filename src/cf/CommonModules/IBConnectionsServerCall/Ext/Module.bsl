@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
@@ -15,28 +17,28 @@ Function ConnectionsInformation(GetConnectionString = False, MessagesForEventLog
 	
 EndFunction
 
-// Sets blocking of is connections.
-// If called from a session with set delimiter values,
+// Sets the infobase connection lock.
+// If this function is called from a session with separator values set,
 // it sets the data area session lock.
 //
 // Parameters:
-//  MessageText           - String -  text that will be part of the error message
-//                                      when trying to establish a connection to a blocked
-//                                      database.
+//  MessageText           - String - text to be used in the error message
+//                                      displayed when someone attempts to connect
+//                                      to a locked infobase.
 // 
-//  KeyCode            - String -  a string that must be added to
-//                                      the command line parameter "/uc" or to
-//                                      the connection string parameter "uc" in order to establish a connection to
-//                                      the information base despite the lock.
-//                                      Not applicable for blocking data area sessions.
-//  WaitingForTheStartOfBlocking - Number -    the time to delay the start of blocking in minutes.
-//  LockDuration   - Number -    the duration of the block in minutes.
+//  KeyCode            - String - string to be added to "/uc" command line parameter
+//                                       or to "uc" connection string parameter
+//                                      in order to establish connection to the infobase
+//                                      regardless of the lock.
+//                                      Cannot be used for data area session locks.
+//  WaitingForTheStartOfBlocking - Number -  delay time of the lock start in minutes.
+//  LockDuration   - Number -  lock duration in minutes.
 //
 // Returns:
-//   Boolean   - 
-//              
+//   Boolean   - True if the lock is set successfully.
+//              False if the lock cannot be set due to insufficient rights.
 //
-Function SetConnectionLock(MessageText = "", KeyCode = "KeyCode", // 
+Function SetConnectionLock(MessageText = "", KeyCode = "KeyCode", // ACC:142 - Intended for backward compatibility.
 	WaitingForTheStartOfBlocking = 0, LockDuration = 0) Export 
 	
 	Return IBConnections.SetConnectionLock(
@@ -44,11 +46,11 @@ Function SetConnectionLock(MessageText = "", KeyCode = "KeyCode", //
 	
 EndFunction
 
-// Remove the information database lock.
+// Removes the infobase lock.
 //
 // Returns:
-//   Boolean   - 
-//              
+//   Boolean   - True if the operation is successful.
+//              False if the operation cannot be performed due to insufficient rights.
 //
 Function AllowUserAuthorization() Export
 	
@@ -60,21 +62,21 @@ EndFunction
 
 #Region Private
 
-// Get parameters for blocking is connections for use on the client side.
+// Gets the infobase connection lock parameters to be used at client side.
 //
 // Parameters:
-//  GetSessionCount - Boolean -  if True,
-//                                       the number of Sessions field is filled in in the returned structure.
+//  GetSessionCount - Boolean - if True, then the SessionCount field
+//                                       is filled in the returned structure.
 //
 // Returns:
 //   Structure:
-//     Set-Boolean-True if the lock is set, False-Otherwise. 
-//     Start-date - the start date of the block. 
-//     End-date - the end date of the block. 
-//     Message-String-message to the user. 
-//     Waiting interval for user work completion-Number - the interval in seconds.
-//     Number of sessions - 0 if the parameter getcounty of Sessions = False.
-//     Current session date - the current date of the session.
+//     IsSet - Boolean - True if the lock is set, otherwise False. 
+//     Start - Date - lock start date. 
+//     End - Date - lock end date. 
+//     Message - String - message to a user. 
+//     SessionTerminationTimeout - Number - interval in seconds.
+//     SessionCount - 0 if the GetSessionCount parameter value is False.
+//     CurrentSessionDate - Date - current session date.
 //
 Function SessionLockParameters(GetSessionCount = False) Export
 	
@@ -82,12 +84,12 @@ Function SessionLockParameters(GetSessionCount = False) Export
 	
 EndFunction
 
-// To set the blocking sessions pane data.
+// Sets the data area session lock.
 // 
 // Parameters:
-//   Parameters         - 
-//   LocalTime - Boolean -  the lock start and end times are specified in the local session time.
-//                                If False, then in universal time.
+//   Parameters         - See NewConnectionLockParameters.
+//   LocalTime - Boolean - lock beginning time and lock end time are specified in the local session time.
+//                                If the parameter is False, they are specified in universal time.
 //
 Procedure SetDataAreaSessionLock(Parameters, LocalTime = True) Export
 	

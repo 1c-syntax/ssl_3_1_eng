@@ -1,18 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// 
-// 
+// Returns the flag indicating if the app allows external users
+// (the value of the "UseExternalUsers" functional option).
 //
 // Returns:
-//  Boolean - 
+//  Boolean - if True, external users are allowed.
 //
 Function UseExternalUsers() Export
 	
@@ -21,12 +23,12 @@ Function UseExternalUsers() Export
 EndFunction
 
 // Returns the current external user.
-// We recommend using it in code that only supports external users.
+// It is recommended that you use the function in a script fragment that supports external users only.
 //
-// If a non-external user logged in to the session, an exception will be thrown.
+// If the current user is not external, throws an exception.
 //
 // Returns:
-//  CatalogRef.ExternalUsers -  external user.
+//  CatalogRef.ExternalUsers - external user.
 //
 Function CurrentExternalUser() Export
 	
@@ -35,7 +37,7 @@ Function CurrentExternalUser() Export
 	
 EndFunction
 
-// 
+// Returns the reference to the standard "AllExternalUsers" group.
 //
 // Returns:
 //  CatalogRef.ExternalUsersGroups
@@ -46,12 +48,12 @@ Function AllExternalUsersGroup() Export
 	
 EndFunction
 
-// Returns a reference to the external user authorization object obtained from the information database.
-// An authorization object is a reference to an information database object used
-// for communication with an external user, for example: a counterparty, an individual, etc.
+// Returns a reference to the external user authorization object from the infobase.
+// Authorization object is a reference to an infobase object (for example, a counterparty, an individual, and others
+//  associated with an external user.
 //
 // Parameters:
-//  ExternalUser - Undefined - 
+//  ExternalUser - Undefined - Return for the current external user.
 //                      - CatalogRef.ExternalUsers
 //
 // Returns:
@@ -82,11 +84,11 @@ Function GetExternalUserAuthorizationObject(ExternalUser = Undefined) Export
 	
 EndFunction
 
+// Intended for setting up for displaying the state of external users in catalog lists
+// (partners, respondents, etc.) that are authorization objects in the "ExternalUsers" catalog.
+// If a user has no access to the "ExternalUsers" catalog or it isn't used,
 // 
-// 
-// 
-// 
-// 
+// the "ExternalAccess" column and "ExternalAccessLegend" are hidden.
 // 
 //
 // Parameters:
@@ -119,7 +121,7 @@ Procedure ShowExternalUsersListView(Form, AdditionalParameters = Undefined) Expo
 		Return;
 	EndIf;
 	
-	// 
+	// Hiding unavailable information items.
 	QuerySchema = New QuerySchema;
 	QuerySchema.SetQueryText(List.QueryText);
 	Sources = QuerySchema.QueryBatch[0].Operators[0].Sources; // QuerySchemaSources
@@ -134,14 +136,14 @@ Procedure ShowExternalUsersListView(Form, AdditionalParameters = Undefined) Expo
 	
 EndProcedure
 
-// 
+// Additional parameter constructor for the "ShowExternalUsersListView" procedure.
 //
 // Returns:
 //  Structure:
-//   * ListName        - String - 
-//   * FieldName          - String - 
-//   * TagName      - String - 
-//   * LegendGroupName - String - 
+//   * ListName        - String - Name of the form attribute containing the dynamic list.
+//   * FieldName          - String - Name of a dynamic list query field.
+//   * TagName      - String - Name of the form element containing the dynamic list column.
+//   * LegendGroupName - String - Name of the form element containing the legend of external access states.
 //
 Function ParametersOfExternalUsersListDisplaySetting() Export
 	
@@ -155,18 +157,18 @@ Function ParametersOfExternalUsersListDisplaySetting() Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Intended for populating the state fields of external users in catalog lists
+// (partners, respondents, etc.) that are authorization objects in the "ExternalUsers" catalog.
+// It is called from the "OnGetDataAtServer" event of the catalog's dynamic list.
 //
-// 
+// The "ExternalAccess" field is filled with the data from the "Ref" field.
 // 
 //
 // Parameters:
 //  TagName - String
 //  Settings - DataCompositionSettings
 //  Rows - DynamicListRows
-//  FieldName - String - 
+//  FieldName - String - Name of the line picture number in the dynamic list.
 //
 Procedure ExternalUserListOnRetrievingDataAtServer(TagName, Settings, Rows,
 			FieldName = "ExternalAccessPicNum") Export

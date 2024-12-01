@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -21,7 +23,7 @@ Var StandardInterfaceComposition;
 
 Function InitializeDataToSetUpStandardODataInterfaceComposition() Export
 	
-	// 
+	// Filling in tree root rows by metadata object collections.
 	AddTreeRootRow("Constant", NStr("en = 'Constants';"), 1, PictureLib.Constant);
 	AddTreeRootRow("Catalog", NStr("en = 'Catalogs';"), 2, PictureLib.Catalog);
 	AddTreeRootRow("Document", NStr("en = 'Documents';"), 3, PictureLib.Document);
@@ -38,17 +40,17 @@ Function InitializeDataToSetUpStandardODataInterfaceComposition() Export
 	AddTreeRootRow("Task", NStr("en = 'Tasks';"), 14, PictureLib.Task);
 	AddTreeRootRow("ExchangePlan", NStr("en = 'Exchange plans';"), 15, PictureLib.ExchangePlan);
 	
-	// 
+	// Read the current content of the standard OData interface.
 	SystemComposition = GetStandardODataInterfaceContent();
 	StandardInterfaceComposition = New Array();
 	For Each Item In SystemComposition Do
 		StandardInterfaceComposition.Add(Item.FullName());
 	EndDo;
 	
-	// 
+	// Read the model of data to provide to the standard OData interface.
 	Model = DataProcessors.SetUpStandardODataInterface.ModelOfDataToProvideForStandardODataInterface();
 	
-	// 
+	// Populate nested tree rows by model metadata objects.
 	For Each ModelItem In Model Do
 		
 		FullName = ModelItem.FullName;
@@ -65,7 +67,7 @@ Function InitializeDataToSetUpStandardODataInterfaceComposition() Export
 		
 	EndDo;
 	
-	// 
+	// Delete root rows from metadata collections that have no objects to include.
 	LinesToDelete = New Array();
 	For Each TreeRow In ObjectsTree.Rows Do
 		If TreeRow.Rows.Count() = 0 Then
@@ -76,7 +78,7 @@ Function InitializeDataToSetUpStandardODataInterfaceComposition() Export
 		ObjectsTree.Rows.Delete(RowToDelete);
 	EndDo;
 	
-	// 
+	// Sort nested rows by metadata object presentation.
 	For Each NestedRow In ObjectsTree.Rows Do
 		NestedRow.Rows.Sort("Presentation");
 	EndDo;
@@ -128,12 +130,12 @@ Procedure AddNestedTreeRow(Val FullName, Val ReadOnly, Val Use, Val Dependencies
 		
 		If Common.MetadataObjectAvailableByFunctionalOptions(ObjectDependency) Then
 			
-			// 
+			// If add the MetadataObject object, then add the ObjectDependency object.
 			String = AdditionDependencies.Add();
 			String.ObjectName = FullName;
 			String.DependentObjectName = ObjectDependency;
 			
-			// 
+			// If remove the MetadataObject object, then remove the ObjectDependency object.
 			String = DeletionDependencies.Add();
 			String.ObjectName = ObjectDependency;
 			String.DependentObjectName = FullName;
@@ -157,13 +159,13 @@ Procedure AddTreeRootRow(Val FullName, Val Presentation, Val Class, Val Picture)
 	
 EndProcedure
 
-// Returns a representation of the metadata object.
+// Returns a metadata object presentation.
 //
 // Parameters:
-//  The object of the metadata.
+//  MetadataObject.
 //
 // Returns:
-//   String -  representation of the metadata object.
+//   String - Metadata object presentation.
 //
 Function MetadataObjectPresentation(Val MetadataObject) Export
 	
@@ -174,10 +176,10 @@ Function MetadataObjectPresentation(Val MetadataObject) Export
 	
 EndFunction
 
-// Checks whether the passed metadata object is an independent set of records.
+// Checks whether the passed metadata object is an independent record set.
 //
 // Parameters:
-//  MetadataObject - the metadata object to check.
+//  MetadataObject - Metadata object being checked.
 //
 // Returns:
 //   Boolean

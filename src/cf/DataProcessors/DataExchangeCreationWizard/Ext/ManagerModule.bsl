@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -505,7 +507,7 @@ Procedure OnCompleteGettingDataExchangeSettingsOptions(HandlerParameters, Result
 	If HandlerParameters.Property("HandlerParameterExternalSystems") Then
 		
 		SettingsExternalSystems = New Structure;
-		SettingsExternalSystems.Insert("ErrorCode"); // 
+		SettingsExternalSystems.Insert("ErrorCode"); // SettingsReceived, NoSettings, Error, OnlineSupportNotConnected
 		SettingsExternalSystems.Insert("ErrorMessage");
 		SettingsExternalSystems.Insert("SettingVariants");
 		
@@ -534,7 +536,7 @@ Function ExternalSystemsDataExchangeSettingsOptionDetails() Export
 	SettingVariants.Columns.Add("BriefExchangeInfo",                      New TypeDescription("FormattedString"));
 	SettingVariants.Columns.Add("DetailedExchangeInformation",                    New TypeDescription("String"));
 	SettingVariants.Columns.Add("ExchangeCreateWizardTitle",               New TypeDescription("String"));
-	SettingVariants.Columns.Add("CorrespondentDescription",                     New TypeDescription("String"));
+	SettingVariants.Columns.Add("PeerInfobaseName",                     New TypeDescription("String"));
 	SettingVariants.Columns.Add("ConnectionParameters");
 	
 	Return SettingVariants;
@@ -548,7 +550,7 @@ Function SettingOptionDetailsStructure() Export
 	SettingOptionDetails.Insert("BriefExchangeInfo", New FormattedString(""));
 	SettingOptionDetails.Insert("DetailedExchangeInformation", "");
 	SettingOptionDetails.Insert("ExchangeCreateWizardTitle", "");
-	SettingOptionDetails.Insert("CorrespondentDescription", "");
+	SettingOptionDetails.Insert("PeerInfobaseName", "");
 	
 	Return SettingOptionDetails;
 	
@@ -733,7 +735,7 @@ Function ExchangePlansForSynchronizationSetup()
 		If (Not IsFullUser
 				And DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName))
 			Or Not DataExchangeCached.ExchangePlanUsageAvailable(ExchangePlanName) Then
-			// 
+			// Creating a DIB exchange requires system administrator rights.
 			ExchangePlansList.Delete(-Indus);
 		EndIf;
 		
@@ -1137,14 +1139,14 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 	
 	Result = New Structure;
 	Result.Insert("ConnectionSettingsSaved", False);
-	Result.Insert("HasDataToMap",    False); // 
+	Result.Insert("HasDataToMap",    False); // For offline transport only.
 	Result.Insert("ExchangeNode",                    Undefined);
 	Result.Insert("ErrorMessage",             "");
 	Result.Insert("XMLConnectionSettingsString",  "");
 	
 	Cancel = False;
 	
-	// 
+	// Fix sync settings duplicates.
 	If ConnectionSettings.FixDuplicateSynchronizationSettings Then
 		
 		ManagerExchangePlan = ExchangePlans[ConnectionSettings.ExchangePlanName];
@@ -1225,7 +1227,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 		Return;
 	EndIf;
 	
-	// 
+	// 1. Save the node and connection settings to the infobase.
 	Try
 		ConfigureDataExchange(ConnectionSettings);
 	Except
@@ -1241,7 +1243,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 		Return;
 	EndIf;
 	
-	// 
+	// 2. Save connection settings for peer infobase.
 	If Not ConnectionSettings.WizardRunOption = "ContinueDataExchangeSetup" Then
 		If DataExchangeCached.IsDistributedInfobaseExchangePlan(ConnectionSettings.ExchangePlanName) Then
 			ExportConnectionSettingsForSubordinateDIBNode(ConnectionSettings);
@@ -1250,8 +1252,8 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 		EndIf;
 	EndIf;
 	
-	// 
-	//    
+	// 3. Save the connection settings on the peer infobase side for online connections,
+	//    or send a message with XDTO settings for offline connections.
 	If ConnectionSettings.ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.COM Then
 		
 		Connection = DataExchangeServer.EstablishExternalConnectionWithInfobase(ConnectionSettings);
@@ -1400,21 +1402,21 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 		If DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then
 			
 			If ConnectionSettings.WizardRunOption = "ContinueDataExchangeSetup" Then
-				// 
+				// Getting an exchange message with XDTO settings.
 				ExchangeParameters = DataExchangeServer.ExchangeParameters();
 				ExchangeParameters.ExecuteImport1 = True;
 				ExchangeParameters.ExecuteExport2 = False;
 				ExchangeParameters.ExchangeMessagesTransportKind = ConnectionSettings.ExchangeMessagesTransportKind;
 				
-				// 
-				// 
+				// Errors that occur when getting messages via the common channels are not critical.
+				// It's acceptable if there's no exchange message at all.
 				CancelReceipt = False;
 				AdditionalParameters = New Structure;
 				Try
 					DataExchangeServer.ExecuteDataExchangeForInfobaseNode(
 						ConnectionSettings.InfobaseNode, ExchangeParameters, CancelReceipt, AdditionalParameters);
 				Except
-					// 
+					// Avoiding exceptions is crucial for successfully saving the setting.
 					// 
 					Cancel = True; 
 					Result.ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
@@ -1427,7 +1429,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 					Result.HasDataToMap = AdditionalParameters.DataReceivedForMapping;
 				EndIf;
 			Else
-				// 
+				// Sending an exchange message with XDTO settings.
 				ExchangeParameters = DataExchangeServer.ExchangeParameters();
 				ExchangeParameters.ExecuteImport1 = False;
 				ExchangeParameters.ExecuteExport2 = True;
@@ -1458,7 +1460,7 @@ Procedure SaveConnectionSettings1(Parameters, ResultAddress) Export
 				Result.HasDataToMap = ExchangeMessageTransportDataProcessor.GetMessage(True);
 				
 				If Not Result.HasDataToMap Then
-					// 
+					// Probably the message can be received if you apply the virtual code (alias) of the node.
 					Transliteration = Undefined;
 					If ExchangeSettingsStructure.ExchangeTransportKind = Enums.ExchangeMessagesTransportTypes.FILE Then
 						ExchangeSettingsStructure.TransportSettings.Property("FILETransliterateExchangeMessageFileNames", Transliteration);
@@ -1513,7 +1515,7 @@ Procedure ImportXDTOCorrespondentSettings(Parameters, ResultAddress) Export
 	Result.Insert("DataReceivedForMapping", False);
 	Result.Insert("ErrorMessage",              "");
 	
-	// 
+	// Getting an exchange message with XDTO settings.
 	ExchangeParameters = DataExchangeServer.ExchangeParameters();
 	ExchangeParameters.ExecuteImport1 = True;
 	ExchangeParameters.ExecuteExport2 = False;
@@ -1540,7 +1542,7 @@ Procedure ImportXDTOCorrespondentSettings(Parameters, ResultAddress) Export
 			Result.ErrorMessage = NStr("en = 'Cannot get peer application parameters.';");
 		EndIf;
 	Else
-		CorrespondentSettings = DataExchangeXDTOServer.SupportedCorrespondentFormatObjects(
+		CorrespondentSettings = DataExchangeXDTOServer.SupportedPeerInfobaseFormatObjects(
 			ImportSettings.ExchangeNode, "SendReceive");
 		Result.SettingsImported = (CorrespondentSettings.Count() > 0);
 		
@@ -1610,16 +1612,16 @@ Procedure ConfigureDataExchange(ConnectionSettings) Export
 	BeginTransaction();
 	Try
 		
-		// 
+		// Creating/updating the exchange plan node.
 		CreateUpdateExchangePlanNodes(ConnectionSettings);
 		
-		// 
+		// Loading message transport settings.
 		If ValueIsFilled(ConnectionSettings.ExchangeMessagesTransportKind) Then
-			// 
+			// For online exchange, the transport type is not populated and is not required when setting from the on-premises version.
 			UpdateDataExchangeTransportSettings(ConnectionSettings);
 		EndIf;
 		
-		// 
+		// Updating the infobase prefix constant value.
 		If IsBlankString(GetFunctionalOption("InfobasePrefix"))
 			And Not IsBlankString(ConnectionSettings.SourceInfobasePrefix) Then
 			
@@ -1636,7 +1638,7 @@ Procedure ConfigureDataExchange(ConnectionSettings) Export
 			
 			DataExchangeServer.SetDefaultDataImportTransactionItemsCount();
 			
-			// 
+			// Importing rules as exchange rules are not migrated to DIB.
 			DataExchangeServer.UpdateDataExchangeRules();
 			
 		EndIf;
@@ -1660,7 +1662,7 @@ Procedure DeleteSynchronizationSetting(Parameters, ResultAddress) Export
 	Result.Insert("ErrorMessage",                "");
 	Result.Insert("ErrorMessageInCorrespondent", "");
 	
-	// 
+	// 1. Optional: Delete the sync setting in the peer application.
 	If DeletionSettings.DeleteSettingItemInCorrespondent Then
 		DeleteSynchronizationSettingInCorrespondent(DeletionSettings, Result);
 		If Not Result.SettingDeletedInCorrespondent Then
@@ -1677,7 +1679,7 @@ Procedure DeleteSynchronizationSetting(Parameters, ResultAddress) Export
 		EndIf;
 	EndIf;
 	
-	// 
+	// 2. Delete the sync setting in this application.
 	Try
 		DataExchangeServer.DeleteSynchronizationSetting(DeletionSettings.ExchangeNode);
 	Except
@@ -1875,7 +1877,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 		
 	ManagerExchangePlan = ExchangePlans[ConnectionSettings.ExchangePlanName]; // ExchangePlanManager
 	
-	// 
+	// Refreshing predefined node code of this base if it is not filled in.
 	ThisNode = ManagerExchangePlan.ThisNode();
 	
 	BeginTransaction();
@@ -1938,7 +1940,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 	
 	CreateNewNode = False;
 	
-	// 
+	// Get the peer infobase's node.
 	If DataExchangeCached.IsDistributedInfobaseExchangePlan(ConnectionSettings.ExchangePlanName)
 		And ConnectionSettings.WizardRunOption = "ContinueDataExchangeSetup" Then
 		
@@ -1952,7 +1954,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 		
 		NewNode = MasterNode.GetObject();
 		
-		// 
+		// Transferring common data from the predefined node.
 		ThisNodeObject = ThisNode.GetObject();
 		
 		MetadataOfExchangePlan = NewNode.Metadata();
@@ -1968,7 +1970,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 			EndIf;
 		EndDo;
 	Else
-		// 
+		// Create or update a node.
 		NewNodeRef = ManagerExchangePlan.FindByCode(NewNodeCode);
 		
 		CreateNewNode = NewNodeRef.IsEmpty();
@@ -2001,7 +2003,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 		
 	EndIf;
 	
-	// 
+	// Reset message counters.
 	NewNode.SentNo = 0;
 	NewNode.ReceivedNo     = 0;
 	
@@ -2042,7 +2044,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 	
 	ConnectionSettings.InfobaseNode = NewNode.Ref;
 	
-	// 
+	// Shared node data.
 	InformationRegisters.CommonInfobasesNodesSettings.UpdatePrefixes(
 		ConnectionSettings.InfobaseNode,
 		?(ConnectionSettings.UsePrefixesForExchangeSettings
@@ -2062,7 +2064,7 @@ Procedure CreateUpdateExchangePlanNodes(ConnectionSettings)
 		And DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName)
 		And (ConnectionSettings.UsePrefixesForExchangeSettings
 			Or ConnectionSettings.UsePrefixesForCorrespondentExchangeSettings) Then
-		// 
+		// Node in the correspondent base needs recoding.
 		StructureTemporaryCode = New Structure;
 		StructureTemporaryCode.Insert("Peer", ConnectionSettings.InfobaseNode);
 		StructureTemporaryCode.Insert("NodeCode",       ThisNodeCode);
@@ -2178,7 +2180,7 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 		
 	ElsIf DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then 
 		
-		// 
+		// No control required for exchange over "EnterpriseData"
 		CorrectSettingsFile = True;
 		
 	EndIf;
@@ -2270,7 +2272,7 @@ Procedure FillConnectionSettingsFromXMLString(ConnectionSettings,
 		
 	EndIf;
 	
-	// 
+	// Supporting the exchange settings file of the 1.0 version format.
 	If ConnectionSettings.ExchangeDataSettingsFileFormatVersion = "1.0" Then
 		
 		ConnectionSettings.ThisInfobaseDescription    = NStr("en = 'This infobase';");
@@ -2360,7 +2362,7 @@ Procedure WriteConnectionParameters(XMLWriter, ConnectionSettings)
 	AddXMLRecord(XMLWriter, NodeCode(ConnectionSettings), "КодНовогоУзлаВторойБазы"); // @Non-NLS
 	AddXMLRecord(XMLWriter, ConnectionSettings.DestinationInfobasePrefix, "ПрефиксИнформационнойБазыИсточника"); // @Non-NLS
 	
-	// 
+	// Exchange message transport settings.
 	If ValueIsFilled(ConnectionSettings.ExchangeMessagesTransportKind)
 		And ConnectionSettings.ExchangeMessagesTransportKind <> Enums.ExchangeMessagesTransportTypes.WS Then
 		
@@ -2429,7 +2431,7 @@ Procedure WriteConnectionParameters(XMLWriter, ConnectionSettings)
 	AddXMLRecord(XMLWriter, ConnectionSettings.UseTransportParametersFILE,  "ИспользоватьПараметрыТранспортаFILE"); // @Non-NLS
 	AddXMLRecord(XMLWriter, ConnectionSettings.UseTransportParametersFTP,   "ИспользоватьПараметрыТранспортаFTP"); // @Non-NLS
 	
-	// 
+	// Supporting the exchange settings file of the 1.0 version format.
 	AddXMLRecord(XMLWriter, ConnectionSettings.ThisInfobaseDescription, "НаименованиеНастройкиВыполненияОбмена"); // @Non-NLS
 	
 	AddXMLRecord(XMLWriter, NodeCode(ConnectionSettings), "КодНовогоУзла"); // @Non-NLS
@@ -2552,12 +2554,12 @@ Procedure ReadConnectionSettingsFromXMLToStructure(SettingsStructure_, FileNameX
 				
 				If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
 					
-					// 
-					XMLReader.Read(); // 
+					// Reading the EmailAccount node.
+					XMLReader.Read(); // EmailAccount {StartElement}
 					
 					ReadEmailData(SettingsStructure_, XMLReader);
 					
-					XMLReader.Read(); // 
+					XMLReader.Read(); // EmailAccount {EndElement}
 					
 				Else
 					
@@ -2738,7 +2740,7 @@ Function XDTOCorrespondentSettingsFromXML(FileNameXMLString, IsFile, ExchangeNod
 	SettingsStructure_ = DataExchangeXDTOServer.SettingsStructureXTDO();
 	DataExchangeXDTOServer.FillCorrespondentXDTOSettingsStructure(SettingsStructure_, TitleXDTOMessages, , ExchangeNode);
 	
-	// 
+	// Checking if the sender UID corresponds to the format.
 	UID = TitleXDTOMessages.Confirmation.From;
 	Try
 		UID = New UUID(UID);

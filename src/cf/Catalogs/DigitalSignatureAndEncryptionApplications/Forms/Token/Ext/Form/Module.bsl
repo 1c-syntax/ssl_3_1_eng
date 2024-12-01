@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -64,10 +66,10 @@ EndProcedure
 
 #Region Private
 
-// APK: 78-off: for secure data transfer on the client between forms, without sending them to the server.
+// ACC:78-off - Intended for the secure transfer of data between forms on the client without sending it to the server.
 &AtClient
 Procedure ContinueOpening(Notification, CommonInternalData, ClientParameters) Export
-// 
+// ACC:78-on - Intended for the secure transfer of data between forms on the client without sending it to the server.
 	
 	AdditionalParameters = AdditionalParameters();
 	
@@ -92,13 +94,13 @@ Async Procedure FillInListOfCertificates()
 	FillPropertyValues(Token, ThisObject);
 	Token.Insert("PasswordValue", PasswordProperties.Value);
 	
-	Items.CertificateRenewalGroup.Visible = True;
+	Items.GroupRefreshCertificates.Visible = True;
 	Result = Await DigitalSignatureClientLocalization.TokenCertificates(Token, Undefined, True);
 	
 	ErrorText = "";
 	If Result.CheckCompleted Then
 		Errors = New Array;
-		FillInListOfCertificatesOnServer(Result.Certificates, Errors);
+		PopulateCertificateListOnServer(Result.Certificates, Errors);
 		If Errors.Count() > 0 Then
 			ErrorText = StrConcat(Errors, Chars.LF);
 		EndIf;
@@ -110,7 +112,7 @@ Async Procedure FillInListOfCertificates()
 		
 	Else
 		ErrorText = Result.Error;
-		If DigitalSignatureClientLocalization.ThisIsErrorIncorrectPinCode(Result.Error) Then
+		If DigitalSignatureClientLocalization.IsIncorrectPinCodeError(Result.Error) Then
 			ErrorText = NStr("en = 'Invalid token holder''s PIN.';");
 		EndIf;
 	EndIf;
@@ -123,7 +125,7 @@ Async Procedure FillInListOfCertificates()
 		DigitalSignatureInternalClient.OpenExtendedErrorPresentationForm(FormParameters, ThisObject);
 	EndIf;
 	
-	Items.CertificateRenewalGroup.Visible = False;
+	Items.GroupRefreshCertificates.Visible = False;
 	
 EndProcedure
 
@@ -154,11 +156,11 @@ Procedure Refresh(Command)
 EndProcedure
 
 &AtServer
-Procedure FillInListOfCertificatesOnServer(CertificatesByString, Errors)
+Procedure PopulateCertificateListOnServer(CertificatesAsString, Errors)
 	
 	Certificates.Clear();
 	
-	For Each Certificate In CertificatesByString Do
+	For Each Certificate In CertificatesAsString Do
 		
 		Certificate = StrReplace(Certificate, "-----BEGIN CERTIFICATE-----", "");
 		Certificate = StrReplace(Certificate, "-----END CERTIFICATE-----", "");
@@ -200,7 +202,7 @@ EndProcedure
 Procedure CertificatesSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	StandardProcessing = False;
-	CertificateRef = GetLinkToCertificate(Items.Certificates.CurrentData.Thumbprint);
+	CertificateRef = GetCertificateRef(Items.Certificates.CurrentData.Thumbprint);
 	If Not ValueIsFilled(CertificateRef) Then
 		DigitalSignatureClient.OpenCertificate(Items.Certificates.CurrentData.CertificateAddress);
 	Else
@@ -211,7 +213,7 @@ Procedure CertificatesSelection(Item, RowSelected, Field, StandardProcessing)
 EndProcedure 
 
 &AtServerNoContext
-Function GetLinkToCertificate(Thumbprint)
+Function GetCertificateRef(Thumbprint)
     Return DigitalSignature.CertificateRef(Thumbprint);
 EndFunction
 
@@ -219,7 +221,7 @@ EndFunction
 Function AdditionalParameters()
 	
 	AdditionalParameters = New Structure;
-	AdditionalParameters.Insert("WhenReadingTokenCertificates", True);
+	AdditionalParameters.Insert("OnReadTokenCertificates", True);
 	AdditionalParameters.Insert("Certificate", SerialNumber);
 	AdditionalParameters.Insert("EnterPasswordInDigitalSignatureApplication", False);
 

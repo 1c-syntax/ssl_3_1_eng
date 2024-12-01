@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -163,14 +165,14 @@ Procedure FillFileList(FilePath, Val TreeItems, TopLevelItem, DirectoriesOnly = 
 		
 		FileSorted = New Array;
 		
-		// 
+		// Folders come first.
 		For Each FileNested In FilesFound Do
 			If FileNested.IsDirectory() Then
 				FileSorted.Add(FileNested.FullName);
 			EndIf;
 		EndDo;
 		
-		// 
+		// Then come files.
 		For Each FileNested In FilesFound Do
 			If Not FileNested.IsDirectory() Then
 				FileSorted.Add(FileNested.FullName);
@@ -211,7 +213,7 @@ Procedure FillFileSystem(PseudoFileSystem, TreeItem)
 	EndIf;
 EndProcedure
 
-// Recursively marks all child elements.
+// Recursively marks all child items.
 &AtClient
 Procedure SetMark(TreeItem, Check)
 	SubordinateItems = TreeItem.GetItems();

@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
@@ -52,7 +54,7 @@ EndProcedure
 &AtClient
 Procedure ListOnActivateRow(Item)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -63,9 +65,30 @@ EndProcedure
 
 &AtServerNoContext
 Procedure ListOnGetDataAtServer(TagName, Settings, Rows)
+	Var LanguagesCodes;
 	
 	For Each ListLine In Rows Do
-		ListLine.Value.Data["Description"] = NationalLanguageSupportServer.LanguagePresentation(ListLine.Value.Data["Code"]);
+		RowData = ListLine.Value.Data;
+		
+		If Not RowData.Property("Description") Then
+			Return;
+		EndIf;
+		
+		If RowData.Property("Code") Then
+			LanguageCode = RowData.Code;
+		Else
+			If LanguagesCodes = Undefined Then
+				References = New Array;
+				For Each ListLine In Rows Do
+					References.Add(ListLine.Key);
+				EndDo;
+				LanguagesCodes = Common.ObjectsAttributeValue(References, "Code");
+			EndIf;
+			
+			LanguageCode = LanguagesCodes[RowData.Ref];
+		EndIf;
+		
+		RowData.Description = NationalLanguageSupportServer.LanguagePresentation(LanguageCode);
 	EndDo;
 	
 EndProcedure
@@ -93,7 +116,7 @@ EndProcedure
 
 #Region Private
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");

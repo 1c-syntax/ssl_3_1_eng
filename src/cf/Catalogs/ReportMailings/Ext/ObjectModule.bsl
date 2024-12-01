@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -18,7 +20,7 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
-	// 
+	// Create a scheduled dummy job (to store its ID in the data).
 	SetPrivilegedMode(True);
 	
 	ScheduledJobsServer.BlockARoutineTask(ScheduledJob);
@@ -40,13 +42,13 @@ Procedure BeforeWrite(Cancel)
 
 	SetPrivilegedMode(False);
 	
-	// 
+	// Mapping of the mailing and job readiness flag to the mailing deletion mark.
 	If DeletionMark And IsPrepared Then
 		IsPrepared = False;
 	EndIf;
 	
-	// 
-	// 
+	// A map between groups and personal email distribution flag.
+	// User checks, which provide hard links, are placed on the item form.
 	// 
 	GroupIncludedIntoPersonalDistributionHierarchy = ReportMailing.IsMemberOfPersonalReportGroup(Parent);
 	If Personal <> GroupIncludedIntoPersonalDistributionHierarchy Then
@@ -83,7 +85,7 @@ Procedure OnCopy(CopiedObject)
 EndProcedure
 
 Procedure OnWrite(Cancel)
-	// 
+	// Called right after writing the object to the database.
 	If DataExchange.Load Then
 		Return;
 	EndIf;
@@ -101,7 +103,7 @@ Procedure OnWrite(Cancel)
 			Changes.Insert("Use", EnableJob);
 		EndIf;
 		
-		// 
+		// Schedule is set in the item form.
 		If AdditionalProperties.Property("Schedule") 
 			And TypeOf(AdditionalProperties.Schedule) = Type("JobSchedule")
 			And String(AdditionalProperties.Schedule) <> String(Job.Schedule) Then

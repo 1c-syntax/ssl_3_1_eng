@@ -1,28 +1,30 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region TemporaryFiles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions to manage temporary files.
 
-// Creates a temporary folder. After you finish working with the temporary directory, you must delete 
-// it using the file System.Delete the temporary directory.
+// Creates a temporary directory. If a temporary directory is not required anymore, deleted it 
+// with the FileSystem.DeleteTemporaryDirectory procedure.
 //
 // Parameters:
-//   Extension - String -  a directory extension that identifies the purpose of the temporary directory
-//                         and the subsystem that created it.
-//                         It is recommended to indicate in English.
+//   Extension - String - the temporary directory extension that contains the directory designation
+//                         and its subsystem.
+//                         It is recommended that you use only Latin characters in this parameter.
 //
 // Returns:
-//   String - 
+//   String - the full path to the directory, including path separators.
 //
 Function CreateTemporaryDirectory(Val Extension = "") Export
 	
@@ -32,15 +34,15 @@ Function CreateTemporaryDirectory(Val Extension = "") Export
 	
 EndFunction
 
-// Deletes the temporary directory along with its contents, if possible.
-// If the temporary directory cannot be deleted (for example, it is occupied by a process),
-// a corresponding warning is written to the log, and the procedure is terminated.
+// Deletes the temporary directory and its content if possible.
+// If a temporary directory cannot be deleted (for example, if it is busy),
+// the procedure is completed and the warning is added to the event log.
 //
-// For sharing with the file System.Create 
-// a temporary directory after you finish working with the temporary directory.
+// This procedure is for using with the FileSystem.CreateTemporaryDirectory procedure 
+// after a temporary directory is not required anymore.
 //
 // Parameters:
-//   Path - String -  full path to the temporary directory.
+//   Path - String - the full path to a temporary directory.
 //
 Procedure DeleteTemporaryDirectory(Val Path) Export
 	
@@ -55,18 +57,18 @@ Procedure DeleteTemporaryDirectory(Val Path) Export
 	
 EndProcedure
 
-// Deletes the temporary file.
+// Deletes a temporary file.
 // 
-// Throws an exception if the name of a non-temporary file is passed.
+// Throws an exception if not a temporary file name is passed.
 // 
-// If the temporary file cannot be deleted (for example, it is occupied by some process),
-// then a corresponding warning is written to the log, and the procedure is terminated.
+// If you cannot delete the temporary file (for example, if it is busy),
+// the procedure is ended and the warning is added to the event log.
 //
-// For sharing with the Get a Temporary File method, 
-// after finishing working with the temporary file.
+// This procedure is for using with the  
+// GetTempFileName method after a temporary file is not required anymore.
 //
 // Parameters:
-//   Path - String -  full path to the temporary file.
+//   Path - String - a full path to a temporary file.
 //
 Procedure DeleteTempFile(Val Path) Export
 	
@@ -81,14 +83,14 @@ Procedure DeleteTempFile(Val Path) Export
 	
 EndProcedure
 
-// Generates a unique file name in the specified folder, if necessary, adding an ordinal number to the file name,
-// for example: "file (2). txt", "file (3). txt", etc.
+// Generates a unique file name in the specified folder and adds a sequence number to the name if needed.
+// For example: "file (2).txt", "file (3).txt", and so on.
 //
 // Parameters:
-//   FileName - String -  the full name of the file with the folder, for example, " C:\Документы\файл.txt".
+//   FileName - String - a full name of the file and folder. For example: "C:\Documents\file.txt".
 //
 // Returns:
-//   String - 
+//   String - For example: "C:\Documents\file (2).txt" if "file.txt" already exists in the folder.
 //
 Function UniqueFileName(Val FileName) Export
 	
@@ -101,28 +103,28 @@ EndFunction
 #Region RunExternalApplications
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for managing external applications.
 
-// Parameter constructor for the file System.Run the program.
+// Parameter constructor for FileSystem.StartApplication.
 //
 // Returns:
 //  Structure:
-//    * CurrentDirectory - String -  sets the current folder of the application to launch.
-//    * WaitForCompletion - Boolean -  False - wait for the running application 
-//         to finish before continuing.
-//    * GetOutputStream - Boolean -  False-the result sent to the stdout stream,
-//         if wait for Completion is not specified, is ignored.
-//    * GetErrorStream - Boolean -  False-errors sent to the stderr stream,
-//         if wait for Completion is not specified - ignored.
+//    * CurrentDirectory - String - sets the current directory of the application being started up.
+//    * WaitForCompletion - Boolean - False - wait for the running application to end 
+//         before proceeding.
+//    * GetOutputStream - Boolean - False - result is passed to stdout.
+//         Ignored if WaitForCompletion is not specified.
+//    * GetErrorStream - Boolean - False - errors are passed to stderr stream.
+//         Ignored if WaitForCompletion is not specified.
 //    * ThreadsEncoding - TextEncoding
-//                       - String - 
-//         
+//                       - String - an encoding used to read stdout и stderr.
+//         "CP866" is default for Windows and "UTF-8" is default for others.
 //    * ExecutionEncoding - String
-//                          - Number - 
-//             
-//         
-//             
-//         
+//                          - Number - an encoding set in Windows using the chcp command,
+//             the possible values ​​are "OEM", "CP866", "UTF8" or the code page number.
+//         On Linux, it is set by the environment variable "LANGUAGE" for a particular command.
+//             Possible values ​​can be determined by executing the "locale -a" command, for example, "en_EN.UTF-8".
+//         Ignored when under MacOS.
 //
 Function ApplicationStartupParameters() Export
 	
@@ -138,62 +140,62 @@ Function ApplicationStartupParameters() Export
 	
 EndFunction
 
-//  
-// 
-// 
+// Starts up an external application for execution (for example, * .exe, * bat), 
+// or a system command (for example, ping, tracert or traceroute, access the rac client),
+// It also allows you to get a return code and the values ​​of output streams (stdout) and errors (stderr)
 //
-//  
-// 
-//  
-//   
-// 
-//    
+// When an external program is started up in batch mode, the output stream and error stream may return in an unexpected language. 
+// To pass to the external application the language in which the expected result must be, you need to:
+// - Specify the language in the startup parameter of this application (if such a parameter is provided). 
+//   For example, batch mode of 1C:Enterprise has the "/L en" key;
+// - In other cases, explicitly set the encoding for the batch command execution.
+//   See the ExecutionEncoding property of return value FileSystem.ApplicationStartupParameters. 
 //
 // Parameters:
-//  StartupCommand - String -  command line for running the program.
-//                 - Array -  
-//                            
-//                            
+//  StartupCommand - String - application startup command line.
+//                 - Array - the first element is the path to the application, 
+//                            the rest of the elements are its startup parameters.
+//                            The procedure generates an argv string from the array.
 //  ApplicationStartupParameters - See FileSystem.ApplicationStartupParameters
 //
 // Returns:
 //  Structure:
-//    * ReturnCode - Number  -  the return code of the program;
-//    * OutputStream - String -  the result of the program sent to the stdout stream;
-//    * ErrorStream - String -  program execution errors sent to the stderr stream.
+//    * ReturnCode - Number  - the application return code;
+//    * OutputStream - String - the application result passed to stdout;
+//    * ErrorStream - String - the application errors passed to stderr.
 //
 // Example:
+//	// Simple start
+//	FileSystem.StartApplication("calc");
 //	
+//	// Starting with waiting for completion
+//	ApplicationStartupParameters = FileSystem.ApplicationStartupParameters();
+//	ApplicationStartupParameters.WaitForCompletion = True;
+//	FileSystem.StartApplication("C:\Program Files\1cv8\common\1cestart.exe", 
+//		ApplicationStartupParameters);
 //	
-//	
-//	
-//	
-//	
-//	 
-//		
-//	
-//	
-//	
-//	
-//	
-//	
-//	
+//	// Starting with waiting for completion and getting output thread
+//	ApplicationStartupParameters = FileSystem.ApplicationStartupParameters();
+//	ApplicationStartupParameters.WaitForCompletion = True;
+//	ApplicationStartupParameters.GetOutputStream = True;
+//	Result = FileSystem("ping 127.0.0.1 -n 5", ApplicationStartupParameters);
+//	Common.MessageToUser(Result.OutputStream);
 //
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	
+//	// Starting with waiting for completion and getting output thread, and with start command concatenation
+//	ApplicationStartupParameters = FileSystem.ApplicationStartupParameters();
+//	ApplicationStartupParameters.WaitForCompletion = True;
+//	ApplicationStartupParameters.GetOutputStream = True;
+//	StartupCommand = New Array;
+//	StartupCommand.Add("ping");
+//	StartupCommand.Add("127.0.0.1");
+//	StartupCommand.Add("-n");
+//	StartupCommand.Add(5);
+//	Result = FileSystem.StartApplication(StartupCommand, ApplicationStartupParameters);
+//	Common.MessageToUser(Result.OutputStream);
 //
 Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Undefined) Export 
 	
-	// 
+	// CAC:534-off safe start methods are provided with this function
 	
 	CommandString = CommonInternalClientServer.SafeCommandString(StartupCommand);
 	
@@ -226,7 +228,7 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 		ThreadsEncoding = StandardStreamEncoding();
 	EndIf;
 	
-	// 
+	// Hardcode the default code page since cmd does not always take the current code page.
 	If ExecutionEncoding = Undefined And Common.IsWindowsServer() Then 
 		ExecutionEncoding = "CP866";
 	EndIf;
@@ -239,7 +241,7 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 			CommandString, CurrentDirectory, WaitForCompletion, ExecutionEncoding);
 		
 		If Common.FileInfobase() Then
-			// 
+			// In a file infobase, the console window must be hidden in the server context as well.
 			Shell = New COMObject("Wscript.Shell");
 			ReturnCode = Shell.Run(CommandString, 0, WaitForCompletion);
 			Shell = Undefined;
@@ -278,29 +280,29 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 	
 	Return Result;
 	
-	// 
+	// ACC:534-on
 	
 EndFunction
 
 #EndRegion
 
-// 
+// Returns the path to the shared network directory containing temporary files.
 //
-//  
-//  
-//  
-// 
-// 
-//  
-// 
-// 
-// 
+// For the proper functioning in the client/server mode, place temporary files 
+// to a shared network directory that any server in the cluster have access to. 
+// This will ensure fault tolerance in cases when a temporary file is used by multiple servers. 
+// For example, when a file is processed by multiple parallel background jobs.
+// The path to the directory is specified in "Administration > General settings".
+// If no path is provided or this is a file infobase, 1C:Enterprise will create a directory 
+// in the user's temporary directory.
+// In this case, the user should delete the temporary files manually to prevent
+// the disk space from being flooded with temporary files.
 //
 // Parameters:
-//  NestedDirectory - String - 
+//  NestedDirectory - String - If it is passed, the function creates a subdirectory in the shared network directory.
 // 
 // Returns:
-//  String - 
+//  String - Path to the temporary file directory.
 //
 Function SharedDirectoryOfTemporaryFiles(NestedDirectory = Undefined) Export
 	
@@ -373,7 +375,7 @@ Procedure DeleteTempFiles(Val Path)
 	Except
 		WriteLogEvent(
 			NStr("en = 'Standard subsystems';", Common.DefaultLanguageCode()),
-			EventLogLevel.Warning,,, // 
+			EventLogLevel.Warning,,, // ACC:154 - A warning (not an error).
 			StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot delete temporary file %1. Reason:
 					|%2';"),
@@ -385,8 +387,8 @@ EndProcedure
 
 Function IsTempFileName(Path)
 	
-	// 
-	// 
+	// It is expected that "Path" was obtained using the method "GetTempFileName".
+	// Before validating, normalize all the slashes/backslashes.
 	Return StrStartsWith(StrReplace(Path, "/", "\"), StrReplace(TempFilesDir(), "/", "\"));
 	
 EndFunction
@@ -455,7 +457,7 @@ Function ReadFileIfExists(Path, Encoding)
 	
 EndFunction
 
-// Returns the standard output and error stream encoding used in the current OS.
+// Returns encoding of standard output and error threads for the current operating system.
 //
 // Returns:
 //  TextEncoding

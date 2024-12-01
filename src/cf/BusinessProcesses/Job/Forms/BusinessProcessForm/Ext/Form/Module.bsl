@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
 &AtClient
-Var PerformerChoiceFormOpened;  // 
+Var PerformerChoiceFormOpened;  // Flag showing that the assignee is selected in a form (without using quick input).
 &AtClient
-Var SupervisorChoiceFormOpened; // 
+Var SupervisorChoiceFormOpened; // Flag showing that the supervisor is selected in a form (without using quick input).
 &AtClient
 Var ChoiceContext;
 
@@ -24,20 +26,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 	
-	// 
-	// 
+	// For new objects, run the form initializer in "OnCreateAtServer".
+	// For existing objects, in "OnReadAtServer".
 	If Object.Ref.IsEmpty() Then
 		InitializeTheForm();
 	EndIf;
 	
-	// Standard subsystems.Remotefile
+	// StandardSubsystems.StoredFiles
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
 		FilesHyperlink = ModuleFilesOperations.FilesHyperlink();
 		FilesHyperlink.Location = "CommandBar";
 		ModuleFilesOperations.OnCreateAtServer(ThisObject, FilesHyperlink);
 	EndIf;
-	// End StandardSubsystems.FilesOperations
+	// End StandardSubsystems.StoredFiles
 
 EndProcedure
 
@@ -46,12 +48,12 @@ Procedure OnOpen(Cancel)
 
 	RefreshStopCommandsAvailability();
 	
-	// Standard subsystems.Remotefile
+	// StandardSubsystems.StoredFiles
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.OnOpen(ThisObject, Cancel);
 	EndIf;
-	// End StandardSubsystems.FilesOperations
+	// End StandardSubsystems.StoredFiles
 
 EndProcedure
 
@@ -60,7 +62,7 @@ Procedure OnReadAtServer(CurrentObject)
 
 	InitializeTheForm();
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -108,12 +110,12 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		EndIf;
 	EndIf;
 	
-	// Standard subsystems.Remotefile
+	// StandardSubsystems.StoredFiles
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsClient = CommonClient.CommonModule("FilesOperationsClient");
 		ModuleFilesOperationsClient.NotificationProcessing(ThisObject, EventName);
 	EndIf;
-	// End StandardSubsystems.FilesOperations
+	// End StandardSubsystems.StoredFiles
 
 EndProcedure
 
@@ -155,7 +157,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -353,7 +355,7 @@ Procedure VerificationDueDateOnChange(Item)
 	EndIf;
 EndProcedure
 
-// Standard subsystems.Remotefile
+// StandardSubsystems.StoredFiles
 &AtClient
 Procedure Attachable_PreviewFieldClick(Item, StandardProcessing)
 
@@ -385,7 +387,7 @@ Procedure Attachable_PreviewFieldDrag(Item, DragParameters, StandardProcessing)
 	EndIf;
 
 EndProcedure
-// End StandardSubsystems.FilesOperations
+// End StandardSubsystems.StoredFiles
 
 #EndRegion
 
@@ -425,7 +427,7 @@ Procedure SetUpDeferredStart(Command)
 	OpenDeferredStartSetup();
 EndProcedure
 
-// Standard subsystems.Remotefile
+// StandardSubsystems.StoredFiles
 &AtClient
 Procedure Attachable_AttachedFilesPanelCommand(Command)
 
@@ -435,7 +437,7 @@ Procedure Attachable_AttachedFilesPanelCommand(Command)
 	EndIf;
 
 EndProcedure
-// End StandardSubsystems.FilesOperations
+// End StandardSubsystems.StoredFiles
 
 #EndRegion
 

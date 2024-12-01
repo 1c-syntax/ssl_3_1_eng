@@ -3549,7 +3549,7 @@ data synchronization.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="CorrespondentDescription" id="58">
+		<Attribute name="PeerInfobaseName" id="58">
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>

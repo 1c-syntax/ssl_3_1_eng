@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -119,7 +121,7 @@ Procedure OnReadAtServer(CurrentObject)
 		Object.InputOnBasisParameterTypeFullName = MessageTemplatesClientServer.CommonID();
 	EndIf;
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -183,7 +185,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		AttachmentsNamesToIDsMapsTable = New ValueList;
 		AttachmentsStructure = New Structure;
 		
-		HTMLTemplateText = ""; // 
+		HTMLTemplateText = ""; // Extract the attachments
 		EmailBodyInHTML.GetHTML(HTMLTemplateText, AttachmentsStructure);
 		For Each Attachment In AttachmentsStructure Do
 			AttachmentsNamesToIDsMapsTable.Add(Attachment.Key, New UUID,, Attachment.Value);
@@ -269,10 +271,10 @@ Function ProcessTemplateText()
 	EndIf;
 	
 	If Object.TemplateByExternalDataProcessor Then
-		Return Result; // 
+		Return Result; // The data processor has a special population logic. 
 	EndIf;
 	
-	// Validation
+	// Check.
 	
 	InvalidParameters = New Array;
 	TemplateParametersFromText = MessageTemplatesInternal.MessageTextParameters(TextToCheck);
@@ -308,7 +310,7 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	If Not CurrentObject.ForEmails Then
 		Return;
 	EndIf;
-	// 
+	// Adding to the list of deleted attachments previously saved pictures displayed in the body of a formatted document.
 	
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperations = Common.CommonModule("FilesOperations");
@@ -350,7 +352,7 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
@@ -448,7 +450,7 @@ EndProcedure
 &AtClient
 Procedure MessageBodySMSMessagePlainTextOnChange(Item)
 	Object.SMSTemplateText = MessageBodyPlainText.GetText();
-	MessageBodyPlainText.SetText(Object.SMSTemplateText); // 
+	MessageBodyPlainText.SetText(Object.SMSTemplateText); // Text message must not exceed 1024 characters.
 EndProcedure
 
 &AtClient
@@ -941,7 +943,7 @@ Procedure InitializeNewMessagesTemplate(Val MessageTemplatesSettings)
 	If ValueIsFilled(Parameters.FullBasisTypeName)
 		 And MessageTemplatesInternal.ObjectIsTemplateSubject(Parameters.FullBasisTypeName) Then
 		
-		// The shortcut challenge
+		// Context call
 		Object.InputOnBasisParameterTypeFullName = Parameters.FullBasisTypeName;
 		If Not Parameters.CanChangeAssignment Then
 			Items.AssignmentGroup.Visible = False;
@@ -1289,7 +1291,7 @@ Procedure SetHTMLForFormattedDocument(HTMLEmailTemplateText, CurrentObjectRef, L
 	
 EndProcedure
 
-// 
+// Business logic.
 
 &AtServer
 Procedure GenerateAttributesAndPrintFormsList()
@@ -1450,7 +1452,7 @@ Procedure FIllAttributeTree(Receiver, Source, AreCommonOrArbitraryAttributes = U
 	
 EndProcedure
 
-// 
+// Forced setting of properties on the server
 
 &AtServer
 Procedure SetHTMLEmail(TextWrappingRequired = False)
@@ -1494,7 +1496,7 @@ Procedure SetEmailPlainText(TextWrappingRequired = False)
 	Items.TitleParametersPages.CurrentPage = Items.TitleParametersPage;
 EndProcedure
 
-// Attachments
+// Attachments.
 
 &AtClient
 Procedure AddAttachmentExecute(Id = Undefined)
@@ -1537,13 +1539,13 @@ Procedure FileSelectionDialogAfterChoice1(SelectedFiles, AdditionalParameters) E
 	
 EndProcedure
 
-// Gets the extension for the passed file name.
+// Receives an extension for the passed file name.
 //
 // Parameters:
-//  FileName  - String -  name of the file to get the extension for.
+//  FileName  - String - a name of the file to get the extension for.
 //
 // Returns:
-//   String   - 
+//   String   - an extension received from the passed file.
 //
 &AtClientAtServerNoContext
 Function GetFileExtension(Val FileName)
@@ -1756,15 +1758,15 @@ Procedure ChangePicturesNamesToMailAttachmentsIDsInHTML(HTMLDocument, MapsTable)
 	
 EndProcedure
 
-// Saves the images of the formatted document as an attached file of the object.
+// Saves formatted document pictures as attached object files.
 //
 // Parameters:
-//  Ref  - DocumentRef -  link to the owner of the attached files.
-//  EmailTextType  - EnumRef.EmailEditingMethods -  to determine the need
-//                                                                                to perform transformations.
-//  AttachmentsNamesToIDsMapsTable  - ValueTable -  allows you to determine which attachment
-//                                                                      corresponds to which image.
-//  Var_UUID  - UUID -  unique ID of the form to save from.
+//  Ref  - DocumentRef - Reference to the file owner.
+//  EmailTextType  - EnumRef.EmailEditingMethods - to define whether
+//                                                                                transformations are necessary.
+//  AttachmentsNamesToIDsMapsTable  - ValueTable - it allows to determine, which picture
+//                                                                      matches which attachment.
+//  Var_UUID  - UUID - a form UUID used for saving.
 //
 &AtServer
 Procedure SaveFormattedDocumentPicturesAsAttachedFiles(Ref, EmailTextType,
@@ -1911,7 +1913,7 @@ Procedure FillArbitraryParametersFromObject(Val CurrentObject)
 
 EndProcedure
 
-// 
+// External data processor.
 
 &AtServer
 Procedure FillTemplateByExternalDataProcessor()

@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Called when processing a message http://www.1c.ru/SaaS/RemoteAdministration/App/a.b.c.d}SetFullControl.
+// Called when processing the SetFullControl message.
 //
 // Parameters:
-//  DataAreaUser - CatalogRef.Users -  a user 
-//   whose membership in the Administrators group needs to be changed.
-//  AccessAllowed - Boolean -  True include user in group,
-//   False-exclude the user from the group.
+//  DataAreaUser - CatalogRef.Users - the user 
+//   to be added to or removed from the Administrators group.
+//  AccessAllowed - Boolean - if True, the user is added to the group.
+//   If False, the user is removed from the group.
 //
 Procedure SetUserBelongingToAdministratorGroup(Val DataAreaUser, Val AccessAllowed) Export
 	
@@ -46,7 +48,7 @@ Procedure SetUserBelongingToAdministratorGroup(Val DataAreaUser, Val AccessAllow
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See JobsQueueOverridable.OnGetTemplateList.
 Procedure OnGetTemplateList(JobTemplates) Export
@@ -59,8 +61,8 @@ EndProcedure
 // See ExportImportDataOverridable.AfterImportData.
 Procedure AfterImportData(Container) Export
 	
-	// 
-	// 
+	// In SaaS, the "FillExtensionsOperationParameters" scheduled job updates 1C-supplied profiles in a scheduled job.
+	// The job is enabled and started in the procedure "StandardSubsystemsServer.AfterImportData".
 	// 
 	If Not Common.DataSeparationEnabled() Then
 		Catalogs.AccessGroupProfiles.UpdateSuppliedProfiles();
@@ -72,12 +74,12 @@ Procedure AfterImportData(Container) Export
 	
 EndProcedure
 
-// Called when updating the database user roles.
+// This procedure is called when updating the infobase user roles.
 //
 // Parameters:
-//  Useridid-Unique Identifier,
-//  Cancel - Boolean -  if the parameter value is set to False inside the event handler
-//    , the role update for this database user will be skipped.
+//  IBUserID - UUID.
+//  Cancel - Boolean - if this parameter is set to False in the event handler,
+//    roles are not updated for this infobase user.
 //
 Procedure OnUpdateIBUserRoles(Val UserIdentificator, Cancel) Export
 	

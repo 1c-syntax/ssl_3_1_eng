@@ -1,48 +1,50 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region ProgramInterfaceParameterConstructors
 
-// Parameters for connecting to the server cluster that is being managed.
+// Parameters of connection to the server cluster being administered.
 //
 // Returns:
 //   Structure:
-//     * AttachmentType - String - :
-//                  
-//                  
-//                  
-//     * ServerAgentAddress - String -  network address of the server agent (only for connection Type = " COM");
-//     * ServerAgentPort - Number -  server agent network port (only for connection Type = "COM"),
-//                  typical value is 1540;
-//     * AdministrationServerAddress - String -  network address of the ras administration server (only.
-//                  When connection Type = " RAS");
-//     * AdministrationServerPort - Number -  network port of the ras administration server (only when.
-//                  Connection type = "RAS"), typical value 1545;
-//     * ClusterPort - Number -  network port of the managed cluster Manager, typical value 1541;
-//     * ClusterAdministratorName - String -  name of the cluster administrator account (if
-//                  the list of administrators is not specified for the cluster, an empty string is used);
-//     * ClusterAdministratorPassword - String -  password of the cluster administrator account (if
-//                  the list of administrators is not set for the cluster or the password is not set for the account
-//                  , an empty string is used).
+//     * AttachmentType - String - possible values:
+//                  "COM" - when connecting to the server agent using the V8*.ComConnector COM object;
+//                  "RAS" - when connecting the administration server (ras) using the console
+//                  client of the administration server (rac);
+//     * ServerAgentAddress - String - network address of the server agent (only for ConnectionType = "COM").
+//     * ServerAgentPort - Number - network port of the server agent (only for ConnectionType = "COM").
+//                  Usually, 1540;
+//     * AdministrationServerAddress - String - network address of the ras administration server (only
+//                  with ConnectionType = "RAS").
+//     * AdministrationServerPort - Number - network port of the ras administration server (only with
+//                  ConnectionType = "RAS"). Usually, 1545.
+//     * ClusterPort - Number - network port of the cluster manager. Usually, 1541.
+//     * ClusterAdministratorName - String - cluster administrator account name (if the list of administrators
+//                  is not specified for the cluster, the value is set to empty string);
+//     * ClusterAdministratorPassword - String - cluster administrator account password. If
+//                  the list of administrators is not specified for the cluster or the administrator account password is not set,
+//                  the value is a blank string.
 //
 Function ClusterAdministrationParameters() Export
 	
 	Result = New Structure();
 	
-	Result.Insert("AttachmentType", "COM"); // 
+	Result.Insert("AttachmentType", "COM"); // "COM" or "RAS"
 	
-	// 
+	// For "COM" only
 	Result.Insert("ServerAgentAddress", "");
 	Result.Insert("ServerAgentPort", 1540);
 	
-	// 
+	// For "RAS" only
 	Result.Insert("AdministrationServerAddress", "");
 	Result.Insert("AdministrationServerPort", 1545);
 	
@@ -54,17 +56,17 @@ Function ClusterAdministrationParameters() Export
 	
 EndFunction
 
-// Parameters for connecting to the cluster's managed information database.
+// Parameters of connection to the cluster infobase being administered.
 //
 // Returns: 
 //  Structure:
-//    * NameInCluster - String -  name of the managed database in the server cluster,
-//    * InfobaseAdministratorName - String -  name of the information database user with
-//                  administrator rights (if the list of information security users is not specified for the information database
-//                  , an empty string is used),
-//    * InfobaseAdministratorPassword - String -  password of an information database user
-//                  with administrator rights (if the list
-//                  of is users is not set for the information database or a password is not set for the is user, an empty string is used).
+//    * NameInCluster - String - name of the infobase in cluster server.
+//    * InfobaseAdministratorName - String - name of the infobase user with administrative
+//                  rights (if the list of infobase users is not set, the value is set
+//                  to empty string).
+//    * InfobaseAdministratorPassword - String - password of the infobase user
+//                  with administrative rights (if the list of infobase users is not set
+//                  or the infobase user password is not set, the value is set to empty string).
 //
 Function ClusterInfobaseAdministrationParameters() Export
 	
@@ -78,18 +80,18 @@ Function ClusterInfobaseAdministrationParameters() Export
 	
 EndFunction
 
-// Checks whether the administration parameters are correct.
+// Checks whether administration parameters are filled correctly.
 //
-// The Parameteradministrationib parameter can be omitted if similar fields are specified 
-// in the cluster Parameteradministration parameter.
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
 //
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//  CheckClusterAdministrationParameters - Boolean -  the flag you want to check the administrative settings 
-//                  cluster.
-//  CheckInfobaseAdministrationParameters - Boolean -  the flag you want to check the settings
-//                  cluster administration.
+//  CheckClusterAdministrationParameters - Boolean - Flag indicating whether a check of cluster administration parameters is required. 
+//                  
+//  CheckInfobaseAdministrationParameters - Boolean - Flag indicating whether a check of cluster administration parameters is required.
+//                  
 //
 Procedure CheckAdministrationParameters(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined,
 	CheckClusterAdministrationParameters = True,
@@ -108,17 +110,17 @@ EndProcedure
 
 #Region SessionAndScheduledJobLock
 
-// Properties of blocking sessions and scheduled tasks in the information database.
+// Infobase session and scheduled job lock properties.
 //
 // Returns: 
 //   Structure:
-//     * SessionsLock - Boolean -  flag for setting blocking of new sessions with the information base,
-//     * DateFrom1 - Date -  the moment when new sessions with the database were blocked,
-//     * DateTo - Date -  time when new sessions with the information database are blocked,
-//     * Message - String -  message that is displayed to the user when trying to set up a new session
-//                            with the information database when new sessions are blocked,
-//     * KeyCode - String -  code to bypass blocking new sessions with the information base,
-//     * LockScheduledJobs - Boolean -  flag for blocking the execution of routine tasks in the information database.
+//     * SessionsLock - Boolean - Flag indicating whether new infobase sessions are locked.
+//     * DateFrom1 - Date - a moment of time after which new infobase sessions are prohibited.
+//     * DateTo - Date - a moment of time after which new infobase sessions are allowed.
+//     * Message - String - the message displayed to the user when a new session is being established
+//                            with the locked infobase.
+//     * KeyCode - String - a pass code that allows to connect to a locked infobase.
+//     * LockScheduledJobs - Boolean - flag that shows whether infobase scheduled jobs must be locked.
 //
 Function SessionAndScheduleJobLockProperties() Export
 	
@@ -136,10 +138,10 @@ Function SessionAndScheduleJobLockProperties() Export
 	
 EndFunction
 
-// Returns the current state of blocking sessions and scheduled tasks for the information database.
+// Returns the current state of infobase session locks and scheduled job locks.
 //
-// The Parameteradministrationib parameter can be omitted if similar fields are specified 
-// in the cluster Parameteradministration parameter.
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
 //
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -164,7 +166,7 @@ Function InfobaseSessionAndJobLock(Val ClusterAdministrationParameters, Val IBAd
 	
 EndFunction
 
-// Sets a new state for blocking sessions and scheduled tasks for the information database.
+// Sets the state of infobase session locks and scheduled job locks.
 //
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -186,10 +188,10 @@ Procedure SetInfobaseSessionAndJobLock(Val ClusterAdministrationParameters, Val 
 	
 EndProcedure
 
-// Removes blocking of sessions and scheduled tasks for the information database.
+// Unlocks infobase sessions and scheduled jobs.
 //
-// The Parameteradministrationib parameter can be omitted if similar fields are specified 
-// in the cluster Parameteradministration parameter.
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -220,17 +222,17 @@ EndProcedure
 
 #Region LockScheduledJobs
 
-// Returns the current status of blocking scheduled tasks for the information database.
+// Returns the current state of scheduled job locks for the infobase.
 //
-// The Parameteradministrationib parameter can be omitted if similar fields are specified 
-// in the cluster Parameteradministration parameter.
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
 //
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
-//  Boolean - 
+//  Boolean - the lock is set.
 //
 Function InfobaseScheduledJobLock(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined) Export
 	
@@ -248,15 +250,15 @@ Function InfobaseScheduledJobLock(Val ClusterAdministrationParameters, Val IBAdm
 	
 EndFunction
 
-// Sets a new state for blocking routine tasks for the information database.
+// Sets the state of infobase scheduled job locks.
 //
-// The Parameteradministrationib parameter can be omitted if similar fields are specified 
-// in the cluster Parameteradministration parameter.
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
 //
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //  IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//  LockScheduledJobs - Boolean -  flag for setting blocking of scheduled tasks in the information database.
+//  LockScheduledJobs - Boolean - Indicates whether infobase scheduled jobs are locked.
 //
 Procedure SetInfobaseScheduledJobLock(Val ClusterAdministrationParameters, Val IBAdministrationParameters, Val LockScheduledJobs) Export
 	
@@ -277,85 +279,86 @@ EndProcedure
 
 #Region InfobaseSessions
 
-// Properties of the database session.
+// Infobase session properties.
 //
 // Returns: 
 //   Structure:
-//     * Number - Number -  session number. Unique among all sessions of the information database,
-//     * UserName - String -  name of the authenticated user of the information database,
-//     * ClientComputerName - String -  name or network address of the computer that established
-//          the session with the database,
-//     * ClientApplicationID - String -  ID of the application that established the session.
-//          Possible values - see description to the function of the global context of the representation of the application(),
-//     * LanguageID - String -  ID of the interface language,
-//     * SessionCreationTime - Date -  when the session was set up,
-//     * LatestSessionActivityTime - Date -  time when the session was last active,
-//     * Block - Number -  the session number that is the reason for waiting for a managed transactional
-//          lock if the session is installing managed transactional locks
-//          and is waiting for the locks set by another session to be released (otherwise, the value is 0),
-//     * DBMSLock - Number -  the session number that is the reason for waiting for a transactional
-//          lock if the session executes a request to the DBMS and waits for a transactional
-//          lock set by another session (otherwise, the value is 0),
-//     * Passed - Number -  the amount of data transmitted to honey by the 1C server:Enterprises" and the client application
-//          of this session from the start of the session (in bytes),
-//     * PassedIn5Minutes - Number -  the amount of data transferred between the "1C" server:Enterprises" and the client
-//          application of this session for the last 5 minutes (in bytes),
-//     * ServerCalls - Number -  the number of calls to the server, "1C:Enterprises " from the names of this session
-//          since the start of the session,
-//     * ServerCallsIn5Minutes - Number -  the number of calls to the server, "1C:Enterprises " on behalf of this session
-//          for the last 5 minutes,
-//     * ServerCallDurations - Number -  execution time of server calls " 1C:Enterprises " on behalf
-//          of this session since the session started (in seconds),
-//     * CurrentServerCallDuration - Number -  the time interval in milliseconds that has elapsed since the start
-//          of the request, if the session is calling the server " 1C:Enterprises" (otherwise, the value is 0),
-//     * ServerCallDurationsIn5Minutes - Number -  execution time of calls to the server 1S:Businesses on behalf
-//          of this session for the last 5 minutes (in milliseconds),
-//     * ExchangedWithDBMS - Number -  the number of data sent and received from the DBMS on behalf of this session
-//          since the session started (in bytes),
-//     * ExchangedWithDBMSIn5Minutes - Number -  the number of data sent and received from the DBMS on behalf of this session
-//          in the last 5 minutes (in bytes),
-//     * DBMSCallDuration - Number -  execution time of DBMS queries on behalf of this session since
-//          the session started (in milliseconds),
-//     * CurrentDBMSCallDuration - Number -  the time interval in milliseconds that has elapsed since the start
-//          of query execution if the session executes a query to the DBMS (otherwise, the value is 0),
-//     * DBMSCallDurationsIn5Minutes - Number -  total execution time of DBMS requests on behalf of this session
-//          for the last 5 minutes (in milliseconds).
-//     * DBMSConnection - String -  DBMS connection number in DBMS terms if a
-//          query to the DBMS is being made, a transaction is open, or temporary tables are defined (i.e.
-//          , a connection to the DBMS is captured). If the DBMS connection is not captured , the value is equal to an empty string,
-//     * DBMSConnectionTime - Number -  the connection to the DBMS from the moment of capture (in milliseconds). If the connection with
-//          DBMS is not captured, the value is 0,
-//     * DBMSConnectionSeizeTime - Date -  the time when the DBMS connection was last
-//          captured by another session.
+//     * Number - Number - session number. The number is unique across the infobase sessions,
+//     * UserName - String - Infobase user's name,
+//     * ClientComputerName - String - name or network address of the computer that established
+//          the session with the infobase,
+//     * ClientApplicationID - String - ID of the application that set up the session.
+//          Possible values - see details of the global context functionApplicationPresentation(),
+//     * LanguageID - String - Interface language ID,
+//     * SessionCreationTime - Date - session setup time,
+//     * LatestSessionActivityTime - Date - the moment of last session activity,
+//     * Block - Number - a number of the session that resulted in managed transactional
+//          lock wait if the session sets managed transactional locks
+//          and waits for locks set by another session to be disabled. Otherwise, the value is 0,
+//     * DBMSLock - Number - a number of the session that caused transactional
+//          lock wait if the session performs a DBMS call and waits for a transactional
+//          lock set by another session to be disabled. Otherwise, the value is 0,
+//     * Passed - Number - volume of data passed between the 1C:Enterprise server and the current session
+//          client application since the session start, in bytes,
+//     * PassedIn5Minutes - Number - volume of data passed between the 1C:Enterprise server and the current session client
+//          application in the last 5 minutes, in bytes,
+//     * ServerCalls - Number - a number of the 1C:Enterprise server calls made by the current session since
+//          the session started,
+//     * ServerCallsIn5Minutes - Number - a number of the 1C:Enterprise server calls made by the current session
+//          in the last 5 minutes,
+//     * ServerCallDurations - Number - total 1C:Enterprise server call time made by
+//          the current session since the session start, in seconds,
+//     * CurrentServerCallDuration - Number - time interval in milliseconds since the 1C:Enterprise server call
+//          start. If there is no server call, the value is 0,
+//     * ServerCallDurationsIn5Minutes - Number - total time of 1C:Enterprise server calls made by
+//          the current session in the last 5 minutes, in milliseconds,
+//     * ExchangedWithDBMS - Number - volume of data passed and received from DBMS on behalf of the current session
+//          since the session start, in bytes,
+//     * ExchangedWithDBMSIn5Minutes - Number - volume of data passed and received from DBMS on behalf of the current session
+//          in the last 5 minutes, in bytes,
+//     * DBMSCallDuration - Number - total time spent on executing DBMS queries made on behalf of the current session since the session
+//          start, in milliseconds,
+//     * CurrentDBMSCallDuration - Number - time interval since the current DBMS query
+//          execution start, in milliseconds. If there is no query, the value is 0,
+//     * DBMSCallDurationsIn5Minutes - Number - total time spent on executing DBMS queries made on behalf of the current session
+//          in the last 5 minutes (in milliseconds).
+//     * DBMSConnection - String - DBMS connection number in the terms of DBMS if when the session
+//          list is retrieved, the DBMS query is executed, a transaction is opened, or temporary tables are defined (DBMS connection
+//          is seized). If the DBMS session is not seized, the value is a blank string,
+//     * DBMSConnectionTime - Number - the period since the DBMS connection capture, in milliseconds. If the
+//          DBMS session is not seized - the value is 0,
+//     * DBMSConnectionSeizeTime - Date - Time of the last DBMS connection capture.
+//          
 //     * IConnectionShort - Structure
-//                          - Undefined -  
-//                   See ClusterAdministration.ConnectionDetailsProperties.
-//     * Sleep - Boolean -  the session is in sleep mode.
-//     * TerminateIn - Number -  the time interval, in seconds, after which the sleeping session ends.
-//     * SleepIn - Number -  the time interval, in seconds, after which an inactive session is put to
-//                              sleep.
-//     * ReadFromDisk - Number -  contains the number of bytes of data read from disk by the session since the session started.
-//     * ReadFromDiskInCurrentCall - Number -  contains the number of bytes of data read from disk since the start 
-//                  of the current call.
-//     * ReadFromDiskIn5Minutes - Number -  contains the amount of data, in bytes, that the session has read from disk in the past
+//                          - Undefined - Contains the details of the connection assigned to the session. 
+//                  For field details, See ClusterAdministration.ConnectionDetailsProperties.
+//                                           Otherwise, Undefined.
+//     * Sleep - Boolean - the session is in the sleep mode.
+//     * TerminateIn - Number - a time interval in seconds, after which the session in sleep mode is terminated.
+//     * SleepIn - Number - a time interval in seconds, after which an inactive session is put into sleep
+//                              mode.
+//     * ReadFromDisk - Number - contains the amount of data in bytes read from the disk by the session since it has started.
+//     * ReadFromDiskInCurrentCall - Number - contains the amount of data in bytes read from the disk since 
+//                  the start of the current call.
+//     * ReadFromDiskIn5Minutes - Number - contains the amount of data in bytes read from the disk during the last
 //                                         5 minutes.
 //     * ILicenseInfo - Structure
-//                - Undefined - 
-//                   See ClusterAdministration.LicenseProperties. 
-//                  
-//     * OccupiedMemory - Number -  contains the amount of memory, in bytes, used during calls since the session started.
-//     * OccupiedMemoryInCurrentCall - Number -  contains the amount of memory, in bytes, used since the start of the current call. 
-//                  If the call is not currently running, it contains 0.
-//     * OccupiedMemoryIn5Minutes - Number -  contains the amount of memory, in bytes, used during calls in the last 5 minutes.
-//     * WrittenOnDisk - Number -  contains the number of bytes of data written to disk by the session since the session started.
-//     * WrittenOnDiskInCurrentCall - Number -  contains the number of bytes of data written to disk since the start
+//                - Undefined - Contains information on the client license that is used by the current session,
+//                  field details, See ClusterAdministration.LicenseProperties. 
+//                  Undefined if the session does not use a license.
+//     * OccupiedMemory - Number - contains memory volume in bytes used in the process of calls since the session start.
+//     * OccupiedMemoryInCurrentCall - Number - contains memory volume in bytes used since the start of the current call. 
+//                  If the call is not currently running, the value is 0.
+//     * OccupiedMemoryIn5Minutes - Number - contains memory volume in bytes used in the process of calls during the last 5 minutes.
+//     * WrittenOnDisk - Number - contains the amount of data in bytes written on the disk by the session since it has started.
+//     * WrittenOnDiskInCurrentCall - Number - contains the amount of data in bytes written on the disk since the start
 //                  of the current call.
-//     * WrittenOnDiskIn5Minutes - Number -  contains the number of bytes of data written to disk by the session in the last 5
+//     * WrittenOnDiskIn5Minutes - Number - contains the amount of data in bytes written on the disk the disk during the last 5
 //                                        minutes.
 //     * IWorkingProcessInfo - Structure
-//                      - Undefined -  
-//                   See ClusterAdministration.WorkingProcessProperties. 
-//                   
+//                      - Undefined - Contains a working process with which the connection is established if 
+//                  the session is assigned to the connection, field details  See ClusterAdministration.WorkingProcessProperties. 
+//                  Else - Undefined. 
 //
 Function SessionProperties() Export
 	
@@ -405,34 +408,34 @@ Function SessionProperties() Export
 	
 EndFunction
 
-// The license properties.
+// License properties.
 //
 // Returns: 
 //   Structure:
-//     * FileName - String -  contains the full name of the software license file used. 
-//     * FullPresentation - String -  contains a localized string representation of the license, as in
-//                  the "License" property of the session properties dialog or the cluster console workflow properties
-//     * BriefPresentation - String -  contains a localized string representation of the license, as in
-//                  the "License" column of the list of sessions or workflows.
-//     * IssuedByServer - Boolean -  True-the license was obtained by the 1C server:Enterprise" and issued to the client application.
-//                  False-the license was obtained by the client application.
-//     * LisenceType - Number - : 
-//                   
-//                  
-//     * MaxUsersForSet - Number -  contains the maximum number of users 
-//                  allowed for this bundle if the platform software license is used. Otherwise, it matches
-//                  the value of the MaxUsersCur property.
-//     * MaxUsersInKey - Number -  contains the maximum number of users in 
-//                  the program security key used or in the software license file used.
-//     * LicenseIsReceivedViaAladdinLicenseManager - Boolean -  True if the program security key is used for the hardware license
-//                  is a network license obtained through the Aladdin License Manager; False
-//                  otherwise.
-//     * ProcessAddress - String -  contains the address of the server where the licensed process is running.
-//     * ProcessID - String -  contains the ID of the licensed process assigned to it
+//     * FileName - String - Contains full name of the software license file being used. 
+//     * FullPresentation - String - Contains localized string presentation of the license, as in property
+//                  License of the session property dialog or properties of cluster console active process
+//     * BriefPresentation - String - Contains localized string presentation of the license, as in column
+//                  License of the list of sessions or active processes.
+//     * IssuedByServer - Boolean - True - the license is received by the 1C:Enterprise server and issued to the client application.
+//                  False - the license is received by the client application.
+//     * LisenceType - Number - contains license type: 
+//                  0 - platform software license; 
+//                  1 is hardware license (software security key).
+//     * MaxUsersForSet - Number - contains the maximum number of users allowed for this kit if the platform 
+//                  software license is used. Otherwise, it matches
+//                  with the MaxUsersCur property value.
+//     * MaxUsersInKey - Number - contains the maximum number of users 
+//                  in the used software security key or in the used program license file.
+//     * LicenseIsReceivedViaAladdinLicenseManager - Boolean - True if the software security key for the hardware license is network,
+//                  the license is obtained through the Aladdin License Manager,
+//                  False otherwise.
+//     * ProcessAddress - String - contains an address of the server where the process that got a license is running.
+//     * ProcessID - String - contains an ID of the process that got a license assigned to it
 //                  by the operating system.
-//     * ProcessPort - Number -  contains the IP port number of the server process that received the license.
-//     * KeySeries - String -  contains the program security key series for the hardware license or the registration number
-//                  of the kit for the platform software license.
+//     * ProcessPort - Number - contains an IP port number of the server process that got a license.
+//     * KeySeries - String - contains a series of a software security key for a hardware license or a kit registration
+//                  number for a platform software license.
 //
 Function LicenseProperties() Export
 	
@@ -455,20 +458,20 @@ Function LicenseProperties() Export
 	
 EndFunction
 
-// Properties of the connection description.
+// Connection details properties.
 //
 // Returns: 
 //   Structure:
-//     * ApplicationName - String -  contains the name of the application that established a connection to the 1C server farm:Companies".
-//     * Block - Number -  contains the ID of the connection that is blocking this connection (in 
-//                  the transactional blocking Service).
-//     * ConnectionEstablishingTime - Date -  contains the time when the connection was established.
-//     * Number - Number -  contains the connection ID. Allows you to distinguish between different connections established by
-//                  the same application from the same client computer
-//     * ClientComputerName - String -  contains the name of the user computer that the connection is made from.
-//     * SessionNumber - Number -  contains the session number if the connection is assigned a session, otherwise it is 0.
-//     * IWorkingProcessInfo - Structure -  contains the interface of an object with a description of the server process to which
-//                  this connection is established.
+//     * ApplicationName - String - contains name of an application that established connection with 1C:Enterprise server farm.
+//     * Block - Number - contains an ID of the connection that locks operation of this connection (in the transaction 
+//                  lock service).
+//     * ConnectionEstablishingTime - Date - contains the time when the connection was established.
+//     * Number - Number - contains a connection ID. Allows you to distinguish between different connections established
+//                  by the same application from the same client computer
+//     * ClientComputerName - String - contains name of the user computer that established the connection.
+//     * SessionNumber - Number - contains the session number if a session is assigned to it, 0 otherwise.
+//     * IWorkingProcessInfo - Structure - contains object interface with server process details to which
+//                  the connection is set.
 //
 Function ConnectionDetailsProperties() Export
 	
@@ -486,55 +489,55 @@ Function ConnectionDetailsProperties() Export
 	
 EndFunction
 
-// Properties of the workflow.
+// active process properties.
 //
 // Returns:
 //   Structure:
-//     * AvailablePerformance - Number -  average available performance over the last 5 minutes. It is determined
-//                  by the response time of the workflow to the reference request. In accordance with the available 
-//                  the performance of the server cluster, decides on the allocation of customers between workers
+//     * AvailablePerformance - Number - average available performance over the last 5 minutes. It is determined
+//                  by the reaction time of the active process to the reference query. According to the available 
+//                  performance, the server cluster decides on the distribution of clients between working
 //                  processes.
-//     * SpentByTheClient - Number -  shows the average time spent by the workflow on
-//                  client application method callbacks during a single client call
-//     * ServerReaction - Number -  shows the average service time for a single client request by the workflow.
-//                  It consists of: property values with Saracenorum, Tetracenes, Strictmanagement,
-//                  Expended by the client.
-//     * SpentByDBMS - Number -  shows the average time that a worker process spends accessing the database server
-//                  during a single client request.
-//     * SpentByTheLockManager - Number -  shows the average time to access the lock Manager.
-//     * SpentByTheServer - Number -  shows the average time that the workflow itself takes to complete
-//                  a single client request.
-//     * ClientStreams - Number -  shows the average number of client threads executed by the cluster workflow.
-//     * Capacity - Number -  relative performance of the process. It can be in 
-//                  the range from 1 to 1000. Used when selecting the workflow that
-//                  the next client will be connected to. Clients are distributed among workflows in proportion
-//                  to the performance of the workflows.
-//     * Connections - Number -  the number of workflow connections to user applications.
-//     * ComputerName - String -  contains the name or IP address of the computer on which the workflow should be running.
-//     * Enabled - Boolean -  it is set by the cluster when it is necessary to start or stop the workflow.
-//                  True-the process must be started and will be started if possible. 
-//                  False - the process must be stopped and will be stopped after all users are disconnected or
-//                  after the time set by the cluster settings has elapsed.
-//     * Port - Number -  contains the number of the main IP port of the workflow. This port is allocated dynamically at the start
-//                  of the workflow from the port ranges defined for the corresponding production server.
-//     * ExceedingTheCriticalValue - Number -  contains the time that the amount of virtual memory
-//                  in the workflow exceeds the critical value set for the cluster, in seconds.
-//     * OccupiedMemory - Number -  contains the amount of virtual memory used by the workflow, in kilobytes.
-//     * Id - String -  ID of the active workflow in terms of the operating system.
-//     * Started2 - Number -  status of the workflow.
-//                  0 - the process is inactive (either not loaded in memory, or cannot execute client requests); 
-//                  1 - the process is active (running). 
-//     * CallsCountByWhichTheStatisticsIsCalculated - Number -  the number of calls for which statistics are calculated.
-//     * StartedAt - Date -  contains the time when the workflow started. If the process is not running, then an empty date.
-//     * Use - Number -  
-//                  : 
-//                      
-//                      
-//                     
-//                         
+//     * SpentByTheClient - Number - shows the average time spent by the active process on callbacks of client application
+//                  methods when performing one client call
+//     * ServerReaction - Number - shows the average service time spent by the active process on one client call.
+//                  It consists of: property values SpentByServer, SpentByDBMS, SpentByLocksManager, and
+//                  SpentByClient.
+//     * SpentByDBMS - Number - shows the average time spent by the active process to call the server without
+//                  data when performing one client call.
+//     * SpentByTheLockManager - Number - shows the average time of addressing the lock manager.
+//     * SpentByTheServer - Number - shows the average time spent by the active process itself to execute
+//                  single client call.
+//     * ClientStreams - Number - shows the average number of client streams executed by the active process of cluster.
+//     * Capacity - Number - relative process performance. The value can be 
+//                  in the range from 1 to 1000. It is used to select the active process
+//                  for connecting the next client. Clients are distributed between active processes in proportion
+//                  to the active processes performance.
+//     * Connections - Number - the number of active process connections to user applications.
+//     * ComputerName - String - Contains the name or IP address of a computer to start the active process.
+//     * Enabled - Boolean - set by the cluster if necessary to start or stop the active process.
+//                  True - the process must be started and will be started when possible. 
+//                  False - the process must be stopped and will be stopped after all users disconnect
+//                  or after the time specified by the cluster settings has expired.
+//     * Port - Number - Contains the number of main IP port of the active process. This port is selected dynamically at the start
+//                  of the active process from the port ranges defined for the matching active server.
+//     * ExceedingTheCriticalValue - Number - Contains the time during which the virtual memory
+//                  of the active process exceeds the critical value set for the cluster, in seconds.
+//     * OccupiedMemory - Number - Contains the size of virtual memory occupied by the active process, in kilobytes.
+//     * Id - String - active active process ID in terms of the operating system.
+//     * Started2 - Number - a active process status.
+//                  0 - the process is inactive (not imported in memory or cannot execute client queries); 
+//                  1 - the process is active (it works). 
+//     * CallsCountByWhichTheStatisticsIsCalculated - Number - the number of calls by which statistics is calculated.
+//     * StartedAt - Date - Contains the moment of the active process startup. If the process is not started up, the date is blank.
+//     * Use - Number - determines usage of a active process by the cluster. It is set by the administrator. 
+//                  Possible values: 
+//                     0 - do not use, the process must not be started up; 
+//                     1 - use, the process must be started up; 
+//                     2 - use as a reserve, the process must be started up only if it is impossible to start up
+//                         the process with value 1 of this property.
 //     * ILicenseInfo - Structure
-//                - Undefined -  
-//                  
+//                - Undefined - contains information about server license used by the working process. 
+//                  Undefined - the working process does not use server license.
 //
 Function WorkingProcessProperties() Export
 	
@@ -565,12 +568,13 @@ Function WorkingProcessProperties() Export
 	
 EndFunction
 
-// 
+// Returns details of infobase sessions.
 //
-//  
-// 
-//  (See ClusterAdministration.SessionsFilter) 
-// 
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
+// If a structure is specified in the Filter parameter (See ClusterAdministration.SessionsFilter) 
+// ,
+// the comparison type is "equal to".
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -597,12 +601,13 @@ Function InfobaseSessions(Val ClusterAdministrationParameters, Val IBAdministrat
 	
 EndFunction
 
-// 
+// Deletes infobase sessions according to the filter.
 //
-//  
-// 
-//  (See ClusterAdministration.SessionsFilter) 
-// 
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
+// If a structure is specified in the Filter parameter (See ClusterAdministration.SessionsFilter) 
+// ,
+// the comparison type is "equal to".
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -626,40 +631,40 @@ Procedure DeleteInfobaseSessions(Val ClusterAdministrationParameters, Val IBAdmi
 	
 EndProcedure
 
-// The properties of the filter.
-// For use in the functions of the session Informationbase, delete session Informationbase, and similar. 
+// Session filter properties.
+// For use in the InfobaseSessions, DeleteInfobaseSessions and similar functions. 
 //
 // Returns:
 //   Structure:
-//     * Property - String -  the name of the property by which filtering is performed. 
-//                  Acceptable values - see the return value of the Cluster Administration function.The properties of the session.
-//     * ComparisonType - ComparisonType -  
-//                  :
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
+//     * Property - String - property name to be used in the filter. 
+//                  For valid values, see return value of the ClusterAdministration.SessionProperties function.
+//     * ComparisonType - ComparisonType - the type of comparing the session values and the filter values. 
+//                  The following values are available:
+//                  ComparisonType.Equal,
+//                  ComparisonType.NotEqual,
+//                  ComparisonType.Greater (for numeric values only),
+//                  ComparisonType.GreaterOrEqual (for numeric values only),
+//                  ComparisonType.Less (for numeric values only),
+//                  ComparisonType.LessOrEqual (for numeric values only),
+//                  ComparisonType.InList,
+//                  ComparisonType.NotInList,
+//                  ComparisonType.Interval (for numeric values only),
+//                  ComparisonType.IntervalIncludingBounds (for numeric values only),
+//                  ComparisonType.IntervalIncludingLowerBound (for numeric values only),
+//                  ComparisonType.IntervalIncludingUpperBound (for numeric values only).
 //     * Value - Number
 //                - String
 //                - Date
 //                - Boolean
 //                - ValueList
 //                - Array
-//                - Structure - 
-//               
-//               
-//               
-//               
-//               
-//               
+//                - Structure - the value the matching session property value
+//               is compared with. For ComparisonType.InList and ComparisonType.NotInList,
+//               the passed values are ValueList or Array that contain the set of values
+//               to compare to. For ComparisonType.Interval, ComparisonType.IntervalIncludingBounds,
+//               ComparisonType.IntervalIncludingLowerBound, and ComparisonType.IntervalIncludingUpperBound, the passed
+//               value contains a structure with the From and To fields that forms an interval
+//               to be compared to.
 //
 Function SessionsFilter() Export
 	
@@ -677,57 +682,57 @@ EndFunction
 
 #Region InfobaseConnections
 
-// Properties of the connection to the information base.
+// Infobase connection properties.
 //
 // Returns: 
 //   Structure:
-//     * Number - Number -  number of the connection to the information base.
-//     * UserName - String -  user name 1C:An enterprise connected to the information database.
-//     * ClientComputerName - String -  name of the computer that the connection is made from.
-//     * ClientApplicationID - String -  ID of the application that established the connection.
-//                  Possible values - see description to the function of the global context of the representation of the application(),
-//     * ConnectionEstablishingTime - Date -  the moment when the connection was established.
-//     * InfobaseConnectionMode - Number -  data base connection mode (0 -
-//                  shared, 1-exclusive),
-//     * DataBaseConnectionMode - Number -  database connection mode (0 - no connection established,
-//                  1 - shared, 2-exclusive).
-//     * DBMSLock - Number -  ID of the connection that is blocking this connection in the DBMS.
-//     * Passed - Number -  the amount of data received and sent by the connection.
-//     * PassedIn5Minutes - Number -  the amount of data received and sent by the connection in the last 5 minutes.
-//     * ServerCalls - Number -  number of server calls.
-//     * ServerCallsIn5Minutes - Number -  the number of server calls to the connection in the last 5 minutes.
-//     * ExchangedWithDBMS - Number -  amount of data transferred between the 1C server:Enterprise and database server,
-//                  from the moment this connection is established,
-//     * ExchangedWithDBMSIn5Minutes - Number -  amount of data transferred between the 1C server:Enterprise and database server
-//                  in the last 5 minutes,
-//     * DBMSConnection - String -  ID of the DBMS connection process (if
-//                  this connection was accessing the DBMS server at the time of getting the list of connections, otherwise the value is equal
-//                  to an empty string). The ID is returned in terms of the DBMS server.
-//     * DBMSTime - Number -  the time, in seconds, during which the DBMS server is accessed (if this connection was accessing the DBMS server at the time of
-//                  receiving the list of connections, otherwise
-//                  the value is 0).
-//     * DBMSConnectionSeizeTime - Date -  the moment when the connection to the DBMS server was last captured.
-//     * ServerCallDurations - Number -  duration of all server calls to the connection.
-//     * DBMSCallDuration - Number -  time of DBMS calls initiated by the connection.
-//     * CurrentServerCallDuration - Number -  duration of the current server call.
-//     * CurrentDBMSCallDuration - Number -  the duration of the current call to the DBMS server.
-//     * ServerCallDurationsIn5Minutes - Number -  duration of server connection calls in the last 5 minutes.
-//     * DBMSCallDurationsIn5Minutes - Number -  duration of DBMS connection calls in the last 5 minutes.
-//     * ReadFromDisk - Number -  contains the number of bytes of data read from disk by the session since the session started.
-//     * ReadFromDiskInCurrentCall - Number -  contains the number of bytes of data read from disk since the start
+//     * Number - Number - a number of infobase connection.
+//     * UserName - String - a name of the 1C:Enterprise user connected to the infobase.
+//     * ClientComputerName - String - a name of the computer that established the connection.
+//     * ClientApplicationID - String - an ID of the application that set up the connection.
+//                  Possible values - see details of the global context functionApplicationPresentation(),
+//     * ConnectionEstablishingTime - Date - the time of connection establishment.
+//     * InfobaseConnectionMode - Number - the infobase connection mode (0 
+//                  if shared, 1 if exclusive),
+//     * DataBaseConnectionMode - Number - database connection mode (0 if no connection,
+//                  1 - shared, 2 - exclusive).
+//     * DBMSLock - Number - an ID of the connection that locks the current connection in the DBMS.
+//     * Passed - Number - a volume of data that the connection sent and received.
+//     * PassedIn5Minutes - Number - the volume of data sent and received by the connection in the last 5 minutes.
+//     * ServerCalls - Number - the number of server calls.
+//     * ServerCallsIn5Minutes - Number - the number of server calls in the last 5 minutes.
+//     * ExchangedWithDBMS - Number - the data volume passed between the 1C:Enterprise server and the database server
+//                  since the connection was established,
+//     * ExchangedWithDBMSIn5Minutes - Number - the volume of data passed between the 1C:Enterprise server and the database
+//                  server in the last 5 minutes,
+//     * DBMSConnection - String - the DBMS connection process ID if the connection is contacting a DBMS server when
+//                  the list is requested. Otherwise, the value is
+//                  a blank string. The ID is returned in the DBMS server terms.
+//     * DBMSTime - Number - the DBMS server call duration in seconds if the connection is contacting a DBMS server when
+//                  the list is requested. Otherwise,
+//                  the value is 0.
+//     * DBMSConnectionSeizeTime - Date - the moment of the last DBMS server connection capture.
+//     * ServerCallDurations - Number - the duration of all connection server calls.
+//     * DBMSCallDuration - Number - the duration of all DBMS calls the connection initiated.
+//     * CurrentServerCallDuration - Number - the duration of the current server call.
+//     * CurrentDBMSCallDuration - Number - the duration of the current DBMS server call.
+//     * ServerCallDurationsIn5Minutes - Number - the duration of server calls in the last 5 minutes.
+//     * DBMSCallDurationsIn5Minutes - Number - the duration of DBMS server calls in the last 5 minutes.
+//     * ReadFromDisk - Number - contains the amount of data in bytes read from the disk by the session since it has started.
+//     * ReadFromDiskInCurrentCall - Number - contains the amount of data in bytes read from the disk since
+//                  the start of the current call.
+//     * ReadFromDiskIn5Minutes - Number - contains the amount of data in bytes read from the disk during 
+//                  the last 5 minutes.
+//     * OccupiedMemory - Number - contains memory volume in bytes used in the process of calls since the session start.
+//     * OccupiedMemoryInCurrentCall - Number - contains memory volume in bytes used since the start of the current
+//                  call. If the call is not currently running, the value is 0.
+//     * OccupiedMemoryIn5Minutes - Number - contains memory volume in bytes used in the process of calls during the last 5 minutes.
+//     * WrittenOnDisk - Number - contains the amount of data in bytes written on the disk by the session since it has started.
+//     * WrittenOnDiskInCurrentCall - Number - contains the amount of data in bytes written on the disk since the start
 //                  of the current call.
-//     * ReadFromDiskIn5Minutes - Number -  contains the number of bytes of data read from disk by the session in the 
-//                  last 5 minutes.
-//     * OccupiedMemory - Number -  contains the amount of memory, in bytes, used during calls since the session started.
-//     * OccupiedMemoryInCurrentCall - Number -  contains the amount of memory, in bytes, used since the start of the current
-//                  call. If the call is not currently running, it contains 0.
-//     * OccupiedMemoryIn5Minutes - Number -  contains the amount of memory, in bytes, used during calls in the last 5 minutes.
-//     * WrittenOnDisk - Number -  contains the number of bytes of data written to disk by the session since the session started.
-//     * WrittenOnDiskInCurrentCall - Number -  contains the number of bytes of data written to disk since the start
-//                  of the current call.
-//     * WrittenOnDiskIn5Minutes - Number -  contains the number of bytes of data written to disk by the session in the
-//                  last 5 minutes.
-//     * ControlIsOnServer - Number -  indicates whether management is located on the server (0 - not located, 1-located).
+//     * WrittenOnDiskIn5Minutes - Number - contains the amount of data in bytes written on the disk the disk during
+//                  the last 5 minutes.
+//     * ControlIsOnServer - Number - Indicates if management is on the server (0 - it is not on the server, otherwise 1).
 //
 Function ConnectionProperties() Export
 	
@@ -771,18 +776,19 @@ Function ConnectionProperties() Export
 	
 EndFunction
 
-// 
+// Returns details of infobase connections.
 //
-//  
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
+// If a structure is specified in the Filter parameter, (See ClusterAdministration.SessionsFilter) 
 // 
-//  (See ClusterAdministration.SessionsFilter) 
-// 
+// the comparison type is "equal to".
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.JoinsFilters 
-//           See ClusterAdministration.JoinsFilters
+//          - Array of See ClusterAdministration.JoinsFilters
 //
 // Returns: 
 //   Array of See ClusterAdministration.ConnectionProperties
@@ -803,12 +809,13 @@ Function InfobaseConnections(Val ClusterAdministrationParameters, Val IBAdminist
 	
 EndFunction
 
-// 
+// Terminates infobase connections according to filter.
 //
-//  
-// 
-//  (See ClusterAdministration.JoinsFilters) 
-// 
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
+// If a structure is specified in the Filter parameter (See ClusterAdministration.JoinsFilters) 
+// , then
+// the comparison is always performed for equality.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -832,40 +839,40 @@ Procedure TerminateInfobaseConnections(Val ClusterAdministrationParameters, Val 
 	
 EndProcedure
 
-// Properties of the connection filter.
-// For use in the functions joininformation Base, breakinformation base Connections, and similar. 
+// Connection filter properties.
+// For use in the InfobaseConnections, TerminateInfobaseConnections and similar functions. 
 //
 // Returns:
 //   Structure:
-//     * Property - String -  the name of the property by which filtering is performed. 
-//                  Acceptable values - see the return value of the Cluster Administration function.Connection properties.
-//     * ComparisonType - ComparisonType -  
-//                  :
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
-//                  
+//     * Property - String - the property name to filter by. 
+//                  For possible values, see return value of the ClusterAdministration.ConnectionProperties function.
+//     * ComparisonType - ComparisonType - the type of comparing the session values and the filter values. 
+//                  The following values are available:
+//                  ComparisonType.Equal,
+//                  ComparisonType.NotEqual,
+//                  ComparisonType.Greater (for numeric values only),
+//                  ComparisonType.GreaterOrEqual (for numeric values only),
+//                  ComparisonType.Less (for numeric values only),
+//                  ComparisonType.LessOrEqual (for numeric values only),
+//                  ComparisonType.InList,
+//                  ComparisonType.NotInList,
+//                  ComparisonType.Interval (for numeric values only),
+//                  ComparisonType.IntervalIncludingBounds (for numeric values only),
+//                  ComparisonType.IntervalIncludingLowerBound (for numeric values only),
+//                  ComparisonType.IntervalIncludingUpperBound (for numeric values only).
 //     * Value - Number
 //                - String
 //                - Date
 //                - Boolean
 //                - ValueList
 //                - Array
-//                - Structure - 
-//               
-//               
-//               
-//               
-//               
-//               
+//                - Structure - the value the matching session property value
+//               is compared with. For ComparisonType.InList and ComparisonType.NotInList,
+//               the passed values are ValueList or Array that contain the set of values
+//               to compare to. For ComparisonType.Interval, ComparisonType.IntervalIncludingBounds,
+//               ComparisonType.IntervalIncludingLowerBound, and ComparisonType.IntervalIncludingUpperBound, the passed
+//               value contains a structure with the From and To fields that forms an interval
+//               to be compared to.
 //
 Function JoinsFilters() Export
 	
@@ -883,18 +890,18 @@ EndFunction
 
 #Region SecurityProfiles
 
-// Returns the name of the security profile assigned to the information database.
+// Returns the name of a security profile assigned to the infobase.
 //
-// The Parameteradministrationib parameter can be omitted if similar fields are specified 
-// in the cluster Parameteradministration parameter.
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
-//   String - 
-//            
+//   String - name of the security profile set for the infobase. If the infobase is not assigned
+//            with a security profile, returns an empty string.
 //
 Function InfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined) Export
 	
@@ -910,19 +917,19 @@ Function InfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdmi
 	
 EndFunction
 
-// Returns the name of the security profile assigned to the information database as
-// the safe mode security profile.
+// Returns the name of the security profile that was set for the infobase as a
+// security profile of the safe mode.
 //
-// The Parameteradministrationib parameter can be omitted if similar fields are specified 
-// in the cluster Parameteradministration parameter.
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
 // Returns: 
-//   String - 
-//            
+//   String - name of the security profile set for the infobase as the safe mode security
+//            profile. If the infobase is not assigned with a security profile, returns an empty string.
 //
 Function InfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined) Export
 	
@@ -938,16 +945,16 @@ Function InfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Va
 	
 EndFunction
 
-// Assigns the use of a security profile for the information database.
+// Assigns a security profile to an infobase.
 //
-// The Parameteradministrationib parameter can be omitted if similar fields are specified 
-// in the cluster Parameteradministration parameter.
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   ProfileName - String -  name of the security profile. If an empty string is passed 
-//                         , the use of the security profile will be disabled for the information database.
+//   ProfileName - String - Security profile name. If the passed string is empty, the security profile is 
+//                         disabled for the infobase.
 //
 Procedure SetInfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined, 
 	Val ProfileName = "") Export
@@ -965,16 +972,16 @@ Procedure SetInfobaseSecurityProfile(Val ClusterAdministrationParameters, Val IB
 	
 EndProcedure
 
-// Assigns the information base to use the safe mode security profile.
+// Assigns a security profile of the safe mode to an infobase.
 //
-// The Parameteradministrationib parameter can be omitted if similar fields are specified 
-// in the cluster Parameteradministration parameter.
+// The IBAdministrationParameters parameter can be skipped if the same fields are specified 
+// in the ClusterAdministrationParameters parameter.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   IBAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
-//   ProfileName - String -  name of the security profile. If an empty string is passed 
-//                         , the use of the safe mode security profile will be disabled for the information database.
+//   ProfileName - String - Security profile name. If the passed string is empty, the safe mode security profile is 
+//                         disabled for the infobase.
 //
 Procedure SetInfobaseSafeModeSecurityProfile(Val ClusterAdministrationParameters, Val IBAdministrationParameters = Undefined, Val ProfileName = "") Export
 	
@@ -995,7 +1002,7 @@ EndProcedure
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters.
-//   ProfileName - String -  name of the security profile that is being checked for existence.
+//   ProfileName - String - name of the security profile whose existence is checked.
 //
 // Returns:
 //   Boolean
@@ -1010,64 +1017,64 @@ Function SecurityProfileExists(Val ClusterAdministrationParameters, Val ProfileN
 	
 EndFunction
 
-// The properties of the security profile.
+// Security profile properties.
 //
 // Returns: 
 //   Structure:
-//     * Name - String -  the name of the security profile,
-//     * LongDesc - String -  description of the security profile,
-//     * SafeModeProfile - Boolean -  defines whether the security profile can be used
-//                  as a safe mode security profile (both when specifying the
-//                  safe mode profile for the information base and when calling.
-//                  Set the secure mode (<profile Name>) from the configuration code.
-//     * FullAccessToPrivilegedMode - Boolean -  determines
-//                  whether privileged mode can be set from the safe mode of this security profile.
-//     * FullAccessToCryptoFunctions - Boolean -  defines permission to use cryptographic
-//                  functionality (signature, signature verification, encryption, decryption, working with the certificate store
-//                  , certificate verification, extracting certificates from the signature) when working on the server.
-//                  Cryptography functions are not blocked on the client. 
-//                  True-execution is allowed. False-execution is prohibited.
-//     * FullAccessToAllModulesExtension - Boolean - 
-//                  :
-//                     
-//                     
-//     * ModulesAvailableForExtension - String -  used when the extension of all modules is not allowed.
+//     * Name - String - a security profile name,
+//     * LongDesc - String - details of the security profile,
+//     * SafeModeProfile - Boolean - flag that shows whether the security profile
+//                  can be used as a security profile of the safe mode (both when the profile is specified
+//                  for the infobase and when calling.
+//                  SetSafeMode(<Profile name>) is called from the configuration code.
+//     * FullAccessToPrivilegedMode - Boolean - Indicates whether the privileged
+//                  mode can be set from the safe mode of the security profile.
+//     * FullAccessToCryptoFunctions - Boolean - determines the permission to use cryptographic functionality
+//                  (signature, signature verification, encryption, decryption, operations with the certificate storage,
+//                  certificate verification, certificate extraction from the signature) when working on the server.
+//                  Cryptography functions are not locked on the client. 
+//                  True - the execution is allowed. False - the execution is prohibited.
+//     * FullAccessToAllModulesExtension - Boolean - determines if all modules are allowed to be modified in the configuration
+//                  extension:
+//                     True - extension of all modules is allowed.
+//                     False - only modules from the allowed list are allowed to extend.
+//     * ModulesAvailableForExtension - String - used when extension of all modules is not allowed.
 //                  Contains a list of full names of configuration objects or modules whose extension is allowed, 
-//                  separated by";". Specifying the full name of the configuration object allows the extension of all modules
-//                  of the object. Specifying the full module name allows the extension of a specific module.
-//     * ModulesNotAvailableForExtension - String -  used when the extension of all modules is allowed.
+//                  separated by ";". Specifying full configuration object name allows to extend all object
+//                  modules. Specifying full configuration object name allows to extend a specific module.
+//     * ModulesNotAvailableForExtension - String - used when extension of all modules is allowed.
 //                  Contains a list of full names of configuration objects or modules whose extension is not allowed,
-//                  separated by";". Specifying the full name of the configuration object prohibits the extension of all modules
-//                  of the object.
-//     * FullAccessToAccessRightsExtension - Boolean - 
-//                  : 
-//                      
-//                      
+//                  separated by ";". Specifying full configuration object name prohibits to extend all object
+//                  modules.
+//     * FullAccessToAccessRightsExtension - Boolean - determines whether it is allowed to elevate rights to configuration objects
+//                  by extensions restricted by the security profile: 
+//                     True - right elevation is allowed. 
+//                     False - right elevation is prohibited. 
+//                  If a list of extensible configuration roles is specified, right elevation is allowed if at least one
+//                  role from the list includes the required right.
+//     * AccessRightsExtensionLimitingRoles - String - contains a list of role names that affect the change of access rights
+//                  from the extension. When changing the list of roles, changes in the composition of roles are considered only after
+//                  restarting current sessions and for new sessions.
+//     * FileSystemFullAccess - Boolean - the flag that shows whether there are file system access
+//                  restrictions. If the value is False, infobase users can access only file
+//                  system directories specified in the VirtualDirectories property.
+//     * COMObjectFullAccess - Boolean - COM object access restriction flag.
+//                  If False, infobase users can access only COM classes specified in the COMClasses property.
 //                  
-//                  
-//     * AccessRightsExtensionLimitingRoles - String -  contains a list of role names that affect changes
-//                  to access rights from the extension. When you change the list of roles, changes in the role composition are only considered after
-//                  restarting the current sessions and for new sessions.
-//     * FileSystemFullAccess - Boolean -  determines whether there are restrictions on access to the file
-//                  system. If set to False, access will only be granted to the file
-//                  system directories listed in the virtual Directories property.
-//     * COMObjectFullAccess - Boolean -  determines whether there are restrictions on access to use.
-//                  com object. If the value is set to False, access will only be granted to the COM classes
-//                  listed in the COM classes property.
-//     * AddInFullAccess - Boolean -  determines whether there are restrictions on access to the use
-//                  of external components. If the value is set to False, access will only be granted to the external
-//                  components listed in the external Components property.
-//     * ExternalModuleFullAccess - Boolean -  determines whether there are restrictions on access to using external 
-//                  modules (external reports and processing, Execute() and Compute () calls) in unsafe mode.
-//                  If the value is set to False,
-//                  only the external modules listed in the external Modules property can be used in unsafe mode.
-//     * FullOperatingSystemApplicationAccess - Boolean -  determines whether there are restrictions on access to
-//                  the use of operating system applications. If the value is set to False, you will be
-//                  given the option to use only the operating system applications listed in
-//                  the application property of the OS.
-//     * InternetResourcesFullAccess - Boolean -  determines whether there are restrictions on access to the use
-//                  of Internet resources. If the value is set to False, you will be given the option to use
-//                  only the Internet resources listed in the Internet resources property.
+//     * AddInFullAccess - Boolean - the flag that defines whether there are add-in
+//                  access restrictions. If the value is False, infobase users can access only add-ins
+//                  specified in the AddIns property.
+//     * ExternalModuleFullAccess - Boolean - flag that shows whether there are external 
+//                  module (external reports and data processors, Execute() and Evaluate() calls in the unsafe mode) access restrictions.
+//                  If the value is False, infobase users can use in the unsafe
+//                  mode only external modules specified in the ExternalModules property.
+//     * FullOperatingSystemApplicationAccess - Boolean - the flag that shows whether there are operating
+//                  system application access restrictions. If the value is False, infobase
+//                  users can use operating system applications
+//                  specified in the OSApplications property.
+//     * InternetResourcesFullAccess - Boolean - Indicates if there are restrictions to access
+//                  Internet resources. If the value is False, infobase users can only
+//                  use Internet resources specified in the InternetResources property.
 //     * VirtualDirectories - Array of See ClusterAdministration.VirtualDirectoryProperties
 //     * COMClasses - Array of See ClusterAdministration.COMClassProperties
 //     * AddIns - Array of See ClusterAdministration.AddInProperties
@@ -1110,15 +1117,15 @@ Function SecurityProfileProperties() Export
 	
 EndFunction
 
-// Properties of the virtual folder that you are granting access to.
+// Virtual directory properties to which access is granted.
 //
 // Returns: 
 //    Structure:
-//     * LogicalURL - String -  logical url of the folder.
-//     * PhysicalURL - String -  the physical URL of the directory on the server for hosting virtual directory data.
-//     * LongDesc - String -  description of the virtual folder.
-//     * DataReader - Boolean -  flag to allow reading data from the virtual directory.
-//     * DataWriter - Boolean -  flag for allowing data to be written to the virtual directory.
+//     * LogicalURL - String - the logical URL of a directory.
+//     * PhysicalURL - String - the physical URL of the server directory where virtual directory data is stored.
+//     * LongDesc - String - virtual directory details.
+//     * DataReader - Boolean - Flag indicating whether virtual directory data reading is allowed.
+//     * DataWriter - Boolean - the flag that shows whether virtual directory data writing is allowed.
 //
 Function VirtualDirectoryProperties() Export
 	
@@ -1136,17 +1143,17 @@ Function VirtualDirectoryProperties() Export
 	
 EndFunction
 
-// Properties of the COM class to which access is granted.
+// COM class properties to which access is granted.
 //
 // Returns: 
 //    Structure:
-//     * Name - String -  name of the COM class, used as a key when searching.
-//     * LongDesc - String -  description of the COM class.
-//     * FileMoniker - String -  name of the file used to create the object using the global context method 
-//                  Get a ComObject () with an empty value for the second parameter.
-//     * CLSID - String -  representation of the COM class identifier in the MS Windows registry format
-//                  without curly brackets, by which it can be created by the operating system.
-//     * Computer - String -  name of the computer on which the COM object can be created.
+//     * Name - String - the name of a COM class that is used as a search key.
+//     * LongDesc - String - the COM class details.
+//     * FileMoniker - String - the file name used to create an object with 
+//                  the GetCOMObject global context method. The object second parameter has a blank value.
+//     * CLSID - String - the COM class ID presentation in the Windows system registry format
+//                  without curly brackets, which the operating system uses to create the COM class.
+//     * Computer - String - the name of the computer on which you can create the COM object.
 //
 Function COMClassProperties() Export
 	
@@ -1163,14 +1170,14 @@ Function COMClassProperties() Export
 	
 EndFunction
 
-// Properties of the external component to which access is granted.
+// Add-in properties to which access is granted.
 //
 // Returns: 
 //    Structure:
-//     * Name - String -  name of the external component, used as the search key.
-//     * LongDesc - String -  description of the external component.
-//     * HashSum - String -  the checksum of the allowed external component, calculated by the SHA-1 algorithm and
-//                  converted to a base64 string.
+//     * Name - String - the name of the add-in. Used as a search key.
+//     * LongDesc - String - the add-in details.
+//     * HashSum - String - contains the checksum of the allowed add-in, calculated with SHA-1 algorithm
+//                  and converted to a base64 string.
 //
 Function AddInProperties() Export
 	
@@ -1178,19 +1185,19 @@ Function AddInProperties() Export
 	Result.Insert("Name");
 	Result.Insert("LongDesc");
 	Result.Insert("HashSum");
-	Result.Insert("HashSum"); // 
+	Result.Insert("HashSum"); // ACC:1036 for backward compatibility.
 	Return Result;
 	
 EndFunction
 
-// Properties of the external module to which access is granted.
+// External module properties to which access is granted.
 //
 // Returns: 
 //    Structure:
-//     * Name - String -  the name of the external module is used as a key to search for.
-//     * LongDesc - String -  description of the external module.
-//     * HashSum - String -  the checksum of the allowed external module, calculated by the SHA-1 algorithm and
-//                  converted to a base64 string.
+//     * Name - String - name of the external module that is used as a search key.
+//     * LongDesc - String - external module details.
+//     * HashSum - String - contains the checksum of the allowed external module, calculated with SHA-1 algorithm
+//                  and converted to a base64 string.
 //
 Function ExternalModuleProperties() Export
 	
@@ -1198,19 +1205,19 @@ Function ExternalModuleProperties() Export
 	Result.Insert("Name");
 	Result.Insert("LongDesc");
 	Result.Insert("HashSum");
-	Result.Insert("HashSum"); // 
+	Result.Insert("HashSum"); // ACC:1036 for backward compatibility.
 	Return Result;
 	
 EndFunction
 
-// Properties of the operating system application that you are granting access to.
+// Operating system application properties to which access is granted.
 //
 // Returns: 
 //    Structure:
-//     * Name - String -  the name of the operating system application that is used as the search key.
-//     * LongDesc - String -  description of the operating system application.
-//     * CommandLinePattern - String -  application launch string template (consists of a sequence of template words
-//                  separated by spaces).
+//     * Name - String - name of the operating system application that is used as a search key.
+//     * LongDesc - String - the operating system application details.
+//     * CommandLinePattern - String - application command line pattern, which consists of space-separated
+//                  pattern words.
 //
 Function OSApplicationProperties() Export
 	
@@ -1225,22 +1232,22 @@ Function OSApplicationProperties() Export
 	
 EndFunction
 
-// Properties of the Internet resource to which access is granted.
+// Internet resource properties to which access is granted.
 //
 // Returns: 
 //    Structure:
-//     * Name - String -  the name of the Internet resource used as the search key.
-//     * LongDesc - String -  description of the Internet resource.
-//     * Protocol - String - :
-//          
-//          
-//          
-//          
-//          
-//          
-//          
-//     * Address - String -  network address of the Internet resource without specifying the Protocol and port.
-//     * Port - Number -  network port of the Internet resource.
+//     * Name - String - name of the Internet resource that is used as a search key.
+//     * LongDesc - String - Internet resource details.
+//     * Protocol - String - an allowed network protocol. Possible values:
+//          HTTP,
+//          HTTPS,
+//          FTP,
+//          FTPS,
+//          POP3,
+//          SMTP,
+//          IMAP.
+//     * Address - String - a network address with no protocol and port.
+//     * Port - Number - an Internet resource port.
 //
 Function InternetResourceProperties() Export
 	
@@ -1257,11 +1264,11 @@ Function InternetResourceProperties() Export
 	
 EndFunction
 
-// Returns the properties of the security profile.
+// Returns properties of a security profile.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   ProfileName - String -  name of the security profile.
+//   ProfileName - String - Security profile name.
 //
 // Returns: 
 //   See ClusterAdministration.SecurityProfileProperties
@@ -1276,7 +1283,7 @@ Function SecurityProfile(Val ClusterAdministrationParameters, Val ProfileName) E
 	
 EndFunction
 
-// Creates a security profile based on the passed description.
+// Creates a security profile on the basis of the passed description.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -1292,7 +1299,7 @@ Procedure CreateSecurityProfile(Val ClusterAdministrationParameters, Val Securit
 	
 EndProcedure
 
-// Sets properties for an existing security profile based on the passed description.
+// Sets properties for a security profile on the basis of the passed description.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
@@ -1308,11 +1315,11 @@ Procedure SetSecurityProfileProperties(Val ClusterAdministrationParameters, Val 
 	
 EndProcedure
 
-// Deletes the security profile.
+// Deletes a security profile.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   ProfileName - String -  name of the security profile.
+//   ProfileName - String - Security profile name.
 //
 Procedure DeleteSecurityProfile(Val ClusterAdministrationParameters, Val ProfileName) Export
 	
@@ -1328,10 +1335,10 @@ EndProcedure
 
 #Region Infobases
 
-// Returns the internal ID of the information database.
+// Returns an internal infobase ID.
 //
 // Parameters:
-//   ClusterID - String - internal ID of the server cluster.
+//   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
 //   InfobaseAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //
@@ -1349,12 +1356,12 @@ Function InfoBaseID(Val ClusterID, Val ClusterAdministrationParameters, Val Info
 	
 EndFunction
 
-// Returns descriptions of information databases.
+// Returns infobase descriptions
 //
 // Parameters:
-//   ClusterID - String - internal ID of the server cluster.
+//   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   Filter - Structure -  the parameters of the filtering databases.
+//   Filter - Structure - Infobase filter criteria.
 //
 // Returns:
 //  Array of Structure
@@ -1374,7 +1381,7 @@ EndFunction
 
 #Region Cluster
 
-// Returns the internal ID of the server cluster.
+// Returns an internal ID of a server cluster.
 //
 // Parameters:
 //  ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters.
@@ -1390,11 +1397,11 @@ Function ClusterID(Val ClusterAdministrationParameters) Export
 	
 EndFunction
 
-// Returns the description of server clusters.
+// Returns server cluster descriptions.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   Filter - Structure -  parameters for filtering server clusters.
+//   Filter - Structure - server cluster filtering criteria.
 //
 // Returns: 
 //   Array of Structure
@@ -1411,12 +1418,12 @@ EndFunction
 
 #Region WorkingProcessesServers
 
-// Returns the description of workflows.
+// Returns descriptions of active processes.
 //
 // Parameters:
-//   ClusterID - String - internal ID of the server cluster.
+//   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   Filter - Structure -  the filtering options work processes.
+//   Filter - Structure - active process filtering criteria.
 //
 // Returns:
 //   Array of Structure
@@ -1432,12 +1439,12 @@ Function WorkingProcessesProperties(Val ClusterID, Val ClusterAdministrationPara
 	
 EndFunction
 
-// Returns the description of the production servers.
+// Returns descriptions of active servers.
 //
 // Parameters:
-//   ClusterID - String - internal ID of the server cluster.
+//   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   Filter - Structure -  parameters for filtering production servers.
+//   Filter - Structure - active server filtering criteria.
 //
 // Returns: 
 //   Array of Structure
@@ -1455,22 +1462,23 @@ EndFunction
 
 #EndRegion
 
-// 
+// Returns details of infobase sessions.
 //
-//  (See ClusterAdministration.SessionsFilter) 
+// If a structure is specified in the Filter parameter,  (See ClusterAdministration.SessionsFilter) 
 // 
+// the comparison is always performed for equality.
 //
 // Parameters:
-//   ClusterID - String - internal ID of the server cluster.
+//   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   InfoBaseID - String -  internal ID of the information database.
+//   InfoBaseID - String - Internal infobase ID.
 //   Filter - See ClusterAdministration.SessionsFilter
-//           See ClusterAdministration.SessionsFilter
-//   UseDictionary - Boolean -  if True, the returned result will be filled in using the dictionary.
+//          - Array of See ClusterAdministration.SessionsFilter
+//   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 
 //   - Array of See ClusterAdministration.SessionProperties
-//   - Array of Map - 
+//   - Array of Map - session properties in the rac utility notation if UseDictionary = False.
 //
 Function SessionsProperties(Val ClusterID, Val ClusterAdministrationParameters, Val InfoBaseID, Val Filter = Undefined, Val UseDictionary = True) Export
 	
@@ -1485,20 +1493,20 @@ Function SessionsProperties(Val ClusterID, Val ClusterAdministrationParameters, 
 	
 EndFunction
 
-// Returns descriptions of connections to the information base.
+// Returns descriptions of infobase connections.
 //
 // Parameters:
-//   ClusterID - String - internal ID of the server cluster.
+//   ClusterID - String - Internal server cluster ID.
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters
-//   InfoBaseID - String -  internal ID of the information database.
+//   InfoBaseID - String - Internal infobase ID.
 //   InfobaseAdministrationParameters - See ClusterAdministration.ClusterInfobaseAdministrationParameters
 //   Filter - See ClusterAdministration.JoinsFilters
-//           See ClusterAdministration.JoinsFilters
-//   UseDictionary - Boolean -  if True, the returned result will be filled in using the dictionary.
+//          - Array of See ClusterAdministration.JoinsFilters
+//   UseDictionary - Boolean - If True, the return value is generated using a dictionary.
 //
 // Returns: 
 //   - Array of See ClusterAdministration.ConnectionProperties
-//   - Array of Map - 
+//   - Array of Map - connection properties in the rac utility notation if UseDictionary = False.
 //
 Function ConnectionsProperties(Val ClusterID, Val ClusterAdministrationParameters, Val InfoBaseID, Val InfobaseAdministrationParameters, Val Filter = Undefined, Val UseDictionary = False) Export
 	
@@ -1514,7 +1522,7 @@ Function ConnectionsProperties(Val ClusterID, Val ClusterAdministrationParameter
 	
 EndFunction
 
-// Returns the path to the console client of the administration server.
+// Returns path to the console client of the administration server.
 //
 // Parameters:
 //   ClusterAdministrationParameters - See ClusterAdministration.ClusterAdministrationParameters

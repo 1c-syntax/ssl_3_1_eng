@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -27,12 +29,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.Description.ChoiceList.Add("", NStr("en = '<Another app>';"));
 	SettingsToSupply = Catalogs.DigitalSignatureAndEncryptionApplications.ApplicationsSettingsToSupply();
 	For Each SettingToSupply In SettingsToSupply Do
-		If ThereIsAClientOrServerVOS(SettingToSupply) Then
+		If ThereIsAClientOrServerVOS(SettingToSupply) And Not SettingToSupply.Irrelevant Then
 			Items.Description.ChoiceList.Add(SettingToSupply.Presentation);
 		EndIf;
 	EndDo;
 	
-	// 
+	// Populates a new object by a built-in setting.
 	If Not ValueIsFilled(Object.Ref) Then
 		
 		If ValueIsFilled(Parameters.SuppliedSettingID) Then
@@ -62,7 +64,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Populate algorithm lists.
 	Filter = New Structure("ApplicationName, ApplicationType", Object.ApplicationName, Object.ApplicationType);
 	Rows = SettingsToSupply.FindRows(Filter);
 	SettingToSupply = ?(Rows.Count() = 0, Undefined, Rows[0]);
@@ -92,8 +94,8 @@ EndProcedure
 &AtServer
 Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	
-	// 
-	// 
+	// Intended for updating the list of apps and their
+	// parameters on the client side and server side.
 	RefreshReusableValues();
 	
 EndProcedure
@@ -300,7 +302,7 @@ Procedure FillSelectedApplicationAlgorithms(OnOpen = False)
 	
 EndProcedure
 
-// Continue the procedure to fill in the algorithm of the selected Program.
+// Continues the FillSelectedApplicationAlgorithms procedure.
 &AtClient
 Procedure FillAlgorithmsForSelectedApplicationAfterAttachCryptographyExtension(Attached, Context) Export
 	
@@ -315,7 +317,7 @@ Procedure FillAlgorithmsForSelectedApplicationAfterAttachCryptographyExtension(A
 	
 EndProcedure
 
-// Continue the procedure to fill in the algorithm of the selected Program.
+// Continues the FillSelectedApplicationAlgorithms procedure.
 &AtClient
 Procedure FillInTheAlgorithmsOfTheSelectedProgramAfterGettingTheProgramPath(DescriptionOfWay, Context) Export
 	
@@ -326,7 +328,7 @@ Procedure FillInTheAlgorithmsOfTheSelectedProgramAfterGettingTheProgramPath(Desc
 	
 EndProcedure
 
-// Continue the procedure to fill in the algorithm of the selected Program.
+// Continues the FillSelectedApplicationAlgorithms procedure.
 &AtClient
 Procedure FillAlgorithmsForSelectedApplicationAfterGetDataError(ErrorInfo, StandardProcessing, Context) Export
 	
@@ -336,12 +338,12 @@ Procedure FillAlgorithmsForSelectedApplicationAfterGetDataError(ErrorInfo, Stand
 	
 EndProcedure
 
-// Continue the procedure to fill in the algorithm of the selected Program.
+// Continues the FillSelectedApplicationAlgorithms procedure.
 &AtClient
 Procedure FillSelectedApplicationAlgorithmsAfterGetInformation(ModuleInfo, Context) Export
 	
-	// 
-	// 
+	// If the cryptography manager is unavailable and in not 1C-supplied,
+	// then the algorithm names should be entered manually.
 	
 	If ModuleInfo <> Undefined
 	   And Object.ApplicationName <> ModuleInfo.Name
@@ -425,7 +427,7 @@ Procedure AfterApplicationChoice(SelectedElement, Context) Export
 	
 EndProcedure
 
-// Continuation of the procedure for naming the selection process.
+// Continues the DescriptionChoiceProcessing procedure.
 &AtClient
 Procedure IdleHandlerDescriptionChoiceProcessing()
 	

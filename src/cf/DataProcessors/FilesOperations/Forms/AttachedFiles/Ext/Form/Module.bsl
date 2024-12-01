@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -74,11 +76,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FileVersionsStorageCatalogName = FilesOperationsInternal.FilesVersionsStorageCatalogName(Parameters.FileOwner);
 	HaveFileGroups = MetadataOfCatalogWithFiles.Hierarchical;
 	
+	HasRightToUseTemplates = AccessRight("View", Metadata.Catalogs.Files)
+		And AccessRight("View", Metadata.Catalogs.FilesFolders);
+	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then 
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
-		HasRightToUseTemplates = ModuleAccessManagement.HasRight("Read", Catalogs.FilesFolders.Templates);
-	Else
-		HasRightToUseTemplates = AccessRight("Read", Metadata.Catalogs.Files) And AccessRight("Read", Metadata.Catalogs.FilesFolders)
+		HasRightToUseTemplates = HasRightToUseTemplates
+			And ModuleAccessManagement.HasRight("Read", Catalogs.FilesFolders.Templates);
 	EndIf;
 	
 	If Not HasRightToUseTemplates Or FilesSettings.DontCreateFilesByTemplate.Find(Metadata.FindByType(TypeOf(FileOwner))) <> Undefined Then
@@ -142,7 +146,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FilesOperationsInternal.SetFilterByDeletionMark(List.Filter);
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		PlacementParameters = ModuleAttachableCommands.PlacementParameters();
@@ -287,7 +291,7 @@ Procedure ListOnActivateRow(Item)
 	
 	UpdateFileCommandAvailability();
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -424,7 +428,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+// File command handlers.
 
 &AtClient
 Procedure Add(Command)
@@ -481,7 +485,7 @@ Procedure OpenFileDirectory(Command)
 	CurrentData = CurrentData();
 	
 	If CurrentData.Encrypted Then
-		// 
+		// The file might be changed in another session
 		NotifyChanged(CurrentData.Ref);
 		Return;
 	EndIf;
@@ -619,9 +623,9 @@ Procedure Preview(Command)
 	SetPreviewVisibility(Preview);
 	SavePreviewOption(FileCatalogType, Preview);
 	
-	#If WebClient Then
+#If WebClient Then
 	UpdatePreview1();
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -673,12 +677,12 @@ EndProcedure
 
 &AtClient
 Procedure ImportFiles(Command)
-	#If WebClient Then
+#If WebClient Then
 		WarningText =  NStr("en = 'The web client does not support file upload.
 		                                  |Please use the ""Create"" button in the file list.';");
 		ShowMessageBox(, WarningText);
 		Return;
-	#EndIf
+#EndIf
 	
 	FileNamesArray = FilesOperationsInternalClient.FilesToImport();
 	
@@ -710,12 +714,12 @@ EndProcedure
 &AtClient
 Procedure ImportFolder(Command)
 	
-	#If WebClient Then
+#If WebClient Then
 		WarningText = NStr("en = 'The web client does not support folder upload.
 			                             |Please use the ""Create"" button in the file list.';");
 		ShowMessageBox(, WarningText);
 		Return;
-	#EndIf
+#EndIf
 	
 	OpenFileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 	OpenFileDialog.FullFileName = "";
@@ -798,7 +802,7 @@ Procedure ShowServiceFiles(Command)
 EndProcedure
 
 //////////////////////////////////////////////////////////////////////////////////
-// 
+// Command handlers to support digital signature and encryption.
 
 &AtClient
 Procedure Sign(Command)
@@ -882,7 +886,7 @@ Procedure Encrypt(Command)
 	
 	If ValueIsFilled(FileData.BeingEditedBy)
 		Or FileData.Encrypted Then
-		// 
+		// The file might be changed in another session
 		NotifyChanged(CurrentData.Ref);
 		Return;
 	EndIf;
@@ -1004,7 +1008,7 @@ Procedure DecryptServer(DataArrayToStoreInDatabase,
 EndProcedure
 
 ///////////////////////////////////////////////////////////////////////////////////
-// 
+// Command handlers to support collaboration in operations with files.
 
 &AtClient
 Procedure Edit(Command)
@@ -1137,7 +1141,7 @@ Procedure SetConditionalAppearance()
 	ConditionalAppearance.Items.Clear();
 	List.ConditionalAppearance.Items.Clear();
 	
-	// 
+	// Appearance of the file that is being edited by another user
 	
 	Item = List.ConditionalAppearance.Items.Add();
 	
@@ -1163,7 +1167,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.InaccessibleCellTextColor);
 	
-	// 
+	// Appearance of the file that is being edited by the current user
 	
 	Item = List.ConditionalAppearance.Items.Add();
 	
@@ -1174,7 +1178,7 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.FileLockedByCurrentUser);
 	
-	// 
+	// Hide groups that contain files associated with other owner objects.
 	If HaveFileGroups Then
 		Item = List.ConditionalAppearance.Items.Add();
 		
@@ -1192,7 +1196,7 @@ Procedure SetConditionalAppearance()
 		Item.Appearance.SetParameterValue("Show", False);
 	EndIf;
 	
-	// 
+	// Service files.
 	
 	Item = List.ConditionalAppearance.Items.Add();
 	Item.Use = True;
@@ -1242,7 +1246,7 @@ Procedure OpenFile()
 		AdditionalParameters.Insert("CurrentData", CurrentData);
 		Notification = New NotifyDescription("OpenFileAfterConfirm", ThisObject, AdditionalParameters);
 		UsersInternalClient.ShowSecurityWarning(Notification,
-			UsersInternalClientServer.TypesOfSafetyWarnings().BeforeOpenFile,
+			UsersInternalClientServer.SecurityWarningKinds().BeforeOpenFile,
 			CommonClientServer.GetNameWithExtension(CurrentData.Description, CurrentData.Extension));
 		Return;
 	EndIf;
@@ -1251,7 +1255,7 @@ Procedure OpenFile()
 	
 	FileData = FilesOperationsInternalServerCall.FileDataToOpen(CurrentData.Ref, Undefined, UUID);
 	If FileData.Encrypted Then
-		// 
+		// The file might be changed in another session
 		NotifyChanged(CurrentData.Ref);
 		Return;
 	EndIf;
@@ -1296,7 +1300,7 @@ Procedure OpenFileAfterConfirm(Result, AdditionalParameters) Export
 		
 		FileData = FilesOperationsInternalServerCall.FileDataToOpen(CurrentData.Ref, Undefined, UUID);
 		If FileData.Encrypted Then
-			// 
+			// The file might be changed in another session
 			NotifyChanged(CurrentData.Ref);
 			Return;
 		EndIf;
@@ -1601,7 +1605,7 @@ Function NamesOfFormCommands()
 	
 	Result = ObjectChangeCommandsNames();
 
-	// 
+	// Commands that are available to any user reading the files.
 	Result.Insert("OpenFileDirectory", True);
 	Result.Insert("OpenFileForViewing", True);
 	Result.Insert("SaveAs", True);
@@ -1615,7 +1619,7 @@ Function ObjectChangeCommandsNames()
 	
 	Result = New Map;
 	
-	// 
+	// Commands that depend on object states.
 	Result.Insert("EndEdit", True);
 	Result.Insert("Lock", True);
 	Result.Insert("Release", True);
@@ -1638,7 +1642,7 @@ Function ObjectChangeCommandsNames()
 	
 	Result.Insert("UpdateFromFileOnHardDrive", True);
 	
-	// 
+	// Commands that do not depend on object states.
 	Result.Insert("Add", True);
 	Result.Insert("AddFromFileOnHardDrive", True);
 	Result.Insert("AddFileByTemplate", True);
@@ -1796,7 +1800,7 @@ Procedure OnChangeUseOfSigningOrEncryptionAtServer()
 	
 EndProcedure
 
-// Continue with the procedure to Sign Dobavitsya.
+// Continues Sign and AddDSFromFile procedures execution.
 &AtClient
 Procedure AddSignaturesCompeltion(Success, Context) Export
 	
@@ -1864,7 +1868,7 @@ Procedure UpdatePreview1()
 			FileData = FilesOperationsInternalServerCall.FileDataToOpen(CurrentData.Ref, Undefined, UUID,, FileDataURL);
 			FileDataURL = FileData.RefToBinaryFileData;
 		Except
-			// 
+			// If the file does not exist, an exception will be called.
 			FileDataURL         = Undefined;
 			NonselectedPictureText = NStr("en = 'Preview is not available. Reason:';") + Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo());
 		EndTry;
@@ -1890,8 +1894,7 @@ Procedure UpdateCloudServiceNote()
 	If GetFunctionalOption("UseFileSync") Then
 		
 		SynchronizationInfo = FilesOperationsInternal.SynchronizationInfo(FileOwner);
-		
-		If SynchronizationInfo.Count() > 0  Then
+		If SynchronizationInfo <> Undefined  Then
 			
 			FilesBeingEditedInCloudService = True;
 			Account = SynchronizationInfo.Account;
@@ -1997,7 +2000,7 @@ EndProcedure
 // Returns:
 //   FormDataStructure:
 //     * Ref - CatalogRef
-//   FormDataCollectionItem:
+//   CollectionItemFormData:
 //     * Ref - CatalogRef
 //
 &AtClient
@@ -2007,7 +2010,7 @@ Function ListLineData(ListItem)
 	
 EndFunction
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");

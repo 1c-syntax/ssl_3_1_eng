@@ -1,21 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Event handler for opening the form input field To open the form for entering the prop value in different languages.
+// Input field OnOpen event handler of the form to open the attribute value input form in different languages.
 //
 // Parameters:
-//  Form   - ClientApplicationForm -  a form containing multilingual banking details.
+//  Form   - ClientApplicationForm - a form that contains multilanguage attributes.
 //  Object  - FormDataStructure:
 //   * Ref - AnyRef
-//  Item - FormField -  the form element for which the input form will be opened in different languages.
-//  StandardProcessing - Boolean -  indicates whether standard (system) event processing is performed.
+//  Item - FormField - a form item for which the input form will be opened in different languages.
+//  StandardProcessing - Boolean - indicates whether standard (system) event processing is executed.
 //
 Procedure OnOpen(Form, Object, Item, StandardProcessing) Export
 	

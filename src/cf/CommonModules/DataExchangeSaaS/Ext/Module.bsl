@@ -1,25 +1,27 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region SSLSubsystemsEventHandlers
 
-// Handler "After the definition of"recipient.
-// Called when objects are registered in the exchange plan.
-// Sets a constant that indicates data changes
-// and sends the service Manager a message about the change with the number of the current area.
+// The "After determining recipients" handler.
+// It is called when objects are registered in the exchange plan.
+// Sets up a constant that shows whether data has been changed
+// and sends a message about changes with the current data area number to the service manager.
 //
 // Parameters:
 //   Data         - CatalogObject
-//                  - DocumentObject - 
-//   Recipients     - Array of ExchangePlanRef -  exchange plan nodes.
-//   ExchangePlanName - String -  name of the exchange plan as specified in the Configurator.
+//                  - DocumentObject - an object for getting values of attributes and other properties.
+//   Recipients     - Array of ExchangePlanRef - exchange plan nodes.
+//   ExchangePlanName - String - an exchange plan name, as it is set in Designer.
 //
 Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 	
@@ -68,8 +70,8 @@ Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 		
 	Else
 		
-		// 
-		// 
+		// Export the changes for application data only
+		// (separated by "DataAreaMainData").
 		If StandaloneModeInternal.IsStandaloneWorkplace()
 			And Not ModuleSaaSOperations.IsSeparatedMetadataObject(Data.Metadata(),
 				ModuleSaaSOperations.MainDataSeparator()) Then
@@ -81,14 +83,14 @@ Procedure AfterDetermineRecipients(Data, Recipients, ExchangePlanName) Export
 	
 EndProcedure
 
-// Fills in the matching of method names to their aliases for calling from the task queue.
+// Fills mapping of method names and their aliases for calling from a job queue.
 //
 // Parameters:
-//   NamesAndAliasesMap - Map of KeyAndValue - :
-//     
-//     
-//                 
-//                
+//   NamesAndAliasesMap - Map of KeyAndValue - method names and their aliases:
+//     Key - Method alias, for example: ClearDataArea
+//     Value - a name of the method to be called, for example, SaaS.ClearDataArea
+//                You can specify Undefined as a value, in this case, the name is assumed 
+//                to be the same as an alias.
 //
 Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 	
@@ -103,11 +105,11 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 
 EndProcedure
 
-// Generates a list of information security parameters.
+// Generates the list of infobase parameters.
 //
 // Parameters:
-//   ParametersTable - ValueTable -  
-//                                         
+//   ParametersTable - ValueTable - Table of parameter details. For column details, 
+//                                         .
 //
 Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
@@ -118,23 +120,23 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
 EndProcedure
 
-// 
-// 
-// 
-// 
+// Fills a structure with arrays of supported versions of the subsystems that can have versions.
+// Subsystem names are used as structure keys.
+// Implements the "InterfaceVersion" web service functionality.
+// This procedure must return current version sets, therefore its body must be changed accordingly before use. See the example below.
 //
 // Parameters:
-//   SupportedVersionsStructure - Structure -  names of subsystems and their corresponding sets of supported versions.
+//   SupportedVersionsStructure - Structure - subsystem names and their corresponding sets of supported versions.
 //	                                 The structure key is the name of the subsystem,
 //                                   and the value is an array of supported version names.
 //
 // Example:
-//	 
-//	 
-//	 	
-//	  
-//	 
-//	 
+//	 // FilesTransferService
+//	 VersionsArray = New Array;
+//	 VersionsArray.Add("1.0.1.1");	
+//	 VersionsArray.Add("1.0.2.1"); 
+//	 SupportedVersionsStructure.Insert("FilesTransferService", VersionsArray);
+//	 // End FilesTransferService
 //
 Procedure OnDefineSupportedInterfaceVersions(Val SupportedVersionsStructure) Export
 	
@@ -153,10 +155,10 @@ Procedure OnDefineSupportedInterfaceVersions(Val SupportedVersionsStructure) Exp
 	
 EndProcedure
 
-// Gets a list of message handlers that are processed by the library's subsystems.
+// Gets a list of message handlers that are processed by the library subsystems.
 // 
 // Parameters:
-//  Handlers - ValueTable -  for the composition of the fields, see the Exchange of messages.A new table of message processors.
+//  Handlers - ValueTable - See the field list in MessageExchange.NewMessagesHandlersTable.
 // 
 Procedure OnDefineMessagesChannelsHandlers(Handlers) Export
 	
@@ -164,11 +166,11 @@ Procedure OnDefineMessagesChannelsHandlers(Handlers) Export
 	
 EndProcedure
 
-// Adds parameters for the operation of client logic at system startup for the data exchange subsystem in the service model.
+// Adds parameters of client logic upon system startup for the data exchange subsystem in SaaS mode.
 //
 // Parameters:
-//   Parameters - Structure -  the names and values of parameters client at startup you need to set that.
-//                           More detailed  See CommonOverridable.OnAddClientParametersOnStart.
+//   Parameters - Structure - Names and values of the client startup parameters.
+//                           For details, See CommonOverridable.OnAddClientParametersOnStart.
 //
 Procedure OnAddClientParametersOnStart(Parameters) Export
 	
@@ -184,11 +186,11 @@ Procedure OnAddClientParametersOnStart(Parameters) Export
 	
 EndProcedure
 
-// Fills in the structure of parameters required for the client
-// configuration code to work.
+// Fills parameter structures required by the
+// application client code.
 //
 // Parameters:
-//   Parameters   - Structure -  structure of parameters.
+//   Parameters   - Structure - a parameter structure.
 //
 Procedure OnAddClientParameters(Parameters) Export
 	
@@ -196,10 +198,10 @@ Procedure OnAddClientParameters(Parameters) Export
 	
 EndProcedure
 
-// Fills in an array of types that are excluded from uploading and loading data.
+// Fills in an array of types excluded from data import and export.
 //
 // Parameters:
-//   Types - Array of MetadataObject -  metadata objects that are excluded from uploading and uploading.
+//   Types - Array of MetadataObject - metadata objects excluded from export and import.
 //
 Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	
@@ -248,9 +250,9 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 	
 EndProcedure
 
-// Performs the file deletion messages exchange that were not removed due to failures in the system.
-// Files with a placement date more than a day from the current universal date are subject to deletion.
-// RS is analyzed.Messages are exchanged in the data domain.
+// Deletes exchange message files that are not deleted due to system failures.
+// Files placed more than 24 hours ago are deleted (the files are calculated based on the universal current date)
+// Analyzing IR.DataAreasDataExchangeMessages.
 //
 Procedure OnDeleteObsoleteExchangeMessages() Export
 	
@@ -323,7 +325,7 @@ Procedure OnDeleteObsoleteExchangeMessages() Export
 			EndTry;
 		EndIf;
 		
-		// 
+		// Deleting information about an exchange message file from the storage
 		RecordStructure = New Structure;
 		RecordStructure.Insert("MessageID", String(Selection.MessageID));
 		InformationRegisters.DataAreasDataExchangeMessages.DeleteRecord(RecordStructure);
@@ -342,13 +344,13 @@ Procedure OnDeleteObsoleteExchangeMessages() Export
 	
 EndProcedure
 
-// Getting the file name by its ID from the storage.
-// If there is no file with the specified ID, an exception is thrown.
-// If a file is found, its name is returned, and information about this file is deleted from the storage.
+// Gets a file from the storage by the file ID.
+// If a file with the specified ID is not found, an exception is thrown.
+// If the file is found, its name is returned, and the information about the file is deleted from the storage.
 //
 // Parameters:
-//  FileID - UUID -  ID of the received file.
-//  FileName           - String -  the name of the file from the repository.
+//  FileID - UUID - an ID of the file being received.
+//  FileName           - String - a file name from the storage.
 //
 Procedure OnReceiveFileFromStorage(Val FileID, FileName) Export
 	
@@ -375,17 +377,17 @@ Procedure OnReceiveFileFromStorage(Val FileID, FileName) Export
 	Selection.Next();
 	FileName = Selection.FileName;
 	
-	// 
+	// Deleting information about an exchange message file from the storage
 	RecordStructure = New Structure;
 	RecordStructure.Insert("MessageID", String(FileID));
 	InformationRegisters.DataAreasDataExchangeMessages.DeleteRecord(RecordStructure);
 	
 EndProcedure
 
-// Putting a file in storage
+// Saving a file to the storage
 //
 // Parameters:
-//   RecordStructure - Structure -  names and values of dimensions in the data register "data exchange message".
+//   RecordStructure - Structure - names and values of the DataAreasDataExchangeMessages information register dimensions.
 //
 Procedure OnPutFileToStorage(Val RecordStructure) Export
 	
@@ -396,7 +398,7 @@ EndProcedure
 // Deleting a file from storage
 //
 // Parameters:
-//   RecordStructure - Structure -  names and values of dimensions in the data register "data exchange message".
+//   RecordStructure - Structure - names and values of the DataAreasDataExchangeMessages information register dimensions.
 //
 Procedure OnDeleteFileFromStorage(Val RecordStructure) Export
 	
@@ -404,25 +406,25 @@ Procedure OnDeleteFileFromStorage(Val RecordStructure) Export
 	
 EndProcedure
 
-// Register handlers for delivered data
+// Register built-in data handlers.
 //
-// When you receive a notification about the availability of new shared data, the procedure is called
-// Available data from modules registered through getprocesserssuppliable Data.
-// A descriptor, the xdto Descriptor Object, is passed to the procedure.
+// When a new shared data notification is received, call procedures NewDataAvailable from modules registered with GetSuppliedDataHandlers.
+// XDTODataObject Descriptor passed to the procedure.
+// If NewDataAvailable sets Import to True,
 //
-// If the available Data sets the Load argument to True,
-// the data is loaded, and the handle and path to the data file are passed to the procedure
-// Process the new data. The file will be automatically deleted after the procedure is completed.
-// If the file was not specified in the service Manager, the argument value is Undefined.
+// the data is imported, and the descriptor and the data file path are passed to the
+// ProcessNewData procedure. The file is automatically deleted once the procedure is executed.
+// If a file is not specified in the service manager, the parameter value is Undefined.
+// 
 //
 // Parameters:
-//   Handlers - ValueTable - :
-//        * DataKind - String -  code of the data type processed by the handler.
-//        * HandlerCode - String -  line (20) - will be used when restoring data processing after a failure.
-//        * Handler - CommonModule - :
-//            
-//            
-//            
+//   Handlers - ValueTable - Table to add handlers to. Has the following columns:
+//        * DataKind - String - code of the data kind processed by the handler.
+//        * HandlerCode - String - string(20) - used for recovery after a data processing error.
+//        * Handler - CommonModule - a module that contains the following procedures:
+//            NewDataAvailable(Descriptor, Import) Export
+//            ProcessNewData(Descriptor, PathToFile) Export
+//            DataProcessingCanceled(Descriptor) Export
 //
 Procedure OnDefineSuppliedDataHandlers(Handlers) Export
 	
@@ -430,11 +432,11 @@ Procedure OnDefineSuppliedDataHandlers(Handlers) Export
 	
 EndProcedure
 
-// Handler for removing the constant use data Synchronization.
+// Handler that clears the UseDataSynchronization constant.
 //
 // Parameters:
-//  Cancel - Boolean -  flag for refusing to disable data synchronization.
-//                   If set to True, syncing will not be disabled.
+//  Cancel - Boolean - indicates that the synchronization disabling is canceled.
+//                   If its value is True, the synchronization is not disabled.
 //
 Procedure OnDisableDataSynchronization(Cancel) Export
 	
@@ -446,16 +448,16 @@ EndProcedure
 
 #EndRegion
 
-// 
-// 
-//	
-//	
-//	
-//	
+// Checks whether shared data can be written in a standalone workstation.
+// An object cannot be written in a standalone workstation if all these conditions are met:
+//	1. The object is a standalone workstation.
+//	2. The object is a shared metadata object.
+//	3. The object is included in a standalone exchange plan.
+//	4. The object is not included in an exception list.
 // 
 // Parameters:
-//  Object - Arbitrary - 
-//  Cancel - Boolean - 
+//  Object - Arbitrary - Data source object
+//  Cancel - Boolean - Cancel flag.
 Procedure BeforeWriteCommonData(Object, Cancel) Export
 	
 	If Object.DataExchange.Load Then
@@ -491,10 +493,10 @@ EndProcedure
 
 Procedure ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(ItIsNecessaryToPerformAnExchange, AdditionalParameters = Undefined) Export
 	
-	ItIsNecessaryToPerformAnExchange = (ItIsNecessaryToPerformAnExchange = True); // 
+	ItIsNecessaryToPerformAnExchange = (ItIsNecessaryToPerformAnExchange = True); // Protect from non-Boolean values.
 	
-	IdleInterval = 180; // 
-	AttemptsNumber = 65; // 
+	IdleInterval = 180; // A 200-second long attempt. (180-sec timeout + 20-sec attempt to lock 1C:Enterprise.)
+	AttemptsNumber = 65; // A 200-second long attempt. (180-sec timeout + 20-sec attempt to lock 1C:Enterprise.)
 	If TypeOf(AdditionalParameters) = Type("Structure") Then
 		
 		If AdditionalParameters.Property("IdleInterval") Then
@@ -555,8 +557,8 @@ Procedure ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(ItIsNeces
 	
 EndProcedure
 
-// Enables the indication of a data change and sends a
-// message about the change with the number of the current area to the service manager.
+// Enables the flag that shows whether the data is changed and sends a message about the change with the number of the current area
+// to the service manager.
 //
 Procedure SetDataChangeFlag() Export
 	
@@ -588,11 +590,11 @@ Procedure SetDataChangeFlag() Export
 	
 EndProcedure
 
-// Fills the passed array with General modules that are handlers
-//  for the received message interfaces.
+// Fills in the passed array with the common modules used as
+//  incoming message interface handlers.
 //
 // Parameters:
-//  HandlersArray - Array -  array of handlers.
+//  HandlersArray - Array - an array of handlers.
 //
 Procedure RecordingIncomingMessageInterfaces(HandlersArray) Export
 	
@@ -609,11 +611,11 @@ Procedure RecordingIncomingMessageInterfaces(HandlersArray) Export
 	
 EndProcedure
 
-// Fills the passed array with General modules that are handlers for the interfaces
-//  of the sent messages.
+// Fills in the passed array with the common modules used as
+//  outgoing message interface handlers.
 //
 // Parameters:
-//  HandlersArray - Array -  array of handlers.
+//  HandlersArray - Array - an array of handlers.
 //
 Procedure RecordingOutgoingMessageInterfaces(HandlersArray) Export
 	
@@ -630,7 +632,7 @@ Procedure RecordingOutgoingMessageInterfaces(HandlersArray) Export
 	
 EndProcedure
 
-// 
+// Infobase update handler.
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -659,15 +661,15 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	
 EndProcedure
 
-// Fills in the split data handler that depends on changes to the undivided data.
+// Fills in separated data handler that depends on shared data change.
 //
 // Parameters:
-//   Parameters - Structure - :
+//   Parameters - Structure - a handler parameter structure:
 //     * SeparatedHandlers - ValueTable
-//                              - Undefined - See the description
-//       of the function of the New Processing table for updating the general Information Database update module.
-//       In the case of a direct call (not through
-//       the IB version update mechanism), it is transmitted Indefinitely.
+//                              - Undefined - see details
+//       of the NewUpdateHandlersTable function of the InfobaseUpdate common module.
+//       Undefined is passed upon direct call (without using the infobase version
+//       update functionality).
 // 
 Procedure FillSeparatedDataHandlers(Parameters = Undefined) Export
 	
@@ -681,11 +683,11 @@ Procedure FillSeparatedDataHandlers(Parameters = Undefined) Export
 	
 EndProcedure
 
-// 
-// Defines and sets the code and name of a predefined node for each of the exchange plans used in the service model.
-// The code is generated based on the separator value.
-// Name - either by the application title, or, if it is empty, 
-// by the representation of the current data area from the data register.Area of data.
+// Determines and sets a code and a predefined node description
+// for each exchange plan used in the SaaS mode.
+// The code is generated based on a separator value.
+// Description - generated based on the application caption or, if the caption is blank, 
+// based on the current data area presentation from the InformationRegister.DataAreas register.
 //
 Procedure SetPredefinedNodeCodes() Export
 	
@@ -732,7 +734,7 @@ Procedure SetPredefinedNodeCodes() Export
 	
 EndProcedure
 
-// Blocks all endpoints except the service Manager endpoint.
+// Locks all endpoints except for the service manager endpoint.
 //
 Procedure LockEndpoints() Export
 	
@@ -788,7 +790,7 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, Val InitialImageCreating, Rec
 	ElsIf ItemSend = DataItemSend.Delete
 		Or ItemSend = DataItemSend.Ignore Then
 		
-		// 
+		// No overriding for a standard data processor.
 		
 	ElsIf InitialImageCreating
 		And Common.DataSeparationEnabled()
@@ -907,7 +909,7 @@ EndProcedure
 
 //
 
-// Generates the app name in the service
+// Generates an application name in SaaS mode.
 //
 Function GeneratePredefinedNodeDescription() Export
 	
@@ -924,13 +926,13 @@ Function GeneratePredefinedNodeDescription() Export
 	Return ?(IsBlankString(ApplicationName), DefaultApplicationName, ApplicationName);
 EndFunction
 
-// Generates the exchange plan node code for the specified data area.
+// Generates an exchange plan node code for the specified data area.
 //
 // Parameters:
-//   AreaNumber - Number -  value of the separator. 
+//   AreaNumber - Number - a separator value. 
 //
 // Returns:
-//   String -  
+//   String - an exchange plan node code for the specified data area. 
 //
 Function ExchangePlanNodeCodeInService(Val AreaNumber) Export
 	
@@ -1067,13 +1069,13 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Internal export procedures and functions
 
-// Performs the uploading of data to exchange between the data regions.
+// Exports data in exchange between data areas.
 //
 // Parameters:
-//  Cancel         - Boolean -  failure flag; raised if an error occurs when uploading data
-//  Peer - ExchangePlanRef -  the exchange plan node for which data is being uploaded.
+//  Cancel         - Boolean - a cancellation flag. It is set to True if an error occurs during the data export
+//  Peer - ExchangePlanRef - an exchange plan node, for which data is being exported.
 // 
 Procedure RunDataExport(Cancel, Val Peer) Export
 	
@@ -1086,11 +1088,11 @@ Procedure RunDataExport(Cancel, Val Peer) Export
 		
 EndProcedure
 
-// Loads data in an exchange between data regions.
+// Imports data in exchange between data areas.
 //
 // Parameters:
-//  Cancel         - Boolean -  failure flag; raised if an error occurs when loading data
-//  Peer - ExchangePlanRef - 
+//  Cancel         - Boolean - a cancellation flag. It is selected if an error occurs during the data import.
+//  Peer - ExchangePlanRef - an exchange plan node, for which data is imported.
 // 
 Procedure RunDataImport(Cancel, Val Peer, MessageForDataMapping = False) Export
 	
@@ -1108,7 +1110,7 @@ Procedure RunDataImport(Cancel, Val Peer, MessageForDataMapping = False) Export
 		
 EndProcedure
 
-// Initiates data exchange between two is.
+// Initiates data exchange between two infobases.
 //
 // Parameters:
 //   DataExchangeScenario - ValueTable
@@ -1117,22 +1119,22 @@ Procedure ExecuteDataExchange(DataExchangeScenario) Export
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Resetting a cumulative data change flag for exchange
 	ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(False);
 	
 	If DataExchangeScenario.Count() > 0 Then
 		
-		// 
+		// Run the scenario.
 		ExecuteDataExchangeScenarioActionInFirstInfobase(0, DataExchangeScenario);
 		
 	EndIf;
 	
 EndProcedure
 
-// Perform the exchange script action specified by a row in the value table for the first of the two exchanging is.
+// Executing an exchange scenario action set in a value table row for the first infobase among the infobases exchanging data.
 //
 // Parameters:
-//   ScenarioRowIndex - Number -  index of a row in the scenario data Exchange table.
+//   ScenarioRowIndex - Number - a row index in the DataExchangeScenario table.
 //   DataExchangeScenario - ValueTable
 //
 Procedure ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, DataExchangeScenario) Export
@@ -1237,10 +1239,10 @@ Procedure ExecuteDataExchangeScenarioActionInFirstInfobase(ScenarioRowIndex, Dat
 	
 EndProcedure
 
-// Perform an exchange script action specified by a row in the value table for the second of the two exchanging is.
+// Executing an exchange scenario action set in a value table row for the second infobase among the infobases exchanging data.
 //
 // Parameters:
-//   ScenarioRowIndex - Number -  index of a row in the scenario data Exchange table.
+//   ScenarioRowIndex - Number - a row index in the DataExchangeScenario table.
 //   DataExchangeScenario - ValueTable
 //
 Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, DataExchangeScenario) Export
@@ -1256,7 +1258,7 @@ Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Da
 	ScenarioRow = DataExchangeScenario[ScenarioRowIndex];
 	
 	If ScenarioRow.ExecutionQueueNumber = 1 Then
-		// 
+		// Resetting a cumulative data change flag for exchange.
 		ChangeTheIndicationOfTheNeedForDataExchangeInTheServiceModel(False);
 	EndIf;
 	
@@ -1309,7 +1311,7 @@ Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Da
 	
 	FillPropertyValues(ScenarioRow, ResultingStructure);
 	
-	// 
+	// End of scenario.
 	If ScenarioRowIndex = DataExchangeScenario.Count() - 1 Then
 		FinishDataExchangeScenarioExecution(ScenarioRowIndex, DataExchangeScenario, ResultingStructure);
 		Return;
@@ -1344,7 +1346,7 @@ Procedure ExecuteDataExchangeScenarioActionInSecondInfobase(ScenarioRowIndex, Da
 	
 EndProcedure
 
-// Deletes the exchange node in this database.
+// Deletes an exchange node in the current infobase.
 //
 Procedure DeleteSynchronizationSetting(ExchangePlanName, CorrespondentNodeCode) Export
 	
@@ -1448,7 +1450,7 @@ Function ExchangeMessagesDirectoryName(Val Code1, Val Code2)
 	
 EndFunction
 
-// Registers handlers for delivered data
+// Registers built-in data handlers.
 //
 Procedure RegisterSuppliedDataHandlers(Val Handlers)
 	
@@ -1464,13 +1466,13 @@ Procedure RegisterSuppliedDataHandlers(Val Handlers)
 	
 EndProcedure
 
-// Called when a notification of new data is received.
-// In the body, check whether the application needs this data, 
-// and if so, select the Upload checkbox.
+// The procedure is called when a new data notification is received.
+// In the procedure body, check whether the application requires this data. 
+// If it requires, select the Import check box.
 // 
 // Parameters:
-//   Descriptor   - 
-//   ToImport    - Boolean -  returned.
+//   Descriptor   - XDTODataObject Descriptor.
+//   ToImport    - Boolean - a return value.
 //
 Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
@@ -1483,7 +1485,7 @@ Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 			And SuppliedRulesDetails.ConfigurationVersion = Metadata.Version
 			And Metadata.ExchangePlans.Find(SuppliedRulesDetails.ExchangePlanName) <> Undefined
 			And DataExchangeCached.ExchangePlanUsedInSaaS(SuppliedRulesDetails.ExchangePlanName)
-			And DataExchangeServer.IsSeparatedSSLExchangePlan(SuppliedRulesDetails.ExchangePlanName) Then // 
+			And DataExchangeServer.IsSeparatedSSLExchangePlan(SuppliedRulesDetails.ExchangePlanName) Then // Rules are compatible with the infobase
 			
 			ToImport = True;
 			
@@ -1504,13 +1506,13 @@ Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	
 EndProcedure
 
-// Called after calling available Data, allows you to parse the data.
+// The procedure is called after calling NewDataAvailable, it parses the data.
 //
 // Parameters:
-//   Descriptor   - 
-//   PathToFile   - String, Undefined -  full name of the extracted file. The file will be automatically deleted 
-//                  after the procedure is completed. If the
-//                  file was not specified in the service Manager, the argument value is Undefined.
+//   Descriptor   - XDTODataObject Descriptor.
+//   PathToFile   - String, Undefined - Full name of the extracted file. 
+//                  The file is automatically deleted once the procedure is completed.
+//                  If a file is not specified, it is set to Undefined.
 //
 Procedure ProcessNewData(Val Descriptor, Val PathToFile) Export
 	
@@ -1523,31 +1525,31 @@ Procedure ProcessNewData(Val Descriptor, Val PathToFile) Export
 	
 EndProcedure
 
-// Called when data processing is canceled in the event of a failure
+// Runs if data processing is failed due to an error.
 //
 Procedure DataProcessingCanceled(Val Descriptor) Export 
 	
 EndProcedure
 
-// Returns the ID of the supplied data type for data exchange rules
+// Returns the ID of a built-in data kind for data exchange rules.
 //
 // Returns:
 //   String
 //
 Function SuppliedDataKindID()
 	
-	Return "ER"; // 
+	Return "ER"; // Not localizable.
 	
 EndFunction
 
-// Returns the ID of the supplied data type for data exchange rules
+// Returns the ID of a built-in data kind for data exchange rules.
 //
 // Returns:
 //   String
 //
 Function IdOfTypeOfDataSuppliedRegistrationRules()
 	
-	Return "RR"; // 
+	Return "RR"; // Not localizable.
 	
 EndFunction
 
@@ -1575,7 +1577,7 @@ Procedure ProcessSuppliedExchangeRules(Descriptor, PathToFile, DataKind)
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Read the characteristics of a built-in data instance.
 	SuppliedRulesDetails = ParseSuppliedDataDescriptor(Descriptor);
 	ExchangePlanName = SuppliedRulesDetails.ExchangePlanName;
 	
@@ -1663,10 +1665,10 @@ Function DataExchangeScenarioRowDetails(ScenarioRowIndex, DataExchangeScenario)
 	
 EndFunction
 
-// Send messages
+// Sends a message.
 //
 // Parameters:
-//  Message - XDTODataObject -  message.
+//  Message - XDTODataObject - a message.
 //
 Function SendMessage(Val Message) Export
 	
@@ -1727,15 +1729,15 @@ Procedure CreateExchangeSetting(ConnectionSettings,
 			ThisNodeAlias = "") Export
 			
 	ThisNodeCode = Common.ObjectAttributeValue(ExchangePlans[ConnectionSettings.ExchangePlanName].ThisNode(), "Code");
-	// 
+	// Checking whether code is specified for the current node
 	If IsBlankString(ThisNodeCode) Then
-		// 
+		// The node code is set in the infobase update handler
 		MessageString = NStr("en = 'Code of the predefined exchange plan node %1 is not specified.';");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, ConnectionSettings.ExchangePlanName);
 		Raise MessageString;
 	EndIf;
 	
-	// 
+	// Creating or updating a correspondent node
 	Peer = ExchangePlans[ConnectionSettings.ExchangePlanName].FindByCode(ConnectionSettings.CorrespondentCode);
 			
 	BeginTransaction();
@@ -1747,7 +1749,7 @@ Procedure CreateExchangeSetting(ConnectionSettings,
 		    Block.Lock();
 		EndIf;
 		
-		// 
+		// Checking a prefix of the current infobase
 		If IsBlankString(GetFunctionalOption("InfobasePrefix")) Then
 			If IsBlankString(ConnectionSettings.Prefix) Then
 				Raise StringFunctionsClientServer.SubstituteParametersToString(
@@ -1770,7 +1772,7 @@ Procedure CreateExchangeSetting(ConnectionSettings,
 			CorrespondentObject = Peer.GetObject();
 		EndIf;
 		
-		CorrespondentObject.Description = ConnectionSettings.CorrespondentDescription;
+		CorrespondentObject.Description = ConnectionSettings.PeerInfobaseName;
 		
 		DataExchangeEvents.SetNodeFilterValues(CorrespondentObject, ConnectionSettings.Settings);
 		
@@ -1818,7 +1820,7 @@ Procedure CreateExchangeSetting(ConnectionSettings,
 			DataExchangeInternal.UpdateInformationRegisterRecord(RecordStructure, "XDTODataExchangeSettings");
 		EndIf;
 		
-		// 
+		// Shared node data.
 		InformationRegisters.CommonInfobasesNodesSettings.UpdatePrefixes(
 			CorrespondentObject.Ref,
 			ConnectionSettings.Prefix);
@@ -1841,7 +1843,7 @@ Procedure CreateExchangeSetting(ConnectionSettings,
 			Raise MessageString;
 		EndIf;
 		
-		// 
+		// Operations with transport settings.
 		Parameters = New Structure;
 		Parameters.Insert("Peer", Peer);
 		Parameters.Insert("ThisNodeCode", ThisNodeCode);
@@ -1870,9 +1872,9 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 		
 	ThisNodeCode = ConnectionSettings.SourceInfobaseID;
 	
-	// 
+	// Checking whether code is specified for the current node.
 	If IsBlankString(ThisNodeCode) Then
-		// 
+		// The node code is set in the infobase update handler.
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Code of the predefined exchange plan node %1 is not specified.';"),
 			ConnectionSettings.ExchangePlanName);
@@ -1892,7 +1894,7 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 		ConnectionSettings.Prefix = DataExchangeServer.InfobasePrefix();
 	EndIf;
 	
-	// 
+	// Creating or updating a correspondent node.
 	Peer = ExchangePlans[ConnectionSettings.ExchangePlanName].FindByCode(
 		ConnectionSettings.DestinationInfobaseID);
 	
@@ -1925,7 +1927,7 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 			CorrespondentObject = Peer.GetObject();
 		EndIf;
 		
-		CorrespondentObject.Description = ConnectionSettings.CorrespondentDescription;
+		CorrespondentObject.Description = ConnectionSettings.PeerInfobaseName;
 		
 		If CheckCode Then
 			CorrespondentObject.Fill(Undefined);
@@ -1936,7 +1938,7 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 		
 		CorrespondentObject.RegisterChanges = True;
 		
-		// 
+		// Exchange format version.
 		If DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName)
 			And ConnectionSettings.Property("XDTOCorrespondentSettings") Then
 			
@@ -1950,7 +1952,7 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 		
 		Peer = CorrespondentObject.Ref;
 		
-		// 
+		// XDTO correspondent settings.
 		If DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then
 			
 			If ConnectionSettings.Property("XDTOCorrespondentSettings") Then
@@ -1971,7 +1973,7 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 			
 		EndIf;
 		
-		// 
+		// Shared node data.
 		InformationRegisters.CommonInfobasesNodesSettings.UpdatePrefixes(
 			Peer,
 			ConnectionSettings.Prefix,
@@ -2000,7 +2002,7 @@ Procedure CreateExchangeSetting_3_0_1_1(ConnectionSettings,
 			Raise MessageString;
 		EndIf;
 		
-		// 
+		// Operations with transport settings.
 		Parameters = New Structure;
 		Parameters.Insert("Peer", Peer);
 		Parameters.Insert("ThisNodeCode", ThisNodeCode);
@@ -2050,7 +2052,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters)
 	
 	If TransportSettings.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FILE Then
 		
-		// 
+		// Exchange using network directory
 		
 		FILECommonInformationExchangeDirectory = TrimAll(TransportSettings.FILEDataExchangeDirectory);
 		
@@ -2076,13 +2078,13 @@ Procedure UpdateDataAreaTransportSettings(Parameters)
 				FILECommonInformationExchangeDirectory,
 				RelativeInformationExchangeDirectory);
 			
-			// 
+			// Creating a message exchange directory
 			AbsoluteDirectory = New File(FILEAbsoluteDataExchangeDirectory);
 			If Not AbsoluteDirectory.Exists() Then
 				CreateDirectory(AbsoluteDirectory.FullName);
 			EndIf;
 			
-			// 
+			// Saving exchange message transfer settings for the current data area
 			RecordStructure = New Structure;
 			RecordStructure.Insert("Peer", Peer);
 			RecordStructure.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
@@ -2093,7 +2095,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters)
 		
 	ElsIf TransportSettings.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FTP Then
 		
-		// 
+		// Data exchange over a  FTP server.
 		
 		FTPSettings = DataExchangeServer.FTPConnectionSetup();
 		FTPSettings.Server               = TransportSettings.FTPServer;
@@ -2112,7 +2114,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters)
 			FTPConnection.CreateDirectory(AbsoluteDataExchangeDirectory);
 		EndIf;
 		
-		// 
+		// Saving exchange message transfer settings for the current data area
 		RecordStructure = New Structure;
 		RecordStructure.Insert("Peer", Peer);
 		RecordStructure.Insert("CorrespondentEndpoint", CorrespondentEndpoint);
@@ -2129,7 +2131,7 @@ Procedure UpdateDataAreaTransportSettings(Parameters)
 		
 EndProcedure
 
-// Updates the settings and sets the default values on the node
+// Updates settings and sets default values for a node
 //
 Procedure UpdateExchangeSetting(
 		Val Peer,
@@ -2145,7 +2147,7 @@ Procedure UpdateExchangeSetting(
 		LockDataForEdit(Peer);
 		CorrespondentObject = Peer.GetObject();
 
-	    //  
+	    // Set default values. 
 		DataExchangeEvents.SetDefaultNodeValues(CorrespondentObject, DefaultNodeValues);
 		
 		CorrespondentObject.AdditionalProperties.Insert("GettingExchangeMessage");
@@ -2159,7 +2161,7 @@ Procedure UpdateExchangeSetting(
 	
 EndProcedure
 
-// Saves session data and marks the successful completion of the session
+// Saves session data and sets the CompletedSuccessfully flag value to True
 //
 Procedure SaveSessionData(Val Message, Val Presentation = "") Export
 	
@@ -2177,7 +2179,7 @@ Procedure SaveSessionData(Val Message, Val Presentation = "") Export
 	
 EndProcedure
 
-// Marks the successful completion of the session
+// Sets the CompletedSuccessfully flag value to True for a session passed to the procedure
 //
 Procedure CommitSuccessfulSession(Val Message, Val Presentation = "") Export
 	
@@ -2195,7 +2197,7 @@ Procedure CommitSuccessfulSession(Val Message, Val Presentation = "") Export
 	
 EndProcedure
 
-// Notes the failure of the session
+// Sets the CompletedWithError flag value to False for a session passed to the procedure
 //
 Procedure CommitUnsuccessfulSession(Val Message, Val Presentation = "") Export
 	
@@ -2215,7 +2217,7 @@ Procedure CommitUnsuccessfulSession(Val Message, Val Presentation = "") Export
 	
 EndProcedure
 
-// Returns the minimum required platform version
+// Returns a minimum required platform version
 //
 Function RequiredPlatformVersion() Export
 	
@@ -2228,13 +2230,13 @@ Function RequiredPlatformVersion() Export
 	SystemInfo = New SystemInfo;
 	PlatformVersion = StrSplit(SystemInfo.AppVersion, ".");
 	
-	// 
+	// Deleting an additional number (last number) from the version number
 	PlatformVersion.Delete(3);
 	Return StrConcat(PlatformVersion, ".");
 	
 EndFunction
 
-// Event for the log of data synchronization settings
+// Data synchronization setup event for the event log
 //
 Function EventLogEventDataSynchronizationSetup() Export
 	
@@ -2243,7 +2245,7 @@ Function EventLogEventDataSynchronizationSetup() Export
 	
 EndFunction
 
-// Event for the data synchronization monitor log
+// Data synchronization monitor event for the event log
 //
 Function EventLogEventDataSynchronizationMonitor() Export
 	
@@ -2252,7 +2254,7 @@ Function EventLogEventDataSynchronizationMonitor() Export
 	
 EndFunction
 
-// Event for the data synchronization log
+// Data synchronization event for the event log
 //
 Function DataSyncronizationLogEvent() Export
 	
@@ -2270,7 +2272,7 @@ EndFunction
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Data exchange monitor procedures and functions
 
 // For internal use
 // 
@@ -2469,7 +2471,7 @@ Procedure PrepareExchangePlansNodesDataForMonitor(Val TempTablesManager, Val Met
 			ExchangePlanQueryText = StrReplace(ExchangePlanQueryText, "ExchangePlanNameSynonym", Metadata.ExchangePlans[ExchangePlanName].Synonym);
 			ExchangePlanQueryText = StrReplace(ExchangePlanQueryText, "&AdditionalExchangePlanProperties,", AdditionalExchangePlanPropertiesAsString);
 			
-			// 
+			// Deleting a join literal for the first table
 			If IsBlankString(QueryText) Then
 				
 				ExchangePlanQueryText = StrReplace(ExchangePlanQueryText, "UNION ALL", "");
@@ -2543,7 +2545,7 @@ Procedure PrepareExchangePlansNodesDataForMonitor(Val TempTablesManager, Val Met
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Local internal procedures and functions
 
 Function FindInfobaseNode(Val ExchangePlanName, Val NodeCode)
 	
@@ -2551,12 +2553,12 @@ Function FindInfobaseNode(Val ExchangePlanName, Val NodeCode)
 	
 	NodeCodeWithPrefix = ExchangePlanNodeCodeInService(DataArea);
 	
-	// 
+	// Searching for a node by S00000123 node code format.
 	Result = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeCodeWithPrefix);
 	
 	If Result = Undefined Then
 		
-		// 
+		// Searching for a node by old 0000123 node code format
 		Result = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeCode);
 		
 	EndIf;
@@ -2615,11 +2617,11 @@ Function CorrespondentVersions(Val InfobaseNode)
 	Return Common.GetInterfaceVersions(ConnectionParameters, "DataExchangeSaaS");
 EndFunction
 
-// Returns the parameters of the Commandedmodeliservice subsystem that are required when
-// users are shut down.
+// Returns the DataExchangeSaaS subsystem parameters that are required upon terminating
+// user sessions.
 //
 // Returns:
-//  Structure -  parameters.
+//  Structure - parameters.
 //
 Function StandaloneModeParametersOnExit()
 	
@@ -2643,7 +2645,7 @@ Function StandaloneModeParametersOnExit()
 	Return ParametersOnExit;
 EndFunction
 
-// Adds parameters for the client logic for the data exchange subsystem in the service model.
+// Adds parameters of client logic for the data exchange subsystem in SaaS mode.
 //
 Procedure AddClientRunParameters(Parameters)
 	
@@ -2675,9 +2677,9 @@ Function NewPropertiesOfStandaloneWorkstationMetadata(ItemMetadata)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Getting references to shared SaaS data pages
 
-// Returns the address of the link identifier
+// Returns a reference address by ID
 // For internal use.
 //
 Function RefAddressFromInformationCenter(Val Id)
@@ -2693,7 +2695,7 @@ Function RefAddressFromInformationCenter(Val Id)
 	Try
 		RefData = ModuleInformationCenterServer.ContextualLinkByID(Id);
 	Except
-		// 
+		// In case the method is not found.
 		RefData = Undefined;
 	EndTry;
 	
@@ -2704,7 +2706,7 @@ Function RefAddressFromInformationCenter(Val Id)
 	Return Result;
 EndFunction
 
-// Returns the url of the link to the article on configuring the thin client
+// Returns an address of reference to an article of thin client setup
 // For internal use.
 //
 Function ThinClientSetupGuideAddress() Export

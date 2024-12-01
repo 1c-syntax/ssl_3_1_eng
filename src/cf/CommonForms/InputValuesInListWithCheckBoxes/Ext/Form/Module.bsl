@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -185,7 +187,7 @@ Procedure ListBeforeEditEnd(Item, NewRow, CancelEditStart, CancelEditComplete)
 	
 	For Each ListItemDuplicateInForm In ValueListInForm Do
 		If ListItemDuplicateInForm.Value = Value And ListItemDuplicateInForm <> ListItemInForm Then
-			CancelEditComplete = True; // 
+			CancelEditComplete = True; // Restrict duplicates.
 			Break;
 		EndIf;
 	EndDo;
@@ -195,21 +197,21 @@ Procedure ListBeforeEditEnd(Item, NewRow, CancelEditStart, CancelEditComplete)
 		If RestrictSelectionBySpecifiedValues Then
 			CancelEditComplete = True;
 		Else
-			ListItemInForm.Presentation = ""; // 
-			ListItemInForm.Check = True; // 
+			ListItemInForm.Presentation = ""; // Populate the presentation.
+			ListItemInForm.Check = True; // Set the flag.
 		EndIf;
 	EndIf;
 	
 	If CancelEditComplete Then
-		// 
+		// Roll back the values.
 		If HasInformation Then
 			FillPropertyValues(ListItemInForm, ListItemBeforeStartChanging);
 		EndIf;
-		// 
+		// Restart the BeforeEditEnd event with CancelEditStart = True.
 		Item.EndEditRow(True);
 	Else
 		If NewRow Then
-			ListItemInForm.Check = True; // 
+			ListItemInForm.Check = True; // Set the flag.
 		EndIf;
 	EndIf;
 EndProcedure
@@ -285,12 +287,12 @@ Procedure PasteFromClipboardCompletion(FoundObjects, ExecutionParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Constructors.
 
-// Constructor for describing properties of a list of values element.
+// The constructor of details of value list item properties.
 //
 //  Returns:
-//   Structure - :
+//   Structure - Details of the value list items, where:
 //       * Id - Number
 //       * Check - Boolean
 //       * Value - Undefined

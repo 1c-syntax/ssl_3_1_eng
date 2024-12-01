@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -242,8 +244,8 @@ Procedure Copy(Command)
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// XnWhen copying external type settings or all settings to other users,
+	// check if the app supports them. And if it does, inform the user in a user message.
 	OpenFormsToCopy = OpenFormsToCopy();
 	CheckActiveUsers();
 	If CheckResult = "HasActiveUsersRecipients"
@@ -414,7 +416,7 @@ Procedure CopySettings(CommandName)
 		ShowUserNotification(NotificationText1, , NotificationComment, NotificationPicture);
 	EndIf;
 	
-	// 
+	// If this is copying settings from another user, notifying the UsersSettings form
 	If FormOpeningMode = "CopyFrom" Then
 		Notify("SettingsCopied1", True);
 	EndIf;

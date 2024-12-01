@@ -1,18 +1,20 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 // Sends a message to users from another user. 
-// If there was no discussion between users, a
-// displayed discussion will be created.
+// If there is no conversation between users,
+// a displayed conversation will be created.
 //
-// Throws an exception if the message could not be sent.
+// Throws an exception if failed to send the message.
 //
 // Parameters: 
 //   Author - CatalogRef.Users
@@ -20,14 +22,14 @@
 //   Recipients - Array of CatalogRef.Users
 //              - Array of CollaborationSystemUser
 //   Message - See MessageDetails
-//   ConversationContext - AnyRef -  the message will be sent to the context discussion.
-//                      - CollaborationSystemConversationID - 
-//                      - Undefined - 
+//   ConversationContext - AnyRef - the message will be sent to a context conversation.
+//                      - CollaborationSystemConversationID - the message will be sent to the specified conversation.
+//                      - Undefined - the message will be sent to the conversation between the author and the recipient.
 //
 // Example:
-// Message = Discussions.Opisaniyami("Hello world!");
-// Receiver = ObservableCollection.Nacinajuscego(Administrator);
-// Discussions.Send A Message(Users.Current User (), Recipient, Message);
+// Message = Conversations.MessageDetails("Hello, world!");
+// Recipient = CommonClientServer.ValueInArray(Administrator);
+// Conversations.SendMessage1(Users.CurrentUser(), Recipient, Message);
 //
 Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext = Undefined) Export
 	
@@ -45,7 +47,7 @@ Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext =
 	
 	If TypeOf(Recipients[0]) = Type("CatalogRef.Users") Then
 		AddresseesByRef = CollaborationSystemUsers(Recipients);
-		Recipients = New Array; // 
+		Recipients = New Array; // Array Of CollaborationSystemUser
 		For Each KeyAndValue In AddresseesByRef Do
 			Recipient = KeyAndValue.Value;
 			If TypeOf(Recipient) = Type("CollaborationSystemUser") Then
@@ -107,21 +109,21 @@ Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext =
 	
 EndProcedure
 
-// Sends a message to all participants in a non-contextual discussion.
-// If the discussion is contextual, the message will be sent without recipients.
+// Sends a message to all noncontext conversation participants.
+// If the conversation is context, the message will be sent without specified recipients.
 //
-// Throws an exception if the message could not be sent.
+// Throws an exception if failed to send the message.
 //
 // Parameters: 
 //   Author - CatalogRef.Users
 //         - CollaborationSystemUser
 //   Message - See MessageDetails.
-//   ConversationContext - AnyRef -  the message will be sent to the context discussion.
-//                      - CollaborationSystemConversationID - 
+//   ConversationContext - AnyRef - the message will be sent to a context conversation.
+//                      - CollaborationSystemConversationID - the message will be sent to the specified conversation.
 //
 // Example:
-// Message = Discussions.Description of the message ("Hello, world!");
-// Discussions.Send A Notification(Users.Current User (), Message, Customer Order);
+// Message = Conversations.MessageDetails("Hello, world!");
+// Conversations.SendNotification(Users.CurrentUser(), Message, SalesOrder);
 //
 Procedure SendNotification(Val Author, Message, ConversationContext) Export
 
@@ -184,8 +186,8 @@ Procedure SendNotification(Val Author, Message, ConversationContext) Export
 
 EndProcedure
 
-// 
-// 
+// Returns True if "CollaborationSystem.InfoBaseRegistered" returned True and
+// the usage is not restricted by the administrator.
 // 
 //
 // Returns:
@@ -193,15 +195,15 @@ EndProcedure
 //
 Function CollaborationSystemConnected() Export
 	
-	// 
+	// Executes quick, without requesting the Collaboration server.
 	Registered1 = CollaborationSystem.InfoBaseRegistered();
 	
 	Return Registered1 And Not ConversationsInternal.Locked2();
 	
 EndFunction
 
-// 
-// 
+// Returns True if "CollaborationSystem.CanUse" returned True and
+// the usage is not restricted by the administrator.
 // 
 // 
 // Returns:
@@ -211,8 +213,8 @@ Function ConversationsAvailable() Export
 	Return ConversationsInternal.Connected2();
 EndFunction
 
-// Forms a correspondence between the user IDs of the interaction system
-// and the elements of the users directory.
+// Generates a mapping between IDs of collaboration system users
+// and items of the Users catalog.
 //
 // Parameters:
 //   CollaborationSystemUsers - Array of CollaborationSystemUserID
@@ -255,9 +257,9 @@ Function InfoBaseUsers(CollaborationSystemUsers)Export
 	Return Result;
 EndFunction
 
-// Searches for an item in the users directory by the user ID of the Interaction System.
+// Searches for the Users catalog item by the ID of a collaboration system user.
 //
-// Throws an exception if the user was not found.
+// Throws an exception if the user is not found.
 //
 // Parameters:
 //   CollaborationSystemUser - CollaborationSystemUserID
@@ -281,12 +283,12 @@ Function InfoBaseUser(CollaborationSystemUser) Export
 	Return Result;
 EndFunction
 
-// Forms a correspondence between the elements of the users directory
-// and the user IDs of the interaction system.
+// Generates a mapping between items of the Users catalog
+// and IDs of collaboration system users.
 //  
-// If the user is not found, an attempt will be made to create an interaction system user.
-// If the user is not found and an exception was thrown when creating a new user,
-// it returns Undefined.
+// If the user is not found, an attempt to create a collaboration system user will be made.
+// If the user is not found and an exception is thrown when attempting to create a new user,
+// Undefined is returned.
 //
 // Parameters:
 //   Var_InfoBaseUsers - Array of CatalogRef.Users
@@ -329,23 +331,23 @@ Function CollaborationSystemUsers(Var_InfoBaseUsers) Export
 	Return Result;
 EndFunction
 
-// Gets the user ID of the interaction system.
-// If the user is not found, an attempt is made to create a new user.
+// Receives an ID of a collaboration system user.
+// If the user is not found, an attempt to create a new user will be made.
 // 
-// Throws an exception if:
-// - the database user ID could not be obtained;
-// - failed to create an Interaction system user.
+// An exception is called if:
+// - failed to receive an infobase user ID;
+// - failed to create a collaboration system user.
 //
 // Parameters:
 //  User - CatalogRef.Users
 //               - CatalogObject.Users
 //
-//  IDOnly - Boolean - 
+//  IDOnly - Boolean - If set to True, returns a user id (not the user itself), which is takes less time.
 //                                 
 //
 // Returns:
-//   CollaborationSystemUser - 
-//   
+//   CollaborationSystemUser - If "IDOnly" is set to False.
+//   If "CollaborationSystemUserID" is set to True.
 //
 Function CollaborationSystemUser(User, IDOnly = False) Export
 	
@@ -444,12 +446,12 @@ Function CollaborationSystemUser(User, IDOnly = False) Export
 	
 EndFunction
 
-// Updates additional user information of the interaction system.
-// For example, phone number and email address.
-// If the interaction system user has not yet been created, a new
-// interaction system user will be created.
+// Updates additional information of a collaboration system user.
+// For example, a phone number and an email address.
+// If a collaboration system user is not created, a new
+// collaboration system user will be created.
 //
-// Throws an exception if the interaction system user update failed.
+// Throws an exception if failed to update a new collaboration system user.
 //
 // Parameters:
 //   User - CatalogRef.Users
@@ -480,19 +482,19 @@ Procedure UpdateUserInCollaborationSystem(User) Export
 	
 EndProcedure
 
-// Generates a message description for sending a message through the procedures
-// and functions of the Discussion subsystem.
+// Generates message details for sending messages via the Conversations subsystem procedures
+// and functions.
 //
 // Parameters:
-//   Text - String -  message text of the Interaction system
+//   Text - String - collaboration system message text
 //         - FormattedString
 //
 // Returns:
 //   Structure:
 //   * Text - FormattedString
 //   * Attachments - Array of See AttachmentDetails
-//   * Data - Undefined - 
-//   * Actions - ValueList - 
+//   * Data - Undefined - See Syntax Assistant for "CollaborationSystemMessage".
+//   * Actions - ValueList - See Syntax Assistant for "CollaborationSystemMessage".
 //
 Function MessageDetails(Val Text) Export
 	LongDesc = New Structure;
@@ -508,23 +510,23 @@ Function MessageDetails(Val Text) Export
 	Return LongDesc;
 EndFunction
 
-// Generates a description of the attachment for sending messages through the procedures
-// and functions of the Discussion subsystem.
+// Generates attachment details for sending messages via the Conversations subsystem procedures
+// and functions.
 //
 // Parameters:
-//   Stream - Stream -  the thread from which the Interaction system attachment will be created.
+//   Stream - Stream - a stream from which a Collaboration system attachment will be created.
 //         - MemoryStream
 //         - FileStream
-//   Description - String - 
+//   Description - String - Attachment name.
 // 
 // Returns:
 //   Structure:
-//   * Stream - Stream - 
+//   * Stream - Stream - a stream from which a collaboration system attachment will be created.
 // 			- MemoryStream
 // 			- FileStream
 //   * Description - String
 //   * MIMEType - String
-//   * Displayed - Boolean -  the default value is True
+//   * Displayed - Boolean - default value is True
 //
 Function AttachmentDetails(Stream, Description) Export
 
@@ -541,8 +543,8 @@ EndFunction
 
 #Region Internal
 
-// 
-// 
+// Intended solely for performance enhancement. The function must not impact functionality,
+// as it is non-deterministic.
 // 
 // Parameters:
 //  ErrorInfo - ErrorInfo
@@ -554,7 +556,7 @@ Function IsInteractionSystemConnectError(ErrorInfo) Export
 	
 	MultiLangStrings = New Array;
 	
-	// 
+	// ACC:1036-off, ACC:1297-off, ACC:1405-off - Not localizable (strings in all locales are hard-coded).
 	
 	MultiLangStrings.Add(
 	"az = 'Qarşılıqlı fəaliyyət sistmei qeydə alınmayıb';
@@ -602,7 +604,7 @@ Function IsInteractionSystemConnectError(ErrorInfo) Export
 	|uk = 'Невозможно установить соединение с сервером системы взаимодействия';
 	|fr = 'Невозможно установить соединение с сервером системы взаимодействия'"); // @Non-NLS
 	
-	// 
+	// ACC:1036-on, ACC:1297-on, ACC:1405-on
 	
 	BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 	
@@ -651,14 +653,14 @@ Procedure UpdateUserDetailsInCollaborationSystem(CollaborationSystemUser, UserDe
 	
 EndProcedure
 
-// Creates a new user of the interaction system and fills it
-// with the information database user data.
+// Creates a new Collaboration system user and populates it with
+// infobase user data.
 //
-// Throws an exception if a new Interaction system user could not be created.
+// Throws an exception if failed to create a new Collaboration system user.
 //
 // Parameters:
-//   User - CatalogRef.Users -  the user for which
-//													the interaction system user will be created.
+//   User - CatalogRef.Users - a user for whom
+//													a collaboration system user will be created.
 // Returns:
 //   CollaborationSystemUser
 //

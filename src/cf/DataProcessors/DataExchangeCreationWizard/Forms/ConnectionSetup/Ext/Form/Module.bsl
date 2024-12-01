@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -863,7 +865,7 @@ Procedure OnStartConnectionCheckInSaaSAtServer(ContinueWait)
 	
 	ConnectionSettings = New Structure;
 	ConnectionSettings.Insert("ExchangePlanName",              ExchangePlanName);
-	ConnectionSettings.Insert("CorrespondentDescription",  CorrespondentDescription);
+	ConnectionSettings.Insert("PeerInfobaseName",  PeerInfobaseName);
 	ConnectionSettings.Insert("CorrespondentDataArea", CorrespondentDataArea);
 	
 	ConnectionCheckHandlerParameters = Undefined;
@@ -1066,7 +1068,7 @@ Procedure OnStartSaveConnectionSettingsAtServer(ContinueWait)
 		ConnectionSettings.ExchangeFormat = ExchangeFormat;
 		
 		ConnectionSettings.Description               = Description;
-		ConnectionSettings.CorrespondentDescription = CorrespondentDescription;
+		ConnectionSettings.PeerInfobaseName = PeerInfobaseName;
 		
 		ConnectionSettings.Prefix               = Prefix;
 		ConnectionSettings.CorrespondentPrefix = CorrespondentPrefix;
@@ -1080,12 +1082,12 @@ Procedure OnStartSaveConnectionSettingsAtServer(ContinueWait)
 		
 		If XDTOSetup Then
 			ConnectionSettings.XDTOCorrespondentSettings.SupportedVersions.Add(ExchangeFormatVersion);
-			ConnectionSettings.XDTOCorrespondentSettings.SupportedObjects = SupportedCorrespondentFormatObjects;
+			ConnectionSettings.XDTOCorrespondentSettings.SupportedObjects = SupportedPeerInfobaseFormatObjects;
 		EndIf;
 		
 	Else
 		
-		// 
+		// Connection settings in the attribute structure format of the data exchange creation wizard.
 		ConnectionSettings = New Structure;
 		FillWizardConnectionParametersStructure(ConnectionSettings);
 		
@@ -1186,7 +1188,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	// 
+	// Dull font color for unavailable sync settings.
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -1203,7 +1205,7 @@ EndProcedure
 &AtServer
 Procedure FillWizardConnectionParametersStructure(WizardSettingsStructure, WithoutCorrespondent = False)
 	
-	// 
+	// Transforming structure of form attributes to structure of wizard attributes.
 	WizardSettingsStructure.Insert("ExchangePlanName",               ExchangePlanName);
 	WizardSettingsStructure.Insert("CorrespondentExchangePlanName", CorrespondentExchangePlanName);
 	WizardSettingsStructure.Insert("ExchangeSetupOption", SettingID);
@@ -1229,7 +1231,7 @@ Procedure FillWizardConnectionParametersStructure(WizardSettingsStructure, Witho
 	WizardSettingsStructure.Insert("CorrespondentNodeCode",   DestinationInfobaseID);
 	
 	WizardSettingsStructure.Insert("ThisInfobaseDescription",   Description);
-	WizardSettingsStructure.Insert("SecondInfobaseDescription", CorrespondentDescription);
+	WizardSettingsStructure.Insert("SecondInfobaseDescription", PeerInfobaseName);
 	
 	WizardSettingsStructure.Insert("SourceInfobasePrefix", Prefix);
 	WizardSettingsStructure.Insert("DestinationInfobasePrefix", CorrespondentPrefix);
@@ -1246,11 +1248,11 @@ Procedure FillWizardConnectionParametersStructure(WizardSettingsStructure, Witho
 		DataExchangeServer.ModuleDataExchangeCreationWizard().DataExchangeSettingsFormatVersion());
 		
 	WizardSettingsStructure.Insert("ExchangeFormatVersion", ExchangeFormatVersion);
-	WizardSettingsStructure.Insert("SupportedObjectsInFormat", SupportedCorrespondentFormatObjects);
+	WizardSettingsStructure.Insert("SupportedObjectsInFormat", SupportedPeerInfobaseFormatObjects);
 	
-	// 	
+	// Transport settings.	
 	WizardSettingsStructure.Insert("COMOperatingSystemAuthentication",
-		ExternalConnectionAuthenticationKind = 0); // 
+		ExternalConnectionAuthenticationKind = 0); // Operating system
 	WizardSettingsStructure.Insert("COMInfobaseOperatingMode",
 		?(ExternalConnectionInfobaseOperationMode = "File", 0, 1));
 	WizardSettingsStructure.Insert("COM1CEnterpriseServerSideInfobaseName",
@@ -1363,7 +1365,7 @@ EndProcedure
 &AtServer
 Procedure ReadWizardConnectionParametersStructure(WizardSettingsStructure)
 	
-	// 
+	// Transforming structure of wizard attributes to structure of form attributes.
 	SourceInfobaseID = WizardSettingsStructure.PredefinedNodeCode;
 	DestinationInfobaseID = WizardSettingsStructure.SecondInfobaseNewNodeCode;
 	
@@ -1379,7 +1381,7 @@ Procedure ReadWizardConnectionParametersStructure(WizardSettingsStructure)
 	EndIf;
 	
 	If CorrespondentDescriptionChangeAvailable Then
-		CorrespondentDescription = WizardSettingsStructure.SecondInfobaseDescription;
+		PeerInfobaseName = WizardSettingsStructure.SecondInfobaseDescription;
 	EndIf;
 	
 	If PrefixChangeAvailable Then
@@ -1398,9 +1400,9 @@ Procedure ReadWizardConnectionParametersStructure(WizardSettingsStructure)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Transport settings.
 	ExternalConnectionAuthenticationKind =
-		?(WizardSettingsStructure.COMOperatingSystemAuthentication, 0, 1); // 
+		?(WizardSettingsStructure.COMOperatingSystemAuthentication, 0, 1); // 0 -Operating system; 1 - 1C:Enterprise
 	ExternalConnectionInfobaseOperationMode =
 		?(WizardSettingsStructure.COMInfobaseOperatingMode = 0, "File", "ClientServer1");
 	ExternalConnectionInfobaseName =
@@ -1512,9 +1514,9 @@ Procedure FillCorrespondentParameters(CorrespondentParameters, CorrespondentInSa
 	
 	If Not CorrespondentInSaaS Then
 		If ValueIsFilled(CorrespondentParameters.InfobaseDescription) Then
-			CorrespondentDescription = CorrespondentParameters.InfobaseDescription;
+			PeerInfobaseName = CorrespondentParameters.InfobaseDescription;
 		Else
-			CorrespondentDescription = CorrespondentParameters.DefaultInfobaseDescription;
+			PeerInfobaseName = CorrespondentParameters.DefaultInfobaseDescription;
 		EndIf;
 	EndIf;
 	
@@ -1530,7 +1532,7 @@ Procedure FillCorrespondentParameters(CorrespondentParameters, CorrespondentInSa
 		ExchangeFormatVersion = DataExchangeXDTOServer.MaxCommonFormatVersion(
 			ExchangePlanName, CorrespondentParameters.ExchangeFormatVersions);
 		
-		SupportedCorrespondentFormatObjects = New ValueStorage(
+		SupportedPeerInfobaseFormatObjects = New ValueStorage(
 			CorrespondentParameters.SupportedObjectsInFormat, New Deflation(9));
 	ElsIf ConnectionKind = "Internet"
 		And StrLen(DestinationInfobaseID) = 9 Then
@@ -1608,7 +1610,7 @@ Procedure FillXDTOCorrespondentSettingsFromXMLAtServer(AddressInStorage, Cancel,
 		ExchangeFormatVersion = DataExchangeXDTOServer.MaxCommonFormatVersion(ExchangePlanName,
 			XDTOCorrespondentSettings.SupportedVersions);
 			
-		SupportedCorrespondentFormatObjects = New ValueStorage(XDTOCorrespondentSettings.SupportedObjects,
+		SupportedPeerInfobaseFormatObjects = New ValueStorage(XDTOCorrespondentSettings.SupportedObjects,
 			New Deflation(9));
 			
 		DestinationInfobaseID = XDTOCorrespondentSettings.SenderID;
@@ -1627,7 +1629,7 @@ Procedure FillAvailableTransportKinds()
 		ExchangePlans[ExchangePlanName].EmptyRef(), SettingID);
 		
 	For Each CurrentTransportKind In UsedExchangeMessagesTransports Do
-		// 
+		// In SaaS, only XDTO exchange plans support exchange over the internet (including passive connection).
 		// 	
 		If SaaSModel Then
 			If CurrentTransportKind <> Enums.ExchangeMessagesTransportTypes.WS
@@ -1810,7 +1812,7 @@ Procedure CommonSynchronizationSettingsContinueSetting(Result, AdditionalParamet
 		"Prefix", "ReadOnly", Not PrefixChangeAvailable);
 	
 	CommonClientServer.SetFormItemProperty(Items,
-		"CorrespondentDescription", "ReadOnly", Not CorrespondentDescriptionChangeAvailable);
+		"PeerInfobaseName", "ReadOnly", Not CorrespondentDescriptionChangeAvailable);
 		
 	CommonClientServer.SetFormItemProperty(Items,
 		"CorrespondentPrefix", "ReadOnly", Not CorrespondentPrefixChangeAvailable);
@@ -1829,7 +1831,7 @@ EndProcedure
 &AtServer
 Procedure CheckCanUseForm(Cancel = False)
 	
-	// 
+	// Parameters of the data exchange creation wizard must be passed.
 	If Not Parameters.Property("ExchangePlanName")
 		Or Not Parameters.Property("SettingID") Then
 		MessageText = NStr("en = 'The form cannot be opened manually.';");
@@ -1877,7 +1879,7 @@ Procedure InitializeFormAttributes()
 		ConnectionKind = "ExternalConnection";
 		
 		ExternalConnectionInfobaseOperationMode = "File";
-		ExternalConnectionAuthenticationKind = 1; // 
+		ExternalConnectionAuthenticationKind = 1; // 1C:Enterprise
 	ElsIf AvailableTransportKinds.Property("WS") Then
 		ConnectionKind = "Internet";
 	ElsIf AvailableTransportKinds.Property("FILE")
@@ -1901,8 +1903,8 @@ Procedure InitializeFormAttributes()
 		RegularCommunicationChannelsFTPPassiveMode = True;
 	EndIf;
 	
-	// 
-	// 
+	// Check if the Service Manager supports setup via internal publication.
+	// Applies only to Interim Format Data Exchange.
 	If XDTOSetup 
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then 
 		
@@ -1964,7 +1966,7 @@ Procedure InitializeFormAttributes()
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
 		Description = ModuleDataExchangeSaaS.GeneratePredefinedNodeDescription();
 	Else
-		// 
+		// This infobase presentation.
 		Description = DataExchangeServer.PredefinedExchangePlanNodeDescription(ExchangePlanName);
 		If IsBlankString(Description) Then
 			DescriptionChangeAvailable = True;
@@ -1972,7 +1974,7 @@ Procedure InitializeFormAttributes()
 		EndIf;
 		DescriptionChangeAvailable = True;
 		
-		CorrespondentDescription = CorrespondentConfigurationDescription;
+		PeerInfobaseName = CorrespondentConfigurationDescription;
 	EndIf;
 	
 	Prefix = GetFunctionalOption("InfobasePrefix");
@@ -1988,7 +1990,7 @@ Procedure InitializeFormAttributes()
 	If ContinueSetupInSubordinateDIBNode Then
 		ExchangeNode = DataExchangeServer.MasterNode();
 		
-		// 
+		// Filling parameters from connection settings in the constant.
 		ModuleSetupWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
 		
 		ExchangeCreationWizard = ModuleSetupWizard.Create();
@@ -2020,7 +2022,7 @@ Procedure InitializeFormAttributes()
 		UsePrefixesForExchangeSettings = True;
 	EndIf;
 	
-	// 
+	// To get settings from the correspondent, set the default mode.
 	UsePrefixesForCorrespondentExchangeSettings = True;
 	
 	FillNavigationTable();
@@ -2217,11 +2219,11 @@ Procedure OnChangeExternalConnectionAuthenticationKind()
 	
 	CommonClientServer.SetFormItemProperty(Items,
 		"ExternalConnectionUsername",
-		"Enabled", ExternalConnectionAuthenticationKind = 1); // 
+		"Enabled", ExternalConnectionAuthenticationKind = 1); // 1C:Enterprise
 		
 	CommonClientServer.SetFormItemProperty(Items,
 		"ExternalConnectionPassword",
-		"Enabled", ExternalConnectionAuthenticationKind = 1); // 
+		"Enabled", ExternalConnectionAuthenticationKind = 1); // 1C:Enterprise
 	
 EndProcedure
 
@@ -2317,7 +2319,7 @@ Function Attachable_ConnectionSetupMethodPageOnGoNext(Cancel)
 			
 			AreaPrefix = CurrentData.Prefix;
 			
-			CorrespondentDescription   = CurrentData.ApplicationDescription;
+			PeerInfobaseName   = CurrentData.ApplicationDescription;
 			CorrespondentAreaPrefix = CurrentData.CorrespondentPrefix;
 			
 			Endpoint 				= CurrentData.Endpoint;
@@ -2474,7 +2476,7 @@ Function Attachable_CommonCommunicationChannelsConnectionParametersPageOnOpen(Ca
 	
 	If IsMoveNext
 		And ImportConnectionParametersFromFile Then
-		// 
+		// Importing settings from the file.
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("Notification", ContinueSetupNotification);
 		
@@ -2653,7 +2655,7 @@ Function Attachable_GeneralSynchronizationSettingsPageOnOpen(Cancel, SkipPage, I
 	
 	If IsMoveNext
 		And ConnectionKind = "PassiveMode" Then
-		// 
+		// Importing correspondent settings from the file.
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("Notification", ContinueSetupNotification);
 		
@@ -2728,10 +2730,10 @@ Function Attachable_GeneralSynchronizationSettingsPageOnGoNext(Cancel)
 	EndIf;
 	
 	If CorrespondentDescriptionChangeAvailable
-		And IsBlankString(CorrespondentDescription) Then
+		And IsBlankString(PeerInfobaseName) Then
 		CommonClient.MessageToUser(
 			NStr("en = 'Please specify the description of the peer application.';"),
-			, "CorrespondentDescription", , Cancel);
+			, "PeerInfobaseName", , Cancel);
 	EndIf;
 		
 	If Not ConnectionKind = "PassiveMode" Then
@@ -2799,10 +2801,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// 
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// 
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -2816,7 +2818,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
 	Items.NavigationPanel.CurrentPage.Enabled = Not (IsMoveNext And NavigationRowCurrent.TimeConsumingOperation);
 	
-	// 
+	// Set the default button.
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "NextCommand");
 	
 	If NextButton <> Undefined Then
@@ -2846,7 +2848,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	
-	// 
+	// Navigation event handlers.
 	If IsMoveNext Then
 		
 		NavigationRows = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber - 1));
@@ -2854,7 +2856,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		If NavigationRows.Count() > 0 Then
 			NavigationRow = NavigationRows[0];
 		
-			// 
+			// OnNavigationToNextPage handler.
 			If Not IsBlankString(NavigationRow.OnNavigationToNextPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -2883,7 +2885,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		If NavigationRows.Count() > 0 Then
 			NavigationRow = NavigationRows[0];
 		
-			// 
+			// OnNavigationToPreviousPage handler.
 			If Not IsBlankString(NavigationRow.OnSwitchToPreviousPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -2921,7 +2923,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		Return;
 	EndIf;
 	
-	// 
+	// OnOpen handler
 	If Not IsBlankString(NavigationRowCurrent.OnOpenHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, SkipPage, IsMoveNext)";
@@ -2971,7 +2973,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
 	
-	// 
+	// TimeConsumingOperationProcessing handler.
 	If Not IsBlankString(NavigationRowCurrent.TimeConsumingOperationHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, GoToNext)";

@@ -1,45 +1,47 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Sets the settings that are used as standard for subsystem objects.
+// This procedure defines standard settings applied to subsystem objects.
 //
 // Parameters:
-//   Settings - Structure - :
-//       * OutputReportsInsteadOfOptions - Boolean - :
-//           
-//           
-//           
-//       * OutputDetails1 - Boolean - :
-//           
-//           
-//           
-//       * Search - Structure - :
-//           ** InputHint - String -  the hint text is displayed in the search field when no search is specified.
-//               As an example, we recommend specifying frequently used application configuration terms.
-//       * OtherReports - Structure - :
-//           ** CloseAfterChoice - Boolean -  whether to close the form after selecting the report hyperlink.
-//               Truth - to close the "Other reports" after selecting.
+//   Settings - Structure - Collection of subsystem settings. Has the following attributes::
+//       * OutputReportsInsteadOfOptions - Boolean - Default mode of displaying hyperlinks in the report panel::
+//           If True, report options are hidden, and reports are enabled and visible.
+//           If False, report options are visible by default, reports are disabled.
+//           By default, False.
+//       * OutputDetails1 - Boolean - Default mode of displaying details in the report panel::
+//           If True, display details as captions under options hyperlinks.
+//           If False, display details as tooltips.
+//           By default, True.
+//       * Search - Structure - Report option search settings::
+//           ** InputHint - String - Hint text is displayed in the search field when the search is not specified.
+//               It is recommended to use frequently used terms of the applied configuration as a hint.
+//       * OtherReports - Structure - "Other reports" form settings::
+//           ** CloseAfterChoice - Boolean - Flag indicating whether the form is closed after selecting a report hyperlink.
+//               True - close "Other reports" after selection.
 //               False - do not close.
-//               The default value is: True.
-//           ** ShowCheckBox - Boolean -  whether to show the close after Selection checkbox.
-//               True - show the "Close this window after switching to another report" checkbox.
-//               False - do not show the checkbox.
-//               Default: Lie.
-//       * EditOptionsAllowed - Boolean -  show advanced report settings
-//               and commands to change the report variant.
+//               The default value is True.
+//           ** ShowCheckBox - Boolean - Flag indicating whether the CloseAfterChoice check box is visible.
+//               True - whether to show "Close this window after moving to another report" check box.
+//               False - hide the check box.
+//               The default value is False.
+//       * EditOptionsAllowed - Boolean - Show advanced report settings and commands of report option change.
+//               
 //
 // Example:
-//	Customization.Search.Podskazite = NBC("EN = 'For example, cost price'");
-//	Customization.Other reports.Zakryvateli = Lie;
-//	Customization.Other reports.Showflag = True;
-//	Customization.Allowed To Change Options = False;
+//	Settings.Search.InputHint = NStr("en = 'For example, cost'");
+//	Settings.OtherReports.CloseAfterChoice = False;
+//	Settings.OtherReports.ShowCheckBox = True;
+//	Settings.OptionChangesAllowed = False;
 //
 Procedure OnDefineSettings(Settings) Export
 
@@ -48,22 +50,22 @@ Procedure OnDefineSettings(Settings) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Report layout settings.
 
-// Defines the sections of the command interface that provide report panels.
-// You need to add metadata to the Sections for the first-level subsystems
-// that contain commands for calling report panels.
+// Determines command interface sections where report panels are provided.
+// In Sections, it is necessary to add metadata of those subsystems of the first level
+// in which commands of report panels call are placed.
 //
 // Parameters:
-//  Sections - ValueList - :
+//  Sections - ValueList - Sections containing the report panel opening commands::
 //      * Value - MetadataObjectSubsystem
-//                 - String - 
-//                   
-//      * Presentation - String -  title of the report panel in this section.
+//                 - String - Either subsystem of the global command interface
+//                   or ReportOptionsClientServer.HomePageID for the home page.
+//      * Presentation - String - Report panel header in this section.
 //
 // Example:
-//	Sections.Add (Metadata.Subsystems.Survey, NSTR ("ru = 'Survey reports'"));
-//	Sections.Add(Variationdescription.ID of the initial page (), NSTR("ru = 'Main reports'"));
+//	Sections.Add(Metadata.Subsystems.Surveys, NStr("en = 'Survey reports'"));
+//	Sections.Add(ReportsOptionsClientServer.HomePageID(), NStr("en = 'Main reports'"));
 //
 Procedure DefineSectionsWithReportOptions(Sections) Export
 	
@@ -71,118 +73,120 @@ Procedure DefineSectionsWithReportOptions(Sections) Export
 	
 EndProcedure
 
-// Sets advanced configuration report settings, such as:
-// - description of the report;
-// - search fields: names of fields, parameters, and selections (for reports not based on SKD);
-// - placement in sections of the command interface
-//   (the initial configuration for placing reports on subsystems is automatically determined from the metadata,
-//    and it does not need to be duplicated);
-// - enabled flag (for contextual reports);
-// - output mode in report panels (with or without grouping by report);
-// - and other.
+// This procedure configures extended settings of configuration reports such as:
+// - Report details.
+// - Search fields: descriptions of fields, parameters, and filters (for reports that are not based on DCS).
+// - Placement in the sections of command interface
+//   (initial setup of report placement in subsystems is automatically determined from metadata,
+//    its duplication is not required).
+// - The Enabled flag (for context reports).
+// - Output mode in report panels (with or without grouping by a report).
+// - And so on.
 // 
-// The procedure specifies only the settings for reports (and report variants) of the configuration.
-// To configure reports from configuration extensions, include them in the pluggable reports and Processing subsystem.
+// Only settings of configuration reports (and report options) are configured in the procedure.
+// To set up reports from configuration extensions, add them to the AttachableReportsAndDataProcessors subsystem.
 //
-// To set settings, use the following auxiliary procedures and functions:
-//   report Options.Opasayutsya, 
-//   Report variantss.Obisnuieste, 
-//   Report variantss.Set the output mode for the report panel, 
-//   Report variantss.Set up a report in the Manager module.
+// To configure the settings, use the following auxiliary procedures and functions:
+//   ReportsOptions.ReportDetails, 
+//   ReportsOptions.OptionDetails, 
+//   ReportsOptions.SetOutputModeInReportPanels, 
+//   ReportsOptions.SetUpReportInManagerModule.
 //
-// By changing the report settings, you can change the settings of all its variants.
-// However, if you explicitly get the report variant settings, they will become independent,
-// i.e. they will no longer inherit settings changes from the report.
+// You can change the settings of all report options by modifying the report settings.
+// If report option settings are retrieved explicitly, they become independent
+// (they no longer inherit settings changes from the report).
 //   
-// The functional options of a predefined report variant are combined with the functional options of this report according to the rules:
-// (Fo1_report OR Fo2_report) And (Fo3_variant OR Fo4_variant).
-// However, only functional report options apply to custom report options
-// - they are disabled only when the entire report is disabled.
+// Functional options of the predefined report option are merged to functional options of this report according to the following rules:
+// (FO1_Report OR FO2_Report) And (FO3_Option OR FO4_Option).
+// Only the functional options of the report are available for user report options,
+// - they are disabled only with disabling the entire report.
 //
 // Parameters:
-//   Settings - ValueTable - :
+//   Settings - ValueTable - Collection of predefined report options, where::
 //       * Report - CatalogRef.ExtensionObjectIDs
 //               - CatalogRef.AdditionalReportsAndDataProcessors
 //               - CatalogRef.MetadataObjectIDs
-//               - String - 
-//       * Metadata - MetadataObjectReport -  the report metadata.
-//       * UsesDCS - Boolean -  indicates whether the report uses the main SKD.
-//       * VariantKey - String -  the identifier of the version of the report.
-//       * DetailsReceived - Boolean -  indicates that the string description has already been received.
-//       * Enabled              - Boolean - 
-//       * DefaultVisibility - Boolean -  if False, the report option is hidden in the report panel by default.
-//       * ShouldShowInOptionsSubmenu - Boolean -   
-//                                                
-//       * Description - String - 
-//       * LongDesc - String -  explanation of the purpose of the report.
-//       * Location - Map of KeyAndValue - :
-//             ** Key - MetadataObject -  the subsystem that hosts the report or report variant.
-//             ** Value - String -  the settings in the subsystem (group) - "", "Important", "Stacie".
-//       * SearchSettings - Structure - :
-//             ** FieldDescriptions - String -  field names of the report variant.
-//             ** FilterParameterDescriptions - String -  the names settings option of the report.
-//             ** Keywords - String -  additional terminology (including specialized or outdated).
-//             ** TemplatesNames - String -  used instead of field Names.
-//       * SystemInfo - Structure -  other service information.
-//       * Type - String -  the list of type identifiers.
-//       * IsOption - Boolean -  indication that a description of the report refers to the version of the report.
-//       * FunctionalOptions - Array of String - :
-//       * GroupByReport - Boolean -  indicates whether options should be grouped by base report.
-//       * MeasurementsKey - String -  ID of the report performance measurement.
-//       * MainOption - String -  ID of the main version of the report.
-//       * DCSSettingsFormat - Boolean -  indicates whether settings are stored in the SKD format.
-//       * DefineFormSettings - Boolean - 
-//           
-//           
-//           :
+//               - String - Full name or reference to the report ID.
+//       * Metadata - MetadataObjectReport - Report metadata.
+//       * UsesDCS - Boolean - Flag indicating whether the main DCS is used in the report.
+//       * VariantKey - String - Report option ID.
+//       * DetailsReceived - Boolean - Flag indicating that the string description is already received.
+//       * Enabled              - Boolean - If False, the report option is hidden from the report panel.
+//       * DefaultVisibility - Boolean - If False, the report option is hidden from the report panel by default.
+//       * ShouldShowInOptionsSubmenu - Boolean - If False, the report is hidden from the report choice submenu  
+//                                                in the report form. It's used if Enabled is False.
+//       * Description - String - Report option name.
+//       * LongDesc - String - Clarifies the report purpose.
+//       * Location - Map of KeyAndValue - Location settings for placing the report option in sections or subsystems, where::
+//             ** Key - MetadataObject - Subsystem that contains the report or report option.
+//             ** Value - String - Location settings for placing reports (report options) in the subsystem (group): "", "Important", "SeeAlso".
+//       * SearchSettings - Structure - Additional settings for searching this report option, where::
+//             ** FieldDescriptions - String - Names of report option fields.
+//             ** FilterParameterDescriptions - String - Names of report option settings.
+//             ** Keywords - String - Additional terminology (including specialized and obsolete).
+//             ** TemplatesNames - String - This parameter is used instead of FieldDescriptions.
+//       * SystemInfo - Structure - Other internal information.
+//       * Type - String - List of type IDs.
+//       * IsOption - Boolean - Flag indicating whether report details are related to a report option.
+//       * FunctionalOptions - Array of String - Collection of functional option IDs, where::
+//       * GroupByReport - Boolean - Flag indicating whether it is necessary to group options by a base report.
+//       * MeasurementsKey - String - ID of report performance measurement.
+//       * MainOption - String - ID of the main report option.
+//       * DCSSettingsFormat - Boolean - Flag indicating whether the settings in the DCS format are stored.
+//       * DefineFormSettings - Boolean - The report has an API for integration with the report form
+//           including overriding some form settings and subscribing to its events.
+//           If True and the report is attached to the general ReportForm form,
+//           then the procedure must be defined in the report object module according to the following template::
 //               
-//               
+//               Set the report form settings.
 //               //
 //               
-//               
-//               
-//                See ReportsClientServer.DefaultReportSettings
+//               Parameters:
+//               Form - ClientApplicationForm, Undefined
+//               OptionKey - String, Undefined See ReportsClientServer.DefaultReportSettings
 //               //
-//               
+//               Settings - 
 //               	
-//               
+//               Procedure DefineFormSettings(Form, OptionKey, Settings) Export
+//                                             Procedure code.
+//                                             EndProcedure
 //
 // Example:
 //
-//  
-//	
-//	
+//  // Adding report option to the subsystem.
+//	OptionSettings = ReportsOptions.OptionDetails(Settings, Metadata.Reports.NameOfReport, "<OptionName>");
+//	OptionSettings.Placement.Insert(Subsystems.SectionName.Subsystems.SubsystemName);
 //
-//  
-//	
-//	
+//  // Disabling report options.
+//	OptionSettings = ReportsOptions.OptionDetails(Settings, Metadata.Reports.NameOfReport, "<OptionName>");
+//	OptionSettings.Enabled = False;
 //
-//  
-//	
-//	
-//	
-//	
+//  // Disabling all report options except one.
+//	ReportSettings = ReportsOptions.ReportDetails(Settings, Metadata.Reports.NameOfReport);
+//	ReportSettings.Enabled = False;
+//	OptionSettings = ReportsOptions.OptionDetails(Settings, ReportSettings, "<OptionName>");
+//	OptionSettings.Enabled = True;
 //
-//  
-//	
-//	
-//		
-//		
-//		
-//		
-//		
-//	
-//		
-//		
-//		
-//		
+//  // Filling in the search settings - field descriptions, parameters and filters:
+//	OptionSettings = ReportsOptions.OptionDetails(Settings, Metadata.Reports.NameOfReportWithoutSchema, "");
+//	OptionSettings.SearchSettings.FieldDescriptions =
+//		NStr("en = 'Counterparty
+//		|Contract
+//		|Responsible person
+//		|Discount
+//		|Date'");
+//	OptionSettings.SearchSettings.FilterParameterDescriptions =
+//		NStr("en = 'Period
+//		|Responsible person
+//		|Counterparty
+//		|Contract'");
 //
-//  
-//  
-//	
-//  
-//	
-//	
+//  // Switching the output mode in report panels:
+//  // Grouping report options by this report:
+//	ReportsOptions.SetOutputModeInReportPanels(Settings, Metadata.Reports.NameOfReport, True);
+//  // Without grouping by the report:
+//	Report = ReportsOptions.ReportDetails(Settings, Metadata.Reports.NameOfReport);
+//	ReportsOptions.SetOutputModeInReportPanels(Settings, Report, False);
 //
 Procedure CustomizeReportsOptions(Settings) Export
 
@@ -190,110 +194,110 @@ Procedure CustomizeReportsOptions(Settings) Export
 	
 EndProcedure
 
-// Registers changes in the names of report variants.
-// It is used for updating to preserve referential integrity,
-// in particular to save user settings and settings for sending reports.
-// The old variant name is reserved and cannot be used in the future.
-// If there were several changes, then each change must be registered
-// by specifying the latest (current) change in the current variant name.) name of the report variant.
-// Since the names of report variants are not displayed in the user interface,
-// we recommend setting them in such a way that you don't need to change them later.
-// In the Changes, you must add descriptions of changes to the names
-// of report variants connected to the subsystem.
+// Registers changes in report option names.
+// It is used when updating to keep reference integrity,
+// in particular for saving user settings and mailing report settings.
+// Old option name is reserved and cannot be used later.
+// If there are several changes, each change must be registered
+// by specifying the last (current) report option name in the relevant option name.
+// Since the names of report options are not displayed in the user interface,
+// it is recommended to set them in such a way that they would not be changed.
+// Add to Changes the details of changes in names
+// of the report options connected to the subsystem.
 //
 // Parameters:
-//   Changes - ValueTable - :
-//       * Report - MetadataObject -  the report metadata in the scheme which has changed the name of the option.
-//       * OldOptionName - String -  the old variant name, before the change.
-//       * RelevantOptionName - String -  the current (last current) name of the option.
+//   Changes - ValueTable - Table of changed report option names. Columns::
+//       * Report - MetadataObject - Metadata of the report whose schema contains the new option name.
+//       * OldOptionName - String - Old name of the report option.
+//       * RelevantOptionName - String - Current (last relevant) option name.
 //
 // Example:
-//	Change = Changes.Add ();
-//	Change.Report = Metadata.Reports.<ReportName>;
-//	Change.Stroymateriala = "<Stroymateriala>";
-//	Change.Up-To-Date Variant = "<Up-To-Date Variant>";
+//	Change = Changes.Add();
+//	Change.Report = Metadata.Reports.<NameOfReport>;
+//	Change.OldOptionName = "<OldOptionName>";
+//	Change.RelevantOptionName = "<RelevantOptionName>";
 //
 Procedure RegisterChangesOfReportOptionsKeys(Changes) Export
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Report command settings.
 
-// Defines configuration objects whose manager modules have a procedure for adding Report commands
-// describing commands for opening contextual reports.
-// For the syntax of the Add Report Commands procedure, see the documentation.
+// Determines configuration objects whose manager modules support the AddReportsCommands procedure
+// describing context report opening commands.
+// See the help for the AddReportsCommands procedure syntax.
 //
 // Parameters:
-//  Objects - Array -  metadata objects (metadata Objects) with report commands.
+//  Objects - Array - metadata objects (MetadataObject) with report commands.
 //
 Procedure DefineObjectsWithReportCommands(Objects) Export
 	
 EndProcedure
 
-// Define a list of global report commands.
-// The event occurs when the reuse module is called.
+// Determine a list of global report commands.
+// The event occurs when calling a re-use module.
 //
 // Parameters:
-//  ReportsCommands - ValueTable - :
-//   * Id - String   -  command ID.
-//   * Presentation - String   -  representation of the team in the form.
-//   * Importance      - String   -  the suffix of the group in the submenu where this command should be output.
-//                                Allowed to use: "Important", "Normal" and "Stacie".
-//   * Order       - Number    -  the order in which the team is placed in the group. Used for setting up for a specific
-//                                workplace.
-//   * Picture      - Picture -  picture of the team.
-//   * Shortcut - Shortcut -  keyboard shortcut to quickly call a command.
-//   * ParameterType - TypeDescription -  types of objects that this command is intended for.
-//   * VisibilityInForms    - String -  comma-separated form names that the command should be displayed in.
-//                                    Used when the composition of teams differs for different forms.
-//   * FunctionalOptions - String -  comma-separated names of functional options that define the visibility of the command.
-//   * VisibilityConditions    - Array -  determines the visibility of the command depending on the context.
-//                                    To register conditions, use the procedure
-//                                    Pluggable commands.Dobasefinalization().
-//                                    Conditions are combined by "And".
-//   * ChangesSelectedObjects - Boolean -  determines whether the command is available in a situation
-//                                         where the user does not have permission to change the object.
-//                                         If True, the button will not be available in the situation described above.
-//                                         Optional. Default: Lie.
+//  ReportsCommands - ValueTable - Table of commands for adding report to the submenu::
+//   * Id - String   - Command ID.
+//   * Presentation - String   - Command presentation in a form.
+//   * Importance      - String   - Suffix of a submenu group in which the command is to be output.
+//                                The following values are acceptable: "Important", "Ordinary", and "SeeAlso".
+//   * Order       - Number    - Command position in the group. Can be customized workspace-wise.
+//                                
+//   * Picture      - Picture - Command icon.
+//   * Shortcut - Shortcut - Shortcut for fast command call.
+//   * ParameterType - TypeDescription - Types of objects that the command is intended for.
+//   * VisibilityInForms    - String - Comma-delimited names of the forms to add a command to.
+//                                    Use to add different set of commands to different forms.
+//   * FunctionalOptions - String - Comma-delimited names of functional options that affect the command visibility.
+//   * VisibilityConditions    - Array - Defines the command conditional visibility.
+//                                    To add conditions, use procedure AttachableCommands.AddCommandVisibilityCondition().
+//                                    Use "And" to specify multiple conditions.
+//                                    
+//   * ChangesSelectedObjects - Boolean - Optional. Flag defining command availability for users
+//                                         who have no right to edit the object can run the command.
+//                                         If True, the button will be inactive. By default, False.
+//                                         
 //   * MultipleChoice - Boolean
-//                        - Undefined - 
-//                                         
-//                                         
-//   * IsNonContextual - Boolean - 
-//                              
-//   * WriteMode - String - :
-//                 
-//                                  
-//                                  
-//                 
-//                 
-//                 
-//                 
-//                 
-//   * FilesOperationsRequired - Boolean -  if True, the web client offers
-//                                        to install an extension for working with 1C:Company.
-//                                        Optional. Default: Lie.
-//   * Manager - String - 
-//                         
-//   * FormName - String -  name of the form that you want to open or get to run the command.
-//                         If no Handler is specified, the "Open" method is called for the form.
-//   * VariantKey - String -  name of the report variant to open when running the command.
-//   * FormParameterName - String -  name of the form parameter to pass the link or array of links to.
+//                        - Undefined - Optional. If True, the command supports multiple option choices.
+//                                         In this case, the parameter passes a list of references.
+//                                         By default, True.
+//   * IsNonContextual - Boolean - If set to "True", users can do the following:
+//                              access the report's options, add it to favorites, and get the report's reference.
+//   * WriteMode - String - Object-writing-associated actions that run before the command handler::
+//                 DoNotWrite - Do not write the object and pass the full form in the handler parameters instead of references.
+//                                  In this mode, we recommend that you operate directly with a form that is passed in the structure of parameter 2
+//                                  of the command handler.
+//                 WriteNewOnly - Write only new objects.
+//                 Write - Write only new and modified objects.
+//                 Post - Post documents.
+//                 Before writing or posting the object, users are asked for confirmation.
+//                 Optional. By default, Write.
+//   * FilesOperationsRequired - Boolean - If True, in the web client, users are prompted
+//                                        to install 1C:Enterprise Extension.
+//                                        Optional. The default value is False.
+//   * Manager - String - Full name of the metadata object where the command was indicated.
+//                         For example, "Report.PurchaseLedger".
+//   * FormName - String - Name of the form the command will open or receive.
+//                         If Handler is not specified, the "Open" method is called.
+//   * VariantKey - String - Name of the report option the command will open.
+//   * FormParameterName - String - Name of the form parameter to pass a reference or a reference array to.
 //   * FormParameters - Undefined
-//                    - Structure - 
-//   * Handler - String - 
-//                  
-//                  :
-//                  
-//                  
-//   * AdditionalParameters - Structure -  parameters of the handler specified in the Handler.
+//                    - Structure - Parameters of the form specified in FormName.
+//   * Handler - String - Details of the procedure that handles the command's main action.
+//                  If the procedure belongs to a common module, the following format is used <CommonModuleName>.<ProcedureName>.
+//                  The format <ProcedureName> is used in the following cases::
+//                  1. If FormName is filled (then a client procedure is expected in the specified form module).
+//                  2. If FormName is not filled (a server procedure is expected in the manager module).
+//   * AdditionalParameters - Structure - Handler parameters specified in Handler.
 //
-//  Parameters - Structure - :
-//   * FormName - String -  full name of the form.
+//  Parameters - Structure - Runtime context details::
+//   * FormName - String - Form full name.
 //   
-//  StandardProcessing - Boolean -  if set to False, the "add report Commands" event of the object Manager will not
-//                                  be called.
+//  StandardProcessing - Boolean - If False, the AddReportsCommands event of the object manager
+//                                  is not called.
 //
 Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing) Export
 	

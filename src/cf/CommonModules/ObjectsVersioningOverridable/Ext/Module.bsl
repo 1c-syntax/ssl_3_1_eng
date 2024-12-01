@@ -1,65 +1,67 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Call to obtain a versioned table documents during the recording of the version of the object.
-// A table document is attached to the object version if the report on the object version requires
-// replacing the "technogenic" table part of the object with its representation as a table document.
+// Called to get versioned spreadsheet documents when writing the object version.
+// When the object version report requires
+// replacing technical object tabular section by its spreadsheet document presentation, the spreadsheet document is attached to the object version.
 //
 // Parameters:
-//  Ref             - AnyRef -  versioned configuration object.
+//  Ref             - AnyRef - versioned configuration object.
 //  SpreadsheetDocuments - Structure:
-//   * Key     - String    - 
+//   * Key     - String    - spreadsheet document name;
 //   * Value - Structure:
-//    ** Description - String            -  name of the table document;
-//    ** Data       - SpreadsheetDocument -  versioned table document.
+//    ** Description - String            - a spreadsheet document description.
+//    ** Data       - SpreadsheetDocument - versioned spreadsheet document.
 //
 Procedure OnReceiveObjectSpreadsheetDocuments(Ref, SpreadsheetDocuments) Export
 	
 EndProcedure
 
-// Called after parsing the object version read from the register
-//  . it can be used for additional processing of the version parsing result.
+// Called after parsing the object version that is read from the register.
+//  This can be used for additional processing of the version parsing result.
 // 
 // Parameters:
-//  Ref    - AnyRef -  versioned configuration object.
-//  Result - Structure -  the result of the evaluation version of subsystem versioning.
+//  Ref    - AnyRef - versioned configuration object.
+//  Result - Structure - result of parsing the version by the versioning subsystem.
 //
 Procedure AfterParsingObjectVersion(Ref, Result) Export
 	
 EndProcedure
 
-// Called after defining the object's details from the form 
-// Data register.Versions of objects.Webrequestevent.
+// Called after defining object attributes from form 
+// InformationRegister.ObjectsVersions.SelectObjectAttributes.
 // 
 // Parameters:
-//  Ref           - AnyRef       -  versioned configuration object.
-//  AttributeTree - FormDataTree -  tree of object details.
+//  Ref           - AnyRef       - versioned configuration object.
+//  AttributeTree - FormDataTree - object attribute tree.
 //
 Procedure OnSelectObjectAttributes(Ref, AttributeTree) Export
 	
 EndProcedure
 
-// Called when getting a view of the object's props.
+// Called upon receiving object attribute presentation.
 // 
 // Parameters:
-//  Ref                - AnyRef -  versioned configuration object.
-//  AttributeName          - String      -  Markusica, as it is set in the Configurator.
-//  AttributeDescription - String      -  output parameter, you can override the resulting synonym.
-//  Visible             - Boolean      -  output details in reports by version.
+//  Ref                - AnyRef - versioned configuration object.
+//  AttributeName          - String      - AttributeName as it is set in Designer.
+//  AttributeDescription - String      - an output parameter. You can overwrite the retrieved synonym.
+//  Visible             - Boolean      - display attribute in version reports.
 //
 Procedure OnDetermineObjectAttributeDescription(Ref, AttributeName, AttributeDescription, Visible) Export
 	
 EndProcedure
 
-// Adds details to the object that are stored separately from the object or in the service part of the object itself
-// that is not intended for output in reports.
+// Supplements the object with attributes that are stored separately from the object or in the internal part of the object
+// that is not displayed in reports.
 //
 // Parameters:
 //  Object - CatalogObject
@@ -67,13 +69,13 @@ EndProcedure
 //         - ChartOfCalculationTypesObject
 //         - ChartOfAccountsObject
 //         - ChartOfCharacteristicTypesObject -
-//           
-//  AdditionalAttributes - ValueTable - 
-//                                              :
-//   * Id - Arbitrary -  unique ID of the Bank details. Required when restoring from
-//                                    the object version in the case when the props value is stored separately from the object.
-//   * Description - String -  name of the prop.
-//   * Value - Arbitrary -  the value of the props.
+//           versioned object.
+//  AdditionalAttributes - ValueTable - collection of additional attributes that are to be saved
+//                                              with the object version:
+//   * Id - Arbitrary - a unique attribute ID. Required to restore from the object version
+//                                    in case the attribute value is stored separately from the object.
+//   * Description - String - an attribute description.
+//   * Value - Arbitrary - Attribute value.
 //
 Procedure OnPrepareObjectData(Object, AdditionalAttributes) Export 
 	
@@ -81,7 +83,7 @@ Procedure OnPrepareObjectData(Object, AdditionalAttributes) Export
 	
 EndProcedure
 
-// Restores the values of object details that are stored separately from the object.
+// Restores object attributes values stored separately from the object.
 //
 // Parameters:
 //  Object - CatalogObject
@@ -89,13 +91,13 @@ EndProcedure
 //         - ChartOfCalculationTypesObject
 //         - ChartOfAccountsObject
 //         - ChartOfCharacteristicTypesObject -
-//           :
+//           versioned object:
 //   * Ref - AnyRef
-//  AdditionalAttributes - ValueTable - 
-//                                              :
-//   * Id - Arbitrary -  unique ID of the Bank details.
-//   * Description - String -  name of the prop.
-//   * Value - Arbitrary -  the value of the props.
+//  AdditionalAttributes - ValueTable - collection of additional attributes that were saved
+//                                              with the object version:
+//   * Id - Arbitrary - a unique attribute ID.
+//   * Description - String - an attribute description.
+//   * Value - Arbitrary - Attribute value.
 //
 Procedure OnRestoreObjectVersion(Object, AdditionalAttributes) Export
 	

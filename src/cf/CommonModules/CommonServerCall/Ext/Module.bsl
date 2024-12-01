@@ -1,33 +1,35 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region InfobaseData
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common procedures and functions to manage infobase data.
 
-// Checks for references to the object in the database.
-// When called in an undivided session, it does not detect links in split areas.
+// Checks whether there are references to the object in the infobase.
+// When called in a shared session, does not find references in separated areas.
 //
 // See Common.RefsToObjectFound
 //
 // Parameters:
 //  RefOrRefArray - AnyRef
-//                        - Array - 
-//  SearchInInternalObjects - Boolean -  if True,
-//      the link search exceptions set during configuration development will not be taken into account.
-//      About the deletion of search links read more
+//                        - Array - an object or a list of objects.
+//  SearchInInternalObjects - Boolean - If True, exceptions defined during configuration development
+//      are ignored while searching for references.
+//      For more details on exceptions during reference search
 //      See CommonOverridable.OnAddReferenceSearchExceptions
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if any references to the object are found.
 //
 Function RefsToObjectFound(Val RefOrRefArray, Val SearchInInternalObjects = False) Export
 	
@@ -35,16 +37,16 @@ Function RefsToObjectFound(Val RefOrRefArray, Val SearchInInternalObjects = Fals
 	
 EndFunction
 
-// Checks the status of the submitted documents and returns
-// those that were not processed.
+// Checks posting status of the passed documents and returns
+// the unposted documents.
 //
 // See Common.CheckDocumentsPosting
 //
 // Parameters:
-//  Var_Documents - Array -  documents that need to be checked for their status.
+//  Var_Documents - Array - documents to check.
 //
 // Returns:
-//  Array - 
+//  Array - unposted documents.
 //
 Function CheckDocumentsPosting(Val Var_Documents) Export
 	
@@ -52,7 +54,7 @@ Function CheckDocumentsPosting(Val Var_Documents) Export
 	
 EndFunction
 
-// Attempts to process documents.
+// Attempts to post the documents.
 //
 // See Common.PostDocuments
 //
@@ -73,23 +75,23 @@ EndFunction
 #Region SettingsStorage
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Saving, reading, and deleting settings from storages.
 
-// Saves the setting to the General settings store, as the Save platform method
-// , for standard storageadjustment Manager or storageadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Saves a setting to the common settings storage as the Save method
+// of StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// object. Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// If you do not have the right to save the user's Data, saving is skipped without an error.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
 //
 // See Common.CommonSettingsStorageSave
 //
 // Parameters:
-//   ObjectKey       - String           - 
-//   SettingsKey      - String           - 
-//   Settings         - Arbitrary     - 
-//   SettingsDescription  - SettingsDescription - 
-//   UserName   - String           - 
-//   RefreshReusableValues - Boolean -  execute the platform method of the same name.
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - SettingsDescription - See Syntax Assistant.
+//   UserName   - String           - See Syntax Assistant.
+//   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 			SettingsDescription = Undefined,
@@ -106,22 +108,22 @@ Procedure CommonSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 		
 EndProcedure
 
-// Saves several settings to the General settings store, such as the Save platform method
-// , the standard storageadjustment Manager, or storageadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Saves settings to the common settings storage as the Save method
+// of StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// object. Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// If you do not have the right to save the user's Data, saving is skipped without an error.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
 //
 // See Common.CommonSettingsStorageSaveArray
 // 
 // Parameters:
-//   MultipleSettings - Array - :
+//   MultipleSettings - Array - with the following values:
 //     * Value - Structure:
-//         * Object    - String       - see the Key object parameter in the platform's syntax assistant.
-//         * Setting - String       - see the Settings key parameter in the platform's syntax assistant.
-//         * Value  - Arbitrary - see the Configuration parameter in the platform's syntax assistant.
+//         * Object    - String       - see the ObjectKey parameter in the Syntax Assistant.
+//         * Setting - String       - see the SettingsKey parameter in the Syntax Assistant.
+//         * Value  - Arbitrary - see the Settings parameter in the Syntax Assistant.
 //
-//   RefreshReusableValues - Boolean -  execute the platform method of the same name.
+//   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure CommonSettingsStorageSaveArray(MultipleSettings, RefreshReusableValues = False) Export
 	
@@ -129,31 +131,31 @@ Procedure CommonSettingsStorageSaveArray(MultipleSettings, RefreshReusableValues
 	
 EndProcedure
 
-// Loads a setting from the General settings store, as the upload method of the Platform
-// , for standard storagesadjustment Manager or storagesadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Imports the setting from the common settings storage as the Import method
+// of the StandardSettingsStorageManager or SettingsStorageManager.<Storage name> objects.
+// Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// It also returns the specified default value if the settings do not exist.
-// If you do not have the right to save user Data, the default value is returned without an error.
+// Returns the specified default value if the settings do not exist.
+// If the SaveUserData right is not granted, the default value is returned and no error is raised.
 //
-// The return value clears references to a nonexistent object in the database, namely
-// - , the returned reference is replaced with the specified default value;
-// - links are removed from Array data;
-// - for data of the Structure and Match type, the key does not change, and the value is set Undefined;
-// - analysis of values in data of the Array, Structure, and Match type is performed recursively.
+// The return value clears references to a non-existent object in the database, namely:
+// - The returned reference is replaced with the default value.
+// - The references are deleted from the data of the Array type.
+// - The key is not changed for the data of the Structure or Map types, and the value is set to Undefined.
+// - Recursive analysis of values in the data of the Array, Structure, Map types is carried out.
 //
 // See Common.CommonSettingsStorageLoad
 //
 // Parameters:
-//   ObjectKey          - String           - 
-//   SettingsKey         - String           - 
-//   DefaultValue  - Arbitrary     -  the value that is returned if the settings do not exist.
-//                                             If omitted, the value Undefined is returned.
-//   SettingsDescription     - SettingsDescription - 
-//   UserName      - String           - 
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
+//   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
+//                                             If not specified, returns Undefined.
+//   SettingsDescription     - SettingsDescription - See Syntax Assistant.
+//   UserName      - String           - See Syntax Assistant.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - See Syntax Assistant.
 //
 Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined,
 			SettingsDescription = Undefined,
@@ -168,21 +170,21 @@ Function CommonSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefi
 		
 EndFunction
 
-// Deletes a setting from the General settings store, as the delete method of the Platform
-// , for standard storageadjustment Manager or storageadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Removes a setting from the general settings storage as the Remove method,
+// StandardSettingsStorageManager objects, or SettingsStorageManager.<Storage name>,
+// The setting key supports more than 128 characters by hashing the part
 // that exceeds 96 characters.
-// If you do not have the right to save the user's Data, the deletion is skipped without an error.
+// If the SaveUserData right is not granted, no data is deleted and no error is raised.
 //
 // See Common.CommonSettingsStorageDelete
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   SettingsKey    - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   UserName - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //
 Procedure CommonSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -190,20 +192,20 @@ Procedure CommonSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
 EndProcedure
 
-// Saves the setting to the system settings store, as the platform's Save method
-// for the standard storage object Configuremanager, but with support for the settings key length
-// of more than 128 characters by hashing the part that exceeds 96 characters.
-// If you do not have the right to save the user's Data, saving is skipped without an error.
+// Saves a setting to the system settings storage as the Save method
+// of StandardSettingsStorageManager object. Setting keys
+// exceeding 128 characters are supported by hashing the key part that exceeds 96 characters.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
 //
 // See Common.SystemSettingsStorageSave
 //
 // Parameters:
-//   ObjectKey       - String           - 
-//   SettingsKey      - String           - 
-//   Settings         - Arbitrary     - 
-//   SettingsDescription  - SettingsDescription - 
-//   UserName   - String           - 
-//   RefreshReusableValues - Boolean -  execute the platform method of the same name.
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - SettingsDescription - See Syntax Assistant.
+//   UserName   - String           - See Syntax Assistant.
+//   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure SystemSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 			SettingsDescription = Undefined,
@@ -220,30 +222,30 @@ Procedure SystemSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 	
 EndProcedure
 
-// Loads a setting from the system settings store, as the platform's Upload method,
-// and the standard configuration Manager Storage object, but with support for a settings key length
-// of more than 128 characters by hashing the part that exceeds 96 characters.
-// It also returns the specified default value if the settings do not exist.
-// If you do not have the right to save user Data, the default value is returned without an error.
+// Imports settings from the system settings storage as the Import method
+// of the StandardSettingsStorageManager object. Setting keys exceeding
+// 128 characters are supported by hashing the key part that exceeds 96 characters.
+// Returns the specified default value if the settings do not exist.
+// If the SaveUserData right is not granted, the default value is returned and no error is raised.
 //
-// The returned value clears references to a nonexistent object in the database, namely:
-// - the returned reference is replaced with the specified default value;
-// - links are removed from Array data;
-// - for data of the Structure and Match type, the key does not change, and the value is set Undefined;
-// - analysis of values in Array, Structure, and Match data is performed recursively
+// The return value clears references to a non-existent object in the database, namely:
+// - The returned reference is replaced with the default value.
+// - The references are deleted from the data of the Array type.
+// - The key is not changed for the data of the Structure or Map types, and the value is set to Undefined.
+// - Recursive analysis of values in the data of the Array, Structure, Map types is carried out.
 //
 // See Common.SystemSettingsStorageLoad
 //
 // Parameters:
-//   ObjectKey          - String           - 
-//   SettingsKey         - String           - 
-//   DefaultValue  - Arbitrary     -  the value that is returned if the settings do not exist.
-//                                             If omitted, the value Undefined is returned.
-//   SettingsDescription     - SettingsDescription - 
-//   UserName      - String           - 
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
+//   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
+//                                             If not specified, returns Undefined.
+//   SettingsDescription     - SettingsDescription - See Syntax Assistant.
+//   UserName      - String           - See Syntax Assistant.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - See Syntax Assistant.
 //
 Function SystemSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined, 
 			SettingsDescription = Undefined,
@@ -258,20 +260,20 @@ Function SystemSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefi
 	
 EndFunction
 
-// Deletes a setting from the system settings store, as the delete method of the Platform
-// , and the standard storage Configuremanager object, but with support for the settings key length
-// of more than 128 characters by hashing the part that exceeds 96 characters.
-// If you do not have the right to save the user's Data, the deletion is skipped without an error.
+// Removes a setting from the system settings storage as the Remove method
+// or the StandardSettingsStorageManager object. The setting key supports
+// more than 128 characters by hashing the part that exceeds 96 characters.
+// If the SaveUserData right is not granted, no data is deleted and no error is raised.
 //
 // See Common.SystemSettingsStorageDelete
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   SettingsKey    - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   UserName - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //
 Procedure SystemSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -279,21 +281,21 @@ Procedure SystemSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
 EndProcedure
 
-// Saves the configuration in the form data settings store, as the Save platform method
-// , for standard Storagesconfigurationmanager or Storagesconfigurationmanager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Saves a setting to the form data settings storage as the Save method of
+// StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// object. Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// If you do not have the right to save the user's Data, saving is skipped without an error.
+// If the SaveUserData right is not granted, data save fails and no error is raised.
 //
 // See Common.FormDataSettingsStorageSave
 //
 // Parameters:
-//   ObjectKey       - String           - 
-//   SettingsKey      - String           - 
-//   Settings         - Arbitrary     - 
-//   SettingsDescription  - SettingsDescription - 
-//   UserName   - String           - 
-//   RefreshReusableValues - Boolean -  execute the platform method of the same name.
+//   ObjectKey       - String           - See Syntax Assistant.
+//   SettingsKey      - String           - See Syntax Assistant.
+//   Settings         - Arbitrary     - See Syntax Assistant.
+//   SettingsDescription  - SettingsDescription - See Syntax Assistant.
+//   UserName   - String           - See Syntax Assistant.
+//   RefreshReusableValues - Boolean - the flag that indicates whether to execute the method.
 //
 Procedure FormDataSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 			SettingsDescription = Undefined,
@@ -310,31 +312,31 @@ Procedure FormDataSettingsStorageSave(ObjectKey, SettingsKey, Settings,
 	
 EndProcedure
 
-// Loads a setting from the form data settings store, as a method of the Upload platform,
-// for standard storagesadjustment Manager or storagesadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Imports the setting from the common settings storage as the Import method
+// of the StandardSettingsStorageManager or SettingsStorageManager.<Storage name> objects.
+// Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// It also returns the specified default value if the settings do not exist.
-// If you do not have the right to save user Data, the default value is returned without an error.
+// Returns the specified default value if the settings do not exist.
+// If the SaveUserData right is not granted, the default value is returned and no error is raised.
 //
-// The return value clears references to a nonexistent object in the database, namely
-// - , the returned reference is replaced with the specified default value;
-// - links are removed from Array data;
-// - for data of the Structure and Match type, the key does not change, and the value is set Undefined;
-// - analysis of values in data of the Array, Structure, and Match type is performed recursively.
+// The return value clears references to a non-existent object in the database, namely:
+// - The returned reference is replaced with the default value.
+// - The references are deleted from the data of the Array type.
+// - The key is not changed for the data of the Structure or Map types, and the value is set to Undefined.
+// - Recursive analysis of values in the data of the Array, Structure, Map types is carried out.
 //
 // See Common.FormDataSettingsStorageLoad
 //
 // Parameters:
-//   ObjectKey          - String           - 
-//   SettingsKey         - String           - 
-//   DefaultValue  - Arbitrary     -  the value that is returned if the settings do not exist.
-//                                             If omitted, the value Undefined is returned.
-//   SettingsDescription     - SettingsDescription - 
-//   UserName      - String           - 
+//   ObjectKey          - String           - See Syntax Assistant.
+//   SettingsKey         - String           - See Syntax Assistant.
+//   DefaultValue  - Arbitrary     - the value that is returned if the settings do not exist.
+//                                             If not specified, returns Undefined.
+//   SettingsDescription     - SettingsDescription - See Syntax Assistant.
+//   UserName      - String           - See Syntax Assistant.
 //
 // Returns: 
-//   Arbitrary - 
+//   Arbitrary - See Syntax Assistant.
 //
 Function FormDataSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Undefined,
 			SettingsDescription = Undefined,
@@ -349,21 +351,21 @@ Function FormDataSettingsStorageLoad(ObjectKey, SettingsKey, DefaultValue = Unde
 	
 EndFunction
 
-// Deletes a setting from the form data settings store, as the delete method of the Platform
-// , for standard storagesadjustment Manager or storagesadjustment Manager objects.< Storage name>,
-// but with support for a configuration key length of more than 128 characters by hashing the part
+// Deletes the setting from the form data settings storage using the Delete method
+// for StandardSettingsStorageManager or SettingsStorageManager.<Storage name>,
+// objects. Setting keys exceeding 128 characters are supported by hashing the key part
 // that exceeds 96 characters.
-// If you do not have the right to save the user's Data, the deletion is skipped without an error.
+// If the SaveUserData right is not granted, no data is deleted and no error is raised.
 //
 // See Common.FormDataSettingsStorageDelete
 //
 // Parameters:
 //   ObjectKey     - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   SettingsKey    - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //   UserName - String
-//                   - Undefined - 
+//                   - Undefined - See Syntax Assistant.
 //
 Procedure FormDataSettingsStorageDelete(ObjectKey, SettingsKey, UserName) Export
 	
@@ -380,7 +382,7 @@ EndProcedure
 #Region Styles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions to manage style colors in the client code.
 
 // See CommonClient.StyleColor
 Function StyleColor(Val StyleColorName) Export

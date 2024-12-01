@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -38,6 +40,17 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		FillTaskTree();
 	EndIf;
 	
+	// Standard subsystems.Pluggable commands
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		PlacementParameters = ModuleAttachableCommands.PlacementParameters();
+		PlacementParameters.CommandBar = Items.FormCommands;
+				PlacementParameters.CommandBar = ?(UseSubordinateBusinessProcesses, 
+			Items.FormCommands, Items.CommandBarOfList);
+		ModuleAttachableCommands.OnCreateAtServer(ThisObject, PlacementParameters);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
 EndProcedure
 
 &AtClient
@@ -63,6 +76,22 @@ EndProcedure
 
 #EndRegion
 
+#Region FormTableItemsEventHandlersList
+
+&AtClient
+Procedure ListOnActivateRow(Item)
+	
+	// Standard subsystems.Pluggable commands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
+	
+EndProcedure
+
+#EndRegion
+
 #Region FormTableItemsEventHandlersTasksTree
 
 &AtClient
@@ -70,6 +99,18 @@ Procedure TasksTreeSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	StandardProcessing = False;
 	OpenCurrentTaskTreeLine();
+	
+EndProcedure
+
+&AtClient
+Procedure TasksTreeOnActivateRow(Item)
+	
+	// Standard subsystems.Pluggable commands
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
+	EndIf;
+	// End StandardSubsystems.AttachableCommands
 	
 EndProcedure
 
@@ -93,6 +134,45 @@ Procedure Change(Command)
 	OpenCurrentTaskTreeLine();
 	
 EndProcedure
+
+// Standard subsystems.Pluggable commands
+
+&AtClient
+Procedure Attachable_ExecuteCommand(Command)
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ElementsWithCommands = ?(Items.List.Visible = False, Items.TasksTree, Items.List);
+		
+		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
+		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, ElementsWithCommands);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_ContinueCommandExecutionAtServer(ExecutionParameters, AdditionalParameters) Export
+	ExecuteCommandAtServer(ExecutionParameters);
+EndProcedure
+
+&AtServer
+Procedure ExecuteCommandAtServer(ExecutionParameters)
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ElementsWithCommands = ?(Items.List.Visible = False, Items.TasksTree, Items.List);
+		
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.ExecuteCommand(ThisObject, ExecutionParameters, ElementsWithCommands);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure Attachable_UpdateCommands()
+	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ElementsWithCommands = ?(Items.List.Visible = False, Items.TasksTree, Items.List);
+		
+		ModuleAttachableCommandsClientServer = CommonClient.CommonModule("AttachableCommandsClientServer");
+		ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, ElementsWithCommands);
+	EndIf;
+EndProcedure
+
+// End StandardSubsystems.AttachableCommands
 
 #EndRegion
 
@@ -166,8 +246,8 @@ Procedure RefreshTasksList()
 		FillTaskTree();
 	Else
 		Items.List.Refresh();
-		// 
-		// 
+		// The color of the overdue tasks depends on the current date.
+		// Therefore, refresh the conditional appearance.
 		BusinessProcessesAndTasksServer.SetTaskAppearance(List); 
 	EndIf;
 	
@@ -273,7 +353,7 @@ Procedure AddSubordinateBusinessProcesses(Tree, TasksBySubject)
 			
 	For Each BusinessProcessMetadata In Metadata.BusinessProcesses Do
 		
-		// 
+		// Business processes are not required to have a main task.
 		MainTaskAttribute = BusinessProcessMetadata.Attributes.Find("MainTask");
 		If MainTaskAttribute = Undefined Then
 			Continue;
@@ -304,7 +384,7 @@ Procedure AddSubordinateBusinessProcesses(Tree, TasksBySubject)
 
 	While SelectionDetailRecords.Next() Do
 		
-		// 
+		// @skip-check query-in-loop - Recursive algorithm to process a tree.
 		AddSubordinateBusinessProcessTasks(Tree, SelectionDetailRecords.Ref, SelectionDetailRecords.TaskRef);
 		
 	EndDo;

@@ -1,33 +1,36 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// 
-// 
+// Determines a list of handlers (manager modules or common modules) that generate and update
+// the list of all to-do items available in the configuration.
 //
+// In the specified modules, there must be a handler procedure the parameter is passed to
+// ToDoList - See ToDoListServer.ToDoList.
 // 
-//  See ToDoListServer.ToDoList.
-// 
-// 
+// The following is an example of a handler procedure for copying to the specified modules
 //
-//
-// See ToDoListServer.ToDoList.
+//Parameters:
+//ToDoList - See ToDoListServer.ToDoList.
 ////
 //
 //
-//
+//Procedure OnFillToDoList(ToDoList) Export
+// EndProcedure
 //
 // Parameters:
-//  ToDoList - Array -  Manager modules or General modules,
-//                         for example: Documents.Customer's Order, Current Sales.
+//  ToDoList - Array - manager modules or common modules,
+//                         for example: Documents.SalesOrder, SalesToDoList.
 // Example:
-//  Current week.Add(Documents.Customer's order);
+//  ToDoList.Add(Documents.SalesOrder);
 //
 Procedure OnDetermineToDoListHandlers(ToDoList) Export
 	
@@ -35,11 +38,11 @@ Procedure OnDetermineToDoListHandlers(ToDoList) Export
 	
 EndProcedure
 
-// Sets the initial order of sections in the to-do panel.
+// Sets the default order of sections in the to-do list panel.
 //
 // Parameters:
-//  Sections - Array -  an array of sections of the command interface.
-//                     The sections in the to-do panel are displayed in
+//  Sections - Array - an array of command interface sections.
+//                     Sections in the To-do list panel are shown in
 //                     the order in which they were added to the array.
 //
 Procedure OnDetermineCommandInterfaceSectionsOrder(Sections) Export
@@ -48,25 +51,25 @@ Procedure OnDetermineCommandInterfaceSectionsOrder(Sections) Export
 	
 EndProcedure
 
-// Defines current tasks that will not be displayed to the user.
+// Defines to-do items that are hidden from a user.
 //
 // Parameters:
-//  ToDoItemsToDisable - Array -  a string array of IDs of current Affairs that you want to disable.
+//  ToDoItemsToDisable - Array - an array of strings IDs of to-do items to disable.
 //
 Procedure OnDisableToDos(ToDoItemsToDisable) Export
 	
 EndProcedure
 
-// Allows you to change some settings of the subsystem.
+// It allows you to change some subsystem settings.
 //
 // Parameters:
 //  Parameters - Structure:
-//     * OtherToDoItemsTitle - String -  title of the section that displays
-//                            cases that are not related to the command interface sections.
-//                            Applicable for cases whose placement in the panel
-//                            is determined by the current task Server function.Section for the object.
-//                            If not specified, the cases are displayed in a group with the heading
-//                            "other cases".
+//     * OtherToDoItemsTitle - String - a title of a section that displays
+//                            to-do items not included in any command interface sections.
+//                            It is applicable to to-do items whose positions in the panel
+//                            are determined by the ToDoListServer.SectionsForObject function.
+//                            If this parameter is not specified, to-do items are displayed as a group named
+//                            Other to dos.
 //
 Procedure OnDefineSettings(Parameters) Export
 	
@@ -74,16 +77,16 @@ Procedure OnDefineSettings(Parameters) Export
 	
 EndProcedure
 
-// Allows you to set query parameters that are common to multiple current cases.
+// Helps to set query parameters that are common for several to-do items.
 //
-// For example, if the "current Date" parameter is set in several handlers for getting current cases
-// , then you can set the parameter in this
-// procedure, and make a call to the procedure in the handler for generating the case
-// Current date.Set the General query parameter (), which will set this parameter.
+// For example, if several handlers of getting to-do items have
+// the CurrentDate parameter, you can add the algorithm that sets the parameter to this
+// procedure and then call the
+// ToDoList.SetCommonQueryParameters() procedure to set the parameter.
 //
 // Parameters:
-//  Query - Query -  the request being executed.
-//  CommonQueryParameters - Structure -  the total value to calculate the current Affairs.
+//  Query - Query - a running query.
+//  CommonQueryParameters - Structure - common values for calculating to-do items.
 //
 Procedure SetCommonQueryParameters(Query, CommonQueryParameters) Export
 	

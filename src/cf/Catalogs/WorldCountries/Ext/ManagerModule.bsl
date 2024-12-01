@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,10 +14,10 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.BatchEditObjects
 
-// Returns the details of an object that is not recommended to edit
-// by processing a batch update of account details.
+// Returns the object attributes that are not recommended to be edited
+// using a bulk attribute modification data processor.
 //
 // Returns:
 //  Array of String
@@ -52,13 +54,13 @@ EndProcedure
 
 #Region Internal
 
-// Defines country data based on the country directory or country classifier.
-// We recommend using contact information Management.Data from the world.
+// Determines country data by the country catalog or classifier.
+// Use ContactsManager.WorldCountryData.
 //
 // Parameters:
 //    CountryCode    - String
-//                 - Number - 
-//    Description - String        -  name of the country. If not specified, the search by name is not performed.
+//                 - Number - — a country code by classifier. If not specified, search by code is not executed.
+//    Description - String        - a country description. If not specified, search by description is not performed.
 //
 // Returns:
 //    Structure:
@@ -68,19 +70,19 @@ EndProcedure
 //          * CodeAlpha2          - String
 //          * CodeAlpha3          - String
 //          * Ref             - CatalogRef.WorldCountries
-//    Undefined - the country does not exist.
+//    Undefined — the country does not exist.
 //
 Function WorldCountryData(Val CountryCode = Undefined, Val Description = Undefined) Export
 	Return ContactsManager.WorldCountryData(CountryCode, Description);
 EndFunction
 
-// Defines the information countries the classification of countries.
-// We recommend using contact information Management.Data classifierstranmirapocode.
+// Determines country data by the world country classifier.
+// Use ContactsManager.WorldCountryClassifierDataByCode.
 //
 // Parameters:
 //    Code - String
-//        - Number - 
-//    CodeType - String -  Options: country code (default), ALPHA2, Alpha3.
+//        - Number - — a country code by classifier.
+//    CodeType - String - Options: CountryCode (by default), Alpha2, and Alpha3.
 //
 // Returns:
 //    Structure:
@@ -89,17 +91,17 @@ EndFunction
 //          * DescriptionFull - String
 //          * CodeAlpha2          - String
 //          * CodeAlpha3          - String
-//    Undefined - the country does not exist.
+//    Undefined — the country does not exist.
 //
 Function WorldCountryClassifierDataByCode(Val Code, CodeType = "CountryCode") Export
 	Return ContactsManager.WorldCountryClassifierDataByCode(Code, CodeType);
 EndFunction
 
-// Defines the data of the country for the classifier.
-// We recommend using contact information Management.Dataclassificatorstranmiraname.
+// Determines country data by the classifier.
+// Use ContactsManager.WorldCountryClassifierDataByDescription.
 //
 // Parameters:
-//    Description - String -  name of the country.
+//    Description - String - a country description.
 //
 // Returns:
 //    Structure:
@@ -108,7 +110,7 @@ EndFunction
 //          * DescriptionFull - String
 //          * CodeAlpha2          - String
 //          * CodeAlpha3          - String
-//    Undefined - the country does not exist.
+//    Undefined — the country does not exist.
 //
 Function WorldCountryClassifierDataByDescription(Val Description) Export
 	Return ContactsManager.WorldCountryClassifierDataByDescription(Description);
@@ -118,7 +120,7 @@ EndFunction
 
 #Region Private
 
-// See also updating the information base undefined.customizingmachine infillingelements
+// See also InfobaseUpdateOverridable.OnSetUpInitialItemsFilling
 // 
 // Parameters:
 //  Settings - See InfobaseUpdateOverridable.OnSetUpInitialItemsFilling.Settings
@@ -129,7 +131,7 @@ Procedure OnSetUpInitialItemsFilling(Settings) Export
 	
 EndProcedure
 
-// See also updating the information base undefined.At firstfillingelements
+// See also InfobaseUpdateOverridable.OnInitialItemsFilling
 // 
 // Parameters:
 //   LanguagesCodes - See InfobaseUpdateOverridable.OnInitialItemsFilling.LanguagesCodes
@@ -147,12 +149,12 @@ EndProcedure
 
 #Region InfobaseUpdate
 
-// Registers for processing countries of the world.
+// Registers world countries for processing.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
-		// 
+		// Update multilanguage strings if they were modified.
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("UpdateMode", "MultilingualStrings");
 		
@@ -263,7 +265,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 				InfobaseUpdate.MarkProcessingCompletion(WorldCountryRef);
 			EndIf;
 			
-			// 
+			// Update descriptions.
 			If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 				If SettingsOfUpdate.ObjectAttributesToLocalize.Count() > 0 Then
 					ModuleNationalLanguageSupportServer = Common.CommonModule("NationalLanguageSupportServer");
@@ -274,7 +276,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			ObjectsProcessed = ObjectsProcessed + 1;
 			
 		Except
-			// 
+			// If you cannot process a world country, try again.
 			ObjectsWithIssuesCount = ObjectsWithIssuesCount + 1;
 			
 			InfobaseUpdate.WriteErrorToEventLog(

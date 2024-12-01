@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// If the data is not updated, but the update is possible, it performs the update,
-// otherwise it throws an exception.
+// If data is not updated but an update is possible, it updates,
+// otherwise, it calls an exception.
 //
 Procedure CheckRegisterData() Export
 	
@@ -26,11 +28,11 @@ Procedure CheckRegisterData() Export
 	
 EndProcedure
 
-// The procedure updates the register data when the configuration changes.
+// Updates the register data when changing a configuration.
 //
 // Parameters:
-//  HasChanges - Boolean -  (return value) - if a record was made,
-//                  it is set to True, otherwise it is not changed.
+//  HasChanges - Boolean - (return value) - if recorded,
+//                  True is set, otherwise, it does not change.
 //
 Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	
@@ -84,7 +86,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
 Function AvailableMetadataObjectsRights()
 	
@@ -159,17 +161,17 @@ Function AvailableMetadataObjectsRights()
 	
 EndFunction
 
-// The function returns fields of the metadata object that can be restricted for access.
+// Returns object metadata fields that can be used to restrict access.
 //
 // Parameters:
-//  MetadataObject   - MetadataObject -  the object on which you want to return to the field.
-//  IBObject           - Undefined -  use the current configuration,
-//                     - COMObject - 
-//  GetNamesArray - Boolean -  result type.
+//  MetadataObject   - MetadataObject - an object that requires returning fields.
+//  IBObject           - Undefined - use the current configuration,
+//                     - COMObject - use COM connection to configuration.
+//  GetNamesArray - Boolean - a result type.
 //
 // Returns:
-//  String - 
-//  
+//  String - comma-separated names, if GetNamesArray = False.
+//  Array - an array with values of the String type if GetNamesArray = True.
 //
 Function AllFieldsOfMetadataObjectAccessRestriction(MetadataObject,
 			FullName, IBObject = Undefined, GetNamesArray = False) Export
@@ -344,9 +346,9 @@ Procedure AddFieldOfMetadataObjectAccessRestriction(MetadataObject, FieldName,
 		EndIf;
 		CanGetAccessParameters = True;
 	Except
-		// 
-		// 
-		// 
+		// Some fields that cannot be used to configure read restrictions might cause errors
+		// when trying to get access parameters.
+		// Such fields must be excluded as they shouldn't be checked for access restrictions.
 		CanGetAccessParameters = False;
 	EndTry;
 	
@@ -470,7 +472,7 @@ Function ChangesQuery(ExtensionsObjects) Export
 	
 	RolesFilterValue = ?(ExtensionsObjects, "&RoleFilterCriterion", Undefined);
 	
-	// 
+	// Preparing the selected fields with optional filter.
 	Fields = New Array;
 	Fields.Add(New Structure("MetadataObject"));
 	Fields.Add(New Structure("Role", RolesFilterValue));
@@ -501,7 +503,7 @@ Function ChangesQuery(ExtensionsObjects) Export
 	
 EndFunction
 
-// Generates an empty table of role rights.
+// Generates a blank table of role rights.
 //
 // Returns:
 //  ValueTable:
@@ -527,8 +529,8 @@ Function RolesRightsTable(ExtensionsObjects = False, LineChangeType = False, AsQ
 	EndIf;
 	
 	If ExtensionsObjects Then
-		// 
-		// 
+		// If a table is used for extension objects, extend the type of the columns "Role" and
+		// "MetadataObject" with the type "CatalogRef.ExtensionObjectIDs".
 		
 		Types = New Array;
 		Types.Add(Type("CatalogRef.MetadataObjectIDs"));
@@ -554,7 +556,7 @@ Function RolesRightsTable(ExtensionsObjects = False, LineChangeType = False, AsQ
 	
 EndFunction
 
-// For the tableau function.
+// It is required by the RolesRightsTable function.
 Procedure SetTypesForColumn(Table, ColumnName, Types)
 	
 	Column = Table.Columns[ColumnName];

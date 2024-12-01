@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,7 +14,7 @@
 
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
-	// 
+	// Correcting working days and days before the holidays falling on Saturdays or Sundays.
 	Query = New Query;
 	Query.Text = 
 		"SELECT DISTINCT
@@ -164,17 +166,17 @@ Procedure FillWorkScheduleForYear(WorkScheduleCalendar, Year, ScheduleAttributes
 	
 EndProcedure
 
-// Updates work schedules based on the data from the production calendars 
-// that they are based on.
+// Uses business calendar data to update 
+// work schedules.
 //
 // Parameters:
-//  - 
-//    
-//    
+//  - UpdateConditions - ValueTable:
+//    - BusinessCalendarCode - Code of the modified business calendar.
+//    - Year - Year whose data must be updated.
 //
 Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Export
 	
-	// 
+	// Identify the schedules to update, get their data, and update them year-wise.
 	// 
 	// 
 	
@@ -323,7 +325,7 @@ Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Expo
 			NewRow.DayAddedToSchedule = SelectionByTemplate.DayAddedToSchedule;
 		EndDo;
 		While SelectionBySchedule.NextByFieldValue("StartDate") Do
-			// 
+			// If the end date is not specified, it will be picked by the business calendar.
 			FillParameters = InformationRegisters.CalendarSchedules.ScheduleFillingParameters();
 			FillParameters.FillingMethod = SelectionBySchedule.FillingMethod;
 			FillParameters.FillingTemplate = FillingTemplate;
@@ -333,7 +335,7 @@ Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Expo
 			FillParameters.StartingDate = SelectionBySchedule.StartingDate;
 			DaysIncludedInSchedule = InformationRegisters.CalendarSchedules.DaysIncludedInSchedule(
 				SelectionBySchedule.StartDate, SelectionBySchedule.EndDate, FillParameters);
-			// 
+			// @skip-check query-in-loop - Read data by datasets with reading within a loop.
 			WriteScheduleDataToRegister(SelectionBySchedule.WorkScheduleCalendar, DaysIncludedInSchedule, 
 				SelectionBySchedule.StartDate, SelectionBySchedule.EndDate);
 		EndDo;
@@ -341,14 +343,14 @@ Procedure UpdateWorkSchedulesAccordingToBusinessCalendars(UpdateConditions) Expo
 	
 EndProcedure
 
-// 
+// Reads a work schedule data from the register.
 //
 // Parameters:
-//  WorkScheduleCalendar	-  link to the current directory element.
-//  YearNumber		-  the number of the year for which the chart should be read.
+//  WorkScheduleCalendar	- a reference to the current catalog item.
+//  YearNumber		- Number of the year for which the schedule is to be read.
 //
 // Returns:
-//   Map - 
+//   Map - - Key is date.
 //
 Function ReadScheduleDataFromRegister(WorkScheduleCalendar, YearNumber) Export
 	
@@ -380,15 +382,15 @@ Function ReadScheduleDataFromRegister(WorkScheduleCalendar, YearNumber) Export
 	
 EndFunction
 
-// The procedure writes the data of the chart in the register.
+// The procedure writes the schedule data to the register.
 //
 // Parameters:
-//  WorkScheduleCalendar	-  link to the current directory element.
-//  Code number - the number of the year to record the schedule for.
-//  DaysIncludedInSchedule - 
+//  WorkScheduleCalendar	- reference to the current catalog item.
+//  YearNumber		- Number of the year for which the schedule is to be recorded.
+//  DaysIncludedInSchedule - the map of the date and the data related thereto.
 //
-// 
-//  
+// Returns
+//  No
 //
 Procedure WriteScheduleDataToRegister(WorkScheduleCalendar, DaysIncludedInSchedule, StartDate, EndDate, 
 	ReplaceManualChanges = False) Export
@@ -396,11 +398,11 @@ Procedure WriteScheduleDataToRegister(WorkScheduleCalendar, DaysIncludedInSchedu
 	SetDays = InformationRegisters.CalendarSchedules.CreateRecordSet();
 	SetDays.Filter.Calendar.Set(WorkScheduleCalendar);
 	
-	// 
-	// 
-	//  
-	//  
-	// 
+	// The optimal approach here is year-wise.
+	// Select the used years and for each year:
+	// - Read the set 
+	// - Modify it 
+	// - Write it
 	// 
 	
 	DataByYears = New Map;
@@ -416,10 +418,10 @@ Procedure WriteScheduleDataToRegister(WorkScheduleCalendar, DaysIncludedInSchedu
 		ManualChanges = ManualScheduleChanges(WorkScheduleCalendar);
 	EndIf;
 	
-	// 
+	// Process data by years.
 	For Each KeyAndValue In DataByYears Do
 		Year = KeyAndValue.Key;
-		// 
+		// Read sets for the year
 		SetDays.Filter.Year.Set(Year);
 		BeginTransaction();
 		Try
@@ -446,7 +448,7 @@ EndProcedure
 
 Procedure FillDaysSetForYear(SetDays, DaysIncludedInSchedule, Year, WorkScheduleCalendar, ManualChanges, StartDate, EndDate)
 	
-	// 
+	// Fill in contents of the set according to the dates for fast access.
 	SetRowsDays = New Map;
 	For Each SetRow In SetDays Do
 		SetRowsDays.Insert(SetRow.ScheduleDate, SetRow);
@@ -458,17 +460,17 @@ Procedure FillDaysSetForYear(SetDays, DaysIncludedInSchedule, Year, WorkSchedule
 	TraversalStart = ?(StartDate > BegOfYear, StartDate, BegOfYear);
 	TraversalEnd = ?(EndDate < EndOfYear, EndDate, EndOfYear);
 	
-	// 
+	// The data in the set should be replaced for the traversal period.
 	DayDate = TraversalStart;
 	While DayDate <= TraversalEnd Do
 		
 		If ManualChanges <> Undefined And ManualChanges[DayDate] <> Undefined Then
-			// 
+			// Leave manual adjustments in the set without change.
 			DayDate = DayDate + DayDurationInSeconds();
 			Continue;
 		EndIf;
 		
-		// 
+		// If the set has no row for a date, create it.
 		SetRowDays = SetRowsDays[DayDate];
 		If SetRowDays = Undefined Then
 			SetRowDays = SetDays.Add();
@@ -478,10 +480,10 @@ Procedure FillDaysSetForYear(SetDays, DaysIncludedInSchedule, Year, WorkSchedule
 			SetRowsDays.Insert(DayDate, SetRowDays);
 		EndIf;
 		
-		// 
+		// If the day is included in the schedule, fill in the intervals.
 		DayData = DaysIncludedInSchedule.Get(DayDate);
 		If DayData = Undefined Then
-			// 
+			// Remove the row from the set if the day is a non-working day.
 			SetDays.Delete(SetRowDays);
 			SetRowsDays.Delete(DayDate);
 		Else
@@ -490,16 +492,16 @@ Procedure FillDaysSetForYear(SetDays, DaysIncludedInSchedule, Year, WorkSchedule
 		DayDate = DayDate + DayDurationInSeconds();
 	EndDo;
 	
-	// 
+	// Fill in secondary data to optimize calculations based on calendars.
 	DateCounter = BegOfYear;
 	DaysCountInScheduleSinceBegOfYear = 0;
 	While DateCounter <= EndOfYear Do
 		SetRowDays = SetRowsDays[DateCounter];
 		If SetRowDays <> Undefined Then
-			// 
+			// Day included in schedule
 			DaysCountInScheduleSinceBegOfYear = DaysCountInScheduleSinceBegOfYear + 1;
 		Else
-			// 
+			// The day is not included in the schedule.
 			SetRowDays = SetDays.Add();
 			SetRowDays.Calendar = WorkScheduleCalendar;
 			SetRowDays.Year = Year;
@@ -511,8 +513,8 @@ Procedure FillDaysSetForYear(SetDays, DaysIncludedInSchedule, Year, WorkSchedule
 	
 EndProcedure
 
-// Constructor of parameters for filling in the work schedule for the methods: 
-// Dnivklyuchennyevgrafik, Dnivklyuchennyevgrafikponedelyam, Dnivklyuchennyevgrafproizvolnoydlin. 
+// The constructor of parameters for filling the work schedule for methods: 
+// DaysIncludedInSchedule, DaysIncludedInScheduleByWeeks, DaysIncludedInScheduleCustomPeriods. 
 // 
 // Returns:
 //   Structure:
@@ -538,19 +540,19 @@ Function ScheduleFillingParameters() Export
 	Return FillParameters;
 EndFunction
 
-// Creates a collection of working dates, taking into account the production calendar, 
+// Creates a collection of workdays based on a business calendar, 
 //  filling method, and other settings.
 // 
 // Parameters:
-//   StartDate - Date -  start filling in data.
-//   EndDate - Date -  end of filling in the data.
-//   FillParameters - see the filling parameters.
+//   StartDate - Date - data filling start.
+//   EndDate - Date - data filling end.
+//   FillParameters - see FillingParameters.
 //
 // Returns:
 //   Map of KeyAndValue:
 //     * Key - Date
-//     * Value - Array of Structure -  with a description of the time intervals for
-//         the specified date.
+//     * Value - Array of Structure - describing time intervals
+//         for the specified date.
 //
 Function DaysIncludedInSchedule(StartDate, EndDate, FillParameters) Export
 	
@@ -561,10 +563,10 @@ Function DaysIncludedInSchedule(StartDate, EndDate, FillParameters) Export
 	EndIf;
 	
 	If Not ValueIsFilled(EndDate) Then
-		// 
+		// If the end date is not specified, filling till the end of the year.
 		EndDate = EndOfYear(StartDate);
 		If ValueIsFilled(FillParameters.BusinessCalendar) Then
-			// 
+			// If the business calendar is specified, filling till the end of the calendar.
 			FillingEndDate = Catalogs.BusinessCalendars.BusinessCalendarFillingEndDate(
 				FillParameters.BusinessCalendar);
 			If FillingEndDate <> Undefined 
@@ -604,7 +606,7 @@ Function DaysIncludedInScheduleByWeeks(Years, FillParameters,
 		For Each Year In Years Do
 			If BusinessCalendarData.FindRows(New Structure("Year", Year)).Count() 
 				<> DayOfYear(Date(Year, 12, 31)) Then
-				// 
+				// If the business calendar is specified but filled incorrectly, the schedule cannot be filled by weeks.
 				YearsCalendarIsNotFilledIn.Add(Year);
 			EndIf;
 		EndDo;
@@ -659,7 +661,7 @@ Function DaysIncludedInScheduleCustomPeriods(Years, FillParameters,
 		Return DaysIncludedInSchedule;
 	EndIf;
 	
-	// 
+	// Excluding holidays.
 	
 	BusinessCalendarData = Catalogs.BusinessCalendars.BusinessCalendarData(
 		FillParameters.BusinessCalendar, Years);
@@ -705,7 +707,7 @@ Function DaysIncludedInScheduleCustomPeriods(Years, FillParameters,
 	
 EndFunction
 
-// Specifies the dates of manual changes to the specified schedule.
+// Determines dates when the specified schedule was changed manually.
 //
 Function ManualScheduleChanges(WorkScheduleCalendar)
 	

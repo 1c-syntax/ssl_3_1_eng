@@ -1,25 +1,27 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Management of AccessKinds and AccessValues tables in edit forms.
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Table event handlers of the AccessValues form.
 
 // For internal use only.
 // 
 // Parameters:
 //  Form - See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
 //
-Procedure SelectAccessValues(Form) Export
+Procedure AccessValuesPick(Form) Export
 	
 	AccessValueStartChoice(Form, Undefined, Undefined, Null);
 	
@@ -233,7 +235,7 @@ Procedure AccessValueTextInputCompletion(Form, Item, Text, ChoiceData, StandardP
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Table event handlers of the AccessKinds form.
 
 // For internal use only.
 Procedure AccessKindsOnActivateRow(Form, Item) Export
@@ -427,16 +429,16 @@ Procedure AccessKindsAllAllowedPresentationChoiceProcessing(Form, Item, ValueSel
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Event handlers for the ReportForm common form.
 
-// 
-// 
+// Handles mouse double-click, "Enter" key, and hyperlink activation in report spreadsheets.
+// See "Form field extension for a spreadsheet document field.Choice" in Syntax Assistant.
 //
 // Parameters:
-//   ReportForm          - ClientApplicationForm -  report form.
-//   Item              - FormField        -  table document.
-//   Area              - SpreadsheetDocumentRange -  selected value.
-//   StandardProcessing - Boolean -  indicates whether standard event processing is being performed.
+//   ReportForm          - ClientApplicationForm - a report form.
+//   Item              - FormField        - Spreadsheet document.
+//   Area              - SpreadsheetDocumentRange - a selected value.
+//   StandardProcessing - Boolean - indicates whether standard event processing is executed.
 //
 Procedure SpreadsheetDocumentSelectionHandler(ReportForm, Item, Area, StandardProcessing) Export
 	
@@ -529,13 +531,13 @@ Procedure ShowReportUsersRights(Report, TablesToUse) Export
 	
 EndProcedure
 
-// 
+// Opens the "AccessUpdateOnRecordsLevel" form.
 //
 // Parameters:
 //  DisableProgressAutoUpdate - Boolean
 //  ShowProgressPerLists - Boolean
 //
-Procedure OpenUpdateAccessFormAtRecordLevel(DisableProgressAutoUpdate = False,
+Procedure OpenAccessUpdateOnRecordsLevelForm(DisableProgressAutoUpdate = False,
 			ShowProgressPerLists = False) Export
 	
 	FormParameters = New Structure;
@@ -551,7 +553,7 @@ EndProcedure
 
 #Region Private
 
-// Continuation of the event handler for the value of accessoryselection.
+// Continue running the AccessValueStartChoice event handler.
 Procedure AccessValueStartChoiceFollowUp(SelectedElement, Context) Export
 	
 	If SelectedElement <> Undefined Then
@@ -561,10 +563,10 @@ Procedure AccessValueStartChoiceFollowUp(SelectedElement, Context) Export
 	
 EndProcedure
 
-// Completion of the event handler for the value of accessoryselection.
+// Completes the AccessValueStartChoice event handler.
 // 
 // Parameters:
-//   See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
+//  Form - See AccessManagementInternalClientServer.AllowedValuesEditFormParameters
 //
 Procedure AccessValueStartChoiceCompletion(Context)
 	
@@ -626,7 +628,7 @@ Procedure AccessValueStartChoiceCompletion(Context)
 	
 EndProcedure
 
-// 
+// Management of AccessKinds and AccessValues tables in edit forms.
 
 Function AllowedValuesEditFormParameters(Form, CurrentObject = Undefined)
 	
@@ -655,9 +657,9 @@ Procedure GenerateAccessValuesChoiceData(Form, Text, ChoiceData, StandardProcess
 	
 EndProcedure
 
-// 
+// Process report details.
 
-// 
+// Intended for procedure "OnProcessDetails".
 Procedure WhenProcessingReportDecryptionAccessPermissionAnalysis(ReportForm, Item, Details, StandardProcessing)
 	
 	StandardProcessing = False;
@@ -863,7 +865,7 @@ Procedure WhenProcessingReportDecryptionAccessPermissionAnalysis(ReportForm, Ite
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnProcessDetails".
 Procedure WhenProcessingDecodingReportRightsRoles(ReportForm, Item, Details, StandardProcessing)
 	
 	StandardProcessing = False;
@@ -1039,8 +1041,8 @@ Procedure WhenProcessingDecodingReportRightsRoles(ReportForm, Item, Details, Sta
 	
 EndProcedure
 
-// 
-// 
+// Intended for procedures "OnProcessAccessRightsAnalysisReportDrillDown"
+// and "OnProcessRolesRightsReportDrillDown".
 //
 Function ParameterValue(SettingsComposer, ParameterName, UsedAlways = False)
 	
@@ -1083,8 +1085,8 @@ Function InitialFilterValue(ReportForm, ParameterName)
 	
 EndFunction
 
-// 
-// 
+// Intended for procedures "OnProcessAccessRightsAnalysisReportDrillDown"
+// and "OnProcessRolesRightsReportDrillDown".
 //
 Procedure RefineUseDestinationKey(Var_Key, Filter, PropertyName)
 	
@@ -1113,8 +1115,8 @@ Procedure RefineUseDestinationKey(Var_Key, Filter, PropertyName)
 	
 EndProcedure
 
-// 
-// 
+// Intended for procedures "OnProcessAccessRightsAnalysisReportDrillDown"
+// and "OnProcessRolesRightsReportDrillDown".
 //
 Procedure ShortenUseDestinationKey(PurposeUseKey)
 	
@@ -1128,7 +1130,7 @@ Procedure ShortenUseDestinationKey(PurposeUseKey)
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnProcessAccessRightsAnalysisReportDrillDown".
 Function GroupByReportsEnabled1(SettingsComposer)
 	
 	Result = False;
@@ -1145,7 +1147,7 @@ Function GroupByReportsEnabled1(SettingsComposer)
 	
 EndFunction
 
-// 
+// For function GroupByMasterReportsEnabled.
 Function FindGroupItemByName(ItemsCollection, Name)
 	
 	Result = Undefined;
@@ -1170,7 +1172,7 @@ Function FindGroupItemByName(ItemsCollection, Name)
 	
 EndFunction
 
-// 
+// Intended for procedure "OnProcessRolesRightsReportDrillDown".
 Procedure SetParameterValue(Filter, ParameterName, ReportForm, UsedAlways = False)
 	
 	ParameterValue = ParameterValue(ReportForm.Report.SettingsComposer, ParameterName, UsedAlways);
@@ -1181,7 +1183,7 @@ Procedure SetParameterValue(Filter, ParameterName, ReportForm, UsedAlways = Fals
 EndProcedure
 
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure AttheStartofSelectingReportValuesAnalysisAccessPermissions(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing)
 	
 	If SelectionConditions.FieldName <> "MetadataObject" Then
@@ -1223,7 +1225,7 @@ Procedure AttheStartofSelectingReportValuesAnalysisAccessPermissions(ReportForm,
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure AttheStartofSelectingReportValuesRoleRights(ReportForm, SelectionConditions, ClosingNotification1, StandardProcessing)
 	
 	If SelectionConditions.FieldName <> "Role"
@@ -1264,7 +1266,7 @@ Procedure AttheStartofSelectingReportValuesRoleRights(ReportForm, SelectionCondi
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure AfterSelectingMetadataObjects(SelectedValues, Context) Export
 	
 	If Context.SelectionConditions.FieldName = "Role"
@@ -1279,7 +1281,7 @@ Procedure AfterSelectingMetadataObjects(SelectedValues, Context) Export
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure DeleteDisabledValues(MarkedValues)
 	
 	IndexOf = MarkedValues.Count() - 1;
@@ -1295,7 +1297,7 @@ Procedure DeleteDisabledValues(MarkedValues)
 	
 EndProcedure
 
-// 
+// Intended for procedure "OnValueChoiceStart".
 Procedure AddMetadataObjectCollectionWithRights(Collections)
 	
 	Collections.Add("Subsystems");

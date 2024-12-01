@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	
@@ -12,9 +14,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// StandardSubsystems.ReportsOptions
 
-// To set up a report form.
+// Set report form settings.
 //
 // Parameters:
 //   Form - ClientApplicationForm
@@ -35,12 +37,12 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	
 EndProcedure
 
-// Called in the handler of the report form event of the same name after executing the form code.
+// This procedure is called in the OnLoadVariantAtServer event handler of a report form after executing the form code.
 //
 // Parameters:
-//   Form - ClientApplicationForm -  report form.
-//   Cancel - Boolean -  it is passed from the parameters of the standard handler to the server "as is".
-//   StandardProcessing - Boolean -  it is passed from the parameters of the standard handler to the server "as is".
+//   Form - ClientApplicationForm - Report form.
+//   Cancel - Boolean - passed from the OnCreateAtServer standard handler parameters "as it is".
+//   StandardProcessing - Boolean - passed from the OnCreateAtServer standard handler parameters "as it is".
 //
 Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	
@@ -48,7 +50,7 @@ Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 		Return;
 	EndIf;
 	
-	// 
+	// Adding commands to the command bar.
 	If Users.IsFullUser() Then
 		ModuleReportsServer = Common.CommonModule("ReportsServer");
 		Command = Form.Commands.Add("ExtendActionSignatures");

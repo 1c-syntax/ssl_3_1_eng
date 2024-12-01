@@ -1,28 +1,30 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Retrieves a file from the Internet via http(s) or ftp and saves it to the specified path on the server.
+// Gets the file from the Internet via http(s) protocol or ftp protocol and saves it at the specified path on server.
 //
 // Parameters:
-//   URL                - String -  url of the file in the format [Protocol://]<Server>/<Path to the file on the server>.
+//   URL                - String - file URL in the following format: [Protocol://]<Server>/<Path to the file on the server>.
 //   ReceivingParameters - See GetFilesFromInternetClientServer.FileGettingParameters
-//   WriteError1   - Boolean -  indicates whether an error should be recorded in the log when the file is received.
+//   WriteError1   - Boolean - if True, write file download errors to the event log.
 //
 // Returns:
 //   Structure:
-//      * Status            - Boolean -  the result of getting the file.
-//      * Path   - String   -  the path to the file on the server, the key is used only if the status is True.
-//      * ErrorMessage - String -  error message if the status is False.
-//      * Headers         - Map - see the syntax assistant for a description of the Headers parameter of the NTTROVET object.
-//      * StatusCode      - Number - 
-//                                    
+//      * Status            - Boolean - a result of receiving a file.
+//      * Path   - String   - path to the file on the server. This key is used only if Status is True.
+//      * ErrorMessage - String - error message if Status is False.
+//      * Headers         - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
+//      * StatusCode      - Number - added in case of an error.
+//                                    For more information on the StateCode parameter of the HTTPResponse object, see the Syntax Assistant.
 //
 Function DownloadFileAtServer(Val URL, ReceivingParameters = Undefined, Val WriteError1 = True) Export
 	
@@ -34,25 +36,25 @@ Function DownloadFileAtServer(Val URL, ReceivingParameters = Undefined, Val Writ
 	
 EndFunction
 
-// Retrieves a file from the Internet via http(s) or ftp and saves it to temporary storage.
-// Note: after receiving the file, you must clear the temporary storage yourself
-// using the delete temporary Storage method. If you do not do this, the file will remain
-// in the server's memory until the end of the session.
+// Gets a file from the Internet over HTTP(S) or FTP and saves it to a temporary storage.
+// Note. After getting the file, clear the temporary storage
+// using the DeleteFromTempStorage method. If you do not do it, the file will remain in
+// the server memory until the session is over.
 //
 // Parameters:
-//   URL                - String -  url of the file in the format [Protocol://]<Server>/<Path to the file on the server>.
+//   URL                - String - file URL in the following format: [Protocol://]<Server>/<Path to the file on the server>.
 //   ReceivingParameters - See GetFilesFromInternetClientServer.FileGettingParameters.
-//   WriteError1   - Boolean -  indicates whether an error should be recorded in the log when the file is received.
+//   WriteError1   - Boolean - if True, write file download errors to the event log.
 //
 // Returns:
 //   Structure:
-//      * Status            - Boolean -  the result of getting the file.
-//      * Path              - String   -  address of temporary storage with binary file data,
-//                            the key is used only if the status is True.
-//      * ErrorMessage - String -  error message if the status is False.
-//      * Headers         - Map - see the syntax assistant for a description of the Headers parameter of the NTTROVET object.
-//      * StatusCode      - Number - 
-//                                    
+//      * Status            - Boolean - a result of receiving a file.
+//      * Path              - String   - an address of a temporary storage with binary file data.
+//                            The key is used only if the status is True.
+//      * ErrorMessage - String - error message if Status is False.
+//      * Headers         - Map - see details of the Headers parameter of the HTTPResponse object in Syntax Assistant.
+//      * StatusCode      - Number - added in case of an error.
+//                                    For more information on the StateCode parameter of the HTTPResponse object, see the Syntax Assistant.
 //
 Function DownloadFileToTempStorage(Val URL, ReceivingParameters = Undefined, Val WriteError1 = True) Export
 	
@@ -64,21 +66,21 @@ Function DownloadFileToTempStorage(Val URL, ReceivingParameters = Undefined, Val
 	
 EndFunction
 
-// Returns the proxy server setting for client-side Internet access
-// for the current user.
+// Returns the current user's proxy server settings for Internet access from
+// the client.
 //
 // Returns:
 //    Map of KeyAndValue:
 //      * Key - String
 //      * Value - Arbitrary
-//    :
-//      
-//      
-//      
-//      
-//      
-//      
-//      
+//    Keys:
+//      # UseProxy - Boolean - indicates whether to use the proxy server.
+//      # BypassProxyOnLocal - Boolean - indicates whether to use the proxy server for local addresses.
+//      # UseSystemSettings - Boolean - indicates whether to use system settings of the proxy server.
+//      # Server - String - a proxy server address.
+//      # Port - Number - a proxy server port.
+//      # User - String - a username to authorize on the proxy server.
+//      # Password - String - a user password.
 //
 Function ProxySettingsAtClient() Export
 	
@@ -86,7 +88,7 @@ Function ProxySettingsAtClient() Export
 	
 	If Common.FileInfobase() Then
 		
-		// 
+		// In the file mode, scheduled jobs run on the user's computer.
 		// 
 		
 		CurrentInfobaseSession1 = GetCurrentInfoBaseSession();
@@ -97,8 +99,8 @@ Function ProxySettingsAtClient() Export
 			
 			If Not ValueIsFilled(BackgroundJob.ScheduledJob.UserName) Then 
 				
-				// 
-				// 
+				// If a scheduled job is started on behalf of the default user, take the proxy settings
+				// from the user settings saved on the computer where the session is running.
 				// 
 				
 				Sessions = GetInfoBaseSessions(); // Array of InfoBaseSession
@@ -118,20 +120,20 @@ Function ProxySettingsAtClient() Export
 	
 EndFunction
 
-// Returns proxy server settings on the 1C server side:Companies.
+// Returns the 1C:Enterprise server's proxy settings.
 //
 // Returns:
 //   Map of KeyAndValue:
 //     * Key - String
 //     * Value - Arbitrary
-//    :
-//      
-//      
-//      
-//      
-//      
-//      
-//      
+//    Keys:
+//      # UseProxy - Boolean - indicates whether to use the proxy server.
+//      # BypassProxyOnLocal - Boolean - indicates whether to use the proxy server for local addresses.
+//      # UseSystemSettings - Boolean - indicates whether to use system settings of the proxy server.
+//      # Server - String - a proxy server address.
+//      # Port - Number - a proxy server port.
+//      # User - String - a username to authorize on the proxy server.
+//      # Password - String - a user password.
 //
 Function ProxySettingsAtServer() Export
 	
@@ -147,17 +149,17 @@ Function ProxySettingsAtServer() Export
 	
 EndFunction
 
-// Returns an object of Internetproxy to access the Internet.
-// Acceptable protocols for creating an Internet Proxy are http, https, ftp, and ftps.
+// Returns InternetProxy object for Internet access.
+// The following protocols are acceptable for creating InternetProxy: http, https, ftp, and ftps.
 //
 // Parameters:
-//    URLOrProtocol - String -  url in the [Protocol] format://]<Server>/<The path to the file on the server>,
-//                              or the Protocol ID (http, ftp,...).
+//    URLOrProtocol - String - URL in the following format: [Protocol://]<Server>/<Path to the file on the server>,
+//                              or protocol identifier (http, ftp, …).
 //
 // Returns:
-//    InternetProxy - 
-//                     
-//                     
+//    InternetProxy - describes proxy server parameters for various protocols.
+//                     If the network protocol scheme cannot be recognized,
+//                     the proxy will be created based on the HTTP protocol.
 //
 Function GetProxy(Val URLOrProtocol) Export
 	
@@ -165,25 +167,25 @@ Function GetProxy(Val URLOrProtocol) Export
 	
 EndFunction
 
-// Starts diagnostics of the network resource.
-// The service model returns only the error description.
+// Runs the network resource diagnostics.
+// In SaaS mode, returns only an error description.
 //
 // Parameters:
-//  URL - String -  url of the resource to diagnose.
-//  WriteError1 - Boolean -  indicates whether errors should be recorded in the log.
-//  IsPackageDeliveryCheckEnabled - Boolean - 
+//  URL - String - URL resource address to be diagnosed.
+//  WriteError1 - Boolean - indicates whether it is necessary to write errors to the event log.
+//  IsPackageDeliveryCheckEnabled - Boolean - Include a PING command to the required URL resource in the diagnostics.
 //
 // Returns:
 //  Structure:
-//    *  ErrorDescription    - String -  brief description of the error.
-//    *  DiagnosticsLog - String -  detailed diagnostic log with technical details.
+//    *  ErrorDescription    - String - brief error message.
+//    *  DiagnosticsLog - String - a detailed log of diagnostics with technical details.
 //
 // Example:
+//	Diagnostics of address classifier web service.
+//	Result = GetFilesFromInternet.ConnectionDiagnostics("https://api.orgaddress.1c.com/orgaddress/v1?wsdl");
 //	
-//	
-//	
-//	
-//	
+//	ErrorDescription = Result.ErrorDescription;
+//	DiagnosticsLog = Result.DiagnosticsLog;
 //
 Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEnabled = True) Export
 	
@@ -333,13 +335,13 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 	
 EndFunction
 
-// 
-// 
-// 
-// 
+// Defines the import timeout (in seconds) for the given file size.
+// The timeout equals the file size multiplied by 128.
+// If the size if unknown, then the timeout is maximum (no more than 43200).
+// The minimal timeout is 30, which is required to establish a connection.
 //
 // Parameters:
-//  Size - Number -  file size in bytes.
+//  Size - Number - File size in bytes.
 //
 // Returns:
 //  Number

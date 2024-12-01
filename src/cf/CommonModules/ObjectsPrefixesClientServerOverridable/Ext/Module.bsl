@@ -1,31 +1,33 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Handler for the "when a number is received for printing" event.
-// The event occurs before the standard processing of getting the number.
-// In the handler, you can override the standard behavior of the system when generating a print number.
+// On get number for printing event handler.
+// The event occurs before standard processing of getting a number.
+// The handler can override the default application behavior upon getting a number for printing.
 //
 // Parameters:
-//  ObjectNumber                     - String -  the number or code of the object that is being processed.
-//  StandardProcessing             - Boolean -  standard processing flag; if the flag value is set to False,
-//                                              the standard processing of printing number
-//                                              generation will not be performed.
-//  DeleteInfobasePrefix - Boolean -  a sign of the removal of the prefix information base;
-//                                              the default value is False.
-//  DeleteCustomPrefix   - Boolean -  flag for deleting a custom prefix;
-//                                              the default value is False.
+//  ObjectNumber                     - String - an object number or code being processed.
+//  StandardProcessing             - Boolean - standard processing flag, if the flag value is set to False,
+//                                              the standard processing of generating a number for printing
+//                                              will not be executed.
+//  DeleteInfobasePrefix - Boolean - shows whether an infobase prefix is to be removed.
+//                                              By default, it is equal to False.
+//  DeleteCustomPrefix   - Boolean - shows whether a custom prefix is to be removed.
+//                                              By default, it is equal to False.
 //
 // Example:
 //
-//   Object Number = Prefixation Of Clientserver Objects.Delete The Userrefixing Of The Object's Numberobject (Object Number);
-//   Standard Processing = False;
+//   ObjectNumber = ObjectsPrefixesClientServer.DeleteCustomPrefixesFromObjectNumber(ObjectNumber);
+//   StandardProcessing = False.
 //
 Procedure OnGetNumberForPrinting(ObjectNumber, StandardProcessing,
 	DeleteInfobasePrefix, DeleteCustomPrefix) Export

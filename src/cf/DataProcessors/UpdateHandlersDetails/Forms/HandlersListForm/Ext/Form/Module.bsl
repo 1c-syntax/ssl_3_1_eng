@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -130,7 +132,7 @@ Procedure FormClosingCompletion(Result, AdditionalParameters) Export
 		WriteDataToDisk();
 		Close();
 	ElsIf Result = DialogReturnCode.Cancel Then
-		// 
+		// No action required.
 	Else
 		Modified = False;
 		Close();
@@ -161,13 +163,13 @@ EndProcedure
 
 &AtClient
 Procedure SRCDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
-	#If Not WebClient Then
+#If Not WebClient Then
 		StandardProcessing = False;
 		
 		FileSelectionHandler = New NotifyDescription("DirectorySelectionDialogBoxCompletion", ThisObject, "SRCDirectory");
 		FileSystemClient.SelectDirectory(FileSelectionHandler, NStr("en = 'Select a SRC directory';"), Object.SRCDirectory);
 		
-	#EndIf
+#EndIf
 EndProcedure
 
 &AtClient
@@ -180,14 +182,14 @@ EndProcedure
 
 &AtClient
 Procedure ErrorFileDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
-	#If Not WebClient Then
+#If Not WebClient Then
 		StandardProcessing = False;
 		
 		FileDialog = New FileDialog(FileDialogMode.ChooseDirectory);
 		FileDialog.FullFileName = ErrorFileDirectory;
 		FileSelectionHandler = New NotifyDescription("DirectorySelectionDialogBoxCompletion", ThisObject, "ErrorFileDirectory");
 		FileSystemClient.SelectDirectory(FileSelectionHandler, NStr("en = 'Specify an error files directory';"), ErrorFileDirectory);
-	#EndIf
+#EndIf
 EndProcedure
 
 &AtClient
@@ -469,7 +471,7 @@ EndProcedure
 &AtClient
 Procedure SaveToFile(Command)
 	
-    #If Not WebClient Then
+#If Not WebClient Then
 		
 		FileSelectionHandler = New NotifyDescription("FileDialogCompletion", ThisObject, "");
 		FileDialog = New FileDialog(FileDialogMode.Save);
@@ -478,14 +480,14 @@ Procedure SaveToFile(Command)
 		FileDialog.Multiselect = False;
 		FileSystemClient.ShowSelectionDialog(FileSelectionHandler, FileDialog);
 		
-	#EndIf
+#EndIf
 	
 EndProcedure
 
 &AtClient
 Procedure LoadFromFile(Command)
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 		
 		Notification = New NotifyDescription("SelectFileAfterPutFiles", ThisObject);
 		ImportParameters = FileSystemClient.FileImportParameters();
@@ -494,7 +496,7 @@ Procedure LoadFromFile(Command)
 		ImportParameters.FormIdentifier = UUID;
 		FileSystemClient.ImportFile_(Notification, ImportParameters);
 		
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -582,7 +584,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteQueueBuildingTest(Command)
 	
-	#Region ErrorFileDirectoryCheck
+#Region ErrorFileDirectoryCheck
 	If Command <> Undefined Then
 		Items.ErrorFileDirectory.Visible = True;
 		ApplySettingsGroupAppearance();
@@ -595,7 +597,7 @@ Procedure ExecuteQueueBuildingTest(Command)
 				Return;
 		EndIf;
 	EndIf;
-	#EndRegion
+#EndRegion
 	
 	Object.Errors.Clear();
 	BuildQueueAtServer();
@@ -664,7 +666,7 @@ Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
 	
-	#Region StatusChangedCheckProcedure
+#Region StatusChangedCheckProcedure
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -677,9 +679,9 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Text", StatusChangedCheckProcedure);
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Goldenrod);
-	#EndRegion
+#EndRegion
 	
-	#Region LowPriorityReadingStatus
+#Region LowPriorityReadingStatus
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -692,9 +694,9 @@ Procedure SetConditionalAppearance()
 	
 	Item.Appearance.SetParameterValue("Text", LowPriorityReadingStatus);
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.SpecialTextColor);
-	#EndRegion
+#EndRegion
 	
-	#Region AnalysisRequiredStatus
+#Region AnalysisRequiredStatus
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
@@ -720,9 +722,9 @@ Procedure SetConditionalAppearance()
 			ItemFilter.RightValue = True;
 	
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.SpecialTextColor);
-	#EndRegion
+#EndRegion
 	
-	#Region TechnicalDesign
+#Region TechnicalDesign
 	Item = ConditionalAppearance.Items.Add();
 	
 	For Each FormItem In Items.UpdateHandlers.ChildItems Do
@@ -736,7 +738,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter.RightValue = True;
 	
 	Item.Appearance.SetParameterValue("BackColor", WebColors.Gainsboro);
-	#EndRegion
+#EndRegion
 	
 EndProcedure
 
@@ -795,9 +797,9 @@ Function ImportTechnicalDesignHandlersList()
 	EndIf;
 	
 	SettingsFile = New TextDocument;
-	#If Not WebClient Then
+#If Not WebClient Then
 	SettingsFile.Read(FileName, TextEncoding.UTF8);
-	#EndIf
+#EndIf
 	FileText = SettingsFile.GetText();
 	TechDesignHandlers = StrSplit(FileText, Chars.LF);
 	
@@ -876,7 +878,7 @@ Function AddModuleProcedure(Code)
 	|%1";
 	ProcedureText = StringFunctionsClientServer.SubstituteParametersToString(ProcedureComment, Code.ProcedureText);
 	
-	// 
+	// If the module is empty, populate it from an empty module template (applicable for manager modules).
 	If IsManagerModule And ModuleStrings.Count() = 0 Then
 		EmptyModuleManager = 
 		"#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -912,7 +914,7 @@ Function AddModuleProcedure(Code)
 				ThereIsALibraryDescriptionProcedure = True;
 				Break;
 			EndIf;
-			// 
+			// "The OnAddUpdateHandlers%1(Handlers) Export"
 			TitleTemplate1 = StrReplace(SimpleDescriptionProcedureTitle, "(", "%1(");
 			FoundTheProcedureTitle = StringFunctionsClientServer.SubstituteParametersToString(TitleTemplate1, LibraryName);
 			If ModuleStrings.Find(FoundTheProcedureTitle) <> Undefined Then
@@ -925,15 +927,15 @@ Function AddModuleProcedure(Code)
 	ThereIsAPassedProcedure = ModuleStrings.Find(Code.ProcedureTitle) <> Undefined;
 	PassedASimpleProcedure = Code.ProcedureTitle = SimpleDescriptionProcedureTitle;
 	
-	// 
+	// If the procedure is found, exit.
 	If ThereIsAPassedProcedure
 		Or HasDetailsProcedure
 		Or ThereIsALibraryDescriptionProcedure And PassedASimpleProcedure Then
 		Return ProcedureAdded;
 	EndIf;
 	
-	// 
-	// 
+	// If either "#Region NewInfobaseVersionsUpdate" or "#Region InfobaseUpdate" is present,
+	// then insert this code right at the top of the region.
 	IndexOf = ModuleStrings.Find("#Area InfobaseUpdate");
 	If IndexOf <> Undefined Then
 		IndexOf = IndexOf + 1;
@@ -946,7 +948,7 @@ Function AddModuleProcedure(Code)
 		ProcedureAdded = True;
 	EndIf;
 	
-	// 
+	// If a procedure handler is present, insert before it.
 	If Not ProcedureAdded And Not IsBlankString(Code.ProcessingProcedure) Then
 		Names = StrSplit(Code.ProcessingProcedure, ".");
 		UpdateProcedureName = Names[Names.UBound()];
@@ -970,7 +972,7 @@ Function AddModuleProcedure(Code)
 	|
 	|#EndRegion";
 	
-	// 
+	// If no update area and handler procedure are found, search for Private and insert in it as the first area.
 	If Not ProcedureAdded And Not IsBlankString(Code.ProcessingProcedure) Then
 		IndexOf = ModuleStrings.Find("#Area Private");
 		If IndexOf <> Undefined Then
@@ -986,7 +988,7 @@ Function AddModuleProcedure(Code)
 		EndIf;
 	EndIf;
 	
-	// 
+	// If no update area, handler procedure, and the Private area are found, insert to the module's end.
 	If Not ProcedureAdded And Not IsBlankString(Code.ProcessingProcedure) Then
 		
 		AreaText = StringFunctionsClientServer.SubstituteParametersToString(AreaText, ProcedureText);
@@ -1053,7 +1055,7 @@ Procedure ReplaceModuleProcedure(Code)
 	WasReplaced = False;
 	VersionSet = False;
 	ThisIsTheUpdateModule = StrStartsWith(Code.ModuleName, "InfobaseUpdate");
-	#If Not WebClient Then
+#If Not WebClient Then
 	Module = New TextReader;
 	Module.Open(FullFileName, "UTF-8");
 	ModuleString = "";
@@ -1064,7 +1066,7 @@ Procedure ReplaceModuleProcedure(Code)
 			Break;
 		EndIf;
 	
-		#Region OnAddSubsystem
+#Region OnAddSubsystem
 		If SetVersion And TrimAll(ModuleString) = Code.VersionProcedure Then
 			NewModule.AddLine(ModuleString);
 			While StrFind(ModuleString, "LongDesc.Version =") = 0 Do
@@ -1081,10 +1083,10 @@ Procedure ReplaceModuleProcedure(Code)
 			EndDo;
 			Continue;
 		EndIf;
-		#EndRegion
+#EndRegion
 		
-		#Region ReplaceComment
-		// 
+#Region ReplaceComment
+		// ACC:1297-off Comment in configuration code.
 		If Code.IsDetailsProcedure 
 			And StrFind(ModuleString, "--// Adds In list procedures-handlers updates data_ IB") > 0 Then
 			ModuleString = SkipLinesUpTo(Module, "Handlers - see. InfobaseUpdate.NewUpdateHandlerTable");
@@ -1093,10 +1095,10 @@ Procedure ReplaceModuleProcedure(Code)
 				ModuleString = "// see. InfobaseUpdateSSL.OnAddUpdateHandlers";
 			EndIf;
 		EndIf;
-		// 
-		#EndRegion
+		// ACC:1297-on
+#EndRegion
 		
-		#Region OnAddUpdateHandlers
+#Region OnAddUpdateHandlers
 		ThisIsALibraryDescriptionProcedure = False;
 		LibraryHeaderOfTheProcedure = Code.ProcedureTitle;
 		If Not WasReplaced 
@@ -1134,13 +1136,13 @@ Procedure ReplaceModuleProcedure(Code)
 			ModuleString = SkipLinesUpTo(Module, ProcedureEnd);
 			Continue;
 		EndIf;
-		#EndRegion
+#EndRegion
 		
 		NewModule.AddLine(ModuleString);
 		
 	EndDo;
 	Module.Close();
-	#EndIf
+#EndIf
 	
 	ProcedureName = ProcedureName(Code.ProcedureTitle);
 	If VersionSet Then
@@ -1175,7 +1177,7 @@ Function FileTextToArray(FullFileName)
 	
 	Result = New Array;
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 	Module = New TextReader;
 	Module.Open(FullFileName, "UTF-8");
 	ModuleString = "";
@@ -1186,7 +1188,7 @@ Function FileTextToArray(FullFileName)
 		EndIf;
 		Result.Add(ModuleString);
 	EndDo;
-	#EndIf
+#EndIf
 	
 	Return Result;
 	
@@ -1208,10 +1210,10 @@ Procedure WriteModuleText(FileText, FullFileName)
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("FullFileName", FullFileName);
 	AdditionalParameters.Insert("FileText", FileText);
-	#If Not WebClient Then
+#If Not WebClient Then
 	DeleteFiles(FullFileName);
 	ModuleFileDeletionCompletion(AdditionalParameters);
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -1221,7 +1223,7 @@ Procedure ModuleFileDeletionCompletion(AdditionalParameters)
 	FullFileName = AdditionalParameters.FullFileName;
 	FileText = AdditionalParameters.FileText;
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 	WriteBOM = False;
 	Stream = New FileStream(FullFileName, FileOpenMode.CreateNew);
 	LineSplitter = Chars.CR + Chars.LF;
@@ -1231,7 +1233,7 @@ Procedure ModuleFileDeletionCompletion(AdditionalParameters)
 	TextWriter.Close();
 
 	Stream.Close();
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -1268,7 +1270,7 @@ Procedure SaveVersionToConfigurationRoot()
 	
 	FullFileName = Object.SRCDirectory + "Configuration\Configuration.mdo";
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 	VersionSet = False;
 	NewFile = New TextDocument;
 	FileText = New TextReader;
@@ -1298,14 +1300,14 @@ Procedure SaveVersionToConfigurationRoot()
 		CommonClient.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(Template, NewConfigurationVersion));
 	EndIf;
 	WriteFileToDisk(FullFileName, FileText);
-	#EndIf
+#EndIf
 	
 EndProcedure
 
 &AtClient
 Function WriteFileToDisk(FullFileName, FileText)
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 	WriteBOM = False;
 	DeleteFiles(FullFileName);
 	Stream = New FileStream(FullFileName, FileOpenMode.CreateNew);
@@ -1316,7 +1318,7 @@ Function WriteFileToDisk(FullFileName, FileText)
 	TextWriter.Close();
 	
 	Stream.Close();
-	#EndIf
+#EndIf
 	
 	Return FullFileName;
 	
@@ -1889,7 +1891,7 @@ Function HandlersDetailsByManagersModules(SettingsAddress)
 	
 	ModulesVersions = ModulesVersionsDetails();
 	
-	#Region GenerateManagersModulesLists
+#Region GenerateManagersModulesLists
 	AllHandlersModules = Undefined;
 	HandlersForDetails = Undefined;
 	For Each ConfigurationName In ConfigurationsNames Do
@@ -1947,9 +1949,9 @@ Function HandlersDetailsByManagersModules(SettingsAddress)
 		EndIf;
 		
 	EndDo;
-	#EndRegion
+#EndRegion
 	
-	#Region SupplementingSelectedHandlersOfOtherLibraries
+#Region SupplementingSelectedHandlersOfOtherLibraries
 	If PickedHandlers.Count() > 0 And (AllHandlersModules = Undefined Or AllHandlersModules.Count() = 0) Then
 		For Each Selected4 In PickedHandlers Do
 			ModuleHandlers = Object.UpdateHandlers.Unload(New Structure("Ref", Selected4));
@@ -1973,9 +1975,9 @@ Function HandlersDetailsByManagersModules(SettingsAddress)
 			EndIf;
 		EndDo;
 	EndIf;
-	#EndRegion
+#EndRegion
 	
-	#Region SupplementingConflictingHandlers
+#Region SupplementingConflictingHandlers
 	If CodeLayout.SetTags And Not OnlySelectedItems Then
 		ChangedHandlers = Object.UpdateHandlers.Unload(New Structure("Changed", True)).UnloadColumn("Ref");
 		If PickedHandlers.Count() > 0 Then
@@ -1999,13 +2001,13 @@ Function HandlersDetailsByManagersModules(SettingsAddress)
 			CommonClientServer.SupplementTable(ConflictingHandlers, AllHandlersModules);
 		EndDo;
 	EndIf;
-	#EndRegion
+#EndRegion
 	
 	If AllHandlersModules = Undefined Then
 		Return ModulesTexts;
 	EndIf;
 	
-	#Region GenerateProceduresUpdateHandlersDetails
+#Region GenerateProceduresUpdateHandlersDetails
 	If CodeLayout.SetTags Then
 		CodeLayout.Tags1.Insert("ByHandlers", HandlersForDetails);
 	EndIf;
@@ -2093,9 +2095,9 @@ Function HandlersDetailsByManagersModules(SettingsAddress)
 		EndDo;
 		
 	EndDo;
-	#EndRegion
+#EndRegion
 	
-	#Region GenerateProceduresOnAddUpdateHandlers
+#Region GenerateProceduresOnAddUpdateHandlers
 	If Not OnlySelectedItems And UpdateCallsList Then
 		AllDetailsCalls.Sort("LibraryName,HandlerModule");
 		CodeLayout.Insert("ProcedureName", "OnAddUpdateHandlers");
@@ -2133,7 +2135,7 @@ Function HandlersDetailsByManagersModules(SettingsAddress)
 	For Each ManagerModuleText In ManagerModulesTexts Do
 		ModulesTexts.Add(ManagerModuleText);
 	EndDo;
-	#EndRegion
+#EndRegion
 	
 	If ConfigurationVersion <> NewConfigurationVersion Then
 		SetModuleVersion(ModulesTexts, ModulesVersions);
@@ -2190,7 +2192,7 @@ Procedure AddModuleVersion(ModulesVersions, ModuleHandlers)
 		LongDesc.Version = Maximum.Version;
 	EndIf;
 	
-	// 
+	// Check module's handlers for the maximum build number.
 	If ValueIsFilled(Maximum.Version) Then
 		NumbersMax = StrSplit(Maximum.Version, ".");
 	Else
@@ -2210,7 +2212,7 @@ Procedure AddModuleVersion(ModulesVersions, ModuleHandlers)
 		NewConfigurationVersion = FirstConfigurationDigit + "." + StrConcat(NumbersMax, ".");
 	EndIf;
 	
-	// 
+	// Check the build number the user provided.
 	ConfigurationNumbers = StrSplit(NewConfigurationVersion, ".");
 	If IsLibraryToDevelop
 		And NewConfigurationBuildNumber > Number(ConfigurationNumbers[3]) Then
@@ -2891,7 +2893,7 @@ Function FillObjectsTags(ObjectNameAttribute, HandlerObjects, CodeLayout, Extern
 				ExternalTags = UsedObject.Tags1 + ?(IsBlankString(UsedObject.Tags1),"",",") + UsedObject.UpdateModuleTags;
 				UsedObject.UpdateModuleTags = ExternalTags;
 			EndIf;
-		EndIf;// 
+		EndIf;// Object's tags are found.
 	EndDo;
 	SortFields = ObjectNameAttribute;
 	If SortByTags Then
@@ -2924,7 +2926,7 @@ Function FillModulesTagsBySubsystems(ManagersModules, CodeLayout)
 				EndIf;
 			EndDo;
 			ObjectModule.ExternalTags = StrConcat(ModuleTags, ",");
-		EndIf;// 
+		EndIf;// Object's tags are found.
 	EndDo;
 	ManagersModules.Sort(ObjectNameAttribute);
 	
@@ -2950,7 +2952,7 @@ Function UnnecessaryTagsInArea(ExternalTags, CodeLayout)
 		EndDo;
 	EndDo;
 	CommonClientServer.SupplementArray(UnnecessaryTags, NestedTags, True);
-	// 
+	// Don't add pivot library tags to the module.
 	NestedLibrariesTags = CodeLayout.Tags1.NestedLibraries[CodeLayout.ConfigurationName];
 	If NestedLibrariesTags <> Undefined And Not CodeLayout.IsManagerModule Then
 		CommonClientServer.SupplementArray(UnnecessaryTags, NestedLibrariesTags, True);
@@ -3269,8 +3271,8 @@ EndProcedure
 // Parameters:
 //   Settings - Arbitrary
 // Returns:
-//   KeyAndValue - LongDesc:
-//   * Key - String -  tag name
+//   KeyAndValue - Details:
+//   * Key - String - tag description
 //   * Value - See TagDetails
 //
 &AtServer
@@ -3519,7 +3521,7 @@ Function GetAllOriginalConfigurationObjects()
 	Tags1.Add("reports");
 	Tags1.Add("tasks");
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 	Text = New TextReader;
 	Text.Open(FileName, TextEncoding.UTF8);
 	
@@ -3541,7 +3543,7 @@ Function GetAllOriginalConfigurationObjects()
 		EndIf;
 		
 	EndDo;
-	#EndIf
+#EndIf
 	
 	Return AllObjects;
 	
@@ -3602,7 +3604,7 @@ Procedure AddSubsystemObjects(ConfigurationObjects, Subsystem, RussianClassesNam
 		Return;
 	EndIf;
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 	Text = New TextReader;
 	Text.Open(FileName, TextEncoding.UTF8);
 	
@@ -3632,12 +3634,12 @@ Procedure AddSubsystemObjects(ConfigurationObjects, Subsystem, RussianClassesNam
 		FileString = Text.ReadLine();
 		
 	EndDo;
-	#EndIf
+#EndIf
 	
 EndProcedure
 
 &AtClient
-// 
+// Returns the mapping of Russian and English names of metadata object classes being processed.
 Function RussianClassesNames()
 	
 	Result = New Map;
@@ -3651,13 +3653,13 @@ Function RussianClassesNames()
 	Result.Insert("ChartOfCalculationTypes", "ChartOfCalculationTypes");
 	Result.Insert("ChartOfCharacteristicTypes", "ChartOfCharacteristicTypes");
 	Result.Insert("Constant", "Constant");
-	Result.Insert("CommonModule", "CommonModule");// 
+	Result.Insert("CommonModule", "CommonModule");// Specified in other handlers' priority lists.
 	Result.Insert("Document", "Document");
 	Result.Insert("ExchangePlan", "ExchangePlan");
 	Result.Insert("InformationRegister", "InformationRegister");
 	Result.Insert("Task", "Task");
 	Result.Insert("Sequence", "Sequence");
-	Result.Insert("Report", "Report");// 
+	Result.Insert("Report", "Report");// Specified in locked objects.
 	
 	Return Result;
 	
@@ -3677,7 +3679,7 @@ Function ReadYAMLFile(FileName)
 		Raise StringFunctionsClientServer.SubstituteParametersToString(Template, FileName);
 	EndIf;
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 	FileText = New TextDocument;
 	FileText.Read(FileName, TextEncoding.UTF8);
 	Try
@@ -3691,7 +3693,7 @@ Function ReadYAMLFile(FileName)
 		MessageText = MessageText  + ErrorText;
 		Raise MessageText;
 	EndTry;
-	#EndIf
+#EndIf
 	
 	Return Result;
 	
@@ -3857,9 +3859,9 @@ Procedure WriteError(ObjectName, ErrorDescription = "",
 		               + "_" + String(New UUID())+".xml";
 		
 		Result = New TextDocument;
-		#If Not WebClient Then
+#If Not WebClient Then
 		Result.SetText(XMLErrorText(Error));
-		#EndIf
+#EndIf
 		Result.Write(ErrorFileName);
 		
 	EndIf;
@@ -3878,10 +3880,10 @@ Function CreateErrorDescription()
 	Error.Insert("PlaybackOrder", "");
 	Error.Insert("ExpectedBehavior", "");
 	Error.Insert("EmployeeResponsible", "");
-	Error.Insert("DetectionCredibility", "Low"); // 
+	Error.Insert("DetectionCredibility", "Low"); // High or Low.
 	Error.Insert("RepositoryAddress", "");
 	
-	#If Client Or ThickClientManagedApplication Or ThinClient Or WebClient  Then
+#If Client Or ThickClientManagedApplication Or ThinClient Or WebClient  Then
 	
 		SysInfo = New SystemInfo;
 		Error.Insert("PlatformVersion", SysInfo.AppVersion);
@@ -3892,11 +3894,11 @@ Function CreateErrorDescription()
 		Error.Insert("ClientUserAgentInformation", SysInfo.UserAgentInformation);
 		Error.Insert("ClientCurrentDate", CommonClient.SessionDate());
 	
-	#EndIf
+#EndIf
 	
 	Error.Insert("DetectionDate",   Date(1,1,1));
-	Error.Insert("MetadataObjects", New Array); // 
-	// 
+	Error.Insert("MetadataObjects", New Array); // To allow adding an array of metadata objects.
+	// Register for a metadata object.
 	Error.Insert("MetadataObject", "");
 	Error.Insert("LocationClarification", "");
 	Error.Insert("ScenarioCode", "");
@@ -4135,10 +4137,10 @@ Function GetParametersFromString(Val ParametersString1)
 		
 		FirstEqualSignPosition = StrFind(ParameterString, "=");
 		
-		// 
+		// Get parameter name.
 		ParameterName = TrimAll(Left(ParameterString, FirstEqualSignPosition - 1));
 		
-		// 
+		// Get parameter value.
 		ParameterValue = TrimAll(Mid(ParameterString, FirstEqualSignPosition + 1));
 		
 		If  Left(ParameterValue, 1) = DoubleQuotationMarksChar
@@ -4633,7 +4635,7 @@ EndFunction
 &AtServer
 Procedure CalculateQueueAtServer()
 	
-	UpdateIterations = Undefined; // 
+	UpdateIterations = Undefined; // InfobaseUpdateInternal.UpdateIteration();
 	If UpdateIterations <> Undefined Then
 		DataProcessor = DataProcessorObject2();
 		DataProcessor.FillQueueNumber(UpdateIterations);

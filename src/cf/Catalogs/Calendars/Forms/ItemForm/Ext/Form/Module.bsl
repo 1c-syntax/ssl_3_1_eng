@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -21,7 +23,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	InfobaseUpdate.CheckObjectProcessed("Catalog.Calendars", ThisObject);
 	
-	// 
+	// If there is only one business calendar in the application, fill it in by default.
 	BusinessCalendars = Catalogs.BusinessCalendars.BusinessCalendarsList();
 	If BusinessCalendars.Count() = 1 Then
 		Object.BusinessCalendar = BusinessCalendars[0];
@@ -58,8 +60,8 @@ Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		YearNumber = CurrentYearNumber;
 	EndIf;
 	
-	//  
-	// 
+	// If the current year data was manually edited, write it "as is," 
+	// and update the periods from the template.
 	
 	If ResultModified Then
 		InformationRegisters.CalendarSchedules.WriteScheduleDataToRegister(CurrentObject.Ref, ScheduleDays, 
@@ -250,7 +252,7 @@ Procedure WorkScheduleCalendarOnPeriodOutput(Item, PeriodAppearance)
 			DayTextColor = CommonClient.StyleColor("BusinessCalendarDayKindWorkdayColor");
 		EndIf;
 		PeriodAppearanceString.TextColor = DayTextColor;
-		// 
+		// Manual edit.
 		If ChangedDays.Get(PeriodAppearanceString.Date) = Undefined Then
 			DayBgColor = CommonClient.StyleColor("FieldBackColor");
 		Else
@@ -265,16 +267,16 @@ EndProcedure
 Procedure WorkScheduleCalendarSelection(Item, SelectedDate)
 	
 	If ScheduleDays.Get(SelectedDate) = Undefined Then
-		// 
+		// Include in the schedule.
 		WorkSchedulesClient.InsertIntoFixedMap(ScheduleDays, SelectedDate, True);
 		DayAddedToSchedule = True;
 	Else
-		// 
+		// Exclude from the schedule.
 		WorkSchedulesClient.DeleteFromFixedMap(ScheduleDays, SelectedDate);
 		DayAddedToSchedule = False;
 	EndIf;
 	
-	// 
+	// Save the manual change as of the date.
 	WorkSchedulesClient.InsertIntoFixedMap(ChangedDays, SelectedDate, DayAddedToSchedule);
 	
 	Items.WorkScheduleCalendar.Refresh();
@@ -480,7 +482,7 @@ EndProcedure
 &AtClientAtServerNoContext
 Procedure GenerateFillingTemplate(FillingMethod, FillingTemplate, Val PeriodLength, Val StartingDate = Undefined)
 	
-	// 
+	// Generates the table for editing the template used for filling by days.
 	
 	If FillingMethod = PredefinedValue("Enum.WorkScheduleFillingMethods.ByWeeks") Then
 		PeriodLength = 7;
@@ -676,11 +678,11 @@ Procedure AdjustScheduleFilled(Form)
 			InformationText = NStr("en = 'The work schedule is filled in till %1.';");
 			Form.IsFilledInformationText = StringFunctionsClientServer.SubstituteParametersToString(InformationText, Format(Form.FillDate, "DLF=D"));
 		Else
-			#If WebClient Or ThinClient Or MobileClient Then
+#If WebClient Or ThinClient Or MobileClient Then
 				CurrentDate = CommonClient.SessionDate();
-			#Else
+#Else
 				CurrentDate = CurrentSessionDate();
-			#EndIf
+#EndIf
 			EndPlanningHorizon = AddMonth(CurrentDate, Form.Object.PlanningHorizon);
 			InformationText = NStr("en = 'The work schedule is filled till %1. The provided scheduling interval requires that you fill it till %2.';");
 			Form.IsFilledInformationText = StringFunctionsClientServer.SubstituteParametersToString(InformationText, Format(Form.FillDate, "DLF=D"), Format(EndPlanningHorizon, "DLF=D"));
@@ -709,7 +711,7 @@ Procedure FillByTemplateAtServer(PreserveManualEditing = False)
 	
 	If ManualEditing Then
 		If PreserveManualEditing Then
-			// 
+			// Apply manual adjustments.
 			For Each KeyAndValue In ChangedDays Do
 				ChangesDate = KeyAndValue.Key;
 				DayAddedToSchedule = KeyAndValue.Value;
@@ -725,8 +727,8 @@ Procedure FillByTemplateAtServer(PreserveManualEditing = False)
 		EndIf;
 	EndIf;
 	
-	//  
-	// 
+	// Move the result to the original filling map to prevent overwriting 
+	// the dates that stand outside of the filling time period.
 	ScheduleDaysMap = New Map(ScheduleDays);
 	DayDate = Object.StartDate;
 	EndDate = Object.EndDate;
@@ -755,7 +757,7 @@ EndProcedure
 &AtServer
 Procedure FillWithCurrentYearData(CopyingValue = Undefined)
 	
-	// 
+	// Fills in the form with data of the current year.
 	
 	SetCalendarField();
 	
@@ -770,7 +772,7 @@ Procedure FillWithCurrentYearData(CopyingValue = Undefined)
 
 	ReadManualEditingFlag(Object, CurrentYearNumber);
 	
-	// 
+	// If there are no manual adjustments or data, generate the result by template for the selected year.
 	If ScheduleDays.Count() = 0 And ChangedDays.Count() = 0 Then
 		FillParameters = InformationRegisters.CalendarSchedules.ScheduleFillingParameters();
 		FillParameters.FillingMethod = Object.FillingMethod;
@@ -1028,7 +1030,7 @@ Procedure CompleteDayScheduleFilling(ValueSelected, ChoiceContext) Export
 		Return;
 	EndIf;
 	
-	// 
+	// Delete the previously filled in schedule for this day.
 	DayRows = New Array;
 	For Each ScheduleString In Object.WorkSchedule Do
 		If ScheduleString.DayNumber = ChoiceContext.DayNumber Then
@@ -1039,7 +1041,7 @@ Procedure CompleteDayScheduleFilling(ValueSelected, ChoiceContext) Export
 		Object.WorkSchedule.Delete(Object.WorkSchedule.FindByID(RowID));
 	EndDo;
 	
-	// 
+	// Filling the work hours for a day.
 	For Each IntervalDetails In ValueSelected.WorkSchedule Do
 		NewRow = Object.WorkSchedule.Add();
 		FillPropertyValues(NewRow, IntervalDetails);
@@ -1055,7 +1057,7 @@ Procedure CompleteDayScheduleFilling(ValueSelected, ChoiceContext) Export
 	
 	If ChoiceContext.TemplateRowID <> Undefined Then
 		TemplateRow = Object.FillingTemplate.FindByID(ChoiceContext.TemplateRowID);
-		TemplateRow.DayAddedToSchedule = ValueSelected.WorkSchedule.Count() > 0; // 
+		TemplateRow.DayAddedToSchedule = ValueSelected.WorkSchedule.Count() > 0; // Schedule is filled.
 		TemplateRow.SchedulePresentation = DaySchedulePresentation(ThisObject, ChoiceContext.DayNumber);
 	EndIf;
 	

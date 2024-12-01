@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -221,7 +223,7 @@ Procedure QuestionnaireTreeFormDrag(Item, DragParameters, StandardProcessing, St
 	
 	If (RowDrag.RowType = "DoQueryBox") And (AssignmentRow.RowType = "DoQueryBox") Then
 		
-		// 
+		// Dragging a question without condition to a question with condition.
 		If RowDrag.QuestionType <> PredefinedValue("Enum.QuestionnaireTemplateQuestionTypes.QuestionWithCondition")
 			And AssignmentRow.QuestionType = PredefinedValue("Enum.QuestionnaireTemplateQuestionTypes.QuestionWithCondition") Then
 			
@@ -580,8 +582,8 @@ Procedure SetConditionalAppearance()
 EndProcedure
 
 // Parameters:
-//   Parent   - ValueTreeRow -  an element of the form value tree from which a new branch is growing.
-//   RowType  - String -  the type of tree row.
+//   Parent   - ValueTreeRow - an item of the form values tree, from which a new branch starts.
+//   RowType  - String - a type of a tree row.
 //   
 // Returns:
 //   String
@@ -694,8 +696,8 @@ Function AddQuestionnaireTemplateQuestionCatalogItem(TreeRow,Code = Undefined,Ca
 EndFunction
 
 // Parameters:
-//  CurrentData -FormDataTreeItem -  current data of the template tree.
-//  Parameter  - Structure -  results of the table question wizard form.
+//  CurrentData -FormDataTreeItem - the current data of the template tree.
+//  Parameter  - Structure - Result of the question chart wizard.
 //
 &AtClient
 Procedure ProcessTabularQuestionWizardResult(CurrentData,Parameter,CurrentRow)

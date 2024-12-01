@@ -104,6 +104,9 @@
 				<ContextMenu name="ListSearchControlContextMenu" id="94"/>
 				<ExtendedTooltip name="ListSearchControlExtendedTooltip" id="95"/>
 			</SearchControlAddition>
+			<Events>
+				<Event name="OnActivateRow">ListOnActivateRow</Event>
+			</Events>
 			<ChildItems>
 				<InputField name="Description" id="6">
 					<DataPath>List.Description</DataPath>
@@ -262,6 +265,9 @@
 						<CommandName>Form.Item.TasksTree.StandardCommand.OutputList</CommandName>
 						<ExtendedTooltip name="TasksTreeOutputListExtendedTooltip" id="71"/>
 					</Button>
+					<ButtonGroup name="FormCommands" id="105">
+						<ExtendedTooltip name="FormCommandsExtendedTooltip" id="106"/>
+					</ButtonGroup>
 				</ChildItems>
 			</AutoCommandBar>
 			<ExtendedTooltip name="TasksTreeExtendedTooltip" id="72"/>
@@ -291,6 +297,7 @@
 			</SearchControlAddition>
 			<Events>
 				<Event name="Selection">TasksTreeSelection</Event>
+				<Event name="OnActivateRow">TasksTreeOnActivateRow</Event>
 			</Events>
 			<ChildItems>
 				<PictureField name="TasksTreeImportance" id="40">

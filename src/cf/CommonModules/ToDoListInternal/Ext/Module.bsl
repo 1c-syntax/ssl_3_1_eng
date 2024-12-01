@@ -1,31 +1,33 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Fills in the user's to-do list.
+// Fills a user's to-do list.
 //
 // Parameters:
-//  Parameters       - Structure -  an empty structure.
-//  ResultAddress - String    - 
-//                                :
-//    * Id - String -  internal case ID used by the Current Affairs engine.
-//    * HasToDoItems      - Boolean -  if True, the case is displayed in the user's to-do list.
-//    * Important        - Boolean -  if True, the case will be highlighted in red.
-//    * Presentation - String -  view of the case that is displayed to the user.
-//    * Count    - Number  -  quantitative indicator of the case, displayed in the title bar of the case.
-//    * Form         - String -  full path to the form to open when you click on the to-do hyperlink
-//                               in the Current Affairs panel.
-//    * FormParameters- Structure -  parameters to open the metric form with.
+//  Parameters       - Structure - Empty structure.
+//  ResultAddress - String    - an address of a temporary storage where a user's
+//                                to-do list is saved - ValueTable:
+//    * Id - String - an internal to-do ID used by the To-do list algorithm.
+//    * HasToDoItems      - Boolean - if True, the to-do item is displayed in the user's to-do list.
+//    * Important        - Boolean - if True, the to-do item is highlighted in red.
+//    * Presentation - String - a to-do item presentation displayed to a user.
+//    * Count    - Number  - a number related to a to-do item; it is displayed in a to-do item's title.
+//    * Form         - String - a full path to the form that is displayed by clicking on the
+//                               to-do item hyperlink in the "To-do list" panel.
+//    * FormParameters- Structure - parameters for opening the indicator form.
 //    * Owner      - String
-//                    - MetadataObject -  string ID of the case that will be the owner for the current
-//                      or metadata object subsystem.
-//    * ToolTip     - String -  hint text.
+//                    - MetadataObject - String ID of the to-do item that is the owner of the current to-do item,
+//                      or a subsystem metadata object.
+//    * ToolTip     - String - a tooltip text.
 //
 Procedure GenerateToDoListForUser(Parameters, ResultAddress) Export
 	
@@ -35,7 +37,7 @@ Procedure GenerateToDoListForUser(Parameters, ResultAddress) Export
 	UserTasksCount = 0;
 	AddUserTask(ToDoList, SSLSubsystemsIntegration, UserTasksCount);
 	
-	// 
+	// Adding to-do items from business applications.
 	UserTasksFillingHandlers = New Array;
 	SSLSubsystemsIntegration.OnDetermineToDoListHandlers(UserTasksFillingHandlers);
 	ToDoListOverridable.OnDetermineToDoListHandlers(UserTasksFillingHandlers);
@@ -46,7 +48,7 @@ Procedure GenerateToDoListForUser(Parameters, ResultAddress) Export
 		EndIf;
 	EndDo;
 	
-	// 
+	// Result post-processing.
 	TransformToDoListTable(ToDoList, ViewSettings);
 	
 	Common.CommonSettingsStorageSave("ToDoList", "ViewSettings", ViewSettings);
@@ -54,7 +56,7 @@ Procedure GenerateToDoListForUser(Parameters, ResultAddress) Export
 	
 EndProcedure
 
-// Returns the structure of saved to-do display settings
+// Returns a structure of saved settings for displaying to-do items
 // for the current user.
 // 
 // Returns:
@@ -97,12 +99,12 @@ Function SavedViewSettings() Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// 
+	// BothForUsersAndExternalUsers.
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.UseCurrentToDosProcessor.Name);
 	
@@ -126,8 +128,8 @@ EndProcedure
 
 Function NumericUserTasksIndicators(Query, CommonQueryParameters = Undefined) Export
 	
-	// 
-	// 
+	// Set common parameters for all queries.
+	// Individual parameters must be set prior to that.
 	If Not CommonQueryParameters = Undefined Then
 		SetCommonQueryParameters(Query, CommonQueryParameters);
 	EndIf;
@@ -136,7 +138,7 @@ Function NumericUserTasksIndicators(Query, CommonQueryParameters = Undefined) Ex
 	BatchQueriesNumbers = New Array;
 	BatchQueriesNumbers.Add(Result.Count() - 1);
 	
-	// 
+	// Select all queries with data.
 	QueryResult = New Structure;
 	For Each QueryNumber In BatchQueriesNumbers Do
 		
@@ -158,10 +160,10 @@ Function NumericUserTasksIndicators(Query, CommonQueryParameters = Undefined) Ex
 	
 EndFunction
 
-// Returns the structure of common values used for calculating current cases.
+// Returns a structure of common values used for calculating current to-do items.
 //
 // Returns:
-//  Structure - 
+//  Structure - a value name and a value.
 //
 Function CommonQueryParameters() Export
 	
@@ -175,11 +177,11 @@ Function CommonQueryParameters() Export
 	
 EndFunction
 
-// Sets General parameters of the queries for calculation of current Affairs.
+// Sets common query parameters for calculating to-do items.
 //
 // Parameters:
-//  Query - the request being executed.
-//  CommonQueryParameters - Structure -  common values for the calculation of the indicators.
+//  Query - a running query.
+//  CommonQueryParameters - Structure - common values for calculating indicators.
 //
 Procedure SetCommonQueryParameters(Query, CommonQueryParameters) Export
 	
@@ -293,7 +295,7 @@ Procedure TransformToDoListTable(ToDoList, ViewSettings)
 			EndIf;
 		EndIf;
 		
-		// 
+		// Backward compatibility.
 		If TypeOf(ToDoItem.HasUserTasks) = Type("Boolean") Then
 			ToDoItem.HasToDoItems = ToDoItem.HasUserTasks;
 		EndIf;

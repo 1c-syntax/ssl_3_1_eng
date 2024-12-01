@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -12,14 +14,14 @@
 Procedure OnReadAtServer(CurrentObject)
 	Rereading = (Cache <> Undefined);
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 		If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 			ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
 			ModuleAttachableCommandsClientServer.UpdateCommands(ThisObject, Object);
 		EndIf;
 	// End StandardSubsystems.AttachableCommands
 
-	// 
+	// Read value storage .
 	If CurrentObject.HTMLFormatEmail Then
 		EmailAttachmentsStructureInHTMLFormat = CurrentObject.EmailPicturesInHTMLFormat.Get();
 		If EmailAttachmentsStructureInHTMLFormat = Undefined Then
@@ -28,7 +30,7 @@ Procedure OnReadAtServer(CurrentObject)
 		EmailTextFormattedDocument.SetHTML(CurrentObject.EmailTextInHTMLFormat, EmailAttachmentsStructureInHTMLFormat);
 	EndIf;
 	
-	// 
+	// Refill form data to be clear on rereading object from DB.
 	If Rereading Then
 		FillReportTableInfo();
 		ReadJobSchedule();
@@ -56,7 +58,7 @@ Procedure OnReadAtServer(CurrentObject)
 		EndIf;
 	EndIf;
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -85,14 +87,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Return;
 	EndIf;
 		
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// 
+	// StandardSubsystems.ObjectsVersioning
 	If Common.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
 		ModuleObjectsVersioning = Common.CommonModule("ObjectsVersioning");
 		ModuleObjectsVersioning.OnCreateAtServer(ThisObject);
@@ -103,12 +105,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ReadOnly = True;
 	EndIf;
 	
-	// 
+	// Deleting the "To folder" option if the StoredFiles subsystem is not available.
 	If TypeOf(Object.Folder) = Type("Undefined") Or TypeOf(Object.Folder) = Type("String") Then
 		Items.OtherDeliveryMethod.ChoiceList.Delete(0);
 	EndIf;
 	
-	// 
+	// Delete the To network directory option if the operation mode in SaaS mode.
 	If Common.DataSeparationEnabled() Then
 		TransportMethodNetworkDirectory = Items.OtherDeliveryMethod.ChoiceList.FindByValue("UseNetworkDirectory");
 		Items.OtherDeliveryMethod.ChoiceList.Delete(TransportMethodNetworkDirectory);
@@ -121,7 +123,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	MailingBasis = Parameters.CopyingValue;
 	
-	// 
+	// Used on import and write selected report settings.
 	CurrentRowIDOfReportsTable = -1;
 	
 	CreatedByCopying = Not MailingBasis.IsEmpty();
@@ -131,7 +133,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DoDisplayImportance();
 	EndIf;
 	
-	// 
+	// Add reports to tabular section.
 	If TypeOf(Parameters.ReportsToAttach) = Type("Array") Then
 		Modified = True;
 		AddReportsSettings(Parameters.ReportsToAttach);
@@ -154,9 +156,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ReadJobSchedule();
 	EndIf;
 	
-	// 
+	// Populate report distribution author.
 	If IsNew Then
-		// 
+		// Report distribution author.
 		CurrentUser = Users.CurrentUser();
 		Object.Author = CurrentUser;
 		Object.EmailImportance = EmailOperationsInternalClientServer.InternetMailMessageImportanceStandard();
@@ -178,7 +180,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Return;
 		EndIf;
 		
-		// 
+		// Asterisks for passwords to be copied from a basis.
 		If CreatedByCopying Then
 			BasisAuthor = Common.ObjectAttributeValue(MailingBasis, "Author");
 			If BasisAuthor = CurrentUser Then
@@ -187,23 +189,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 					"ArchivePassword, FTPPassword");
 				SetPrivilegedMode(False);
 				If ValueIsFilled(Passwords.ArchivePassword) Then
-					ArchivePasswordChanged = True; //  
+					ArchivePasswordChanged = True; // See this parameter processing in the OnWriteAtServer.
 				EndIf;
 				If ValueIsFilled(Passwords.FTPPassword) Then
 					FTPPassword = PasswordHidden();
-					FTPPasswordChanged = True; //  
+					FTPPasswordChanged = True; // See this parameter processing in the OnWriteAtServer.
 				EndIf;
 				If Object.Personal And CanEncryptAttachments Then
 					RecipientsCertificates = ReportMailing.GetEncryptionCertificatesForDistributionRecipients(Object.Author);
 					If RecipientsCertificates.Count() > 0 Then
 						ThisObject["CertificateToEncrypt"] = RecipientsCertificates[0].CertificateToEncrypt;
-						EncryptionCertificateChanged = True; //  
+						EncryptionCertificateChanged = True; // See this parameter processing in the OnWriteAtServer.
 					EndIf;
 				EndIf;
 			EndIf;
 		EndIf;
 		
-		// 
+		// Reset parameters that cannot be copied to defaults.
 		If Not ArchivePasswordChanged Then
 			Object.ArchiveName = Cache.Templates.ArchiveName;
 		EndIf;
@@ -228,21 +230,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	Passwords = Undefined;
 	
-	// 
+	// Allows you to see and control some protected mailing parameters.
 	MailingBeingEditedByAuthor = (Object.Author = Users.CurrentUser());
 	
-	// 
+	// Add additional report button availability.
 	Items.ReportsAddAdditionalReport.Enabled = ?(Cache.EmptyReportValue = Undefined, True, False);
-	//  
-	//   
+	// "Cache.EmptyReportValue" is set to "Undefined" is the "Report" attribute type is flexible. 
+	//   Therefore, the "Additional reports and data processors" subsystem is integrated.
 	
-	// 
+	// Report distribution author availability.
 	Items.Author.Enabled = Users.IsFullUser();
 	
-	// 
+	// List of formats with marks for default formats.
 	DefaultFormatsList = ReportMailing.FormatsList();
 	
-	// 
+	// Default formats list presentation.
 	DefaultFormatsListPresentation = "";
 	For Each ListItem In DefaultFormatsList Do
 		If ListItem.Check Then
@@ -250,10 +252,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	EndDo;
 	
-	// 
+	// Editable format list.
 	FormatsList = DefaultFormatsList.Copy();
 	
-	// 
+	// Default formats list presentation within the mailing.
 	DefaultFormats = "";
 	FoundItems = Object.ReportFormats.FindRows(New Structure("Report", Cache.EmptyReportValue));
 	If FoundItems.Count() = 0 Then
@@ -264,28 +266,28 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndDo;
 	EndIf;
 	
-	// 
+	// Attachments.
 	If EmailAttachmentsStructureInHTMLFormat = Undefined Then
 		EmailAttachmentsStructureInHTMLFormat = New Structure;
 	EndIf;
 	
-	// 
+	// For the recipients and exclusion lists one tabular section is used.
 	Items.EmptySettings.RowFilter = New FixedStructure("PictureIndex", 200);
 	
-	// 
+	// Selection list of author postal addresses.
 	RecipientMailAddresses(Object.Author, Items.AuthorMailAddressKind.ChoiceList);
 	
-	// 
+	// Selection list of author postal addresses.
 	ConnectEmailSettingsCache();
 	
-	// 
+	// Read report settings from the object being copied.
 	If CreatedByCopying Then
 		ReadObjectSettingsOfObjectToCopy();
 		ConvertTextParameters(Object, "ParametersInPresentation");
 		ConvertReportsSettingsParameters(Object, "ParametersInPresentation");
 	EndIf;
 	
-	// 
+	// Activate the first row.
 	If Object.Reports.Count() > 0 And CurrentRowIDOfReportsTable = -1 Then
 		ReportsRow = Object.Reports[0];
 		RowID = ReportsRow.GetID();
@@ -337,7 +339,7 @@ Procedure OnOpen(Cancel)
 		Return;
 	EndIf;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
@@ -351,7 +353,7 @@ EndProcedure
 
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
-	// 
+	// Check data that is output through the attributes of the form itself.
 	If Not ValueIsFilled(Object.Description) Then
 		Cancel = True;
 		MessageText = NStr("en = 'Description is not entered.';");
@@ -461,7 +463,7 @@ EndProcedure
 
 &AtClient
 Procedure AfterWrite(WriteParameters)
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.AfterWrite(ThisObject, Object, WriteParameters);
@@ -473,20 +475,20 @@ EndProcedure
 
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
-	// 
+	// Write current row settings.
 	If CurrentRowIDOfReportsTable <> -1 Then
 		WriteReportsRowSettings(CurrentRowIDOfReportsTable);
 	EndIf;
 	
-	// 
-	// 
-	//     
-	//     
-	// 
-	//     
+	// The follow-up actions:
+	// [1] Save the custom settings. Put the modified settings rows
+	//     to the settings of the object being written (to the value storage).
+	//     Analyze all reports if the user changes the settings.
+	// [2] Search for unfilled mandatory settings.
+	//     Analyze DCS reports if the distribution is prepared.
 	CheckRequired1 = Object.IsPrepared;
-	// 
-	//     
+	// [3] Search for personalized fields if the distribution is not personalized.
+	//     Analyze all reports if the user switched the type from personalized to any other type.
 	//     
 	MailingIsNotPersonalized = (Not Object.Personalized And MailingWasPersonalized);
 	For Each ReportsRow In Object.Reports Do
@@ -494,10 +496,10 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		ReportsRowObject = CurrentObject.Reports.Get(ReportsRow.LineNumber-1);
 		
 		If ReportsRow.ChangesMade Then
-			// 
+			// [1], [2] and [3] Read uninitialized settings.
 			UserSettings = GetFromTempStorage(ReportsRow.SettingsAddress);
 			
-			// 
+			// [1] Write settings.
 			ReportsRowObject.Settings = New ValueStorage(UserSettings, New Deflation(9));
 			
 			If Not CheckRequired1 And Not MailingIsNotPersonalized Then
@@ -510,7 +512,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 				Continue;
 			EndIf;
 			
-			// 
+			// [2] and [3] Read uninitialized settings.
 			If IsTempStorageURL(ReportsRow.SettingsAddress) Then
 				UserSettings = GetFromTempStorage(ReportsRow.SettingsAddress);
 			Else
@@ -519,12 +521,12 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 			
 		EndIf;
 		
-		// 
+		// [2] and [3] Initialize settings.
 		ReportParameters = InitializeReport(ReportsRow, True, UserSettings, False);
 		ReportSettings = ?(ReportsRow.DCS, ReportParameters.DCSettingsComposer, UserSettings);
 		ReportPersonalized = False;
 		
-		// 
+		// [2] and [3] DCS reports analysis.
 		If ReportsRow.DCS Then
 			DCSettings = ReportSettings.Settings;
 			DCUserSettings = ReportSettings.UserSettings; // DataCompositionUserSettings
@@ -534,7 +536,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 			If FoundItems.Count() > 0 Then
 				ReportPersonalized = True;
 			EndIf;
-			// 
+			// [2] Search and check the available setting.
 			AllRequiredSettingsFilled = True;
 			For Each UserSetting In DCUserSettings.Items Do
 				If TypeOf(UserSetting) = Type("DataCompositionSettingsParameterValue") Then
@@ -557,7 +559,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 				EndIf;
 			EndDo;
 			
-			// 
+			// [2] Error output.
 			If Not AllRequiredSettingsFilled Then
 				Cancel = True;
 				MessageText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -568,7 +570,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 			EndIf;
 		EndIf;
 		
-		// 
+		// [3] Ordinary report analysis.
 		If TypeOf(ReportSettings) = Type("ValueTable") Then
 			FoundItems = ReportSettings.FindRows(New Structure("Value, Use", MailingRecipientValueTemplate(FilesAndEmailTextParameters), True));
 			If FoundItems.Count() > 0 Then
@@ -610,7 +612,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		EndIf;
 	EndIf;
 	
-	// 
+	// Write the values.
 	If ValueIsFilled(MailingRecipientType) Then
 		FoundItems = RecipientsTypesTable.FindRows(New Structure("RecipientsType", MailingRecipientType));
 		If FoundItems.Count() = 1 Then
@@ -622,7 +624,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 		CurrentObject.MailingRecipientType = Catalogs.MetadataObjectIDs.EmptyRef();
 	EndIf;
 	
-	// 
+	// All operations with scheduled jobs are placed in the object module.
 	If Object.SchedulePeriodicity <> Enums.ReportMailingSchedulePeriodicities.CustomValue 
 		And Not ValueIsFilled(Schedule.RepeatPeriodInDay)Then
 		Schedule.EndTime = '00010101';
@@ -686,18 +688,18 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	ConvertTextParameters(Object, "ParametersInPresentation");
 	ConvertReportsSettingsParameters(Object, "ParametersInPresentation");
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
 	EndIf;
 	// End StandardSubsystems.AccessManagement
 
-	// 
+	// Refill form tables associated with objects tables (since object tables have already been filled).
 	FillReportTableInfo();
 	ReportsOnActivateRowAtServer(CurrentRowIDOfReportsTable);
 	
-	// 
+	// Update the attributes initial values in the cache.
 	FixAttributesValuesBeforeChange();
 	For Each String In Object.Reports Do
 		String.DoNotSendIfEmpty = Not String.SendIfEmpty;
@@ -717,7 +719,7 @@ Procedure IsPreparedOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Schedule page.
 
 &AtClient
 Procedure ExecuteOnScheduleOnChange(Item)
@@ -814,7 +816,7 @@ Procedure MonthDayOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Delivery page.
 
 &AtClient
 Procedure MailingRecipientTypeChoiceProcessing(Item, ValueSelected, StandardProcessing)
@@ -829,7 +831,7 @@ Procedure MailingRecipientTypeChoiceProcessing(Item, ValueSelected, StandardProc
 		Return;
 	EndIf;
 	
-	// 
+	// Clear recipients (if necessary).
 	If Object.Recipients.Count() > 0 Then
 		StandardProcessing = False;
 		
@@ -1039,7 +1041,7 @@ Procedure NetworkDirectoryLinuxOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Additional page.
 
 &AtClient
 Procedure DefaultFormatsClick(Item, StandardProcessing)
@@ -1206,7 +1208,7 @@ Procedure ReportsChoiceProcessing(Item, ValueSelected, StandardProcessing)
 	ChoiceStructure.Success.RowsArray   = New Array;
 	ChoiceStructure.WithErrors.RowsArray = New Array;
 	
-	// 
+	// Initialize the added report rows and fill the selection structure.
 	CheckAddedReportRows(ChoiceStructure);
 	
 	If ChoiceStructure.WithErrors.Count > 0 Then
@@ -1467,7 +1469,7 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Command bar
 
 &AtClient
 Procedure CommandSaveAndClose(Command)
@@ -1534,7 +1536,7 @@ Procedure Redistribution(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Reports page.
 
 &AtClient
 Procedure AddReport(Command)
@@ -1562,7 +1564,7 @@ EndProcedure
 
 &AtClient
 Procedure AddAdditionalReport(Command)
-	// 
+	// Additional reports pickup form.
 	If CommonClient.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ModuleAdditionalReportsAndDataProcessorsClient = CommonClient.CommonModule("AdditionalReportsAndDataProcessorsClient");
 		ModuleAdditionalReportsAndDataProcessorsClient.ReportDistributionPickAddlReport(Items.Reports);
@@ -1655,7 +1657,7 @@ EndProcedure
 Procedure SpecifyMailingRecipient(Command)
 	ClearMessages();
 	
-	// 
+	// Check - whether the possibility to personalize the mailing enabled.
 	If Not Object.Personalized Then
 		KindPresentaion = Items.BulkEmailType.ChoiceList.FindByValue("Personalized").Presentation;
 		TheMessageText = NStr("en = 'You can specify recipients in parameters only if the distribution type is ""%1"".';");
@@ -1664,7 +1666,7 @@ Procedure SpecifyMailingRecipient(Command)
 		Return;
 	EndIf;
 	
-	// 
+	// Get the main type of recipients.
 	TypesCount = MailingRecipientType.Types().Count();
 	If TypesCount <> 1 And TypesCount <> 2 Then
 		CommonClient.MessageToUser(NStr("en = 'The ""Recipients"" field is required.';"), , "MailingRecipientType");
@@ -1690,7 +1692,7 @@ Procedure SpecifyMailingRecipient(Command)
 		Return;
 	EndIf;
 	
-	// 
+	// Recipients type content check.
 	If Not Setting.DetailsOfAvailableTypes.ContainsType(MainRecipientsType) Then
 		WarningText = NStr("en = 'Type ""%1"" is not suitable for the selected setting.
 			|Select another recipient type or setting.';");
@@ -1781,10 +1783,10 @@ Function IdentifySetting()
 		Initiator = Items.CurrentReportSettings;
 	EndIf;
 	
-	// 
+	// Get details of the types available for selection.
 	If DCS Then
 		
-		// 
+		// User setting ID.
 		SettingID = Initiator.CurrentRow;
 		If SettingID = Undefined Then
 			ShowMessageBox(, NStr("en = 'Report setting is not selected.';"));
@@ -1793,14 +1795,14 @@ Function IdentifySetting()
 		
 		UserSettings = DCSettingsComposer.UserSettings;
 		
-		// 
+		// Get a row from data composition settings.
 		SettingsString = UserSettings.GetObjectByID(SettingID);
 		If SettingsString = Undefined Then
 			ShowMessageBox(, NStr("en = 'Report setting is not selected.';"));
 			Return Undefined;
 		EndIf;
 		
-		// 
+		// Setting type check.
 		If TypeOf(SettingsString) = Type("DataCompositionFilterItem") Then
 			IsFilterItem = True;
 		ElsIf TypeOf(SettingsString) = Type("DataCompositionSettingsParameterValue") Then
@@ -1810,7 +1812,7 @@ Function IdentifySetting()
 			Return Undefined;
 		EndIf;
 		
-		// 
+		// Data composition field.
 		If IsFilterItem Then
 			FoundItems1 = UserSettings.GetMainSettingsByUserSettingID(
 				SettingsString.UserSettingID);
@@ -1842,7 +1844,7 @@ Function IdentifySetting()
 		
 	Else
 		
-		// 
+		// Types array for arbitrary reports.
 		SettingsString = Initiator.CurrentData;
 		If SettingsString = Undefined Then
 			ShowMessageBox(, NStr("en = 'Report setting is not selected.';"));
@@ -1883,7 +1885,7 @@ Function DetermineFieldFromComposer(SettingID, Collection)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Schedule page.
 
 &AtClient
 Procedure SelectCheckBoxes(Command)
@@ -1915,7 +1917,7 @@ Procedure FillScheduleByTemplate(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Delivery page.
 
 &AtClient
 Procedure AddChangeMailingDateTemplate(Command)
@@ -1948,7 +1950,7 @@ EndProcedure
 
 &AtClient
 Procedure AddRecipientTemplate(Command)
-	// 
+	// Clean up message window.
 	ClearMessages();
 	
 	//
@@ -2011,11 +2013,11 @@ Procedure AddDefaultTemplate(Command)
 	AdditionalParameters.Insert("DefaultTemplate", DefaultTemplate);
 	
 	If SubjectValue = "" Then
-		// 
+		// If the subject is empty, fill it in.
 		AddDefaultTemplateCompletion(1, AdditionalParameters);
 		
 	ElsIf SubjectValue = DefaultTemplate Then
-		// 
+		// Subject matches the template — no fill required.
 		
 		If OverwriteSubject Then
 			WarningText = NStr("en = 'Email subject already matches the default template.';");
@@ -2025,7 +2027,7 @@ Procedure AddDefaultTemplate(Command)
 		ShowMessageBox(, WarningText);
 		
 	Else
-		// 
+		// Subject is not empty - you need to ask a replacement for a standard template.
 		
 		If OverwriteSubject Then
 			QuestionTitle = NStr("en = 'Add default template to the email subject';");
@@ -2165,7 +2167,7 @@ Procedure ShouldAttachReportsOnChange(Item)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Additional page.
 
 &AtClient
 Procedure ResetDefaultFormat(Command)
@@ -2270,7 +2272,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client.
 
 &AtClient
 Procedure UserSettingStartChoice(StandardProcessing)
@@ -2300,7 +2302,7 @@ Procedure SelectUserSettingsCompletion(Result, ExecutionParameters) Export
 	Report.ChangesMade = True;
 EndProcedure
 
-// Handler for closing the form of the recipient of the Link.
+// A handler of closing the BulkEmailRecipients form.
 //
 // Parameters:
 //   Result - Structure:
@@ -2414,7 +2416,7 @@ EndProcedure
 
 &AtClient
 Procedure CheckMailingAfterRecipientsChoice(SelectionResult, DeliveryParameters) Export
-	// 
+	// CheckMailingAfterResponseToQuestion procedure execution result handler.
 	If DeliveryParameters.UseEmail Then
 		If SelectionResult = Undefined Then
 			Return;
@@ -2447,7 +2449,7 @@ Procedure FillScheduleByTemplateCompletion(SelectedElement, AdditionalParameters
 	EndIf;
 EndProcedure
 
-// Handler for closing the format string dialog.
+// A handler of closing the format string dialog box.
 //
 // Parameters:
 //   ResultRow - String
@@ -2492,10 +2494,10 @@ Procedure AddChangeMailingDateTemplateCompletion(ResultRow, Variables1) Export
 					EndIf;
 				EndDo;
 			EndIf;
-		EndIf; // 
+		EndIf; // Variable.PreviousFragmentFound
 		If Not ReplacementExecuted Then
 			If TrimAll(Variables1.PreviousText1) = PreviousFragment Then
-				// 
+				// The "SelectedText" property is rarely used in formatted documents (in case it's safe).
 				//  
 				Variables1.Item.SelectedText = NewFragment;
 			Else
@@ -2521,7 +2523,7 @@ Procedure ChooseFormatCompletion(FormatsList, Variables1) Export
 		Return;
 	EndIf;
 	
-	// 
+	// Check for changes.
 	FormatsMatch = True;
 	For IndexOf = 1 To FormatsList.Count() Do
 		If FormatsList[IndexOf - 1].Check <> Variables1.FormatsListCopy[IndexOf - 1].Check Then
@@ -2535,10 +2537,10 @@ Procedure ChooseFormatCompletion(FormatsList, Variables1) Export
 	
 	FormatPresentation = "";
 	
-	// 
+	// Clean up existing records.
 	ClearFormat(Variables1.ReportRef1);
 	
-	// 
+	// Add marked formats.
 	For Each ListItem In FormatsList Do
 		If ListItem.Check Then
 			StringFormat = Object.ReportFormats.Add();
@@ -2582,10 +2584,10 @@ EndProcedure
 &AtClient
 Function ChoicePickupDragItemToTabularSection(PickingItem, TabularSection, Var_AttributeName, FillingStructure, Uniqueness = True)
 	
-	// 
+	// (CatalogRef.*) drag from the pickup or selection form.
 	AttributeValue = PickingItem;
 	
-	// 
+	// The attribute must be unique within the table.
 	FoundItems = TabularSection.FindRows(New Structure(Var_AttributeName, AttributeValue));
 	
 	If Uniqueness And FoundItems.Count() > 0 Then
@@ -2622,9 +2624,9 @@ EndFunction
 
 &AtClient
 Procedure ChooseFormat(ReportRef1, ResultHandler)
-	// 
-	// 
-	// 
+	// The "ReportFormats" table is used to store all user-selected formats.
+	// To store the default formats, an empty value of the "Report" attribute is used.
+	// Depending on the implementation, the "Report" attribute can be "Undefined" or "EmptyRef".
 	IsDefaultFormat = Not ValueIsFilled(ReportRef1);
 	
 	FoundItems = Object.ReportFormats.FindRows(New Structure("Report", ReportRef1));
@@ -2675,7 +2677,7 @@ EndProcedure
 
 &AtClient
 Procedure AddLayout(TextTemplate = Undefined, SkipEmailSubject = False)
-	// 
+	// Checking and setting focus on the item.
 	If SkipEmailSubject Or Not (CurrentItem = Items.EmailSubject Or CurrentItem = Items.ArchiveName) Then
 		If Object.HTMLFormatEmail Then
 			If CurrentItem <> Items.EmailTextFormattedDocument Then
@@ -2689,13 +2691,13 @@ Procedure AddLayout(TextTemplate = Undefined, SkipEmailSubject = False)
 	EndIf;
 	
 	If TextTemplate = Undefined Then
-		// 
+		// Just preparing to add a template (switching current item).
 		Return;
 	EndIf;
 	
 	If CurrentItem.SelectedText = "" Then
-		// 
-		//  
+		// Formatted documents mishandle changes of the "SelectedText" property if no text is selected.
+		//  Therefore, use the alternative method for adding text.
 		//  
 		If CurrentItem = Items.EmailTextFormattedDocument Then
 			EmailTextFormattedDocument.Add(TextTemplate, FormattedDocumentItemType.Text);
@@ -2741,10 +2743,10 @@ EndProcedure
 
 &AtClient
 Procedure CheckMailing(DeliveryParameters)
-	// 
+	// Clear message window.
 	ClearMessages();
 	
-	// 
+	// Check the data readiness and the need for writing.
 	If Not Object.IsPrepared Or Object.Ref.IsEmpty() Then
 		QuestionTitle = NStr("en = 'Check delivery method';");
 		If Not Object.IsPrepared Then
@@ -3119,7 +3121,7 @@ Procedure OnOpenTemplatePreview()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Client, Server.
 
 &AtClientAtServerNoContext
 Function PasswordHidden()
@@ -3172,7 +3174,7 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 	EndIf;
 	
 	If Changes = "" Or Changes = "BulkEmailType" Then
-		// Correctness
+		// Validity
 		If Object.Personal And Object.Personalized Then
 			Object.Personal = False;
 		EndIf;
@@ -3202,7 +3204,7 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 			Object.UseEmail = True;
 		EndIf;
 		
-		// 
+		// Visibility & Availability
 		Items.BulkEmailTypes.CurrentPage = ?(Object.Personal, Items.BulkEmailTypesPersonal, 
 			Items.BulkEmailTypesForRecipients);
 		Items.OtherDeliveryMethods.Visible = CommonMailing;
@@ -3219,7 +3221,7 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 			EndIf;
 		EndIf;
 		
-		// 
+		// Restore parameters
 		If Object.UseFolder Then
 			Form.OtherDeliveryMethod = "UseFolder";
 			Form.Publish = True;
@@ -3366,13 +3368,13 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 			Items.GroupExecutionTime.Visible = True;
 		EndIf;
 		
-		// 
+		// Reset parameters that do not match simplified editing bookmarks.
 		If Changes = "SchedulePeriodicity"
 			And (EnumerationName = "Daily" 
 			Or EnumerationName = "Weekly"
 			Or EnumerationName = "Monthly") Then
 			
-			// 
+			// Common parameters
 			Form.Schedule.BeginDate = '00010101';
 			Form.Schedule.EndDate  = '00010101';
 			Form.Schedule.CompletionTime = '00010101';
@@ -3404,7 +3406,7 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 			EndIf;
 		EndIf;
 		
-		// 
+		// Restoring parameters on the current bookmark according to schedule parameters.
 		If EnumerationName = "Daily" Then
 			Form.BeginTime = Form.Schedule.BeginTime;
 			Form.DaysRepeatPeriod = Form.Schedule.DaysRepeatPeriod;
@@ -3431,7 +3433,7 @@ Procedure SetVisibilityAvailabilityAndCorrectness(Form, Changes = "")
 
 		Form.UseHourlyRepeatPeriod = ValueIsFilled(Form.RepeatPeriodInDay);
 		
-	EndIf; // 
+	EndIf; // Changes = "" Or Changes = "SchedulePeriodicity"
 
 	If Changes = "" Or Changes = "RepeatPeriodInDay" Or Changes = "SchedulePeriodicity" Then
 		Items.RepeatPeriodInDay.Enabled = Form.UseHourlyRepeatPeriod;
@@ -3503,13 +3505,13 @@ Procedure SetCertificatePasswordsVisibilityAndAvailability(Form)
 
 EndProcedure
 
-// Creates a view of the schedule of a scheduled task.
+// Generates the presentation of scheduled job schedule.
 //
 // Parameters:
-//   Schedule - JobSchedule -  schedule.
+//   Schedule - JobSchedule - a schedule.
 //
 // Returns:
-//   String - 
+//   String - a schedule presentation.
 //
 &AtClientAtServerNoContext
 Function SchedulePresentation(Schedule)
@@ -3644,7 +3646,7 @@ Function SecondsToHours(Seconds)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call, Server.
 
 &AtServerNoContext
 Function RecipientMailAddresses(Recipient, ValueList)
@@ -3749,13 +3751,13 @@ EndProcedure
 
 &AtServer
 Function ReportsOnActivateRowAtServer(RowID, AddCommonText = True, Val UserSettings = Undefined)
-	// 
+	// Save previous report settings.
 	If RowID <> CurrentRowIDOfReportsTable And CurrentRowIDOfReportsTable <> -1 Then
 		WriteReportsRowSettings(CurrentRowIDOfReportsTable);
 	EndIf;
 	CurrentRowIDOfReportsTable = RowID;
 	
-	// 
+	// Row search.
 	ReportsRow = Object.Reports.FindByID(RowID);
 	If ReportsRow = Undefined Then
 		CurrentRowIDOfReportsTable = -1;
@@ -3763,7 +3765,7 @@ Function ReportsOnActivateRowAtServer(RowID, AddCommonText = True, Val UserSetti
 	EndIf;
 	
 	If UserSettings = Undefined Then
-		// 
+		// Read current row settings from temporary storage or tabular section by reference.
 		If IsTempStorageURL(ReportsRow.SettingsAddress) Then
 			UserSettings = GetFromTempStorage(ReportsRow.SettingsAddress);
 		Else
@@ -3778,7 +3780,7 @@ Function ReportsOnActivateRowAtServer(RowID, AddCommonText = True, Val UserSetti
 		Return "";
 	EndIf;
 	
-	// Initialize
+	// Initialization.
 	ReportParameters = InitializeReport(ReportsRow, AddCommonText, UserSettings);
 	
 	FindPersonalizationSettings();
@@ -3869,14 +3871,14 @@ EndFunction
 Procedure FillScheduleByOption(Variant, RefreshVisibility = False)
 	
 	Schedule = New JobSchedule;
-	Schedule.BeginTime = '00010101073000'; // 
-	Schedule.DaysRepeatPeriod = 1; // 
+	Schedule.BeginTime = '00010101073000'; // at 7:30 am
+	Schedule.DaysRepeatPeriod = 1; // Every day.
 
-	// 
+	// On weekly basis.
 	WeekDayMin = 1;
 	WeekDayMax = 7;
 	
-	// 
+	// On monthly basis.
 	AllMonths = New Array;
 	For IndexOf = 1 To 12 Do
 		AllMonths.Add(IndexOf);
@@ -3884,49 +3886,49 @@ Procedure FillScheduleByOption(Variant, RefreshVisibility = False)
 	Schedule.Months = AllMonths;
 	
 	Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Daily;
-	If Variant = 2 Then // 
+	If Variant = 2 Then // Every other day.
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Daily;
 		Schedule.DaysRepeatPeriod = 2;
 		
-	ElsIf Variant = 3 Then // 
+	ElsIf Variant = 3 Then // Every fourth day
 		Schedule.DaysRepeatPeriod = 4;
 		
-	ElsIf Variant = 4 Then // 
+	ElsIf Variant = 4 Then // On weekdays.
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Weekly;
 		WeekDayMin = 1;
 		WeekDayMax = 5;
 		
-	ElsIf Variant = 5 Then // 
+	ElsIf Variant = 5 Then // On weekends.
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Weekly;
-		Schedule.BeginTime = '00010101220000'; // 
+		Schedule.BeginTime = '00010101220000'; // at 10:00 pm
 		WeekDayMin = 6;
 		WeekDayMax = 7;
 		
-	ElsIf Variant = 6 Then // 
+	ElsIf Variant = 6 Then // On Mondays.
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Weekly;
 		WeekDayMin = 1;
 		WeekDayMax = 1;
 		
-	ElsIf Variant = 7 Then // 
+	ElsIf Variant = 7 Then // On Fridays.
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Weekly;
 		WeekDayMin = 5;
 		WeekDayMax = 5;
 		
-	ElsIf Variant = 8 Then // 
+	ElsIf Variant = 8 Then // On Sundays.
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Weekly;
-		Schedule.BeginTime = '00010101220000'; // 
+		Schedule.BeginTime = '00010101220000'; // at 10:00 pm
 		WeekDayMin = 7;
 		WeekDayMax = 7;
 		
-	ElsIf Variant = 9 Then // 
+	ElsIf Variant = 9 Then // In the first day of the month
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Monthly;
 		Schedule.DayInMonth = 1;
 		
-	ElsIf Variant = 10 Then // 
+	ElsIf Variant = 10 Then // In the last day of the month
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Monthly;
 		Schedule.DayInMonth = -1;
 		
-	ElsIf Variant = 11 Then // 
+	ElsIf Variant = 11 Then // WithEvery quarter on the 10th.
 		AllMonths = New Array;
 		AllMonths.Add(1);
 		AllMonths.Add(4);
@@ -3936,11 +3938,11 @@ Procedure FillScheduleByOption(Variant, RefreshVisibility = False)
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.Monthly;
 		Schedule.DayInMonth = 10;
 		
-	ElsIf Variant = 12 Then // 
+	ElsIf Variant = 12 Then // Other...
 		Object.SchedulePeriodicity = Enums.ReportMailingSchedulePeriodicities.CustomValue;
 	EndIf;
 	
-	// 
+	// On weekly basis.
 	SelectedWeekDays = New Array;
 	For IndexOf = WeekDayMin To WeekDayMax Do
 		SelectedWeekDays.Add(IndexOf);
@@ -3956,13 +3958,13 @@ EndProcedure
 // 
 // Parameters:
 //   ChoiceStructure - Structure:
-//     * SelectedItemsCount   - Structure -  rows selected by the user.
-//     * Success   - Structure -  strings initialized and added to the list.
-//     * WithErrors - Structure - :
-//         ** RowsArray - Array -  array of string IDs.
-//         ** Count - Number -  number of lines.
-//         ** ReportsPresentations - String -  view all reports of the specified rows.
-//         ** Text - String -  text of errors that occurred.
+//     * SelectedItemsCount   - Structure - rows selected by the user.
+//     * Success   - Structure - rows initialized and added to the list.
+//     * WithErrors - Structure - rows not added to the list due to errors:
+//         ** RowsArray - Array - Array of row IDs.
+//         ** Count - Number - Number of rows.
+//         ** ReportsPresentations - String - presentation of all reports of the specified rows.
+//         ** Text - String - an error text.
 //
 &AtServer
 Procedure CheckAddedReportRows(ChoiceStructure)
@@ -3996,14 +3998,14 @@ Procedure CheckAddedReportRows(ChoiceStructure)
 			+ ReportsRow.Presentation;
 	EndDo;
 	
-	// 
+	// Set cursor position on the first of the added items.
 	If ChoiceStructure.Success.Count > 0 Then
 		Items.Reports.CurrentRow = ChoiceStructure.Success.RowsArray[0];
 		CurrentRowIDOfReportsTable = Items.Reports.CurrentRow;
 		ReportsOnActivateRowAtServer(ReportsRowID, False);
 	EndIf;
 	
-	// 
+	// Error text assembly.
 	If ChoiceStructure.WithErrors.Count > 0 Then
 		ChoiceStructure.WithErrors.Text = ReportMailing.MessagesToUserString(ErrorsArray);
 	EndIf;
@@ -4015,7 +4017,7 @@ Function CheckTransportMethod(BulkEmail, Val DeliveryParameters)
 	DeliveryParameters.ExecutionDate = CurrentSessionDate();
 	DeliveryParameters.TestMode = True;
 	
-	// 
+	// Initialize logging parameters.
 	SetPrivilegedMode(True);
 	
 	LogParameters = New Structure;
@@ -4026,29 +4028,29 @@ Function CheckTransportMethod(BulkEmail, Val DeliveryParameters)
 	
 	SetPrivilegedMode(False);
 	
-	// 
+	// Write an empty spreadsheet document in html 5.
 	FullFileName = GetTempFileName(".html");
 	
 	TabDoc = New SpreadsheetDocument;
 	TabDoc.Write(FullFileName, SpreadsheetDocumentFileType.HTML5);
 	
-	// 
+	// Generate attachments.
 	File = New File(FullFileName);
 	
 	Attachments = New Map;
 	Attachments.Insert(File.Name, File.FullName);
 	
 	// Delivery
-	BeginTransaction(); // 
+	BeginTransaction(); // ACC:326 - Transaction opens only for a rollback.
 	Try
 		ReportMailing.ExecuteDelivery(LogParameters, DeliveryParameters, Attachments);
-		RollbackTransaction(); // 
+		RollbackTransaction(); // After the end of the test, all changes in the base are rolled back.
 	Except
 		RollbackTransaction();
 		Raise;
 	EndTry;
 	
-	// 
+	// Clean up attachments.
 	For Each Attachment In Attachments Do
 		DeleteFiles(Attachment.Value);
 	EndDo;
@@ -4173,7 +4175,7 @@ Function ReportsPlannedListInAttachments()
 	ListFileNames = New Array;
 	DeliveryParameters = New Structure("TransliterateFileNames", Object.TransliterateFileNames);
 
-	// 
+	// Formats parameters.
 	FormatsParameters = New Map;
 	For Each MetadataFormat In Metadata.Enums.ReportSaveFormats.EnumValues Do
 		Format = Enums.ReportSaveFormats[MetadataFormat.Name];
@@ -4212,7 +4214,7 @@ Function ReportsPlannedListInAttachments()
 			FullFileName = ReportMailing.FullFileNameFromTemplate(
 			"", RowReport.Presentation, FormatParameters, DeliveryParameters, RowReport.DescriptionTemplate, Period);
 
-			// 
+			// Extension mechanism.
 			ReportMailingOverridable.BeforeSaveSpreadsheetDocumentToFormat(
 			True,
 			New SpreadsheetDocument,
@@ -4258,7 +4260,7 @@ Function IsMemberOfPersonalReportGroup(Group)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Procedure SetConditionalAppearance()
@@ -4383,7 +4385,7 @@ EndProcedure
 &AtServer
 Function GetCache()
 	
-	// 
+	// Convert descriptions to values.
 	WeekDays = New Map;
 	WeekDays.Insert(Items.Monday.Name, 1);
 	WeekDays.Insert(Items.Tuesday.Name,     2);
@@ -4409,13 +4411,13 @@ Function GetCache()
 	Months.Insert(Items.December.Name,  12);
 	Months = New FixedMap(Months);
 	
-	// 
+	// Defaults for fields that support filling templates.
 	Templates = New FixedStructure("Subject, Text, ArchiveName",
 		ReportMailingClientServer.SubjectTemplate(FilesAndEmailTextParameters),
 		ReportMailing.TextTemplate1(FilesAndEmailTextParameters),
 		ReportMailingClientServer.ArchivePatternName(FilesAndEmailTextParameters));
 	
-	// 
+	// Cache structure.
 	Cache = New Structure;
 	Cache.Insert("EmptyReportValue", ReportMailing.EmptyReportValue());
 	Cache.Insert("PersonalMailingsGroup", Catalogs.ReportMailings.PersonalMailings);
@@ -4490,10 +4492,10 @@ EndProcedure
 
 &AtServer
 Procedure ConnectEmailSettingsCache()
-	// 
+	// Connect recipients type cache.
 	RecipientsTypesTable.Load(ReportMailingCached.RecipientsTypesTable());
 	
-	// 
+	// Fill the recipients type selection list.
 	For Each RecipientRow In RecipientsTypesTable Do
 		Items.MailingRecipientType.ChoiceList.Add(RecipientRow.RecipientsType, RecipientRow.Presentation);
 		If RecipientRow.MetadataObjectID = Object.MailingRecipientType Then
@@ -4507,7 +4509,7 @@ EndProcedure
 
 &AtServer
 Procedure FillEmptyTemplatesWithStandard(CurrentObject)
-	// 
+	// Object data.
 	If IsBlankString(CurrentObject.EmailSubject) Then
 		CurrentObject.EmailSubject = Cache.Templates.Subject;
 	EndIf;
@@ -4517,7 +4519,7 @@ Procedure FillEmptyTemplatesWithStandard(CurrentObject)
 	If IsBlankString(CurrentObject.ArchiveName) Then
 		CurrentObject.ArchiveName = Cache.Templates.ArchiveName;
 	EndIf;
-	// 
+	// Form data.
 	If IsBlankString(EmailTextFormattedDocument.GetText()) Then
 		EmailTextFormattedDocument.Add(Cache.Templates.Text, FormattedDocumentItemType.Text);
 	EndIf;
@@ -4547,14 +4549,14 @@ EndProcedure
 
 &AtServer
 Function InitializeReport(ReportsRow, AddCommonText, UserSettings, Interactively = True)
-	// 
+	// Log parameters.
 	LogParameters = New Structure;
 	LogParameters.Insert("EventName",   NStr("en = 'Report distribution. Report initialization';", Common.DefaultLanguageCode()));
 	LogParameters.Insert("Data",       ?(ValueIsFilled(Object.Ref), Object.Ref, ReportsRow.Report));
 	LogParameters.Insert("Metadata",   Metadata.Catalogs.ReportMailings);
 	LogParameters.Insert("ErrorsArray", New Array);
 	
-	// 
+	// Initialize report.
 	ReportParameters = New Structure("Report, Settings", ReportsRow.Report, UserSettings);
 	ReportMailing.InitializeReport(
 		LogParameters,
@@ -4570,7 +4572,7 @@ Function InitializeReport(ReportsRow, AddCommonText, UserSettings, Interactively
 		ReportsRow.Initialized = ReportParameters.Initialized;
 		ReportsRow.FullName       = ReportParameters.FullName;
 		ReportsRow.VariantKey    = ReportParameters.VariantKey;
-		// 
+		// Support the ability to directly select additional reports references in reports mailings.
 		If ValueIsFilled(ReportParameters.OptionRef1) Then
 			ReportsRow.Report         = ReportParameters.OptionRef1;
 			ReportsRow.Presentation = String(ReportsRow.Report);
@@ -4581,18 +4583,18 @@ Function InitializeReport(ReportsRow, AddCommonText, UserSettings, Interactively
 		Return ReportParameters;
 	EndIf;
 	
-	// 
+	// Check the initialization result.
 	If Not ReportsRow.Initialized Then
-		// 
+		// Delete row.
 		Object.Reports.Delete(ReportsRow);
 		
-		// 
+		// Empty settings page.
 		Items.ReportSettingsPages.CurrentPage = Items.PageEmpty;
 		
 		Return ReportParameters;
 	EndIf;
 	
-	// 
+	// Restore settings.
 	If ReportsRow.DCS Then
 		
 		DCSettingsComposer = ReportParameters.DCSettingsComposer;
@@ -4600,7 +4602,7 @@ Function InitializeReport(ReportsRow, AddCommonText, UserSettings, Interactively
 		
 	Else
 		
-		// 
+		// Clear & Restore
 		If TypeOf(UserSettings) = Type("ValueTable") Then
 			CurrentReportSettings.Load(UserSettings);
 		Else
@@ -4608,7 +4610,7 @@ Function InitializeReport(ReportsRow, AddCommonText, UserSettings, Interactively
 		EndIf;
 		
 		For Each KeyAndValue In ReportParameters.AvailableAttributes Do
-			// 
+			// Update attributes to be evaluated.
 			FoundItems = CurrentReportSettings.FindRows(New Structure("Attribute", KeyAndValue.Key));
 			If FoundItems.Count() = 0 Then
 				SettingRow = CurrentReportSettings.Add();
@@ -4622,7 +4624,7 @@ Function InitializeReport(ReportsRow, AddCommonText, UserSettings, Interactively
 			SettingRow.PictureIndex = 3;
 		EndDo;
 		
-		// 
+		// Disable undetected rows.
 		FoundItems = CurrentReportSettings.FindRows(New Structure("Found", False));
 		For Each SettingRow In FoundItems Do
 			SettingRow.Use = False;
@@ -4970,7 +4972,7 @@ Function TemplatePreviewFormParameters()
 	EndIf;
 	AddTemplateAdditionalParameters(TemplateParameters, FirstRecipientRef);
 	
-	// 
+	// A simplified report view in the email body.
 	If Object.ShouldInsertReportsIntoEmailBody Then
 		ReportsInEmailText = "";
 		For Each RowReport In Object.Reports Do
@@ -4984,7 +4986,7 @@ Function TemplatePreviewFormParameters()
 		Template = Template + Chars.LF + Chars.LF + ReportsInEmailText;
 	EndIf;
 	
-	// 
+	// Output a list of attachments.
 	If Object.ShouldAttachReports Then
 		ReportsPlannedList = ReportsPlannedListInAttachments();
 		If ReportsPlannedList.Count() > 0 Then
@@ -5035,20 +5037,20 @@ Function TemplatePreviewFormParameters()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Write object.
 
 &AtClient
 Procedure WriteAtClient(Result, WriteParameters) Export
-	// 
+	// Initialize parameters.
 	If Not WriteParameters.Property("Step") Then
-		ClearMessages(); // 
+		ClearMessages(); // Clean up message window.
 		WriteParameters.Insert("Step", 1);
 	EndIf;
 	
-	// 
+	// Resource permissions.
 	If WriteParameters.Step = 1 And PermissionsToUseServerResourcesRequired() Then
 		WriteParameters.Step = 2;
-		// 
+		// Question.
 		Handler = New NotifyDescription("WriteAtClient", ThisObject, WriteParameters);
 		If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 			Permissions = PermissionsToUseServerResources();
@@ -5058,21 +5060,21 @@ Procedure WriteAtClient(Result, WriteParameters) Export
 			ExecuteNotifyProcessing(Handler, DialogReturnCode.OK);
 		EndIf;
 	ElsIf WriteParameters.Step = 1 Then
-		// 
+		// Question is not required.
 		WriteParameters.Step = 3;
 	ElsIf WriteParameters.Step = 2 Then
-		// 
+		// Process the response.
 		If Result = DialogReturnCode.OK Then
-			WriteParameters.Step = 3; // 
+			WriteParameters.Step = 3; // External resources are allowed. Continue recording.
 		Else
-			Return; // 
+			Return; // Cancel writing.
 		EndIf;
 	EndIf;
 	
-	// 
+	// Disable archiving.
 	If WriteParameters.Step = 3 And PreferablyDisableArchiving() Then
 		WriteParameters.Step = 4;
-		// 
+		// Question.
 		QuestionTitle = NStr("en = 'Disable archiving';");
 		QueryText = NStr("en = 'Disable archiving to ZIP when publishing reports into a folder.';");
 		
@@ -5084,26 +5086,26 @@ Procedure WriteAtClient(Result, WriteParameters) Export
 		Handler = New NotifyDescription("WriteAtClient", ThisObject, WriteParameters);
 		ShowQueryBox(Handler, QueryText, Buttons, 60, DialogReturnCode.Yes, QuestionTitle);
 	ElsIf WriteParameters.Step = 3 Then
-		// 
+		// Question is not required.
 		WriteParameters.Step = 5;
 	ElsIf WriteParameters.Step = 4 Then
-		// 
+		// Process the response.
 		If Result = DialogReturnCode.Yes Then
-			Object.Archive = False; // 
-			WriteParameters.Step = 5; // 
+			Object.Archive = False; // Disable archiving.
+			WriteParameters.Step = 5; // Continue writing.
 		ElsIf Result = DialogReturnCode.Ignore Then
-			WriteParameters.Step = 5; // 
+			WriteParameters.Step = 5; // Continue writing without disabling archiving.
 		Else
-			Return; // 
+			Return; // Cancel writing.
 		EndIf;
 	EndIf;
 	
-	// 
+	// Write.
 	If WriteParameters.Step = 5 Then
 		WriteParameters.Step = 6;
 		Success = Write(WriteParameters);
 		If Not Success Then
-			Return; // 
+			Return; // Cancel writing.
 		EndIf;
 		CommandName = CommonClientServer.StructureProperty(WriteParameters, "CommandName");
 		If CommandName = "ExecuteNowCommand" Then
@@ -5122,16 +5124,16 @@ EndProcedure
 Function PermissionsToUseServerResourcesRequired()
 	If Object.UseNetworkDirectory
 		And (ValueIsFilled(Object.NetworkDirectoryWindows) Or ValueIsFilled(Object.NetworkDirectoryLinux)) Then
-		// 
+		// Publish to the network directory. Requires the permissions.
 		If AttributesValuesChanged("UseNetworkDirectory, NetworkDirectoryWindows, NetworkDirectoryLinux") Then
-			// 
+			// User changed the values of the attributes to be checked.
 			Return True;
 		EndIf;
 	EndIf;
 	If Object.UseFTPResource And ValueIsFilled(Object.FTPServer) Then
-		// 
+		// Publish to the network directory. Requires the permissions.
 		If AttributesValuesChanged("UseFTPResource, FTPServer, FTPDirectory") Then
-			// 
+			// User changed the values of the attributes to be checked.
 			Return True;
 		EndIf;
 	EndIf;
@@ -5144,9 +5146,9 @@ Function PreferablyDisableArchiving()
 	If Object.UseFolder
 		And Object.Archive
 		And (Object.NotifyOnly Or Not Object.UseEmail) Then
-		// 
+		// Publish into the notification distribution folder. We recommend that you disable archiving.
 		If AttributesValuesChanged("UseFolder, UseEmail, NotifyOnly, Archive") Then
-			// 
+			// User changed the values of the attributes to be checked.
 			Return True;
 		EndIf;
 	EndIf;
@@ -5188,7 +5190,7 @@ Procedure FixAttributesValuesBeforeChange()
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
@@ -5220,7 +5222,7 @@ EndProcedure
 // End StandardSubsystems.AttachableCommands
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Copy the ExecuteNow command to support asynchrony.
 
 &AtClient
 Procedure ExecuteNow()
@@ -5236,7 +5238,7 @@ Procedure ExecuteNow()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Copy the Mailing events command to support asynchrony.
 
 &AtClient
 Procedure MailingEvents()

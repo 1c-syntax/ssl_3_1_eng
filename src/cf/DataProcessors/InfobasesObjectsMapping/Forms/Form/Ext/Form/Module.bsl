@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -13,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 
 	SetConditionalAppearance();
 	
-	// 
+	// Checking whether the form is opened from 1C:Enterprise script.
 	If Not Parameters.Property("ExchangeMessageFileName") Then
 		Raise NStr("en = 'The data processor cannot be opened manually.';");
 	EndIf;
@@ -29,15 +31,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ExecuteDataImport = Parameters.ExecuteDataImport;
 	EndIf;
 	
-	// 
+	// Initializing the data processor with the passed parameters.
 	FillPropertyValues(Object, Parameters);
 	
-	// 
+	// Calling a constructor of the current data processor instance.
 	DataProcessorObject = FormAttributeToValue("Object");
 	DataProcessorObject.Designer();
 	ValueToFormAttribute(DataProcessorObject, "Object");
 	
-	// 
+	// Removing possible search fields and attributes with strings of unlimited length from the list.
 	MetadataObjectType = Metadata.FindByType(Type(Object.DestinationTypeString));
 	
 	If MetadataObjectType <> Undefined Then
@@ -59,21 +61,21 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndDo;
 	EndIf;
 	
-	// 
+	// A list of filters by mapping status:
 	//
-	//     
-	//          
-	//         
-	//         
-	//          
+	//     MappingStatus - Number:
+	//          0 - Mapped via information register (soft mapping)
+	//         -1 - Unmapped source object
+	//         +1 - Unmapped destination object
+	//          3 - Unconfirmed mapped link
 	//
-	//     
-	//         
-	//         
+	//     MappingStatusAdditional - Number:
+	//         1 - Unmapped objects
+	//         0 - Mapped objects
 	
 	MappingStatusFilterOptions = New Structure;
 	
-	// 
+	// Populate filter list.
 	ChoiceList = Items.FilterByMappingStatus.ChoiceList;
 	
 	NewListItem = ChoiceList.Add("AllObjects", NStr("en = 'All data';"));
@@ -99,10 +101,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	MappingStatusFilterOptions.Insert(NewListItem.Value, 
 						New FixedStructure("MappingStatus", -1));
 	
-	// 
+	// Default values.
 	FilterByMappingStatus = "UnmappedObjects";
 		
-	// 
+	// Set the form title.
 	Synonym = Undefined;
 	Parameters.Property("Synonym", Synonym);
 	If IsBlankString(Synonym) Then
@@ -113,7 +115,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Title = NStr("en = 'Data mapping ""[DataPresentation]""';");
 	Title = StrReplace(Title, "[DataPresentation]", DataPresentation);
 	
-	// 
+	// Setting the form item visibility according to option values.
 	Items.LinksGroup.Visible                                    = PerformDataMapping;
 	Items.RunAutoMapping.Visible           = PerformDataMapping;
 	Items.MappingDigestInfo.Visible               = PerformDataMapping;
@@ -149,7 +151,7 @@ EndProcedure
 Procedure OnOpen(Cancel)
 	ShowWarningOnFormClose = True;
 	
-	// 
+	// Setting a flag that shows whether the form has been modified.
 	AttachIdleHandler("SetFormModified", 2);
 	
 	UpdateMappingTable();
@@ -163,7 +165,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	EndIf;
 	
 	If Object.UnapprovedMappingTable.Count() = 0 Then
-		// 
+		// All items are mapped.
 		Return;
 	EndIf;
 	
@@ -185,8 +187,8 @@ EndProcedure
 
 &AtClient
 Procedure BeforeCloseCompletion(Val QuestionResult = Undefined, Val AdditionalParameters = Undefined) Export
-	// 
-	// 
+	// The procedure is called following a positive response.
+	// Save the data and close the form.
 	WriteAndClose(Undefined);
 EndProcedure
 
@@ -221,7 +223,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 			Return;
 		EndIf;
 		
-		// 
+		// Performing automatic object mapping.
 		FormParameters = New Structure;
 		FormParameters.Insert("DestinationTableName",                         Object.DestinationTableName);
 		FormParameters.Insert("ExchangeMessageFileName",                     Object.ExchangeMessageFileName);
@@ -239,7 +241,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		
 		FormParameters.Insert("UnapprovedMappingTableTempStorageAddress", PutUnapprovedMappingTableInTempStorage());
 		
-		// 
+		// Opening the automatic object mapping form.
 		OpenForm("DataProcessor.InfobasesObjectsMapping.Form.AutoMappingResult", FormParameters, ThisObject,,,,,FormWindowOpeningMode.LockOwnerWindow);
 		
 	ElsIf Upper(ChoiceSource.FormName) = Upper("DataProcessor.InfobasesObjectsMapping.Form.AutoMappingResult") Then
@@ -261,7 +263,7 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		EndIf;
 		
 		Object.UsedFieldsList = ValueSelected.Copy();
-		SetTableFieldVisible("MappingTable"); // 
+		SetTableFieldVisible("MappingTable"); // Setting visibility and titles of the mapping table fields.
 		
 	ElsIf Upper(ChoiceSource.FormName) = Upper("DataProcessor.InfobasesObjectsMapping.Form.MappingFieldTableSetup") Then
 		
@@ -273,10 +275,10 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		
 		FillListWithSelectedItems(Object.TableFieldsList, Object.UsedFieldsList);
 		
-		// 
+		// Generate sort table.
 		FillSortTable(Object.UsedFieldsList);
 		
-		// 
+		// Updating the mapping table.
 		UpdateMappingTable();
 		
 	ElsIf Upper(ChoiceSource.FormName) = Upper("DataProcessor.InfobasesObjectsMapping.Form.SortingSetup") Then
@@ -287,34 +289,34 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 		
 		Object.SortTable.Clear();
 		
-		// 
+		// Filling the form collection with retrieved settings.
 		For Each TableRow In ValueSelected Do
 			FillPropertyValues(Object.SortTable.Add(), TableRow);
 		EndDo;
 		
-		// 
+		// Sort mapping table.
 		ExecuteTableSorting();
 		
-		// 
+		// Updating tabular section filter
 		SetTabularSectionFilter();
 		
 	ElsIf Upper(ChoiceSource.FormName) = Upper("DataProcessor.InfobasesObjectsMapping.Form.MappingChoiceForm") Then
 		
 		If ValueSelected = Undefined Then
-			Return; // 
+			Return; // Manual mapping is canceled.
 		EndIf;
 		
 		BeginningRowID = Items.MappingTable.CurrentRow;
 		
-		// 
+		// Server call.
 		FoundRows = MappingTable.FindRows(New Structure("SerialNumber", ValueSelected));
 		If FoundRows.Count() > 0 Then
 			EndingRowID = FoundRows[0].GetID();
-			// 
+			// Process retrieved mapping.
 			AddUnapprovedMappingAtClient(BeginningRowID, EndingRowID);
 		EndIf;
 		
-		// 
+		// Switching to the mapping table.
 		CurrentItem = Items.MappingTable;
 		
 	EndIf;
@@ -366,14 +368,14 @@ Procedure RunAutoMapping(Command)
 	
 	Cancel = False;
 	
-	// 
+	// Determining the number of user-defined fields to be displayed.
 	CheckUserFieldsFilled(Cancel, Object.UsedFieldsList.UnloadValues());
 	
 	If Cancel Then
 		Return;
 	EndIf;
 	
-	// 
+	// Getting the mapping field list.
 	FormParameters = New Structure;
 	FormParameters.Insert("MappingFieldsList", Object.TableFieldsList.Copy());
 	
@@ -478,7 +480,7 @@ Procedure UndoMappingAtServer()
 	
 	CancelMappingAtServer(SelectedRows);
 	
-	// 
+	// Updating the tabular section filter
 	SetTabularSectionFilter();
 	
 EndProcedure
@@ -504,7 +506,7 @@ Procedure WriteAndClose(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// INTERNAL PROCEDURES AND FUNCTIONS (1C-supplied part)
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -535,10 +537,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// 
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// 
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -560,7 +562,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	
-		// 
+		// Navigation event handlers.
 	If IsMoveNext Then
 		
 		NavigationRows = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber - 1));
@@ -593,7 +595,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		Return;
 	EndIf;
 	
-	// 
+	// OnOpen handler
 	If Not IsBlankString(NavigationRowCurrent.OnOpenHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, SkipPage, IsMoveNext)";
@@ -643,7 +645,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
 	
-	// 
+	// TimeConsumingOperationProcessing handler.
 	If Not IsBlankString(NavigationRowCurrent.TimeConsumingOperationHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, GoToNext)";
@@ -778,7 +780,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteDataImportAfterConfirmGettingData()
 	
-	// 
+	// Importing data on the server.
 	Cancel = False;
 	ExecuteDataImportAtServer(Cancel);
 	
@@ -792,7 +794,7 @@ Procedure ExecuteDataImportAfterConfirmGettingData()
 		Return;
 	EndIf;
 	
-	// 
+	// Updating mapping table data.
 	UpdateMappingTable();
 EndProcedure
 
@@ -826,11 +828,11 @@ Procedure CancelMappingAtServer(SelectedRows)
 		
 		CurrentData = MappingTable.FindByID(RowID);
 		
-		If CurrentData.MappingStatus = 0 Then // 
+		If CurrentData.MappingStatus = 0 Then // mapping based on information register data.
 			
 			CancelDataMapping(CurrentData, False);
 			
-		ElsIf CurrentData.MappingStatus = 3 Then // 
+		ElsIf CurrentData.MappingStatus = 3 Then // Unapproved mapping.
 			
 			CancelDataMapping(CurrentData, True);
 			
@@ -851,7 +853,7 @@ Procedure CancelDataMapping(CurrentData, IsUnapprovedMapping)
 	
 	If IsUnapprovedMapping Then
 		For Each FoundString In Object.UnapprovedMappingTable.FindRows(Filter) Do
-			// 
+			// Deleting the unapproved mapping item from the unapproved mapping table
 			Object.UnapprovedMappingTable.Delete(FoundString);
 		EndDo;
 		
@@ -860,14 +862,14 @@ Procedure CancelDataMapping(CurrentData, IsUnapprovedMapping)
 		
 	EndIf;
 	
-	// 
+	// Adding new source and destination rows to the mapping table.
 	NewSourceRow = MappingTable.Add();
 	NewDestinationRow = MappingTable.Add();
 	
 	FillPropertyValues(NewSourceRow, CurrentData, "SourceField1, SourceField2, SourceField3, SourceField4, SourceField5, SourceUUID, SourceType, SourcePictureIndex");
 	FillPropertyValues(NewDestinationRow, CurrentData, "DestinationField1, DestinationField2, DestinationField3, DestinationField4, DestinationField5, DestinationUUID, DestinationType, DestinationPictureIndex");
 	
-	// 
+	// Setting field values for sorting source rows.
 	NewSourceRow.SortField1 = CurrentData.SourceField1;
 	NewSourceRow.SortField2 = CurrentData.SourceField2;
 	NewSourceRow.SortField3 = CurrentData.SourceField3;
@@ -875,7 +877,7 @@ Procedure CancelDataMapping(CurrentData, IsUnapprovedMapping)
 	NewSourceRow.SortField5 = CurrentData.SourceField5;
 	NewSourceRow.PictureIndex  = CurrentData.SourcePictureIndex;
 	
-	// 
+	// Setting field values for sorting destination rows.
 	NewDestinationRow.SortField1 = CurrentData.DestinationField1;
 	NewDestinationRow.SortField2 = CurrentData.DestinationField2;
 	NewDestinationRow.SortField3 = CurrentData.DestinationField3;
@@ -884,15 +886,15 @@ Procedure CancelDataMapping(CurrentData, IsUnapprovedMapping)
 	NewDestinationRow.PictureIndex  = CurrentData.DestinationPictureIndex;
 	
 	NewSourceRow.MappingStatus = -1;
-	NewSourceRow.MappingStatusAdditional = 1; // 
+	NewSourceRow.MappingStatusAdditional = 1; // Unmapped objects.
 	
 	NewDestinationRow.MappingStatus = 1;
-	NewDestinationRow.MappingStatusAdditional = 1; // 
+	NewDestinationRow.MappingStatusAdditional = 1; // Unmapped objects.
 	
-	// 
+	// Deleting the current mapping table row.
 	MappingTable.Delete(CurrentData);
 	
-	// 
+	// Updating numbers.
 	NewSourceRow.SerialNumber = NextNumberByMappingOrder();
 	NewDestinationRow.SerialNumber = NextNumberByMappingOrder();
 	
@@ -923,7 +925,7 @@ Procedure ExecuteDataImportAtServer(Cancel)
 	
 	DataProcessorObject = FormAttributeToValue("Object");
 	
-	// 
+	// Applying the table of unapproved mapping items to the database.
 	DataProcessorObject.ApplyUnapprovedRecordsTable(Cancel);
 	
 	If Cancel Then
@@ -936,7 +938,7 @@ Procedure ExecuteDataImportAtServer(Cancel)
 	
 	TablesToImport.Add(DataTableKey);
 	
-	// 
+	// Importing data from a batch file in the data exchange mode.
 	DataProcessorObject.ExecuteDataImportForInfobase(Cancel, TablesToImport);
 	
 	ValueToFormAttribute(DataProcessorObject, "Object");
@@ -976,13 +978,13 @@ Procedure UpdateMappingTable()
 	
 	NavigationNumber = 0;
 	
-	// 
+	// Selecting the second wizard step.
 	SetNavigationNumber(2);
 	
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Applied procedures
 
 &AtClient
 Procedure FillSortTable(SourceValueList)
@@ -996,8 +998,8 @@ Procedure FillSortTable(SourceValueList)
 		TableRow = Object.SortTable.Add();
 		
 		TableRow.FieldName               = Item.Value;
-		TableRow.Use         = IsFirstField; // 
-		TableRow.SortDirection = True; // 
+		TableRow.Use         = IsFirstField; // Default sorting by the first field.
+		TableRow.SortDirection = True; // Ascending.
 		
 	EndDo;
 	
@@ -1032,17 +1034,17 @@ Procedure FillInSearchFields()
 
 	If Object.UsedFieldsList.Count() = 0 Then
 		
-		// 
+		// For catalogs.
 		AddSearchField("Description");
 		AddSearchField("Code");
 		AddSearchField("Owner");
 		AddSearchField("Parent");
 		
-		// 
+		// For documents and business processes
 		AddSearchField("Date");
 		AddSearchField("Number");
 		
-		// 
+		// Popular search fields.
 		AddSearchField("Organization");
 		AddSearchField("TIN");
 		AddSearchField("CRTR");
@@ -1078,14 +1080,14 @@ Procedure CheckUserFieldsFilled(Cancel, UserFields)
 	
 	If UserFields.Count() = 0 Then
 		
-		// 
+		// One or more fields must be specified.
 		NString = NStr("en = 'Specify at least one field to display';");
 		
 		CommonClient.MessageToUser(NString,,"Object.TableFieldsList",, Cancel);
 		
 	ElsIf UserFields.Count() > MaxUserFields() Then
 		
-		// 
+		// The value must not exceed the specified number.
 		MessageString = NStr("en = 'Reduce the number of fields. You can select no more than %1 fields.';");
 		MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(MaxUserFields()));
 		
@@ -1101,7 +1103,7 @@ Procedure SetTableFieldVisible(FormTableName)
 	SourceFieldName2 = StrReplace("#FormTableName#SourceFieldNN","#FormTableName#", FormTableName);
 	DestinationFieldName1 = StrReplace("#FormTableName#DestinationFieldNN","#FormTableName#", FormTableName);
 	
-	// 
+	// Making all mapping table fields invisible.
 	For FieldNumber = 1 To MaxUserFields() Do
 		
 		SourceField = StrReplace(SourceFieldName2, "NN", String(FieldNumber));
@@ -1115,7 +1117,7 @@ Procedure SetTableFieldVisible(FormTableName)
 		
 	EndDo;
 	
-	// 
+	// Making all mapping table fields that are selected by user visible.
 	For Each Item In Object.UsedFieldsList Do
 		
 		FieldNumber = Object.UsedFieldsList.IndexOf(Item) + 1;
@@ -1126,11 +1128,11 @@ Procedure SetTableFieldVisible(FormTableName)
 		ItemSourceField = Items[SourceField]; // FormField
 		ItemDestinationField = Items[DestinationField]; // FormField
 		
-		// 
+		// Set the field visibility.
 		ItemSourceField.Visible = Item.Check;
 		ItemDestinationField.Visible = Item.Check;
 		
-		// 
+		// Set field titles.
 		ItemSourceField.Title = Item.Presentation;
 		ItemDestinationField.Title = Item.Presentation;
 		
@@ -1146,13 +1148,13 @@ Procedure SetMappingInteractively()
 		Return;
 	EndIf;
 	
-	// 
-	// 
+	// Only two unmapped objects in the source or destination can be linked.
+	// The condition includes an unmapped source object and an unmapped destination object.
 	If Not (CurrentData.MappingStatus=-1 Or CurrentData.MappingStatus=+1) Then
 		
 		ShowMessageBox(, NStr("en = 'Objects are already mapped.';"), 2);
 		
-		// 
+		// Switching to the mapping table.
 		CurrentItem = Items.MappingTable;
 		Return;
 	EndIf;
@@ -1170,16 +1172,16 @@ Procedure SetMappingInteractively()
 		String1 = MappingTable.FindByID(Id1);
 		String2 = MappingTable.FindByID(Id2);
 		
-		If Not (( String1.MappingStatus = -1 // 
-				And String2.MappingStatus = +1 ) // 
-			Or ( String1.MappingStatus = +1 // 
-				And String2.MappingStatus = -1 )) Then // 
+		If Not (( String1.MappingStatus = -1 // Unmapped source object.
+				And String2.MappingStatus = +1 ) // Unmapped destination object.
+			Or ( String1.MappingStatus = +1 // Unmapped destination object.
+				And String2.MappingStatus = -1 )) Then // Unmapped source object.
 			CannotCreateMappingFast = True;
 		EndIf;
 	EndIf;
 	
 	If CannotCreateMappingFast Then
-		// 
+		// Set the mapping in a regular way.
 		FilterParameters = New Structure("MappingStatus", ?(CurrentData.MappingStatus = -1, 1, -1));
 		FilterParameters.Insert("PictureIndex", CurrentData.PictureIndex);
 		
@@ -1197,7 +1199,7 @@ Procedure SetMappingInteractively()
 		Return;
 	EndIf;
 	
-	// 
+	// Prompt for a quick mapping.
 	Buttons = New ValueList;
 	Buttons.Add(DialogReturnCode.Yes,     NStr("en = 'Apply';"));
 	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel';"));
@@ -1252,8 +1254,8 @@ EndFunction
 &AtClient
 Procedure AddUnapprovedMappingAtClient(Val BeginningRowID, Val EndingRowID)
 	
-	// 
-	// 
+	// Get 2 mapped rows by the given IDs. Add a to the unconfirmed links table.
+	// Add a row to the mapping table. Remove the mapped rows from the mapping table.
 	// 
 	// 
 	
@@ -1274,7 +1276,7 @@ Procedure AddUnapprovedMappingAtClient(Val BeginningRowID, Val EndingRowID)
 		Return;
 	EndIf;
 	
-	// 
+	// Adding a row to the unapproved mapping table.
 	NewRow = Object.UnapprovedMappingTable.Add();
 	
 	NewRow.SourceUUID = DestinationRow1.DestinationUUID;
@@ -1282,26 +1284,26 @@ Procedure AddUnapprovedMappingAtClient(Val BeginningRowID, Val EndingRowID)
 	NewRow.DestinationUUID = SourceRow1.SourceUUID;
 	NewRow.DestinationType                     = SourceRow1.SourceType;
 	
-	// 
+	// Adding a row to the mapping table as an unapproved one.
 	NewRowUnapproved = MappingTable.Add();
 	
-	// 
+	// Taking sorting fields from the destination row.
 	FillPropertyValues(NewRowUnapproved, SourceRow1, "SourcePictureIndex, SourceField1, SourceField2, SourceField3, SourceField4, SourceField5, SourceUUID, SourceType");
 	FillPropertyValues(NewRowUnapproved, DestinationRow1, "DestinationPictureIndex, DestinationField1, DestinationField2, DestinationField3, DestinationField4, DestinationField5, DestinationUUID, DestinationType, SortField1, SortField2, SortField3, SortField4, SortField5, PictureIndex");
 	
-	NewRowUnapproved.MappingStatus               = 3; // 
+	NewRowUnapproved.MappingStatus               = 3; // Unapproved connection.
 	NewRowUnapproved.MappingStatusAdditional = 0;
 	
-	// 
+	// Delete mapped rows.
 	MappingTable.Delete(BeginningRow);
 	MappingTable.Delete(EndingRow);
 	
-	// 
+	// Updating numbers.
 	NewRowUnapproved.SerialNumber = NextNumberByMappingOrder();
 	
 	NewRowUnapproved.MappingByRef = AreObjectsMappedByRef(NewRowUnapproved);
 	
-	// 
+	// Setting the filter and updating data in the mapping table.
 	SetTabularSectionFilter();
 EndProcedure
 
@@ -1329,10 +1331,10 @@ EndProcedure
 &AtClient
 Function GetSortingFields()
 	
-	// 
+	// Function return value.
 	SortFields = "";
 	
-	FieldPattern = "SortFieldNN #SortDirection"; // 
+	FieldPattern = "SortFieldNN #SortDirection"; // Do not localize.
 	
 	For Each TableRow In Object.SortTable Do
 		
@@ -1370,9 +1372,9 @@ Function MaxUserFields()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Navigation event handlers.
 
-// Page 1: object mapping Error.
+// Page 1: Object mapping error.
 //
 &AtClient
 Function Attachable_ObjectMappingErrorOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -1394,10 +1396,10 @@ EndFunction
 &AtClient
 Function Attachable_ObjectMappingWaitingTimeConsumingOperationProcessing(Cancel, GoToNext)
 	
-	// 
+	// Selecting search fields if they are not specified.
 	FillInSearchFields();
 	
-	// 
+	// Determining the number of user-defined fields to be displayed.
 	CheckUserFieldsFilled(Cancel, Object.UsedFieldsList.UnloadValues());
 	
 	If Cancel Then
@@ -1434,7 +1436,7 @@ Function Attachable_ObjectMappingWaitingTimeConsumingOperationProcessing(Cancel,
 	
 EndFunction
 
-// Page 2 Handler for notification of completion of a background task.
+// Page 2 Handler of background job completion notification.
 &AtClient
 Procedure BackgroundJobCompletion(Result, AdditionalParameters) Export
 	
@@ -1471,17 +1473,17 @@ Function Attachable_ObjectMappingWaitingTimeConsumingOperationCompletionTimeCons
 	Items.TableButtons.Enabled          = True;
 	Items.TableHeaderGroup.Enabled = True;
 	
-	// 
+	// Setting filter in the mapping tabular section.
 	SetTabularSectionFilter();
 	
-	// 
+	// Setting mapping table field headers and visibility.
 	SetTableFieldVisible("MappingTable");
 	
 	Return Undefined;
 
 EndFunction
 
-// Page 2 Mapping objects in the background task.
+// Page 2 Object mapping in background job.
 //
 &AtServer
 Function BackgroundJobStartAtServer(Cancel)
@@ -1524,7 +1526,7 @@ Function BackgroundJobStartAtServer(Cancel)
 	
 EndFunction
 
-// Page 3: mapping objects.
+// Page 3: Object mapping.
 //
 &AtServer
 Procedure ExecuteObjectMappingCompletion(Cancel)
@@ -1548,7 +1550,7 @@ Procedure AfterObjectMapping()
 	
 	MappingResult = GetFromTempStorage(TempStorageAddress);
 	
-	// 
+	// {Mapping digest}
 	ObjectCountInSource       = MappingResult.ObjectCountInSource;
 	ObjectCountInDestination       = MappingResult.ObjectCountInDestination;
 	MappedObjectCount   = MappingResult.MappedObjectCount;
@@ -1597,7 +1599,7 @@ Function AreObjectsMappedByRef(String)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Populate wizard navigation table.
 
 &AtServer
 Procedure ObjectMappingScenario()
@@ -1605,11 +1607,11 @@ Procedure ObjectMappingScenario()
 	NavigationTable.Clear();
 	NavigationTableNewRow(1, "ObjectMappingError", "Attachable_ObjectMappingErrorOnOpen");
 	
-	// 
+	// Waiting for object mapping.
 	NavigationTableNewRow(2, "ObjectMappingWait",, True, "Attachable_ObjectMappingWaitingTimeConsumingOperationProcessing");
 	NavigationTableNewRow(3, "ObjectMappingWait",, True, "Attachable_ObjectMappingWaitingTimeConsumingOperationCompletionTimeConsumingOperationProcessing");
 	
-	// 
+	// Operations with object mapping table.
 	NavigationTableNewRow(4, "ObjectsMapping");
 	
 EndProcedure

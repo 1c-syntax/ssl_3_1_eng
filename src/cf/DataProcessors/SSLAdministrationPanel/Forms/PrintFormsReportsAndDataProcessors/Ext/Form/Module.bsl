@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -22,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		DataSeparationEnabled = Common.DataSeparationEnabled();
 		Items.UseAdditionalReportsAndDataProcessors.Visible = Not DataSeparationEnabled;
 		Items.OpenAdditionalReportsAndDataProcessors.Visible      = Not DataSeparationEnabled
-			// 
+			// In SaaS mode, if it is enabled by the service administrator.
 			Or ConstantsSet.UseAdditionalReportsAndDataProcessors;
 	Else
 		Items.AdditionalReportsAndDataProcessorsGroup.Visible = False;
@@ -53,7 +55,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.AutomaticTranslationGroup.Visible = False;
 	EndIf;
 	
-	// 
+	// Update items states.
 	SetAvailability();
 	
 	ApplicationSettingsOverridable.PrintFormsReportsAndDataProcessorsOnCreateAtServer(ThisObject);
@@ -207,7 +209,7 @@ Function CurrentTranslator()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Client
+// Client.
 
 &AtClient
 Procedure Attachable_OnChangeAttribute(Item, ShouldRefreshInterface = True)
@@ -237,7 +239,7 @@ Procedure RefreshApplicationInterface()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Server call.
 
 &AtServer
 Function OnChangeAttributeServer(TagName)
@@ -251,7 +253,7 @@ Function OnChangeAttributeServer(TagName)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// Server
+// Server.
 
 &AtServer
 Function SaveAttributeValue(DataPathAttribute)

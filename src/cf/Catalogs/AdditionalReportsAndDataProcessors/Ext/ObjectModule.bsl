@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -37,11 +39,11 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 		EndIf;
 	EndIf;
 	
-	//  
-	//     
+	// If the report is published, the name used to register the additional report 
+	//     must be checked for uniqueness.
 	If Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used Then
 		
-		// 
+		// Check name.
 		QueryText =
 		"SELECT TOP 1
 		|	1
@@ -113,7 +115,7 @@ Procedure BeforeWrite(Cancel)
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
-	// 
+	// Preliminary checks.
 	If Not IsNew() And Kind <> Common.ObjectAttributeValue(Ref, "Kind") Then
 		Common.MessageToUser(
 			NStr("en = 'Cannot change the type of additional report or data processor.';"),,,,
@@ -121,12 +123,12 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
-	// 
+	// Attribute connection with deletion mark.
 	If DeletionMark Then
 		Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled;
 	EndIf;
 	
-	// 
+	// Cache of standard checks.
 	AdditionalProperties.Insert("PublicationAvailable", Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used);
 	
 	If IsGlobalDataProcessor() Then
@@ -186,7 +188,7 @@ Procedure BeforeDelete(Cancel)
 	If AdditionalReportsAndDataProcessors.CheckGlobalDataProcessor(Kind) Then
 		
 		SetPrivilegedMode(True);
-		// 
+		// Deleting all jobs.
 		For Each Command In Commands Do
 			If ValueIsFilled(Command.GUIDScheduledJob) Then
 				ScheduledJobsServer.DeleteJob(Command.GUIDScheduledJob);
@@ -213,7 +215,7 @@ Function IsGlobalDataProcessor()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Global data processors.
 
 Procedure BeforeWriteGlobalDataProcessors(Cancel)
 	If Cancel Or Not AdditionalProperties.Property("RelevantCommands") Then
@@ -224,10 +226,10 @@ Procedure BeforeWriteGlobalDataProcessors(Cancel)
 	JobsToUpdate = New Map;
 	PublicationEnabled = (Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled);
 	
-	// 
+	// Scheduled jobs must be changed in the privileged mode.
 	SetPrivilegedMode(True);
 	
-	// 
+	// Clearing jobs whose commands are deleted from the table.
 	If Not IsNew() Then
 		For Each ObsoleteCommand In Common.ObjectAttributeValue(Ref, "Commands").Unload() Do
 			If ValueIsFilled(ObsoleteCommand.GUIDScheduledJob)
@@ -237,7 +239,7 @@ Procedure BeforeWriteGlobalDataProcessors(Cancel)
 		EndDo;
 	EndIf;
 	
-	// 
+	// Updating the set of scheduled jobs before writing their IDs to the tabular section.
 	For Each RelevantCommand In CommandsTable Do
 		Command = Commands.Find(RelevantCommand.Id, "Id");
 		
@@ -251,9 +253,9 @@ Procedure BeforeWriteGlobalDataProcessors(Cancel)
 		EndIf;
 		
 		Job = ScheduledJobsServer.Job(RelevantCommand.GUIDScheduledJob);
-		If Job = Undefined Then // 
+		If Job = Undefined Then // Not found.
 			If Use Then
-				// 
+				// Create and register a scheduled job.
 				JobParameters = New Structure;
 				JobParameters.Insert("Metadata", Metadata.ScheduledJobs.StartingAdditionalDataProcessors);
 				JobParameters.Insert("Use", False);
@@ -261,14 +263,14 @@ Procedure BeforeWriteGlobalDataProcessors(Cancel)
 				JobsToUpdate.Insert(RelevantCommand, Job);
 				Command.GUIDScheduledJob = ScheduledJobsServer.UUID(Job);
 			Else
-				// 
+				// No action required.
 			EndIf;
-		Else // Found4
+		Else // Found.
 			If Use Then
-				// 
+				// Register.
 				JobsToUpdate.Insert(RelevantCommand, Job);
 			Else
-				// 
+				// Delete.
 				ScheduledJobsServer.DeleteJob(RelevantCommand.GUIDScheduledJob);
 				Command.GUIDScheduledJob = CommonClientServer.BlankUUID();
 			EndIf;
@@ -286,7 +288,7 @@ Procedure OnWriteGlobalDataProcessor(Cancel)
 	
 	PublicationEnabled = (Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled);
 	
-	// 
+	// Scheduled jobs must be changed in the privileged mode.
 	SetPrivilegedMode(True);
 	
 	For Each KeyAndValue In AdditionalProperties.JobsToUpdate Do
@@ -319,15 +321,15 @@ Procedure OnWriteGlobalDataProcessor(Cancel)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Operations with scheduled jobs.
 
 Function ScheduleSetupRight()
-	// 
+	// Checks whether a user has rights to schedule the execution of additional reports and data processors.
 	Return AccessRight("Update", Metadata.Catalogs.AdditionalReportsAndDataProcessors);
 EndFunction
 
 Function JobPresentation(Command)
-	// 
+	// '[ObjectKind]: [ObjectDescription] / Command: [CommandPresentation]'
 	Return (
 		TrimAll(Kind)
 		+ ": "
@@ -339,7 +341,7 @@ Function JobPresentation(Command)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Assignable data processors.
 
 Procedure BeforeWriteAssignableDataProcessor(Cancel)
 	AssignmentTable = Purpose.Unload();
@@ -368,7 +370,7 @@ Procedure OnWriteAssignableDataProcessors(Cancel)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Global reports.
 
 Procedure OnWriteReport(Cancel)
 	

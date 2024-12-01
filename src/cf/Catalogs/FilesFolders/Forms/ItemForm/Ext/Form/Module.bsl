@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -23,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.Parent.Visible = False;
 	EndIf;
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.OnCreateAtServer(ThisObject);
@@ -51,7 +53,7 @@ EndProcedure
 &AtClient
 Procedure NotificationProcessing(EventName, Parameter, Source)
 	
-	// 
+	// StandardSubsystems.Properties
 	If CommonClient.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerClient = CommonClient.CommonModule("PropertyManagerClient");
 		If ModulePropertyManagerClient.ProcessNotifications(ThisObject, EventName, Parameter) Then
@@ -70,14 +72,14 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.OnReadAtServer(ThisObject, CurrentObject);
 	EndIf;
 	// End StandardSubsystems.Properties
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -91,7 +93,7 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject)
 	
 	CurrentObject.AdditionalProperties.Insert("WorkingDirectory", WorkingDirectory);
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.BeforeWriteAtServer(ThisObject, CurrentObject);
@@ -117,7 +119,7 @@ EndProcedure
 &AtServer
 Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	
-	// 
+	// StandardSubsystems.Properties
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManager = Common.CommonModule("PropertyManager");
 		ModulePropertyManager.FillCheckProcessing(ThisObject, Cancel, CheckedAttributes);
@@ -182,7 +184,7 @@ Procedure SyncSettings(Command)
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtClient
 Procedure Attachable_PropertiesExecuteCommand(ItemOrCommand, Var_URL = Undefined, StandardProcessing = Undefined)
@@ -224,14 +226,14 @@ Procedure FileSystemExtensionAttachedOwnerWorkingDirectorySelectionStartFollowUp
 		DirectoryName = OpenFileDialog.Directory;
 		DirectoryName = CommonClientServer.AddLastPathSeparator(DirectoryName);
 		
-		// 
+		// Create a directory for files
 		Try
 			CreateDirectory(DirectoryName);
 			TestDirectoryName = DirectoryName + "CheckAccess\";
 			CreateDirectory(TestDirectoryName);
 			DeleteFiles(TestDirectoryName);
 		Except
-			// 
+			// Insufficient rights to create a directory, or this path does not exist.
 			
 			ErrorText =
 				StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Invalid path or insufficient rights to save to folder ""%1""';"), DirectoryName);
@@ -299,7 +301,7 @@ Procedure UpdateCommandsAvailabilityByRightsSetting()
 	
 EndProcedure
 
-// 
+// StandardSubsystems.Properties
 
 &AtServer
 Procedure UpdateAdditionalAttributesItems()
@@ -427,11 +429,11 @@ Function OwnerWorkingDirectoryClearingAtServer(Val Ref, Val ParentReference, Val
 	
 	If IsBlankString(ParentWorkingDirectory) Then
 		
-		WorkingDirectory = ""; // 
+		WorkingDirectory = ""; // Folder's new working directory.
 		
 	Else
 		
-		WorkingDirectory = InheritedFolderWorkingDirectory; // 
+		WorkingDirectory = InheritedFolderWorkingDirectory; // Folder's new working directory.
 		
 	EndIf;
 	

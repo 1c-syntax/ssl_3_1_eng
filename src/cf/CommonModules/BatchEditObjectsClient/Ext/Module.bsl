@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Opens the dialog for group change of details for the objects selected in the list.
+// Opens a dialog to bulk-modify attributes of the selected objects.
 //
 // Parameters:
 //  ListItem  - FormTable
-//                 - Array of AnyRef - 
-//  ListAttribute1 - DynamicList -  details of the form with a list.
+//                 - Array of AnyRef - Form item that contains the list.
+//  ListAttribute1 - DynamicList - Form item that contains the list.
 //
 Procedure ChangeSelectedItems(ListItem, Val ListAttribute1 = Undefined) Export
 	
@@ -67,7 +69,7 @@ EndProcedure
 #Region Internal
 
 // Parameters:
-//   ReferencesArrray - Array of AnyRef -  links to the selected objects that the command is running on.
+//   ReferencesArrray - Array of AnyRef - references to the selected objects for which a command is being executed.
 //   ExecutionParameters - See AttachableCommandsClient.CommandExecuteParameters
 //
 Procedure HandlerCommands(Val ReferencesArrray, Val ExecutionParameters) Export

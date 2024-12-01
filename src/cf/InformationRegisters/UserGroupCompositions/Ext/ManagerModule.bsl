@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// The procedure updates all the data of the register.
+// This procedure updates all register data.
 //
 // Parameters:
-//  HasChanges - Boolean -  (return value) - if a record was made,
-//                  it is set to True, otherwise it is not changed.
+//  HasChanges - Boolean - (return value) - if recorded,
+//                  True is set, otherwise, it does not change.
 //
 Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	
@@ -37,7 +39,7 @@ Procedure UpdateRegisterData(HasChanges = Undefined) Export
 	Try
 		Block.Lock();
 		
-		// 
+		// Update user mapping.
 		ChangesInComposition = UsersInternal.GroupsCompositionNewChanges();
 		
 		UsersInternal.UpdateAllUsersGroupComposition(
@@ -48,7 +50,7 @@ Procedure UpdateRegisterData(HasChanges = Undefined) Export
 		
 		UsersInternal.AfterUserGroupsUpdate(ChangesInComposition, HasChanges);
 		
-		// 
+		// Updating external user mapping
 		ChangesInComposition = UsersInternal.GroupsCompositionNewChanges();
 		
 		UsersInternal.UpdateAllUsersGroupComposition(
@@ -76,13 +78,13 @@ EndProcedure
 
 #Region Private
 
-// 
+// This procedure updates data of the registers "UserGroupsHierarchy" and "UserGroupCompositions".
 //
 // Parameters:
-//  HasHierarchyChanges - Boolean -  (return value) - if a record was made,
-//                            it is set to True, otherwise it is not changed.
-//  HasChangesInComposition - Boolean -  (return value) - if a record was made,
-//                            it is set to True, otherwise it is not changed.
+//  HasHierarchyChanges - Boolean - (return value) - If recorded, "True".
+//                            Otherwise, it does not change.
+//  HasChangesInComposition - Boolean - (return value) - If recorded, "True".
+//                            Otherwise, it does not change.
 //
 Procedure UpdateHierarchyAndComposition(HasHierarchyChanges = Undefined, HasChangesInComposition = Undefined) Export
 

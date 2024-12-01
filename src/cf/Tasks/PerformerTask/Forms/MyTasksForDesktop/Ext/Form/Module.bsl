@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -22,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.StartDate.Format = ?(UseDateAndTimeInTaskDeadlines, "DLF=DT", "DLF=D");
 	Items.Date.Format = ?(UseDateAndTimeInTaskDeadlines, "DLF=DT", "DLF=D");
 	
-	// 
+	// Setting dynamic list filter.
 	CommonClientServer.SetDynamicListFilterItem(
 		List, "DeletionMark", False, DataCompositionComparisonType.Equal, , ,
 		DataCompositionSettingsItemViewMode.Normal);
@@ -141,7 +143,7 @@ Procedure SetConditionalAppearance()
 
 	Item = ConditionalAppearance.Items.Add();
 
-	// 
+	// Hide the second line in the grouping.
 	TaskListColumns = New Array();  // Array of FormField
 	SelectAllSubordinateItems(Items.ColumnsGroup, TaskListColumns);
 	For Each FormItem In TaskListColumns Do
@@ -202,8 +204,8 @@ EndProcedure
 Procedure RefreshTasksListOnServer()
 	
 	BusinessProcessesAndTasksServer.SetMyTasksListParameters(List);
-	// 
-	// 
+	// The color of the overdue tasks depends on the current date.
+	// Therefore, refresh the conditional appearance.
 	SetConditionalAppearance();
 	Items.List.Refresh();
 	

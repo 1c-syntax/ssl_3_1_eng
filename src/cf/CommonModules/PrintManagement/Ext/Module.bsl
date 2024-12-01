@@ -1,22 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// 
+// Constructor of print data field list for the PrintDataCompositionSchema function.
 //
 // Returns:
 //  ValueTable:
-//   * Id - String -  field name.
-//   * Presentation - String - 
-//   * ValueType   - TypeDescription - 
-//   * IconName   - String - 
-//   * Order       - Number - 
+//   * Id - String - Field name.
+//   * Presentation - String - Field title.
+//   * ValueType   - TypeDescription - Field value type.
+//   * IconName   - String - Field picture. Displayed in the list of available editor fields.
+//   * Order       - Number - Intended for ordering fields in the list of available editor fields.
 //
 Function PrintDataFieldTable() Export
 	
@@ -24,18 +26,18 @@ Function PrintDataFieldTable() Export
 	
 EndFunction
 
-// 
+// Print field list constructor for the PrintDataCompositionSchema function.
 //
 // Returns:
 //  ValueTree:
-//   * Id - String -  field name.
-//   * Presentation - String - 
-//   * ValueType   - TypeDescription - 
-//   * IconName   - String - 
-//   * Order       - Number - 
-//   * Folder         - Boolean - 
-//                              
-//   * Table       - Boolean - 
+//   * Id - String - Field name.
+//   * Presentation - String - Field title.
+//   * ValueType   - TypeDescription - Field value type.
+//   * IconName   - String - Field picture. Displayed in the list of available editor fields.
+//   * Order       - Number - Intended for ordering fields in the list of available editor fields.
+//   * Folder         - Boolean - Flag indicating that the field is a folder.
+//                              Unlike groups, a folder a part of the field's full paths.
+//   * Table       - Boolean - Intended for describing a table. Subordinate fields are the table's fields.
 //
 Function PrintDataFieldTree() Export
 	
@@ -43,11 +45,11 @@ Function PrintDataFieldTree() Export
 	
 EndFunction
 
-// 
+// Generates a print data composition schema with the given fields.
 //
 // Parameters:
 //  FieldList - See PrintDataFieldTable
-//               See PrintDataFieldTree
+//              - ValueTree - See PrintDataFieldTree
 // 
 // Returns:
 //  DataCompositionSchema
@@ -66,38 +68,38 @@ Function SchemaCompositionDataPrint(FieldList) Export
 	
 EndFunction
 
-// Returns a description of the printed form found in the collection.
+// Returns description of the print form found in the collection.
 // If the description does not exist, returns Undefined.
-// This function is intended for use only within the Print procedure.
+// The function is to be used inside the Print procedure only.
 //
 // Parameters:
 //  PrintFormsCollection - See PrintManagementOverridable.OnPrint.PrintFormsCollection
-//  Id         - String -  ID of the print form in the print Manager.
+//  Id         - String - Print form ID in the print manager.
 //
 // Returns:
 //  ValueTableRow of See PrintManagementOverridable.OnPrint.PrintFormsCollection
 //
 // Example:
-//  
-//  
-//    
-//    
-//    
-//  
+//  PrintForm = PrintManagement.PrintFormInfo(PrintFormsCollection, "Receipt");
+//  If PrintForm <> Undefined Then
+//    PrintForm.SpreadsheetDocument = PrintReceipt (ObjectsArray);
+//    PrintForm.TemplateSynonym = NStr("en = Receipt (with QR code)'")
+//    PrintForm.FullTemplatePath = "Document.CustomerProformaInvoice.PF_MXL_Receipt";
+//  EndIf;
 //
 Function PrintFormInfo(PrintFormsCollection, Id) Export
 	Return PrintFormsCollection.Find(Upper(Id), "UpperCaseName");
 EndFunction
 
-// Check whether the layout needs to be printed.
-// This function is intended for use only within the Print procedure.
+// Checks whether printing of a template is required.
+// The function is used only inside the Print procedure.
 //
 // Parameters:
-//  PrintFormsCollection - ValueTable -  service parameter passed to the Print procedure;
-//  TemplateName             - String          -  name of the layout to check.
+//  PrintFormsCollection - ValueTable - Internal parameter passed to the Print procedure.
+//  TemplateName             - String          - Name of the template to check.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True, if the template needs to be printed out.
 //
 Function TemplatePrintRequired(PrintFormsCollection, TemplateName) Export
 	
@@ -105,23 +107,23 @@ Function TemplatePrintRequired(PrintFormsCollection, TemplateName) Export
 	
 EndFunction
 
-// Adds a table document to the collection of printed forms.
-// The procedure is intended for use only within the Print procedure.
+// Adds a spreadsheet document to a print form collection.
+// The procedure is used only inside the Print procedure.
 //
 // Parameters:
-//  PrintFormsCollection - ValueTable -  service parameter passed to the Print procedure;
-//  TemplateName             - String -  layout name;
-//  TemplateSynonym         - String -  a representation of the layout;
-//  SpreadsheetDocument     - SpreadsheetDocument -  printed form of the document;
-//  Picture              - Picture -  pictogram of the printed form;
-//  FullTemplatePath     - String -  path to the layout in the metadata tree, such
-//                                   as " Document.Invoice to the buyer.Pf_mxl_account order".
-//                                   If you do not specify this parameter, the user will
-//                                   not be able to edit the layout in the print Documents form.
-//  PrintFormFileName - String -  name used when saving the printed form to a file;
+//  PrintFormsCollection - ValueTable - Internal parameter passed to the Print procedure.
+//  TemplateName             - String - Template name.
+//  TemplateSynonym         - String - Template presentation.
+//  SpreadsheetDocument     - SpreadsheetDocument - Document print form.
+//  Picture              - Picture - Print form icon.
+//  FullTemplatePath     - String - Path to the template in the metadata tree.
+//                                   For example, "Document.ProformaInvoice.PF_MXL_OrderInvoice".
+//                                   If not specified, users will not be able to edit the template in the PrintDocuments form.
+//                                   
+//  PrintFormFileName - String - Name used for saving a print form to a file.
 //                        - Map of KeyAndValue:
-//                           * Key     - AnyRef -  link to the print object;
-//                           * Value - String -  file name.
+//                           * Key     - AnyRef - Reference to the print object.
+//                           * Value - String - File name.
 //
 Procedure OutputSpreadsheetDocumentToCollection(PrintFormsCollection, TemplateName, TemplateSynonym, SpreadsheetDocument,
 	Picture = Undefined, FullTemplatePath = "", PrintFormFileName = Undefined) Export
@@ -137,23 +139,23 @@ Procedure OutputSpreadsheetDocumentToCollection(PrintFormsCollection, TemplateNa
 	
 EndProcedure
 
-// Sets the print area of an object in a table document. It must be used when displaying multiple printed forms
-// in a single table document to be able to print sets of documents, as well as to be able to save
-// printed forms in separate files.
-// It must be called after forming each printed form in a tabular document.
+// Sets an object printing area in a spreadsheet document. Use it when outputting several print forms
+// in one spreadsheet document. It allows printing document sets and saving
+// print forms in separate files.
+// To be called after generating every print form in the spreadsheet document.
 //
 // Parameters:
-//  SpreadsheetDocument - SpreadsheetDocument -  printed form;
-//  RowNumberStart - Number -  position of the beginning of the next area in the document;
+//  SpreadsheetDocument - SpreadsheetDocument - Print form.
+//  RowNumberStart - Number - Start position of the next area in the document.
 //  PrintObjects - See PrintManagementOverridable.OnPrint.PrintObjects
-//  Ref - AnyRef -  the print object.
+//  Ref - AnyRef - Print object.
 //
 // Example:
-//  
-//    
-//    
-//    
-//  
+//  While SelectionByDocuments.Next() Do
+//    RowNumberStart = SpreadsheetDocument.TableHeight + 1;
+//    …output the print form to the spreadsheet…
+//    PrintManagement.SetDocumentPrintArea(SpreadsheetDocument, RowNumberStart, PrintObjects, SelectionByDocuments.Ref);
+//  EndDo;
 //
 Procedure SetDocumentPrintArea(SpreadsheetDocument, RowNumberStart, PrintObjects, Ref) Export
 	
@@ -161,7 +163,7 @@ Procedure SetDocumentPrintArea(SpreadsheetDocument, RowNumberStart, PrintObjects
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Invalid value of the ""Ref"" parameter.
 			|Reference type value was expected, actual value: ""%1"" (type: %2)';"), Ref, TypeOf(Ref));
-		Try // 
+		Try // This architecture ensures transfer of stack to the registration log.
 			Raise MessageText;
 		Except
 			WriteLogEvent(NStr("en = 'Print';", Common.DefaultLanguageCode()), EventLogLevel.Error, , ,
@@ -206,13 +208,13 @@ EndProcedure
 // Returns a list of external print forms.
 //
 // Parameters:
-//  FullMetadataObjectName - String -  full name of the metadata object to get a list
-//                                        of printed forms for.
+//  FullMetadataObjectName - String - Full name of the metadata object the list of print forms is intended for.
+//                                        
 //
 // Returns:
 //  ValueList:
-//   * Value      - String -  ID of the printed form;
-//   * Presentation - String -  representation of the printed form.
+//   * Value      - String - Print form ID.
+//   * Presentation - String - Print form presentation.
 //
 Function PrintFormsListFromExternalSources(FullMetadataObjectName) Export
 	
@@ -228,14 +230,14 @@ Function PrintFormsListFromExternalSources(FullMetadataObjectName) Export
 	
 EndFunction
 
-// Returns a list of print commands for the specified form.
+// Returns a list of print commands for the specified print form.
 //
 // Parameters:
 //  Form - ClientApplicationForm
-//        - String - 
-//                   
-//  ListOfObjects - Array -  a collection of metadata objects whose print commands should be used when creating
-//                            a list of print commands for the specified form.
+//        - String - Form or the full name of the form that is the destination for
+//                   the print commands.
+//  ListOfObjects - Array - Collection of metadata objects whose print commands are to be used when generating
+//                            a list of print commands for the given form.
 // Returns:
 //   See CreatePrintCommandsCollection
 //
@@ -308,7 +310,7 @@ Function FormPrintCommands(Form, ListOfObjects = Undefined) Export
 	NameParts = StrSplit(FormName, ".");
 	ShortFormName = NameParts[NameParts.Count()-1];
 	
-	// 
+	// Filter by form names
 	For LineNumber = -PrintCommands.Count() + 1 To 0 Do
 		PrintCommand = PrintCommands[-LineNumber];
 		FormsList = StrSplit(PrintCommand.FormsList, ",", False);
@@ -323,217 +325,219 @@ Function FormPrintCommands(Form, ListOfObjects = Undefined) Export
 	
 EndFunction
 
-// Creates an empty table with a description of print commands.
-// The print command table is passed to the add print Command procedures 
-// located in the configuration object Manager modules that are listed in the procedure
-// Print managementdefinable.When defining object print commands.
+// Creates a blank table with description of print commands.
+// The table of print commands is passed to the AddPrintCommands procedures 
+// placed in the configuration object manager modules listed in the procedure
+// PrintManagementOverridable.OnDefineObjectsWithPrintCommands.
 // 
 // Returns:
 //  ValueTable:
 //
-//   * Id - String - 
+//   * Id - String - Print command ID. The print manager uses this ID to determine the print form to generate.
+//                             For example, "InvoiceOrder".
+//                             To print multiple print forms, specify all their IDs (as a comma-delimited string or an array of strings).
+//
+//                              For example:
+//                              "InvoiceOrder,LetterOfGuarantee".:
+//                              To make multiple copies of a print form, repeat its ID as many times as the number of copies you need.
+//
+//                              Note. The order of print forms in a set repeats the order of IDs specified in this parameter.
+//                              For example, to print 2 proforma invoices and 1 letter of guarantee:
+//                              "InvoiceOrder,InvoiceOrder,LetterOfGuarantee".
+//                              A print form ID can contain an alternative print manager if it is different from the print manager specified in the PrintManager parameter.
+//                              For example: "InvoiceOrder,Processing.PrintForm.LetterOfGuarantee".
+//                              In this example, LetterOfGuarantee is generated in print manager
+//
+//                              Processing.PrintForm, and InvoiceOrder are generated in the print manager specified in
+//                              the PrintManager parameter.
+//                              For print forms whose print manager is the PrintManagement common module, set the full template path as its ID.
+//
+//                              For example, "Document.CustomerProformaInvoice.PF_MXL_ProformaInvoice".
+//                              
+//                              
+//                              
+//                              
 //                             
 //                             
 //
-//                              
-//                              :
-//                              
+//                   - Array - List of IDs of print commands.
 //
-//                              
-//                              
-//                              
-//                              
-//                              
-//                              
+//   * Presentation - String            - Command presentation in the Print menu. 
+//                                         For example, "Proforma invoice".
 //
-//                              
-//                              
-//                              
+//   * PrintManager - String           - (Optional) Name of the object whose manager module contains the Print procedure that generates spreadsheet documents for this command.
+//                                        If the print form is generated automatically from the print data and a template, specify the PrintManagement common module in the parameter.
+//                                        The default value is an object manager name.
+//                                        For example, "Document.CustomerInvoice".
+//                                        
+//                                        
+//   * PrintObjectsTypes - Array       - (Optional) List of object types, for which the print
+//                                        command is used. The parameter is used for print commands in document journals, which
+//                                        require checking the passed object type before calling the print manager.
+//                                        If a list is blank, whenever the list of print commands is generated
+//                                        in a document journal, it is filled with an object type, from which the print command was
+//                                        imported.
 //
-//                              
-//                              
-//                              
-//                              
-//                              
-//                             
-//                             
-//
-//                   - Array - 
-//
-//   * Presentation - String            -  view the command in the Print menu. 
-//                                         For example, "Invoice for payment".
-//
-//   * PrintManager - String           - 
-//                                        
-//                                        
-//                                        
-//                                        
-//                                        
-//   * PrintObjectsTypes - Array       -  (optional) list of object types that the print command is intended for
-//                                        . This parameter is used for printing commands in document logs that
-//                                        require checking the passed object type before calling the print Manager.
-//                                        If the list is empty, when you automatically create a list of print commands
-//                                        in the document log, it is filled with the type of object that
-//                                        the print command was imported from.
-//
-//   * Handler    - String            - 
-//                                        
-//                                        
-//                                        
-//                                        
-//                                        
-//                                        
-//                                        
-//                                          
-//                                        :
-//                                          
+//   * Handler    - String            - (Optional) Command client handler
+//                                        executed instead of the standard Print command handler. It is used,
+//                                        for example, when the print form is generated on the client.
+//                                        Format "<CommonModuleName>.<ProcedureName>" is used when the procedure is
+//                                        in a common module.
+//                                        The"<ProcedureName>" format is used when the procedure is placed
+//                                        in the main form module of a report or a data processor specified in PrintManager.
+//                                        For example:
+//                                          PrintCommand.Handler = "StandardSubsystemsClient.PrintProformaInvoices";
+//                                        An example of handler in the form module::
+//                                          Generates a print form <print form presentation>.
 //                                          //
 //                                          
-//                                          
-//                                          
-//                                          
-//                                          
-//                                          
-//                                          
-//                                          
+//                                          Parameters:
+//                                          PrintParameters - Structure - Print form info.
+//                                          * PrintObjects - Array - Array of selected object references.
+//                                          * Form - ClientApplicationForm - Form, from which the
+//                                          print command is called from.
+//                                          * AdditionalParameters - Structure - Additional print parameters.
+//                                          Other structure keys match the columns of the PrintCommands table,
 //                                          //
+//                                          For more information, see the PrintManagement.CreatePrintCommandsCollection function.
 //                                          
-//                                          
-//                                          	
-//                                          
+//                                          	&AtClient
+//                                          Function <FunctionName>(PrintParameters) Export
+//                                        Print handler.
+//                                        EndFunction
+//                                        Remember that the handler is called using the Calculate method,
+//                                         so only a function can act as a handler.
+//                                         The return value of the function is not used by the subsystem.
+//
+//   * Order       - Number             - (Optional) Value from 1 to 100 that indicates the position of the command
+//                                        among other commands. The Print menu commands are sorted by
+//                                        the Order field, then by a presentation.
+//                                        By default, 50.
+//
+//   * Picture      - Picture          - (Optional) Picture displayed next to the command in the Print menu.
+//                                         For example, PictureLib.PDFFormat.
+//
+//   * FormsList    - String            - (Optional) Comma-separated names of forms, in which the command is to be displayed.
+//                                        If the parameter is not specified, the print command is available in all object forms
+//                                        that include the Print subsystem. For example, "DocumentForm".
+//                                         
+//
+//   * PlacingLocation - String          - (Optional) Name of a form group the print command to insert to.
+//                                        Use this parameter only when the form has more than one Print submenu.
+//                                        In other cases, specify the print command location in the form module when PrintManager.OnCreateAtServer method is called.
 //                                        
 //                                        
 //                                        
+//   * FormCaption  - String          - (Optional) Arbitrary string overriding the standard header of the Print documents form.
+//                                        For example, "Customizable set".
 //
-//   * Order       - Number             -  (optional) A value from 1 to 100 that indicates the order in which the command
-//                                        is placed in relation to other commands. The Print menu commands are sorted
-//                                        first by Order, then by view.
-//                                        The default value is 50.
+//   * FunctionalOptions - String      - (Optional) Comma-separated names of functional options that influence
+//                                        the print command availability.
 //
-//   * Picture      - Picture          -  (optional) The image that is displayed next to the command in the Print menu.
-//                                         For Example, A Library Card.PDF format.
-//
-//   * FormsList    - String            -  (optional) Comma-separated form names that
-//                                        the command should be displayed in. If this parameter is omitted, the print command will be displayed in
-//                                        all forms of the object where the Print subsystem is embedded.
-//                                         For Example, "Formdocument".
-//
-//   * PlacingLocation - String          - 
+//   * VisibilityConditions - Array         - (Optional) Collection of command visibility conditions depending on
+//                                        the context. The command visibility conditions are specified using the 
+//                                        AddCommandVisibilityCondition procedure.
+//                                        If the parameter is not specified, the command is visible regardless of the context.
 //                                        
-//                                        
-//                                        
-//                                        
-//                                        
-//   * FormCaption  - String          - 
+//   * CheckPostingBeforePrint    - Boolean - (Optional) Flag indicating whether the document posting check is performed before printing.
+//                                        If at least one unposted document is selected, a posting dialog box appears before executing the print command.
+//                                        The print command is not executed for unposted documents.
+//                                        If the parameter is not specified, the posting check is not performed.
 //                                        
 //
-//   * FunctionalOptions - String      -  (optional) Comma-separated names of functional options that affect
-//                                        the availability of the print command.
-//
-//   * VisibilityConditions - Array         -  (optional) Collection of command visibility conditions depending on
-//                                        the context. The command visibility conditions are set using the procedure 
-//                                        Dobasefinalization.
-//                                        If this parameter is omitted, the command is visible regardless of the context.
-//                                        
-//   * CheckPostingBeforePrint    - Boolean -  (optional) Indicates whether
-//                                        documents must be checked before printing. If at least one unproved document is selected
-//                                        , the print dialog appears before executing the print command.
-//                                        For unprocessed documents, the print command is not executed.
-//                                        If this parameter is omitted, the validity check is not performed.
-//
-//   * SkipPreview - Boolean           - 
-//                                        
+//   * SkipPreview - Boolean           - (Optional) Flag indicating whether the documents must be sent to a printer without a preview.
+//                                        If not specified, the print command opens the "Print documents" preview form.
 //                                        
 //
-//   * SaveFormat - SpreadsheetDocumentFileType -  (optional) It is used to quickly save the printed
-//                                        form (without additional actions) to various formats other than mxl.
-//                                        If this parameter is omitted, the normal mxl is generated.
-//                                        For example, the file type of the.PDF document.
+//   * SaveFormat - SpreadsheetDocumentFileType - (Optional) Intended for quick saving of a print
+//                                        form (without additional actions) to non-MXL formats.
+//                                        If the parameter is not specified, the print form is saved to an MXL format.
+//                                        For example, SpreadsheetDocumentFileType.PDF.
 //
-//                                        When you select the print command, the generated pdf
-//                                        document opens immediately.
+//                                        In this example, selecting a print command opens a PDF
+//                                        document.
 //
-//   * OverrideCopiesUserSetting - Boolean -  (optional) Indicates whether to disable the
-//                                        mechanism for saving/restoring
-//                                        the number of copies selected by the user for printing in the print Documents form. If this parameter is omitted, the
-//                                        mechanism for saving / restoring settings will work when the form is opened.
-//                                        Print documents.
+//   * OverrideCopiesUserSetting - Boolean - (Optional) Flag indicating whether the option to save or restore
+//                                        the number of copies selected by user for printing in the PrintDocuments form is to be disabled.
+//                                        If the parameter is not specified, the option of saving or
+//                                        restoring settings will be applied upon opening the form.
+//                                        PrintDocuments.
 //
-//   * AddExternalPrintFormsToSet - Boolean -  (optional) Indicates whether the set
-//                                        of documents must be supplemented with all external printing forms connected to the object
-//                                        (additional report Processing subsystem). If this parameter is omitted, external
-//                                        printing plates are not added to the package.
+//   * AddExternalPrintFormsToSet - Boolean - (Optional) Shows whether the document set is to be supplemented
+//                                        with all external print forms connected to the object
+//                                        (the AdditionalReportsAndDataProcessors subsystem). If the parameter is not specified, external
+//                                        print forms are not added to the set.
 //
-//   * FixedSet - Boolean    -  (optional) Indicates whether the user should be blocked from changing
-//                                        the set of documents. If this parameter is omitted, the user can
-//                                        exclude individual printed forms from the set in the print Document form, as
-//                                        well as change their number.
+//   * FixedSet - Boolean    - (Optional) Flag indicating whether users can change
+//                                        the document set. If the parameter is not specified, the user can
+//                                        exclude some print forms from the set in the PrintDocuments form and
+//                                        change the number of copies.
 //
-//   * AdditionalParameters - Structure -  (optional) custom parameters to pass to the print Manager.
+//   * AdditionalParameters - Structure - (Optional) Arbitrary parameters to pass to the print manager.
 //
-//   * DontWriteToForm - Boolean  -  (optional) Indicates whether the object's recording mechanism must be disabled
-//                                        before executing the print command. Used in exceptional cases. If
-//                                        this parameter is omitted, the object is recorded if the
-//                                        object form has the modified attribute set.
-//
-//   * FileSystemExtensionIsRequired - Boolean -  
+//   * DontWriteToForm - Boolean  - (Optional) Shows whether object writing before the print command execution is disabled.
+//                                        This parameter is used in special circumstances. If the parameter is not specified,
+//                                        the object is written when the object form has a modification flag.
 //                                        
+//
+//   * FileSystemExtensionIsRequired - Boolean - (Optional) Flag indicating whether 1C:Enterprise Extension must be enabled before running the command. 
+//                                        If the parameter is not passed, the extension won't be enabled.
 //                                        
 //
 Function CreatePrintCommandsCollection() Export
 	
 	Result = New ValueTable;
 	
-	// LongDesc
+	// Details
 	Result.Columns.Add("Id", New TypeDescription("String"));
 	Result.Columns.Add("Presentation", New TypeDescription("String"));
 	
 	//////////
-	// 
+	// Options (optional parameters).
 	
-	// 
+	// Print manager.
 	Result.Columns.Add("PrintManager", Undefined);
 	Result.Columns.Add("PrintObjectsTypes", New TypeDescription("Array"));
 	
-	// 
+	// Alternative command handler.
 	Result.Columns.Add("Handler", New TypeDescription("String"));
 	
 	// Presentation
 	Result.Columns.Add("Order", New TypeDescription("Number"));
 	Result.Columns.Add("Picture", New TypeDescription("Picture"));
-	// 
+	// Comma-separated names of forms for placing commands.
 	Result.Columns.Add("FormsList", New TypeDescription("String"));
 	Result.Columns.Add("PlacingLocation", New TypeDescription("String"));
 	Result.Columns.Add("FormCaption", New TypeDescription("String"));
-	// 
+	// Comma-separated names of functional options that affect the command visibility.
 	Result.Columns.Add("FunctionalOptions", New TypeDescription("String"));
 	
-	// 
+	// Dynamic visibility criteria.
 	Result.Columns.Add("VisibilityConditions", New TypeDescription("Array"));
 	
-	// 
+	// Document posting validation.
 	Result.Columns.Add("CheckPostingBeforePrint");
 	
-	// Output
+	// Output.
 	Result.Columns.Add("SkipPreview", New TypeDescription("Boolean"));
 	Result.Columns.Add("SaveFormat"); // SpreadsheetDocumentFileType
 	
-	// 
+	// Print set settings.
 	Result.Columns.Add("OverrideCopiesUserSetting", New TypeDescription("Boolean"));
 	Result.Columns.Add("AddExternalPrintFormsToSet", New TypeDescription("Boolean"));
-	Result.Columns.Add("FixedSet", New TypeDescription("Boolean")); // 
+	Result.Columns.Add("FixedSet", New TypeDescription("Boolean")); // Print set edit lock.
 	
-	// 
+	// Additional parameters.
 	Result.Columns.Add("AdditionalParameters", New TypeDescription("Structure"));
 	
-	// 
-	// 
+	// A special command execution mode.
+	// By default, the modified object is written before executing the command.
 	Result.Columns.Add("DontWriteToForm", New TypeDescription("Boolean"));
 	
-	// 
+	// For using office document templates in the web client.
 	Result.Columns.Add("FileSystemExtensionIsRequired", New TypeDescription("Boolean"));
 	
-	// For official use.
+	// For internal use.
 	Result.Columns.Add("HiddenByFunctionalOptions", New TypeDescription("Boolean"));
 	Result.Columns.Add("UUID", New TypeDescription("String"));
 	Result.Columns.Add("isDisabled", New TypeDescription("Boolean"));
@@ -545,16 +549,16 @@ Function CreatePrintCommandsCollection() Export
 	
 EndFunction
 
-// Sets the visibility conditions for the print command on the form, depending on the context.
+// Sets visibility conditions of the print command on the form, depending on the context.
 //
 // Parameters:
-//  PrintCommand  - ValueTableRow - :
-//   * VisibilityConditions - Array -  list of visibility conditions;
-//  Attribute       - String                -  name of the item's details;
-//  Value       - Arbitrary          -  value of the item's details;
-//  ComparisonMethod - ComparisonType          - : 
-//                                           
-//                                           
+//  PrintCommand  - ValueTableRow - An item of the PrintCommands collection in the AddPrintCommands procedure:
+//   * VisibilityConditions - Array - List of visibility conditions.
+//  Attribute       - String                - Object's attribute name.
+//  Value       - Arbitrary          - Object's attribute value.
+//  ComparisonMethod - ComparisonType          - Value comparison type. Valid types:: 
+//                                           Equal, NotEqual, Greater, GreaterOrEqual, Less, LessOrEqual, InList, NotInList.
+//                                           By default, Equal.
 //
 Procedure AddCommandVisibilityCondition(PrintCommand, Attribute, Value, Val ComparisonMethod = Undefined) Export
 	If ComparisonMethod = Undefined Then
@@ -567,15 +571,15 @@ Procedure AddCommandVisibilityCondition(PrintCommand, Attribute, Value, Val Comp
 	PrintCommand.VisibilityConditions.Add(VisibilityCondition);
 EndProcedure
 
-// Used when transferring the layout (metadata object) of a printed form to another object.
-// It is intended for calling the update data filling procedure (for a "deferred" handler).
-// Registers a new layout address for processing.
+// It is used when transferring a template (metadata object) of a print form to another object.
+// It is intended to be called in the procedure for filling in the update data (for the deferred handler).
+// Registers a new address of a template to process.
 //
 // Parameters:
-//  TemplateName   - String -  new layout name in
-//                         the Document format.<Document name>.<Package Name> "
-//                         " Processing.<ProcessName>.<Package Name> "
-//                         " General Package.<Package name>".
+//  TemplateName   - String - New template name in the following format:
+//                         "Document.<DocumentName>.<TemplateName>"
+//                         "Processing.<DataProcessorName>.<TemplateName>"
+//                         "CommonTemplate.<TemplateName>".
 //  Parameters - See InfobaseUpdate.MainProcessingMarkParameters.
 //
 Procedure RegisterNewTemplateName(TemplateName, Parameters) Export
@@ -588,19 +592,19 @@ Procedure RegisterNewTemplateName(TemplateName, Parameters) Export
 	InfobaseUpdate.MarkForProcessing(Parameters, RecordSet);
 EndProcedure
 
-// Used when transferring the layout (metadata object) of a printed form to another object.
-// It is intended for calling in the" deferred " update handler.
-// Transfers user data related to the layout to the new address.
+// It is used when transferring a template (metadata object) of a print form to another object.
+// It is intended to be called in the deferred update handler.
+// Transfers user data related to the template to a new address.
 //
 // Parameters:
-//  Templates     - Map of KeyAndValue - 
-//                              
-//                              
-//                              :
-//   * Key     - String -  a new name for the layout.
-//   * Value - String -  previous name of the layout.
+//  Templates     - Map of KeyAndValue - Information about previous and new template names in the following format:
+//                              "Document.<DocumentName>.<TemplateName>"
+//                              "Processing.<DataProcessorName>.<TemplateName>"
+//                              "CommonTemplate.<TemplateName>":
+//   * Key     - String - New template name.
+//   * Value - String - Old template name.
 //
-//  Parameters - Structure -  parameters passed to the "deferred" update handler.
+//  Parameters - Structure - Parameters passed to the deferred update handler.
 //
 Procedure TransferUserTemplates(Templates, Parameters) Export
 	
@@ -634,8 +638,8 @@ Procedure TransferUserTemplates(Templates, Parameters) Export
 	
 EndProcedure
 
-// Provides an additional access profile " Editing, sending by mail, saving to a file of printed forms (optional)".
-// It is intended for use in the procedure for filling in the supplied profiles of the access Group of the access control module Undefined.
+// Provides an additional access profile "Edit, send by email, save print forms to file (additional)".
+// For use in the OnFillSuppliedAccessGroupsProfiles procedure of the AccessManagementOverridable module.
 //
 // Parameters:
 //  ProfilesDetails - See AccessManagementOverridable.OnFillSuppliedAccessGroupProfiles.ProfilesDetails
@@ -655,30 +659,30 @@ Procedure FillProfileEditPrintForms(ProfilesDetails) Export
 	
 EndProcedure
 
-// Adds a new area record to the area Set parameter.
+// Adds a new area record to the TemplateAreas parameter.
 //
 // Parameters:
-//   OfficeDocumentTemplateAreas - Array -  a set of areas (array of structures) of the office document layout.
-//   AreaName                     - String -  name of the area to add.
-//   AreaType                     - String - :
-//    
-//    
-//    
-//    
-//    
+//   OfficeDocumentTemplateAreas - Array - Set of areas (Array of Structure) of an office document template.
+//   AreaName                     - String - Name of the area being added.
+//   AreaType                     - String - Area type::
+//    Header
+//    Footer
+//    Shared
+//    TableRow
+//    List
 //
 // Example:
-//	Function Of The Regionmaketaofisnogodocument ()
+//	Function OfficeDocumentTemplateAreas()
 //	
-//		Area = New Structure;
+//		Areas = New Structure;
 //	
-//		Print management.Adddescription Areas(Areas, "Header", " Header");
-//		Print management.Adddescription Areas(Areas, "Footer", " Footer");
-//		Print management.Adddescription Areas(Areas, "Title", " General");
+//		PrintManagement.AddAreaDetails(Areas, "Header",	"Header");
+//		PrintManagement.AddAreaDetails(Areas, "Footer",	"Footer");
+//		PrintManagement.AddAreaDetails(Areas, "Title",			"Total");
 //	
-//		Returning An Area;
+//		Area Return;
 //	
-//	End of function
+//	EndFunction
 //
 Procedure AddAreaDetails(OfficeDocumentTemplateAreas, Val AreaName, Val AreaType) Export
 	
@@ -691,21 +695,21 @@ Procedure AddAreaDetails(OfficeDocumentTemplateAreas, Val AreaName, Val AreaType
 	
 EndProcedure
 
-// Gets all the necessary information for printing in one call: object data by layout, binary
-// layout data, and description of layout areas.
-// To call from client modules to print forms based on office document layouts.
+// Gets all data required for printing within a single call: object template data, binary
+// template data, and template area description.
+// Used for calling print forms based on office document templates from client modules.
 //
 // Parameters:
-//   PrintManagerName - String -  name for accessing the object Manager, such as " Document.<Document name>".
-//   TemplatesNames       - String -  names of layouts that will be used for forming printed forms.
-//   DocumentsComposition   - Array -  links to information database objects (must be of the same type).
+//   PrintManagerName - String - Name used for accessing the object manager. For example, "Document.<Document name>".
+//   TemplatesNames       - String - Names of templates used for print form generation.
+//   DocumentsComposition   - Array - References to infobase objects (all references must be of the same type).
 //
 // Returns:
-//  Map of KeyAndValue - :
-//   * Key - AnyRef -  link to the information base object;
+//  Map of KeyAndValue - Collection of references to objects and their data.:
+//   * Key - AnyRef - Reference to an infobase object.
 //   * Value - Structure:
-//       ** Key - String -  layout name;
-//       ** Value - Structure -  object data.
+//       ** Key - String - Template name.
+//       ** Value - Structure - Object data.
 //
 Function TemplatesAndObjectsDataToPrint(Val PrintManagerName, Val TemplatesNames, Val DocumentsComposition) Export
 	
@@ -713,38 +717,38 @@ Function TemplatesAndObjectsDataToPrint(Val PrintManagerName, Val TemplatesNames
 	
 	ObjectManager = Common.ObjectManagerByFullName(PrintManagerName);
 	TemplatesAndData = ObjectManager.GetPrintInfo(DocumentsComposition, TemplatesNamesArray);
-	TemplatesAndData.Insert("LocalPrintFileFolder", Undefined); // 
+	TemplatesAndData.Insert("LocalPrintFileFolder", Undefined); // For backward compatibility purposes.
 	
 	If Not TemplatesAndData.Templates.Property("TemplateTypes") Then
-		TemplatesAndData.Templates.Insert("TemplateTypes", New Map); // 
+		TemplatesAndData.Templates.Insert("TemplateTypes", New Map); // For backward compatibility purposes.
 	EndIf;
 	
 	Return TemplatesAndData;
 	
 EndFunction
 
-// Returns the layout of the printed form by the full path to the layout.
+// Returns a print form template by the full path to the template.
 //
-// If the configuration is designed for multiple languages, it may have multiple layouts for those languages.:
-// - PF_DOC_Stenopetala
-// - PF_DOC_Schemaupdate
-// - etc.
-// In this case, the following priority is taken into account when searching for the desired layout:
-// 1) in the language specified in the codelanguage parameter,
-// 2) in the configuration language (general purpose.The main language code ()),
-// 3) without specifying the language.
+// If the application supports several languages, there can be several templates for these languages:
+// - — PF_DOC_ProformaInvoice_ru
+// - — PF_DOC_ProformaInvoice_en
+// - — And so on.
+// In this case, upon searching for a template, the following priority is used:
+// 1. In the language specified in the LanguageCode parameter
+// 2. In the application language (Common.DefaultLanguageCode()).
+// 3. Without specifying a language.
 //
 // Parameters:
-//  TemplatePath - String - :
-//                         
-//                         
-//                         
-//  LanguageCode    - String -  the language in which you want to get the layout.
-//                         It consists of the ISO 639-1 language code and, optionally, the ISO 3166-1 country code, separated
-//                         by an underscore. Examples: "en", "en_US", "en_GB", "ru", "ru_RU".
+//  TemplatePath - String - Full path to the template in the following format::
+//                         "Document.<DocumentName>.<TemplateName>"
+//                         "Processing.<DataProcessorName>.<TemplateName>"
+//                         "CommonTemplate.<TemplateName>".
+//  LanguageCode    - String - Language in which the template needs to be received.
+//                         Consists of the ISO 639-1 language code and the ISO 3166-1 country code (optional)
+//                         separated by the underscore character. Examples: "en", "en_US", "en_GB", "ru", "ru_RU".
 //
 // Returns:
-//  SpreadsheetDocument, BinaryData - 
+//  SpreadsheetDocument, BinaryData - Template.
 //
 Function PrintFormTemplate(TemplatePath, Val LanguageCode = Undefined) Export
 	
@@ -758,19 +762,19 @@ Function PrintFormTemplate(TemplatePath, Val LanguageCode = Undefined) Export
 	
 EndFunction
 
-// Checks whether the custom layout is used instead of the supplied one.
+// Checks whether a custom template is used instead of a built-in template.
 //
 // Parameters:
-//  TemplatePath - String - :
-//                         
-//                         
-//                         
+//  TemplatePath - String - Full path to the template in the following format::
+//                         "Document.<DocumentName>.<TemplateName>"
+//                         "Processing.<DataProcessorName>.<TemplateName>"
+//                         "CommonTemplate.<TemplateName>".
 // Returns:
-//  Boolean - 
+//  Boolean - True if a custom template is used.
 //
 Function UserTemplateUsed(TemplatePath) Export
 	
-	If StrStartsWith(TemplatePath, "PF_") Then // 
+	If StrStartsWith(TemplatePath, "PF_") Then // There's no built-in template.
 		Return False;
 	EndIf;
 	
@@ -810,15 +814,15 @@ Function UserTemplateUsed(TemplatePath) Export
 	
 EndFunction
 
-// Checks whether the supplied layout has been changed from the previous configuration version.
+// Checks whether a built-in template was modified compared to the previous configuration version.
 //
 // Parameters:
-//  TemplatePath - String - :
-//                         
-//                         
-//                         
+//  TemplatePath - String - Full path to the template in the following format::
+//                         "Document.<DocumentName>.<TemplateName>"
+//                         "Processing.<DataProcessorName>.<TemplateName>"
+//                         "CommonTemplate.<TemplateName>".
 // Returns:
-//  Boolean - 
+//  Boolean - True, if the template was modified.
 //
 Function SuppliedTemplateChanged(TemplatePath) Export
 	
@@ -885,31 +889,31 @@ Function SuppliedTemplateChanged(TemplatePath) Export
 	
 EndFunction
 
-// Switches the use of the custom layout to the layout from the configuration.
-// It is used when the layout of the printed form of the configuration and / or the output algorithm are changed without backward
-// compatibility with the layout of the previous version of the configuration.
-// For use in update handlers.
+// Switches the use of a user template to a configuration template.
+// It is applied when a print form template of the configuration or an output algorithm are changed without backward
+// compatibility support with a template of previous configuration version.
+// To be used in update handlers.
 //
-// In the General case when making changes in the layouts and procedures for the formation of printing plates it is necessary to consider 
-// the possibility that layouts can be changed by the user (i.e. the basis of the typical layout of the configuration
-// and added static text, changed the font, color and other design cells that does not require software 
-// processing by algorithms configuration).
+// In general, when changing templates and print form generation procedures, you need to consider 
+// that templates can be changed by users (they can take a standard template from the configuration
+// and add there a static text, change its font, color, and cell design that does not require 
+// processing by configuration algorithms).
 //
-// However, in some cases exact adherence to the order form filling is more important than compatibility with possible changes 
-// the user in the layouts of previous versions (e.g., this is true for strictly regulated printed forms, 
-// in violation of the procedure for their application by the authorities to impose fines, to refuse to carry out
-// operations, tax deductions, etc. - they are invalid, reducing the number of fields on the form, reflow).
-// Examples of such forms are an invoice, created on its basis UPD and UKD, cash orders (KO-1 and KO-2), 
-// payment order.
-// Therefore, if the user has a modified layout, it should be disabled when updating it so that these printed forms
-// are formed correctly.
+// In some cases, exact order of filling forms is more important than compatibility with possible user 
+// changes in previous version templates (for example, it applies to strictly regulated print forms. 
+// If their use is violated, regulatory authorities can impose fines, refuse to conduct
+// operations, tax deductions, and so on. Users are not allowed to reduce the number of fields in the form and rearrange them).
+// Examples of such forms are a proforma invoice, UTD, and UCD created on its base, cash vouchers (CV-1 and CV-2), 
+// and a payment order.
+// When a user has a changed template, it must be disabled upon update
+// to generate these print forms correctly.
 // 
 //
 // Parameters:
-//  TemplatePath - String - :
-//                         
-//                         
-//                         
+//  TemplatePath - String - Full path to the template in the following format::
+//                         "Document.<DocumentName>.<TemplateName>"
+//                         "Processing.<DataProcessorName>.<TemplateName>"
+//                         "CommonTemplate.<TemplateName>".
 //
 Procedure DisableUserTemplate(TemplatePath) Export
 	
@@ -918,13 +922,13 @@ Procedure DisableUserTemplate(TemplatePath) Export
 	
 EndProcedure
 
-// Returns a table document based on binary data from a table document.
+// Returns a spreadsheet document by binary data of a spreadsheet document.
 //
 // Parameters:
-//  BinaryDocumentData - BinaryData -  binary data of a table document.
+//  BinaryDocumentData - BinaryData - Spreadsheet binary data.
 //
 // Returns:
-//  SpreadsheetDocument -  table document.
+//  SpreadsheetDocument - Spreadsheet.
 //
 Function SpreadsheetDocumentByBinaryData(BinaryDocumentData) Export
 	
@@ -946,20 +950,20 @@ Function SpreadsheetDocumentByBinaryData(BinaryDocumentData) Export
 	
 EndFunction
 
-// Generates printed forms in the required format and writes them to files.
-// Restriction: printed forms generated on the client are not supported.
+// Generates print forms in the required format and writes them to files.
+// Restriction: print forms generated on the client are not supported.
 //
 // Parameters:
 //  PrintCommands  - Structure
-//                 - Array - 
+//                 - Array - One or more form print commands,
 //                            See PrintManagement.FormPrintCommands.
-//  ListOfObjects - Array    -  links to printable objects.
+//  ListOfObjects - Array    - References to the objects to print.
 //  SettingsForSaving - See PrintManagement.SettingsForSaving.
 //
 // Returns:
 //  ValueTable:
-//   * FileName - String -  file name;
-//   * BinaryData - BinaryData -  print form file.
+//   * FileName - String - Filename.
+//   * BinaryData - BinaryData - Print form file.
 //
 Function PrintToFile(PrintCommands, ListOfObjects, SettingsForSaving) Export
 	
@@ -973,6 +977,7 @@ Function PrintToFile(PrintCommands, ListOfObjects, SettingsForSaving) Export
 	EndIf;
 	
 	For Each PrintCommand In ListOfCommands Do
+		//@skip-check query-in-loop - The query is used within the exception handler for unforeknown data.
 		ExecutePrintToFileCommand(PrintCommand, SettingsForSaving, ListOfObjects, Result);
 	EndDo;
 	
@@ -988,18 +993,18 @@ Function PrintToFile(PrintCommands, ListOfObjects, SettingsForSaving) Export
 	
 EndFunction
 
-// Constructor for the save Settings parameter of the print Management function.Print the file.
-// Defines the format and other settings for writing a table document to a file.
+// The SettingsForSaving parameter constructor of the PrintManagement.PrintToFile function.
+// Defines a format and other settings of writing a spreadsheet document to file.
 // 
 // Returns:
-//  Structure - :
-//   * SaveFormats - Array -  a collection of values of the type filatablecode,
-//                                  or values of the type filatablecode, converted to a string.
-//                                  By default, saving is done in PDF format.
-//   * PackToArchive   - Boolean -  if set to True, one archive file with files of the specified formats will be created.
-//   * TransliterateFilesNames - Boolean -  if set to True, the names of the received files will be in Latin.
-//   * SignatureAndSeal    - Boolean -  if set to True and the saved table document supports the placement
-//                                  of signatures and seals, then the recorded files will contain signatures and seals.
+//  Structure - Settings for writing a spreadsheet to a file:
+//   * SaveFormats - Array - Collection of values of the SpreadsheetDocumentFileType type
+//                                  or SpreadsheetDocumentFileType type converted into a string.
+//                                  By default, saves as PDF.
+//   * PackToArchive   - Boolean - If True, one archive file with files of the specified formats will be created.
+//   * TransliterateFilesNames - Boolean - If True, the names of the received files will be in Latin.
+//   * SignatureAndSeal    - Boolean - If True and the spreadsheet being saved supports
+//                                  signatures and stamps, they will be placed to saved files.
 //
 Function SettingsForSaving() Export
 	
@@ -1007,21 +1012,21 @@ Function SettingsForSaving() Export
 	
 EndFunction
 
-// 
-// 
+// Determines the type of the Settings parameter in the OnDefinePrintSettings procedure of object manager modules.
+// Returns print settings of the object attached to the "Print tools" subsystem.
 //
 // Parameters:
-//  ObjectManager - CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - 
+//  ObjectManager - CatalogManager, DocumentManager, DataProcessorManager, InformationRegisterManager - Object manager.
 //
 // Returns:
 //  Structure:
-//   * OnSpecifyingRecipients - Boolean - 
-//                                          
-//                                          
+//   * OnSpecifyingRecipients - Boolean - If True, the procedure of the OnSpecifyingRecipients object module manager is called.
+//                                          It is used to determine the recipients of the print form mail-out.
+//                                          By default, False.
 //                                           
-//   * OnAddPrintCommands - Boolean - 
-//                                          
-//                                           
+//   * OnAddPrintCommands - Boolean - If True, the procedure of the AddPrintCommands object manager module is called.
+//                                          It is used to add the print commands.
+//                                          By default, False. 
 //
 Function ObjectPrintingSettings(ObjectManager) Export
 	
@@ -1036,7 +1041,7 @@ Function ObjectPrintingSettings(ObjectManager) Export
 		Return ObjectSettings;
 	EndIf;
 	
-	// 
+	// For backward compatibility.
 	
 	ObjectsWithPrintCommands = PrintManagementCached.ObjectsWithPrintCommands();
 	
@@ -1052,52 +1057,52 @@ EndFunction
 #Region OperationsWithOfficeDocumentsTemplates
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Operations with office document templates.
 
-//	
-//	
+//	This section contains API functions used for creating office document print forms.
+//	Currently, Office Open XML-based packages are supported (MS Office, Open Office, Google Docs).
 //	
 //
 ////////////////////////////////////////////////////////////////////////////////
+//	Valid data types (depends on the implementation):
+//	RefPrintForm	- A print form reference.
+//	RefTemplate - A template reference.
+//	Area - A reference to an area in a print form or template (Structure).
+//						It is additionally defined with the region's internal info in the API module.
+//						AreaDetails - Template area details (see below).
+//	FillingData - A structure or an array of structures (for lists and tables).
 //	
-//	
-//	
-//	
-//						
-//						
-//	
-//	
-//						
+//						AreaDetails - A structure describing the user-defined template areas.
 ////////////////////////////////////////////////////////////////////////////////
-//	
-//	
-//	
-//							
-//							
-//							
-//							
-//							
-//							
-//							
+//	Key AreaName - An area name.
+//	Key AreaTypeType - Header
+//	Footer
+//							FirstHeader
+//							FirstFooter
+//							EvenHeader
+//							EvenFooter
+//							Shared3
+//							TableRow
+//							List
 //							
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions for initializing and closing references.
 
-// APK:1382-off-You cannot define the type in the return value.
+// ACC:1382-off - Cannot define the type in the return value.
 //
-// Designer of a printed form in the format of an office document.
+// A print form constructor in the office document format.
 //
 // Parameters:
-//  DeleteDocumentType            - String -  a legacy option that is not being used;
-//  DeleteTemplatePageSettings - Map -  a legacy option that is not being used;
+//  DeleteDocumentType            - String - Obsolete parameter.
+//  DeleteTemplatePageSettings - Map - Obsolete parameter.
 //  Template                          - See InitializeOfficeDocumentTemplate
 //
 // Returns:
-//  Structure - :
-//   * DirectoryName        - String -  the path where the directory structure of the final document is placed for the subsequent
-//                                   build of the DOCX container.
+//  Structure - Details of the print form being created:
+//   * DirectoryName        - String - Path where a directory structure of the final document is placed
+//                                   for further assembly of the DOCX container.
 //   * DocumentStructure - See PrintManagementInternal.InitializeDocument
 //   * Type - String
 //   * LastSelectedArea - Structure
@@ -1115,19 +1120,19 @@ Function InitializePrintForm(Val DeleteDocumentType, Val DeleteTemplatePageSetti
 	Return PrintForm;
 	
 EndFunction
-// 
+// ACC:1382-on
 
-// Prepares the layout for use in printing form generation procedures.
+// Prepares a template used in print form generation procedures.
 //
 // Parameters:
-//  BinaryTemplateData - BinaryData -  binary layout data;
-//  DeleteTemplateType     - String -  a legacy option that is not being used;
-//  DeleteTemplateName     - String -  deprecated parameter, not used.
+//  BinaryTemplateData - BinaryData - Binary template data.
+//  DeleteTemplateType     - String - Obsolete parameter.
+//  DeleteTemplateName     - String - Obsolete parameter.
 //
 // Returns:
 //  Structure:
-//   * DirectoryName        - String    -  path where the template's DOCX container is unpacked for further analysis;
-//   * DocumentStructure - Structure -  information about areas, sections, and headers and footers included in the template.
+//   * DirectoryName        - String    - Path to which the DOCX template container is unpacked for further analysis.
+//   * DocumentStructure - Structure - Information about areas, sections, headers, and footers included in the template is gathered.
 //
 Function InitializeOfficeDocumentTemplate(BinaryTemplateData, Val DeleteTemplateType, Val DeleteTemplateName = "") Export
 	
@@ -1142,13 +1147,13 @@ Function InitializeOfficeDocumentTemplate(BinaryTemplateData, Val DeleteTemplate
 EndFunction
 
 
-// Deletes temporary files that were created after the layout xml structure was expanded.
-// It must be called every time after the layout and printed form are formed,
-// or if the formation fails.
+// Deletes temporary files formed after expanding an xml template structure.
+// Call it every time after generation of a template and a print form,
+// as well as in the event of generation termination.
 //
 // Parameters:
 //  PrintForm            - See PrintManagement.InitializePrintForm
-//  DeleteCloseApplication - Boolean    -  deprecated parameter, not used.
+//  DeleteCloseApplication - Boolean    - Obsolete parameter.
 //
 Procedure ClearRefs(PrintForm, Val DeleteCloseApplication = True) Export
 	
@@ -1159,14 +1164,14 @@ Procedure ClearRefs(PrintForm, Val DeleteCloseApplication = True) Export
 	
 EndProcedure
 
-// Generates the output print form file and places it in the storage.
-// It is necessary to call after placing all the necessary areas in the structure of the printed form.
+// Generates a file of an output print form and places it in the storage.
+// Call this method after adding all areas to a print form structure.
 //
 // Parameters:
 //  PrintForm - See PrintManagement.InitializePrintForm.
 //
 // Returns:
-//  String - 
+//  String - Address of the destination storage.
 //
 Function GenerateDocument(Val PrintForm) Export
 	
@@ -1177,25 +1182,25 @@ Function GenerateDocument(Val PrintForm) Export
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions for getting template areas, outputting them to print forms, and filling their parameters.
 // 
 
-// Retrieves an area from the print form layout.
+// Gets a print form template area.
 //
 // Parameters:
-//   RefToTemplate   - Structure -  layout of the printed form.
+//   RefToTemplate   - Structure - Print form template.
 //   AreaDetails - Structure:
-//    * AreaName - String - area name;
-//    * AreaTypeType - String - : 
-//      
-//      
+//    * AreaName - String - Area name.
+//    * AreaTypeType - String - Area type:: 
+//      "Header", "Footer", "FirstHeader", "FirstFooter",
+//      "EvenHeader", "EvenFooter", "Common", "TableRow", "List".
 //      
 //      
 //       
 //      
 //
 // Returns:
-//  Structure - 
+//  Structure - Template area.
 //
 Function TemplateArea(RefToTemplate, AreaDetails) Export
 	
@@ -1224,13 +1229,13 @@ Function TemplateArea(RefToTemplate, AreaDetails) Export
 	
 EndFunction
 
-// Attaches an area to a printed form from the layout.
-// Used for single output of an area.
+// Attaches an area to a template print form.
+// The procedure is used upon output of a single area.
 //
 // Parameters:
 //  PrintForm - See PrintManagement.InitializePrintForm.
 //  TemplateArea - See PrintManagement.TemplateArea.
-//  GoToNextRow1 - Boolean -  True if you want to insert a break after the area is output.
+//  GoToNextRow1 - Boolean - True, if you need to add a line break after the area output.
 //
 Procedure AttachArea(PrintForm, TemplateArea, Val GoToNextRow1 = False) Export
 	
@@ -1259,7 +1264,7 @@ Procedure AttachArea(PrintForm, TemplateArea, Val GoToNextRow1 = False) Export
 		AreaDetails.Insert("Area", DerivedArea);
 		AreaDetails.Insert("GoToNextRow1", GoToNextRow1);
 		
-		// 
+		// Contains the type and area borders (if required).
 		PrintForm.LastOutputArea = AreaDetails;
 		
 	Except
@@ -1273,11 +1278,11 @@ Procedure AttachArea(PrintForm, TemplateArea, Val GoToNextRow1 = False) Export
 	
 EndProcedure
 
-// Fills in the parameters of the print form area.
+// Fills parameters of the print form area.
 //
 // Parameters:
-//  PrintForm - Structure -  the area of the printed form or the printed form itself.
-//  Data - Structure -  fill-in data.
+//  PrintForm - Structure - Either a print form area or the print form.
+//  Data - Structure - Autofill data.
 //
 Procedure FillParameters_(PrintForm, Data) Export
 	
@@ -1297,14 +1302,14 @@ Procedure FillParameters_(PrintForm, Data) Export
 
 EndProcedure
 
-// Adds an area to the print form from the layout, while replacing the parameters in the area with values from the object data.
-// Used for single output of an area.
+// Adds an area from a template to a print form, replacing the area parameters with the object data values.
+// The procedure is used upon output of a single area.
 //
 // Parameters:
 //  PrintForm - See PrintManagement.InitializePrintForm.
 //  TemplateArea - See PrintManagement.TemplateArea.
-//  Data - Structure -  fill-in data.
-//  GoToNextRow1 - Boolean -  True if you want to insert a break after the area is output.
+//  Data - Structure - Autofill data.
+//  GoToNextRow1 - Boolean - True, if you need to add a line break after the area output.
 //
 Procedure AttachAreaAndFillParameters(PrintForm, TemplateArea, Data, Val GoToNextRow1 = False) Export
 	
@@ -1317,15 +1322,15 @@ Procedure AttachAreaAndFillParameters(PrintForm, TemplateArea, Data, Val GoToNex
 	
 EndProcedure
 
-// Adds an area to the print form from the layout, while replacing
-// the parameters in the area with values from the object data.
-// Used for single output of an area.
+// Adds an area from a template to a print form, replacing
+// the area parameters with the object data values.
+// The procedure is used upon output of a single area.
 //
 // Parameters:
 //  PrintForm - See PrintManagement.InitializePrintForm.
 //  TemplateArea - See PrintManagement.TemplateArea.
-//  Data - Array -  a collection of elements of the Structure - object data type.
-//  GoToNextRow - Boolean -  True if you want to insert a break after the area is output.
+//  Data - Array - Collection of items of the Structure type (object data).
+//  GoToNextRow - Boolean - True, if you need to add a line break after the area output.
 //
 Procedure JoinAndFillCollection(PrintForm, TemplateArea, Data, Val GoToNextRow = False) Export
 	
@@ -1343,7 +1348,7 @@ Procedure JoinAndFillCollection(PrintForm, TemplateArea, Data, Val GoToNextRow =
 	
 EndProcedure
 
-// Inserts a line break as a newline character.
+// Inserts a newline character to create a line break.
 //
 // Parameters:
 //  PrintForm - See PrintManagement.InitializePrintForm.
@@ -1360,38 +1365,38 @@ EndProcedure
 #Region ObsoleteProceduresAndFunctions
 
 
-// Deprecated. 
-// 
+// Deprecated. Outdated. Use BarcodeGeneration.QRCodeData 
+// or BarcodeGeneration.BarcodeImage instead.
 //
-// 
+// Returns binary data for QR code generation.
 //
 // Parameters:
-//  QRString         - String -  data to be placed in the QR code.
+//  QRString         - String - Data to be accessed via the QR code.
 //
-//  CorrectionLevel - Number - 
-//                             
-//                     :
+//  CorrectionLevel - Number - Image deviation threshold, at which the QR code can be successfully scanned in 100% cases.
+//                             The parameter must be an integer and have one of the following possible values:
+//                     0 (7% of fails allowed), 1 (15% of fails allowed), 2 (25% of fails allowed), 3 (35% of fails allowed).:
 //                     
 //
-//  Size           - Number -  specifies the length of the side of the output image in pixels.
-//                     If the minimum possible image size is larger than this parameter, the code will not be generated.
+//  Size           - Number - Determines the size of the output image side, in pixels.
+//                     If the smallest size of the image is greater than this parameter, the code is not generated.
 //
 // Returns:
-//  BinaryData  - 
+//  BinaryData  - Buffer that contains the bytes of the QR code image in PNG format.
 // 
 // Example:
 //  
-//  
+//  Print a QR code containing information encrypted according to UFEBM.
 //
-//  
-//  
-//  
-//  
-//      
-//  
+//  QRString = PrintManagement.UFEBMFormatString(PaymentDetails);
+//  ErrorText = "";
+//  QRCodeData = PrintManagement.QRCodeData(QRString, 0, 190, ErrorText);
+//  If Not BlankString (ErrorText)
+//      Common.MessageToUser(ErrorText);
+//  EndIf;
 //
-//  
-//  
+//  QRCodePicture = New Picture(QRCodeData);
+//  TemplateArea.Pictures.QRCode.Picture = QRCodePicture;
 //
 Function QRCodeData(QRString, CorrectionLevel, Size) Export
 	
@@ -1426,10 +1431,10 @@ EndFunction
 #Region ManagingTemplatesOfOfficeDocsWithDCS
 
 
-// 
+// Prepares an office document template to be used in print form generation procedures.
 // 
 // Parameters:
-//  BinaryTemplateData - BinaryData - 
+//  BinaryTemplateData - BinaryData - Binary template data
 // 
 // Returns:
 //   See PrintManagementInternal.TemplateFromDCSBinaryData
@@ -1447,10 +1452,10 @@ Function InitializeTemplateOfDCSOfficeDoc(BinaryTemplateData) Export
 	
 EndFunction
 
-// 
+// Inserts stamps to the passed office document.
 // 
 // Parameters:
-//  DocumentAddress - String - 
+//  DocumentAddress - String - Address of the generated document in the temporary storage.
 //  DigitalSignatures - See DigitalSignature.SetSignatures
 //  
 Procedure AddStampsToOfficeDoc(DocumentAddress, DigitalSignatures) Export
@@ -1521,7 +1526,7 @@ Procedure AddStampsToOfficeDoc(DocumentAddress, DigitalSignatures) Export
 	PutToTempStorage(BinaryData, DocumentAddress);
 EndProcedure
 
-// 
+// Converts Office Open XML parameters into text enclosed in square brackets.
 // 
 // Parameters:
 //  Tree - See PrintManagementInternal.ReadXMLIntoTree
@@ -1533,7 +1538,7 @@ Procedure ConvertParameters(Tree) Export
 EndProcedure
 
 
-// 
+// Removes unused attributes from the value tree.
 // 
 // Parameters:
 //  Tree - See PrintManagementInternal.ReadXMLIntoTree
@@ -1545,14 +1550,14 @@ Procedure DeleteInsignificantAttributes(Tree) Export
 	
 EndProcedure
 
-// 
+// Area population parameters.
 // 
 // Returns:
-//  Structure - :
-//   * CollectStrings - Boolean -  
+//  Structure - Area population parameters.:
+//   * CollectStrings - Boolean - Flag indicating whether to merge split condition strings. 
 //   * AreaStructure - See PrintManagementInternal.ReadXMLIntoTree
 //   * PopulateHeadersAndFooters - Boolean
-//   * ShouldAddLinks - Boolean - 
+//   * ShouldAddLinks - Boolean - Flag indicating whether to add content links.
 //
 Function AreaPopulationParameters() Export
 	ParametersStructure = New Structure;
@@ -1563,13 +1568,13 @@ Function AreaPopulationParameters() Export
 	Return ParametersStructure;
 EndFunction
 
-// 
+// Set parameters.
 // 
 // Parameters:
 //  TreeOfTemplate -  See PrintManagementInternal.ReadXMLIntoTree
 //  ParameterValues - Map of KeyAndValue:
-//                        ** 
-//                        ** 
+//                        ** Value - String - Value to be set.
+//                        ** Value - String - Value to be set.
 //  AreaPopulationParameters - See AreaPopulationParameters
 //
 Procedure SpecifyParameters(TreeOfTemplate, ParameterValues, AreaPopulationParameters) Export
@@ -1598,15 +1603,15 @@ EndProcedure
 
 #EndRegion
 
-// 
+// Returns a table of available formats for saving a spreadsheet document.
 //
-// 
-//  
-//    
-//    
-//    
-//    
-//    
+// Returns
+//  ValueTable:
+//    SpreadsheetDocumentFileType - SpreadsheetDocumentFileType - Value in the platform that matches the format.
+//    Ref - EnumRef.ReportsSaveFormats - Reference to metadata that stores presentation.
+//    Presentation - String - File type presentation (filled in from enumeration).
+//    Extension - String - File type for an operating system.
+//    Picture - Picture - Format icon.
 //
 Function SpreadsheetDocumentSaveFormatsSettings() Export
 	
@@ -1614,7 +1619,7 @@ Function SpreadsheetDocumentSaveFormatsSettings() Export
 	
 EndFunction
 
-// Hiding the print command from the submenu "Print".
+// Hides print commands from the Print submenu.
 Procedure DisablePrintCommands(ListOfObjects, ListOfCommands) Export
 	
 	RecordSet = InformationRegisters.PrintCommandsSettings.CreateRecordSet();
@@ -1664,7 +1669,7 @@ Procedure DisablePrintCommands(ListOfObjects, ListOfCommands) Export
 	
 EndProcedure
 
-// Returns a list of supplied object print commands.
+// Returns a list of 1C-supplied print commands.
 //
 // Parameters:
 //  Object - CatalogRef.MetadataObjectIDs
@@ -1685,16 +1690,16 @@ Function StandardObjectPrintCommands(Object) Export
 	Return ObjectPrintCommands;
 EndFunction
 
-// Returns a list of metadata objects that have the Print subsystem embedded in them.
+// Returns a list of metadata objects in which the Print subsystem is embedded.
 //
 // Returns:
-//  Array - 
+//  Array - List of items of the MetadataObject type.
 //
 Function PrintCommandsSources() Export
 	
 	Settings = PrintSettings();
-	SSLSubsystemsIntegration.OnDefineObjectsWithPrintCommands(Settings.PrintObjects); // 
-	PrintManagementOverridable.OnDefineObjectsWithPrintCommands(Settings.PrintObjects); // 
+	SSLSubsystemsIntegration.OnDefineObjectsWithPrintCommands(Settings.PrintObjects); // ACC:222 - Call the obsolete procedure (for backward compatibility).
+	PrintManagementOverridable.OnDefineObjectsWithPrintCommands(Settings.PrintObjects); // ACC:222 - Call the obsolete procedure (for backward compatibility).
 	
 	Result = New Array;
 	For Each ObjectManager1 In Settings.PrintObjects Do
@@ -1706,18 +1711,18 @@ Function PrintCommandsSources() Export
 EndFunction
 
 
-// 
-//  See PrintManagement.ObjectPrintingSettings.
+// Determines configuration objects whose manager modules contain the OnDefinePrintSettings procedure.
+// The procedure determines the presence of subsystem procedures. See PrintManagement.ObjectPrintingSettings.
 //
 // Parameters:
-//  
-//    
-//                                           
-//   
-//                                           
-//                                           
-//    
-//   
+//  Settings - Structure
+//   UseSignaturesAndSeals - Boolean - If False, users cannot insert signatures and stamps in print forms. 
+//                                           * HideSignaturesAndSealsForEditing - Boolean - If True, remove the images of signatures and stamps when a user clears the
+//   "Stamps and signatures" checkbox to be able to edit the text behind them.
+//                                           * PrintObjects - Array - Managers of objects with the OnDefinePrintSettings procedure.
+//                                           * CheckPostingBeforePrint - Boolean - Flag indicating whether to check if documents are posted before printing out.
+//   By default, True for the Print command. Unposted documents are not printed. 
+//   If the parameters is not passed, the check is skipped.
 //                                        
 //                                        See PrintManagement.CreatePrintCommandsCollection.
 //                                        
@@ -1849,7 +1854,7 @@ Function GeneratePrintFormsInBackground(BackgroundPrintingOptions) Export
 	BackgroundPrintingOptions.Delete("StoragesContents");
 	
 	Result = Undefined;
-	// 
+	// Generate spreadsheet documents.
 	If ValueIsFilled(BackgroundPrintingOptions.DataSource) Then
 		If TypeOf(OutputParameters) = Type("Structure") And OutputParameters.Property("LanguageCode") Then
 			OutputParameters.LanguageCode = CurrentLanguage;
@@ -1874,7 +1879,7 @@ Function GeneratePrintFormsInBackground(BackgroundPrintingOptions) Export
 		Result = PrintForms.PrintFormsCollection;
 	EndIf;
 	
-	// 
+	// Raise the flag of saving print forms to a file (do not open the form, save it directly to a file).
 	If TypeOf(PrintParameters) = Type("Structure") And PrintParameters.Property("SaveFormat")
 		And ValueIsFilled(PrintParameters.SaveFormat) Then
 		FoundFormat = SpreadsheetDocumentSaveFormatsSettings().Find(SpreadsheetDocumentFileType[PrintParameters.SaveFormat], "SpreadsheetDocumentFileType");
@@ -1915,16 +1920,16 @@ Function GeneratePrintFormsInBackground(BackgroundPrintingOptions) Export
 	
 EndFunction
 
-// Generates a printed form from an external source.
+// Generates a print form based on an external source.
 //
 // Parameters:
-//   AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors -  external processing.
+//   AdditionalDataProcessorRef - CatalogRef.AdditionalReportsAndDataProcessors - External data processor.
 //   SourceParameters            - Structure:
-//       * CommandID - String -  a comma-separated list of layouts.
+//       * CommandID - String - List of comma-separated templates.
 //       * RelatedObjects    - Array
-//   PrintFormsCollection - see the description of the Print() procedure in the documentation.
-//   PrintObjects         - ValueList  - see the description of the Print() procedure in the documentation.
-//   OutputParameters       - Structure       - see the description of the Print() procedure in the documentation.
+//   PrintFormsCollection - See the documentation for the Print() procedure.
+//   PrintObjects         - ValueList  - See the documentation for the Print() procedure.
+//   OutputParameters       - Structure       - See the documentation for the Print() procedure.
 //   
 Procedure PrintByExternalSource(AdditionalDataProcessorRef, SourceParameters, PrintFormsCollection,
 	PrintObjects, OutputParameters) Export
@@ -1950,7 +1955,7 @@ Procedure PrintByExternalSource(AdditionalDataProcessorRef, SourceParameters, Pr
 		PrintObjects,
 		OutputParameters);
 	
-	// 
+	// Checking if all templates are generated.
 	For Each PrintForm In PrintFormsCollection Do
 		If Not PrintForm.OfficeDocuments = Undefined Then
 			PrintForm.SpreadsheetDocument = New SpreadsheetDocument;
@@ -2040,7 +2045,7 @@ EndProcedure
 // See UsersOverridable.OnDefineRoleAssignment
 Procedure OnDefineRoleAssignment(RolesAssignment) Export
 	
-	// 
+	// ForSystemUsersOnly.
 	RolesAssignment.BothForUsersAndExternalUsers.Add(
 		Metadata.Roles.PrintFormsEdit.Name);
 	
@@ -2107,7 +2112,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		Return;
 	EndIf;
 	
-	// 
+	// If there is no Administration section, a to-do is not added.
 	Subsystem = Metadata.Subsystems.Find("Administration");
 	If Subsystem = Undefined
 		Or Not AccessRight("View", Subsystem)
@@ -2124,7 +2129,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ArrayVersion  = StrSplit(Metadata.Version, ".");
 		CurrentVersion = ArrayVersion[0] + ArrayVersion[1] + ArrayVersion[2];
 		If VersionChecked = CurrentVersion Then
-			OutputToDoItem = False; // 
+			OutputToDoItem = False; // Current version print forms are checked.
 		EndIf;
 	EndIf;
 	
@@ -2133,7 +2138,7 @@ Procedure OnFillToDoList(ToDoList) Export
 	For Each Section In Sections Do
 		SectionID = "CheckCompatibilityWithCurrentVersion" + StrReplace(Section.FullName(), ".", "");
 		
-		// 
+		// Add a to-do item.
 		ToDoItem = ToDoList.Add();
 		ToDoItem.Id = "PrintFormTemplates";
 		ToDoItem.HasToDoItems      = OutputToDoItem And UserTemplatesCount > 0;
@@ -2142,7 +2147,7 @@ Procedure OnFillToDoList(ToDoList) Export
 		ToDoItem.Form         = "InformationRegister.UserPrintTemplates.Form.CheckPrintForms";
 		ToDoItem.Owner      = SectionID;
 		
-		// 
+		// Check for the to-do's group. If the group is missing, add it.
 		ToDoGroup = ToDoList.Find(SectionID, "Id");
 		If ToDoGroup = Undefined Then
 			ToDoGroup = ToDoList.Add();
@@ -2173,7 +2178,7 @@ Procedure OnDefineObjectsWithEditableAttributes(Objects) Export
 	
 EndProcedure
 
-// Determines which configuration printable layouts that are delivered have changed from the previous version.
+// Defines which built-in templates of the configuration print forms have been changed compared to the previous version.
 Procedure UpdateTemplatesCheckSum() Export
 	
 	InformationRegisters.CommonSuppliedPrintTemplates.UpdateTemplatesCheckSum();
@@ -2258,7 +2263,7 @@ Function CommonFieldsOfDataSources(DataSources) Export
 			EndDo;
 		EndDo;
 		If Result = Undefined Then
-			Result = SetIntersection(CollectionFields, CollectionFields); // 
+			Result = SetIntersection(CollectionFields, CollectionFields); // Roll up repeated items.
 		Else
 			Result = SetIntersection(Result, CollectionFields);
 		EndIf;
@@ -2566,7 +2571,7 @@ Function AreaID(Area) Export
 	
 EndFunction
 
-// Saves the custom print layout in the information database.
+// Saves a custom template to the infobase.
 // 
 // Parameters:
 //  TemplateDetails - See TemplateDetails
@@ -2806,7 +2811,7 @@ Procedure DeleteTemplate(TemplatePath, LanguageCode = Undefined) Export
 	
 EndProcedure
 
-Function FindParametersInText(Val Text, Parameters = Undefined, Val StartPosition = 0, OpeningParentheses = 1, ClosingParentheses = 0) Export // 
+Function FindParametersInText(Val Text, Parameters = Undefined, Val StartPosition = 0, OpeningParentheses = 1, ClosingParentheses = 0) Export // ACC:142 Arbitrary parameters are used when the function calls itself.
 	
 	If Parameters = Undefined Then
 		Parameters = New Array;
@@ -3097,7 +3102,7 @@ EndFunction
 
 #Region Private
 
-// Adds the PrintForm Editing role to all profiles that include the basic rights Role.
+// Adds the PrintFormsEdit role to all profiles that contain the BasicAccessSSL role.
 Procedure AddEditPrintFormsRoleToBasicRightsProfiles() Export
 	
 	If Not Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -3120,9 +3125,9 @@ EndProcedure
 // Returns a reference to the source object of the external print form.
 //
 // Parameters:
-//  Id              - String -  form ID;
-//  FullMetadataObjectName - String -  full name of the metadata object to get a link
-//                                        to the source of the external print form for.
+//  Id              - String - Form ID.
+//  FullMetadataObjectName - String - Full name of the metadata object that requires the reference to the external print form.
+//                                        
 //
 // Returns:
 //  AnyRef
@@ -3138,7 +3143,7 @@ Function AdditionalPrintFormRef(Id, FullMetadataObjectName)
 	Return ExternalPrintFormRef;
 EndFunction
 
-// To form a printing plate.
+// Generate print forms.
 Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val ObjectsArray, Val PrintParameters, 
 	AllowedPrintObjectsTypes = Undefined, Val LanguageCode = Undefined) Export
 	
@@ -3152,7 +3157,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 	
 	If TypeOf(TemplatesNames) = Type("String") Then
 		TemplatesNames = StrSplit(TemplatesNames, ",");
-	Else // 
+	Else // Type("Array")
 		TemplatesNames = Common.CopyRecursive(TemplatesNames);
 	EndIf;
 	
@@ -3169,7 +3174,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 	EndIf;
 	ExternalPrintForms = PrintFormsListFromExternalSources(ExternalPrintFormsSource);
 	
-	// 
+	// Add external print forms to the set.
 	AddedExternalPrintForms = New Array;
 	If TypeOf(PrintParameters) = Type("Structure") 
 		And PrintParameters.Property("AddExternalPrintFormsToSet") 
@@ -3183,7 +3188,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 	EndIf;
 	
 	For Each TemplateName In TemplatesNames Do
-		// 
+		// Check for a printed form.
 		FoundPrintForm = PrintFormsCollection.Find(TemplateName, "TemplateName");
 		If FoundPrintForm <> Undefined Then
 			LastAddedPrintForm = PrintFormsCollection[PrintFormsCollection.Count() - 1];
@@ -3197,14 +3202,14 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 			Continue;
 		EndIf;
 		
-		// 
+		// Check whether an additional print manager is specified in the print form name.
 		AdditionalPrintManagerName = "";
 		Id = TemplateName;
 		ExternalPrintForm = Undefined;
-		If StrFind(Id, ExternalPrintFormsPrefix) > 0 Then // 
+		If StrFind(Id, ExternalPrintFormsPrefix) > 0 Then // This is an external print form.
 			Id = Mid(Id, StrLen(ExternalPrintFormsPrefix) + 1);
 			ExternalPrintForm = ExternalPrintForms.FindByValue(Id);
-		ElsIf StrFind(Id, ".") > 0 Then // 
+		ElsIf StrFind(Id, ".") > 0 Then // An additional print manager is specified.
 			If StrStartsWith(Id, GeneralPrintManager + ".") Then
 				Id = Mid(Id, StrLen(GeneralPrintManager) + 2);
 				AdditionalPrintManagerName = GeneralPrintManager;
@@ -3215,13 +3220,13 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 			EndIf;
 		EndIf;
 		
-		// 
+		// Determine an internal print manager.
 		UsedPrintManager = AdditionalPrintManagerName;
 		If IsBlankString(UsedPrintManager) Then
 			UsedPrintManager = PrintManagerName;
 		EndIf;
 		
-		// 
+		// Check whether the objects being printed match the selected print form.
 		ObjectsCorrespondingToPrintForm = ObjectsArray;
 		If AllowedPrintObjectsTypes <> Undefined And AllowedPrintObjectsTypes.Count() > 0 Then
 			If TypeOf(ObjectsArray) = Type("Array") Then
@@ -3236,7 +3241,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 				If ObjectsCorrespondingToPrintForm.Count() = 0 Then
 					ObjectsCorrespondingToPrintForm = Undefined;
 				EndIf;
-			ElsIf Common.RefTypeValue(ObjectsArray) Then // 
+			ElsIf Common.RefTypeValue(ObjectsArray) Then // The passed data is not an Array.
 				If AllowedPrintObjectsTypes.Find(TypeOf(ObjectsArray)) = Undefined Then
 					MessagePrintFormUnavailable(ObjectsArray);
 					ObjectsCorrespondingToPrintForm = Undefined;
@@ -3247,9 +3252,9 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 		
 		TempCollectionForSinglePrintForm = PreparePrintFormsCollection(Id);
 		
-		// 
+		// Call the Print procedure from the print manager.
 		If ExternalPrintForm <> Undefined Then
-			// 
+			// Print manager in an external print form.
 			PrintByExternalSource(
 				AdditionalPrintFormRef(ExternalPrintForm.Value, ExternalPrintFormsSource),
 				New Structure("CommandID, RelatedObjects", ExternalPrintForm.Value, ObjectsCorrespondingToPrintForm),
@@ -3258,11 +3263,11 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 				OutputParameters);
 		Else
 			If Not IsBlankString(UsedPrintManager) Then
-				// 
+				// Print an internal print form.
 				If ObjectsCorrespondingToPrintForm <> Undefined Then
 					ThisPrintableFormSKD = UsedPrintManager = PrintModuleName();
 					If ThisPrintableFormSKD Then
-						// 
+						// @skip-check query-in-loop - Minor cycle
 						Print(ObjectsCorrespondingToPrintForm, PrintParameters, TempCollectionForSinglePrintForm, 
 							PrintObjects, OutputParameters); 
 					Else
@@ -3287,6 +3292,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 							If Not ValueIsFilled(TempCollectionForSinglePrintForm[0].FullTemplatePath) Then
 								FullTemplatePath = LastUsedTemplate();
 								
+								//@skip-check query-in-loop - The list of templates is unforeknown.
 								If ValueIsFilled(FullTemplatePath) And UserTemplateUsed(FullTemplatePath) Then
 									TempCollectionForSinglePrintForm[0].FullTemplatePath = LastUsedTemplate();
 								Else
@@ -3304,7 +3310,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 			EndIf;
 		EndIf;
 		
-		// 
+		// Verify the print form collection received from a print manager.
 		For Each PrintFormDetails In TempCollectionForSinglePrintForm Do
 			CommonClientServer.Validate(
 				TypeOf(PrintFormDetails.Copies2) = Type("Number") And PrintFormDetails.Copies2 > 0,
@@ -3312,9 +3318,9 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 				?(IsBlankString(PrintFormDetails.TemplateSynonym), PrintFormDetails.TemplateName, PrintFormDetails.TemplateSynonym)));
 		EndDo;
 				
-		// 
+		// Update the collection.
 		Cancel = TempCollectionForSinglePrintForm.Count() = 0;
-		// 
+		// A single print form is required but the entire collection is processed for backward compatibility.
 		For Each TempPrintForm In TempCollectionForSinglePrintForm Do 
 			
 			If Not TempPrintForm.OfficeDocuments = Undefined Then
@@ -3334,13 +3340,13 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 				EndIf;
 				PrintForm.Protection = TempPrintForm.SpreadsheetDocument.Protection;
 			Else
-				// 
+				// An error occurred when generating a print form.
 				Cancel = True;
 			EndIf;
 			
 		EndDo;
 		
-		// 
+		// Raise an exception based on the error.
 		If Cancel Then
 			ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(NStr(
 				"en = 'Cannot generate the ""%1"" print form. Contact the administrator.';"), TemplateName);
@@ -3352,12 +3358,12 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 	SSLSubsystemsIntegration.OnPrint(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObjects, OutputParameters);
 	PrintManagementOverridable.OnPrint(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObjects, OutputParameters);
 	
-	// 
+	// Set a number of spreadsheet document copies. Validate areas.
 	For Each PrintForm In PrintFormsCollection Do
 		CheckSpreadsheetDocumentLayoutByPrintObjects(PrintForm.SpreadsheetDocument, 
 			PrintObjects, PrintManagerName, PrintForm.TemplateName);
 		If AddedExternalPrintForms.Find(PrintForm.TemplateName) <> Undefined Then
-			PrintForm.Copies2 = 0; // 
+			PrintForm.Copies2 = 0; // For the forms that are automatically added.
 		EndIf;
 		If PrintForm.SpreadsheetDocument <> Undefined Then
 			PrintForm.SpreadsheetDocument.Copies = PrintForm.Copies2;
@@ -3373,7 +3379,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 	
 EndFunction
 
-// Generate printed forms for direct output to the printer.
+// Generates print forms for direct output to a printer.
 //
 Function GeneratePrintFormsForQuickPrint(PrintManagerName, TemplatesNames, ObjectsArray, PrintParameters) Export
 	
@@ -3404,8 +3410,8 @@ Function GeneratePrintFormsForQuickPrint(PrintManagerName, TemplatesNames, Objec
 	
 EndFunction
 
-// Generate printed forms for direct output to the printer
-// in server mode in a normal application.
+// Generate print forms for direct output to a printer in the server mode in an ordinary application.
+// 
 //
 Function GeneratePrintFormsForQuickPrintOrdinaryApplication(PrintManagerName, TemplatesNames, ObjectsArray, PrintParameters) Export
 	
@@ -3433,7 +3439,7 @@ Function GeneratePrintFormsForQuickPrintOrdinaryApplication(PrintManagerName, Te
 	
 EndFunction
 
-// Filters the list of print commands according to the set functional options.
+// Filters a list of print commands according to set functional options.
 Procedure DefinePrintCommandsVisibilityByFunctionalOptions(PrintCommands, Form = Undefined)
 	For Each PrintCommandDetails In PrintCommands Do
 		FunctionalOptionsOfPrintCommand = StrSplit(PrintCommandDetails.FunctionalOptions, ", ", False);
@@ -3471,7 +3477,7 @@ Procedure MessagePrintFormUnavailable(Object)
 	Common.MessageToUser(MessageText, Object);
 EndProcedure
 
-// Generates a package of documents to send to the printer.
+// Generates a document package for sending to the printer.
 Function DocumentsPackage(SpreadsheetDocuments, PrintObjects, PrintInSets, Copies = 1) Export
 	
 	RepresentableDocumentBatch = New RepresentableDocumentBatch;
@@ -3492,7 +3498,7 @@ Function DocumentsPackage(SpreadsheetDocuments, PrintObjects, PrintInSets, Copie
 				EndIf;
 				
 				SpreadsheetDocument = PrintForm.GetArea(Area.Top, , Area.Bottom);
-				FillPropertyValues(SpreadsheetDocument, PrintForm, SpreadsheetDocumentPropertiesToCopy());
+				CopyPropertiesOfTableDocument(SpreadsheetDocument, PrintForm);
 				
 				RepresentableDocumentBatch.Content.Add().Data = PackageWithOneSpreadsheetDocument(SpreadsheetDocument);
 			EndDo;
@@ -3501,7 +3507,7 @@ Function DocumentsPackage(SpreadsheetDocuments, PrintObjects, PrintInSets, Copie
 		For Each PrintForm In PrintFormsCollection Do
 			SpreadsheetDocument = New SpreadsheetDocument;
 			SpreadsheetDocument.Put(PrintForm);
-			FillPropertyValues(SpreadsheetDocument, PrintForm, SpreadsheetDocumentPropertiesToCopy());
+			CopyPropertiesOfTableDocument(SpreadsheetDocument, PrintForm);
 			RepresentableDocumentBatch.Content.Add().Data = PackageWithOneSpreadsheetDocument(SpreadsheetDocument);
 		EndDo;
 	EndIf;
@@ -3516,7 +3522,7 @@ Function DocumentsPackage(SpreadsheetDocuments, PrintObjects, PrintInSets, Copie
 	
 EndFunction
 
-// Wraps a table document in a package of displayed documents.
+// Wraps a spreadsheet document in a package of displayed documents.
 Function PackageWithOneSpreadsheetDocument(SpreadsheetDocument)
 	SpreadsheetDocumentAddressInTempStorage = PutToTempStorage(SpreadsheetDocument);
 	PackageWithOneDocument = New RepresentableDocumentBatch;
@@ -3529,7 +3535,7 @@ Function PackageWithOneSpreadsheetDocument(SpreadsheetDocument)
 	Return PackageWithOneDocument;
 EndFunction
 
-// Collects a list of print commands from multiple objects.
+// Generates a list of print commands from several objects.
 Procedure FillPrintCommandsForObjectsList(ListOfObjects, PrintCommands)
 	PrintCommandsSources = New Map;
 	For Each PrintCommandsSource In PrintCommandsSources() Do
@@ -3540,17 +3546,17 @@ Procedure FillPrintCommandsForObjectsList(ListOfObjects, PrintCommands)
 		If PrintCommandsSources[MetadataObject] = Undefined Then
 			Continue;
 		EndIf;
-		FormPrintCommands = ObjectPrintCommands(MetadataObject); // 
+		FormPrintCommands = ObjectPrintCommands(MetadataObject); // @skip-check query-in-loop - Minor cycle
 		
 		For Each PrintCommandToAdd In FormPrintCommands Do
 			If PrintCommandToAdd.isDisabled Then
 				Continue;
 			EndIf;
-			// 
+			// Search for a similar command that was added earlier.
 			FoundCommands = PrintCommands.FindRows(New Structure("UUID", PrintCommandToAdd.UUID));
 			
 			For Each ExistingPrintCommand In FoundCommands Do
-				// 
+				// If the command is in the list, supplement the object types, for which it is intended.
 				ObjectType = Type(StrReplace(MetadataObject.FullName(), ".", "Ref."));
 				If ExistingPrintCommand.PrintObjectsTypes.Find(ObjectType) = Undefined Then
 					ExistingPrintCommand.PrintObjectsTypes.Add(ObjectType);
@@ -3558,7 +3564,7 @@ Procedure FillPrintCommandsForObjectsList(ListOfObjects, PrintCommands)
 				If ValueIsFilled(PrintCommandToAdd.VisibilityConditions) Then
 					ExistingPrintCommand.VisibilityConditionsByObjectTypes.Insert(ObjectType, PrintCommandToAdd.VisibilityConditions);
 				EndIf;
-				// 
+				// Clear PrintManager if it is different for the existing command.
 				If ExistingPrintCommand.PrintManager <> PrintCommandToAdd.PrintManager Then
 					ExistingPrintCommand.PrintManager = "";
 				EndIf;
@@ -3788,12 +3794,18 @@ Function TemplateNameParts(FullTemplateName)
 	Return Result;
 EndFunction
 
-Function SpreadsheetDocumentPropertiesToCopy() Export
-	Return "PrintParametersKey,FitToPage,Output,PageHeight,DuplexPrinting,Protection,PrinterName,LanguageCode,
+Procedure CopyPropertiesOfTableDocument(Receiver, Val Source) Export
+	
+	Receiver.PrintParametersKey = Source.PrintParametersKey;
+	
+	PropertiesToCopy = "FitToPage,Output,PageHeight,DuplexPrinting,Protection,PrinterName,LanguageCode,
 	|Copies,PrintScale,FirstPageNumber,PageOrientation,TopMargin,LeftMargin,
 	|BottomMargin,RightMargin,Collate,HeaderSize,FooterSize,PageSize,
 	|PrintAccuracy,BackgroundPicture,BlackAndWhite,PageWidth,PerPage";
-EndFunction
+	
+	FillPropertyValues(Receiver, Source, PropertiesToCopy);
+	
+EndProcedure
 
 Function TemplatesDiffer(Val InitialTemplate, ModifiedTemplate) Export
 	Return Common.CheckSumString(NormalizeTemplate(InitialTemplate)) <> Common.CheckSumString(NormalizeTemplate(ModifiedTemplate));
@@ -3810,7 +3822,7 @@ EndFunction
 
 // Parameters:
 //  PrintObjects - ValueList
-//  
+//  SpreadsheetDocument - SpreadsheetDocument
 //
 Function AreasSignaturesAndSeals(PrintObjects) Export
 	
@@ -4002,7 +4014,7 @@ Procedure InsertPicturesToHTML(HTMLFileName) Export
 	PicturesDirectoryName = HTMLFile.BaseName + "_files";
 	PicturesDirectoryPath = StrReplace(HTMLFile.FullName, HTMLFile.Name, PicturesDirectoryName);
 	
-	// 
+	// The folder is only for pictures.
 	PicturesFiles = FindFiles(PicturesDirectoryPath, "*");
 	
 	For Each PicturesFile In PicturesFiles Do
@@ -4100,7 +4112,7 @@ Function PrintFormsByObjects(PrintForm, PrintObjects) Export
 			SpreadsheetDocument = PrintForm.GetArea(Area.Top, , Area.Bottom);
 			LastRow = SpreadsheetDocument.Area(SpreadsheetDocument.TableHeight, , SpreadsheetDocument.TableHeight, );
 			LastRow.PageBottom = False;
-			FillPropertyValues(SpreadsheetDocument, PrintForm, SpreadsheetDocumentPropertiesToCopy());
+			CopyPropertiesOfTableDocument(SpreadsheetDocument, PrintForm);
 		EndIf;
 		
 		Result.Insert(PrintObject.Value, SpreadsheetDocument);
@@ -4203,10 +4215,10 @@ Function OfficeDocumentFileName(Val FileName, Val Transliterate1 = False) Export
 	
 EndFunction
 
-// List of possible layout names:
-//  1) in the session language,
-//  2) in the configuration language,
-//  3) without specifying the language.
+// List of possible template names:
+//  1. In the session language
+//  2. In the configuration language
+//  3. Without specifying a language
 //
 Function TemplateNames(Val TemplateName, Val LanguageCode = Undefined)
 	
@@ -4227,24 +4239,24 @@ Function TemplateNames(Val TemplateName, Val LanguageCode = Undefined)
 	
 EndFunction
 
-// Constructor for the PrintForm Collection parameter of the Print procedure.
+// Constructor for the PrintFormsCollection of the Print procedure.
 //
 // Returns:
-//  ValueTable - :
-//   * TemplateName - String -  ID of the printed form;
-//   * UpperCaseName - String -  ID in uppercase characters for quick search;
-//   * TemplateSynonym - String -  presentation of the printed form;
-//   * SpreadsheetDocument - SpreadsheetDocument -  printed form;
-//   * Copies2 - Number -  number of copies to print;
-//   * Picture - Picture -  (not use);
-//   * FullTemplatePath - String -  used to quickly switch to editing the layout of a printed form;
-//   * PrintFormFileName - String -  file name;
-//                           - Map of KeyAndValue - :
-//                              ** Key - AnyRef -  link to the print object;
-//                              ** Value - String -  file name;
-//   * OfficeDocuments - Map of KeyAndValue - :
-//                         ** Key - String -  address in the temporary storage of binary data of the printed form;
-//                         ** Value - String -  name of the print form file.
+//  ValueTable - Empty collection of print forms.:
+//   * TemplateName - String - Print form ID.
+//   * UpperCaseName - String - Uppercase ID for quick search.
+//   * TemplateSynonym - String - Print form presentation.
+//   * SpreadsheetDocument - SpreadsheetDocument - Print form.
+//   * Copies2 - Number - Number of copies to be printed.
+//   * Picture - Picture - (not used)
+//   * FullTemplatePath - String - Used for quick access to print form template editing.
+//   * PrintFormFileName - String - Filename.
+//                           - Map of KeyAndValue - Filenames for each object:
+//                              ** Key - AnyRef - Reference to the print object.
+//                              ** Value - String - Filename.
+//   * OfficeDocuments - Map of KeyAndValue - Collection of print forms in the office documents format:
+//                         ** Key - String - Address in the temporary storage where the print form's binary data is stored.
+//                         ** Value - String - Print form filename.
 //
 Function PreparePrintFormsCollection(Val IDs) Export
 	
@@ -4274,12 +4286,12 @@ Function PreparePrintFormsCollection(Val IDs) Export
 	
 EndFunction
 
-// Prepare the structure of output parameters for the Manager of the object that forms printed forms.
+// Preparing a structure of output parameters for the object manager that generates print forms.
 //
 // Returns:
 //  Structure:
 //   * SendOptions - Structure:
-//     ** Recipient - 
+//     ** Recipient - Undefined, Arbitrary
 //     ** Subject - String
 //     ** Text - String
 //   * LanguageCode - String
@@ -4290,7 +4302,7 @@ Function PrepareOutputParametersStructure() Export
 	
 	OutputParameters = New Structure;
 	OutputParameters.Insert("FormCaption", "");
-	OutputParameters.Insert("PrintingBySetsIsAvailable", False); // 
+	OutputParameters.Insert("PrintingBySetsIsAvailable", False); // Obsolete.
 	OutputParameters.Insert("LanguageCode", Common.DefaultLanguageCode());
 	
 	EmailParametersStructure = New Structure("Recipient,Subject,Text", Undefined, "", "");
@@ -4344,7 +4356,19 @@ Procedure ExecutePrintToFileCommand(PrintCommand, SettingsForSaving, ListOfObjec
 		EndIf;
 		
 		If SettingsForSaving.SignatureAndSeal Then
-			AddSignatureAndSeal(PrintForm.SpreadsheetDocument, AreasSignaturesAndSeals);
+			DataPrintPatternPatternDocument = SpreadsheetDocumentSignaturesAndSeals(
+				PrintObjects, PrintForm.SpreadsheetDocument, Common.DefaultLanguageCode());
+			For Each SignaturePrintRegion In AreasSignaturesAndSeals Do
+				AreaName = SignaturePrintRegion.Key;
+				If DataPrintPatternPatternDocument[AreaName] = Undefined Then
+					DataPrintPatternPatternDocument[AreaName] = New Map();
+				EndIf;
+				For Each Item In SignaturePrintRegion.Value Do
+					DataPrintPatternPatternDocument[AreaName][Item.Key] = Item.Value;
+				EndDo;
+			EndDo;
+			
+			AddSignatureAndSeal(PrintForm.SpreadsheetDocument, DataPrintPatternPatternDocument);
 		Else
 			RemoveSignatureAndSeal(PrintForm.SpreadsheetDocument);
 		EndIf;
@@ -4454,7 +4478,7 @@ Function PrintFormTemplates(AreDataProcessorsAndReportsOnly = False) Export
 EndFunction
 
 // Returns:
-//  SpreadsheetDocument, BinaryData - 
+//  SpreadsheetDocument, BinaryData - Template.
 //
 Function FindTemplate(TemplatePath, LanguageCode, SuppliedOnly = False)
 	
@@ -4558,7 +4582,7 @@ Procedure SetTheLayoutLanguage(Template, LanguageCode)
 	
 EndProcedure
 
-// Generates a printable form.
+// Generates print forms.
 //
 // Parameters:
 //  ObjectsArray - See PrintManagementOverridable.OnPrint.ObjectsArray
@@ -4580,8 +4604,8 @@ Procedure Print(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObject
 		PrintForm.OutputInOtherLanguagesAvailable = True;
 		PrintForm.FullTemplatePath = PrintForm.TemplateName;
 		PrintForm.TemplateSynonym = TemplatePresentation(PrintForm.FullTemplatePath, LanguageCode);
-		//  
-		// 
+		// @skip-check query-in-loop - A few loop iterations that query the table 
+		// "InformationRegister.UserPrintTemplates", which contains just a handful of records.
 		Template = PrintFormTemplate(PrintForm.FullTemplatePath, LanguageCode); 
 		
 		If TypeOf(Template) = Type("BinaryData") Then
@@ -5436,8 +5460,8 @@ Function TemplateExists(TemplatePath)
 EndFunction
 
 // Parameters:
-//  
-//  
+//  DetailsData - DataCompositionDetailsData
+//  Details - DataCompositionDetailsID - Drill-down item.
 //
 // Returns:
 //  Structure:
@@ -5467,8 +5491,8 @@ EndFunction
 
 // Parameters:
 //   FieldList - Map of KeyAndValue:
-//    ** 
-//    ** 
+//    ** Key - String
+//    ** Key - String
 //   DetailsItem - DataCompositionFieldDetailsItem
 //                      - DataCompositionGroupDetailsItem
 //
@@ -5892,7 +5916,7 @@ Function RowsCount(Table, ColumnName = Undefined) Export
 	
 EndFunction
 
-Function SumByColumn(Table, ColumnName = Undefined) Export // 
+Function SumByColumn(Table, ColumnName = Undefined) Export // ACC:299 - Formula constructor function handler.
 	
 	If TypeOf(Table) = Type("Map") Then
 		Value = 0;
@@ -5909,7 +5933,7 @@ Function SumByColumn(Table, ColumnName = Undefined) Export //
 	
 EndFunction
 
-Function ColumnMax(Table, ColumnName = Undefined) Export // 
+Function ColumnMax(Table, ColumnName = Undefined) Export // ACC:299 - Formula constructor function handler.
 	
 	If TypeOf(Table) = Type("Map") Then
 		Value = Undefined;
@@ -5928,7 +5952,7 @@ Function ColumnMax(Table, ColumnName = Undefined) Export //
 	
 EndFunction
 
-Function ColumnMin(Table, ColumnName = Undefined) Export // 
+Function ColumnMin(Table, ColumnName = Undefined) Export // ACC:299 - Formula constructor function handler.
 	
 	If TypeOf(Table) = Type("Map") Then
 		Value = Undefined;
@@ -5947,7 +5971,7 @@ Function ColumnMin(Table, ColumnName = Undefined) Export //
 	
 EndFunction
 
-Function ColumnAverage(Table, ColumnName = Undefined) Export // 
+Function ColumnAverage(Table, ColumnName = Undefined) Export // ACC:299 - Formula constructor function handler.
 	
 	If TypeOf(Table) = Type("Map") Then
 		Value = 0;
@@ -6460,7 +6484,7 @@ Function PictureFromFile(File)
 EndFunction
 
 // Returns:
-//  SpreadsheetDocument, BinaryData - 
+//  SpreadsheetDocument, BinaryData - Template.
 //
 Function TemplatePresentation(TemplatePath, LanguageCode)
 	
@@ -6614,7 +6638,7 @@ Function LayoutSchemeDataAdditionalDetailsAndDetails(MetadataObjectName)
 	
 EndFunction
 
-// 
+// Gets contact information for a list of monotype objects.
 //
 Function ContactInformation(DataSources, DataCompositionSchemaId, LanguageCode, AdditionalParameters)
 	
@@ -6701,7 +6725,7 @@ Function ContactInformation(DataSources, DataCompositionSchemaId, LanguageCode, 
 	
 EndFunction
 
-// 
+// Gets additional attributes and information records for a list of monotype objects.
 //
 Function AdditionalAttributesAndInfo(Objects, DataCompositionSchemaId, LanguageCode)
 	
@@ -7061,13 +7085,13 @@ Procedure AddAnOperatorToAGroup(Group, Id, Val Presentation = Undefined, Type = 
 
 EndProcedure
 
-// 
+// Apply parameters to the tree.
 // 
 // Parameters:
 //  ParameterValues - See SpecifyParameters.ParameterValues
 //  XMLTree - See PrintManagementInternal.ReadXMLIntoTree
 //  TreeOfTemplate - See InitializeTemplateOfDCSOfficeDoc
-//  ShouldAddLinks - Boolean - 
+//  ShouldAddLinks - Boolean - Flag indicating whether to add links.
 //
 Procedure SetParametersInTree(Val ParameterValues, XMLTree, TreeOfTemplate = Undefined, ShouldAddLinks = True)
 	

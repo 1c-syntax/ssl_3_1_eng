@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-// The procedure registers the need to perform database update handlers
-// after receiving data from each rib peripheral node.
+// The procedure registers the need to execute infobase update handlers
+// after getting data from each subordinate DIB node.
 //
 Procedure RegisterInfobaseDataUpdate() Export
 	
@@ -55,11 +57,11 @@ Procedure RegisterInfobaseDataUpdate() Export
 	
 EndProcedure
 
-// The procedure executes the handlers registered for the event nodes in the exchange plans.
+// The procedure executes handlers registered for exchange plan node events.
 //
 // Parameters:
-//  InfobaseNode - ExchangePlanRef -  node of the information base for executing handlers.
-//  Event - String -  the name of the event for which you want to execute handlers.
+//  InfobaseNode - ExchangePlanRef - an infobase node for handler execution.
+//  Event - String - a name of event whose handlers are to be executed.
 //
 Procedure ExecuteHandlers(InfobaseNode, Event) Export
 	

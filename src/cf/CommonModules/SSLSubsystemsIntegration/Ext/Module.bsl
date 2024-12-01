@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region ForCallsFromOtherSubsystems
 
-// Defines events that other libraries can subscribe to.
+// Defines events, to which other libraries can subscribe.
 //
 // Returns:
-//   Structure - 
-//               
+//   Structure - structure property keys are names of events, to which
+//               libraries can be subscribed.
 //
 Function SSLEvents() Export
 
@@ -58,11 +60,11 @@ Function SSLEvents() Export
 	// AddIns
 	Events.Insert("OnDefineUsedAddIns", False);
 	
-	// BatchEditObjects
+	// BatchObjectsModification
 	Events.Insert("OnDefineObjectsWithEditableAttributes", False);
 	Events.Insert("OnDefineEditableObjectAttributes", False);
 	
-	// Period_Closing_Dates
+	// PeriodClosingDates
 	Events.Insert("OnFillPeriodClosingDatesSections", False);
 	Events.Insert("OnFillDataSourcesForPeriodClosingCheck", False);
 	
@@ -89,7 +91,7 @@ Function SSLEvents() Export
 	Events.Insert("OnSetUpSubordinateDIBNode", False);
 	
 	// IBVersionUpdate
-	Events.Insert("OnAddUpdateHandlers", False); // 
+	Events.Insert("OnAddUpdateHandlers", False); // Intended for compatibility with CTL v1.2.2.
 	Events.Insert("AfterUpdateInfobase", False);
 	Events.Insert("OnGetUpdatePriority", False);
 	Events.Insert("OnPopulateObjectsPlannedForDeletion", False);
@@ -97,7 +99,7 @@ Function SSLEvents() Export
 	// Print
 	Events.Insert("OnDefinePrintSettings", False);
 	Events.Insert("OnPrepareTemplateListInOfficeDocumentServerFormat", False);
-	Events.Insert("OnDefineObjectsWithPrintCommands", False); // Deprecated. 
+	Events.Insert("OnDefineObjectsWithPrintCommands", False); // Deprecated. Obsolete. Use OnDefinePrintSettings instead. 
 	Events.Insert("BeforeAddPrintCommands", False);
 	Events.Insert("OnGetPrintCommandListSettings", False);
 	Events.Insert("OnPrint", False);
@@ -141,7 +143,7 @@ Function SSLEvents() Export
 	Events.Insert("BeforeGetEmailMessagesStatuses", False); 
 	Events.Insert("AfterGetEmailMessagesStatuses", False);	
 	
-	// FilesOperations
+	// StoredFiles
 	Events.Insert("OnCreateFilesListForm", False);
 	Events.Insert("OnCreateFilesItemForm", False);
 	Events.Insert("OnDefineFileSynchronizationExceptionObjects", False);
@@ -181,10 +183,10 @@ EndFunction
 
 #Region CTLEventHandlers
 
-// 
-// 
+// Handle software events that occur in CTL subsystems.
+// Intended only for calls from CTL to SSL.
 
-// Defines events that this library is subscribed to.
+// Defines events, to which this library is subscribed.
 //
 // Parameters:
 //  Subscriptions - See CTLSubsystemsIntegration.EventsCTL.
@@ -208,22 +210,22 @@ Procedure OnDefineEventsSubscriptionsCTL(Subscriptions) Export
 	Subscriptions.AfterImportInfobaseUser = True;
 	Subscriptions.AfterImportInfobaseUsers = True;
 	
-	// SaaSOperations_CoreSaaS
+	// SaaS_CoreSaaS
 	Subscriptions.OnFillIIBParametersTable = True;
 	Subscriptions.OnDefineSharedDataExceptions = True;
 	Subscriptions.OnDefineUserAlias = True;
 
-	// SaaSOperations_MessagesExchange
+	// SaaS_MessageExchange
 	Subscriptions.OnDefineMessagesChannelsHandlers  = True;
 	Subscriptions.RecordingIncomingMessageInterfaces  = True;
 	Subscriptions.RecordingOutgoingMessageInterfaces = True;
 	
-	// SaaSOperations_JobsQueue
+	// SaaS_JobsQueue
 	Subscriptions.OnGetTemplateList = True;
 	Subscriptions.OnDefineHandlerAliases = True;
 	Subscriptions.OnDefineScheduledJobsUsage = True;
 	
-	// SaaSOperations_SuppliedData
+	// SaaS_SuppliedData
 	Subscriptions.OnDefineSuppliedDataHandlers = True;
 
 EndProcedure
@@ -354,7 +356,12 @@ Procedure OnFillTypesExcludedFromExportImport(Types) Export
 			"InfobaseUpdateInternalSaaS");
 		ModuleInfobaseUpdateInternalSaaS.OnFillTypesExcludedFromExportImport(Types);
 	EndIf;
-
+	
+	If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
+		ModuleEmailOperationsInternal = Common.CommonModule("EmailOperationsInternal");
+		ModuleEmailOperationsInternal.OnFillTypesExcludedFromExportImport(Types);
+	EndIf;
+	
 	If Common.SubsystemExists(
 		"StandardSubsystems.SaaSOperations.FilesOperationsSaaS") Then
 		ModuleFilesOperationsInternalSaaS = Common.CommonModule("FilesOperationsInternalSaaS");
@@ -551,10 +558,10 @@ Procedure OnFillIIBParametersTable(Val ParametersTable) Export
 	
 EndProcedure
 
-//  
+// Overrides shared data exceptions for the SaaSTechnology subsystem 
 // 
 // Parameters:
-//  Exceptions - Array of MetadataObject -  exceptions.
+//  Exceptions - Array of MetadataObject - Exceptions.
 //
 Procedure OnDefineSharedDataExceptions(Exceptions) Export
 
@@ -565,11 +572,11 @@ Procedure OnDefineSharedDataExceptions(Exceptions) Export
 
 EndProcedure
 
-// Allows you to override the result of the function of Remoteupdateservice.The pseudonym of the information database user.
+// Allows to override the result of the SaaS.InfobaseUserAlias function.
 //
 // Parameters:
-//   UserIdentificator - UUID -  user ID.
-//   Alias - String -  the alias of the user of the information base to display in the interface.
+//   UserIdentificator - UUID - user ID.
+//   Alias - String - Infobase user alias to be shown in interface.
 //
 Procedure OnDefineUserAlias(UserIdentificator, Alias) Export
 
@@ -787,7 +794,12 @@ Procedure OnDefineScheduledJobsUsage(UsageTable) Export
 		ModuleFilesOperationsInternalSaaS = Common.CommonModule("FilesOperationsInternalSaaS");
 		ModuleFilesOperationsInternalSaaS.OnDefineScheduledJobsUsage(UsageTable);
 	EndIf;
-
+	
+	If Common.SubsystemExists("StandardSubsystems.ScheduledJobs") Then
+		ModuleScheduledJobsInternal = Common.CommonModule("ScheduledJobsInternal");
+		ModuleScheduledJobsInternal.OnDefineScheduledJobsUsage(UsageTable);
+	EndIf;
+	
 EndProcedure
 
 #EndRegion
@@ -836,14 +848,14 @@ EndProcedure
 #EndRegion
 
 #Region OSLEventHandlers
-// 
-// 
+// Handle software events that occur in Online Support subsystems.
+// Intended only for calls from Online Support to SSL.
 
-// Defines events that this library is subscribed to.
+// Defines events, to which this library is subscribed.
 //
 // Parameters:
-//  Subscriptions - Structure -  the structure property keys are the names of events that
-//           this library subscribes to.
+//  Subscriptions - Structure - structure property keys are names of events, to which
+//           this library is subscribed.
 //
 Procedure OnDefineEventsSubscriptionsOSL(Subscriptions) Export
 	
@@ -1049,6 +1061,11 @@ Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
 		ModulePeriodClosingDatesInternal = Common.CommonModule("PeriodClosingDatesInternal");
 		ModulePeriodClosingDatesInternal.OnAddSessionParameterSettingHandlers(Handlers);
 	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
+		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
+		ModuleAdditionalReportsAndDataProcessors.OnAddSessionParameterSettingHandlers(Handlers);
+	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
 		ModuleContactsManagerInternal = Common.CommonModule(
@@ -1197,11 +1214,11 @@ Procedure OnDefineSubordinateObjects(SubordinateObjects) Export
 
 EndProcedure
 
-// 
+// Adds related subordinate objects to a duplicate collection.
 //
 // Parameters:
 //  ReplacementPairs		 - See Common.ReplaceReferences.ReplacementPairs
-//   See Common.RefsReplacementParameters
+//  ReplacementParameters - See Common.RefsReplacementParameters
 //
 Procedure BeforeSearchForUsageInstances(ReplacementPairs, ExecutionParameters) Export
 
@@ -1934,7 +1951,7 @@ Procedure BeforeStartApplication() Export
 
 EndProcedure
 
-// See also updating the information base undefined.When defining settings
+// See also InfobaseUpdateOverridable.OnDefineSettings
 //
 // Parameters:
 //  Objects - Array of MetadataObject
@@ -2265,11 +2282,11 @@ Procedure OnDefineObjectsWithReportCommands(Objects) Export
 	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
-		VolumeIntegrityCheckModule = Common.CommonModule("Reports.VolumeIntegrityCheck");
-		VolumeIntegrityCheckModule.OnDefineObjectsWithReportCommands(Objects);
+		ModuleVolumeIntegrityCheck = Common.CommonModule("Reports.VolumeIntegrityCheck");
+		ModuleVolumeIntegrityCheck.OnDefineObjectsWithReportCommands(Objects);
 		
-		VolumeOfUnnecessaryFilesModule = Common.CommonModule("Reports.IrrelevantFilesVolume");
-		VolumeOfUnnecessaryFilesModule.OnDefineObjectsWithReportCommands(Objects);
+		ModuleIrrelevantFilesVolume = Common.CommonModule("Reports.IrrelevantFilesVolume");
+		ModuleIrrelevantFilesVolume.OnDefineObjectsWithReportCommands(Objects);
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.ReportMailing") Then
@@ -2371,9 +2388,9 @@ EndProcedure
 #Region AddIns
 
 // Parameters:
-//  Components - ValueTable - :
-//      * Id          - String - 
-//      * AutoUpdate - Boolean - 
+//  Components - ValueTable - List of add-ins used in the configuration:
+//      * Id          - String - Add-in ID (a 50-character-long string).
+//      * AutoUpdate - Boolean - Autoupdate flag.
 //
 Procedure OnDefineUsedAddIns(Components) Export
 	
@@ -2588,12 +2605,12 @@ EndProcedure
 
 #Region AdditionalReportsAndDataProcessors
 
-// Sets the operating mode for the add. report or processing.
+// Sets an operation mode for an additional report or a data processor.
 //
 // Parameters:
-//   SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors -  an additional report
-//                         or processing for which you need to set the operating mode.
-//   AttachmentMode      - DefinedType.SafeMode -  operating mode additional. report or processing.
+//   SuppliedDataProcessor - CatalogRef.SuppliedAdditionalReportsAndDataProcessors - an additional report
+//                         or a data processor that requires setting an operation mode.
+//   AttachmentMode      - DefinedType.SafeMode - operation mode of an additional report or a data processor.
 //
 Procedure OnSetAdditionalReportOrDataProcessorAttachmentModeInDataArea(SuppliedDataProcessor,
 	AttachmentMode) Export
@@ -2608,15 +2625,15 @@ EndProcedure
 
 #Region AdditionalReportsAndDataProcessorsForInternalUsage
 
-// Called when determining whether the current user has the right to add an additional
-// report or processing to the data area.
+// Call to determine whether the current user has right to add an additional
+// report or data processor to a data area.
 //
 // Parameters:
-//  AdditionalDataProcessor - CatalogObject.AdditionalReportsAndDataProcessors -  a directory element
-//                            that is recorded by the user.
-//  Result               - Boolean -  this parameter is set to the permission flag in this procedure,
-//  StandardProcessing    - Boolean -  this parameter in this procedure sets the flag for performing
-//                            standard permission check processing.
+//  AdditionalDataProcessor - CatalogObject.AdditionalReportsAndDataProcessors - catalog item
+//                            written by user.
+//  Result               - Boolean - Indicates whether the required rights are granted.
+//  StandardProcessing    - Boolean - flag specifying whether
+//                            standard processing is used to validate rights.
 //
 Procedure OnCheckInsertRight(Val AdditionalDataProcessor, Result, StandardProcessing) Export
 
@@ -2639,14 +2656,14 @@ Procedure OnCheckInsertRight(Val AdditionalDataProcessor, Result, StandardProces
 
 EndProcedure
 
-// Called when checking whether an additional report can be loaded or processed from a file.
+// Called to check whether an additional report or data processor can be imported from file.
 //
 // Parameters:
 //  AdditionalDataProcessor - CatalogRef.AdditionalReportsAndDataProcessors,
-//  Result - Boolean -  this parameter in this procedure sets the flag for whether
-//    an additional report can be loaded or processed from a file,
-//  StandardProcessing - Boolean -  this parameter in this procedure sets the flag for performing
-//    standard processing to check whether an additional report can be loaded or processed from a file.
+//  Result - Boolean - Indicates whether additional reports or data processors can be
+//    imported from files.
+//  StandardProcessing - Boolean - Indicates whether
+//    standard processing checks if additional reports or data processors can be imported from files.
 //
 Procedure OnCheckCanImportDataProcessorFromFile(Val AdditionalDataProcessor, Result, StandardProcessing) Export
 
@@ -2669,14 +2686,14 @@ Procedure OnCheckCanImportDataProcessorFromFile(Val AdditionalDataProcessor, Res
 
 EndProcedure
 
-// Called when checking whether an additional report can be uploaded or processed to a file.
+// Called to check whether an additional report or data processor can be exported to a file.
 //
 // Parameters:
 //  AdditionalDataProcessor - CatalogRef.AdditionalReportsAndDataProcessors,
-//  Result - Boolean -  this parameter in this procedure sets the flag for whether
-//    an additional report can be uploaded or processed to a file,
-//  StandardProcessing - Boolean -  this parameter in this procedure sets the flag for performing
-//    standard processing to check whether an additional report can be uploaded or processed to a file.
+//  Result - Boolean - Indicates whether additional reports or data processors can be
+//    exported to files.
+//  StandardProcessing - Boolean - Indicates whether
+//    standard processing checks if additional reports or data processors can be exported to files.
 //
 Procedure OnCheckCanExportDataProcessorToFile(Val AdditionalDataProcessor, Result, StandardProcessing) Export
 
@@ -2699,8 +2716,8 @@ Procedure OnCheckCanExportDataProcessorToFile(Val AdditionalDataProcessor, Resul
 
 EndProcedure
 
-// Fills in the types of publishing additional reports and processing that are not available for use
-// in the current database model.
+// Fills additional report or data processor publication kinds that cannot be used
+// in the current infobase model.
 //
 // Parameters:
 //  NotAvailablePublicationKinds - Array of String
@@ -2724,14 +2741,14 @@ Procedure OnFillUnavailablePublicationKinds(Val NotAvailablePublicationKinds) Ex
 
 EndProcedure
 
-// Called from the event Before writing the directory
-//  Additional processing reports, checks the validity of changing the details
-//  of elements in this directory for additional treatments received from
-//  the catalog of additional treatments of the service Manager.
+// It is called from the BeforeWriteEvent of catalog
+//  AdditionalReportsAndDataProcessors. Validates changes to the catalog item
+//  attributes for additional data processors retrieved
+//  from the additional data processor directory from the service manager.
 //
 // Parameters:
 //  Source - CatalogObject.AdditionalReportsAndDataProcessors,
-//  Cancel - Boolean -  flag for refusing to write a directory element.
+//  Cancel - Boolean - Indicates whether writing a catalog item must be canceled.
 //
 Procedure BeforeWriteAdditionalDataProcessor(Source, Cancel) Export
 
@@ -2750,11 +2767,11 @@ Procedure BeforeWriteAdditionalDataProcessor(Source, Cancel) Export
 
 EndProcedure
 
-// Called from the event before Deleting the additional reports and Processing reference list.
+// Called from the BeforeDelete event of the AdditionalReportsAndDataProcessors catalog.
 //
 // Parameters:
 //  Source - CatalogObject.AdditionalReportsAndDataProcessors,
-//  Cancel - Boolean -  flag for refusing to delete a directory element from the information database.
+//  Cancel - Boolean - Indicates whether the catalog item deletion from the infobase must be canceled.
 //
 Procedure BeforeDeleteAdditionalDataProcessor(Source, Cancel) Export
 
@@ -2767,8 +2784,8 @@ Procedure BeforeDeleteAdditionalDataProcessor(Source, Cancel) Export
 
 EndProcedure
 
-// Called when receiving registration data for a new additional report
-// or processing.
+// Called to get registration data for a new additional report
+// or data processor.
 //
 Procedure OnGetRegistrationData(Object, RegistrationData, StandardProcessing) Export
 
@@ -2782,14 +2799,14 @@ Procedure OnGetRegistrationData(Object, RegistrationData, StandardProcessing) Ex
 
 EndProcedure
 
-// Called when external processing is enabled.
+// Called to attach an external data processor.
 //
 // Parameters:
 //  Ref - CatalogRef.AdditionalReportsAndDataProcessors,
-//  StandardProcessing - Boolean -  the flag need to perform the standard processing of the connection
-//    external processing,
-//  Result - String -  name of the connected external report or processing (if
-//    the default Processing parameter was set to False in the handler).
+//  StandardProcessing - Boolean - Indicates whether the standard processing is required to attach an
+//    external data processor,
+//  Result - String - a name of the attached external report or data processor (provided that the
+//    handler StandardProcessing parameter is set to False).
 //
 Procedure OnAttachExternalDataProcessor(Val Ref, StandardProcessing, Result) Export
 
@@ -2803,15 +2820,15 @@ Procedure OnAttachExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 
 EndProcedure
 
-// Called when creating an external processing object.
+// Called to create an external data processor object.
 //
 // Parameters:
 //  Ref - CatalogRef.AdditionalReportsAndDataProcessors,
-//  StandardProcessing - Boolean -  the flag need to perform the standard processing of the connection
-//    external processing.
+//  StandardProcessing - Boolean - Indicates whether the standard processing is required to attach an
+//    external data processor.
 //  Result - ExternalDataProcessor
-//            - ExternalReport - 
-//    
+//            - ExternalReport - an object of the attached external report or
+//    data processor (provided that the handler StandardProcessing parameter is set to False).
 //
 Procedure OnCreateExternalDataProcessor(Val Ref, StandardProcessing, Result) Export
 
@@ -2825,17 +2842,17 @@ Procedure OnCreateExternalDataProcessor(Val Ref, StandardProcessing, Result) Exp
 
 EndProcedure
 
-// Called before recording changes to the routine task for additional reports and processes in the service model.
+// Called before writing changes of a scheduled job of additional reports and data processors in SaaS.
 //
 // Parameters:
-//   Object - CatalogObject.AdditionalReportsAndDataProcessors -  the object of the report or additional processing.
-//   Command - CatalogTabularSectionRow.AdditionalReportsAndDataProcessors.Commands -  command description.
+//   Object - CatalogObject.AdditionalReportsAndDataProcessors - an object of an additional report or a data processor.
+//   Command - CatalogTabularSectionRow.AdditionalReportsAndDataProcessors.Commands - a command details.
 //   Job - ScheduledJob
-//           - ValueTableRow - 
-//       
-//   Changes - Structure - 
-//       
-//       
+//           - ValueTableRow - Scheduled job details.
+//       See the ScheduledJobsServer.Job() function for the return value details.
+//   Changes - Structure - Job attribute values to be modified.
+//       See details of the second parameter of the ScheduledJobsServer.ChangeJob procedure.
+//       If the value is Undefined, the scheduled job stays unchanged.
 //
 Procedure BeforeUpdateJob(Object, Command, Job, Changes) Export
 
@@ -3043,11 +3060,11 @@ Procedure OnDefineChecks(ChecksGroups, Checks) Export
 
 EndProcedure
 
-// Allows you to define a list of objects to ignore when performing
+// Allows to define the list of objects that must be ignored when executing
 // system checks.
 //
 // Parameters:
-//  Objects - Array of MetadataObject -  list of objects.
+//  Objects - Array of MetadataObject - a list of objects.
 //
 Procedure OnDefineObjectsToExcludeFromCheck(Objects) Export
 	
@@ -3415,14 +3432,14 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion, Val Compl
 
 EndProcedure
 
-// Allows you to redefine the update priority, which is obtained by default from the update information constant.
-// For example, the BTS can override the update priority for each data area in service mode.
+// With it, you can override update priority. The default priority order is stored in the IBUpdateInfo constant.
+// For example, CTL can override update priority for each data area in SaaS mode.
 //
 // Parameters:
-//  Priority - String - :
-//              
-//              
-//              
+//  Priority - String - a new update priority value (return value):
+//              "UserWork" - user processing priority (single thread);
+//              "DataProcessing" - data processing priority (several threads);
+//              Another - apply the priority as specified in the IBUpdateInfo constant (do not override).
 //
 Procedure OnGetUpdatePriority(Priority) Export
 
@@ -4178,7 +4195,7 @@ Procedure OnGetOtherSettings(UserInfo, Settings) Export
 	
 	StandardSubsystemsServer.OnGetOtherSettings(UserInfo, Settings);
 	
-	// 
+	// Adding additional report and data processor settings.
 	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
 		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
 		ModuleAdditionalReportsAndDataProcessors.OnGetOtherSettings(UserInfo, Settings);
@@ -4282,15 +4299,15 @@ EndProcedure
 
 #Region UsersForInternalUsage
 
-// Called if the user could not be found in the directory that
-// corresponds to the current is user. You can also enable automatic
-// creation of the users directory item for the current user.
+// The procedure is called if the current infobase user
+// cannot be found in the user catalog. For such cases, you can enable auto
+// creation of a Users catalog item for the current user.
 //
 // Parameters:
-//  CreateUser - Boolean -  the return value. If you specify True,
-//       a user will be automatically created in the directory.
-//       You can redefine the properties of the user being created before writing
-//       it in the procedure for automatic creation of the user's property in the manual.
+//  CreateUser - Boolean - a return value. If True,
+//       a new user is created in the Users catalog.
+//       To override the default user settings before its creation,
+//       use OnAutoCreateCurrentUserInCatalog.
 //
 Procedure OnNoCurrentUserInCatalog(CreateUser) Export
 
@@ -4301,11 +4318,11 @@ Procedure OnNoCurrentUserInCatalog(CreateUser) Export
 
 EndProcedure
 
-// Called when the users directory element is automatically created
-// when the user interactively logs in, or when the user first accesses it from the code.
+// The procedure is called when a Users catalog item is created automatically as a result of
+// interactive sign in or on the call from code.
 //
 // Parameters:
-//  NewUser - CatalogObject.Users -  new user before recording.
+//  NewUser - CatalogObject.Users - a new user before recording.
 //
 Procedure OnAutoCreateCurrentUserInCatalog(NewUser) Export
 
@@ -4317,12 +4334,12 @@ Procedure OnAutoCreateCurrentUserInCatalog(NewUser) Export
 
 EndProcedure
 
-// Called when a new user of the information database is authorized.
+// The procedure is called upon authorization of a new infobase user.
 //
 // Parameters:
-//  IBUser - InfoBaseUser -  current user of the information base,
-//  StandardProcessing - Boolean -  the value can be set inside the handler. in this case
-//    , the standard authorization processing for a new is user will not be performed.
+//  IBUser - InfoBaseUser - the current infobase user,
+//  StandardProcessing - Boolean - the value can be set in the handler. In this case,
+//    standard processing of new infobase user authorization is not executed.
 //
 Procedure OnAuthorizeNewIBUser(IBUser, StandardProcessing) Export
 
@@ -4334,7 +4351,7 @@ Procedure OnAuthorizeNewIBUser(IBUser, StandardProcessing) Export
 
 EndProcedure
 
-// Called at the beginning of processing the user of the information database.
+// The procedure is called at the start of infobase user processing.
 //
 // Parameters:
 //  ProcessingParameters - See UsersInternal.StartIBUserProcessing.ProcessingParameters.
@@ -4350,10 +4367,10 @@ Procedure OnStartIBUserProcessing(ProcessingParameters, IBUserDetails) Export
 
 EndProcedure
 
-// Called before recording the database user.
+// Called before writing an infobase user.
 //
 // Parameters:
-//  IBUser - InfoBaseUser -  the user to be recorded.
+//  IBUser - InfoBaseUser - the user to be written.
 //
 Procedure BeforeWriteIBUser(IBUser) Export
 
@@ -4364,10 +4381,10 @@ Procedure BeforeWriteIBUser(IBUser) Export
 
 EndProcedure
 
-// Called before deleting the database user.
+// Called before deleting an infobase user.
 //
 // Parameters:
-//  IBUser - InfoBaseUser -  the user to be deleted.
+//  IBUser - InfoBaseUser - the user to be deleted.
 //
 Procedure BeforeDeleteIBUser(IBUser) Export
 
@@ -4378,9 +4395,9 @@ Procedure BeforeDeleteIBUser(IBUser) Export
 
 EndProcedure
 
-// 
-// 
-// 
+// Overrides comment text during the authorization of an infobase user.
+// User must be created in Designer and have administrative rights. The procedure is called by Users.AuthenticateCurrentUser().
+// The comment is written to the event log.
 // 
 // Parameters:
 //  Comment  - String
@@ -4394,15 +4411,15 @@ Procedure AfterWriteAdministratorOnAuthorization(Comment) Export
 
 EndProcedure
 
-// Defines the actions required after installing the user
-// of the information base from the user or an external user,
-// i.e. when changing the user ID of the user ID To a non-empty one.
+// Redefines the actions that are required after assigning an infobase
+// user to a user or external user
+// (when filling the IBUserID attribute becomes filled).
 //
-// For example, you can update roles.
+// For example, these actions can include the update of roles.
 // 
 // Parameters:
 //  Ref - CatalogRef.Users
-//         - CatalogRef.ExternalUsers -  user.
+//         - CatalogRef.ExternalUsers - user.
 //
 Procedure AfterSetIBUser(Ref, ServiceUserPassword) Export
 
@@ -4413,13 +4430,13 @@ Procedure AfterSetIBUser(Ref, ServiceUserPassword) Export
 
 EndProcedure
 
-// Allows you to redefine the question text before the first administrator entry.
-//  Called from the handler Before writing the user form.
-//  The call is executed if the edit roles () is Disabled and
-// the number of users in the information database is zero.
+// Allows you to override the question text that users see before saving the first administrator.
+//  The procedure is called from the BeforeWrite handler in the user form.
+//  The procedure is called if RoleEditProhibition() is set and
+// the number of infobase users is zero.
 // 
 // Parameters:
-//  QueryText - String -  question text that can be redefined.
+//  QueryText - String - the text of question to be overridden.
 //
 Procedure OnDefineQuestionTextBeforeWriteFirstAdministrator(QueryText) Export
 
@@ -4430,12 +4447,12 @@ Procedure OnDefineQuestionTextBeforeWriteFirstAdministrator(QueryText) Export
 
 EndProcedure
 
-// Defines actions when creating an administrator in the Users subsystem, as well
-// as when logging in a user with administrator roles that could be assigned in the configurator.
+// Redefines actions when creating the administrator in the Users subsystem
+// and when a user signs in with administrator roles, which might have been assigned in Designer.
 //
 // Parameters:
 //  Administrator - CatalogRef.Users
-//  Refinement     - String -  explains the conditions under which the administrator was created.
+//  Refinement     - String - clarifies the conditions of administrator creation.
 //
 Procedure OnCreateAdministrator(Administrator, Refinement) Export
 
@@ -4446,16 +4463,16 @@ Procedure OnCreateAdministrator(Administrator, Refinement) Export
 
 EndProcedure
 
-// Defines the actions required after adding or changing a user,
+// Redefines the actions that are required after adding or modifying a user,
 // user group, external user, or external user group.
 //
 // Parameters:
 //  Ref     - CatalogRef.Users
 //             - CatalogRef.UserGroups
 //             - CatalogRef.ExternalUsers
-//             - CatalogRef.ExternalUsersGroups - 
+//             - CatalogRef.ExternalUsersGroups - changed object.
 //
-//  IsNew   - Boolean -  if True, the object was added, otherwise changed.
+//  IsNew   - Boolean - the object is added if True, modified otherwise.
 //
 Procedure AfterAddChangeUserOrGroup(Ref, IsNew) Export
 
@@ -4466,17 +4483,17 @@ Procedure AfterAddChangeUserOrGroup(Ref, IsNew) Export
 
 EndProcedure
 
-// 
-// 
+// Redefines the actions required after completing link updates
+// in the registers "UserGroupCompositions" and "UserGroupsHierarchy".
 //
 // Parameters:
 //  ItemsToChange - Array of CatalogRef.Users
 //                     - Array of CatalogRef.ExternalUsers -
-//                       
+//                       Users who edited the groups.
 //
 //  ModifiedGroups   - Array of CatalogRef.UserGroups
 //                     - Array of CatalogRef.ExternalUsersGroups -
-//                       
+//                       New groups and groups whose content or parents were changes.
 //                       
 //
 Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
@@ -4495,17 +4512,17 @@ Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
 
 EndProcedure
 
-// Retrieves options for the transmitted report and their presentation.
+// Gets options of the passed report and their presentations.
 //
 // Parameters:
-//  FullReportName                - String -  the report for which report variants are obtained.
-//  InfoBaseUser - String -  name of the database user.
-//  ReportsOptionsInfo      - ValueTable - :
-//       * ObjectKey          - String -  report key of the " Report.Report name".
-//       * VariantKey         - String -  the key version of the report.
-//       * Presentation        - String -  presentation of a report variant.
-//       * StandardProcessing - Boolean -  if True, the report version is saved in the standard storage.
-//  StandardProcessing           - Boolean -  if True, the report version is saved in the standard storage.
+//  FullReportName                - String - the report to which the report options are received.
+//  InfoBaseUser - String - the name of an infobase user.
+//  ReportsOptionsInfo      - ValueTable - a table that stores report option data:
+//       * ObjectKey          - String - a report key in format "Report.ReportName".
+//       * VariantKey         - String - a report option key.
+//       * Presentation        - String - a report option presentation.
+//       * StandardProcessing - Boolean - If True, a report option is saved to the standard storage.
+//  StandardProcessing           - Boolean - If True, a report option is saved to the standard storage.
 //
 Procedure OnReceiveUserReportsOptions(FullReportName, InfoBaseUser,
 	ReportsOptionsInfo, StandardProcessing) Export
@@ -4518,16 +4535,16 @@ Procedure OnReceiveUserReportsOptions(FullReportName, InfoBaseUser,
 
 EndProcedure
 
-// Removes the passed version of the report storage options report.
+// Deletes the passed report option from the report option storage.
 //
 // Parameters:
-//  ReportOptionInfo   - ValueTable - :
-//       * ObjectKey          - String -  report key of the " Report.Report name".
-//       * VariantKey         - String -  the key version of the report.
-//       * Presentation        - String -  presentation of a report variant.
-//       * StandardProcessing - Boolean -  if True, the report version is saved in the standard storage.
-//  InfoBaseUser - String -  the name of the information database user from whom the report variant is being deleted.
-//  StandardProcessing           - Boolean - 
+//  ReportOptionInfo   - ValueTable - report option data:
+//       * ObjectKey          - String - a report key in format "Report.ReportName".
+//       * VariantKey         - String - a report option key.
+//       * Presentation        - String - a report option presentation.
+//       * StandardProcessing - Boolean - If True, a report option is saved to the standard storage.
+//  InfoBaseUser - String - a name of the infobase user from whose report option is being deleted.
+//  StandardProcessing           - Boolean - If True, a report option is saved to the standard storage.
 //
 Procedure OnDeleteUserReportOptions(ReportOptionInfo, InfoBaseUser,
 	StandardProcessing) Export
@@ -4540,13 +4557,13 @@ Procedure OnDeleteUserReportOptions(ReportOptionInfo, InfoBaseUser,
 
 EndProcedure
 
-// Generates a request to change the service user's email address.
+// Generates a request for changing SaaS user email address.
 //
 // Parameters:
-//  NewEmailAddress                - String -  the user's new email address.
-//  User              - CatalogRef.Users -  the user who needs to change
-//                                                              the email address.
-//  ServiceUserPassword - String -  password of the current user to access the service Manager.
+//  NewEmailAddress                - String - the new email address of the user.
+//  User              - CatalogRef.Users - the user whose email address
+//                                                              is to be changed.
+//  ServiceUserPassword - String - user password for service manager.
 //
 Procedure OnCreateRequestToChangeEmail(Val NewEmailAddress, Val User, Val ServiceUserPassword) Export
 
@@ -4758,10 +4775,10 @@ EndProcedure
 
 #Region SecurityProfilesForInternalUsage
 
-// Called when the registration of managers of external modules.
+// The procedure is called when external module managers are registered.
 //
 // Parameters:
-//  Managers - Array -  links to the modules.
+//  Managers - Array - references to modules.
 //
 Procedure OnRegisterExternalModulesManagers(Managers) Export
 
@@ -5315,7 +5332,7 @@ EndProcedure
 // See AccessManagementOverridable.OnFillAccessKinds.
 Procedure OnFillAccessKinds(AccessKinds) Export
 	
-	// 
+	// The first call must be made to the Users subsystems.
 	UsersInternal.OnFillAccessKinds(AccessKinds);
 
 	If Common.SubsystemExists("StandardSubsystems.BusinessProcessesAndTasks") Then
@@ -5599,36 +5616,36 @@ EndProcedure
 
 #Region AccessManagementForInternalUsage
 
-// 
-// 
-// 
+// Returns a temporary table manager that contains a temporary table of users included in additional user groups,
+// such as task assignee group users that correspond to addressing keys
+// (PerformerRole + MainAddressingObject + AdditionalAddressingObject).
 // 
 //
 // Parameters:
-//  TempTablesManager - TempTablesManager - 
-//                            :
-//                              
-//                                                   
-//                              
+//  TempTablesManager - TempTablesManager - The method puts the following table to the manager
+//                            PerformersGroupTable with the following fields:
+//                              PerformersGroup. For example
+//                                                   CatalogRef.TaskPerformersGroups.
+//                              User       - CatalogRef.Users
 //                                                 - CatalogRef.ExternalUsers
 //
-//  ParameterContent     - Undefined -  parameter is not specified, return all the data.
-//                            A string where
-//                              "performer Groups" is required to return
-//                               only the compositions of the specified performer groups.
-//                              "Performers" is required to return
-//                               only the compositions of groups of performers that
+//  ParameterContent     - Undefined - the parameter is not specified, return all the data.
+//                            If string value is
+//                              set to "PerformerGroups", returns
+//                               only the contents of the specified performer groups.
+//                              If set to "Performers", only
+//                               returns the contents of performer groups that
 //                               include the specified performers.
 //
-//  ParameterValue       - Undefined -  when the content of the Parameter = Undefined,
+//  ParameterValue       - Undefined - If ParameterContent = Undefined,
 //                          - CatalogRef.TaskPerformersGroups - 
-//                              
+//                              If ParameterContent = "PerformersGroups".
 //                          - CatalogRef.Users
 //                          - CatalogRef.ExternalUsers -
-//                              
-//                          - Array - 
+//                              If ParameterContent = "Assignees".
+//                          - Array - array of the types specified above.
 //
-//  NoPerformerGroups    - Boolean -  if False, the time table Manager contains a temporary table, otherwise not.
+//  NoPerformerGroups    - Boolean - If False, TempTablesManager contains a temporary table. Otherwise, does not.
 //
 Procedure OnDeterminePerformersGroups(TempTablesManager, ParameterContent, ParameterValue,
 	NoPerformerGroups) Export
@@ -5641,12 +5658,12 @@ Procedure OnDeterminePerformersGroups(TempTablesManager, ParameterContent, Param
 
 EndProcedure
 
-// Called when updating the database user roles.
+// This procedure is called when updating the infobase user roles.
 //
 // Parameters:
 //  IBUserID - UUID,
-//  Cancel - Boolean -  if the parameter value is set to False inside the event handler
-//    , the role update for this database user will be skipped.
+//  Cancel - Boolean - If this parameter is set to False in the event handler,
+//    roles are not updated for this infobase user.
 //
 Procedure OnUpdateIBUserRoles(IBUserID, Cancel) Export
 
@@ -5742,7 +5759,7 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
+// Deprecated. Obsolete. Use SSLSubsystemsIntegration.OnDefinePrintSettings instead.
 // See PrintManagementOverridable.OnDefineObjectsWithPrintCommands.
 //
 Procedure OnDefineObjectsWithPrintCommands(ListOfObjects) Export

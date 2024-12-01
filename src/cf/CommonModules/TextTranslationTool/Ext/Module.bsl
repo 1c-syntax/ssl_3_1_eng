@@ -1,22 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Translates text into another language using the text translation service.
+// Translates a text into another language using the text translation service.
 //
 // Parameters:
-//  Text        - String -  custom text.
-//  TranslationLanguage - String -  the code of the language in the ISO 639-1 format to which the translation is being performed.
+//  Text        - String - free text about the item.
+//  TranslationLanguage - String - the language code in ISO 639-1 format, into which translation is executed.
+//                          For example, "de".
+//                          If not specified, translation is executed into the current language.
+//  SourceLanguage - String - the language code in ISO 639-1 format, from which translation is executed.
 //                          For example, "en".
-//                          If omitted, the translation is performed in the current language.
-//  SourceLanguage - String -  the code of the language in the ISO 639-1 format from which the translation is performed.
-//                          For example, "ru".
 //                          If not specified, the language will be set by the text translation service.
 //
 // Returns:
@@ -35,18 +37,18 @@ EndFunction
 // Translates texts into another language using the text translation service.
 //
 // Parameters:
-//  Texts - Array of String -  custom texts.
-//  TranslationLanguage - String -  the code of the language in the ISO 639-1 format to which the translation is being performed.
+//  Texts - Array of String - arbitrary texts.
+//  TranslationLanguage - String - the language code in ISO 639-1 format, into which translation is executed.
+//                          For example, "de".
+//                          If not specified, translation is executed into the current language.
+//  SourceLanguage - String - the language code in ISO 639-1 format, from which translation is executed.
 //                          For example, "en".
-//                          If omitted, the translation is performed in the current language.
-//  SourceLanguage - String -  the code of the language in the ISO 639-1 format from which the translation is performed.
-//                          For example, "ru".
 //                          If not specified, the language will be set by the text translation service.
 //
 // Returns:
 //  Map of KeyAndValue:
-//   * Key     - String -  text;
-//   * Value - String -  translation.
+//   * Key     - String - a text.
+//   * Value - String - a translation.
 //
 Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguage = Undefined) Export
 	
@@ -140,12 +142,12 @@ Function TranslateTheTexts(Texts, TranslationLanguage = Undefined, SourceLanguag
 	
 EndFunction
 
-// Returns a list of languages supported by the text translation service.
+// Returns a list of languages available in the text translation service.
 //
 // Returns:
 //  ValueList:
-//   * Value - 
-//   * Presentation - 
+//   * Value - language code.
+//   * Presentation - language presentation.
 //
 Function AvailableLanguages() Export
 	
@@ -191,7 +193,7 @@ Function AvailableLanguages() Export
 	
 EndFunction
 
-// 
+// Returns "True" if the auto-translation settings is enabled.
 //
 // Returns:
 //  Boolean
@@ -385,7 +387,7 @@ Function TextTranslationServiceModule(Val TextTranslationService = Undefined)
 	
 EndFunction
 
-// The names of the modules correspond to the names of the values of the Translation Service enumeration.
+// Module names match value names of the TextTranslationServices enumeration.
 Function TextTranslationServiceModules()
 	
 	Result = New Map;
@@ -493,7 +495,7 @@ Function ReturnParametersToText(Val Text, TheProcessedParameters)
 	
 EndFunction
 
-// A sequence of characters that should not change when translated into any language.
+// A sequence of characters that must not change when translated into any language.
 Function ParameterId(Number)
 	
 	Return "{<" + XMLString(Number) + ">}"; 

@@ -2001,8 +2001,8 @@ Please wait…</v8:content>
 									<Representation>None</Representation>
 									<ExtendedTooltip name="CorrespondentApplicationSettingsPresentationGroupExtendedTooltip" id="517"/>
 									<ChildItems>
-										<InputField name="CorrespondentDescription" id="488">
-											<DataPath>CorrespondentDescription</DataPath>
+										<InputField name="PeerInfobaseName" id="488">
+											<DataPath>PeerInfobaseName</DataPath>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -2012,8 +2012,8 @@ Please wait…</v8:content>
 											<TitleLocation>Top</TitleLocation>
 											<AutoMaxWidth>false</AutoMaxWidth>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
-											<ContextMenu name="CorrespondentDescriptionContextMenu" id="489"/>
-											<ExtendedTooltip name="CorrespondentDescriptionExtendedTooltip" id="490"/>
+											<ContextMenu name="PeerInfobaseNameContextMenu" id="489"/>
+											<ExtendedTooltip name="PeerInfobaseNameExtendedTooltip" id="490"/>
 										</InputField>
 										<InputField name="CorrespondentPrefix" id="491">
 											<DataPath>CorrespondentPrefix</DataPath>
@@ -3403,7 +3403,7 @@ Please wait…</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="CorrespondentDescription" id="60">
+		<Attribute name="PeerInfobaseName" id="60">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -3649,7 +3649,7 @@ Please wait…</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="SupportedCorrespondentFormatObjects" id="113">
+		<Attribute name="SupportedPeerInfobaseFormatObjects" id="113">
 			<Type/>
 		</Attribute>
 		<Attribute name="ConnectionSetupOptionInService" id="114">

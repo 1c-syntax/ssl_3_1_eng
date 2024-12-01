@@ -1,54 +1,56 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Called when the data changes, the production of calendars.
-// If partitioning is enabled, it is performed in non-partitioned mode.
+// Called when the business calendar data is changed.
+// If data separation is enabled, it runs in shared mode.
 //
 // Parameters:
 //  UpdateConditions - ValueTable:
-//    * BusinessCalendarCode - String -  code of the production calendar whose data has changed;
-//    * Year                           - Number  -  the calendar year for which the data changed.
+//    * BusinessCalendarCode - String - a code of business calendar whose data is changed.
+//    * Year                           - Number  - a calendar year, during which data is changed.
 //
 Procedure OnUpdateBusinessCalendars(UpdateConditions) Export
 	
 EndProcedure
 
-// Called when the data changes, dependent on the production of the calendars.
-// If partitioning is enabled, it is performed in data regions.
+// It is called upon changing data dependent on business calendars.
+// If the separation is enabled, the procedure runs in data areas.
 //
 // Parameters:
 //  UpdateConditions - ValueTable:
-//    * BusinessCalendarCode - String -  code of the production calendar whose data has changed;
-//    * Year                           - Number  -  the calendar year for which the data changed.
+//    * BusinessCalendarCode - String - a code of business calendar whose data is changed.
+//    * Year                           - Number  - a calendar year, during which data is changed.
 //
 Procedure OnUpdateDataDependentOnBusinessCalendars(UpdateConditions) Export
 	
 EndProcedure
 
-// Called when registering a deferred data update handler that depends on production calendars.
-// Add the metadata names of the objects 
-// that you want to block from being used while the production calendars are being updated to the objects that are being Blocked.
+// The procedure is called upon registering a deferred handler that updates data dependent on business calendars.
+// Add metadata names of objects 
+// to be locked for the period of business calendar update to ObjectsToLock.
 //
 // Parameters:
-//  ObjectsToLock - Array -  names of metadata for blocked objects.
+//  ObjectsToLock - Array - metadata names of objects to be blocked.
 //
 Procedure OnFillObjectsToBlockDependentOnBusinessCalendars(ObjectsToLock) Export
 	
 EndProcedure
 
-// Called when registering a deferred data update handler that depends on production calendars.
-// Add the names of object metadata to the changeable Objects, 
-// which will change when updating production calendars.
+// The procedure is called upon registering a deferred handler that updates data dependent on business calendars.
+// Add metadata names of objects 
+// to be locked for the period of business calendar update to ObjectsToChange.
 //
 // Parameters:
-//  ObjectsToChange - Array -  names of metadata for the objects being modified.
+//  ObjectsToChange - Array - metadata names of objects to be changed.
 //
 Procedure OnFillObjectsToChangeDependentOnBusinessCalendars(ObjectsToChange) Export
 	

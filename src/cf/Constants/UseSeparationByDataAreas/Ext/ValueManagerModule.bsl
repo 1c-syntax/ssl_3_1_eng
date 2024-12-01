@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -30,13 +32,13 @@ Procedure OnWrite(Cancel)
 		
 	EndIf;
 	
-	// 
+	// The following constants are mutually exclusive as they belong to different functional options:
 	//
-	// 
-	// 
-	// 
+	// "IsStandaloneWorkplace" ("StandaloneWorkplace")
+	// "DoNotUseSeparationByDataAreas" ("LocalMode")
+	// "UseSeparationByDataAreas" ("SaaSOperations")
 	//
-	// 
+	// The constant names are retained for backward compatibility.
 	
 	If Value Then
 		

@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Forms the structure of check tables and check groups for further use.
+// Generates the structure of check tables and check groups for further use.
 //
 // Returns:
 //    Structure:
@@ -25,7 +27,7 @@ Function AccountingChecks() Export
 	SSLSubsystemsIntegration.OnDefineChecks(ChecksGroups, Checks);
 	AccountingAuditOverridable.OnDefineChecks(ChecksGroups, Checks);
 	
-	// 
+	// For backward compatibility purposes.
 	AccountingAuditOverridable.OnDefineAppliedChecks(ChecksGroups, Checks);
 	ProvideReverseCompatibility(Checks);
 	
@@ -33,10 +35,10 @@ Function AccountingChecks() Export
 	
 EndFunction
 
-// Returns an array of types that includes all possible object types of the configuration.
+// Returns an array of types that includes all possible configuration object types.
 //
 // Returns:
-//    Array - 
+//    Array - an array of object types.
 //
 Function TypeDetailsAllObjects() Export
 	
@@ -210,17 +212,17 @@ EndProcedure
 //
 // Returns:
 //   ValueTable:
-//      * Description                 - String -  name of the verification group.
-//      * GroupID          - String - : 
-//                                       
-//                                       
-//      * Id                - String - 
-//                                       :
-//                                       
-//                                       
-//      * AccountingChecksContext - DefinedType.AccountingChecksContext -  a value that further
-//                                       clarifies whether a group of accounting checks belongs to a certain category.
-//      * Comment                  - String -  comment on the verification group.
+//      * Description                 - String - a check group description.
+//      * GroupID          - String - a string ID of the check group, for example: 
+//                                       "SystemChecks", "MonthEndClosing", "VATChecks", and so on.
+//                                       Required.
+//      * Id                - String - The id of a check group. A mandatory parameter.
+//                                       The id format is:
+//                                       <Software name>.<Check id>.
+//                                       For example, "StandardSubsystems.SystemChecks".
+//      * AccountingChecksContext - DefinedType.AccountingChecksContext - a value that additionally
+//                                       specifies the belonging of a data integrity check group to a certain category.
+//      * Comment                  - String - a comment to a check group.
 //
 Function ChecksGroupsNewTable() Export
 	
@@ -236,44 +238,44 @@ Function ChecksGroupsNewTable() Export
 	
 EndFunction
 
-// Creates a table of checks.
+// Creates a check table.
 //
 // Returns:
 //   ValueTable:
-//      * GroupID                    - String - : 
-//                                                 
-//                                                 
-//      * Description                           - String -  the name of the check displayed to the user.
-//      * Reasons                                - String -  description of possible causes that lead to
-//                                                 the problem.
-//      * Recommendation                           - String -  recommendation for solving the problem.
-//      * Id                          - String - 
-//                                                 :
-//                                                 
-//                                                 
-//      * CheckStartDate                     - Date -  threshold date indicating the boundary of the objects to be checked
-//                                                 (only for objects with a date). Objects whose date is less than
-//                                                 however, it should not be checked. By default, it is not filled in (i.e.
-//                                                 check everything).
-//      * IssuesLimit                           - Number -  the number of objects to be checked. By default, 1000. 
-//                                                 If 0 is specified, then all objects should be checked.
-//      * HandlerChecks                     - String -  the name of the export procedure handler of the server shared 
-//                                                 module in the form of a module name.Procedure name. 
-//      * GoToCorrectionHandler         - String -  the name of the export procedure-handler of the client common 
-//                                                 module for the transition to fixing the problem in the form of a module name.Procedure name.
-//      * NoCheckHandler                 - Boolean -  indicates a service check that does not have a handler procedure.
-//      * ImportanceChangeDenied             - Boolean -  if True, the administrator will not be able to reconfigure 
+//      * GroupID                    - String - a string ID of the check group, for example: 
+//                                                 "SystemChecks", "MonthEndClosing", "VATChecks", and so on.
+//                                                 Required.
+//      * Description                           - String - a check description displayed to a user.
+//      * Reasons                                - String - a description of possible reasons that result in issue
+//                                                 appearing.
+//      * Recommendation                           - String - a recommendation on solving an appeared issue.
+//      * Id                          - String - The id of an item. A mandatory parameter.
+//                                                 The id format is:
+//                                                 <Software name>.<Check id>.
+//                                                 For example, "StandardSubsystems.SystemChecks".
+//      * CheckStartDate                     - Date - a threshold date that indicates the boundary of the checked
+//                                                 objects (only for objects with a date). Do not check objects whose date is less
+//                                                 than the specified one. It is not filled in by default (
+//                                                 check all).
+//      * IssuesLimit                           - Number - a number of the checked objects. The default value is 1000. 
+//                                                 If 0 is specified, check all objects.
+//      * HandlerChecks                     - String - a name of the export handler procedure of the server common 
+//                                                 module as ModuleName.ProcedureName. 
+//      * GoToCorrectionHandler         - String - a name of the export handler procedure for client common 
+//                                                 module to start correcting an issue in the form of "ModuleName.ProcedureName.
+//      * NoCheckHandler                 - Boolean - a flag of the service check that does not have the handler procedure.
+//      * ImportanceChangeDenied             - Boolean - if True, the administrator cannot change 
 //                                                 the importance of this check.
-//      * AccountingChecksContext           - DefinedType.AccountingChecksContext -  a value that further 
-//                                                 clarifies whether the accounting check belongs to a certain group 
+//      * AccountingChecksContext           - DefinedType.AccountingChecksContext - a value that additionally 
+//                                                 specifies the belonging of a data integrity check to a certain group 
 //                                                 or category.
-//      * AccountingCheckContextClarification - DefinedType.AccountingCheckContextClarification -  the second value, 
-//                                                 which further clarifies whether the accounting check belongs 
+//      * AccountingCheckContextClarification - DefinedType.AccountingCheckContextClarification - a value 
+//                                                 that additionally specifies the belonging of a data integrity check 
 //                                                 to a certain group or category.
-//      * AdditionalParameters                - ValueStorage -  additional verification information for software
+//      * AdditionalParameters                - ValueStorage - an additional check information for program
 //                                                 use.
-//      * Comment                            - String -  review comment.
-//      * isDisabled                              - Boolean -  if True, then the check will not be performed in the background according to the schedule.
+//      * Comment                            - String - a comment to the check.
+//      * isDisabled                              - Boolean - if True, the check will not be performed in the background on schedule.
 //
 Function NewChecksTable() Export
 	

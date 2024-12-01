@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 #Region FormEventHandlers
 
@@ -13,7 +14,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Not Parameters.OpenProgrammatically Then
 		Raise
-			NStr("en = 'Обработка не предназначена для непосредственного использования.';");
+			NStr("en = 'The data processor cannot be opened manually.';");
 	EndIf;
 	
 	SkipRestart = Parameters.SkipRestart;
@@ -24,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	WarningText = DocumentTemplate.GetText();
 	FileInfobase = Common.FileInfobase();
 	
-	// 
+	// StandardSubsystems.MonitoringCenter
 	MonitoringCenterExists = Common.SubsystemExists("StandardSubsystems.MonitoringCenter");
 	If MonitoringCenterExists Then
 		ModuleMonitoringCenterInternal = Common.CommonModule("MonitoringCenterInternal");
@@ -129,8 +130,8 @@ Procedure WriteLegalityAndStatisticsSendingConfirmation(AllowSendStatistics)
 		SendStatisticsParameters = ModuleMonitoringCenterInternal.GetMonitoringCenterParametersExternalCall(SendStatisticsParameters);
 		
 		If (Not SendStatisticsParameters.EnableMonitoringCenter And SendStatisticsParameters.ApplicationInformationProcessingCenter) Then
-			// 
-			// 
+			// Sending statistics to a third-party developer is configured.
+			// Do not change them.
 			//
 		Else
 			If AllowSendStatistics Then

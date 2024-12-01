@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,12 +14,12 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// SaaSTechnology.ExportImportData
 
-// Returns the directory details that form the natural key for the directory elements.
+// Returns the catalog attributes that naturally form a catalog item key.
 //
 // Returns:
-//  Array of String - 
+//  Array of String - Array of attribute names used to generate a natural key.
 //
 Function NaturalKeyFields() Export
 	
@@ -28,7 +30,7 @@ Function NaturalKeyFields() Export
 	
 EndFunction
 
-// End CloudTechnology.ExportImportData
+// End SaaSTechnology.ExportImportData
 
 #EndRegion
 
@@ -144,7 +146,7 @@ Function ClosingDatesSectionsProperties() Export
 		EndIf;
 	EndDo;
 	
-	// 
+	// Adding a blank section (a common date).
 	SectionProperties = SectionProperties(EmptyRef());
 	SectionProperties = New FixedStructure(SectionProperties);
 	ClosingDatesSections.Insert(SectionProperties.Name,    SectionProperties);

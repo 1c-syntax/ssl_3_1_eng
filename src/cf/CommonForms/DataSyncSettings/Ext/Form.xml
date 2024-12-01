@@ -855,7 +855,7 @@ To switch to exchange using a web service, use the switch to Internet connection
 							</Events>
 							<ChildItems>
 								<LabelField name="ApplicationsListApplication" id="588">
-									<DataPath>ApplicationsList.CorrespondentDescription</DataPath>
+									<DataPath>ApplicationsList.PeerInfobaseName</DataPath>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -1540,7 +1540,7 @@ Please wait…</v8:content>
 						</v8:NumberQualifiers>
 					</Type>
 				</Column>
-				<Column name="CorrespondentDescription" id="30">
+				<Column name="PeerInfobaseName" id="30">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
@@ -12,9 +14,9 @@
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// SaaSTechnology.ExportImportData
 
-// It is connected to the offload of the unloaded data, which is undetectable.When registering the data handlers, the data loads.
+// Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
 // Parameters:
 //   Container - DataProcessorObject.ExportImportDataContainerManager
@@ -44,7 +46,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// End CloudTechnology.ExportImportData
+// End SaaSTechnology.ExportImportData
 
 #EndRegion
 
@@ -52,18 +54,18 @@ EndProcedure
 
 #Region Private
 
-// The procedure updates the register data when it changes
-// - allowed values of access groups,
-// - allowed values of access group profiles,
-// - use of access types.
+// The procedure updates register data when changing
+// - allowed access group values,
+// - allowed access group profile values,
+// - access kind usage.
 //
 // Parameters:
 //  AccessGroups - CatalogRef.AccessGroups
-//                - Array - 
-//                - Undefined - 
+//                - Array - array of values of the types specified above.
+//                - Undefined - without filter.
 //
-//  HasChanges - Boolean -  (return value) - if a record was made,
-//                  it is set to True, otherwise it is not changed.
+//  HasChanges - Boolean - (return value) - if recorded,
+//                  True is set, otherwise, it does not change.
 //
 Procedure UpdateRegisterData(AccessGroups = Undefined, HasChanges = Undefined) Export
 	
@@ -91,11 +93,11 @@ Procedure UpdateRegisterData(AccessGroups = Undefined, HasChanges = Undefined) E
 		LockItem = Block.Add("InformationRegister.UsedAccessKinds");
 		LockItem.Mode = DataLockMode.Shared;
 		If TransactionActive() Then
-			// 
-			// 
-			// 
+			// ACC:1320:off - No.783.1.3. It's acceptable to call a lock in a transaction external to the file infobase.
+			// It is intended to avoid deadlocks caused by an automatic shared
+			// lock set to the table when it is read by a query within a transaction.
 			Block.Lock();
-			// 
+			// ACC:1320-on
 		EndIf;
 	EndIf;
 	
@@ -142,7 +144,7 @@ Procedure UpdateRegisterData(AccessGroups = Undefined, HasChanges = Undefined) E
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Auxiliary procedures and functions.
 
 Procedure UpdateAllowedValues(UsedAccessKinds,
 			AccessGroups, HasChanges, ProfileAdministrator)
@@ -351,7 +353,7 @@ Procedure UpdateAllowedValues(UsedAccessKinds,
 	|FROM
 	|	NewData AS NewData";
 	
-	// 
+	// Preparing the selected fields with optional filter.
 	Fields = New Array; 
 	Fields.Add(New Structure("AccessGroup", "&AccessGroupFilterCriterion2"));
 	Fields.Add(New Structure("AccessValue"));
@@ -380,7 +382,7 @@ Procedure UpdateAllowedValues(UsedAccessKinds,
 		If HasCurrentChanges
 		   And AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 			
-			// 
+			// Schedule an access update.
 			BlankRefsByTypes = AccessManagementInternalCached.BlankRefsOfGroupsAndValuesTypes();
 			ChangesContent = New ValueTable;
 			ChangesContent.Columns.Add("AccessGroup", New TypeDescription("CatalogRef.AccessGroups"));
@@ -620,7 +622,7 @@ Procedure UpdateDefaultAllowedValues(UsedAccessKinds,
 	|FROM
 	|	NewData AS NewData";
 	
-	// 
+	// Preparing the selected fields with optional filter.
 	Fields = New Array; 
 	Fields.Add(New Structure("AccessGroup", "&AccessGroupFilterCriterion2"));
 	Fields.Add(New Structure("AccessValuesType"));
@@ -655,7 +657,7 @@ Procedure UpdateDefaultAllowedValues(UsedAccessKinds,
 		If HasCurrentChanges
 		   And AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
 			
-			// 
+			// Schedule an access update.
 			ChangesContent = Data.EditStringContent.Copy(, "AccessGroup, AccessValuesType");
 			ChangesContent.GroupBy("AccessGroup, AccessValuesType");
 			

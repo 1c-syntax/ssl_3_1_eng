@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -192,9 +194,9 @@ Procedure CheckCanSyncWithCloudService()
 			Recommendations.Insert(0, NStr("en = 'Check whether the username and password are valid.';"));
 		ElsIf ResultStructure1.ErrorCode = 10404 Then
 			ResultStructure1.ErrorCode = ResultStructure1.ErrorCode - 10000;
-			// 
+			// The server does not allow saving additional file properties
 		ElsIf ResultStructure1.ErrorCode = 501 Then
-			// 
+			// No WebDAV protocol method is implemented on the server
 		Else
 			Recommendations.Insert(0, NStr("en = 'Check the validity of the data you entered.';"));
 		EndIf;

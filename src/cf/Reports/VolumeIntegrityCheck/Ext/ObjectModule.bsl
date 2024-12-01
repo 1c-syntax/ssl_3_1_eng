@@ -1,22 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region EventHandlers
 
-// 
+// The settings of a common report form in the "ReportsOptions" subsystem.
 //
 // Parameters:
-//   Form - ClientApplicationForm, Undefined - 
-//       
-//   VariantKey - String, Undefined - 
-//       
+//   Form - ClientApplicationForm, Undefined - A report form or a report settings form.
+//       "Undefined" for non-contextual calls.
+//   VariantKey - String, Undefined - Either the name of a predefined report option or UUID of a custom report.
+//       "Undefined" when calling for a drill-down option or without context.
 //       
 //   Settings - See ReportsClientServer.GetDefaultReportSettings.
 //
@@ -27,13 +29,13 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 	Settings.GenerateImmediately = True;
 EndProcedure
 
-// 
-// 
+// Runs in the same-name event handler of a report form after executing the form code.
+//  See "ManagedForm.OnCreateAtServer" in Syntax Assistant.
 //
 // Parameters:
-//   Form - ClientApplicationForm - 
-//   Cancel - Boolean - 
-//   StandardProcessing - Boolean - 
+//   Form - ClientApplicationForm - Report form
+//   Cancel - Boolean - The value is passed "as is" from the handler parameters.
+//   StandardProcessing - Boolean - The value is passed "as is" from the handler parameters.
 //
 Procedure OnCreateAtServer(Form, Cancel, StandardProcessing) Export
 	Volume = CommonClientServer.StructureProperty(Form.Parameters, "CommandParameter");
@@ -61,7 +63,7 @@ Procedure BeforeLoadVariantAtServer(Form, NewDCSettings) Export
 	
 EndProcedure
 
-// 
+// Called before importing new settings. Used for modifying DCS reports.
 //
 // Parameters:
 //   Context - Arbitrary

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -22,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ProcessRolesInterface("SetUpRoleInterfaceOnFormCreate", False);
 	EndIf;
 	
-	// 
+	// Preparing auxiliary data.
 	
 	If Not ValueIsFilled(Object.Ref) Then
 		AllAuthorizationObjects = Common.ObjectAttributeValue(Object.Parent,
@@ -41,7 +43,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	DefineActionsOnForm();
 	
-	// 
+	// Making the properties always visible.
 	
 	Items.Description.Visible     = ValueIsFilled(ActionsOnForm.ItemProperties);
 	Items.Parent.Visible         = ValueIsFilled(ActionsOnForm.ItemProperties);
@@ -118,7 +120,7 @@ Procedure OnReadAtServer(CurrentObject)
 	ProcessRolesInterface("FillRoles", Object.Roles);
 	ProcessRolesInterface("SetUpRoleInterfaceOnReadAtServer", True);
 	
-	// 
+	// StandardSubsystems.AccessManagement
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagement = Common.CommonModule("AccessManagement");
 		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
@@ -130,7 +132,7 @@ EndProcedure
 &AtServer
 Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteParameters)
 	
-	// 
+	// Filling object roles from the collection.
 	CurrentObject.Roles.Clear();
 	For Each Role In RolesCollection Do
 		CurrentObject.Roles.Add().Role = Common.MetadataObjectID(
@@ -165,7 +167,7 @@ Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
 	VerifiedObjectAttributes = New Array;
 	Errors = Undefined;
 	
-	// 
+	// Checking whether the metadata contains roles.
 	VerifiedObjectAttributes.Add("Roles.Role");
 	If Not Items.Roles.ReadOnly Then
 		TreeItems = Roles.GetItems();
@@ -265,7 +267,7 @@ EndProcedure
 #Region FormTableItemsEventHandlersRoles
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure RolesCheckOnChange(Item)
@@ -371,7 +373,7 @@ Procedure SelectPurpose(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtClient
 Procedure ShowSelectedRolesOnly(Command)
@@ -392,7 +394,7 @@ EndProcedure
 &AtClient
 Procedure AddRoles(Command)
 	
-	ProcessRolesInterface("UpdateRoleComposition", "EnableHighlighted");
+	ProcessRolesInterface("UpdateRoleComposition", "IncludeSelected");
 	
 	UsersInternalClient.ExpandRoleSubsystems(ThisObject, False);
 	
@@ -473,30 +475,30 @@ Procedure DefineActionsOnForm()
 	
 	ActionsOnForm = New Structure;
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("Roles", "");
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("GroupComposition1", "");
 	
-	// 
+	// "", "View," "Edit."
 	ActionsOnForm.Insert("ItemProperties", "");
 	
 	If Users.IsFullUser()
 	 Or AccessRight("Insert", Metadata.Catalogs.Users) Then
-		// 
+		// Administrator.
 		ActionsOnForm.Roles             = "Edit";
 		ActionsOnForm.GroupComposition1     = "Edit";
 		ActionsOnForm.ItemProperties = "Edit";
 		
 	ElsIf AccessRight("Edit", Metadata.Catalogs.ExternalUsersGroups) Then
-		// 
+		// Can manage external users.
 		ActionsOnForm.Roles             = "";
 		ActionsOnForm.GroupComposition1     = "Edit";
 		ActionsOnForm.ItemProperties = "Edit";
 		
 	Else
-		// 
+		// Can read external users.
 		ActionsOnForm.Roles             = "";
 		ActionsOnForm.GroupComposition1     = "View";
 		ActionsOnForm.ItemProperties = "View";
@@ -504,7 +506,7 @@ Procedure DefineActionsOnForm()
 	
 	UsersInternal.OnDefineActionsInForm(Object.Ref, ActionsOnForm);
 	
-	// 
+	// Checking action names in the form.
 	If StrFind(", View, Edit,", ", " + ActionsOnForm.Roles + ",") = 0 Then
 		ActionsOnForm.Roles = "";
 	ElsIf ActionsOnForm.Roles = "Edit"
@@ -755,7 +757,7 @@ Procedure AfterAssignmentChoice(TypesArray, AdditionalParameters) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Required by a role interface.
 
 &AtServer
 Procedure ProcessRolesInterface(Action, MainParameter = Undefined)

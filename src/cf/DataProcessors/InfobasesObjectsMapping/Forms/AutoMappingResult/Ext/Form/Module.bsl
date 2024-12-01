@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -13,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ShowWarningOnFormClose = True;
 	
-	// 
+	// Checking whether the form is opened from 1C:Enterprise script.
 	If Not Parameters.Property("ExchangeMessageFileName") Then
 		
 		NString = NStr("en = 'The form cannot be opened interactively.';");
@@ -22,7 +24,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// 
+	// Initializing the data processor with the passed parameters.
 	FillPropertyValues(Object, Parameters,, "UsedFieldsList, TableFieldsList");
 	
 	MaxUserFields         = Parameters.MaxUserFields;
@@ -42,7 +44,7 @@ Procedure OnOpen(Cancel)
 	
 	NavigationNumber = 0;
 	
-	// 
+	// Selecting the second wizard step.
 	SetNavigationNumber(2);
 	
 EndProcedure
@@ -72,7 +74,7 @@ Procedure Apply(Command)
 	
 	ShowWarningOnFormClose = False;
 	
-	// 
+	// Context server call.
 	NotifyChoice(PutAutomaticallyMappedObjectsTableInTempStorage());
 	
 EndProcedure
@@ -142,10 +144,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// 
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// 
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -181,7 +183,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		Return;
 	EndIf;
 	
-	// 
+	// OnOpen handler
 	If Not IsBlankString(NavigationRowCurrent.OnOpenHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, SkipPage, IsMoveNext)";
@@ -231,7 +233,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
 	
-	// 
+	// TimeConsumingOperationProcessing handler.
 	If Not IsBlankString(NavigationRowCurrent.TimeConsumingOperationHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, GoToNext)";
@@ -297,7 +299,7 @@ Procedure SetTableFieldVisible(Val FormTableName, Val MaxUserFieldsCount)
 	SourceFieldName2 = StrReplace("#FormTableName#SourceFieldNN","#FormTableName#", FormTableName);
 	DestinationFieldName1 = StrReplace("#FormTableName#DestinationFieldNN","#FormTableName#", FormTableName);
 	
-	// 
+	// Making all mapping table fields invisible.
 	For FieldNumber = 1 To MaxUserFieldsCount Do
 		
 		SourceField = StrReplace(SourceFieldName2, "NN", String(FieldNumber));
@@ -311,7 +313,7 @@ Procedure SetTableFieldVisible(Val FormTableName, Val MaxUserFieldsCount)
 		
 	EndDo;
 	
-	// 
+	// Making all mapping table fields that are selected by user visible.
 	For Each Item In Object.UsedFieldsList Do
 		
 		FieldNumber = Object.UsedFieldsList.IndexOf(Item) + 1;
@@ -322,11 +324,11 @@ Procedure SetTableFieldVisible(Val FormTableName, Val MaxUserFieldsCount)
 		ItemSourceField = Items[SourceField]; // FormField
 		ItemDestinationField = Items[DestinationField]; // FormField
 		
-		// 
+		// Set the field visibility.
 		ItemSourceField.Visible = Item.Check;
 		ItemDestinationField.Visible = Item.Check;
 		
-		// 
+		// Set field titles.
 		ItemSourceField.Title = Item.Presentation;
 		ItemDestinationField.Title = Item.Presentation;
 		
@@ -360,7 +362,7 @@ Procedure GoBack()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Idle handlers.
 
 &AtClient
 Procedure BackgroundJobIdleHandler()
@@ -391,9 +393,9 @@ Procedure BackgroundJobIdleHandler()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Navigation event handlers.
 
-// Page 1: automatic mapping Error.
+// Page 1: Automatic object mapping error.
 //
 &AtClient
 Function Attachable_ObjectMappingErrorOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -439,7 +441,7 @@ Function Attachable_ObjectMappingWaitingTimeConsumingOperationProcessing(Cancel,
 	
 EndFunction
 
-// Page 2 Handler for notification of completion of a background task.
+// Page 2 Handler of background job completion notification.
 &AtClient
 Procedure BackgroundJobCompletion(Result, AdditionalParameters) Export
 	
@@ -472,7 +474,7 @@ Function Attachable_ObjectMappingWaitingTimeConsumingOperationCompletionTimeCons
 	
 EndFunction
 
-// Page 4: Working with the result of automatic matching.
+// Page 4: Operations with the automatic object mapping result.
 //
 &AtClient
 Function Attachable_ObjectMappingOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -487,7 +489,7 @@ Function Attachable_ObjectMappingOnOpen(Cancel, SkipPage, IsMoveNext)
 	
 EndFunction
 
-// Page 5: Empty result of automatic matching.
+// Page 5: Empty result of automatic object mapping.
 //
 &AtClient
 Function Attachable_EmptyObjectMappingResultEmptyObjectMappingResultOnOpen(Cancel, SkipPage, IsMoveNext)
@@ -498,7 +500,7 @@ Function Attachable_EmptyObjectMappingResultEmptyObjectMappingResultOnOpen(Cance
 	
 EndFunction
 
-// Page 2: mapping objects.
+// Page 2: Object mapping.
 //
 &AtServer
 Function BackgroundJobStartAtServer(Cancel)
@@ -538,7 +540,7 @@ Function BackgroundJobStartAtServer(Cancel)
 	
 EndFunction
 
-// Page 3: mapping objects.
+// Page 3: Object mapping.
 //
 &AtServer
 Procedure ExecuteObjectMappingCompletion(Cancel)
@@ -566,7 +568,7 @@ Procedure AfterObjectMapping(Val MappingResult)
 		
 		Modified = True;
 		
-		// 
+		// Setting titles and table field visibility on the form.
 		SetTableFieldVisible("AutomaticallyMappedObjectsTable", MaxUserFields);
 		
 	EndIf;
@@ -583,7 +585,7 @@ Procedure RecordError(DetailErrorDescription)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Filling wizard navigation table.
 
 &AtServer
 Procedure AutomaticObjectMappingScenario()
@@ -592,11 +594,11 @@ Procedure AutomaticObjectMappingScenario()
 	
 	NavigationTableNewRow(1, "ObjectMappingError", "Attachable_ObjectMappingErrorOnOpen");
 	
-	// 
+	// Waiting for object mapping.
 	NavigationTableNewRow(2, "ObjectMappingWait",, True, "Attachable_ObjectMappingWaitingTimeConsumingOperationProcessing");
 	NavigationTableNewRow(3, "ObjectMappingWait",, True, "Attachable_ObjectMappingWaitingTimeConsumingOperationCompletionTimeConsumingOperationProcessing");
 	
-	// 
+	// Operations with the automatic object mapping result.
 	NavigationTableNewRow(4, "ObjectsMapping", "Attachable_ObjectMappingOnOpen");
 	NavigationTableNewRow(5, "EmptyObjectMappingResult", "Attachable_EmptyObjectMappingResultEmptyObjectMappingResultOnOpen");
 	

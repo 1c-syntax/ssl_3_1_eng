@@ -1,19 +1,21 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Opens a report on object versions in version comparison mode.
+// Opens object version report in version comparison mode.
 //
 // Parameters:
-//  Ref                       - AnyRef -  the reference to the versioned object;
-//  SerializedObjectAddress - String -  address of the binary data
-//                                          of the object version being compared in temporary storage.
+//  Ref                       - AnyRef - reference to the versioned object;
+//  SerializedObjectAddress - String - address of binary data of the compared object
+//                                          version in the temporary storage.
 //
 Procedure OpenReportOnChanges(Ref, SerializedObjectAddress) Export
 	
@@ -25,11 +27,11 @@ Procedure OpenReportOnChanges(Ref, SerializedObjectAddress) Export
 	
 EndProcedure
 
-// Shows the saved version of the object.
+// Shows an object's saved version.
 //
 // Parameters:
-//  Ref                       - AnyRef -  the reference to the versioned object;
-//  SerializedObjectAddress - String -  address of the binary data of the object version in temporary storage.
+//  Ref                       - AnyRef - reference to the versioned object;
+//  SerializedObjectAddress - String - address of the object version binary data in the temporary storage.
 //
 Procedure OpenReportOnObjectVersion(Ref, SerializedObjectAddress) Export
 	
@@ -42,19 +44,19 @@ Procedure OpenReportOnObjectVersion(Ref, SerializedObjectAddress) Export
 	
 EndProcedure
 
-// Event handler for the message Processing event for the form where you want to display the check box for storing the change history.
+// The NotificationProcessing event handler for the form that requires a changes history storing check box to be displayed.
 //
 // Parameters:
-//   EventName - String -  name of the event that was received by the event handler on the form.
-//   StoreChangeHistory - Number -  the props that the value will be placed in.
+//   EventName - String - a name of an event that is got by an event handler on the form.
+//   StoreChangeHistory - Number - an attribute that will store the flag value.
 // 
 // Example:
-//	If The General Purpose Is A Client.Subsystems Exist ("Standard Subsystems.Versioning objects") Then
-//		Modulversion Of Objectsclient = General Purposeclient.General Module ("Versioning Of Client Objects");
-//		Modulversion of client objects.Processingreferencesfurther Readinghistory (
-//			Event Name, 
-//			Storehistory of changes);
-//	Conicelli;
+//	If CommonClient.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
+//		ModuleObjectVersioningClient = CommonClient.CommonModule("ObjectsVersioningClient");
+//		ModuleObjectVersioningClient.StoreHistoryCheckBoxChangeNotificationProcessing(
+//			EventName, 
+//			StoreChangeHistory);
+//	EndIf;
 //
 Procedure StoreHistoryCheckBoxChangeNotificationProcessing(Val EventName, StoreChangeHistory) Export
 	
@@ -64,17 +66,17 @@ Procedure StoreHistoryCheckBoxChangeNotificationProcessing(Val EventName, StoreC
 	
 EndProcedure
 
-// Handler for the Change event for the checkbox that switches the change history storage mode.
-// The flag must be associated with a Boolean attribute.
+// The OnChange event handler for the check box that switches change history storage mode.
+// The check box must be related to the Boolean type attribute.
 // 
 // Parameters:
-//   StoreChangesHistoryCheckBoxValue - Boolean -  the new value of the checkbox that you want to process.
+//   StoreChangesHistoryCheckBoxValue - Boolean - a new flag value to be processed.
 // 
 // Example:
-//	If The General Purpose Is A Client.Subsystems Exist ("Standard Subsystems.Versioning objects") Then
-//		Modulversion Of Objectsclient = General Purposeclient.General Module ("Versioning Of Client Objects");
-//		Modulversion of client objects.When Changing The Storehistory (Storehistory Of Changes);
-//	Conicelli;
+//	If CommonClient.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
+//		ModuleObjectVersioningClient = CommonClient.CommonModule("ObjectsVersioningClient");
+//		ModuleObjectVersioningClient.ShowSetting();
+//	EndIf;
 //
 Procedure OnStoreHistoryCheckBoxChange(StoreChangesHistoryCheckBoxValue) Export
 	
@@ -85,15 +87,15 @@ Procedure OnStoreHistoryCheckBoxChange(StoreChangesHistoryCheckBoxValue) Export
 	
 EndProcedure
 
-// Opens the object versioning control form.
-// Don't forget to set the command that executes the procedure call 
-// to depend on the use object Versioning function option.
+// Opens up an object versioning control form.
+// Remember to set the command that calls the procedure 
+// dependent on the UseObjectsVersioning functional option.
 //
 // Example:
-//	If The General Purpose Is A Client.Subsystems Exist ("Standard Subsystems.Versioning objects") Then
-//		Modulversion Of Objectsclient = General Purposeclient.General Module ("Versioning Of Client Objects");
-//		Modulversion of client objects.Parasitisation();
-//	Conicelli;
+//	If CommonClient.SubsystemExists("StandardSubsystems.ObjectsVersioning") Then
+//		ModuleObjectVersioningClient = CommonClient.CommonModule("ObjectsVersioningClient");
+//		ModuleObjectVersioningClient.ShowSetting();
+//	EndIf;
 //
 Procedure ShowSetting() Export
 	
@@ -105,11 +107,11 @@ EndProcedure
 
 #Region Internal
 
-// Opens the report about the version or compare versions.
+// Opens a report on a version or version comparison.
 //
 // Parameters:
-//  Ref - AnyRef -  object reference;
-//  VersionsToCompare - Array -  collection of compared versions. If there is only one version, the version report opens.
+//  Ref - AnyRef - object reference;
+//  VersionsToCompare - Array - a collection of versions to compare. If there is only one version, the report on the version will be opened.
 //
 Procedure OpenVersionComparisonReport(Ref, VersionsToCompare) Export
 	
@@ -120,11 +122,11 @@ Procedure OpenVersionComparisonReport(Ref, VersionsToCompare) Export
 	
 EndProcedure
 
-// Opens the list of object versions.
+// Opens a list of an object's versions.
 //
 // Parameters:
-//  Ref        - AnyRef -  versioned object;
-//  OwnerForm - ClientApplicationForm -  the form that opens the change history.
+//  Ref        - AnyRef - versioned object;
+//  OwnerForm - ClientApplicationForm - a form used to open a history of changes from.
 //
 Procedure ShowChangeHistory(Ref, OwnerForm) Export
 	

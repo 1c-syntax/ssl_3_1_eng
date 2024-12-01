@@ -1,25 +1,27 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Sets the settings for multilingual data.
+// Sets up multilingual data settings.
 //
 // Parameters:
-//   Settings - Structure - :
-//     * AdditionalLanguageCode1 - String -  code of the first additional default language.
-//     * AdditionalLanguageCode2 - String -  code of the second additional default language.
-//     * MultilanguageData - Boolean -  if True, the details that support the ability to enter data in multiple
-//                                       languages will automatically have a multilingual data input interface added.
+//   Settings - Structure - Collection of subsystem settings. Has the following attributes:
+//     * AdditionalLanguageCode1 - String - a code of the first default additional language.
+//     * AdditionalLanguageCode2 - String - a code of the second default additional language.
+//     * MultilanguageData - Boolean - if True, attributes supporting the ability to enter data in several
+//                                       languages ​​will automatically add an interface for entering multilingual data.
 //
 // Example:
-//  Customization.Additional language Code1 = " en";
-//  Customization.Additional language Code2 = " it";
+//  Settings.AdditionalLanguageCode1 = "en";
+//  Settings.AdditionalLanguageCode2 = "it";
 //
 Procedure OnDefineSettings(Settings) Export
 	

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -83,7 +85,7 @@ EndProcedure
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Update of application parameters and shared data in SaaS mode.
 
 &AtClient
 Procedure ImportUpdateApplicationParameters(Var_Parameters) Export
@@ -145,7 +147,7 @@ Function ImportApplicationParametersInBackground()
 	StartupParameters = StandardSubsystemsServer.ClientParametersAtServer().Get("LaunchParameter");
 	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate")
 		And StrFind(StartupParameters, "UpdateAndExit") = 0 Then
-		// 
+		// When running an update from a script, the script deletes outdated patches.
 		// 
 		ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
 		Try
@@ -166,7 +168,7 @@ Function ImportApplicationParametersInBackground()
 		Return "ImportApplicationParametersNotRequired";
 	EndIf;
 	
-	// 
+	// Long-running operation call (usually, in a background job).
 	Return InformationRegisters.ApplicationRuntimeParameters.ImportApplicationParametersInBackground(0,
 		UUID, True);
 	
@@ -236,7 +238,7 @@ EndProcedure
 &AtServer
 Function UpdateApplicationParametersInBackground()
 	
-	// 
+	// Long-running operation call (usually, in a background job).
 	Return InformationRegisters.ApplicationRuntimeParameters.UpdateApplicationParametersInBackground(0,
 		UUID, True);
 	
@@ -290,7 +292,7 @@ Function UpdateExtensionVersionParametersInBackground()
 		Return "ExtensionVersionParametersUpdateNotRequired";
 	EndIf;
 	
-	// 
+	// Long-running operation call (usually, in a background job).
 	Return InformationRegisters.ApplicationRuntimeParameters.UpdateExtensionVersionParametersInBackground(0,
 		UUID, True);
 	
@@ -361,7 +363,7 @@ Procedure CompleteUpdatingApplicationParameters(Result, AdditionalParameters) Ex
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Infobase update (entire infobase update in local mode, or data area update in SaaS mode).
 
 &AtClient
 Procedure UpdateInfobase1() Export
@@ -519,7 +521,7 @@ Procedure UpdateInfobaseWhenCannotSetExclusiveMode(AdditionalParameters)
 		Return;
 	EndIf;
 	
-	// 
+	// Opening a form for disabling active sessions.
 	Notification = New NotifyDescription("UpdateInfobaseWhenCannotSetExclusiveModeCompletion",
 		ThisObject, AdditionalParameters);
 	
@@ -578,7 +580,7 @@ EndProcedure
 &AtServer
 Procedure UpdateInfobase1CompletionServer(AdditionalParameters)
 	
-	// 
+	// If infobase update is completed, unlock the infobase.
 	InfobaseUpdateInternal.UnlockIB(IBLock);
 	InfobaseUpdateInternal.WriteUpdateExecutionTime(
 		AdditionalParameters.UpdateStartTime, AdditionalParameters.UpdateEndTime);
@@ -597,7 +599,7 @@ Procedure CloseForm(Cancel, Restart)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Registering data for the parallel deferred update.
 
 // Parameters:
 //  Result - See TimeConsumingOperationsClient.NewResultLongOperation
@@ -632,7 +634,7 @@ EndProcedure
 &AtServer
 Function FillDataForParallelDeferredUpdate()
 	
-	// 
+	// Clearing the InfobaseUpdate exchange plan.
 	If Not (StandardSubsystemsCached.DIBUsed("WithFilter") And Common.IsSubordinateDIBNode()) Then
 		Query = New Query;
 		Query.Text =
@@ -711,7 +713,7 @@ Function FillDataForParallelDeferredUpdate()
 	RegistrationProgress.Insert("TotalProcedureCount", TotalProcedureCount);
 	RegistrationProgress.Insert("ProceduresCompleted", 0);
 	
-	// 
+	// Unlocking the infobase and executing the registration on the exchange plan.
 	InfobaseUpdateInternal.UnlockIB(IBLock);
 	
 	Return StartDeferredHandlerFillingProcedures();
@@ -761,7 +763,7 @@ Function CheckDeferredHandlerFillingProcedures(ControllingBackgroundJobExecution
 		Return ControllingBackgroundJobExecutionResult;
 	EndIf;
 	
-	// 
+	// Refresh progress.
 	ProceduresCompleted = 0;
 	Handlers = InfobaseUpdateInternal.HandlersForDeferredDataRegistration();
 	For Each Handler In Handlers Do
@@ -784,7 +786,7 @@ Function CheckDeferredHandlerFillingProcedures(ControllingBackgroundJobExecution
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Common procedures for all stages.
 
 &AtClient
 Procedure BeginClose() Export

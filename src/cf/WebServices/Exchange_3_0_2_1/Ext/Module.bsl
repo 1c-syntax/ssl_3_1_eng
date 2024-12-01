@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Web service operation handlers.
 
-// Corresponds to the Upload operation.
+// Matches the Upload web service operation.
 Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -34,7 +36,7 @@ Function ExecuteExport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// Corresponds to the UploadData operation.
+// Matches the UploadData web service operation.
 Function RunDataExport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -60,7 +62,7 @@ Function RunDataExport(ExchangePlanName,
 	
 EndFunction
 
-// 
+// An analog of the "UploadDataInt" operation.
 Function RunDataExportInternalPublication(ExchangePlanName,
 													InfobaseNodeCode,
 													TaskID__,
@@ -79,7 +81,7 @@ Function RunDataExportInternalPublication(ExchangePlanName,
 	
 EndFunction
 
-// Corresponds to the Download operation.
+// Matches the Download web service operation.
 Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorage, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -98,7 +100,7 @@ Function ExecuteImport(ExchangePlanName, InfobaseNodeCode, ExchangeMessageStorag
 	
 EndFunction
 
-// Corresponds to the DownloadData operation.
+// Matches the DownloadData web service operation.
 Function RunDataImport(ExchangePlanName,
 								InfobaseNodeCode,
 								FileIDAsString,
@@ -123,7 +125,7 @@ Function RunDataImport(ExchangePlanName,
 	
 EndFunction
 
-// 
+// An analog of the "DownloadDataInt" operation.
 Function RunDataImportInternalPublication(ExchangePlanName,
 													InfobaseNodeCode,
 													TaskID__,
@@ -145,7 +147,7 @@ Function RunDataImportInternalPublication(ExchangePlanName,
 	
 EndFunction
 
-// Corresponds to the GetIBParameters operation.
+// Matches the GetIBParameters web service operation.
 Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -158,7 +160,7 @@ Function GetInfobaseParameters(ExchangePlanName, NodeCode, ErrorMessage, DataAre
 	
 EndFunction
 
-// Corresponds to the CreateExchangeNode operation.
+// Matches the CreateExchangeNode web service operation.
 Function CreateDataExchangeNode(XDTOParameters, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -201,7 +203,7 @@ Function CreateDataExchangeNode(XDTOParameters, DataArea)
 	
 EndFunction
 
-// Corresponds to the RemoveExchangeNode operation.
+// Matches the RemoveExchangeNode web service operation.
 Function DeleteDataExchangeNode(ExchangePlanName, NodeID, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -227,7 +229,7 @@ Function DeleteDataExchangeNode(ExchangePlanName, NodeID, DataArea)
 	
 EndFunction
 
-// Corresponds to the GetContinuousOperationStatus operation.
+// Matches the GetContinuousOperationStatus web service operation.
 Function GetTimeConsumingOperationState(OperationID, ErrorMessageString, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -266,7 +268,7 @@ Function GetTimeConsumingOperationState(OperationID, ErrorMessageString, DataAre
 	
 EndFunction
 
-// Corresponds to the PrepareGetFile operation.
+// Matches the PrepareGetFile web service operation.
 Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity, Zone)
 	
 	SignInToDataArea(Zone);
@@ -286,7 +288,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity, Zone)
 	MoveFile(SourceFileName1, SourceFileNameInTemporaryDirectory);
 	
 	If BlockSize <> 0 Then
-		// 
+		// Splitting a file into parts
 		FilesNames = SplitFile(SourceFileNameInTemporaryDirectory, BlockSize * 1024);
 		PartQuantity = FilesNames.Count();
 		
@@ -302,7 +304,7 @@ Function PrepareGetFile(FileId, BlockSize, TransferId, PartQuantity, Zone)
 	
 EndFunction
 
-// Corresponds to the GetFilePart operation.
+// Matches the GetFilePart web service operation.
 Function GetFilePart(TransferId, PartNumber, PartData, Zone)
 	
 	SignInToDataArea(Zone);
@@ -332,7 +334,7 @@ Function GetFilePart(TransferId, PartNumber, PartData, Zone)
 	
 EndFunction
 
-// Corresponds to the ReleaseFile operation.
+// Matches the ReleaseFile web service operation.
 Function ReleaseFile(TransferId)
 	
 	Try
@@ -346,12 +348,12 @@ Function ReleaseFile(TransferId)
 	
 EndFunction
 
-// Corresponds to the PutFilePart operation.
+// Matches the PutFilePart web service operation.
 //
 // Parameters:
-//   TransferId - UUID -  unique ID of the data transfer session.
-//   PartNumber - Number -  part number of the file.
-//   PartData - BinaryData -  data part of the file.
+//   TransferId - UUID - data transfer session UUID.
+//   PartNumber - Number - the file part number.
+//   PartData - BinaryData - the file part details.
 //
 Function PutFilePart(TransferId, PartNumber, PartData, Zone)
 	
@@ -375,7 +377,7 @@ Function PutFilePart(TransferId, PartNumber, PartData, Zone)
 	
 EndFunction
 
-// Corresponds to the SaveFileFromParts operation.
+// Matches the SaveFileFromParts web service operation.
 Function SaveFileFromParts(TransferId, PartQuantity, FileId, Zone)
 	
 	SignInToDataArea(Zone);
@@ -445,7 +447,7 @@ Function SaveFileFromParts(TransferId, PartQuantity, FileId, Zone)
 	
 EndFunction
 
-// Corresponds to the PutMessageForDataMatching operation.
+// Matches the PutMessageForDataMatching web service operation.
 Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -473,9 +475,9 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 	DataExchangeInternal.PutMessageForDataMapping(ExchangeNode, FileID);
 	
-	//  
-	// 
-	// 
+	// The web client and the thin client have dedicated temporary directories. 
+	// Configuring syncing from the thin client will result in an error due to the missing file
+	// in the temporary directory.
 	// 
 	MoveTheMessageFileForTheFileIB(FileID);
 	
@@ -485,20 +487,20 @@ Function PutMessageForDataMatching(ExchangePlanName, NodeID, FileID, DataArea)
 	
 EndFunction
 
-// Corresponds to the Ping operation.
+// Matches the Ping web service operation.
 Function Ping()
-	// 
+	// Test connection.
 	Return "";
 EndFunction
 
-// Corresponds to the TestConnection operation.
+// Matches the TestConnection web service operation.
 Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 	
 	SignInToDataArea(DataArea);
 	
 	SetPrivilegedMode(True);
 	
-	// 
+	// Checking whether a user has rights to perform the data exchange.
 	Try
 		DataExchangeServer.CheckCanSynchronizeData(True);
 	Except
@@ -506,7 +508,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 		Return False;
 	EndTry;
 	
-	// 
+	// Checking whether the infobase is locked for update.
 	Try
 		CheckInfobaseLockForUpdate();
 	Except
@@ -514,7 +516,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 		Return False;
 	EndTry;
 		
-	// 
+	// Checking whether the exchange plan node exists (it might be deleted).
 	NodeRef1 = DataExchangeServer.ExchangePlanNodeByCode(ExchangePlanName, NodeCode);
 	If NodeRef1 = Undefined
 		Or Common.ObjectAttributeValue(NodeRef1, "DeletionMark") Then
@@ -537,7 +539,7 @@ Function TestConnection(ExchangePlanName, NodeCode, Result, DataArea)
 	Return True;
 EndFunction
 
-// 
+// An analog of the "ChangeNodeTransportToWSPass" operation.
 Function ChangeNodeTransportToWSInt(XDTOParameters, DataArea)
 	
 	SignInToDataArea(DataArea);
@@ -584,7 +586,7 @@ Function ChangeNodeTransportToWSInt(XDTOParameters, DataArea)
 	
 EndFunction
 
-// 
+// An analog of the "Callback" operation.
 Function Callback(TaskID, Error, Zone)
 	
 	SignInToDataArea(Zone);
@@ -640,7 +642,7 @@ Function Callback(TaskID, Error, Zone)
 	
 EndFunction
 
-// 
+// Matches the "TaskStatus" operation.
 Function TaskStatus(TaskID)
 	
 	SetPrivilegedMode(True);
@@ -663,7 +665,7 @@ Function TaskStatus(TaskID)
 	
 EndFunction
 
-// 
+// An analog of the "StopTasks" operation.
 Function StopTasks(TasksID, Zone)
 	
 	SignInToDataArea(Zone);
@@ -702,7 +704,7 @@ Function StopTasks(TasksID, Zone)
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Local internal procedures and functions.
 
 Procedure CheckInfobaseLockForUpdate()
 	
@@ -997,9 +999,9 @@ Procedure SignInToDataArea(DataArea)
 	CTLVersion = ModuleSaaSTechnology.LibraryVersion();
 
 	If CommonClientServer.CompareVersions(CTLVersion, "2.0.7.46") >= 0 Then
-		ModuleSaaSOperations.SignInToDataArea(DataArea);
+		ModuleSaaSOperations.SignInToDataArea(DataArea); //ACC:287
 	Else
-		ModuleSaaSOperations.SetSessionSeparation(True, DataArea);
+		ModuleSaaSOperations.SetSessionSeparation(True, DataArea); //ACC:222
 	EndIf;
 	
 EndProcedure
@@ -1017,9 +1019,9 @@ Procedure SignOutOfDataArea(DataArea)
 	CTLVersion = ModuleSaaSTechnology.LibraryVersion();
 
 	If CommonClientServer.CompareVersions(CTLVersion, "2.0.7.46") >= 0 Then
-		ModuleSaaSOperations.SignOutOfDataArea();
+		ModuleSaaSOperations.SignOutOfDataArea(); //ACC:287
 	Else
-		ModuleSaaSOperations.SetSessionSeparation(False);
+		ModuleSaaSOperations.SetSessionSeparation(False); //ACC:222
 	EndIf;
 	
 EndProcedure

@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -18,7 +20,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Raise
 			NStr("en = 'Cannot create an initial image for this node.';");
 	Else
-		InfobaseKind = 0; // 
+		InfobaseKind = 0; // File infobase.
 		DBMSType = "";
 		Node = Parameters.Node;
 		CanCreateFileInfobase = True;
@@ -92,7 +94,7 @@ EndProcedure
 &AtClient
 Procedure InfobaseKindOnChange(Item)
 	
-	// 
+	// Switch the parameters page.
 	Pages = Items.Find("Pages");
 	Pages.CurrentPage = Pages.ChildItems[InfobaseKind];
 	
@@ -176,7 +178,7 @@ Procedure CreateInitialImage(Command)
 		JobParameters.Insert("PathToVolumeFilesArchiveLinux", PathToVolumeFilesArchiveLinux);
 		
 		If InfobaseKind = 0 Then
-			// 
+			// File initial image.
 			JobParameters.Insert("FormUniqueID", UUID);
 			JobParameters.Insert("Language", Language);
 			JobParameters.Insert("FullWindowsFileInfobaseName", FullWindowsFileInfobaseName);
@@ -184,7 +186,7 @@ Procedure CreateInitialImage(Command)
 			JobParameters.Insert("JobDescription", NStr("en = 'Create initial file image';"));
 			JobParameters.Insert("ProcedureDescription", "FilesOperationsInternal.CreateFileInitialImageAtServer");
 		Else
-			// 
+			// Server initial image.
 			ConnectionString =
 				"Srvr="""       + Server + """;"
 				+ ?(ValueIsFilled(ClusterAdministratorName), "SUsr=""" + ClusterAdministratorName + """;", "")
@@ -320,7 +322,7 @@ EndProcedure
 &AtServerNoContext
 Function PrepareDataToCreateInitialImage(JobParameters, InfobaseKind)
 	
-	// 
+	// Writing the parameters of attaching node to constant.
 	If Common.SubsystemExists("StandardSubsystems.DataExchange") Then
 		
 		Cancel = False;
@@ -345,12 +347,12 @@ Function PrepareDataToCreateInitialImage(JobParameters, InfobaseKind)
 	EndIf;
 	
 	If InfobaseKind = 0 Then
-		// 
-		// 
+		// The initial file image.
+		// A function for processing, validating, and preparing parameters.
 		Result = FilesOperationsInternal.PrepareDataToCreateFileInitialImage(JobParameters);
 	Else
-		// 
-		// 
+		// The initial server image.
+		// A function for processing, validating, and preparing parameters.
 		Result = FilesOperationsInternal.PrepareDataToCreateServerInitialImage(JobParameters);
 	EndIf;
 	
@@ -399,7 +401,7 @@ Function CreateInitialImageAtServer(Val Action)
 	If IsTempStorageURL(JobParametersAddress) Then
 		JobParameters = GetFromTempStorage(JobParametersAddress);
 		If TypeOf(JobParameters) = Type("Structure") Then
-			// 
+			// Start background job.
 			ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 			ExecutionParameters.BackgroundJobDescription = JobParameters.JobDescription;
 			

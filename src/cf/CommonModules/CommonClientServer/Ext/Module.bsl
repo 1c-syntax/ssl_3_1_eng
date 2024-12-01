@@ -1,25 +1,27 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
 #Region UserNotification
 
-// 
+// ACC:142-off 4 optional parameters for compatibility with the previous library versions.
 
-// Adds a new user error to the error list for further sending using
-// the report error to User () procedure.
-// It is intended for accumulating a list of errors and then processing this list before displaying
-// it to the user. The resulting list of errors can, for example, be sorted by importance, cleared of duplicates,
-// and also output to the user in a different form than the report to User method outputs, for example, in a table document.
+// Adds the error to the error list that will be displayed to the user with the ShowErrorsToUser()
+// procedure.
+// The procedure collects errors to a list, which can be processed before they displayed to
+// users. You can sort the error list alphabetically, remove doubles,
+// or change the appearance (for example, display errors as a spreadsheet document, unlike the MessageToUser method default appearance).
 //
 // Parameters:
-//  Errors - Undefined -  create a new list of errors.
+//  Errors - Undefined - create a new list of errors.
 //         - Structure:
 //            * ErrorList - Array of Structure:
 //             ** ErrorField - String
@@ -29,21 +31,21 @@
 //             ** SeveralErrorsText - String
 //            * ErrorGroups - Map
 //         
-//  ErrorField - String -  the value that is set in the field property of the message object to the User.
-//           For auto-substitution, the line number must contain "%1".
-//           For Example, " Object.INN " or " Object.Users[%1].User".
-//  SingleErrorText - String -  error text for the case when there is only one error Group in the collection,
-//           for example, NSTR ("ru = 'The user is not selected.'").
-//  ErrorsGroup1 - Arbitrary -  used to select either text for a single error
-//           or text for multiple errors, such as the name " Object.Users".
-//           If the value is not filled in, then the text for one error is used.
-//  LineNumber - Number -  a value from 0 ... that specifies the line number to be inserted
-//           in the error Field string and in the text for multiple Errors (string Number + 1 is substituted).
-//  SeveralErrorsText - String -  error text for the case when several errors were added with the same
-//           error Group property, for example, NSTR ("ru = 'The user in line %1 is not selected.'").
-//  RowIndex - Undefined -  matches the value of the string Number parameter.
-//           Number - a value from 0 ... that defines the line number to be inserted
-//           in the Error field string.
+//  ErrorField - String - the field value in the MessageToUser object.
+//           If you want to include a row number, use placeholder "%1".
+//           For example, "Object.TIN" or "Object.Users[%1].User".
+//  SingleErrorText - String - the error text for scenarios when the collection contains only one ErrorGroup.
+//           For example, NStr("en = 'User not selected.'").
+//  ErrorsGroup1 - Arbitrary - provides text for a single error
+//           or a group of errors. For example, for the Object.Users name.
+//           If blank, provides the single error text by default.
+//  LineNumber - Number - the row number to pass
+//           to ErrorField and in SeveralErrorText. The displayed number is RowNumber + 1.
+//  SeveralErrorsText - String - the error text for scenarios when the collection contains a number of errors with the same
+//           ErrorGroup property. For example, NStr("en = 'User on row %1 not selected.'").
+//  RowIndex - Undefined - the same as the RowNumber parameter.
+//           Number - the number to pass
+//           to ErrorField.
 //
 Procedure AddUserError(
 		Errors,
@@ -61,13 +63,13 @@ Procedure AddUserError(
 	EndIf;
 	
 	If Not ValueIsFilled(ErrorsGroup1) Then
-		// 
+		// If the error group is empty, the single error text must be used.
 	Else
 		If Errors.ErrorGroups[ErrorsGroup1] = Undefined Then
-			// 
+			// The error group has been used only once, the single error text must be used.
 			Errors.ErrorGroups.Insert(ErrorsGroup1, False);
 		Else
-			// 
+			// The error group has been used several times, the several error text must be used.
 			Errors.ErrorGroups.Insert(ErrorsGroup1, True);
 		EndIf;
 	EndIf;
@@ -84,15 +86,15 @@ Procedure AddUserError(
 	
 EndProcedure
 
-// 
+// ACC:142-on
 
-// 
-// 
-// 
+// Outputs the errors accumulated by the AddUserError method.
+// It uses error text templates considering the number of the same-type errors.
+// Not intended for sending messages from long-running operation jobs.
 //
 // Parameters:
 //  Errors - See AddUserError.Errors
-//  Cancel - Boolean -  set to True if errors were reported.
+//  Cancel - Boolean - True, if errors have been reported.
 //
 Procedure ReportErrorsToUser(Errors, Cancel = False) Export
 	
@@ -126,19 +128,19 @@ Procedure ReportErrorsToUser(Errors, Cancel = False) Export
 	
 EndProcedure
 
-// Generates the text of errors in filling in fields and lists.
+// Generates a filling error text for fields and lists.
 //
 // Parameters:
-//  FieldKind - String -  it can take the following values: Field, Column, List.
-//  MessageKind - String -  it can take the following values: Filling In, Correctness.
-//  FieldName - String -  field name.
+//  FieldKind - String - can take the following values: Field, Column, and List.
+//  MessageKind - String - can take the following values: FillType and Validity.
+//  FieldName - String - Field name.
 //  LineNumber - String
-//              - Number - 
-//  ListName - String -  list name.
-//  MessageText - String -  detailed explanation of the filling error.
+//              - Number - a string number.
+//  ListName - String - a list name.
+//  MessageText - String - the detailed filling error description.
 //
 // Returns:
-//   String - 
+//   String - the filling error text.
 //
 Function FillingErrorText(
 		FieldKind = "Field",
@@ -184,18 +186,18 @@ Function FillingErrorText(
 	
 EndFunction
 
-// Generates a path string lines that will be loaded and the column Markusica 
-// table part Kataboliceski to issue messages in a form.
-// For sharing with the report to User procedure
-// (for passing a Field or path to The data parameters). 
+// Generates a path to the LineNumber row and the AttributeName column of the TabularSectionName 
+// tabular section to display messages on the form.
+// This procedure is for using with the MessageToUser procedure
+// (for passing values to the Field parameter or to the DataPath parameter). 
 //
 // Parameters:
-//  TabularSectionName - String -  name of the table part.
-//  LineNumber - Number -  line number of the table part.
-//  AttributeName - String - 
+//  TabularSectionName - String - tabular section name.
+//  LineNumber - Number - a table part row number.
+//  AttributeName - String - an attribute name.
 //
 // Returns:
-//  String - 
+//  String - the path to a table row.
 //
 Function PathToTabularSection(
 		Val TabularSectionName,
@@ -211,13 +213,13 @@ EndFunction
 #Region CurrentEnvironment
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// The details functions of the current client application environment and operating system.
 
-// For file mode, returns the full name of the folder where the database is located.
-// If the client-server mode is used, an empty string is returned.
+// For File mode, returns the full name of the directory, where the infobase is located.
+// If the application runs in client/server mode, an empty string is returned.
 //
 // Returns:
-//  String - 
+//  String - full name of the directory where the file infobase is stored.
 //
 Function FileInfobaseDirectory() Export
 	
@@ -231,14 +233,14 @@ Function FileInfobaseDirectory() Export
 	
 EndFunction
 
-// 
+// Returns the name of the enumeration containing platform types.
 //
 // Parameters:
-//  ValueOf1CEnterpriseType - Undefined - 
-//                                         
-//                        - PlatformType - 
+//  ValueOf1CEnterpriseType - Undefined - Return the current platform type name
+//                                         (retrieved from SystemInfo).
+//                        - PlatformType - Return the name of the given platform type.
 // Returns:
-//  String - 
+//  String - For example: Windows_x86_64, Linux_x86_64, MacOS_x86.
 //
 Function NameOfThePlatformType(Val ValueOf1CEnterpriseType = Undefined) Export
 	
@@ -292,13 +294,13 @@ EndFunction
 
 #Region Data
 
-// Throws an exception with the Message text if the Condition is not True.
-// Used for self-diagnosis of code.
+// Raises an exception with Message if Condition is not True.
+// Is applied for script self-diagnostics.
 //
 // Parameters:
-//   Condition - Boolean -  if not True, an exception is thrown.
-//   Message - String -  message text. If omitted, the exception is called with the default message.
-//   CheckContext - String -  for example, the name of the procedure or function that is being checked.
+//   Condition - Boolean - If not True, exception is raised.
+//   Message - String - a message text. If it is not specified, the exception is raised with the default message.
+//   CheckContext - String - for example, name of the procedure or function to check.
 //
 Procedure Validate(Val Condition, Val Message = "", Val CheckContext = "") Export
 	
@@ -321,28 +323,28 @@ Procedure Validate(Val Condition, Val Message = "", Val CheckContext = "") Expor
 	
 EndProcedure
 
-// Throws an exception if the value type of the parameter ParameterName of the function or procedure of Impliedwarranties
-// differs from the expected.
-// For quick diagnostics of parameter types passed to procedures and functions in the program interface.
+// Raises an exception if the ParameterName parameter value type of the ProcedureOrFunctionName procedure or function
+// does not match the excepted one.
+// Is intended for validating types of parameters passed to the interface procedures and functions.
 //
-// Due to the implementation feature, the type Descriptor always includes the <Undefined>type.
-// if strict type checking is required, use a 
-// specific type, array, or type match in the expected Types parameter.
+// Due to the implementation peculiarity, TypeDescription always includes the <Undefined> type.
+// if a strict check of the type is required, use 
+// a specific type, array or map of types in the ExpectedTypes parameter.
 //
 // Parameters:
-//   NameOfAProcedureOrAFunction - String -  name of the procedure or function whose parameter is being checked.
-//   ParameterName - String -  name of the procedure or function parameter to check.
-//   ParameterValue - Arbitrary -  the actual value of the parameter.
+//   NameOfAProcedureOrAFunction - String - name of the procedure or function that contains the parameter to check.
+//   ParameterName - String - name of the parameter to check.
+//   ParameterValue - Arbitrary - actual value of the parameter.
 //   ExpectedTypes - TypeDescription
 //                 - Type
 //                 - Array
 //                 - FixedArray
 //                 - Map
-//                 - FixedMap - 
-//       
-//   PropertiesTypesToExpect - Structure -  if the expected type is a structure, 
-//       you can specify the types of its properties in this parameter.
-//   ExpectedValues - Array, String - 
+//                 - FixedMap - type(s)
+//       of the parameter of procedure or function.
+//   PropertiesTypesToExpect - Structure - If the expected type is a structure, 
+//       this parameter can be used to specify its properties.
+//   ExpectedValues - Array, String - Valid parameter values (comma-delimited if String).
 //
 Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val ParameterValue, 
 	Val ExpectedTypes, Val PropertiesTypesToExpect = Undefined, Val ExpectedValues = Undefined) Export
@@ -426,20 +428,20 @@ Procedure CheckParameter(Val NameOfAProcedureOrAFunction, Val ParameterName, Val
 	
 EndProcedure
 
-// Supplements the receiver value table with data from the source value table.
-// The types of table Values, tree Values, and table Parts are not available on the client.
+// Supplements the destination value table with data from the source value table.
+// ValueTable, ValueTree, and TabularSection types are not available on the client.
 //
 // Parameters:
 //  SourceTable1 - ValueTable
 //                  - ValueTree
 //                  - TabularSection
-//                  - FormDataCollection - 
-//                    
+//                  - FormDataCollection - the table that provides
+//                    rows;
 //  DestinationTable - ValueTable
 //                  - ValueTree
 //                  - TabularSection
-//                  - FormDataCollection - 
-//                    
+//                  - FormDataCollection - the table that
+//                    receives rows from the source table.
 //
 Procedure SupplementTable(SourceTable1, DestinationTable) Export
 	
@@ -451,12 +453,12 @@ Procedure SupplementTable(SourceTable1, DestinationTable) Export
 	
 EndProcedure
 
-// Complements the table of values with values from the array Array.
+// Supplements the Table value table with values from the Array array.
 //
 // Parameters:
-//  Table - ValueTable -  table to fill in with values from the array;
-//  Array  - Array -  array of values to fill in the table;
-//  FieldName - String -  name of the value table field to load values from the array into.
+//  Table - ValueTable - the table to be filled in with values from an array;
+//  Array  - Array - an array of values to provide for the table;
+//  FieldName - String - the name of the value table field that receives the array values.
 // 
 Procedure SupplementTableFromArray(Table, Array, FieldName) Export
 
@@ -468,12 +470,12 @@ Procedure SupplementTableFromArray(Table, Array, FieldName) Export
 	
 EndProcedure
 
-// Complements the array array Receiver with values from the array array Source.
+// Supplements the DestinationArray array with values from the SourceArray array.
 //
 // Parameters:
-//  DestinationArray - Array -  array to add values to.
-//  SourceArray1 - Array -  array of values to fill in.
-//  UniqueValuesOnly - Boolean -  if true, only unique values will be included in the array.
+//  DestinationArray - Array - the array that receives values.
+//  SourceArray1 - Array - an array of values to provide for the table.
+//  UniqueValuesOnly - Boolean - If True, the array keeps only unique values.
 //
 Procedure SupplementArray(DestinationArray, SourceArray1, UniqueValuesOnly = False) Export
 	
@@ -502,16 +504,16 @@ Procedure SupplementArray(DestinationArray, SourceArray1, UniqueValuesOnly = Fal
 	
 EndProcedure
 
-// Complements the structure with values from another structure.
+// Supplies the structure with the values from the other structure.
 //
 // Parameters:
-//   Receiver - Structure -  a collection to add new values to.
-//   Source - Structure -  a collection from which the Key and Value pairs to fill will be read.
+//   Receiver - Structure - the collection that receives new values.
+//   Source - Structure - the collection that provides key-value pairs.
 //   Replace - Boolean
-//            - Undefined - :
-//                             
-//                             
-//                             
+//            - Undefined - Describes the behavior when the source and target keys collide::
+//                             True - Replace the source value (the fastest option).
+//                             False - Do not replace the source value (skip it).
+//                             Undefined - The default value. Raise an exception.
 //
 Procedure SupplementStructure(Receiver, Source, Replace = Undefined) Export
 	
@@ -530,16 +532,16 @@ Procedure SupplementStructure(Receiver, Source, Replace = Undefined) Export
 	
 EndProcedure
 
-// Complements the match with values from another match.
+// Complete a map with values from another map.
 //
 // Parameters:
-//   Receiver - Map -  a collection to add new values to.
-//   Source - Map of KeyAndValue -  a collection from which the Key and Value pairs to fill will be read.
+//   Receiver - Map - the collection that receives new values.
+//   Source - Map of KeyAndValue - the collection that provides key-value pairs.
 //   Replace - Boolean
-//            - Undefined - :
-//                             
-//                             
-//                             
+//            - Undefined - Describes the behavior when the source and target keys collide::
+//                             True - Replace the source value (the fastest option).
+//                             False - Do not replace the source value (skip it).
+//                             Undefined - The default value. Raise an exception.
 //
 Procedure SupplementMap(Receiver, Source, Replace = Undefined) Export
 	
@@ -557,26 +559,26 @@ Procedure SupplementMap(Receiver, Source, Replace = Undefined) Export
 	
 EndProcedure
 
-// 
-//  
-// 
+// Updates the DestinationList value list with values from SourceList.
+// If the destination list contains an item with the passed value, this item's presentation is updated 
+// with the presentation from the source list.
 // 
 // Parameters:
 //  DestinationList - ValueList
 //  SourceList - ValueList
-//  ShouldSkipValuesOfOtherTypes - Boolean -  
-//                                   
+//  ShouldSkipValuesOfOtherTypes - Boolean - If True, skip items if the source item type and the destination item type mismatch. 
+//                                  By default, True. 
 //                                  
-//  AddNewItems - Boolean, Undefined - 
-//                                          
+//  AddNewItems - Boolean, Undefined - If True, add items from the source list into the destination list,
+//                                          considering only those values that are absent in the destination list.
 // 
 // Returns:
 //  Structure:
-//    * Total     - Number - 
-//    * Added2 - Number - 
-//    * Updated3 - Number -  
-//                          
-//    * Skipped3 - Number - 
+//    * Total     - Number - Source list item count.
+//    * Added2 - Number - If AddNewItems is set to True, then it is the number of items added to the destination.
+//    * Updated3 - Number - Number of matched items, whose presentations in the destination 
+//                          are replaces with the presentations from the source.
+//    * Skipped3 - Number - Number of items skipped in the destination.
 //
 Function SupplementList(Val DestinationList, Val SourceList, Val ShouldSkipValuesOfOtherTypes = Undefined, 
 	Val AddNewItems = True) Export
@@ -627,14 +629,14 @@ Function SupplementList(Val DestinationList, Val SourceList, Val ShouldSkipValue
 	Return Result;
 EndFunction
 
-// Checks whether an arbitrary object has a prop or property without accessing metadata.
+// Checks whether an arbitrary object has the attribute or property without metadata call.
 //
 // Parameters:
-//  Object       - Arbitrary -  the object to check for the presence of a prop or property;
-//  AttributeName - String       -  name of the item or property.
+//  Object       - Arbitrary - the object whose attribute or property you need to check;
+//  AttributeName - String       - the attribute or property name.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the attribute is found.
 //
 Function HasAttributeOrObjectProperty(Object, AttributeName) Export
 	
@@ -649,8 +651,8 @@ EndFunction
 // Deletes all occurrences of the passed value from the array.
 //
 // Parameters:
-//  Array - Array -  array to delete the value from;
-//  Value - Arbitrary -  the value to delete from the array.
+//  Array - Array - the array that contains a value to delete;
+//  Value - Arbitrary - the array value to delete.
 // 
 Procedure DeleteAllValueOccurrencesFromArray(Array, Value) Export
 	
@@ -670,11 +672,11 @@ Procedure DeleteAllValueOccurrencesFromArray(Array, Value) Export
 	
 EndProcedure
 
-// Deletes all occurrences of values of the specified type.
+// Deletes all occurrences of specified type values.
 //
 // Parameters:
-//  Array - Array -  the array from which to remove values;
-//  Type - Type -  type of values to be deleted from the array.
+//  Array - Array - the array that contains values to delete;
+//  Type - Type - the type of values to be deleted.
 // 
 Procedure DeleteAllTypeOccurrencesFromArray(Array, Type) Export
 	
@@ -694,11 +696,11 @@ Procedure DeleteAllTypeOccurrencesFromArray(Array, Type) Export
 	
 EndProcedure
 
-// Deletes a single value from the array.
+// Deletes one value from the array.
 //
 // Parameters:
-//  Array - Array -  array to delete the value from;
-//  Value - Array -  the value to delete from the array.
+//  Array - Array - the array that contains a value to delete;
+//  Value - Array - the array value to delete.
 // 
 Procedure DeleteValueFromArray(Array, Value) Export
 	
@@ -709,13 +711,13 @@ Procedure DeleteValueFromArray(Array, Value) Export
 	
 EndProcedure
 
-// Returns a copy of the original array with unique values.
+// Returns the source array copy with the unique values.
 //
 // Parameters:
-//  Array - Array -  an array of arbitrary values.
+//  Array - Array - an array of values.
 //
 // Returns:
-//  Array - 
+//  Array - an array of unique elements.
 //
 Function CollapseArray(Val Array) Export
 	Result = New Array;
@@ -723,21 +725,21 @@ Function CollapseArray(Val Array) Export
 	Return Result;
 EndFunction
 
-// Returns the difference between arrays. The difference between two arrays is an array containing
-// all elements of the first array that do not exist in the second array.
+// Returns the difference between arrays. The difference between two arrays is an array that contains
+// all items of the first array that do not exist in the second array.
 //
 // Parameters:
-//  Array - Array -  array of elements to subtract from;
-//  SubtractionArray - Array -  array of elements to be subtracted.
+//  Array - Array - an array to subtract from;
+//  SubtractionArray - Array - an array being subtracted.
 // 
 // Returns:
-//  Array - 
+//  Array - a difference between two arrays.
 //
 // Example:
-//	
-//	
-//	
-//	
+//	A = [1, 3, 5, 7];
+//	B = [3, 7, 9];
+//	Result = CommonClientServer.ArraysDifference(A, B);
+//	Result = [1, 5];
 //
 Function ArraysDifference(Val Array, Val SubtractionArray) Export
 	
@@ -751,20 +753,20 @@ Function ArraysDifference(Val Array, Val SubtractionArray) Export
 	
 EndFunction
 
-// Compares elements of lists of values or arrays by value.
+// Compares item values in two value list or element values in two arrays.
 //
 // Parameters:
 //  List1 - Array
-//          - ValueList - 
+//          - ValueList - the first item collection to compare.
 //  List2 - Array
-//          - ValueList - 
-//  ShouldCompareValuesCount - Boolean - :
-//                                          
-//                                           
-//                                          
+//          - ValueList - the first item collection to compare.
+//  ShouldCompareValuesCount - Boolean - Clarifies the comparison mode.:
+//                                          If "False", it will check if the collection elements are present in the other collection.
+//                                          If "True", it will check if the collection elements are present in the other collection 
+//                                          considering the element count. By default, it is set to "False".
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the collections are identical.
 //
 Function ValueListsAreEqual(List1, List2, ShouldCompareValuesCount = False) Export
 	
@@ -820,13 +822,13 @@ Function ValueListsAreEqual(List1, List2, ShouldCompareValuesCount = False) Expo
 	
 EndFunction
 
-// Creates an array and puts the passed value in it.
+// Creates an array and adds the passed value to it.
 //
 // Parameters:
-//  Value - Arbitrary -  any value.
+//  Value - Arbitrary - a value.
 //
 // Returns:
-//  Array - 
+//  Array - a single-element array.
 //
 Function ValueInArray(Val Value) Export
 	
@@ -836,14 +838,14 @@ Function ValueInArray(Val Value) Export
 	
 EndFunction
 
-// Gets a string that contains the keys of the structure, separated by a separator character.
+// Gets a string that contains character-separated structure keys.
 //
 // Parameters:
-//  Structure - Structure -  a structure whose keys are converted to a string.
-//  Separator - String -  a separator that is inserted in the string between the structure keys.
+//  Structure - Structure - a structure that contains keys to convert into a string.
+//  Separator - String - a separator inserted to a line between the structure keys.
 //
 // Returns:
-//  String - 
+//  String - the string that contains delimiter-separated structure keys.
 //
 Function StructureKeysToString(Structure, Separator = ",") Export
 	
@@ -858,20 +860,20 @@ Function StructureKeysToString(Structure, Separator = ",") Export
 	
 EndFunction
 
-// Returns the value of the structure property.
+// Returns the structure property value.
 //
 // Parameters:
 //   Structure - Structure
-//             - FixedStructure - 
-//   Var_Key - String -  the property name of the structure for which you want to read the value.
-//   DefaultValue - Arbitrary -  returned when the structure does not have a value for the specified
+//             - FixedStructure - an object to read key value from.
+//   Var_Key - String - the structure property whose value to read.
+//   DefaultValue - Arbitrary - Returned when the structure contains no value for the given
 //                                        key.
-//       For speed, it is recommended to pass only fast calculated values (for example, primitive types),
-//       and initialize heavier values after checking the received value (only if
-//       required).
+//       To keep the system performance, it is recommended to pass only easy-to-calculate values (for example, primitive types).
+//       Pass performance-demanding values only after ensuring that the value
+//       is required.
 //
 // Returns:
-//   Arbitrary - 
+//   Arbitrary - the property value. If the structure missing the property, returns DefaultValue.
 //
 Function StructureProperty(Structure, Var_Key, DefaultValue = Undefined) Export
 	
@@ -888,7 +890,7 @@ Function StructureProperty(Structure, Var_Key, DefaultValue = Undefined) Export
 	
 EndFunction
 
-// Returns an empty unique ID.
+// Returns an empty UUID.
 //
 // Returns:
 //  UUID - 00000000-0000-0000-0000-000000000000
@@ -903,14 +905,14 @@ EndFunction
 
 #Region ConfigurationsVersioning
 
-// Gets the configuration version number without the build number.
+// Gets the configuration version without the build version.
 //
 // Parameters:
-//  Version - String -  configuration version in the format PP. PP. ZZ. SS,
-//                    where SS is the build number to be deleted.
+//  Version - String - the configuration version in the RR.PP.ZZ.CC format,
+//                    where CC is the build version and excluded from the result.
 // 
 // Returns:
-//  String - 
+//  String - configuration version in the RR.PP.ZZ format, excluding the build version.
 //
 Function ConfigurationVersionWithoutBuildNumber(Val Version) Export
 	
@@ -928,14 +930,14 @@ Function ConfigurationVersionWithoutBuildNumber(Val Version) Export
 	Return Result;
 EndFunction
 
-// Compare two version strings.
+// Compares two versions in the String format.
 //
 // Parameters:
-//  VersionString1  - String -  version number in the format PP. {P|PP}. ZZ. SS.
-//  VersionString2  - String -  the second version number to compare.
+//  VersionString1  - String - the first version in the RR.{S|SS}.VV.BB format.
+//  VersionString2  - String - the second version.
 //
 // Returns:
-//   Number   - 
+//   Number   - if VersionString1 > VersionString2, it is a positive number. If they are equal, it is 0.
 //
 Function CompareVersions(Val VersionString1, Val VersionString2) Export
 	
@@ -963,14 +965,14 @@ Function CompareVersions(Val VersionString1, Val VersionString2) Export
 	
 EndFunction
 
-// Compare two version strings.
+// Compares two versions in the String format.
 //
 // Parameters:
-//  VersionString1  - String -  version number in the format PP. {P|PP}. ZZ.
-//  VersionString2  - String -  the second version number to compare.
+//  VersionString1  - String - the first version in the RR.{P|PP}.ZZ format.
+//  VersionString2  - String - the second version.
 //
 // Returns:
-//   Number   - 
+//   Number   - if VersionString1 > VersionString2, it is a positive number. If they are equal, it is 0.
 //
 Function CompareVersionsWithoutBuildNumber(Val VersionString1, Val VersionString2) Export
 	
@@ -1003,17 +1005,17 @@ EndFunction
 #Region Forms
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions for client application forms.
 //
 
-// Gets the value of the form's props.
+// Gets the form attribute value.
 //
 // Parameters:
-//  Form - ClientApplicationForm -  shape.
-//  AttributePath2 - String -  the path to the data of the form's props, for example: "Object.Monthly calculation".
+//  Form - ClientApplicationForm - Form.
+//  AttributePath2 - String - the path to the form attribute data, for example: "Object.AccrualMonth".
 //
 // Returns:
-//  Arbitrary -  the requisite forms.
+//  Arbitrary - form attribute.
 //
 Function GetFormAttributeByPath(Form, AttributePath2) Export
 	
@@ -1030,13 +1032,13 @@ Function GetFormAttributeByPath(Form, AttributePath2) Export
 	
 EndFunction
 
-// Sets the value of the form's details.
+// Sets the value to the form attribute.
 // Parameters:
-//  Form - ClientApplicationForm -  form - the owner of the props.
-//  AttributePath2 - String -  the path to the data, for example: "Object.Monthly calculation".
-//  Value - Arbitrary -  set value.
-//  UnfilledOnly - Boolean -  allows you not to set the value of the props,
-//                                  if it already has a value set.
+//  Form - ClientApplicationForm - a form that owns the attribute.
+//  AttributePath2 - String - the path to the data, for example: "Object.AccrualMonth".
+//  Value - Arbitrary - a value being set.
+//  UnfilledOnly - Boolean - skips filling values for attributes
+//                                  with already filled values.
 //
 Procedure SetFormAttributeByPath(Form, AttributePath2, Value, UnfilledOnly = False) Export
 	
@@ -1054,15 +1056,15 @@ Procedure SetFormAttributeByPath(Form, AttributePath2, Value, UnfilledOnly = Fal
 	
 EndProcedure
 
-// Searches for a selection item in the collection by the specified view.
+// Searches for a filter item in the collection by the specified presentation.
 //
 // Parameters:
-//  ItemsCollection - DataCompositionFilterItemCollection -  a container with selection elements and groups,
-//                                                                  such as a List.Selection.Elements or group in the selection.
-//  Presentation - String -  representation of group.
+//  ItemsCollection - DataCompositionFilterItemCollection - container with filter groups and items,
+//                                                                  such as List.Filter.Filter items or group.
+//  Presentation - String - group presentation.
 // 
 // Returns:
-//  DataCompositionFilterItem - 
+//  DataCompositionFilterItem - filter item.
 //
 Function FindFilterItemByPresentation(ItemsCollection, Presentation) Export
 	
@@ -1079,16 +1081,16 @@ Function FindFilterItemByPresentation(ItemsCollection, Presentation) Export
 	
 EndFunction
 
-// Sets the property property Of the form element named element Name to the value Value.
-// It is used in cases when the form element may not be on the form because the user does not have rights
-// to the object, object details, or command.
+// Sets the PropertyName property of the ItemName form item to Value.
+// Is applied when the form item might be missed on the form because of insufficient user rights
+// for an object, an object attribute, or a command.
 //
 // Parameters:
 //  FormItems - FormAllItems
-//                - FormItems - 
-//  TagName   - String       - 
-//  PropertyName   - String       -  name of the form element property to set.
-//  Value      - Arbitrary -  new value of the element.
+//                - FormItems - Collection of client application form items.
+//  TagName   - String       - a form item name.
+//  PropertyName   - String       - the name of the form item property to be set.
+//  Value      - Arbitrary - the new value of the item.
 // 
 Procedure SetFormItemProperty(FormItems, TagName, PropertyName, Value) Export
 	
@@ -1099,18 +1101,18 @@ Procedure SetFormItemProperty(FormItems, TagName, PropertyName, Value) Export
 	
 EndProcedure 
 
-// Returns the value of the form element property Name_name with the name of the element Name.
-// It is used in cases when the form element may not be on the form because the user does not have rights
-// to the object, object details, or command.
+// Returns the value of the PropertyName property of the ItemName form item.
+// Is applied when the form item might be missed on the form because of insufficient user rights for
+// an object, an object attribute, or a command.
 //
 // Parameters:
 //  FormItems - FormAllItems
-//                - FormItems - 
-//  TagName   - String       - 
-//  PropertyName   - String       -  name of the form element property.
+//                - FormItems - Collection of client application form items.
+//  TagName   - String       - the form item name.
+//  PropertyName   - String       - the name of the form item property.
 // 
 // Returns:
-//   Arbitrary - 
+//   Arbitrary - value of the PropertyName property of the ItemName form item.
 // 
 Function FormItemPropertyValue(FormItems, TagName, PropertyName) Export
 	
@@ -1119,14 +1121,14 @@ Function FormItemPropertyValue(FormItems, TagName, PropertyName) Export
 	
 EndFunction 
 
-// Gets an image to display on the page with the comment, depending
-// on the presence of text in the comment.
+// Gets a picture to display on a page with a comment.
+// 
 //
 // Parameters:
-//  Comment  - String -  text of the comment.
+//  Comment  - String - Comment text.
 //
 // Returns:
-//  Picture - 
+//  Picture - a picture to be displayed on the comment page.
 //
 Function CommentPicture(Comment) Export
 
@@ -1145,20 +1147,20 @@ EndFunction
 #Region DynamicList
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Dynamic list filter and parameter management functions.
 //
 
-// Find a selection element or group by the specified field name or view.
+// Searches for the item and the group of the dynamic list filter by the passed field name or presentation.
 //
 // Parameters:
 //  SearchArea - DataCompositionFilter
-//                - DataCompositionFilterItemGroup    -  a container with selection items and groups,
-//                                                             such as a List.Selection or group in the selection.
-//  FieldName       - String -  name of the layout field (not used for groups).
-//  Presentation - String -  view of the layout field.
+//                - DataCompositionFilterItemGroup    - a container of items and filter groups.
+//                                                             For example, List.Filter or a group in a filer.
+//  FieldName       - String - a composition field name. Not applicable to groups.
+//  Presentation - String - the composition field presentation.
 //
 // Returns:
-//  Array - 
+//  Array - filter collection.
 //
 Function FindFilterItemsAndGroups(Val SearchArea,
 									Val FieldName = Undefined,
@@ -1180,17 +1182,17 @@ Function FindFilterItemsAndGroups(Val SearchArea,
 	
 EndFunction
 
-// Add a selection group to the element Collection.
+// Adds filter groups to ItemCollection.
 //
 // Parameters:
 //  ItemsCollection - DataCompositionFilter
-//                     - DataCompositionFilterItemGroup    -  a container with selection items and groups,
-//                                                                  such as a List.Selection or group in the selection.
-//  Presentation      - String -  representation of group.
-//  GroupType          - DataCompositionFilterItemsGroupType -  type of group.
+//                     - DataCompositionFilterItemGroup    - a container of items and filter groups.
+//                                                                  For example, List.Filter or a group in a filer.
+//  Presentation      - String - group presentation.
+//  GroupType          - DataCompositionFilterItemsGroupType - the group type.
 //
 // Returns:
-//  DataCompositionFilterItemGroup - 
+//  DataCompositionFilterItemGroup - a filter group.
 //
 Function CreateFilterItemGroup(Val ItemsCollection, Presentation, GroupType) Export
 	
@@ -1217,22 +1219,22 @@ Function CreateFilterItemGroup(Val ItemsCollection, Presentation, GroupType) Exp
 	
 EndFunction
 
-// Add a layout element to the layout element container.
+// Adds a composition item into a composition item container.
 //
 // Parameters:
 //  AreaToAddTo - DataCompositionFilter
-//                    - DataCompositionFilterItemGroup -  a container with selection elements and groups,
-//                                                              such as a List.Selection or group in the selection.
-//  FieldName                 - String -  name of the data layout field (always filled in).
-//  Var_ComparisonType            - DataCompositionComparisonType -  type of comparison.
-//  RightValue          - Arbitrary -  compare value.
-//  Presentation           - String -  representation of the data layout element.
-//  Use           - Boolean -  using the element.
-//  ViewMode        - DataCompositionSettingsItemViewMode -  display mode.
-//  UserSettingID - String - see the selection of the submitted data.The
-//                                                    identifier of the user setting in the syntax assistant.
+//                    - DataCompositionFilterItemGroup - a container with items and filter groups.
+//                                                              For example, List.Filter or a group in a filter.
+//  FieldName                 - String - a data composition field name. Required.
+//  Var_ComparisonType            - DataCompositionComparisonType - comparison type.
+//  RightValue          - Arbitrary - the value to compare to.
+//  Presentation           - String - presentation of the data composition item.
+//  Use           - Boolean - Item usage.
+//  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
+//  UserSettingID - String - see DataCompositionFilter.UserSettingID
+//                                                    in Syntax Assistant.
 // Returns:
-//  DataCompositionFilterItem - 
+//  DataCompositionFilterItem - a composition item.
 //
 Function AddCompositionItem(AreaToAddTo,
 									Val FieldName,
@@ -1265,8 +1267,8 @@ Function AddCompositionItem(AreaToAddTo,
 		Item.Use = Use;
 	EndIf;
 	
-	// 
-	// 
+	// NOTE: The ID must be assigned at the end of the configuration process.
+	// Otherwise, only a part of it will be copied to the user settings.
 	// 
 	If UserSettingID <> Undefined Then
 		Item.UserSettingID = UserSettingID;
@@ -1278,23 +1280,23 @@ Function AddCompositionItem(AreaToAddTo,
 	
 EndFunction
 
-// Change the selection element with the specified field name or view.
+// Changes the filter item with the specified field name or presentation.
 //
 // Parameters:
 //  SearchArea - DataCompositionFilter
-//                - DataCompositionFilterItemGroup -  a container with selection items and groups,
-//                                                          such as a List.Selection or group in the selection.
-//  FieldName                 - String -  name of the data layout field (always filled in).
-//  Presentation           - String -  representation of the data layout element.
-//  RightValue          - Arbitrary -  compare value.
-//  Var_ComparisonType            - DataCompositionComparisonType -  type of comparison.
-//  Use           - Boolean -  using the element.
-//  ViewMode        - DataCompositionSettingsItemViewMode -  display mode.
-//  UserSettingID - String - see the selection of the submitted data.The
-//                                                    identifier of the user setting in the syntax assistant.
+//                - DataCompositionFilterItemGroup - a container of items and filter groups.
+//                                                          For example, List.Filter or a group in a filer.
+//  FieldName                 - String - a data composition field name. Required.
+//  Presentation           - String - presentation of the data composition item.
+//  RightValue          - Arbitrary - the value to compare to.
+//  Var_ComparisonType            - DataCompositionComparisonType - comparison type.
+//  Use           - Boolean - Item usage.
+//  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
+//  UserSettingID - String - see DataCompositionFilter.UserSettingID
+//                                                    in Syntax Assistant.
 //
 // Returns:
-//  Number - 
+//  Number - the changed item count.
 //
 Function ChangeFilterItems(SearchArea,
 								Val FieldName = Undefined,
@@ -1345,13 +1347,13 @@ Function ChangeFilterItems(SearchArea,
 	
 EndFunction
 
-// Delete selection items with the specified field name or view.
+// Deletes filter items that contain the given field name or presentation.
 //
 // Parameters:
-//  AreaToDelete - DataCompositionFilterItemCollection -  a container with selection elements and groups,
-//                                                               such as a List.Selection or group in the selection..
-//  FieldName         - String -  name of the layout field (not used for groups).
-//  Presentation   - String -  view of the layout field.
+//  AreaToDelete - DataCompositionFilterItemCollection - a container with items and filter groups.
+//                                                               For example, List.Filter or a group in a filter..
+//  FieldName         - String - a composition field name. Not applicable to groups.
+//  Presentation   - String - the composition field presentation.
 //
 Procedure DeleteFilterItems(Val AreaToDelete, Val FieldName = Undefined, Val Presentation = Undefined) Export
 	
@@ -1377,20 +1379,20 @@ Procedure DeleteFilterItems(Val AreaToDelete, Val FieldName = Undefined, Val Pre
 	
 EndProcedure
 
-// Add or replace an existing selection element.
+// Adds or replaces the existing filter item.
 //
 // Parameters:
 //  WhereToAdd - DataCompositionFilter
-//                          - DataCompositionFilterItemGroup -  a container with selection elements and groups,
-//                                     such as a List.Selection or group in the selection.
-//  FieldName                 - String -  name of the data layout field (always filled in).
-//  RightValue          - Arbitrary -  compare value.
-//  Var_ComparisonType            - DataCompositionComparisonType -  type of comparison.
-//  Presentation           - String -  representation of the data layout element.
-//  Use           - Boolean -  using the element.
-//  ViewMode        - DataCompositionSettingsItemViewMode -  display mode.
-//  UserSettingID - String - see the selection of the submitted data.The
-//                                                    identifier of the user setting in the syntax assistant.
+//                          - DataCompositionFilterItemGroup - a container with items and filter groups.
+//                                     For example, List.Filter or a group in a filter.
+//  FieldName                 - String - a data composition field name. Required.
+//  RightValue          - Arbitrary - the value to compare to.
+//  Var_ComparisonType            - DataCompositionComparisonType - comparison type.
+//  Presentation           - String - presentation of the data composition item.
+//  Use           - Boolean - Item usage.
+//  ViewMode        - DataCompositionSettingsItemViewMode - the item display mode.
+//  UserSettingID - String - see DataCompositionFilter.UserSettingID
+//                                                    in Syntax Assistant.
 //
 Procedure SetFilterItem(WhereToAdd,
 								Val FieldName,
@@ -1423,28 +1425,28 @@ Procedure SetFilterItem(WhereToAdd,
 	
 EndProcedure
 
-// Add or replace an existing selection element in the dynamic list.
+// Adds or replaces a filter item of a dynamic list.
 //
 // Parameters:
-//   DynamicList - DynamicList -  the list where you want to set the selection.
-//   FieldName            - String -  the field on which you want to set the selection.
-//   RightValue     - Arbitrary -  the value of the selection.
+//   DynamicList - DynamicList - the list to be filtered.
+//   FieldName            - String - the field the filter to apply to.
+//   RightValue     - Arbitrary - the filter value.
 //       Optional. The default value is Undefined.
-//       Attention! If the value is Undefined, the value will not be changed.
-//   Var_ComparisonType  - DataCompositionComparisonType -  selection condition.
-//   Presentation - String -  representation of the data layout element.
+//       Warning! If Undefined is passed, the value will not be changed.
+//   Var_ComparisonType  - DataCompositionComparisonType - a filter condition.
+//   Presentation - String - presentation of the data composition item.
 //       Optional. The default value is Undefined.
-//       If specified, only the use flag with the specified view is displayed (the value is not displayed).
-//       To clear it (so that the value is output again), pass an empty string.
-//   Use - Boolean -  check box for using this selection.
-//       Optional. Default value: Undefined.
-//   ViewMode - DataCompositionSettingsItemViewMode - 
-//                                                                          :
-//        
-//        
-//        
-//   UserSettingID - String -  unique ID of this selection.
-//       Used for communication with user settings.
+//       If another value is specified, only the presentation flag is shown, not the value.
+//       To show the value, pass an empty string.
+//   Use - Boolean - the flag that indicates whether to apply the filter.
+//       Optional. The default value is Undefined.
+//   ViewMode - DataCompositionSettingsItemViewMode - the filter display
+//                                                                          mode:
+//        DataCompositionSettingItemDisplayMode.QuickAccess - in the Quick Settings bar on top of the list.
+//        DataCompositionSettingItemDisplayMode.Normal       - in the list settings (submenu More).
+//        DataCompositionSettingItemDisplayMode.Inaccessible   - prevent users from changing the filter.
+//   UserSettingID - String - the filter UUID.
+//       Used to link user settings.
 //
 Procedure SetDynamicListFilterItem(DynamicList, FieldName,
 	RightValue = Undefined,
@@ -1476,12 +1478,12 @@ Procedure SetDynamicListFilterItem(DynamicList, FieldName,
 	
 EndProcedure
 
-// Delete a dynamic list selection group item.
+// Deletes a filter group item of a dynamic list.
 //
 // Parameters:
-//  DynamicList - DynamicList -  details of the form to set the selection for.
-//  FieldName         - String -  name of the layout field (not used for groups).
-//  Presentation   - String -  view of the layout field.
+//  DynamicList - DynamicList - the form attribute whose filter is to be modified.
+//  FieldName         - String - a composition field name. Not applicable to groups.
+//  Presentation   - String - the composition field presentation.
 //
 Procedure DeleteDynamicListFilterGroupItems(DynamicList, FieldName = Undefined, Presentation = Undefined) Export
 	
@@ -1497,13 +1499,13 @@ Procedure DeleteDynamicListFilterGroupItems(DynamicList, FieldName = Undefined, 
 	
 EndProcedure
 
-// To install or update the value of the parameter ParameterName dynamic list.
+// Sets or modifies the ParameterName parameter of the List dynamic list.
 //
 // Parameters:
-//  List          - DynamicList -  the requisite forms for which you want to set the parameter.
-//  ParameterName    - String             -  name of the dynamic list parameter.
-//  Value        - Arbitrary        -  new parameter value.
-//  Use   - Boolean             -  indicates whether the parameter is being used.
+//  List          - DynamicList - the form attribute whose parameter is to be modified.
+//  ParameterName    - String             - name of the dynamic list parameter.
+//  Value        - Arbitrary        - new value of the parameter.
+//  Use   - Boolean             - flag indicating whether the parameter is used.
 //
 Procedure SetDynamicListParameter(List, ParameterName, Value, Use = True) Export
 	
@@ -1524,22 +1526,22 @@ EndProcedure
 #Region FilesOperations
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// File management functions.
 //
 
-// Adds a trailing delimiter character to the passed directory path, if it is missing.
+// Adds the trailing separator to the passed directory path if it is missing.
 //
 // Parameters:
-//  DirectoryPath - String -  directory path.
-//  Delete1CEnterprise - PlatformType -  this parameter is deprecated and is no longer used.
+//  DirectoryPath - String - directory path.
+//  Delete1CEnterprise - PlatformType - deprecated parameter.
 //
 // Returns:
 //  String
 //
 // Example:
-//  Result = Dobasefinalization("Svi directory"); // returns "Svi directory\".
-//  Result = Dobasefinalization("Svi directory\"); // returns "Svi directory\".
-//  Result = add an end path Separator ("%APPDATA%"); / / returns " %APPDATA%\".
+//  Result = AddFinalPathSeparator("C:\My directory"); // Returns "C:\My directory\".
+//  Result = AddFinalPathSeparator("C:\My directory\"); // Returns "C:\My directory\".
+//  Result = AddFinalPathSeparator("%APPDATA%"); // Returns "%APPDATA%\".
 //
 Function AddLastPathSeparator(Val DirectoryPath, Val Delete1CEnterprise = Undefined) Export
 	If IsBlankString(DirectoryPath) Then
@@ -1555,11 +1557,11 @@ Function AddLastPathSeparator(Val DirectoryPath, Val Delete1CEnterprise = Undefi
 	EndIf;
 EndFunction
 
-// Composes the full file name from the directory name and file name.
+// Generates the full path to a file from the directory path and the file name.
 //
 // Parameters:
-//  DirectoryName  - String -  path to the file directory on disk.
-//  FileName     - String -  file name, without a directory name.
+//  DirectoryName  - String - the path to the directory that contains the file.
+//  FileName     - String - the file name.
 //
 // Returns:
 //   String
@@ -1583,30 +1585,30 @@ Function GetFullFileName(Val DirectoryName, Val FileName) Export
 
 EndFunction
 
-// Decomposes the full file name into its components.
+// Splits a full file path into parts.
 //
 // Parameters:
-//  FullFileName - String -  full path to the file or directory.
-//  IsDirectory - Boolean -  indicates that the folder name was passed.
+//  FullFileName - String - the full path to a file or folder.
+//  IsDirectory - Boolean - Indicates that the directory name is passed.
 //
 // Returns:
-//   Structure - :
-//     
-//     
-//     
-//     
-//     
+//   Structure - Split file path (similar to the File object properties):
+//     FullName - Full path to the file. The same as the FullFileName input parameter.
+//     Path - Path to the file directory.
+//     Name - File name with the extension.
+//     Extension - File extension.
+//     BaseName - File name without the extension.
 // 
 // Example:
-//  FullFile name = "c:\temp\test.txt";
-//  Partial File Name = Decompose FullFile Name(FullFile Name);
+//  FullFileName = "c:\temp\test.txt";
+//  FileNameParts = ParseFullFileName(FullFileName);
 //  
 //  As a result, the field structure will be filled in as follows:
 //    FullName: "c:\temp\test.txt",
 //    Path: "c:\temp\",
 //    Name: "test.txt",
-//    Extension:". txt",
-//    Extension name: "test".
+//    Extension: ".txt",
+//    BaseName: "test".
 //
 Function ParseFullFileName(Val FullFileName, IsDirectory = False) Export
 	
@@ -1621,10 +1623,10 @@ Function ParseFullFileName(Val FullFileName, IsDirectory = False) Export
 	
 EndFunction
 
-// 
+// Parses the string into an array of strings, using dot (.), slash mark (/), and backslash () as separators.
 //
 // Parameters:
-//  String - String -  original string.
+//  String - String - the source string.
 //
 // Returns:
 //  Array of String
@@ -1655,10 +1657,10 @@ Function ParseStringByDotsAndSlashes(Val String) Export
 	
 EndFunction
 
-// Selects the file extension (the set of characters after the last dot) from the file name.
+// Returns the file extension.
 //
 // Parameters:
-//  FileName - String -  file name with or without a directory name.
+//  FileName - String - the file name (with or without the directory).
 //
 // Returns:
 //   String
@@ -1674,10 +1676,10 @@ Function GetFileNameExtension(Val FileName) Export
 	
 EndFunction
 
-// Converts the file extension to lowercase without a dot.
+// Converts the file extension to lower case (without the dot).
 //
 // Parameters:
-//  Extension - String -  extension for conversion.
+//  Extension - String - Source file extension.
 //
 // Returns:
 //  String
@@ -1694,12 +1696,12 @@ Function ExtensionWithoutPoint(Val Extension) Export
 	
 EndFunction
 
-// Returns the name of the file with the extension.
-// If the extension is empty, then the point is not added.
+// Returns the file name with extension.
+// If the extension is blank, the dot (.) is not added.
 //
 // Parameters:
-//  BaseName - String -  file name without extension.
-//  Extension       - String -  expansion.
+//  BaseName - String - File name without the extension.
+//  Extension       - String - extension.
 //
 // Returns:
 //  String
@@ -1714,8 +1716,8 @@ Function GetNameWithExtension(BaseName, Extension) Export
 	
 EndFunction
 
-// Returns a string of invalid characters.
-// According to http://en.wikipedia.org/wiki/Filename -in the "Reserved characters and words" section.
+// Returns a string of illegal file name characters.
+// See the list of symbols on https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words.
 // 
 // Returns:
 //   String
@@ -1728,14 +1730,14 @@ Function GetProhibitedCharsInFileName() Export
 
 EndFunction
 
-// Checks for invalid characters in the file name.
+// Checks whether the file name contains illegal characters.
 //
 // Parameters:
-//  FileName  - String -  file name.
+//  FileName  - String - file name.
 //
 // Returns:
-//   Array of String  - 
-//                       
+//   Array of String  - Array containing invalid characters found in the filename.
+//                       An empty array if no invalid characters are found.
 //
 Function FindProhibitedCharsInFileName(FileName) Export
 
@@ -1754,11 +1756,11 @@ Function FindProhibitedCharsInFileName(FileName) Export
 
 EndFunction
 
-// Replaces invalid characters in the file name.
+// Replaces illegal characters in a file name to legal characters.
 //
 // Parameters:
-//  FileName     - String -  the original file name.
-//  WhatReplaceWith  - String -  string to replace invalid characters with.
+//  FileName     - String - an input file name.
+//  WhatReplaceWith  - String - the string to substitute an illegal character.
 //
 // Returns:
 //   String
@@ -1774,22 +1776,22 @@ EndFunction
 #Region EmailAddressesOperations
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Email address management functions.
 //
 
-// Parses the string with email addresses. When parsing, it checks the correctness of addresses.
+// Parses through a string of email addresses. Validates the addresses.
 //
 // Parameters:
-//  AddressesList - String - :
-//                           
+//  AddressesList - String - email addresses separated by commas or semicolons.:
+//                           For example: Recipient1 <Address1>, Recipient2 <Address2>, …
 //
 // Returns:
 //  Array of Structure:
-//   * Alias      - String -  representation of the addressee.
-//   * Address          - String - 
+//   * Alias      - String - Addressee presentation.
+//   * Address          - String - An email address that complies with the requirements.
+//                               If an email-like string is found, that doesn't comply the requirements, it is set as "Alias".
 //                               
-//                               
-//   * ErrorDescription - String - 
+//   * ErrorDescription - String - Error text presentation. If no errors are found, empty string.
 //
 Function EmailsFromString(Val AddressesList) Export
 	
@@ -1844,53 +1846,53 @@ Function EmailsFromString(Val AddressesList) Export
 	
 EndFunction
 
-// Checks the email address for compliance with RFC 5321, RFC 5322,
-// and RFC 5335, RFC 5336, and RFC 3696.
-// In addition, the function restricts the use of special characters.
+// Checks whether the email address meets the RFC 5321, RFC 5322, RFC 5335, RFC 5336,
+// and RFC 5336 requirements.
+// Also, restricts the usage of special symbols.
 // 
 // Parameters:
-//  Address - String -  verified email.
-//  AllowLocalAddresses - Boolean -  do not issue an error if the domain zone is missing from the address.
+//  Address - String - an email to check.
+//  AllowLocalAddresses - Boolean - do not raise an error if the email address is missing a domain.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True, if no errors occurred.
 //
 Function EmailAddressMeetsRequirements(Val Address, AllowLocalAddresses = False) Export
 	
-	// 
+	// Symbols that are allowed in email addresses.
 	Letters = "abcdefghijklmnopqrstuvwxyz";
 	Digits = "0123456789";
 	SpecialChars = ".@_-:+";
 	
-	// 
+	// Check if the string has an "at" sign ( @ ).
 	If StrOccurrenceCount(Address, "@") <> 1 Then
 		Return False;
 	EndIf;
 	
-	// 
+	// Allowing only one column.
 	If StrOccurrenceCount(Address, ":") > 1 Then
 		Return False;
 	EndIf;
 	
-	// 
+	// Checking for double dots.
 	If StrFind(Address, "..") > 0 Then
 		Return False;
 	EndIf;
 	
-	// 
+	// Adjusting the address to the lower case.
 	Address = Lower(Address);
 	
-	// 
+	// Checking for illegal symbols.
 	If Not StringContainsAllowedCharsOnly(Address, Letters + Digits + SpecialChars) Then
 		Return False;
 	EndIf;
 	
-	// 
+	// Splitting the address into a local part and domain.
 	Position = StrFind(Address,"@");
 	LocalName = Left(Address, Position - 1);
 	Domain = Mid(Address, Position + 1);
 	
-	// 
+	// Checking whether LocalName and Domain are filled and meet the length requirements.
 	If IsBlankString(LocalName)
 	 	Or IsBlankString(Domain)
 		Or StrLen(LocalName) > 64
@@ -1899,32 +1901,32 @@ Function EmailAddressMeetsRequirements(Val Address, AllowLocalAddresses = False)
 		Return False;
 	EndIf;
 	
-	// 
+	// Checking whether there are any special characters at the beginning and at the end of "LocalName" and "Domain".
 	If HasCharsLeftRight(LocalName, ".") Or HasCharsLeftRight(Domain, SpecialChars) Then
 		Return False;
 	EndIf;
 	
-	// 
+	// A domain must contain at least one dot.
 	If Not AllowLocalAddresses And StrFind(Domain,".") = 0 Then
 		Return False;
 	EndIf;
 	
-	// 
+	// A domain must not contain underscores (_).
 	If StrFind(Domain,"_") > 0 Then
 		Return False;
 	EndIf;
 	
-	// 
+	// A domain must not contain colons (:).
 	If StrFind(Domain,":") > 0 Then
 		Return False;
 	EndIf;
 	
-	// 
+	// A domain must not contain plus signs.
 	If StrFind(Domain,"+") > 0 Then
 		Return False;
 	EndIf;
 	
-	// 
+	// Extracting a top-level domain (TLD) from the domain name.
 	Zone = Domain;
 	Position = StrFind(Zone,".");
 	While Position > 0 Do
@@ -1932,26 +1934,26 @@ Function EmailAddressMeetsRequirements(Val Address, AllowLocalAddresses = False)
 		Position = StrFind(Zone,".");
 	EndDo;
 	
-	// 
+	// Checking TLD (at least two characters, letters only).
 	Return AllowLocalAddresses Or StrLen(Zone) >= 2 And StringContainsAllowedCharsOnly(Zone,Letters);
 	
 EndFunction
 
-// 
+// Validates a string of email addresses.
 //
+// String format:
+//  Z = UserName|[User Name] [<]user@email_server[>], Sting = Z[<delimiter*>Z].
 // 
-//  
-// 
-//  
+//  * Delimiter - Any valid delimiting character.
 //
 // Parameters:
-//  Addresses - String -  the correct string with the email addresses.
-//  RaiseException1 - Boolean - 
+//  Addresses - String - a valid email address string.
+//  RaiseException1 - Boolean - If False and the parsing fails, no exception is raised.
 //
 // Returns:
 //  Array of Structure:
-//   * Address - String -  recipient's e-mail address.
-//   * Presentation - String -  recipient's name.
+//   * Address - String - Send-to email.
+//   * Presentation - String - Recipient name.
 //
 Function ParseStringWithEmailAddresses(Val Addresses, RaiseException1 = True) Export
 	
@@ -1981,9 +1983,9 @@ EndFunction
 #Region ExternalConnection
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Procedures and functions for managing external connections.
 
-// Returns the name of the COM class for working with 1C:Windows 8 via COM connection.
+// Returns the name of the COM class to operate 1C:Enterprise over a COM connection.
 //
 // Returns:
 //  String
@@ -1996,19 +1998,19 @@ Function COMConnectorName() Export
 	
 EndFunction
 
-// 
-// 
+// Constructor of the "Parameter" parameter of functions
+// Common.EstablishExternalConnectionWithInfobase and CommonClient.EstablishExternalConnectionWithInfobase.
 // 
 // Returns:
 //  Structure:
-//    * InfobaseOperatingMode - Number - 
-//    * InfobaseDirectory - String - 
-//    * NameOf1CEnterpriseServer - String - 
-//    * NameOfInfobaseOn1CEnterpriseServer - String -  
-//    * OperatingSystemAuthentication - Boolean - 
-//                                          
-//    * UserName - String - 
-//    * UserPassword - String - 
+//    * InfobaseOperatingMode - Number - "0" for the file mode.
+//    * InfobaseDirectory - String - Full path to the infobase directory (for file infobases).
+//    * NameOf1CEnterpriseServer - String - Server name (for client/server infobases)
+//    * NameOfInfobaseOn1CEnterpriseServer - String - Infobase name on the server-side (for client/server infobases) 
+//    * OperatingSystemAuthentication - Boolean - If True, then the operating system authentication is used.
+//                                          If False, pass the properties UserName and UserPassword.
+//    * UserName - String - Username for signing in to the infobase.
+//    * UserPassword - String - User password for signing in to the infobase.
 //
 Function ParametersStructureForExternalConnection() Export
 	
@@ -2025,11 +2027,11 @@ Function ParametersStructureForExternalConnection() Export
 	
 EndFunction
 
-// Retrieves connection parameters from the connection string with the information base
-// and passes the parameters to the structure for setting up an external connection.
+// Extracts connection parameters from the infobase connection string
+// and passes parameters to structure for setting external connections.
 //
 // Parameters:
-//  ConnectionString - String -  the connection string is.
+//  ConnectionString - String - an infobase connection string.
 // 
 // Returns:
 //   See ParametersStructureForExternalConnection
@@ -2055,44 +2057,44 @@ EndFunction
 #Region Math
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Math procedures and functions.
 
-// Performs a proportional distribution of the amount according
-// to the specified distribution coefficients.
+// Distributes the amount according
+// to the specified distribution ratios.
 //
 // Parameters:
-//  AmountToDistribute - Number  -  the amount to distribute, if the amount is 0, it is returned Undefined;
-//                                 If you pass in a negative calculation in the module after inversion of the signs of the result.
-//  Coefficients        - Array -  distribution coefficients must be positive or negative at the same time
-//  Accuracy            - Number  -  rounding precision in the distribution. Optional.
+//  AmountToDistribute - Number  - the amount to distribute. If set to 0, returns Undefined;
+//                                 If set to a negative value, absolute value is calculated and then its sign is inverted.
+//  Coefficients        - Array - distribution coefficients. All coefficients must be positive, or all coefficients must be negative
+//  Accuracy            - Number  - rounding accuracy during distribution. Optional.
 //
 // Returns:
-//  Array - 
-//           
-//           
-//           
-//           
+//  Array - array whose dimension is equal to the number of coefficients, contains
+//           amounts according to the coefficient weights (from the array of coefficients).
+//           If distribution cannot be performed (for example, number of coefficients = 0,
+//           or some coefficients are negative, or total coefficient weight = 0),
+//           returns Undefined.
 //
 // Example:
 //
-//	
-//	
-//	
-//	
-//	
+//	Coefficients = New Array;
+//	Coefficients.Add(1);
+//	Coefficients.Add(2);
+//	Result = CommonClientServer.DistributeAmountInProportionToCoefficients(1, Coefficients);
+//	// Result = [0.33, 0.67]
 //
 Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val Coefficients, Val Accuracy = 2) Export
 	
-	AbsoluteCoefficients = New Array(New FixedArray(Coefficients)); // 
+	AbsoluteCoefficients = New Array(New FixedArray(Coefficients)); // Copy the array from the memory.
 	
-	// 
+	// Keeping the old behavior in event of unspecified amount, for backward compatibility.
 	If Not ValueIsFilled(AmountToDistribute) Then 
 		Return Undefined;
 	EndIf;
 	
 	If AbsoluteCoefficients.Count() = 0 Then 
-		// 
-		// 
+		// Invalid "Coefficient" parameter value.
+		// Expected that at least one coefficient is set.
 		Return Undefined;
 	EndIf;
 	
@@ -2105,14 +2107,14 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 		ZoomRatio = AbsoluteCoefficients[IndexOf];
 		
 		If NegativeCoefficients And ZoomRatio > 0 Then 
-			// 
-			// 
+			// Invalid "Coefficient" parameter value.
+			// Expected that all the numbers are either negative or positive.
 			Return Undefined;
 		EndIf;
 		
 		If ZoomRatio < 0 Then 
-			// 
-			ZoomRatio = -ZoomRatio; // 
+			// If the coefficient is less than zero, its absolute value is a negative number.
+			ZoomRatio = -ZoomRatio; // Abs(Coefficient).
 			AbsoluteCoefficients[IndexOf] = ZoomRatio; // 
 		EndIf;
 		
@@ -2125,8 +2127,8 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	EndDo;
 	
 	If CoefficientsSum = 0 Then
-		// 
-		// 
+		// Invalid "Coefficient" parameter value.
+		// Expected that at least one coefficient is not zero.
 		Return Undefined;
 	EndIf;
 	
@@ -2134,9 +2136,9 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	
 	Invert = (AmountToDistribute < 0);
 	If Invert Then 
+		// If the original amount is negative, distribute its absolute value and inverse the result.
 		// 
-		// 
-		AmountToDistribute = -AmountToDistribute; // 
+		AmountToDistribute = -AmountToDistribute; // Abs(AmountToDistribute).
 	EndIf;
 	
 	DistributedAmount = 0;
@@ -2150,14 +2152,14 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	
 	If CombinedInaccuracy > 0 Then 
 		
-		// 
+		// Adding the round-off error to the ratio with the maximum weight.
 		If Not DistributedAmount = AmountToDistribute Then
 			Result[MaxCoefficientIndex] = Result[MaxCoefficientIndex] + CombinedInaccuracy;
 		EndIf;
 		
 	ElsIf CombinedInaccuracy < 0 Then 
 		
-		// 
+		// Spreading the inaccuracy to the nearest maximum weights if the distributed amount is too large.
 		InaccuracyValue = 1 / Pow(10, Accuracy);
 		InaccuracyItemCount = -CombinedInaccuracy / InaccuracyValue;
 		
@@ -2169,7 +2171,7 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 		EndDo;
 		
 	Else 
-		// 
+		// If CombinedInaccuracy = 0, everything is OK.
 	EndIf;
 	
 	If Invert Then 
@@ -2186,11 +2188,11 @@ EndFunction
 
 #Region XMLSerialization
 
-// Replaces invalid characters in the XML string with the specified characters.
+// Replaces illegal characters in the XML string with the specified characters.
 //
 // Parameters:
-//   Text - String -  the row in which you want to replace invalid characters.
-//   ReplacementChar - String -  string to replace an invalid character with in the XML string.
+//   Text - String - the string where invalid characters need to be replaced.
+//   ReplacementChar - String - the string to be used instead of the invalid character in XML string.
 // 
 // Returns:
 //    String
@@ -2212,8 +2214,8 @@ Function ReplaceProhibitedXMLChars(Val Text, ReplacementChar = " ") Export
 	
 	Return Text;
 #Else
-	// 
-	// 
+	// The codes (in the range from 0 to 2^16-1) of the characters that
+	// "FindDisallowedXMLCharacters" considers invalid: 0–8, 11, 12, 14–31, 55296–57343.
 	Total = "";
 	StringLength = StrLen(Text);
 	
@@ -2236,10 +2238,10 @@ Function ReplaceProhibitedXMLChars(Val Text, ReplacementChar = " ") Export
 	
 EndFunction
 
-// Deletes invalid characters in the XML string.
+// Deletes illegal characters from the XML string.
 //
 // Parameters:
-//  Text - String -  a string where you want to delete invalid characters.
+//  Text - String - the string where invalid characters need to be replaced.
 // 
 // Returns:
 //  String
@@ -2254,12 +2256,12 @@ EndFunction
 
 #Region SpreadsheetDocument
 
-// 
+// Manages the state of a spreadsheet field.
 //
 // Parameters:
-//  SpreadsheetDocumentField - FormField -  a field in the form with the view
-//                            of the field of the document that you want to set the state for.
-//  State               - String - 
+//  SpreadsheetDocumentField - FormField - a SpreadsheetDocumentField type form field
+//                            that requires the state change.
+//  State               - String - State: "DontUse", "Irrelevance", "ReportGeneration".
 //
 Procedure SetSpreadsheetDocumentFieldState(SpreadsheetDocumentField, State = "DontUse") Export
 	
@@ -2300,24 +2302,24 @@ Procedure SetSpreadsheetDocumentFieldState(SpreadsheetDocumentField, State = "Do
 	
 EndProcedure
 
-// Calculates the values of numeric cells in a table document.
+// Calculates indicators of numeric cells in a spreadsheet document.
 //
 // Parameters:
-//  SpreadsheetDocument - SpreadsheetDocument -  the document whose numerical values are calculated.
+//  SpreadsheetDocument - SpreadsheetDocument - the document whose numerical indicators are calculated.
 //  SpreadsheetDocumentField - FormField
-//                          - SpreadsheetDocumentField - 
-//                            
+//                          - SpreadsheetDocumentField - the form item
+//                            whose data is the SpreadsheetDocument parameter.
 //  CalculationParameters - Undefined
 //                   - See CellsIndicatorsCalculationParameters
 //
 // Returns:
 //   Structure:
-//       * Count         - Number -  the number of selected cells.
-//       * NumericCellsCount - Number -  number of numeric cells.
-//       * Sum      - Number -  the sum of the selected cells with numbers.
-//       * Mean    - Number -  the sum of the selected cells with numbers.
-//       * Minimum    - Number -  the sum of the selected cells with numbers.
-//       * Maximum   - Number -  maximum of selected cells with numbers.
+//       * Count         - Number - selected cells count.
+//       * NumericCellsCount - Number - numeric cells count.
+//       * Sum      - Number - a sum of the selected cells with numbers.
+//       * Mean    - Number - a sum of the selected cells with numbers.
+//       * Minimum    - Number - a sum of the selected cells with numbers.
+//       * Maximum   - Number - a sum of the selected cells with numbers.
 //
 Function CalculationCellsIndicators(Val SpreadsheetDocument, Val SpreadsheetDocumentField, CalculationParameters = Undefined) Export 
 	
@@ -2335,26 +2337,26 @@ Function CalculationCellsIndicators(Val SpreadsheetDocument, Val SpreadsheetDocu
 	
 EndFunction
 
-// Generates a description of the selected areas of the table document.
+// Generates the selected area details of the spreadsheet document.
 //
 // Parameters:
 //  SpreadsheetDocumentField - FormField
-//                          - SpreadsheetDocumentField - 
-//                            
+//                          - SpreadsheetDocumentField - A document
+//                            whose cell values are included in the settlement.
 //
 // Returns: 
 //   Structure:
-//     * SelectedAreas - Array - :
-//         * Top  - Number -  line number of the upper border of the area.
-//         * Bottom   - Number -  line number of the lower border of the area.
-//         * Left  - Number -  column number of the upper border of the area.
-//         * Right - Number -  column number of the lower border of the area.
-//         * AreaType - SpreadsheetDocumentCellAreaType -  Columns, Rectangle, Rows, Table.
-//     * CalculateAtServer - Boolean -  indicates that the calculation should be performed on the server if
-//                                      the number of selected cells is more than or equal to 1000,
-//                                      or the number of selected areas is more than or equal to 100,
-//                                      or the entire field of the tabular document is selected.
-//                                      In such cases, the calculation of indicators on the client is very expensive. 
+//     * SelectedAreas - Array - contains structures with the following properties:
+//         * Top  - Number - a row number of the upper area boun.
+//         * Bottom   - Number - a row number of the lower area bound.
+//         * Left  - Number - a column number of the upper area bound.
+//         * Right - Number - a column number of the lower area bound.
+//         * AreaType - SpreadsheetDocumentCellAreaType - Columns, Rectangle, Rows, Table.
+//     * CalculateAtServer - Boolean - Indicates that the calculation must be executed on the server
+//                                      if the number of the selected cells is more than or equal to 1,000
+//                                      or the number of the selected areas is more than or equal to 100,
+//                                      or the whole spreadsheet document field is selected.
+//                                      In these cases, calculating indicators on the client is very consuming. 
 //
 Function CellsIndicatorsCalculationParameters(SpreadsheetDocumentField) Export 
 	
@@ -2408,10 +2410,10 @@ EndFunction
 
 #Region ScheduledJobs
 
-// Converts the schedule of an ad Task to a structure.
+// Converts JobSchedule into a structure.
 //
 // Parameters:
-//  Schedule - JobSchedule -  original schedule.
+//  Schedule - JobSchedule - a source schedule.
 // 
 // Returns:
 //  Structure:
@@ -2450,13 +2452,13 @@ Function ScheduleToStructure(Val Schedule) Export
 	
 EndFunction
 
-// Converts the structure to a timesheet of an ad task.
+// Converts a structure intoJobSchedule.
 //
 // Parameters:
-//  ScheduleStructure1 - Structure -  schedule as a structure.
+//  ScheduleStructure1 - Structure - the schedule in the form of structure.
 // 
 // Returns:
-//  JobSchedule -  schedule.
+//  JobSchedule - schedule.
 //
 Function StructureToSchedule(Val ScheduleStructure1) Export
 	
@@ -2476,14 +2478,14 @@ Function StructureToSchedule(Val ScheduleStructure1) Export
 	
 EndFunction
 
-// Compares two schedules with each other.
+// Compares two schedules.
 //
 // Parameters:
-//  Schedule1 - JobSchedule -  first schedule.
-//  Schedule2 - JobSchedule -  second schedule.
+//  Schedule1 - JobSchedule - the first schedule.
+//  Schedule2 - JobSchedule - the second schedule.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the schedules are identical.
 //
 Function SchedulesAreIdentical(Val Schedule1, Val Schedule2) Export
 	
@@ -2495,28 +2497,28 @@ EndFunction
 
 #Region Internet
 
-// Parses the URI string into its component parts and returns it as a structure.
-// Based on RFC 3986.
+// Splits the URI string and returns it as a structure.
+// The following normalizations are described based on RFC 3986.
 //
 // Parameters:
-//  URIString1 - String - :
-//                       
+//  URIString1 - String - link to the resource in the following format:
+//                       <schema>://<username>:<password>@<host>:<port>/<path>?<parameters>#<anchor>.
 //
 // Returns:
-//  Structure - :
-//   * Schema         - String -  schema from the URI.
-//   * Login         - String -  the username from the URI.
-//   * Password        - String -  password from the URI.
-//   * ServerName    - String -  part <host>:<port> from the URI.
-//   * Host          - String -  the host from the URI.
-//   * Port          - String -  the port from the URI.
-//   * PathAtServer - String -  the <path>part?<characteristic>#<anchor> from the URI.
+//  Structure - composite parts of the URI according to the format:
+//   * Schema         - String - the URI schema.
+//   * Login         - String - the username from the URI.
+//   * Password        - String - the URI password.
+//   * ServerName    - String - the <host>:<port> URI part.
+//   * Host          - String - the URI host.
+//   * Port          - String - the URI port.
+//   * PathAtServer - String - the <path>?<parameters>#<anchor> URI part.
 //
 Function URIStructure(Val URIString1) Export
 	
 	URIString1 = TrimAll(URIString1);
 	
-	// Schema
+	// Schema.
 	Schema = "";
 	Position = StrFind(URIString1, "://");
 	If Position > 0 Then
@@ -2524,7 +2526,7 @@ Function URIStructure(Val URIString1) Export
 		URIString1 = Mid(URIString1, Position + 3);
 	EndIf;
 	
-	// 
+	// Connection string and path on the server.
 	ConnectionString = URIString1;
 	PathAtServer = "";
 	Position = StrFind(ConnectionString, "/");
@@ -2533,7 +2535,7 @@ Function URIStructure(Val URIString1) Export
 		ConnectionString = Left(ConnectionString, Position - 1);
 	EndIf;
 	
-	// 
+	// User details and server name.
 	AuthorizationString = "";
 	ServerName = ConnectionString;
 	Position = StrFind(ConnectionString, "@", SearchDirection.FromEnd);
@@ -2542,7 +2544,7 @@ Function URIStructure(Val URIString1) Export
 		ServerName = Mid(ConnectionString, Position + 1);
 	EndIf;
 	
-	// 
+	// Username and password.
 	Login = AuthorizationString;
 	Password = "";
 	Position = StrFind(AuthorizationString, ":");
@@ -2551,7 +2553,7 @@ Function URIStructure(Val URIString1) Export
 		Password = Mid(AuthorizationString, Position + 1);
 	EndIf;
 	
-	// 
+	// The host and port.
 	Host = ServerName;
 	Port = "";
 	Position = StrFind(ServerName, ":");
@@ -2576,20 +2578,20 @@ Function URIStructure(Val URIString1) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Creates an object describing a secured OpenSSL or CryptoPro connection.
+// Web client doesn't support CryptoPro connections and secured OpenSSL connections.
+// See Syntax Assistant for "OpenSSLSecureConnection" and "CryptoProSecureConnection".
 //
 // Parameters:
 //  ClientCertificate - FileClientCertificate
 //                    - WindowsClientCertificate
-//                    - Undefined - 
+//                    - Undefined - the OpenSSL client certificate.
 //  CertificationAuthorityCertificates - FileCertificationAuthorityCertificates
 //                                   - WindowsCertificationAuthorityCertificates
 //                                   - LinuxCertificationAuthorityCertificates
 //                                   - OSCertificationAuthorityCertificates
-//                                   - Undefined -  
-//  ConnectType - String, Undefined - 
+//                                   - Undefined - OpenSSL certification authority certificates. 
+//  ConnectType - String, Undefined - "OpenSSL" (by default), "CryptoPro"
 //  
 // Returns:
 //  OpenSSLSecureConnection,
@@ -2612,7 +2614,7 @@ Function NewSecureConnection(Val ClientCertificate = Undefined, Val Certificatio
 				NStr("en = 'CryptoPro';"));
 	EndIf;
 	
-	Return New OpenSSLSecureConnection; // 
+	Return New OpenSSLSecureConnection; // For backward compatibility purposes.
 #Else
 	If CertificationAuthorityCertificates = Undefined Then
 		VersionsOf1CEnterpriseForCertificateUsage = "8.3.22.2470; 8.3.23.2122; 8.3.24.1446";
@@ -2642,9 +2644,9 @@ Function NewSecureConnection(Val ClientCertificate = Undefined, Val Certificatio
 		SystemInfo = New SystemInfo;
 		If CompareVersions(SystemInfo.AppVersion, "8.3.24.0") >= 0 Then
 			CryptoProSecureConnection = Undefined;
-			// 
+			// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
 			Execute("CryptoProSecureConnection = New CryptoProSecureConnection(ClientCertificate, CertificationAuthorityCertificates)");
-			// 
+			// ACC:487-on
 			Return CryptoProSecureConnection;
 		Else
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
@@ -2662,16 +2664,16 @@ EndFunction
 
 #Region DeviceParameters
 
-// Returns a string representation of the device type used.
+// Returns a string presentation of the used device type.
 //
 // Returns:
-//   String - 
+//   String - a used device type.
 //
 Function DeviceType() Export
 	
 	DisplayInformation = DeviceDisplayParameters();
 	
-	DPI    = DisplayInformation.DPI; // 
+	DPI    = DisplayInformation.DPI; // ACC:1353 - Don't translate to Russian.
 	Height = DisplayInformation.Height;
 	Width = DisplayInformation.Width;
 	
@@ -2688,14 +2690,14 @@ Function DeviceType() Export
 	
 EndFunction
 
-// Returns the screen parameters of the device being used.
+// Returns display parameters of the device being used.
 //
 // Returns:
 //   Structure:
-//     * Width  - Number -  screen width in pixels.
-//     * Height  - Number -  screen height in pixels.
-//     * DPI     - Number -  pixel density of the screen.
-//     * Portrait - Boolean -  if the screen is in portrait orientation, then True, otherwise False.
+//     * Width  - Number - display width in pixels.
+//     * Height  - Number - display height in pixels.
+//     * DPI     - Number - display pixel density.
+//     * Portrait - Boolean - If the display is in portrait orientation, then it is True, otherwise False.
 //
 Function DeviceDisplayParameters() Export
 	
@@ -2718,13 +2720,13 @@ EndFunction
 
 #Region CheckingTheValueType
 
-// Returns a flag indicating that the passed value is, or is not, a number.
+// Returns the flag indicating whether the passed value is a number.
 //
 // Parameters:
-//  ValueToCheck - String -  the value that is checked to match the number.
+//  ValueToCheck - String - the value to be checked for compliance with the number.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - the flag indicating whether the passed value is a number.
 //
 Function IsNumber(Val ValueToCheck) Export 
 	
@@ -2742,13 +2744,13 @@ EndFunction
 
 #Region CastingAValue
 
-// Returns a string value to the date.
+// Casts a string value to the date.
 //
 // Parameters:
-//  Value - String -  a string value that is cast to a date.
+//  Value - String - a string value cast to the date.
 //
 // Returns:
-//   Date - 
+//   Date - a cast value.
 //
 Function StringToDate(Val Value) Export 
 	
@@ -2767,7 +2769,7 @@ Function StringToDate(Val Value) Export
 		Return Date;
 	EndIf;
 	
-	#Region PreparingDateParts
+#Region PreparingDateParts
 	
 	CharsCount = StrLen(Value);
 	
@@ -2820,9 +2822,9 @@ Function StringToDate(Val Value) Export
 		PartsOfTheValue.Add("00");
 	EndIf;
 	
-	#EndRegion
+#EndRegion
 	
-	// 
+	// If the format is yyyyMMddXXmmss:
 	NormalizedValue = PartsOfTheValue[2] + PartsOfTheValue[1] + PartsOfTheValue[0]
 		+ PartsOfTheValue[3] + PartsOfTheValue[4] + PartsOfTheValue[5];
 	
@@ -2834,7 +2836,7 @@ Function StringToDate(Val Value) Export
 		Return Date;
 	EndIf;
 	
-	// 
+	// If the format is yyyyddMMHHmmss
 	NormalizedValue = PartsOfTheValue[2] + PartsOfTheValue[0] + PartsOfTheValue[1]
 		+ PartsOfTheValue[3] + PartsOfTheValue[4] + PartsOfTheValue[5];
 	
@@ -2854,8 +2856,9 @@ EndFunction
 
 #Region ConvertDateForHTTP
 
-// 
+// Converts a universal date into a rfc1123-date format.
 // See https://www.w3.org/Protocols/rfc2616/rfc2616
+// -sec3.html, item 3.3.1.
 // 
 // Parameters:
 //  Date - Date
@@ -2864,14 +2867,14 @@ EndFunction
 //  String
 //
 // Example:
-//  
+//  HTTPDate(Date(2021,12,9,9,14,58)) = "Thu, 09 Dec 2021 09:14:58 GMT".
 //
 Function HTTPDate(Val Date) Export
 	
 	WeekDays = StrSplit("Mon,Tue,Wed,Thu,Fri,Sat,Sun", ",");
 	Months = StrSplit("Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec", ",");
 	
-	DateTemplate = "[WeekDay], [Day] [Month] [Year] [Hour]:[Minute]:[Second] GMT"; // 
+	DateTemplate = "[WeekDay], [Day] [Month] [Year] [Hour]:[Minute]:[Second] GMT"; // ACC:1297 - Do not localize.
 	
 	DateParameters = New Structure;
 	DateParameters.Insert("WeekDay", WeekDays[WeekDay(Date)-1]);
@@ -2888,8 +2891,9 @@ Function HTTPDate(Val Date) Export
 	
 EndFunction
 
-// 
+// Returns a date converted from rfc1123-date to Date data type.
 // See https://www.w3.org/Protocols/rfc2616/rfc2616
+// -sec3.html, item 3.3.1.
 // 
 // Parameters:
 //  HTTPDateAsString - String
@@ -2898,13 +2902,13 @@ EndFunction
 //  Date
 //
 // Example:
-//  
+//  RFC1123Date("Thu, 09 Dec 2021 09:14:58 GMT") = Date(2021,12,9,9,14,58).
 //
 Function RFC1123Date(HTTPDateAsString) Export
 
 	MonthsNames = "janfebmaraprmayjunjulaugsepoctnovdec";
 	// rfc1123-date = wkday "," SP date1 SP time SP "GMT".
-	FirstSpacePosition = StrFind(HTTPDateAsString, " ");
+	FirstSpacePosition = StrFind(HTTPDateAsString, " ");//The date starts at the first whitespace and ends at the second whitespace.
 	SubstringDate = Mid(HTTPDateAsString,FirstSpacePosition + 1);
 	SubstringTime = Mid(SubstringDate, 13);
 	SubstringDate = Left(SubstringDate, 11);
@@ -2927,12 +2931,12 @@ EndFunction
 
 #Region Other
 
-// Removes one element of the conditional design, if it is a list of values.
+// Removes one conditional appearance item if this is a value list.
 // 
 // Parameters:
-//  ConditionalAppearance - DataCompositionConditionalAppearance -  conditional design of a form element;
-//  UserSettingID - String -  configuration ID;
-//  Value - Arbitrary -    the value that you want to delete from the list of registration.
+//  ConditionalAppearance - DataCompositionConditionalAppearance - the form item conditional appearance;
+//  UserSettingID - String - setting ID;
+//  Value - Arbitrary -  the value to remove from the appearance list.
 //
 Procedure RemoveValueListConditionalAppearance(ConditionalAppearance, Val UserSettingID, 
 	Val Value) Export
@@ -2956,17 +2960,17 @@ Procedure RemoveValueListConditionalAppearance(ConditionalAppearance, Val UserSe
 	
 EndProcedure
 
-// Gets an array of values from the selected items in the list of values.
+// Gets an array of values containing marked items of the value list.
 //
 // Parameters:
-//  List - ValueList -  a list of values from which an array of values will be formed;
+//  List - ValueList - the list that provides values to form an array;
 // 
 // Returns:
-//  Array - 
+//  Array - an array formed from the list items.
 //
 Function MarkedItems(List) Export
 	
-	// 
+	// Function return value.
 	Array = New Array;
 	
 	For Each Item In List Do
@@ -2982,16 +2986,16 @@ Function MarkedItems(List) Export
 	Return Array;
 EndFunction
 
-// Gets the ID (Getidentifier () method) of the value tree row for the specified value
-// of the tree row field.
-// Used for positioning the cursor in hierarchical lists.
+// Gets value tree row ID (GetID() method) for the specified tree
+// row field value.
+// Is used to determine the cursor position in hierarchical lists.
 //
 // Parameters:
-//  FieldName - String -  name of the column in the value tree that is being searched.
-//  RowID - Number -  the ID of the value tree string obtained as a result of the search.
-//  TreeItemsCollection - FormDataTreeItemCollection -  the collection to search in.
-//  Composite - Arbitrary -  the field value you are looking for.
-//  StopSearch - Boolean -  indicates that the search has stopped.
+//  FieldName - String - a name of the column in the value tree used for searching.
+//  RowID - Number - value tree row ID returned by search.
+//  TreeItemsCollection - FormDataTreeItemCollection - collection to search.
+//  Composite - Arbitrary - the sought field value.
+//  StopSearch - Boolean - flag indicating whether the search is to be stopped.
 // 
 Procedure GetTreeRowIDByFieldValue(FieldName, RowID, TreeItemsCollection, Composite, StopSearch) Export
 	
@@ -3027,16 +3031,16 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
-// 
+// Deprecated. Obsolete. Instead, use CommonClientServer.ArraysDifference
+// Calculates the difference between arrays. The difference between array A and array B is an array that contains
+// all elements from array A that are not present in array B.
 //
 // Parameters:
-//  Array - Array -  array of elements to subtract from;
-//  SubtractionArray - Array -  array of elements to be subtracted.
+//  Array - Array - an array to subtract from;
+//  SubtractionArray - Array - an array being subtracted.
 // 
 // Returns:
-//  Array - 
+//  Array - the difference between array A and B.
 //
 Function ReduceArray(Array, SubtractionArray) Export
 	
@@ -3044,49 +3048,49 @@ Function ReduceArray(Array, SubtractionArray) Export
 	
 EndFunction
 
-// 
+// ACC:547-off An obsolete API can call obsolete procedures and functions.
 
-// Deprecated.
-//  
+// Deprecated. Instead, use CommonClient.MessageToUser or Common.MessageToUser.
+// Generates and displays the message that can relate to a form item. 
 // 
 //
 // Parameters:
-//  MessageToUserText - String -  message text.
-//  DataKey                 - AnyRef -  the object or key of the database record that this message refers to.
-//  Field                       - String - 
-//  DataPath                - String -  data path (the path to the requisite shape).
-//  Cancel                      - Boolean -  the output parameter is always set to True.
+//  MessageToUserText - String - message text.
+//  DataKey                 - AnyRef - the infobase record key or object that message refers to.
+//  Field                       - String - a form attribute description.
+//  DataPath                - String - a data path (a path to a form attribute).
+//  Cancel                      - Boolean - an output parameter. Always True.
 //
 // Example:
 //
-//  1. to display a message in the field of the managed form associated with the object's details:
-//  General Assignationclientserver.Inform the user(
-//   NSTR ("ru = 'Error message.'"), ,
-//   "Politikunterricht",
+//  1. Showing the message associated with the object attribute near the form field:
+//  CommonClientServer.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "FieldInFormAttributeObject",
 //   "Object");
 //
-//  Alternative use case in the form of an object:
-//  General purpose Clientserver.Inform the user(
-//   NSTR ("ru = 'Error message.'"), ,
-//   "Object.Politikunterricht");
+//  An alternative variant of using in the object form module:
+//  CommonClientServer.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "Object.FieldInFormAttributeObject");
 //
-//  2. to display a message next to the field of the managed form associated with the form's details:
-//  General purpose Clientserver.Inform the user(
-//   NSTR ("ru = 'Error message.'"), ,
-//   "Markwesterby");
+//  2. Showing a message for the form attribute, next to the form field:
+//  CommonClientServer.MessageToUser(
+//   NStr("en = 'Error message.'"), ,
+//   "FormAttributeName");
 //
-//  3. To display the message associated with the object information database:
-//  ObservableCollection.Inform the user(
-//   NSTR ("ru = 'Error message.'"), Object Of The Information Base, "Responsible",, Refusal);
+//  3. To display a message associated with an infobase object:
+//  CommonClientServer.MessageToUser(
+//   NStr("en = 'Error message.'"), InfobaseObject, "Responsible person",,Cancel);
 //
-//  4. to display the message by reference to the object of the information database:
-//  General purpose Clientserver.Inform the user(
-//   NSTR ("ru = 'Error message.'") The Link, ,,,, Failure);
+//  4. To display a message from a link to an infobase object:
+//  CommonClientServer.MessageToUser(
+//   NStr("en = 'Error message.'"), Reference, , , Cancel);
 //
-//  Cases of incorrect use:
-//   1. Passing the key Data and path Data parameters simultaneously.
-//   2. Passing a different type of value in the key Data parameter.
-//   3. Installation without field installation (and/or datapath).
+//  Scenarios of incorrect using:
+//   1. Passing DataKey and DataPath parameters at the same time.
+//   2. Passing a value of an illegal type to the DataKey parameter.
+//   3. Specifying a reference without specifying a field (and/or a data path).
 //
 Procedure MessageToUser(
 		Val MessageToUserText,
@@ -3125,9 +3129,9 @@ Procedure MessageToUser(
 	
 EndProcedure
 
-// Deprecated.
-//  
-//  
+// Deprecated. Instead, use CommonClient.CopyRecursive or Common.CopyRecursive.
+// Creates a complete recursive copy of a structure, map, array, list, or value table consistent with the child item type. 
+// For object-type values (CatalogObject or DocumentObject), returns references to the source objects. 
 // 
 //
 // Parameters:
@@ -3135,11 +3139,11 @@ EndProcedure
 //           - Map
 //           - Array
 //           - ValueList
-//           - ValueTable -  
-//             
+//           - ValueTable - an object that needs to be 
+//             copied.
 //
 // Returns:
-//  Structure, Map, Array, ValueList, ValueTable - 
+//  Structure, Map, Array, ValueList, ValueTable - a copy of the object passed in the Source parameter.
 //
 Function CopyRecursive(Source) Export
 	
@@ -3168,16 +3172,16 @@ Function CopyRecursive(Source) Export
 	
 EndFunction
 
-// Deprecated.
-//  
-// 
+// Deprecated. Instead, use CommonClient.CopyRecursive or Common.CopyRecursive.
+// Creates a recursive copy of a Structure consistent with the property value types. 
+// For structure properties that contain object-type values (CatalogObject or DocumentObject), returns references to the source objects.
 // 
 //
 // Parameters:
-//  SourceStructure - Structure -  the structure to copy.
+//  SourceStructure - Structure - a structure to copy.
 // 
 // Returns:
-//  Structure - 
+//  Structure - a copy of the source structure.
 //
 Function CopyStructure(SourceStructure) Export
 	
@@ -3191,16 +3195,16 @@ Function CopyStructure(SourceStructure) Export
 	
 EndFunction
 
-// Deprecated.
-// 
-// 
+// Deprecated. Instead, use CommonClient.CopyRecursive or Common.CopyRecursive.
+// Creates a recursive copy of a Map consistent with the value types.
+// For object-type map values (CatalogObject or DocumentObject), returns references to the objects.
 // 
 //
 // Parameters:
-//  SourceMap - Map -  the match to get a copy of.
+//  SourceMap - Map - the map to copy.
 // 
 // Returns:
-//  Map - 
+//  Map - a copy of the source map.
 //
 Function CopyMap(SourceMap) Export
 	
@@ -3214,16 +3218,16 @@ Function CopyMap(SourceMap) Export
 
 EndFunction
 
-// Deprecated.
-// 
-// 
+// Deprecated. Instead, use CommonClient.CopyRecursive or Common.CopyRecursive.
+// Creates a recursive copy of an Array consistent with the element value types.
+// For array elements that contain object-type values (CatalogObject or DocumentObject) returns references to the objects.
 // 
 //
 // Parameters:
-//  SourceArray1 - Array -  array to get a copy of.
+//  SourceArray1 - Array - the array to copy.
 // 
 // Returns:
-//  Array - 
+//  Array - a copy of the source array.
 //
 Function CopyArray(SourceArray1) Export
 	
@@ -3237,16 +3241,16 @@ Function CopyArray(SourceArray1) Export
 	
 EndFunction
 
-// Deprecated.
-// 
-// 
+// Deprecated. Instead, use CommonClient.CopyRecursive or Common.CopyRecursive.
+// Creates a recursive copy of a ValueList consistent with the value types.
+// For value lists that contain object-type values (CatalogObject or DocumentObject), returns references to the objects.
 // 
 //
 // Parameters:
-//  SourceList - ValueList -  list of values to get a copy of.
+//  SourceList - ValueList - the value list to copy.
 // 
 // Returns:
-//  ValueList - 
+//  ValueList - a copy of the source value list.
 //
 Function CopyValueList(SourceList) Export
 	
@@ -3264,10 +3268,10 @@ Function CopyValueList(SourceList) Export
 	
 EndFunction
 
-// Deprecated.
-// 
-// 
-// 
+// Deprecated. Instead, use CommonClientServer.SupplementTable
+// Fills the destination collection with values from the source collection.
+// Objects of the following types can be a destination collection and a source collection:
+// ValueTable, ValueTree, ValueList, and other collection types.
 //
 // Parameters:
 //  SourceCollection - See SupplementTable.SourceTable1
@@ -3281,33 +3285,33 @@ Procedure FillPropertyCollection(SourceCollection, DestinationCollection) Export
 	
 EndProcedure
 
-// Deprecated. 
-// 
-// 
+// Deprecated. Instead, use CommonClient.EstablishExternalConnectionWithInfobase or 
+// Common.EstablishExternalConnectionWithInfobase.
+// Establishes an external infobase connection with the passed parameters and returns the pointer to the connection.
 // 
 // 
 // Parameters:
-//  Parameters - Structure - 
-//                          
-//                          :
+//  Parameters - Structure - external connection parameters.
+//                          For the properties, see function
+//                          CommonClientServer.ParametersStructureForExternalConnection):
 //
-//    * InfobaseOperatingMode             - Number -  version of the information base: 0 - file; 1-
-//                                                            client-server;
-//    * InfobaseDirectory                   - String -  directory of the information base for the file mode of operation;
-//    * NameOf1CEnterpriseServer                     - String -  server1c name:Companies;
-//    * NameOfInfobaseOn1CEnterpriseServer - String -  name of the information base on server1c:Companies;
-//    * OperatingSystemAuthentication           - Boolean -  indicates whether the operating system is authenticated when creating
-//                                                             an external connection to the database;
-//    * UserName                             - String -  name of the database user;
-//    * UserPassword                          - String -  password of the database user.
+//    * InfobaseOperatingMode             - Number - the infobase operation mode. File mode - 0.
+//                                                            Client/server mode - 1;
+//    * InfobaseDirectory                   - String - the infobase directory;
+//    * NameOf1CEnterpriseServer                     - String - the name of the 1C:Enterprise server;
+//    * NameOfInfobaseOn1CEnterpriseServer - String - a name of the infobase on 1C Enterprise server;
+//    * OperatingSystemAuthentication           - Boolean - Indicates whether the operating system is authenticated on establishing
+//                                                             a connection to the infobase;
+//    * UserName                             - String - the name of an infobase user;
+//    * UserPassword                          - String - the user password.
 // 
-//  ErrorMessageString - String -  if an error occurs during the external connection setup process,
-//                                     a detailed description of the error is placed in this parameter.
-//  AddInAttachmentError - Boolean -  (return parameter) is set to True if there was an error during connection.
+//  ErrorMessageString - String - If establishing connection fails,
+//                                     this parameter will store the error details.
+//  AddInAttachmentError - Boolean - (a return parameter) True if add-in attachment failed.
 //
 // Returns:
-//  COMObject, Undefined - 
-//    
+//  COMObject, Undefined - if the external connection established, returns the COM object pointer;
+//    Otherwise, returns Undefined.
 //
 Function EstablishExternalConnection(Parameters, ErrorMessageString = "", AddInAttachmentError = False) Export
 	Result = EstablishExternalConnectionWithInfobase(Parameters);
@@ -3317,34 +3321,34 @@ Function EstablishExternalConnection(Parameters, ErrorMessageString = "", AddInA
 	Return Result.Join;
 EndFunction
 
-// Deprecated. 
-//  
-// 
-// 
+// Deprecated. Instead, use CommonClient.EstablishExternalConnectionWithInfobase 
+//  or Common.EstablishExternalConnectionWithInfobase
+// Establishes an external infobase connection with the passed parameters and returns a pointer
+// to the connection.
 // 
 // Parameters:
-//  Parameters - Structure - 
-//                          
-//                          :
+//  Parameters - Structure - external connection parameters.
+//                          For the properties, see function
+//                          CommonClientServer.ParametersStructureForExternalConnection):
 //
-//   * InfobaseOperatingMode             - Number  -  version of the information base: 0 - file; 1-
-//                                                            client-server;
-//   * InfobaseDirectory                   - String -  directory of the information base for the file mode of operation;
-//   * NameOf1CEnterpriseServer                     - String -  server1c name:Companies;
-//   * NameOfInfobaseOn1CEnterpriseServer - String -  name of the information base on server1c:Companies;
-//   * OperatingSystemAuthentication           - Boolean -  indicates whether the operating system is authenticated when creating
-//                                                            an external connection to the database;
-//   * UserName                             - String -  name of the database user;
-//   * UserPassword                          - String -  password of the database user.
+//   * InfobaseOperatingMode             - Number  - the infobase operation mode. File mode - 0.
+//                                                            Client/server mode - 1;
+//   * InfobaseDirectory                   - String - the infobase directory;
+//   * NameOf1CEnterpriseServer                     - String - the name of the 1C:Enterprise server;
+//   * NameOfInfobaseOn1CEnterpriseServer - String - a name of the infobase on 1C Enterprise server;
+//   * OperatingSystemAuthentication           - Boolean - Indicates whether the operating system is authenticated on establishing
+//                                                            a connection to the infobase;
+//   * UserName                             - String - the name of an infobase user;
+//   * UserPassword                          - String - the user password.
 // 
 // Returns:
 //  Structure:
 //    * Join                  - COMObject
-//                                  - Undefined - 
-//                                    
-//    * BriefErrorDetails       - String -  short description of the error;
-//    * DetailedErrorDetails     - String -  detailed description of the error;
-//    * AddInAttachmentError - Boolean -  COM connection error flag.
+//                                  - Undefined - if the connection is established, returns a COM object reference.
+//                                    Otherwise, returns Undefined;
+//    * BriefErrorDetails       - String - brief error description;
+//    * DetailedErrorDetails     - String - detailed error description;
+//    * AddInAttachmentError - Boolean - a COM connection error flag.
 //
 Function EstablishExternalConnectionWithInfobase(Parameters) Export
 	
@@ -3354,13 +3358,13 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 	Result.Insert("DetailedErrorDetails", "");
 	Result.Insert("AddInAttachmentError", False);
 	
-	#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 		ConnectionNotAvailable = Common.IsLinuxServer();
 		BriefErrorDetails = NStr("en = 'Servers on Linux do not support direct infobase connections.';");
-	#Else
+#Else
 		ConnectionNotAvailable = IsLinuxClient() Or IsOSXClient() Or IsMobileClient();
 		BriefErrorDetails = NStr("en = 'Only Windows clients support direct infobase connections.';");
-	#EndIf
+#EndIf
 	
 	If ConnectionNotAvailable Then
 		Result.Join = Undefined;
@@ -3369,7 +3373,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 		Return Result;
 	EndIf;
 	
-	#If Not MobileClient Then
+#If Not MobileClient Then
 		Try
 			COMConnector = New COMObject(COMConnectorName()); // "V83.COMConnector"
 		Except
@@ -3385,7 +3389,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 	
 		FileRunMode = Parameters.InfobaseOperatingMode = 0;
 		
-		// 
+		// Checking parameter correctness.
 		FillingCheckError = False;
 		If FileRunMode Then
 			
@@ -3411,7 +3415,7 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 			
 		EndIf;
 		
-		// 
+		// Generate the connection string.
 		ConnectionStringPattern = "[InfobaseString][AuthenticationString]";
 		
 		If FileRunMode Then
@@ -3453,19 +3457,19 @@ Function EstablishExternalConnectionWithInfobase(Parameters) Export
 			Result.DetailedErrorDetails     = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.DetailErrorDescription(Information));
 			Result.BriefErrorDetails       = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageString, ErrorProcessing.BriefErrorDescription(Information));
 		EndTry;
-	#EndIf
+#EndIf
 	
 	Return Result;
 	
 EndFunction
 
-// Deprecated. 
-// 
-// 
-// 
+// Deprecated. Instead, use CommonClient.ClientConnectedOverWebServer 
+// or Common.ClientConnectedOverWebServer
+// Returns True if a client application is connected to the infobase through a web server.
+// False if no client application is available.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the application is connected.
 //
 Function ClientConnectedOverWebServer() Export
 	
@@ -3475,7 +3479,7 @@ Function ClientConnectedOverWebServer() Export
 	InfoBaseConnectionString = StandardSubsystemsServer.ClientParametersAtServer().Get("InfoBaseConnectionString");
 	
 	If InfoBaseConnectionString = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 #Else
 	InfoBaseConnectionString = InfoBaseConnectionString();
@@ -3485,11 +3489,11 @@ Function ClientConnectedOverWebServer() Export
 	
 EndFunction
 
-// Deprecated.
-// 
+// Deprecated. Instead, use CommonClient.IsWindowsClient or Common.IsWindowsClient
+// Returns True if the client application is running on Windows.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsWindowsClient() Export
 	
@@ -3499,7 +3503,7 @@ Function IsWindowsClient() Export
 	IsWindowsClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsWindowsClient");
 	
 	If IsWindowsClient = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 #Else
 	SystemInfo = New SystemInfo;
@@ -3512,11 +3516,11 @@ Function IsWindowsClient() Export
 	
 EndFunction
 
-// Deprecated.
-// 
+// Deprecated. Instead, use CommonClient.IsMacOSClient or Common.IsMacOSClient
+// Returns True if the client application runs on OS X.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsOSXClient() Export
 	
@@ -3526,7 +3530,7 @@ Function IsOSXClient() Export
 	IsMacOSClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsMacOSClient");
 	
 	If IsMacOSClient = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 #Else
 	SystemInfo = New SystemInfo;
@@ -3539,11 +3543,11 @@ Function IsOSXClient() Export
 	
 EndFunction
 
-// Deprecated.
-// 
+// Deprecated. Instead, use CommonClient.IsLinuxClient or Common.IsLinuxClient
+// Returns True if the client application is running on Linux.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsLinuxClient() Export
 	
@@ -3553,7 +3557,7 @@ Function IsLinuxClient() Export
 	IsLinuxClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsLinuxClient");
 	
 	If IsLinuxClient = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 #Else
 	SystemInfo = New SystemInfo;
@@ -3574,12 +3578,12 @@ Function IsLinuxClient() Export
 	
 EndFunction
 
-// Deprecated. 
-// 
-// 
+// Deprecated. Instead, use Common.IsWebClient or WebClient preprocessor instruction 
+// in the client code.
+// Returns True if the client application is a web client.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsWebClient() Export
 	
@@ -3591,7 +3595,7 @@ Function IsWebClient() Export
 	IsWebClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsWebClient");
 	
 	If IsWebClient = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 	
 	Return IsWebClient;
@@ -3601,12 +3605,12 @@ Function IsWebClient() Export
 	
 EndFunction
 
-// Deprecated.
-// 
-// 
+// Deprecated. Instead, use CommonClient.IsMacOSClient with WebClient preprocessor instruction
+// or on the server (Common.IsMacOSClient AND Common.IsWebClient).
+// Returns True if this is the OS X web client.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if the session runs in OS X web client.
 //
 Function IsMacOSWebClient() Export
 	
@@ -3620,12 +3624,12 @@ Function IsMacOSWebClient() Export
 	
 EndFunction
 
-// Deprecated. 
-// 
-// 
+// Deprecated. Instead, use Common.IsMobileClient or MobileClient preprocessor instruction 
+// in the client code.
+// Returns True if the client application is a mobile client.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - False if no client application is available.
 //
 Function IsMobileClient() Export
 	
@@ -3637,7 +3641,7 @@ Function IsMobileClient() Export
 	IsMobileClient = StandardSubsystemsServer.ClientParametersAtServer().Get("IsMobileClient");
 	
 	If IsMobileClient = Undefined Then
-		Return False; // 
+		Return False; // No client application.
 	EndIf;
 	
 	Return IsMobileClient;
@@ -3647,13 +3651,13 @@ Function IsMobileClient() Export
 	
 EndFunction
 
-// Deprecated. 
-//  
-// 
+// Deprecated. Instead, use CommonClient.RAMAvailableForClientApplication 
+//  or Common.RAMAvailableForClientApplication
+// Returns the amount of RAM available to the client application.
 //
 // Returns:
-//  Number - 
-//  
+//  Number - number of GB of RAM, with tenths-place accuracy.
+//  Undefined - no client application is available, meaning CurrentRunMode() = Undefined.
 //
 Function RAMAvailableForClientApplication() Export
 	
@@ -3668,11 +3672,11 @@ Function RAMAvailableForClientApplication() Export
 	
 EndFunction
 
-// Deprecated.
-// 
+// Deprecated. Instead, use CommonClient.DebugMode or Common.DebugMode
+// Returns True if debug mode is enabled.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - True if debug mode is enabled.
 //
 Function DebugMode() Export
 	
@@ -3685,38 +3689,38 @@ Function DebugMode() Export
 	Return StrFind(ApplicationStartupParameter, "DebugMode") > 0;
 EndFunction
 
-// Deprecated.
-// 
+// Deprecated. Instead, use CommonClient.DefaultLanguageCode or Common.DefaultLanguageCode
+// Returns the code of the default configuration language, for example, "en".
 //
 // Returns:
-//  String - 
+//  String - language code.
 //
 Function DefaultLanguageCode() Export
 
-	#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 		Return Common.DefaultLanguageCode();
-	#Else
+#Else
 		Return CommonClient.DefaultLanguageCode();
-	#EndIf
+#EndIf
 
 EndFunction
 
-// Deprecated. 
-//  
-// 
+// Deprecated. Instead, use CommonClient.LocalDatePresentationWithOffset 
+//  or Common.LocalDatePresentationWithOffset
+// Convert a local date to the "YYYY-MM-DDThh:mm:ssTZD" format (ISO 8601).
 //
 // Parameters:
-//  LocalDate - Date -  date in the session's time zone.
+//  LocalDate - Date - a date in the session time zone.
 // 
 // Returns:
-//   String - 
+//   String - date presentation.
 //
 Function LocalDatePresentationWithOffset(LocalDate) Export
-	#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 		Offset = StandardTimeOffset(SessionTimeZone());
-	#Else
+#Else
 		Offset = StandardSubsystemsClient.ClientParameter("StandardTimeOffset");
-	#EndIf
+#EndIf
 	OffsetPresentation = "Z";
 	If Offset > 0 Then
 		OffsetPresentation = "+";
@@ -3731,35 +3735,35 @@ Function LocalDatePresentationWithOffset(LocalDate) Export
 	Return Format(LocalDate, "DF=yyyy-MM-ddTHH:mm:ss; DE=0001-01-01T00:00:00") + OffsetPresentation;
 EndFunction
 
-// Deprecated. 
-//  
-// 
-// 
-//   
-//   
-//   
-//   
-// 
-// 
+// Deprecated. Instead, use CommonClient.PredefinedItem 
+//  or Common.PredefinedItem
+// Retrieves a reference to the predefined item by its full name.
+// Only the following objects can contain predefined objects:
+//   - Catalogs;
+//   - Charts of characteristic types;
+//   - Charts of accounts;
+//   - Charts of calculation types.
+// After changing the list of predefined items, it is recommended that you run
+// the UpdateCachedValues() method to clear the cache for Cached modules in the current session.
 //
 // Parameters:
-//   FullPredefinedItemName - String - 
-//     
-//     :
-//       
-//       
-//       
+//   FullPredefinedItemName - String - full path to the predefined item including the name.
+//     The format is identical to the PredefinedValue() global context function.
+//     Example:
+//       "Catalog.ContactInformationKinds.UserEmail"
+//       "ChartOfAccounts.SelfFinancing.Materials"
+//       "ChartOfCalculationTypes.Accruals.SalaryPayments".
 //
 // Returns: 
-//   AnyRef - 
-//   
+//   AnyRef - reference to the predefined item.
+//   Undefined - if the predefined item exists in metadata but not in the infobase.
 //
 Function PredefinedItem(FullPredefinedItemName) Export
 	
-	// 
-	//   
-	//  
-	//  
+	// A standard 1C:Enterprise function is used to obtain:
+	//  - Empty references 
+	//  - Enumeration members
+	//  - Business process route points
 	
 	If StrEndsWith(Upper(FullPredefinedItemName), ".EMPTYREF")
 		Or StrStartsWith(Upper(FullPredefinedItemName), "ENUM.")
@@ -3768,7 +3772,7 @@ Function PredefinedItem(FullPredefinedItemName) Export
 		Return PredefinedValue(FullPredefinedItemName);
 	EndIf;
 	
-	// 
+	// Parsing the full name of the predefined item.
 	FullNameParts1 = StrSplit(FullPredefinedItemName, ".");
 	If FullNameParts1.Count() <> 3 Then 
 		Raise CommonInternalClientServer.PredefinedValueNotFoundErrorText(
@@ -3778,7 +3782,7 @@ Function PredefinedItem(FullPredefinedItemName) Export
 	FullMetadataObjectName = Upper(FullNameParts1[0] + "." + FullNameParts1[1]);
 	PredefinedItemName = FullNameParts1[2];
 	
-	// 
+	// Cache to be called is determined by context.
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	PredefinedValues = StandardSubsystemsCached.RefsByPredefinedItemsNames(FullMetadataObjectName);
@@ -3786,22 +3790,22 @@ Function PredefinedItem(FullPredefinedItemName) Export
 	PredefinedValues = StandardSubsystemsClientCached.RefsByPredefinedItemsNames(FullMetadataObjectName);
 #EndIf
 
-	// 
+	// In case of error in metadata name.
 	If PredefinedValues = Undefined Then 
 		Raise CommonInternalClientServer.PredefinedValueNotFoundErrorText(
 			FullPredefinedItemName);
 	EndIf;
 
-	// 
+	// Getting result from cache.
 	Result = PredefinedValues.Get(PredefinedItemName);
 	
-	// 
+	// If the predefined item does not exist in metadata.
 	If Result = Undefined Then 
 		Raise CommonInternalClientServer.PredefinedValueNotFoundErrorText(
 			FullPredefinedItemName);
 	EndIf;
 	
-	// 
+	// If the predefined item exists in metadata but not in the infobase.
 	If Result = Null Then 
 		Return Undefined;
 	EndIf;
@@ -3810,25 +3814,25 @@ Function PredefinedItem(FullPredefinedItemName) Export
 	
 EndFunction
 
-// Deprecated. 
-// 
-// 
+// Deprecated. Instead, use FileSystemClient.ApplicationStartupParameters 
+// or FileSystem.ApplicationStartupParameters.
+// Returns Structure of parameters intended for the StartApplication procedure.
 //
 // Returns:
 //  Structure:
-//   * CurrentDirectory              - String -  sets the current folder of the application to launch.
-//   * WaitForCompletion         - Boolean -  wait for the running application to finish before continuing.
-//   * GetOutputStream         - Boolean -  the result sent to the stdout stream,
-//                                            if wait for Completion is not specified, is ignored.
-//   * GetErrorStream         - Boolean -  errors sent to the stderr stream,
-//                                            if wait for Completion is not specified, are ignored.
-//   * ExecuteWithFullRights - Boolean - :
-//                                            
-//                                            
-//                                            
-//                                            
-//   * Encoding                   - String -  the encoding code that is set before the batch operation is performed.
-//                                            In Linux and macOS it is ignored.
+//   * CurrentDirectory              - String - sets the current directory of the application being started up.
+//   * WaitForCompletion         - Boolean - wait for the running application to end before proceeding.
+//   * GetOutputStream         - Boolean - result is passed to stdout. Ignored
+//                                            if WaitForCompletion is not specified.
+//   * GetErrorStream         - Boolean - errors are passed to stderr stream. Ignored
+//                                            if WaitForCompletion is not specified.
+//   * ExecuteWithFullRights - Boolean - It is required to run the application with the elevated system privileges:
+//                                            UAC confirmation for Windows;
+//                                            or interactive query with GUI sudo and redirection
+//                                            $DISPLAY and $XAUTHORITY of the current user for Linux;
+//                                            Incompatible with the WaitForCompletion parameter. Ignored when under MacOS.
+//   * Encoding                   - String - encoding code specified before the batch operation.
+//                                            Ignored under Linux or MacOS.
 //
 Function ApplicationStartupParameters() Export
 	
@@ -3844,34 +3848,34 @@ Function ApplicationStartupParameters() Export
 	
 EndFunction
 
-// Deprecated.
-// 
-//  
+// Deprecated. Instead, use FileSystemClient.StartApplication or FileSystem.StartApplication.
+// Runs an external application using the startup parameters.
+// Doesn't support web client. 
 //
 // Parameters:
 //  StartupCommand - String
-//                 - Array - 
-//      
-//      
+//                 - Array - application startup command line.
+//      If Array, the first element is the path to the application, the rest of the elements are its startup parameters.
+//      The procedure generates an argv string from the array.
 //  ApplicationStartupParameters - See ApplicationStartupParameters
 //
 // Returns:
-//  Structure - :
-//      
-//      
-//      
+//  Structure - App outcome:
+//      ReturnCode - Number - App return code.
+//      OutputStream - String - App result passed to stdout.
+//      ErrorStream - String - App errors passed to stderr.
 //
 // Example:
-//	General purpose clientserver.Run the program ("calc");
+//	CommonClientServer.StartApplication("calc");
 //	
-//	Program Start Parameters = General Purpose Clientserver.Parameterizedproperty();
-//	Program startup parametres.Fulfill The Highest Rights = True;
-//	General purpose clientserver.Run The Program("C:\Program Files\1cv8\common\1cestart.exe", 
-//		Parameterizedproperty);
+//	ApplicationStartupParameters = CommonClientServer.ApplicationStartupParameters();
+//	ApplicationStartupParameters.ExecuteWithFullRights = True;
+//	CommonClientServer.StartApplication("C:\Program Files\1cv8\common\1cestart.exe", 
+//		ApplicationStartupParameters);
 //	
-//	Program Start Parameters = General Purpose Clientserver.Parameterizedproperty();
-//	Program startup parametres.Wait For Completion = True;
-//	The Result = ObservableCollection.Run the program ("ping 127.0.0.1-n 5", program startup Parametersreferences);
+//	ApplicationStartupParameters = CommonClientServer.ApplicationStartupParameters();
+//	ApplicationStartupParameters.WaitForCompletion = True;
+//	Result = CommonClientServer.StartApplication("ping 127.0.0.1 -n 5", ApplicationStartupParameters);
 //
 Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Undefined) Export 
 	
@@ -3938,18 +3942,18 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 	If (SystemInfo.PlatformType = PlatformType.Windows_x86)
 		Or (SystemInfo.PlatformType = PlatformType.Windows_x86_64) Then
 		
-		// 
+		// Because of the running through shell, redirect the directory with a command.
 		If Not IsBlankString(CurrentDirectory) Then 
 			CommandString = "cd /D """ + CurrentDirectory + """ && " + CommandString;
 		EndIf;
 		
-		// 
+		// Starting cmd.exe (for redirecting stdout and stderr).
 		CommandString = "cmd /S /C "" " + CommandString + " """;
 		
 #If Server Then
 		
 		If Common.FileInfobase() Then
-			// 
+			// In a file infobase, the console window must be hidden in the server context as well.
 			Shell = New COMObject("Wscript.Shell");
 			ReturnCode = Shell.Run(CommandString, 0, WaitForCompletion);
 			Shell = Undefined;
@@ -3973,7 +3977,7 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 			EndIf;
 			
 			Shell = New COMObject("Shell.Application");
-			// 
+			// Start with passing the action verb (increasing privileges).
 			Shell.ShellExecute("cmd", "/c """ + CommandString + """",, "runas", 0);
 			Shell = Undefined;
 			
@@ -4016,13 +4020,13 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 		
 	Else
 		
-		// 
-		// 
+		// For MacOS, run the command as is. The parameter
+		// "ApplicationStartupParameters.ExecuteWithFullRights" will be ignored.
 		RunApp(CommandString, CurrentDirectory, WaitForCompletion, ReturnCode);
 		
 	EndIf;
 	
-	// 
+	// Override the shell returned value.
 	If ReturnCode = Undefined Then 
 		ReturnCode = 0;
 	EndIf;
@@ -4077,25 +4081,25 @@ Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Und
 	
 EndFunction
 
-// Deprecated.
-// 
-// 
-// 
+// Deprecated. Instead, use GetFilesFromInternet.ConnectionDiagnostics.
+// Runs the network resource diagnostics.
+// Doesn't support web client.
+// In SaaS mode, the functionality is limited to getting error descriptions.
 //
 // Parameters:
-//  URL - String -  url of the resource to diagnose.
+//  URL - String - URL resource address to be diagnosed.
 //
 // Returns:
-//  Structure - :
-//      
-//      
+//  Structure - Application outcome::
+//      ErrorDetails - String - Brief error details.
+//      DiagnosticsLog - String - Troubleshooting Log containing technical details.
 //
 // Example:
+//	// Diagnostics of address classifier web service.
+//	Result = CommonClientServer.ConnectionDiagnostics("https://api.orgaddress.1c.com/orgaddress/v1?wsdl");
 //	
-//	
-//	
-//	
-//	
+//	ErrorDetails = Result.ErrorDetails;
+//	DiagnosticsLog = Result.DiagnosticsLog;
 //
 Function ConnectionDiagnostics(URL) Export
 	
@@ -4237,7 +4241,7 @@ Function ConnectionDiagnostics(URL) Export
 	
 EndFunction
 
-// 
+// ACC:547-on
 
 #EndRegion
 
@@ -4245,25 +4249,25 @@ EndFunction
 
 #Region Internal
 
-// 
+// Returned the clarified text of the user message and the exception category.
 // 
 //
 // Parameters:
-//  ErrorInfo - ErrorInfo - 
-//  Title          - String - 
+//  ErrorInfo - ErrorInfo - The original error details.
+//  Title          - String - If empty, returns the exception text without clarifications.
 //
-//  ErrorAtClient - Boolean - 
-//      
-//      
+//  ErrorAtClient - Boolean - Set to "True" if the error occurred on the client.
+//      The reason is that 1C:Enterprise handles some server-side and client-side errors differently.
+//      For example, the error "LocalFileAccessError" is clarified on the client (unlike the server).
 //      
 //      
 //      
 //
 // Returns:
 //  Structure:
-//   * Text - String - 
-//   * Category - ErrorCategory - 
-//               - Undefined - 
+//   * Text - String - Clarified error text. (Or unclarified if "Title" is empty.)
+//   * Category - ErrorCategory - The category of the clarified exception.
+//               - Undefined - Keeps the category unspecified.
 //                   
 //
 Function ExceptionClarification(ErrorInfo, Title = "", ErrorAtClient = False) Export
@@ -4310,10 +4314,10 @@ Function ExceptionClarification(ErrorInfo, Title = "", ErrorAtClient = False) Ex
 	
 EndFunction
 
-// 
+// Creates an array and adds the passed values to it.
 //
 // Parameters:
-//  Value1 - Arbitrary -  any value.
+//  Value1 - Arbitrary - Any value.
 //  Value2 - Arbitrary
 //  Value3 - Arbitrary
 //  Value4 - Arbitrary
@@ -4322,7 +4326,7 @@ EndFunction
 //  Array
 //  
 // Example:
-//   
+//   Result = CommonClientServer.ArrayOfValues(1, 2, 3);
 //
 Function ArrayOfValues(Val Value1, Val Value2 = Undefined, Val Value3 = Undefined, 
 	Val Value4 = Undefined) Export
@@ -4343,8 +4347,8 @@ Function ArrayOfValues(Val Value1, Val Value2 = Undefined, Val Value3 = Undefine
 EndFunction
 
 Function NameMeetPropertyNamingRequirements(Name) Export
-	Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 
-	Digits = "1234567890"; // @Non-NLS
+	Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // @Non-NLS, ACC:163 - Data can contain letters
+	Digits = "1234567890"; // @Non-NLS, ACC:163 - Data can contain letters
 	
 	If Name = "" Or StrFind(Letters + "_", Upper(Left(Name, 1))) = 0 Then
 		Return False;
@@ -4361,16 +4365,16 @@ EndFunction
 
 #Region ValueListsAreEqual
 
-// 
+// Converts Array or ValueList into Map.
 // 
 // Parameters:
-//  Collection - 
+//  Collection - Array, ValueList
 //  ShouldCompareValuesCount - Boolean
 // 
 // Returns:
 //  Map of KeyAndValue:
-//   * Key - Arbitrary - 
-//   * Value - Number, Boolean - 
+//   * Key - Arbitrary - Collection value.
+//   * Value - Number, Boolean - If the values are counter, returns the counter. Otherwise, returns "True".
 //
 Function CollectionIntoMap(Collection, ShouldCompareValuesCount)
 	
@@ -4599,16 +4603,16 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// 
+// ACC:223-off This code is required for backward compatibility. It is used in an obsolete API.
 
 #Region StartApplication
 
 #If Not WebClient Then
 
-// Returns the standard output and error stream encoding used in the current OS.
+// Returns encoding of standard output and error threads for the current operating system.
 //
 // Returns:
-//  TextEncoding - 
+//  TextEncoding - encoding of standard output and error threads.
 //
 Function StandardStreamEncoding()
 	
@@ -4635,7 +4639,7 @@ Procedure DeleteTempFile(FullFileName)
 		DeleteFiles(FullFileName);
 	Except
 		
-		// 
+		// ACC:547-off This code is required for backward compatibility. It is used in an obsolete API.
 		
 #If Server Then
 		WriteLogEvent(NStr("en = 'Core';", DefaultLanguageCode()),
@@ -4647,7 +4651,7 @@ Procedure DeleteTempFile(FullFileName)
 				ErrorProcessing.BriefErrorDescription(ErrorInfo())));
 #EndIf
 		
-		// 
+		// ACC:547-on
 		
 	EndTry;
 	
@@ -4663,7 +4667,7 @@ EndProcedure
 
 Function DiagnosticsLocationPresentation()
 	
-	// 
+	// ACC:547-off This code is required for backward compatibility. It is used in an obsolete API.
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Common.DataSeparationEnabled() Then
@@ -4687,7 +4691,7 @@ Function DiagnosticsLocationPresentation()
 		NStr("en = 'Connecting from computer <%1> (client).';"), ComputerName());
 #EndIf
 	
-	// 
+	// ACC:547-on
 	
 EndFunction
 
@@ -4712,25 +4716,25 @@ Function CheckServerAvailability(ServerAddress)
 	
 	Result = StartApplication(CommandString, ApplicationStartupParameters);
 	
-	// 
-	// 
-	// 
+	// Error handling differs between OS:
+	// - Windows sends errors to the output stream.
+	// - Debian and RHEL send errors to the error stream.
 	AvailabilityLog = Result.OutputStream + Result.ErrorStream;
 	
-	// 
+	// ACC:1297-disable not localized fragment left for backward compatibility
 	
 	If IsWindows Then
-		UnavailabilityFact = (StrFind(AvailabilityLog, "Preassigned node disabled") > 0) // 
-			Or (StrFind(AvailabilityLog, "Destination host unreachable") > 0); // 
+		UnavailabilityFact = (StrFind(AvailabilityLog, "Preassigned node disabled") > 0) // Do not localize.
+			Or (StrFind(AvailabilityLog, "Destination host unreachable") > 0); // Do not localize.
 		
-		NoLosses = (StrFind(AvailabilityLog, "(0% loss)") > 0) // 
-			Or (StrFind(AvailabilityLog, "(0% loss)") > 0); // 
+		NoLosses = (StrFind(AvailabilityLog, "(0% loss)") > 0) // Do not localize.
+			Or (StrFind(AvailabilityLog, "(0% loss)") > 0); // Do not localize.
 	Else 
-		UnavailabilityFact = (StrFind(AvailabilityLog, "Destination Host Unreachable") > 0); // 
-		NoLosses = (StrFind(AvailabilityLog, "0% packet loss") > 0) // 
+		UnavailabilityFact = (StrFind(AvailabilityLog, "Destination Host Unreachable") > 0); // Do not localize.
+		NoLosses = (StrFind(AvailabilityLog, "0% packet loss") > 0) // Do not localize.
 	EndIf;
 	
-	// 
+	// ACC:1297-on
 	
 	Available = Not UnavailabilityFact And NoLosses;
 	
@@ -4766,9 +4770,9 @@ Function ServerRouteTraceLog(ServerAddress)
 	If IsWindows Then
 		CommandTemplate = "tracert -w 100 -h 15 %1";
 	Else 
-		// 
-		// 
-		// 
+		// If traceroute is not installed, the output stream will have an error.
+		// You can ignore that since the output is not parseable.
+		// For the administrator, it will be clear what utility should be installed.
 		CommandTemplate = "traceroute -w 100 -m 100 %1";
 	EndIf;
 	
@@ -4792,7 +4796,7 @@ EndFunction
 
 #EndRegion
 
-// 
+// ACC:223-on
 
 #EndRegion
 

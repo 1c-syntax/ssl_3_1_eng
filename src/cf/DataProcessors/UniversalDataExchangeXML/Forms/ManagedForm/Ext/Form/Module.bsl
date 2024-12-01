@@ -1,17 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// 
+	// First of all, checking the access rights.
 	If Not AccessRight("Administration", Metadata) Then
 		Raise NStr("en = 'Only administrators can run the data processor manually.';");
 	EndIf;
@@ -50,7 +52,7 @@ Procedure OnOpen(Cancel)
 	
 	If SavedImportMode Then
 		
-		// 
+		// Set the right page.
 		Items.FormMainPanel.CurrentPage = Items.FormMainPanel.ChildItems.Load;
 		
 	EndIf;
@@ -62,14 +64,14 @@ Procedure OnOpen(Cancel)
 	ArchiveFileOnValueChange();
 	DirectExportOnValueChange();
 	
-	#If WebClient Then
+#If WebClient Then
 		Items.ExportDebugPages.CurrentPage = Items.ExportDebugPages.ChildItems.WebClientExportGroup;
 		Items.ImportDebugPages.CurrentPage = Items.ImportDebugPages.ChildItems.WebClientImportGroup;
 		Object.HandlersDebugModeFlag = False;
 		
 		IsClient = True;
 		Items.ProcessingMode.Enabled = False;
-	#EndIf
+#EndIf
 	
 	ChangeProcessingMode(IsClient);
 	
@@ -758,7 +760,7 @@ EndProcedure
 
 #Region Private
 
-// Opens the exchange file in an external application.
+// Opens an exchange file in an external application.
 //
 // Parameters:
 //  
@@ -779,7 +781,7 @@ Procedure OpenInApplication(FileName, StandardProcessing = False)
 	
 EndProcedure
 
-// 
+// Continuation of the procedure (see above).
 &AtClient
 Procedure AfterDetermineFileExistence(Exists, AdditionalParameters) Export
 	
@@ -856,7 +858,7 @@ Function RuleAndExchangeFileNamesMatch()
 	
 EndFunction
 
-// Populates the tree of metadata available for deletion.
+// Fills a value tree with metadata objects available for deletion.
 &AtServer
 Procedure FillTypeAvailableToDeleteList()
 	
@@ -931,7 +933,7 @@ Procedure FillTypeAvailableToDeleteList()
 	
 EndProcedure
 
-// Returns the version of the processing.
+// Returns data processor version.
 &AtServer
 Function ObjectVersionAsStringAtServer()
 	
@@ -1042,7 +1044,7 @@ Procedure ImportExchangeRulesAndParametersAtServer(RuleFileAddressInStorage, Fil
 	
 EndProcedure
 
-// Opens the file selection dialog.
+// Opens file selection dialog.
 //
 &AtClient
 Procedure SelectingFile(Item, StorageObject, PropertyName, CheckForExistence, Val DefaultExtension = "xml",
@@ -1101,12 +1103,12 @@ Procedure SelectingFile(Item, StorageObject, PropertyName, CheckForExistence, Va
 EndProcedure
 
 // Parameters:
-//   SelectedFiles - Array of String -  result of the file selection.
-//   AdditionalParameters - Structure - :
+//   SelectedFiles - Array of String - a file choice result.
+//   AdditionalParameters - Structure - arbitrary additional parameters:
 //     * StorageObject - Structure
-//                      - ClientApplicationForm - 
-//     * PropertyName - String -  name of the storage object property.
-//     * Item - FormField -  source of the file selection event.
+//                      - ClientApplicationForm - a destination for the property storage.
+//     * PropertyName - String - a name of the storage object property.
+//     * Item - FormField - a source of the file choice event.
 //
 &AtClient
 Procedure FileSelectionDialogChoiceProcessing(SelectedFiles, AdditionalParameters) Export
@@ -1146,11 +1148,11 @@ Procedure EstablishConnectionWithDestinationIBAtServer()
 	
 EndProcedure
 
-// Sets the marking state for subordinate rows of the value tree
-// row, depending on the marking of the current row.
+// Sets mark value in subordinate tree rows
+// according to the mark value in the current row.
 //
 // Parameters:
-//  CurRow      - 
+//  CurRow      - A value tree row.
 // 
 &AtClient
 Procedure SetSubordinateMarks(CurRow, CheckBoxName)
@@ -1171,11 +1173,11 @@ Procedure SetSubordinateMarks(CurRow, CheckBoxName)
 		
 EndProcedure
 
-// Sets the marking state for parent rows of the value tree
-// row, depending on the marking of the current row.
+// Sets mark values in parent tree rows
+// according to the mark value in the current row.
 //
 // Parameters:
-//  CurRow      - 
+//  CurRow      - A value tree row.
 // 
 &AtClient
 Procedure SetParentMarks(CurRow, CheckBoxName)
@@ -1227,7 +1229,7 @@ Procedure OpenImportFileAtServer(FileAddress)
 	If IsClient Then
 		
 		BinaryData = GetFromTempStorage(FileAddress); // BinaryData
-		Object.ExchangeFileName = GetTempFileName(".xml"); // 
+		Object.ExchangeFileName = GetTempFileName(".xml"); // ACC:441 - Deletion within "ExecuteExportAtServer".
 		BinaryData.Write(Object.ExchangeFileName);
 		
 	Else
@@ -1257,7 +1259,7 @@ Procedure OpenImportFileAtServer(FileAddress)
 	
 EndProcedure
 
-// Deletes the marked rows in the metadata tree.
+// Deletes marked metadata tree rows.
 //
 &AtServer
 Procedure DeleteAtServer()
@@ -1284,7 +1286,7 @@ Procedure DeleteAtServer()
 	
 EndProcedure
 
-// Sets the exchange node for tree rows.
+// Sets an exchange node at tree rows.
 //
 &AtServer
 Procedure FillExchangeNodeInTreeRowsAtServer(ExchangeNode)
@@ -1293,7 +1295,7 @@ Procedure FillExchangeNodeInTreeRowsAtServer(ExchangeNode)
 	
 EndProcedure
 
-// Saves the values of the parameters.
+// Saves parameter values.
 //
 &AtServer
 Procedure SaveParametersAtServer()
@@ -1344,7 +1346,7 @@ Procedure RestoreParametersAtServer()
 	
 EndProcedure
 
-// Interactive data upload.
+// Performs interactive data export.
 //
 &AtClient
 Procedure ExecuteImportFromForm()
@@ -1402,7 +1404,7 @@ Procedure ExecuteImportAtServer(FileAddress, FileNameForExtension)
 	If Object.SafeImport Then
 		If IsTempStorageURL(ImportRulesFileAddressInStorage) Then
 			BinaryData = GetFromTempStorage(ImportRulesFileAddressInStorage); // BinaryData
-			Object.ExchangeRulesFileName = GetTempFileName("xml"); // 
+			Object.ExchangeRulesFileName = GetTempFileName("xml"); // ACC:441 - Deletion within "ImportExchangeRulesAndParametersAtServer".
 			BinaryData.Write(Object.ExchangeRulesFileName);
 		Else
 			MessageToUser(NStr("en = 'Data import file is not specified.';"));
@@ -1447,13 +1449,13 @@ Function FileNameAtServerOrClient(Var_AttributeName ,Val FileAddress, Val FileNa
 			
 			Extension = ? (Object.ArchiveFile, ".zip", ".xml");
 			
-			FileName = GetTempFileName(Extension); // 
+			FileName = GetTempFileName(Extension); // ACC:441 - Deletion within "ImportExchangeRulesAndParametersAtServer" or "ExecuteExportAtServer".
 			
 		Else
 			
 			Extension = FileExtention(FileNameForExtension);
 			BinaryData = GetFromTempStorage(FileAddress); // BinaryData
-			FileName = GetTempFileName(Extension); // 
+			FileName = GetTempFileName(Extension); // ACC:441 - Deletion within "ImportExchangeRulesAndParametersAtServer" or "ExecuteExportAtServer".
 			BinaryData.Write(FileName);
 			
 		EndIf;
@@ -1511,7 +1513,7 @@ EndFunction
 &AtClient
 Procedure ExecuteExportFromForm()
 	
-	// 
+	// Adding rule file name and data file name to the selection list.
 	AddRowToChoiceList(Items.RulesFileName.ChoiceList, RulesFileName, ExchangeRules);
 	
 	If Not Object.DirectReadingInDestinationIB And Not IsClient Then
@@ -1639,7 +1641,7 @@ Procedure SetDebugCommandsEnabled()
 	
 EndProcedure
 
-// Changes the LDPE tree to match the tree on the form.
+// Modifies a DER tree according to the tree specified in the form.
 //
 &AtServer
 Procedure ChangeExportRuleTree(SourceTreeRows, TreeToReplaceRows)
@@ -1660,7 +1662,7 @@ Procedure ChangeExportRuleTree(SourceTreeRows, TreeToReplaceRows)
 	
 EndProcedure
 
-// Changes the parameter table to match the table on the form.
+// Changed parameter table according the table in the form.
 //
 &AtServer
 Procedure ChangeParameterTable(BaseTable, FormTable)
@@ -1812,7 +1814,7 @@ Procedure OpenExchangeProtocolDataIfNecessary()
 		Return;
 	EndIf;
 	
-	#If Not WebClient Then
+#If Not WebClient Then
 		
 		If Not IsBlankString(Object.ExchangeProtocolFileName) Then
 			OpenInApplication(Object.ExchangeProtocolFileName);
@@ -1828,7 +1830,7 @@ Procedure OpenExchangeProtocolDataIfNecessary()
 			
 		EndIf;
 		
-	#EndIf
+#EndIf
 	
 EndProcedure
 
@@ -1893,7 +1895,7 @@ EndProcedure
 // Returns True if the client application is running on Windows.
 //
 // Returns:
-//  Boolean -  
+//  Boolean -  Returns False if no client application is available.
 //
 &AtClient
 Function IsWindowsClient()
@@ -1932,9 +1934,9 @@ Procedure ChangeSafeImportMode(Interactively = True)
 	Items.SafeImportGroup.Enabled = Object.SafeImport;
 	
 	ThroughStorage = IsClient;
-	#If WebClient Then
+#If WebClient Then
 		ThroughStorage = True;
-	#EndIf
+#EndIf
 	
 	If Object.SafeImport And ThroughStorage Then
 		PutImportRulesFileInStorage();
@@ -1946,9 +1948,9 @@ EndProcedure
 Procedure PutImportRulesFileInStorage()
 	
 	ThroughStorage = IsClient;
-	#If WebClient Then
+#If WebClient Then
 		ThroughStorage = True;
-	#EndIf
+#EndIf
 	
 	FileAddress = "";
 	NotifyDescription = New NotifyDescription("PutImportRulesFileInStorageCompletion", ThisObject);

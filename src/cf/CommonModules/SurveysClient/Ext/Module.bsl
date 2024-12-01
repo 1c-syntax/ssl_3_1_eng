@@ -1,15 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
-// Creates a selection structure for further transmission to the server
-// and use dynamic lists of called forms as selection parameters.
+// Creates a filter structure for its further transfer to the server
+// and usage as filter parameters in dynamic lists of forms to be called.
 //
 Function CreateFilterParameterStructure(FilterType, LeftValue, Var_ComparisonType, RightValue) Export
 
@@ -24,9 +26,9 @@ Function CreateFilterParameterStructure(FilterType, LeftValue, Var_ComparisonTyp
 EndFunction
 
 // Parameters:
-//  Respondent   - DefinedType.Respondent -  the Respondent being interviewed.
-//  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates -  the template used for the interview.
-//               - Undefined - 
+//  Respondent   - DefinedType.Respondent - an interviewee.
+//  QuestionnaireTemplate - CatalogRef.QuestionnaireTemplates - a template used for interview.
+//               - Undefined - a user selects a template from the catalog.
 //
 Procedure StartInterview(Respondent, QuestionnaireTemplate = Undefined) Export
 
@@ -64,7 +66,7 @@ Procedure OpenInterviewForm(Respondent, QuestionnaireTemplate)
 
 EndProcedure
 
-// Handler for the result of the start interviewselection of the Template procedure.
+// StartInterviewWithTemplateChoice procedure execution result handler.
 //
 Procedure StartInterviewWithTemplateChoiceCompletion(SelectedTemplate, Respondent) Export
 
@@ -204,8 +206,8 @@ EndProcedure
 
 Procedure OnChangeQuestionWithAnswerOptions(Form, QuestionName)
 	
-	NumberOfCharactersBeforePostfix = SurveysClientServer.NumberOfCharactersInQuestionNameWithoutPostfix();
-	RowID = New UUID(StrReplace(Right(Left(QuestionName, NumberOfCharactersBeforePostfix), 36), "_", "-"));
+	CharCountBeforePostfix = SurveysClientServer.CharCountInQuestionNameWithoutPostfix();
+	RowID = New UUID(StrReplace(Right(Left(QuestionName, CharCountBeforePostfix), 36), "_", "-"));
 	FoundRows = Form.SectionQuestionsTable.FindRows(New Structure("Composite", RowID));
 
 	If FoundRows.Count() > 0 Then
@@ -222,20 +224,20 @@ EndProcedure
 Procedure OnChangeSingleChoiceQuestion(Form, DoQueryBox, QuestionName)
 
 	AnswersOptions = Form.PossibleAnswers.FindRows(New Structure("DoQueryBox", DoQueryBox.ElementaryQuestion));
-	NumberOfCharactersBeforePostfix = SurveysClientServer.NumberOfCharactersInQuestionNameWithoutPostfix();
+	CharCountBeforePostfix = SurveysClientServer.CharCountInQuestionNameWithoutPostfix();
 	
 	For Indus = 1 To AnswersOptions.Count() Do
 		If Form[QuestionName] = AnswersOptions[Indus - 1].Response Then
-			TagName = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_TooltipBreakdown";
+			TagName = Left(QuestionName, CharCountBeforePostfix) + "_TooltipBreakdown";
 			Form.Items[TagName].Title = AnswersOptions[Indus - 1].ToolTip;
 		Else
-			AttributeName = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_Attribute_" + Indus;
+			AttributeName = Left(QuestionName, CharCountBeforePostfix) + "_Attribute_" + Indus;
 			Form[AttributeName] = Undefined;
 		EndIf;
 	EndDo;
 
 	If DoQueryBox.IsRequired Then
-		GroupDescription = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_Group";
+		GroupDescription = Left(QuestionName, CharCountBeforePostfix) + "_Group";
 		ChangeMandatoryQuestionGroupBackgroundColor(Form.Items[GroupDescription].BackColor, True);
 	EndIf;
 
@@ -244,17 +246,17 @@ EndProcedure
 Procedure OnChangeMultipleChoiceQuestion(Form, DoQueryBox, QuestionName)
 
 	AnswersOptions = Form.PossibleAnswers.FindRows(New Structure("DoQueryBox", DoQueryBox.ElementaryQuestion));
-	NumberOfCharactersBeforePostfix = SurveysClientServer.NumberOfCharactersInQuestionNameWithoutPostfix();
+	CharCountBeforePostfix = SurveysClientServer.CharCountInQuestionNameWithoutPostfix();
 	AnswerExists = False;
 	For Indus = 1 To AnswersOptions.Count() Do
-		If Form[Left(QuestionName, NumberOfCharactersBeforePostfix) + "_Attribute_" + Indus] Then
+		If Form[Left(QuestionName, CharCountBeforePostfix) + "_Attribute_" + Indus] Then
 			AnswerExists = True;
 			Break;
 		EndIf;
 	EndDo;
 
 	If DoQueryBox.IsRequired Then
-		GroupDescription = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_Group";
+		GroupDescription = Left(QuestionName, CharCountBeforePostfix) + "_Group";
 		ChangeMandatoryQuestionGroupBackgroundColor(Form.Items[GroupDescription].BackColor, AnswerExists);
 	EndIf;
 
@@ -294,9 +296,7 @@ Procedure HighlightAnsweredQuestion(Form, DoQueryBox, QuestionName)
 		Form.Items[QuestionName + "_Comment"].Enabled = Not IsUnanswered;
 	EndIf;
 
-	If DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.MultipleOptionsFor")
-		Or (DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf")
-		And DoQueryBox.RadioButtonType = PredefinedValue("Enum.RadioButtonTypesInQuestionnaires.RadioButton")) Then
+	If DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.MultipleOptionsFor") Then
 		Form.Items[QuestionName + "GroupOptions"].Enabled = Not IsUnanswered;
 		AnswerExists = HasAnswerToQuestionWithAnswerOptions(Form, DoQueryBox, QuestionName);
 	Else
@@ -318,11 +318,11 @@ EndProcedure
 Function HasAnswerToQuestionWithAnswerOptions(Form, DoQueryBox, QuestionName)
 
 	AnswersOptions = Form.PossibleAnswers.FindRows(New Structure("DoQueryBox", DoQueryBox.ElementaryQuestion));
-	NumberOfCharactersBeforePostfix = SurveysClientServer.NumberOfCharactersInQuestionNameWithoutPostfix();
+	CharCountBeforePostfix = SurveysClientServer.CharCountInQuestionNameWithoutPostfix();
 	If DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.OneVariantOf") Then
 		For Indus = 1 To AnswersOptions.Count() Do
 			If ValueIsFilled(Form[QuestionName + "_Attribute_" + Indus]) Then
-				TagName = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_TooltipBreakdown";
+				TagName = Left(QuestionName, CharCountBeforePostfix) + "_TooltipBreakdown";
 				Form.Items[TagName].Title = AnswersOptions[Indus
 					- 1].ToolTip;
 				Return True;
@@ -330,7 +330,7 @@ Function HasAnswerToQuestionWithAnswerOptions(Form, DoQueryBox, QuestionName)
 		EndDo;
 	ElsIf DoQueryBox.ReplyType = PredefinedValue("Enum.TypesOfAnswersToQuestion.MultipleOptionsFor") Then
 		For Indus = 1 To AnswersOptions.Count() Do
-			AttributeName = Left(QuestionName, NumberOfCharactersBeforePostfix) + "_Attribute_" + Indus;
+			AttributeName = Left(QuestionName, CharCountBeforePostfix) + "_Attribute_" + Indus;
 			If Form[AttributeName] Then
 				Return True;
 			EndIf;

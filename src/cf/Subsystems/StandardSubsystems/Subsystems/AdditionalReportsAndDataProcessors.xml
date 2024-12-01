@@ -49,6 +49,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.AdditionalReportsAndDataProcessorsBeforeDeleteMetadataObjectID</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.ObjectWithAdditionalCommands</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.AdditionalReportsAndDataProcessorsGlobal</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">SessionParameter.ModesForLaunchingExternalReportsAndProcessing</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

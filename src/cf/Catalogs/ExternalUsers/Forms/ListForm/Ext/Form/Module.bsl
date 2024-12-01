@@ -1,20 +1,22 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 ////////////////////////////////////////////////////////////////////////////////
-//                          
+//                          FORM USAGE                                         //
 //
-// 
+// Additional open parameters:
 //
-// 
-//  
-// 
-//  
+// AdvancedPick - Boolean - If set to "True", open the extended user pick form.
+//  It is used along with the "ExtendedPickFormParameters".
+// ExtendedPickFormParameters - String - Address in the temporary storage with the structure
+//  "UsersInternal.NewParametersOfExtendedPickForm".
 //
 
 #Region Variables
@@ -29,14 +31,14 @@ Var LastItem;
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
 		ModuleAttachableCommands.OnCreateAtServer(ThisObject);
 	EndIf;
 	// End StandardSubsystems.AttachableCommands
 	
-	// 
+	// The initial setting value (before loading data from the settings).
 	SelectHierarchy = True;
 	
 	NewStoredParameters1();
@@ -48,14 +50,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
 		
 	ElsIf Users.IsFullUser() Then
-		// 
+		// Adding the filter by users added by the person responsible for the list.
 		CommonClientServer.SetDynamicListFilterItem(
 			ExternalUsersList, "Prepared", True, ,
 			NStr("en = 'Users are submitted for authorization';"), False,
 			DataCompositionSettingsItemViewMode.Normal);
 	EndIf;
 	
-	// 
+	// If the parameter value is True, hiding users with empty IDs.
 	If Parameters.HideUsersWithoutMatchingIBUsers Then
 		CommonClientServer.SetDynamicListFilterItem(
 			ExternalUsersList,
@@ -93,7 +95,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ExternalUsersInfo.Visible = False;
 		Items.ExternalUsersGroups.ChoiceMode = StoredParameters.SelectExternalUsersGroups;
 		
-		// 
+		// Hiding the user passed from the user selection form.
 		If TypeOf(Parameters.UsersToHide) = Type("ValueList") Then
 			CommonClientServer.SetDynamicListFilterItem(
 				ExternalUsersList,
@@ -102,7 +104,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				DataCompositionComparisonType.NotInList);
 		EndIf;
 		
-		// 
+		// Disabling dragging users in the "select users" and "pick users" forms.
 		Items.ExternalUsersList.EnableStartDrag = False;
 		
 		If ValueIsFilled(Parameters.NonExistingIBUsersIDs) Then
@@ -114,7 +116,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		
 		If Parameters.CloseOnChoice = False Then
-			// 
+			// Pick mode.
 			Items.ExternalUsersList.MultipleChoice = True;
 			
 			If StoredParameters.AdvancedPick Then
@@ -474,7 +476,7 @@ Procedure ExternalUsersListOnActivateRow(Item)
 	Items.FormSetPassword.Enabled = CanChangePassword;
 	Items.ExternalUsersListContextMenuSetPassword.Enabled = CanChangePassword;
 	
-	// Standard subsystems.Pluggable commands
+	// StandardSubsystems.AttachableCommands
 	If Not StoredParameters.AdvancedPick Then
 		If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 			ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
@@ -669,7 +671,7 @@ Procedure ExternalUsersInfo(Command)
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Support of batch object change.
 
 &AtClient
 Procedure ChangeSelectedItems(Command)
@@ -774,7 +776,7 @@ Procedure SetAllExternalUsersGroupOrder(List)
 	
 	Var Order;
 	
-	// 
+	// Order.
 	Order = List.SettingsComposer.Settings.Order;
 	Order.UserSettingID = "DefaultOrder";
 	
@@ -876,7 +878,7 @@ EndFunction
 &AtServer
 Procedure ChangeExtendedPickFormParameters()
 	
-	// 
+	// Loading the list of selected users.
 	PickingParameters = UsersInternal.NewParametersOfExtendedPickForm();
 	If ValueIsFilled(Parameters.ExtendedPickFormParameters) Then
 		GivenParameters = GetFromTempStorage(Parameters.ExtendedPickFormParameters);
@@ -895,10 +897,10 @@ Procedure ChangeExtendedPickFormParameters()
 	EndIf;
 	StoredParameters.PickFormHeader = PickingParameters.PickFormHeader;
 	
-	// 
+	// Setting parameters of the extended pick form.
 	Items.EndAndClose.Visible                      = True;
 	Items.SelectUserGroup.Visible              = True;
-	// 
+	// Making the list of selected users visible.
 	Items.SelectedUsersAndGroups.Visible           = True;
 	UseUserGroups = GetFunctionalOption("UseUserGroups");
 	Items.SelectGroupGroup.Visible                    = UseUserGroups;
@@ -915,7 +917,7 @@ Procedure ChangeExtendedPickFormParameters()
 		Items.ExternalUsersList.Height                = 5;
 		Items.ExternalUsersGroups.Height               = 3;
 		Height                                        = 17;
-		// 
+		// Making the titles of UsersList and UserGroups lists visible.
 		Items.ExternalUsersGroups.TitleLocation   = FormItemTitleLocation.Top;
 		Items.ExternalUsersList.TitleLocation    = FormItemTitleLocation.Top;
 		Items.ExternalUsersList.Title             = NStr("en = 'Users in group';");
@@ -925,7 +927,7 @@ Procedure ChangeExtendedPickFormParameters()
 		Items.ClearSelectedItemsList.Visible               = True;
 	EndIf;
 	
-	// 
+	// Adding the number of selected users to the title of the list of selected users and groups.
 	UpdateSelectedUsersAndGroupsListTitle();
 	
 EndProcedure
@@ -1043,7 +1045,7 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False,
 		AutoTitle = False;
 		
 		If Parameters.CloseOnChoice = False Then
-			// 
+			// Pick mode.
 			If SelectExternalUsersGroups Then
 				Title = ?(StoredParameters.AdvancedPick, StoredParameters.PickFormHeader,
 					NStr("en = 'Pick external users and groups';"));
@@ -1056,7 +1058,7 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False,
 					NStr("en = 'Pick external users';"));
 			EndIf;
 		Else
-			// 
+			// Selection mode.
 			If SelectExternalUsersGroups Then
 				Title = NStr("en = 'Select external user or a group';");
 				
@@ -1070,8 +1072,8 @@ Procedure ConfigureUserGroupsUsageForm(GroupUsageChanged = False,
 	
 	RefreshFormContentOnGroupChange(ThisObject);
 	
-	// 
-	// 
+	// Force-update the visibility after the functional option changed
+	// without employing the "RefreshInterface" command.
 	Items.ExternalUsersGroups.Visible = False;
 	Items.ExternalUsersGroups.Visible = True;
 	
@@ -1126,16 +1128,16 @@ Procedure RefreshFormContentOnGroupChange(Form)
 		UpdateDataCompositionParameterValue(Form.ExternalUsersList,
 			"AllExternalUsers", False);
 		
-	#If Server Then
+#If Server Then
 		If ValueIsFilled(Items.ExternalUsersGroups.CurrentRow) Then
 			CurrentData = Common.ObjectAttributesValues(
 				Items.ExternalUsersGroups.CurrentRow, "AllAuthorizationObjects");
 		Else
 			CurrentData = Undefined;
 		EndIf;
-	#Else
+#Else
 		CurrentData = Items.ExternalUsersGroups.CurrentData;
-	#EndIf
+#EndIf
 		
 		If CurrentData <> Undefined
 		   And Not CurrentData.Property("RowGroup")
@@ -1187,9 +1189,9 @@ Procedure ListOnChangeAtServer()
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Drag-and-drop users.
 
-// Question handler.
+// A question handler.
 // 
 // Parameters:
 //  Response - DialogReturnCode
@@ -1246,7 +1248,7 @@ Procedure UsersKindClearing(Item, StandardProcessing)
 	
 EndProcedure
 
-// Standard subsystems.Pluggable commands
+// StandardSubsystems.AttachableCommands
 
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)

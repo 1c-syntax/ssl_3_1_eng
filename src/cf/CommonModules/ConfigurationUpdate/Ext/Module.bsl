@@ -1,25 +1,27 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// 
-// 
-//  (See InfobaseUpdate.UpdateInfobase)
-// 
+// Uninstalls obsolete patches and sets correct properties to new patches.
+// It must be called before starting a batch update of the configuration
+// . (See InfobaseUpdate.UpdateInfobase)
+// NOTE: The changes will apply after a session restart.
 //
 // Parameters:
-//  IsCheckOnly - Boolean -  if True, outdated patches will not be removed.
+//  IsCheckOnly - Boolean - if True, obsolete patches will not be deleted.
 //
 // Returns:
 //  Structure:
-//   * HasChanges     - Boolean -  true if changes were made to the list of corrections.
-//   * ChangesDetails - String -  information about deleted and modified patches.
+//   * HasChanges     - Boolean - True if patches include changes.
+//   * ChangesDetails - String - information on deleted and changed patches.
 //
 Function PatchesChanged(IsCheckOnly = False) Export
 	
@@ -28,13 +30,13 @@ Function PatchesChanged(IsCheckOnly = False) Export
 	Result.Insert("ChangesDetails", "");
 	
 	If Common.IsSubordinateDIBNode() Then
-		// 
+		// In a subordinate node, patches are changed when synchronizing.
 		Return Result;
 	EndIf;
 	
 	PatchesChanged = False;
 	
-	// 
+	// A version check is required for newly attached extensions.
 	Corrections = New Array;
 	Extensions = ConfigurationExtensions.Get(, ConfigurationExtensionsSource.SessionApplied);
 	For Each Extension In Extensions Do
@@ -71,7 +73,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 			LibraryName     = "";
 			ListOfAssemblies = Undefined;
 			If PatchProperties = Undefined Then
-				// 
+				// The patch is not applied yet.
 				DeletePatch = False;
 			ElsIf PatchProperties = "ReadingError" Then
 				DeletePatch = True;
@@ -98,7 +100,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 						Try
 							VersionWeight = VersionWeightFromStringArray(StrSplit(Assembly, ".", False));
 						Except
-							// 
+							// The list contains a build with an invalid number. Skip it.
 							VersionWeight = Undefined;
 						EndTry;
 						If VersionWeight = Undefined Then
@@ -203,7 +205,7 @@ Function PatchesChanged(IsCheckOnly = False) Export
 		EndDo;
 	EndIf;
 	
-	// 
+	// Deleting patches that are not attached without checking their versions.
 	Extensions = ConfigurationExtensions.Get(, ConfigurationExtensionsSource.SessionDisabled);
 	For Each Extension In Extensions Do
 		If IsPatch(Extension) Then
@@ -279,23 +281,23 @@ EndFunction
 
 #Region ForCallsFromOtherSubsystems
 
-// 
+// OnlineUserSupport.GetApplicationUpdates
 
-// Retrieves configuration update settings.
+// Gets configuration update settings.
 //
 // Returns:
 //   Structure:
-//     * UpdateMode - Number -  for the file base 0, for the client-server 2.
-//     * UpdateDateTime - Date -  date of the scheduled configuration update.
-//     * EmailReport - Boolean -  indicates whether an update report should be sent to your email address.
-//     * Email - String -  email address for sending the update report.
-//     * SchedulerTaskCode - Number -  code of the Windows scheduler task.
-//     * UpdateFileName - String -  name of the file containing the update to install.
+//     * UpdateMode - Number - 0 for a file infobase, 2 for a client/server infobase.
+//     * UpdateDateTime - Date - a scheduled configuration update date.
+//     * EmailReport - Boolean - shows whether update reports are sent by email.
+//     * Email - String - an email address for sending update reports.
+//     * SchedulerTaskCode - Number - a Windows scheduler task code.
+//     * UpdateFileName - String - an update file name.
 //     * PatchesFiles - Array of String
-//     * CreateDataBackup - Number -  indicates whether to create a backup.
-//     * IBBackupDirectoryName - String -  folder for creating a backup.
-//     * RestoreInfobase - Boolean -  indicates whether the database should be restored
-//                                                    if errors occur during the update process.
+//     * CreateDataBackup - Number - shows whether a backup is created.
+//     * IBBackupDirectoryName - String - a backup directory.
+//     * RestoreInfobase - Boolean - shows whether an infobase is restored from a backup
+//                                                    in case of update errors.
 //
 Function ConfigurationUpdateSettings() Export
 	
@@ -310,7 +312,7 @@ Function ConfigurationUpdateSettings() Export
 	
 EndFunction
 
-// Save the settings of configuration updates.
+// Saves configuration update settings.
 //
 // Parameters:
 //    Settings - See ConfigurationUpdate.ConfigurationUpdateSettings
@@ -328,16 +330,16 @@ Procedure SaveConfigurationUpdateSettings(Settings) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Managing patches.
 
-// Returns information about installed patches in the configuration.
+// Returns details of patches installed in the configuration.
 //
 // Returns:
-//  Array - :
-//     * Id - String -  unique ID of the patch.
-//                     - Undefined - 
-//                                
-//     * Description  - String -  name of the correction.
+//  Array - Structures with the following keys:
+//     * Id - String - a patch UUID.
+//                     - Undefined - if a patch was installed
+//                                in the current session and the application has not been restarted yet.
+//     * Description  - String - a patch description.
 //
 Function InstalledPatches() Export
 	
@@ -362,27 +364,27 @@ Function InstalledPatches() Export
 	
 EndFunction
 
-// Makes installation/removal of patches.
+// Installs and deletes patches.
 //
 // Parameters:
 //  Corrections - Structure:
-//     * Set - Array -  patch files in temporary storage that you want to install.
-//     * Delete    - Array -  unique IDs (string) of the fixes that you want to delete.
+//     * Set - Array - patch files in a temporary storage.
+//     * Delete    - Array - UUIDs of patches to be deleted (String).
 //  PatchesInstallationParameters - See PatchesInstallationParameters
-//                                
-//  ShouldDeleteUpdateExtensionsOperationParameters - Boolean -  by default, True, when calling from the configuration update script
-//                         , it must be set to False.
-//  DeleteShouldCheckApplicabilityByManifest - Boolean - 
+//                                - Boolean - Obsolete.
+//  ShouldDeleteUpdateExtensionsOperationParameters - Boolean - The default value is "True".
+//                         If the function is called from a configuration update script, set it to "False".
+//  DeleteShouldCheckApplicabilityByManifest - Boolean - Set to "True" if the patch is installed manually.
 //
 // Returns:
 //  Structure:
-//     * Installed - Array -  names (String) of installed fixes.
-//     * Unspecified - Number -  the number of fixes that are not installed.
-//     * NotDeleted     - Number -  the number of failed fixes.
+//     * Installed - Array - names of installed patches (String).
+//     * Unspecified - Number - the number of patches that are not installed.
+//     * NotDeleted     - Number - the number of patches that are not deleted.
 //     * Errors        - Array of Structure:
-//          * PatchNumber - String -  full name of the patch.
-//          * Event    - String -  event where the error occurred. The installation or Removal.
-//          * Cause    - String -  detailed description of the error.
+//          * PatchNumber - String - a full patch name.
+//          * Event    - String - an event that caused an error. Installation or Deletion.
+//          * Cause    - String - detailed error description.
 //
 Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters = Undefined, ShouldDeleteUpdateExtensionsOperationParameters = True, DeleteShouldCheckApplicabilityByManifest = False) Export
 	
@@ -411,7 +413,7 @@ Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters 
 			PatchName = "";
 			Data = Undefined;
 			Try
-				// 
+				// Reading a patch from an archive.
 				If TypeOf(FixPatch) = Type("Structure") Then
 					If StrEndsWith(FixPatch.Name, ".zip") Then
 						PatchFromArchive = ExtractPatchFromArchive(FixPatch.Location, PatchesInstallationParameters.ShouldCheckApplicabilityByManifest);
@@ -569,15 +571,15 @@ Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters 
 	
 EndFunction
 
-// 
+// A constructor for preparing parameters for "InstallAndDeletePatches"
 // 
 // Returns:
 //   Structure:
-//     * InBackground - Boolean - 
-//     * UpdateExtensionParameters - Boolean -  by default, True, when calling from the configuration update script
-//                                                    , it must be set to False.
-//     * ShouldCheckApplicabilityByManifest - Boolean - 
-//     * UsedInDistributedInfoBase - Boolean - 
+//     * InBackground - Boolean - Set to "True" if the function is called in a background job.
+//     * UpdateExtensionParameters - Boolean - The default value is "True".
+//                                                    If the function is called from a configuration update script, set it to "False".
+//     * ShouldCheckApplicabilityByManifest - Boolean - Set to "True" if the patch is installed manually.
+//     * UsedInDistributedInfoBase - Boolean - The default value is "True"
 //
 Function PatchesInstallationParameters() Export
 	
@@ -592,12 +594,12 @@ Function PatchesInstallationParameters() Export
 	
 EndFunction
 
-// Check to see if there are extensions that require 
-// a warning about existing extensions.
-// Checks for extensions that are not patches.
+// Checks whether extensions that require to show 
+// the warning about existing extensions are present.
+// Checks whether extensions that are not patches are present.
 //
 // Returns:
-//  Boolean - 
+//  Boolean - check result.
 //
 Function WarnAboutExistingExtensions() Export 
 	
@@ -689,13 +691,13 @@ Procedure NewPatchesDetails1(StorageAddress, CurrentPatches, ForUpdate = False) 
 	EndIf;
 EndProcedure
 
-// Called when the configuration update is completed via a COM connection.
+// This method is called when a configuration update over a COM connection is completed.
 //
 // Parameters:
-//  UpdateResult  - Boolean -  the result of the update.
-//  Email  - String -  the email address to which the results report should be sent.
-//  UpdateAdministratorName  - String -  the name of the user who performed the program update.
-//  ScriptDirectory  - String -  the full path of the folder with the update script log.
+//  UpdateResult  - Boolean - update result.
+//  Email  - String - an email address the result report will be sent to.
+//  UpdateAdministratorName  - String - a name of the user who updated the application.
+//  ScriptDirectory  - String - a full path of the folder with an update script log.
 //
 Procedure CompleteUpdate(Val UpdateResult, Val Email, Val UpdateAdministratorName, Val ScriptDirectory = Undefined) Export
 
@@ -757,7 +759,7 @@ Function ScriptDirectory() Export
 	EndIf;
 	
 	If Not IsBlankString(ScriptDirectory) Then
-		// 
+		// If the catalog is already deleted, treating this as a regular update from Designer.
 		FileInfo3 = New File(ScriptDirectory);
 		If Not FileInfo3.Exists() Then 
 			ScriptDirectory = "";
@@ -768,7 +770,7 @@ Function ScriptDirectory() Export
 	
 EndFunction
 
-// Returns the full name of the main form for processing install Updates.
+// Returns the full name of the main form of the InstallUpdates data processor.
 //
 // Returns:
 //  String
@@ -779,13 +781,13 @@ Function InstallUpdatesFormName() Export
 	
 EndFunction
 
-// Reads the correction properties from the layout. The name of the layout must match the name of the patch.
-// The format of the XML layouts. Corresponds to the XDTO package Patch.
+// Reads patch properties from a template. The template name must be identical to the patch name.
+// XML template format. It matches the Patch XDTO package.
 //
 // Returns:
 //  XDTODataObject
-//  Undefined - the fix hasn't been applied yet.
-//  The line is "Ochibichan" incorrect format layout with a description of the hotfix.
+//  Undefined — the patch has not been applied.
+//  String      — "ReadingError", invalid template format with patch details.
 //
 Function PatchProperties(PatchName) Export
 	
@@ -867,7 +869,7 @@ Procedure UpdatePatchesFromScript(NewPatches, PatchesToDelete) Export
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Configuration subsystems event handlers.
 
 // See InfobaseUpdateSSL.AfterUpdateInfobase.
 Procedure AfterUpdateInfobase() Export
@@ -908,7 +910,7 @@ EndProcedure
 
 Procedure CheckUpdateStatus(UpdateResult, ScriptDirectory, InstalledPatches) Export
 	
-	// 
+	// If it is the first start after a configuration update, storing and resetting status.
 	UpdateResult = ConfigurationUpdateSuccessful(ScriptDirectory, InstalledPatches);
 	If UpdateResult <> Undefined Then
 		ResetConfigurationUpdateStatus();
@@ -920,7 +922,7 @@ EndProcedure
 
 #Region Private
 
-// Get global update settings for a 1C session:Companies.
+// Gets global update settings for a 1C:Enterprise session.
 //
 Function SettingsOfUpdate()
 	
@@ -933,10 +935,10 @@ Function SettingsOfUpdate()
 	
 EndFunction
 
-// Returns whether the configuration was successfully updated based on the settings constant data.
+// Returns the flag that shows whether configuration update is successful (based on the constant from the settings).
 //
 // Parameters:
-//  ScriptDirectory  - String -  the full path of the folder with the update script log.
+//  ScriptDirectory  - String - a full path of the folder with an update script log.
 //  InstalledPatches  - String
 //
 // Returns:
@@ -972,7 +974,7 @@ Function ConfigurationUpdateSuccessful(ScriptDirectory = "", InstalledPatches = 
 EndFunction
 
 // Sets a new value to the update settings constant
-// according to the success of the last attempt to update the configuration.
+// based on the success of the last configuration update attempt.
 //
 Procedure WriteUpdateStatus(UpdateStatus, MessagesForEventLog = Undefined) Export
 	
@@ -1098,7 +1100,7 @@ Function ExtractPatchFromArchive(Val FileThatWasPut, ShouldCheckApplicabilityByM
 		EndIf;
 		
 		If ShouldCheckApplicabilityByManifest Then
-			// 
+			// Applicability check.
 			PatchApplicable = PatchApplicable(ZIPReader, TempDirectory);
 			If Not PatchApplicable Then
 				Raise NStr("en = 'Cannot apply the patch to this configuration version.';");

@@ -1,24 +1,26 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Generates a string representation of the phone number.
+// Generates a string presentation of a phone number.
 //
 // Parameters:
-//    CountryCode     - String -  country code.
-//    CityCode     - String - 
-//    PhoneNumber - String - 
-//    PhoneExtension    - String -  extension.
-//    Comment   - String -  comment.
+//    CountryCode     - String - country code.
+//    CityCode     - String - area code.
+//    PhoneNumber - String - phone number.
+//    PhoneExtension    - String - extension.
+//    Comment   - String - comment.
 //
 // Returns:
-//   - String - 
+//   - String - a phone presentation.
 //
 Function GeneratePhonePresentation(CountryCode, CityCode, PhoneNumber, PhoneExtension, Comment) Export
 	
@@ -47,13 +49,13 @@ Function GeneratePhonePresentation(CountryCode, CityCode, PhoneNumber, PhoneExte
 	
 EndFunction
 
-// Returns whether the contact information data string is XML data.
+// Returns a flag indicating whether a contact information data string is in XML format.
 //
 // Parameters:
-//     Text - String -  the string to check.
+//     Text - String - a string to check.
 //
 // Returns:
-//     Boolean - 
+//     Boolean - check result.
 //
 Function IsXMLContactInformation(Val Text) Export
 	
@@ -61,13 +63,13 @@ Function IsXMLContactInformation(Val Text) Export
 	
 EndFunction
 
-// Returns whether the contact information data string is JSON data.
+// Returns a flag indicating whether a contact information data string is in JSON format.
 //
 // Parameters:
-//     Text - String -  the string to check.
+//     Text - String - a string to check.
 //
 // Returns:
-//     Boolean - 
+//     Boolean - check result.
 //
 Function IsJSONContactInformation(Val Text) Export
 	
@@ -75,23 +77,23 @@ Function IsJSONContactInformation(Val Text) Export
 	
 EndFunction
 
-// Text that is displayed in the contact information field when the contact information is not filled in and is displayed as a
-// hyperlink.
+// Text that is displayed in the contact information field when contact information is empty and displayed as
+// a hyperlink.
 // 
 // Returns:
-//  String - 
+//  String - a text that is displayed in the contact information field.
 //
 Function BlankAddressTextAsHyperlink() Export
 	Return NStr("en = 'Fill';");
 EndFunction
 
-// Determines whether information is entered in the contact information field, for cases when it is displayed as a hyperlink.
+// Determines whether information is entered in the contact information field when it is displayed as a hyperlink.
 //
 // Parameters:
-//  Value - String -  value of contact information.
+//  Value - String - a contact information value.
 // 
 // Returns:
-//  Boolean  - 
+//  Boolean  - if True, the contact information field is filled in.
 //
 Function ContactsFilledIn(Value) Export
 	Return TrimAll(Value) <> BlankAddressTextAsHyperlink();
@@ -99,18 +101,18 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated.
-// 
+// Deprecated. Obsolete. Use ContactsManager.ContactInformationPresentation instead
+// Generates a presentation with the specified kind for the address input form.
 //
 // Parameters:
-//    AddressStructure1  - Structure -  address in the form of a structure.
-//                                   For a description of the structure, see the Work with Addresses function.Information about the address.
-//                                   For a description of the previous version of the structure, see the Work with Addresses function.The previous structure of the Contact informationxml.
-//    Presentation    - String    -  representation of the address.
-//    KindDescription - String    -  name of the type.
+//    AddressStructure1  - Structure - an address as a structure.
+//                                   See structure details in the AddressManager.AddressInfo function.
+//                                   See details of the previous structure version in the AddressManager.PreviousContactInformationXMLStructure function.
+//    Presentation    - String    - address presentation.
+//    KindDescription - String    - a kind description.
 //
 // Returns:
-//    String - 
+//    String - an address presentation with kind.
 //
 Function GenerateAddressPresentation(AddressStructure1, Presentation, KindDescription = Undefined) Export
 	
@@ -166,16 +168,16 @@ Function GenerateAddressPresentation(AddressStructure1, Presentation, KindDescri
 	
 EndFunction
 
-// Deprecated.
-// 
-// 
+// Deprecated. Obsolete. To get an address, use AddressManager.AddressInfo instead.
+// To get a phone or fax structure, use ContactsManager.PhoneInfo instead.
+// Returns contact information structure by type.
 //
 // Parameters:
-//  CIType - EnumRef.ContactInformationTypes -  type of contact information.
-//  AddressFormat - String -  not used, left for backward compatibility.
+//  CIType - EnumRef.ContactInformationTypes - contact information type.
+//  AddressFormat - String - not used, left for backward compatibility.
 // 
 // Returns:
-//  Structure - 
+//  Structure - a blank contact information structure, keys - field names and field values.
 //
 Function ContactInformationStructureByType(CIType, AddressFormat = Undefined) Export
 	
@@ -195,33 +197,33 @@ EndFunction
 
 #Region Internal
 
-// Description of contact information keys for storing its values in JSON format.
-// The list of keys can be expanded with national fields in the same function of the General module Workadresamiclientserver.
+// Details of contact information keys for storing its values in the JSON format.
+// The keys list can be extended with fields in the same-name function of the AddressManagerClientServer common module.
 //
 // Parameters:
-//  ContactInformationType  - EnumRef.ContactInformationTypes -  type of contact information
-//                             that defines the composition of contact information fields.
+//  ContactInformationType  - EnumRef.ContactInformationTypes - contact information type
+//                             that determines a composition of contact information fields.
 //
 // Returns:
-//   Structure - :
-//     * value - String -  presentation of contact information.
-//     * comment - String -  comment.
-//     * type - String - 
-//     :
-//     * Country - String -  name of the country, for example "Russia".
+//   Structure - Contact information fields:
+//     * value - String - a contact information presentation.
+//     * comment - String - comment.
+//     * type - String - a contact information type. See the value in Enum.ContactInformationTypes.Address.
+//     Extended composition of fields for contact information type "Address":
+//     * Country - String - a country name, for example, Russia.
+//     * CountryCode - String -country code.
+//     * ZIPcode- String - postal code.
+//     * Area - String - a state description.
+//     * AreaType - String - a short form (type) of "state".
+//     * City - String - a city description.
+//     * CityType - String - a short form (type) of "city", for example, c.
+//     * Street - String - a street name.
+//     * StreetType - String - a short form (type) of "street", for example, st.
+//     Extended composition of fields for contact information type "Phone":
 //     * CountryCode - String - country code.
-//     * ZIPcode- String -  postal code.
-//     * Area - String -  name of the region.
-//     * AreaType - String -  abbreviation (type) of the region.
-//     * City - String -  name of the city.
-//     * CityType - String -  abbreviation (type) of the city, for example "g".
-//     * Street - String -  the name of the street.
-//     * StreetType - String - 
-//     :
-//     * CountryCode - String -  country code.
-//     * AreaCode - String -  region code.
-//     * Number - String -  phone number.
-//     * ExtNumber - String -  additional phone number.
+//     * AreaCode - String - a state code.
+//     * Number - String - a phone number.
+//     * ExtNumber - String - an extension.
 //
 Function NewContactInformationDetails(Val ContactInformationType) Export
 	
@@ -295,12 +297,12 @@ EndFunction
 #Region Private
 
 // Returns:
-//  Structure - :
-//    * FieldValues - String -  contact information in JSON format
-//    * Presentation - String -  presentation of contact information. Used if it is impossible to determine 
-//                              the representation from the parameter.There is no Representation field in the field values.
+//  Structure - Contact information details:
+//    * FieldValues - String - contact information in JSON format
+//    * Presentation - String - a contact information presentation. Used if it is impossible to determine 
+//                              a presentation based on a parameter. In FieldValues, the Presentation field is not available.
 //    * ContactInformationKind - EnumRef.ContactInformationTypes 
-//                              - CatalogRef.ContactInformationKinds - 
+//                              - CatalogRef.ContactInformationKinds - contact information type
 //
 Function ContactInformationDetails(FieldValues, Presentation, ContactInformationKind) Export
 	
@@ -348,10 +350,10 @@ Function ConstructionOrPremiseValue(Type, Value) Export
 	Return New Structure("type, number", Type, Value);
 EndFunction
 
-// Returns an empty address structure.
+// Returns a blank address structure.
 //
 // Returns:
-//    Structure - 
+//    Structure - address, keys - field names and field values.
 //
 Function AddressFieldsStructure() Export
 	
@@ -365,7 +367,7 @@ Function AddressFieldsStructure() Export
 	
 EndFunction
 
-// 
+// Returns command details for the given contact information kind.
 //
 // Parameters:
 //   ContactInformationParameters - Structure:
@@ -382,15 +384,15 @@ EndFunction
 //     * CanSendSMSMessage1 - Boolean
 //     * Owner - AnyRef
 //     * URLProcessing - Boolean
-//     * HiddenKinds - Array - 
+//     * HiddenKinds - Array - Contact information kinds to be hidden from the form.
 //     * DetailsOfCommands - See ContactsManager.DetailsOfCommands
 //     * ShouldShowIcons - Boolean
-//     * ItemsPlacedOnForm - Map of KeyAndValue - 
-//                                          
-//                                         :
+//     * ItemsPlacedOnForm - Map of KeyAndValue - Contact information kinds that were added to the form interactively.
+//                                         In case of deferred initialization, they will appear on the form after the 
+//                                         ContactsManager.ExecuteDeferredInitialization procedure is called.:
 //         * Key - CatalogRef.ContactInformationKinds
 //         * Value - Boolean
-//     * ExcludedKinds - Array - 
+//     * ExcludedKinds - Array - Obsolete. Instead, use "ItemsPlacedOnForm".
 //     * AllowAddingFields - Boolean
 //   Type - EnumRef.ContactInformationTypes
 //   Kind - CatalogRef.ContactInformationKinds
@@ -458,7 +460,7 @@ Function CommandsToOutputToForm(ContactInformationParameters, Type, Kind, StoreH
 	
 EndFunction
 
-// 
+// Returns a detailed prompt for the given address.
 // 
 // Parameters:
 //  CommandsForOutput    - Structure:
@@ -526,15 +528,15 @@ EndFunction
 
 #Region PrivateForWorkingWithXMLAddresses
 
-// Returns a structure with the name and abbreviation of the value.
+// Returns structure with a description and a short form by value.
 //
 // Parameters:
-//     Text - String -  full name.
+//     Text - String - full description.
 //
 // Returns:
 //     Structure:
-//         * Description - String -  piece of text.
-//         * Abbr   - String -  piece of text.
+//         * Description - String - a text part.
+//         * Abbr   - String - a text part.
 //
 Function DescriptionShortForm(Val Text) Export
 	Result = New Structure("Description, Abbr");
@@ -575,14 +577,14 @@ Function ConnectTheNameAndTypeOfTheAddressObject(Val Description, Val AddressObj
 	
 EndFunction
 
-// Divides the text into words according to the specified delimiters. By default, delimiters are whitespace characters.
+// Splits text into words using the specified separators. Default separators are space characters.
 //
 // Parameters:
-//     Text       - String -  split string.
-//     Separators - String -  optional string of delimiter characters.
+//     Text       - String - a string to split.
+//     Separators - String - an optional string of separator characters.
 //
 // Returns:
-//     Array - 
+//     Array - strings and words
 //
 Function TextWords(Val Text, Val Separators = Undefined)
 	
@@ -610,14 +612,14 @@ Function TextWords(Val Text, Val Separators = Undefined)
 	Return Result;
 EndFunction
 
-// Separates text separated by commas.
+// Splits comma-separated text.
 //
 // Parameters:
-//     Text              - String -  share the text.
-//     ExtractShortForms - Boolean -  optional operating mode parameter.
+//     Text              - String - a text to separate.
+//     ExtractShortForms - Boolean - an optional parameter.
 //
 // Returns:
-//     Array - 
+//     Array - contains "Description, ShortForm" structures.
 //
 Function DescriptionsAndShortFormsSet(Val Text, Val ExtractShortForms = True)
 	
@@ -651,12 +653,12 @@ EndFunction
 
 #Region OtherPrivate
 
-// Adds a string to the address representation.
+// Adds a string to an address presentation.
 //
 // Parameters:
-//    AddOn         - String -  address extension.
-//    ConcatenationString - String -  the string concatenation.
-//    Presentation      - String -  representation of the address.
+//    AddOn         - String - an address addition.
+//    ConcatenationString - String - a concatenation string.
+//    Presentation      - String - address presentation.
 //
 Procedure SupplementAddressPresentation(AddOn, ConcatenationString, Presentation)
 	
@@ -666,15 +668,15 @@ Procedure SupplementAddressPresentation(AddOn, ConcatenationString, Presentation
 	
 EndProcedure
 
-// Returns a string of values for the structure property.
+// Returns a value string by structure property.
 // 
 // Parameters:
-//    Var_Key - String -  the key structure.
-//    Structure - Structure -  transmitted structure.
+//    Var_Key - String - a structure key.
+//    Structure - Structure - a structure to pass.
 //
 // Returns:
-//    Arbitrary - 
-//    
+//    Arbitrary - value.
+//    String       - a blank string if there is no value.
 //
 Function ValueByStructureKey(Var_Key, Structure)
 	
@@ -705,10 +707,10 @@ Procedure AddressPresentationByStructure(AddressStructure1, DescriptionKey, Pres
 	EndIf;
 EndProcedure
 
-// Returns an empty phone number.
+// Returns a blank phone structure.
 //
 // Returns:
-//    Structure - 
+//    Structure - keys - field names and field values.
 //
 Function PhoneFieldStructure() Export
 	
@@ -752,16 +754,16 @@ EndFunction
 
 
 
-// 
+// Returns a list of filling errors as a value list:
 //
 // Parameters:
 //  InfoAboutPhone  - See PhoneFieldStructure
 //  AdditionalChecksModule - Arbitrary
 // 
 // Returns:
-//  ValueList - :
-//    * Presentation   - error description.
-//    * Value        - 
+//  ValueList - Phone number entry errors:
+//    * Presentation   - Error details.
+//    * Value        - XPath for the field.
 //
 Function PhoneFillingErrors(InfoAboutPhone, AdditionalChecksModule = Undefined) Export
 	
@@ -815,10 +817,10 @@ EndFunction
 // Checks whether the string contains only ~
 //
 // Parameters:
-//  CheckString          - String -  string to check.
+//  CheckString          - String - a string to check.
 //
 // Returns:
-//   Boolean - 
+//   Boolean - True - the string contains only numbers or is empty, False - the string contains other characters.
 //
 Function PhoneNumberContainsProhibitedChars(Val CheckString)
 	

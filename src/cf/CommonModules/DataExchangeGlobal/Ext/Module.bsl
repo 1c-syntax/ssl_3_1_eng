@@ -1,14 +1,16 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Private
 
-// Checks whether the database configuration needs to be updated on the subordinate node.
+// Checks whether infobase configuration update in the subordinate node is required.
 //
 Procedure CheckSubordinateNodeConfigurationUpdateRequired() Export
 	
@@ -17,7 +19,7 @@ Procedure CheckSubordinateNodeConfigurationUpdateRequired() Export
 	
 EndProcedure
 
-// Checks whether the database configuration in the slave node needs to be updated at startup.
+// Checks whether infobase configuration update in the subordinate node is required. The check is performed on application startup.
 //
 Procedure CheckSubordinateNodeConfigurationUpdateRequiredOnStart() Export
 	
@@ -37,7 +39,7 @@ Procedure CheckUpdateRequired(DIBNodeConfigurationUpdateRequired)
 		Notify("DataExchangeCompleted");
 	EndIf;
 	
-	AttachIdleHandler("CheckSubordinateNodeConfigurationUpdateRequired", 60 * 60, True); // 
+	AttachIdleHandler("CheckSubordinateNodeConfigurationUpdateRequired", 60 * 60, True); // Once an hour.
 	
 EndProcedure
 

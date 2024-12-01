@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -55,7 +57,7 @@ Procedure UserWorkingDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 		Return;
 	EndIf;
 	
-	// 
+	// Selecting a new path to a working directory.
 	DirectoryName = UserWorkingDirectory;
 	Title = NStr("en = 'Select working directory';");
 	If Not FilesOperationsInternalClient.ChoosePathToWorkingDirectory(DirectoryName, Title, False) Then
@@ -151,7 +153,7 @@ Procedure ClearLocalFileCacheCompletionAfterAnswerQuestionContinue(Response, Exe
 	EndIf;
 	
 	Handler = New NotifyDescription("CleanUpLocalFileCacheCompletion", ThisObject);
-	// 
+	// ClearAll = True.
 	FilesOperationsInternalClient.CleanUpWorkingDirectory(Handler, WorkingDirectoryFilesSize, 0, True);
 	
 EndProcedure
@@ -173,7 +175,7 @@ Procedure FillParametersAtServer()
 	MaxSize1 = Common.CommonSettingsStorageLoad(
 		"LocalFileCache", "LocalFileCacheMaxSize");
 	If MaxSize1 = Undefined Then
-		MaxSize1 = 100*1024*1024; // 
+		MaxSize1 = 100*1024*1024; // 100 MB
 		Common.CommonSettingsStorageSave(
 			"LocalFileCache", "LocalFileCacheMaxSize", MaxSize1);
 	EndIf;

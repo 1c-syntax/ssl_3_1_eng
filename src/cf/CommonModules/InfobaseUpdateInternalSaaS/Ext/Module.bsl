@@ -1,22 +1,24 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Internal
 
-// Generates and saves a plan for updating data areas in the is.
+// Generates a data areas update plan and saves it to the infobase.
 //
 // Parameters:
-//  LibraryID  - String -  the configuration name or ID of the library,
-//  AllHandlers    - ValueTable -  list of all update handlers,
-//  MandatorySeparatedHandlers    - ValueTable -  list of required
-//    update handlers with General Data = False,
-//  SourceIBVersion - String -  original version of the information base,
-//  IBMetadataVersion - String -  configuration version (from metadata).
+//  LibraryID  - String - a configuration name or library ID,
+//  AllHandlers    - ValueTable - list of all update handlers,
+//  MandatorySeparatedHandlers    - ValueTable - List of required update handlers with SharedData = False.
+//    
+//  SourceIBVersion - String - an original infobase version,
+//  IBMetadataVersion - String - configuration version (from metadata).
 //
 Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers, 
 	MandatorySeparatedHandlers, SourceIBVersion, IBMetadataVersion) Export
@@ -26,7 +28,7 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 		
 		UpdateHandlers = AllHandlers.CopyColumns(); // ValueTable
 		For Each HandlerRow In AllHandlers Do
-			// 
+			// When generating area update plan, mandatory (*) handlers are not added by default.
 			If HandlerRow.Version = "*" Then
 				Continue;
 			EndIf;
@@ -97,11 +99,11 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 		UpdatePlanEmpty = DataAreaUpdatePlan.Rows.Count() = 0;
 		
 		If LibraryID = Metadata.Name Then
-			// 
-			// 
+			// The configuration version can be set only if all the libraries are up-to-date.
+			// Otherwise, the area update mechanism doesn't start and the libraries won't be updated.
 			UpdatePlanEmpty = False;
 			
-			// 
+			// Checking whether each plan is empty.
 			Libraries = New ValueTable;
 			Libraries.Columns.Add("Name", Metadata.InformationRegisters.SubsystemsVersions.Dimensions.SubsystemName.Type);
 			Libraries.Columns.Add("Version", Metadata.InformationRegisters.SubsystemsVersions.Resources.Version.Type);
@@ -110,7 +112,7 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 			For Each SubsystemName In SubsystemsDetails.Order Do
 				SubsystemDetails = SubsystemsDetails.ByNames.Get(SubsystemName);
 				If Not ValueIsFilled(SubsystemDetails.MainServerModule) Then
-					// 
+					// The library has no module, therefore no update handlers.
 					Continue;
 				EndIf;
 				
@@ -225,15 +227,15 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 		
 		If UpdatePlanEmpty Then
 			
-			// 
-			// 
+			// The update plan has no separated real-time or exclusive handlers.
+			// Search for deferred separated handlers.
 			DeferredFilterParameters = InfobaseUpdateInternal.HandlerFIlteringParameters();
 			DeferredFilterParameters.GetSeparated = True;
 			DeferredFilterParameters.UpdateMode = "Deferred";
 			
 			DeferredHandlers = InfobaseUpdateInternal.UpdateInIntervalHandlers(UpdateHandlers, SourceIBVersion, IBMetadataVersion, DeferredFilterParameters);
 			
-			// 
+			// No separated deferred handlers, install a new version of the library.
 			If DeferredHandlers.Rows.Count() = 0 Then
 			
 				SetAllDataAreasVersion(LibraryID, SourceIBVersion, IBMetadataVersion);
@@ -246,8 +248,8 @@ Procedure GenerateDataAreaUpdatePlan(LibraryID, AllHandlers,
 	
 EndProcedure
 
-// Blocks an entry in the version information register of the data Subsystemblast that corresponds to the current data area,
-// and returns the key of this entry.
+// Blocks the record in the DataAreasSubsystemsVersions information register that corresponds to the current data area,
+// and returns the record key.
 //
 // Returns:
 //   InformationRegisterRecordKey.DataAreasSubsystemsVersions
@@ -277,7 +279,7 @@ Function LockDataAreaVersions() Export
 	
 EndFunction
 
-// Unlocks an entry in the version information register of the systemblast Data.
+// Unlocks the record in the DataAreasSubsystemsVersions information register.
 //
 // Parameters: 
 //   RecordKey - InformationRegisterRecordKey.DataAreasSubsystemsVersions
@@ -345,7 +347,7 @@ Procedure RegisterNewSubsystem(SubsystemName, VersionNumber, StandardProcessing)
 	ConfigurationSubsystems = Query.Execute().Unload().UnloadColumn("SubsystemName");
 	
 	If ConfigurationSubsystems.Count() > 0 Then
-		// 
+		// This is not the first launch of a program
 		If ConfigurationSubsystems.Find(SubsystemName) = Undefined Then
 			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			DataArea = ModuleSaaSOperations.SessionSeparatorValue();
@@ -366,13 +368,13 @@ Procedure RegisterNewSubsystem(SubsystemName, VersionNumber, StandardProcessing)
 	
 EndProcedure
 
-// Returns a table with the versions of the configuration subsystems.
-// For batch upload/download information about the versions of the subsystems.
+// Returns a table of subsystem versions used in the configuration.
+// The procedure is used for batch import and export of information about subsystem versions.
 //
 // Returns:
 //   ValueTable:
-//     * SubsystemName - String -  name of the subsystem.
-//     * Version        - String -  the version of the subsystem.
+//     * SubsystemName - String - a subsystem name.
+//     * Version        - String - a subsystem version.
 //
 Function SubsystemsVersions(StandardProcessing) Export
 	
@@ -415,7 +417,7 @@ Procedure FillTagThisMainConfig(PreviousConfigurationName) Export
 	Selection = Query.Execute().Select();
 	
 	While Selection.Next() Do
-		// 
+		// Flag IsMainConfiguration is cleared for the previous configuration.
 		RecordManager = InformationRegisters.DataAreasSubsystemsVersions.CreateRecordManager();
 		RecordManager.SubsystemName = Selection.SubsystemName;
 		RecordManager.DataAreaAuxiliaryData = Selection.DataAreaAuxiliaryData;
@@ -559,7 +561,7 @@ Procedure WhenDeterminingUpdateModeDataRegion(StandardProcessing, Result) Export
 		Query.SetParameter("BaseConfigurationName", Metadata.Name);
 		Query.SetParameter("DataAreaAuxiliaryData", ModuleSaaSOperations.SessionSeparatorValue());
 		
-		// 
+		// Making decision based on the IsMainConfiguration attribute filled earlier
 		If Query.Execute().IsEmpty() Then
 			Result = "MigrationFromAnotherApplication";
 		Else
@@ -687,7 +689,7 @@ Procedure OnSendSubsystemVersions(DataElement, ItemSend, Val InitialImageCreatin
 	If ItemSend = DataItemSend.Delete
 		Or ItemSend = DataItemSend.Ignore Then
 		
-		// 
+		// No overriding for a standard data processor.
 		
 	ElsIf TypeOf(DataElement) = Type("InformationRegisterRecordSet.SubsystemsVersions") Then
 		
@@ -718,7 +720,7 @@ Procedure OnSendSubsystemVersions(DataElement, ItemSend, Val InitialImageCreatin
 			
 		Else
 			
-			// 
+			// Exporting the register during the initial image creation only.
 			ItemSend = DataItemSend.Ignore;
 			
 		EndIf;
@@ -769,14 +771,14 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 	If Not ExclusiveMode() Then
 		MetadataObject = Metadata.ScheduledJobs.Find("DataAreasUpdate");
 		Job = ScheduledJobsServer.GetScheduledJob(MetadataObject);
-		// 
+		// ACC:280 Exception handling is not required.
 		Try
 			BackgroundJobs.Execute(Job.Metadata.MethodName, , Job.Key, Job.Description);
 		Except
-			// 
+			// Meaning that the job is running. Do not handle exceptions.
 			// 
 		EndTry;
-		// 
+		// ACC:280-on
 	EndIf;
 	
 EndProcedure
@@ -794,12 +796,12 @@ Procedure AfterImportData(Container) Export
 	
 EndProcedure
 
-// Called before uploading data.
+// Called before data export.
 //
 // Parameters:
-//  Container - DataProcessorObject.ExportImportDataContainerManager -  
-//    the container manager used in the data upload process. For more information, see the comment
-//    on the software interface for processing the unloading of the data of the Manager container.
+//  Container - DataProcessorObject.ExportImportDataContainerManager - a container
+//    manager used for data export. For more information, see the comment
+//    to ExportImportDataContainerManager handler interface.
 //
 Procedure BeforeExportData(Container) Export
 	
@@ -822,12 +824,12 @@ Procedure BeforeExportData(Container) Export
 	
 EndProcedure
 
-// Called before loading data.
+// Called before data import.
 //
 // Parameters:
-//  Container - DataProcessorObject.ExportImportDataContainerManager -  
-//    the container manager used in the data loading process. For more information, see the comment
-//    on the software interface for processing the unloading of the data of the Manager container.
+//  Container - DataProcessorObject.ExportImportDataContainerManager - Container manager used for data import.
+//    For details, see comments to the API of ExportImportDataContainerManager.
+//    
 //
 Procedure BeforeImportData(Container) Export
 	
@@ -865,7 +867,7 @@ Procedure OnGetUpdatePriority(Priority) Export
 	Priority = Constants.DataAreasUpdatePriority.Get();
 EndProcedure
 
-// 
+// Intended to be used on form "ApplicationUpdateResult"
 //
 Function AreasUpdateProgressReport() Export
 	
@@ -891,10 +893,10 @@ EndFunction
 
 #Region DataAreasUpdate
 
-// Returns the key of the entry to the register information Orsiitaliani.
+// Returns the record key for DataAreasSubsystemsVersions information register.
 //
 // Returns: 
-//   InformationRegisterRecordKeyInformationRegisterName - 
+//   InformationRegisterRecordKeyInformationRegisterName - the DataAreasSubsystemsVersions information register record key.
 //
 Function SubsystemVersionsRecordKey()
 	
@@ -917,8 +919,8 @@ EndFunction
 
 
 // Selects all data areas with outdated versions
-// and, if necessary, creates background tasks for updating
-// the version in them.
+// and generates background jobs for
+// updating when necessary.
 //
 Procedure ScheduleDataAreaUpdate()
 	
@@ -939,7 +941,7 @@ Procedure ScheduleDataAreaUpdate()
 	
 	SharedDataVersion = InfobaseUpdateInternal.IBVersion(Metadata.Name, True);
 	If InfobaseUpdateInternal.UpdateRequired(MetadataVersion, SharedDataVersion) Then
-		// 
+		// Shared data is not updated. There's no point in planning the area update.
 		// 
 		Return;
 	EndIf;
@@ -965,7 +967,7 @@ Procedure ScheduleDataAreaUpdate()
 	Query.SetParameter("SubsystemName", Metadata.Name);
 	Query.SetParameter("Version", MetadataVersion);
 	Result = ExecuteQueryOutsideTransaction(Query);
-	If Result.IsEmpty() Then // 
+	If Result.IsEmpty() Then // Preliminary reading, perhaps with dirty read parts.
 		Return;
 	EndIf;
 	
@@ -1018,7 +1020,7 @@ Procedure ScheduleDataAreaUpdate()
 		BeginTransaction();
 		Try
 			Try
-				LockDataForEdit(RecordKey); // 
+				LockDataForEdit(RecordKey); // The lock will be removed after the transaction is completed.
 			Except
 				LockingError = True;
 				Raise;
@@ -1045,7 +1047,7 @@ Procedure ScheduleDataAreaUpdate()
 				Or AreaStatus <> Enums["DataAreaStatuses"].Used
 				Or (AreaVersion <> Undefined And AreaVersion = MetadataVersion) Then
 				
-				// 
+				// Records do not match the original selection.
 				CommitTransaction();
 				Continue;
 			EndIf;
@@ -1056,7 +1058,7 @@ Procedure ScheduleDataAreaUpdate()
 			FilterJobs.Insert("DataArea", Selection.DataArea);
 			Jobs = ModuleJobsQueue.GetJobs(FilterJobs);
 			If Jobs.Count() > 0 Then
-				// 
+				// The area update job already exists.
 				CommitTransaction();
 				Continue;
 			EndIf;
@@ -1064,14 +1066,14 @@ Procedure ScheduleDataAreaUpdate()
 			HasExtensionsChangingStructure = False;
 			JobStartParameters = New Array;
 			
-			// 
+			// ACC:287-off CTL extension method is called.
 			If Common.SubsystemExists("CloudTechnology.ExtensionsSaaS") Then
 				ModuleExtensionsSaaS = Common.CommonModule("ExtensionsSaaS");
 				ExtensionsIDs = ModuleExtensionsSaaS.ActivateDisabledExtensionsInScope(Selection.DataArea,
 					HasExtensionsChangingStructure);
 				JobStartParameters.Add(ExtensionsIDs);
 			EndIf;
-			// 
+			// ACC:287-on
 			
 			JobParameters = New Structure;
 			JobParameters.Insert("MethodName"    , "InfobaseUpdateInternalSaaS.UpdateCurrentDataArea");
@@ -1106,9 +1108,9 @@ Procedure ScheduleDataAreaUpdate()
 	
 EndProcedure
 
-// Updates the version of the information database in the current data area
-// and removes the session lock in the area, if it was installed
-// earlier.
+// Performs infobase version update in the current data area
+// and removes session locks in the area if they were
+// previously set.
 //
 Procedure UpdateCurrentDataArea(ActivatedExtensions = Undefined) Export
 	
@@ -1144,9 +1146,9 @@ Procedure UpdateCurrentDataArea(ActivatedExtensions = Undefined) Export
 	
 EndProcedure
 
-// Handler for the routine task of updating the data in the Region.
-// Selects all data areas with out-of-date versions
-// and, if necessary, creates background update tasks for Them.
+// DataAreasUpdate scheduled job handler.
+// Selects all data areas with outdated versions
+// and generates background IBUpdate jobs for them when necessary.
 //
 Procedure DataAreasUpdate() Export
 	
@@ -1154,7 +1156,7 @@ Procedure DataAreasUpdate() Export
 		Return;
 	EndIf;
 	
-	// 
+	// Do not call "OnStartExecuteScheduledJob" as all required actions are performed ad-hoc.
 	// 
 	
 	ScheduleDataAreaUpdate();
@@ -1215,7 +1217,7 @@ Procedure SetAllDataAreasVersion(LibraryID, SourceIBVersion, IBMetadataVersion)
 		RecordSet.Filter.SubsystemName.Set(LibraryID, True);
 		RecordSet.Read();
 		
-		// 
+		// Change existing records.
 		For Each Record In RecordSet Do
 			If Record.Version = SourceIBVersion Then
 				Record.Version = IBMetadataVersion;
@@ -1223,7 +1225,7 @@ Procedure SetAllDataAreasVersion(LibraryID, SourceIBVersion, IBMetadataVersion)
 			EndIf;
 		EndDo;
 		
-		// 
+		// Add missing records.
 		Query = New Query;
 		Query.Text =
 		"SELECT
@@ -1291,7 +1293,7 @@ Function DataAreaLockResult(RecordKey, AttemptNumber)
 		If AttemptNumber = 1 Then
 			IdleTimeEnd = CurrentSessionDate() + 20;
 			While CurrentSessionDate() < IdleTimeEnd Do
-				// 
+				// Wait till the lock is released.
 			EndDo;
 			Return "Repeat";
 		EndIf;
@@ -1336,7 +1338,7 @@ Procedure CheckForPendingPendingUpdateHandlers()
 		|	AND NOT UpdateHandlers.HandlerName IN (&AllDeferred)";
 	MissingHandlers = Query.Execute().Unload();
 	
-	// 
+	// The following handlers runs as real-time handlers in the shared mode. Delete such handlers. 
 	For Each MissingHandler In MissingHandlers Do
 		RecordManager = InformationRegisters.UpdateHandlers.CreateRecordManager();
 		RecordManager.HandlerName = MissingHandler.HandlerName;
@@ -1356,9 +1358,9 @@ Function ExecuteQueryOutsideTransaction(Val Query)
 	Result = Undefined;
 	While True Do
 		Try
-			Result = Query.Execute(); // 
-			                                // 
-			                                // 
+			Result = Query.Execute(); // Reading outside a transaction. This might cause the following error:
+			                                // "Could not continue scan with NOLOCK due to data movement"
+			                                // In case of the error, try to read again.
 			Break;
 		Except
 			AttemptsNumber = AttemptsNumber + 1;

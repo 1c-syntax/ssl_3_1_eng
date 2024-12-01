@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -23,7 +25,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ExchangePlanName = StandaloneModeInternal.StandaloneModeExchangePlan();
 	
-	// 	
+	// Getting default values for the exchange plan	
 	NodeFiltersSetting = DataExchangeServer.NodeFiltersSetting(ExchangePlanName, "");
 	
 	Items.DataTransferRestrictionsDetails.Title = DataTransferRestrictionsDetails(ExchangePlanName, NodeFiltersSetting);
@@ -37,7 +39,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Object.StandaloneWorkstationDescription = StandaloneModeInternal.GenerateDefaultStandaloneWorkstationDescription();
 	
-	// 
+	// Setting the current navigation table
 	StandaloneWorkstationCreatingScript();
 	
 	ForceCloseForm = False;
@@ -46,7 +48,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	BigFilesTransferSupported = StandaloneModeInternal.BigFilesTransferSupported();
 	
-	// 
+	// Granting user rights for data synchronization
 	
 	Items.UserRightsSettings.Visible = False;
 	
@@ -58,7 +60,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// 
+	// Thin client tooltip
 	ThinClientSetupGuideAddress = DataExchangeSaaS.ThinClientSetupGuideAddress();
 	If IsBlankString(ThinClientSetupGuideAddress) Then
 		Items.CopyInitialImageToUserComputer.ToolTipRepresentation = ToolTipRepresentation.None;
@@ -71,7 +73,7 @@ Procedure OnOpen(Cancel)
 	
 	Object.WebServiceURL = OnlineApplicationAddress();
 	
-	// 
+	// Selecting the first wizard step
 	NavigationNumber = 1;	
 	SetNavigationNumber(1);
 	
@@ -96,7 +98,7 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
 EndProcedure
 
-// 
+// Idle handlers.
 
 &AtClient
 Procedure TimeConsumingOperationIdleHandler()
@@ -136,7 +138,7 @@ EndProcedure
 &AtClient
 Procedure StandaloneWorkstationSetupInstructionDocumentComplete(Item)
 	
-	// 
+	// Print command visibility.
 	If Not Item.Document.queryCommandSupported("Print") Then
 		Items.StandaloneWorkstationSetupGuidePrintGuide.Visible = False;
 	EndIf;
@@ -147,7 +149,7 @@ EndProcedure
 
 #Region FormCommandsEventHandlers
 
-// 
+// Built-in part.
 
 &AtClient
 Procedure NextCommand(Command)
@@ -179,7 +181,7 @@ Procedure CancelCommand(Command)
 	
 EndProcedure
 
-// 
+// Overridable part.
 
 &AtClient
 Procedure SetUpDataTransferRestrictions(Command)
@@ -373,7 +375,7 @@ Function ExtensionsThatChangeDataStructure()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Built-in part.
 
 &AtClient
 Procedure ChangeNavigationNumber(Iterator_SSLy)
@@ -404,10 +406,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// 
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// 
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -419,7 +421,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 	Items.PanelMain.CurrentPage  = Items[NavigationRowCurrent.MainPageName];
 	Items.NavigationPanel.CurrentPage = Items[NavigationRowCurrent.NavigationPageName];
 	
-	// 
+	// Set the default button.
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "NextCommand");
 	
 	If NextButton <> Undefined Then
@@ -449,7 +451,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	
-	// 
+	// Navigation event handlers.
 	If IsMoveNext Then
 		
 		NavigationRows = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber - 1));
@@ -460,7 +462,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		
 		NavigationRow = NavigationRows[0];
 		
-		// 
+		// OnNavigationToNextPage handler.
 		If Not IsBlankString(NavigationRow.OnNavigationToNextPageHandlerName)
 			And Not NavigationRow.TimeConsumingOperation Then
 			
@@ -491,7 +493,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		
 		NavigationRow = NavigationRows[0];
 		
-		// 
+		// OnNavigationToPreviousPage handler.
 		If Not IsBlankString(NavigationRow.OnSwitchToPreviousPageHandlerName)
 			And Not NavigationRow.TimeConsumingOperation Then
 			
@@ -528,7 +530,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		Return;
 	EndIf;
 	
-	// 
+	// OnOpen handler
 	If Not IsBlankString(NavigationRowCurrent.OnOpenHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, SkipPage, IsMoveNext)";
@@ -567,7 +569,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
 	
-	// 
+	// TimeConsumingOperationHandler handler.
 	If Not IsBlankString(NavigationRowCurrent.TimeConsumingOperationHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, GoToNext)";
@@ -682,7 +684,7 @@ Procedure CancelStandaloneWorkstationGeneration(Result, AdditionalParameters) Ex
 EndProcedure
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Overridable part - internal procedures and functions
 
 &AtServer
 Procedure CreateStandaloneWorkstationInitialImageAtServer(Cancel)
@@ -770,7 +772,7 @@ EndProcedure
 &AtClient
 Procedure GoToTheErrorPage()
 	
-	// 
+	// Assign NavigationNumber with a value to skip handlers that handle the previous steps.
 	NavigationNumber = NavigationTable.Count();
 	SetNavigationNumber(NavigationTable.Count());
 	
@@ -821,7 +823,7 @@ EndFunction
 Function SynchronizationUsers()
 	
 	Result = New ValueTable;
-	Result.Columns.Add("User"); // 
+	Result.Columns.Add("User"); // Type: CatalogRef.Users
 	Result.Columns.Add("DataSynchronizationPermitted", New TypeDescription("Boolean"));
 	Result.Columns.Add("PermitDataSynchronization", New TypeDescription("Boolean"));
 	
@@ -867,7 +869,7 @@ Function SynchronizationUsers()
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Overridable part - navigation event handlers
 
 &AtClient
 Function Attachable_ExportSettingsOnGoNext(Cancel)
@@ -962,7 +964,7 @@ Function Attachable_PresenceOfExtensionsThatChangeDataStructure_WhenOpened(Cance
 EndFunction
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Overridable part - wizard navigation initialization
 
 &AtServer
 Procedure StandaloneWorkstationCreatingScript()

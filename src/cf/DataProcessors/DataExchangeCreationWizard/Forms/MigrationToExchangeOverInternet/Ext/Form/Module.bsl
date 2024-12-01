@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -13,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Parameters.Property("ExchangeNode", ExchangeNode);
 	
-	// 
+	// Get the current stage
 	Query = New Query;
 	Query.Text = 
 		"SELECT
@@ -42,10 +44,10 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	// 
+	// Set the current navigation table.
 	TableOfTransitionsByScenario();
 	
-	// 
+	// Select the first wizard step.
 	SetNavigationNumber(1);
 	
 	PopulateTableOfTransitionSteps();
@@ -142,10 +144,10 @@ EndProcedure
 &AtClient
 Procedure NavigationNumberOnChange(Val IsMoveNext)
 	
-	// 
+	// Run navigation event handlers.
 	ExecuteNavigationEventHandlers(IsMoveNext);
 	
-	// 
+	// Set up page view.
 	NavigationRowsCurrent = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber));
 	
 	If NavigationRowsCurrent.Count() = 0 Then
@@ -163,7 +165,7 @@ Procedure NavigationNumberOnChange(Val IsMoveNext)
 		
 	EndIf;
 	
-	// 
+	// Set the default button.
 	NextButton = GetFormButtonByCommandName(Items.NavigationPanel.CurrentPage, "NextCommand");
 	
 	If NextButton <> Undefined Then
@@ -193,7 +195,7 @@ EndProcedure
 &AtClient
 Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 	
-	// 
+	// Navigation event handlers.
 	If IsMoveNext Then
 		
 		NavigationRows = NavigationTable.FindRows(New Structure("NavigationNumber", NavigationNumber - 1));
@@ -202,7 +204,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 			
 			NavigationRow = NavigationRows[0];
 			
-			// 
+			// OnNavigationToNextPage handler.
 			If Not IsBlankString(NavigationRow.OnNavigationToNextPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -232,7 +234,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 			
 			NavigationRow = NavigationRows[0];
 			
-			// 
+			// OnNavigationToPreviousPage handler.
 			If Not IsBlankString(NavigationRow.OnSwitchToPreviousPageHandlerName)
 				And Not NavigationRow.TimeConsumingOperation Then
 				
@@ -270,7 +272,7 @@ Procedure ExecuteNavigationEventHandlers(Val IsMoveNext)
 		Return;
 	EndIf;
 	
-	// 
+	// OnOpen handler
 	If Not IsBlankString(NavigationRowCurrent.OnOpenHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, SkipPage, IsMoveNext)";
@@ -317,7 +319,7 @@ Procedure ExecuteTimeConsumingOperationHandler()
 	
 	NavigationRowCurrent = NavigationRowsCurrent[0];
 	
-	// 
+	// TimeConsumingOperationProcessing handler.
 	If Not IsBlankString(NavigationRowCurrent.TimeConsumingOperationHandlerName) Then
 		
 		ProcedureName = "[HandlerName](Cancel, GoToNext)";
@@ -512,7 +514,7 @@ Procedure OnCompleteGettingApplicationsListAtServer(GoToNext)
 			DataAreaRow = XMLString(ApplicationRow.DataArea);
 			CorrespondentEndpoint = ApplicationRow.CorrespondentEndpoint;
 			
-			// 
+			// Write the stage
 			RecordStructure = New Structure;
 			RecordStructure.Insert("InfobaseNode"					, ExchangeNode);
 			RecordStructure.Insert("MigrationToWebService_PeerEndpoint"	, CorrespondentEndpoint);
@@ -679,7 +681,7 @@ EndFunction
 &AtClient
 Procedure NodePeerInfobaseSetupCompletion(Result, AdditionalParameters) Export
 	
-	If Result = Undefined Then  // 
+	If Result = Undefined Then  // Canceled by user.
 		Return;
 	EndIf;
 		
@@ -723,7 +725,7 @@ EndFunction
 &AtClient
 Procedure NodeSetupCompletion(Result, AdditionalParameters) Export
 	
-	If Result = Undefined Then  // 
+	If Result = Undefined Then  // Canceled by user.
 		Return;
 	EndIf;
 		
@@ -734,7 +736,7 @@ Procedure NodeSetupCompletion(Result, AdditionalParameters) Export
 		CurrentStep = CurrentStep + 1;
 		RefreshStepsDisplay();
 		ClearUpTransitionStepsInRegister();
-		AttachIdleHandler("AfterAllStepsCompleted",1,True); // 
+		AttachIdleHandler("AfterAllStepsCompleted",1,True); // Required for displaying the last stage.
 	EndIf;
 	
 EndProcedure

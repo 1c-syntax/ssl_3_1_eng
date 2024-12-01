@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Variables
 
@@ -135,7 +137,7 @@ Procedure FormClosingCompletion(Result, AdditionalParameters) Export
 		Close(Address);
 		
 	ElsIf Result = DialogReturnCode.Cancel Then
-		// 
+		// No action required.
 	Else
 		Modified = False;
 		Close(Address);
@@ -785,12 +787,12 @@ Function MainMetadataObjectName(ProcedureName, SingularForm, PluralForm)
 		Try
 			NameParts[0] = SingularForm[NameParts[0]];
 		Except
-			#If Client Then
+#If Client Then
 				DefaultLanguageCode = CommonClient.DefaultLanguageCode();
-			#EndIf
-			#If Server Then
+#EndIf
+#If Server Then
 				DefaultLanguageCode = Common.DefaultLanguageCode();
-			#EndIf
+#EndIf
 			MessageText = NStr("en = 'Cannot recognize the ""%1"" metadata object kind.
 				|The object kind must be plural.';", DefaultLanguageCode);
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, NameParts[0]);
@@ -1334,10 +1336,10 @@ Function MetadataObjectAttributes1(ObjectName)
 		
 		For Each Attribute In Collection.Value Do
 			FullAttributeName = FullObjectName + "." + EdH[Collection.Key];
-			// 
+			// Loop through the attribute types.
 			For Each Type In Attribute.Type.Types() Do
-				// 
-				If Common.IsReference(Type) Then // 
+				// If at least one reference type is found.
+				If Common.IsReference(Type) Then // Add it to the list.
 					FullAttributeName = FullAttributeName + "." + Attribute.Name;
 					Result.Add(FullAttributeName, Attribute.Name);
 					Break;

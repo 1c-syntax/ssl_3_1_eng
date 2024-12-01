@@ -1,21 +1,23 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Returns a description of the columns in the table part or table of values.
+// Returns description of columns of the tabular section or value table.
 //
 // Parameters:
-//  Table - ValueTable -  Descriptiontablecarticle with columns.
-//          - FormDataCollection - 
-//          - String - 
-//              
-//  Columns - String -  a comma-separated list of extracted columns. For example: "Number, Product, Quantity".
+//  Table - ValueTable - TabularSectionDetails with columns.
+//          - FormDataCollection - Table of the form.
+//          - String - To receive a list of the table columns, specify the table's full name (String) from metadata.
+//              For example "Documents.ProformaInvoice.TabularSections.Goods".
+//  Columns - String - a list of comma-separated extracted columns. For example: "Number, Goods, Quantity".
 // 
 // Returns:
 //   Array of See ImportDataFromFileClientServer.TemplateColumnDetails.
@@ -90,7 +92,7 @@ Function GenerateColumnDetails(Table, Columns = Undefined) Export
 	Return ColumnsList;
 EndFunction
 
-// Settings for loading new and existing items.
+// Import settings of new and existing items.
 // 
 // Returns:
 //  Structure: 
@@ -106,22 +108,22 @@ Function DataLoadingSettings() Export
 	
 EndFunction
 
-// Adds service columns to the loaded data table.
-// The list of table columns is dynamic and is formed based on the layout of the loaded data.
-// The return value describes only the service columns that are always present.
+// Adds internal columns to the table of imported data.
+// The dynamic list of the table columns is generated based on the imported data template.
+// The return value describes only the internal column that is always present.
 // 
 // Parameters:
 //  DataToImport - ValueTable
-//  MappingObjectTypeDetails - TypeDescription -    description of the mapping object type.
-//  ColumnHeaderOfTheMappingObject - String -  the column header of the mapping object.
+//  MappingObjectTypeDetails - TypeDescription -  details of a mapping object type.
+//  ColumnHeaderOfTheMappingObject - String - Mapping object column header.
 // 
 // Returns:
 //  ValueTable:
-//       * MappedObject         - CatalogRef -  a reference to the mapped object.
-//       * RowMappingResult - String       -  download status, possible options: Created, Updated, Skipped.
-//       * ErrorDescription               - String       -  decryption of the data loading error.
-//       * Id                - Number        -  unique line number
-//       * ConflictsList       - ValueList -a list of ambiguities that occurred when loading data.
+//       * MappedObject         - CatalogRef - Reference to the mapped object.
+//       * RowMappingResult - String       - an import status, possible values: Created, Updated, and Skipped.
+//       * ErrorDescription               - String       - data import error details.
+//       * Id                - Number        - Unique row number.
+//       * ConflictsList       - ValueList - a list of conflicts that occurred upon data import.
 //
 Function DescriptionOfTheUploadedDataForReferenceBooks(DataToImport, MappingObjectTypeDetails, ColumnHeaderOfTheMappingObject) Export
 		
@@ -135,12 +137,12 @@ Function DescriptionOfTheUploadedDataForReferenceBooks(DataToImport, MappingObje
 	
 EndFunction
 
-// Create a table with a list of ambiguities for which there are several suitable data variants in the IB.
+// To create a table with a list of conflicts that have several relevant data options in the infobase.
 // 
 // Returns:
 //  ValueTable:
-//     * Column       - String -  name of the column where the ambiguity was detected;
-//     * Id - Number  -  ID of the string where the ambiguity was detected.
+//     * Column       - String - Column name where the conflict was found.
+//     * Id - Number  - ID of the row where the conflict was found.
 //
 Function ANewListOfAmbiguities() Export
 	
@@ -151,16 +153,16 @@ Function ANewListOfAmbiguities() Export
 	Return ConflictsList;
 EndFunction
 
-// 
-// 
-// 
+// Returns a table from the temporary storage to map imported and app data.
+// The dynamic list of table columns is generated based on the imported data template.
+// The return value describes only the internal column that is always present.
 // 
 // Parameters:
-//  ResultAddress - String -  address in temporary storage 
+//  ResultAddress - String - address in temporary storage 
 // 
 // Returns:
 //  ValueTable:
-//     * MappedObject - CatalogRef -  a reference to the mapped object. Filled in inside the procedure.
+//     * MappedObject - CatalogRef - Reference to the mapped object. It is populated inside the procedure.
 //
 Function MappingTable(ResultAddress) Export
 	
@@ -169,12 +171,12 @@ Function MappingTable(ResultAddress) Export
 	
 EndFunction
 
-// 
-// 
-// 
+// Saves the values of additional attributes and properties from a data table row to the owner.
+// The function automatically finds the columns containing the required values.
+// The function is called from the LoadFromFile procedure upon an applicable data import in the object manager module.
 //
 // Parameters:
-//  ObjectReference - AnyRef - 
+//  ObjectReference - AnyRef - Reference to the property owner where the data is imported to.
 //  TableRow - ValueTableRow of See ImportDataFromFile.DescriptionOfTheUploadedDataForReferenceBooks
 //
 Procedure WritePropertiesOfObject(ObjectReference, TableRow) Export
@@ -200,23 +202,23 @@ Procedure AddStatisticalInformation(OperationName, Value = 1, Comment = "") Expo
 	
 EndProcedure
 
-// Provides all required information about the procedure for loading data from a file.
+// Reports the details required for importing data from a file.
 //
 // Returns:
 //  Structure:
-//    * Title - String -  a view in the list of loading options and in the window title.
+//    * Title - String - a presentation in the list of import options and in the window title.
 //    * ColumnDataType - Map of KeyAndValue:
-//        ** Key - String -  the name of the table column.
-//        ** Value - TypeDescription -  description of the column data type.
-//    * DataStructureTemplateName - String -  the name of the layout with the data structure (optional
-//                                    parameter, the default value is "File Data upload").
-//    * RequiredTemplateColumns - Array of String -  contains a list of required fields to fill in.
-//    * TitleMappingColumns - String -  representation of the mapping column in the header
-//                                                    of the data mapping table(optional parameter, the
-//                                                    default value is formed - " Reference: < synonym of reference>").
-//    * FullObjectName - String -  the full name of the object, as in the metadata. For example, a Reference book.Partners.
-//    * ObjectPresentation - String -  representation of an object in a data mapping table. For example, "Client".
-//    * ImportType - String -  data loading options (service).
+//        ** Key - String - a table column name.
+//        ** Value - TypeDescription - description of the column data type.
+//    * DataStructureTemplateName - String - a template name with data structure (optional
+//                                    parameter, default value is ImportDataFromFile).
+//    * RequiredTemplateColumns - Array of String - contains the list of required fields.
+//    * TitleMappingColumns - String - Mapping column presentation in the data mapping
+//                                                    table header (an optional parameter, its default
+//                                                    value is formed as follows: "Catalog: <catalog synonym>").
+//    * FullObjectName - String - a full object name as in metadata. For example, Catalog.Partners.
+//    * ObjectPresentation - String - the object presentation in the data mapping table. For example, "Client".
+//    * ImportType - String - data import options (internal).
 //
 Function ImportFromFileParameters(MappingObjectName) Export
 	

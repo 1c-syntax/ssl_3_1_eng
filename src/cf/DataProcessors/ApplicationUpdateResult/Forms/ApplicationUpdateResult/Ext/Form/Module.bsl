@@ -1,10 +1,12 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region FormEventHandlers
 
@@ -27,7 +29,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
-	// 
+	// Read constant values.
 	GetInfobaseUpdateThreadsCount();
 	UpdateInfo = InfobaseUpdateInternal.InfobaseUpdateInfo();
 	UpdatePriority = ?(UpdateInfo.DeferredUpdateManagement.Property("ForceUpdate"), "DataProcessing", "UserWork");
@@ -322,7 +324,7 @@ Procedure BeginFindingFilesCompletion(FilesArray, AdditionalParameters) Export
 		LogFile = FilesArray[0];
 		FileSystemClient.OpenFile(LogFile.FullName);
 	Else
-		// 
+		// If there is no log, open temporary directory of the update script.
 		FileSystemClient.OpenExplorer(ScriptDirectory);
 	EndIf;
 EndProcedure
@@ -491,8 +493,8 @@ EndProcedure
 &AtServer
 Procedure ResetHandlersStatus(Status)
 	
-	// 
-	// 
+	// ACC:1327-off - There's no concurrent access to the register.
+	// ACC:1328-off - There's no concurrent access to the register.
 	Query = New Query;
 	Query.SetParameter("Status", Status);
 	Query.Text =
@@ -517,8 +519,8 @@ Procedure ResetHandlersStatus(Status)
 		
 		RecordSet.Write();
 	EndDo;
-	// 
-	// 
+	// ACC:1327-on
+	// ACC:1328-on
 	
 EndProcedure
 
@@ -586,7 +588,7 @@ EndProcedure
 &AtServer
 Procedure UpdateInformationOnIssues()
 	
-	// 
+	// Display information about the handler issue.
 	NumberofProblemsInHandlers = ProblemSituationsInUpdateHandlers();
 	If NumberofProblemsInHandlers <> 0 And Not UpdateCompletedSuccessful Then
 		TextIndicator = NStr("en = 'Handler issues found';");
@@ -594,10 +596,10 @@ Procedure UpdateInformationOnIssues()
 		TextIndicator = NStr("en = 'No handler issues found';");
 	EndIf;
 	
-	Items.ProblemSituations.Title = TextIndicator; // 
-	Items.ProblemSituationsCompleted.Title = TextIndicator; // 
+	Items.ProblemSituations.Title = TextIndicator; // On the update progress page.
+	Items.ProblemSituationsCompleted.Title = TextIndicator; // On the completed handler page.
 	
-	// 
+	// Display information about the data issue.
 	ShouldShowDataIssues = InfobaseUpdateInternal.ShouldShowDataIssues();
 	If ShouldShowDataIssues Then
 		NumberofProblemswithData = InfobaseUpdateInternal.NumberofProblemswithData();
@@ -613,10 +615,10 @@ Procedure UpdateInformationOnIssues()
 		TextIndicator = NStr("en = 'No data issues found';");
 	EndIf;
 	
-	Items.Problemswithdata.Title = TextIndicator; // 
-	Items.IssuesDataCompleted.Title = TextIndicator; // 
+	Items.Problemswithdata.Title = TextIndicator; // On the update progress page.
+	Items.IssuesDataCompleted.Title = TextIndicator; // On the completed handler page.
 	
-	// 
+	// Appearance of data issue elements.
 	HyperlinkProblemsWithHandlers = False;
 	HyperlinkProblemsWithData       = False;
 	ImageProblemsWithHandlers = PictureLib.AppearanceCheckIcon;
@@ -650,7 +652,7 @@ Procedure UpdateInformationOnIssues()
 	Items.DecorationIndicationProblemsCompleted.Picture         = ImageProblemsWithHandlers;
 	Items.DecorationIndicationDataProblemsCompleted.Picture = ImageProblemsWithData;
 	
-	// 
+	// Display warning about the data processor loop.
 	WarnLooping = False;
 	If UpdatePriority = "DataProcessing"
 		And JobActive
@@ -798,7 +800,7 @@ EndProcedure
 Procedure ProcessUpdateResultAtServer()
 	
 	Items.InstalledPatchesGroup.Visible = False;
-	// 
+	// If it is the first start after a configuration update, storing and resetting status.
 	If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate")
 		And Common.SeparatedDataUsageAvailable() Then
 		PatchInfo = Undefined;
@@ -855,7 +857,7 @@ Procedure ProcessUpdateResultAtClient()
 		ModuleConfigurationUpdateClient.ProcessUpdateResult(UpdateResult, ScriptDirectory);
 		If UpdateResult = False Then
 			Items.UpdateResultsGroup.CurrentPage = Items.UpdateErrorGroup;
-			// 
+			// If the configuration is not updated, the deferred handlers are also not executed.
 			Items.UpdateStatus.Visible = False;
 			Items.WhereToFindThisFormHint.Visible = False;
 		EndIf;
@@ -962,7 +964,7 @@ Procedure CheckPerformDeferredUpdate(UpdateInfo)
 		FoundJobs = BackgroundJobs.GetBackgroundJobs(JobsFilter);
 		
 		For Each BackgroundJob In FoundJobs Do
-			// 
+			// Running background update job is found.
 			If BackgroundJob.State = BackgroundJobState.Active Then
 				JobActive = True;
 				TaskIsRunning = True;
@@ -970,8 +972,8 @@ Procedure CheckPerformDeferredUpdate(UpdateInfo)
 			EndIf;
 			JobActive = False;
 			
-			// 
-			// 
+			// ACC:143-off - Background jobs use the current date.
+			// The background job ran recently.
 			If BackgroundJob.End > CurrentDate() - Job.Schedule.RepeatPeriodInDay * 5 Then
 				TaskIsRunning = True;
 			EndIf;
@@ -980,7 +982,7 @@ Procedure CheckPerformDeferredUpdate(UpdateInfo)
 				ExecutionRequired = Job.Schedule.ExecutionRequired(CurrentDate(), BackgroundJob.Begin, BackgroundJob.End);
 				TaskIsRunning = Not ExecutionRequired;
 			EndIf;
-			// 
+			// ACC:143-on
 			
 			Break;
 		EndDo;

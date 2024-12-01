@@ -1,23 +1,25 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
-//  
-// 
-// 
-// 
+// Copyright (c) 2024, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
+// https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
 
 #Region Public
 
-// Called when confirming requests to use external resources.
+// Called when requests to use external resources are confirmed.
 // 
 // Parameters:
-//  RequestsIDs - Array -  the IDs of the queries that you want to apply,
-//  OwnerForm - ClientApplicationForm -  a form that should be blocked until permissions are applied,
-//  ClosingNotification1 - NotifyDescription -  which will be called when permissions are granted successfully.
-//  StandardProcessing - Boolean -  flag for performing standard processing for applying permissions to use
-//    external resources (connecting to the server agent via a COM connection or the administration server
-//    requesting cluster connection parameters from the current user). Can be set to False
-//    inside the event handler, in this case, standard treatment is complete, the session will not be executed.
+//  RequestsIDs - Array - Request IDs.
+//  OwnerForm - ClientApplicationForm - Form that must be locked before permissions are applied.
+//  ClosingNotification1 - NotifyDescription - Notification triggered when permissions are granted.
+//  StandardProcessing - Boolean - indicates that the standard processing of usage of permissions to use
+//    external resources is executed (connection to a service agent via COM connection or to an administration server
+//    requesting cluster connection parameters from the user). Can be set to False
+//    in the event handler. In this case, standard session termination processing is not performed.
 //
 Procedure OnConfirmRequestsToUseExternalResources(Val RequestsIDs, OwnerForm, ClosingNotification1, StandardProcessing) Export
 	
